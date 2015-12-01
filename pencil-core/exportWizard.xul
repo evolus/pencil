@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE wizard SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/exportWizard.css" type="text/css"?>
+
+<wizard id="pencilExportWizard"
+        title="&document.export.wizard.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onwizardfinish="return ExportWizard.onFinish();">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/exporter/baseExporter.js"/>
+    <script src="chrome://pencil/content/exportWizard.js"/>
+
+    <wizardpage description="&wizard.select.output.description;" style="min-height:280px;">
+        <label value="&label.output.format.value;" class="Primary"/>
+        <radiogroup id="exporterRadioGroup" oncommand="ExportWizard.onExporterChanged();">
+        </radiogroup>
+        <description id="exporterWarningPane">
+        </description>
+    </wizardpage>
+
+    <wizardpage description="&wizard.select.export.description;" onpageadvanced="return ExportWizard.validatePageSelection();">
+        <label value="&label.pages.to.export.value;" class="Primary"/>
+        <radiogroup id="pageSelectionGroup" oncommand="ExportWizard.onPageSelectionChanged();">
+            <radio label="&radio.all.pages.label;" accesskey="&radio.all.pages.accesskey;" value="all"/>
+            <radio label="&radio.all.pages.except.bgr.label;" accesskey="&radio.all.except.accesskey;" value="all-no-bg"/>
+            <radio label="&radio.only.pages.label;" accesskey="&radio.only.pages.accesskey;" value="only"/>
+        </radiogroup>
+        <vbox flex="1">
+            <listbox id="pageList" flex="1" oncommand="ExportWizard.onPageSelectionChanged();">
+            </listbox>
+            <label value="&label.2.of.3.pages.selected.value;" id="pageSelectionSummaryLabel"/>
+        </vbox>
+    </wizardpage>
+
+    <wizardpage description="&wizard.select.options.description;" onpageadvanced="return ExportWizard.validateOptions();">
+        <label value="&label.template.value;"/>
+        <hbox align="center">
+            <menulist id="templateMenu" flex="1">
+                <menupopup>
+                </menupopup>
+            </menulist>
+            <html:div style="margin-left: 1em;margin-right: 1em;">
+                <html:a onclick="ExportWizard.callManageTemplateDialog(); return false;" href="#" style="color: -moz-hyperlinktext; text-decoration: underline; font-size: .9em;">&label.manage.template.value;</html:a>
+            </html:div>
+        </hbox>
+        <description id="templateDescription">
+            <!-- Exporting all pages into a single HTML document. Printing stylesheet included. -->
+        </description>
+
+        <label value="&label.other.options.value;"/>
+        <checkbox label="&checkbox.copy.links.bgr.label;" accesskey="&checkbox.copy.links.accesskey;" checked="true" id="copyBGLinkCheckbox"/>
+
+        <label value="&label.destination.value;"/>
+        <hbox>
+            <textbox flex="1" id="targetFilePathText" value="/home/dgthanhan/foo"/>
+            <button label="&button.browse.label;" id="browseButton" oncommand="ExportWizard.browseTargetFile();"/>
+        </hbox>
+    </wizardpage>
+
+</wizard>
+

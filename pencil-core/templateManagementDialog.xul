@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+<!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+%pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/templateManagementDialog.css" type="text/css"?>
+
+<dialog id="templateManager"
+        title="&export.template.management.title;"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        style="padding: 10px;"
+        buttons="extra1,extra2,cancel"
+        buttonlabelcancel="&button.cancel.close;"
+        buttonlabelextra1="&button.extra1.uninstall;"
+        buttonlabelextra2="&button.extra2.install.new.template;"
+        height="300"
+        width="500"
+        ondialogextra2="TemplateManagementDialog.installNewTemplate();"
+        ondialogextra1="TemplateManagementDialog.uninstallSelectedTemplates();"
+        ondialogcancel="return true;">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"></script>
+    <script src="chrome://pencil/content/common/util.js"></script>
+    <script src="chrome://pencil/content/common/io.js"></script>
+    <script src="chrome://pencil/content/templateManagementDialog.js"></script>
+
+    <hbox align="center">
+        <label value="&label.templates.for.value;"/>
+        <menulist flex="1" value="HTML" id="templateTypeSelector" oncommand="TemplateManagementDialog.loadTemplatesForSelectedType();">
+            <menupopup>
+                <menuitem label="&menu.exporting.to.html.label;" value="HTML"/>
+                <menuitem label="&menu.exporting.to.print.label;" value="Print"/>
+                <menuitem label="&menu.exporting.to.text.label;" value="ODT"/>
+            </menupopup>
+        </menulist>
+    </hbox>
+    <tree flex="1" onselect="TemplateManagementDialog.handleTemplateSelectionChange();">
+        <treecols>
+            <treecol label="&treecol.template.label;" flex="1"/>
+            <treecol label="&treecol.information.label;" flex="1"/>
+            <treecol label="&treecol.author.label;"/>
+        </treecols>
+        <treechildren id="templateListContent">
+        </treechildren>
+    </tree>
+</dialog>

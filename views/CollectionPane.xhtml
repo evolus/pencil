@@ -1,0 +1,161 @@
+<vbox>
+    <style>
+        @filter {
+            background: #D3DADE;
+            position: relative;
+            min-width: 25em;
+        }
+        @filter .fa-search {
+            position: absolute;
+            right: 1.5em;
+            top: 50%;
+            margin-top: -0.5em;
+        }
+        @filter @form {
+            padding: 1em;
+        }
+        @filter @logo {
+            width: 6em;
+            font-size: 0.95em;
+            background: #DA8500;
+        }
+        @selectorPane {
+            width: 6em;
+            background: #1C262B;
+            font-size: 0.95em;
+            overflow: auto;
+            cursor: default;
+        }
+
+
+        @selectorPane::-webkit-scrollbar {
+            width: 0em;
+        }
+        @selectorPane:hover::-webkit-scrollbar {
+            width: 0.4em;
+        }
+        @selectorPane::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 0.3em rgba(255, 255, 255, 0);
+        }
+        @selectorPane:hover::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 0.3em rgba(255, 255, 255, 0.1);
+        }
+
+        /* Handle */
+        @selectorPane::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0);
+            -webkit-box-shadow: inset 0 0 0.3em rgba(255, 255, 255, 0);
+        }
+        @selectorPane:hover::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+
+        @selectorPane .Item {
+            text-align: center;
+            padding: 1em 0.6em;
+            color: #7D8B91;
+        }
+        @selectorPane:hover .Item {
+            padding-right: 0.2em;
+        }
+        @selectorPane .Item i {
+            font-size: 1.5em;
+        }
+        @selectorPane .Item span {
+            display: block;
+            margin-top: 0.5em;
+            font-size: 0.75em;
+            line-height: 1.2em;
+            font-weight: bold;
+            height: 2.4em;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        @selectorPane .Item + .Item {
+            border-top: solid 2px #243036;
+        }
+        @selectorPane .Item[active='true'] {
+            color: #FFFFFF;
+            background: #3D535E;
+        }
+        @selectorPane .Item:hover {
+            background: #293A43;
+        }
+        @shapePane {
+            background: #BACFD9;
+            overflow: auto;
+        }
+        .ShapeList {
+            list-style: none;
+            padding: 0.5em;
+            margin: 0px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-content: flex-start;
+            overflow: auto;
+            -webkit-flex-shrink: 0;
+            -webkit-flex-basis: fill;
+        }
+        .ShapeList li {
+            padding: 0px;
+            display: block;
+            margin: 0.2em 0em;
+        }
+        .ShapeList li .Shape {
+            width: 3.4em;
+            padding: 0.5em;
+            box-sizing: content-box;
+            color: #333;
+            cursor: default;
+        }
+        .ShapeList li .Shape:hover {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 0.2em;
+        }
+
+        .ShapeList li .Shape .Icon {
+            width: 3.4em;
+            height: 3.4em;
+            text-align: center;
+        }
+        .ShapeList li .Shape img {
+            width: 90%;
+            max-height: 100%;
+            -webkit-filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.2));
+        }
+
+        .ShapeList li .Shape span {
+            display: block;
+        }
+        .ShapeList li .Shape span {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            height: 1.2em;
+            line-height: 1.2em;
+            font-size: 0.8em;
+            text-align: center;
+            opacity: 0.5;
+            font-weight: bold;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
+        }
+    </style>
+    <hbox anon-id="filter">
+        <hbox anon-id="logo">
+        </hbox>
+        <hbox flex="1" anon-id="form">
+            <input type="text" flex="1" class="form-control" placeholder="Search for shapes"/>
+            <i class="fa fa-search"></i>
+        </hbox>
+    </hbox>
+    <hbox flex="1">
+        <vbox anon-id="selectorPaneContainer">
+            <div anon-id="selectorPane"></div>
+        </vbox>
+        <hbox anon-id="shapePane" flex="1">
+            <ul anon-id="shapeList" class="ShapeList" flex="1">
+            </ul>
+        </hbox>
+    </hbox>
+</vbox>

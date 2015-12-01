@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/pageNoteDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil-os/skin/icons.css" type="text/css"?>
+
+<dialog id="pencilPageNoteDialog" title="&dialog.edit.page.note.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="accept,cancel"
+        buttonlabelaccept="&button.accept.label.apply;"
+        buttonlabelcancel="&button.cancel.label.cancel;"
+        persist="width height"
+        ondialogaccept="return PageNoteDialog.doApply();"
+        ondialogcancel="return PageNoteDialog.doCancel();">
+
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/pageNoteDialog.js"/>
+
+    <commandset>
+        <command id="quitCommand" oncommand="if (PageNoteDialog.doCancel()) window.close();"/>
+        <command id="commitCommand" oncommand="if (PageNoteDialog.doApply()) window.close();"/>
+
+        <command id="editBoldCommand" oncommand="runEditorCommand('bold');"/>
+        <command id="editItalicCommand" oncommand="runEditorCommand('italic');"/>
+        <command id="editUnderlineCommand" oncommand="runEditorCommand('underline');"/>
+        <command id="editStrikeCommand" oncommand="runEditorCommand('strikethrough');"/>
+
+        <command id="editLeftCommand" oncommand="runEditorCommand('justifyleft');"/>
+        <command id="editCenterCommand" oncommand="runEditorCommand('justifycenter');"/>
+        <command id="editRightCommand" oncommand="runEditorCommand('justifyright');"/>
+        <command id="editFullCommand" oncommand="runEditorCommand('justifyfull');"/>
+
+        <command id="editBulletedListCommand" oncommand="runEditorCommand('insertunorderedlist');"/>
+        <command id="editNumberedListCommand" oncommand="runEditorCommand('insertorderedlist');"/>
+        <command id="editIndentCommand" oncommand="runEditorCommand('indent');"/>
+        <command id="editOutdentCommand" oncommand="runEditorCommand('outdent');"/>
+
+        <command id="editStrikeCommand" oncommand="runEditorCommand('strikethrough');"/>
+        <command id="editSuperScriptCommand" oncommand="runEditorCommand('superscript');"/>
+        <command id="editSubScriptCommand" oncommand="runEditorCommand('subscript');"/>
+
+        <command id="editHorzRuleCommmand" oncommand="runEditorCommand('inserthorizontalrule');"/>
+        <command id="editInsertLinkCommand" oncommand="var url = prompt('URL', 'http://'); if(url) runEditorCommand('createlink', url);"/>
+    </commandset>
+    <keyset>
+        <key id="escapeKey" keycode="VK_ESCAPE" command="quitCommand"/>
+        <key id="commitKey" keycode="VK_RETURN" modifiers="control" command="commitCommand"/>
+
+        <key id="editBoldKey" key="B" modifiers="control" command="editBoldCommand"/>
+        <key id="editItalicKey" key="I" modifiers="control" command="editItalicCommand"/>
+        <key id="editUnderlineKey" key="U" modifiers="control" command="editUnderlineCommand"/>
+        <key id="editStrikeKey" key="S" modifiers="control" command="editStrikeCommand"/>
+
+        <key id="editLeftKey" key="L" modifiers="control" command="editLeftCommand"/>
+        <key id="editCenterKey" key="E" modifiers="control" command="editCenterCommand"/>
+        <key id="editRightKey" key="R" modifiers="control" command="editRightCommand"/>
+        <key id="editFullKey" key="J" modifiers="control" command="editFullCommand"/>
+    </keyset>
+    <toolbox>
+        <toolbar>
+            <menulist class="PropertyList" id="blockList" oncommand="runCommandByList('formatblock', this);">
+                <menupopup>
+                    <menuitem value="" label="&menu.block.format.label;" class="NameItem"/>
+                    <menuitem value="&lt;div&gt;" label="&menu.normal.label;" />
+                    <menuitem value="&lt;p&gt;" label="&menu.paragraph.label;" />
+                    <menuitem value="&lt;h1&gt;" label="&menu.heading.1.label;" />
+                    <menuitem value="&lt;h2&gt;" label="&menu.heading.2.label;" />
+                    <menuitem value="&lt;h3&gt;" label="&menu.heading.3.label;" />
+                    <menuitem value="&lt;h4&gt;" label="&menu.heading.4.label;" />
+                    <menuitem value="&lt;h5&gt;" label="&menu.heading.5.label;" />
+                    <menuitem value="&lt;h6&gt;" label="&menu.heading.6.label;" />
+                    <menuitem value="&lt;address&gt;" label="&menu.address..label;" />
+                    <menuitem value="&lt;pre&gt;" label="&menu.formatted.label;" />
+                </menupopup>
+            </menulist>
+            <toolbarseparator/>
+            <menulist class="PropertyList" id="fontList" oncommand="runCommandByList('fontname', this);">
+                <menupopup id="fontPopup">
+                    <menuitem label="&menu.text.font.label;" value="" class="NameItem"/>
+                </menupopup>
+            </menulist>
+
+            <menulist class="PropertyList" id="edSizeList" oncommand="runCommandByList('fontsize', this);" >
+                <menupopup>
+                    <menuitem label="&menu.text.size.label;" value="" class="NameItem"/>
+                    <menuitem label="1" value="1"/>
+                    <menuitem label="2" value="2"/>
+                    <menuitem label="3" value="3"/>
+                    <menuitem label="4" value="4"/>
+                    <menuitem label="5" value="5"/>
+                    <menuitem label="6" value="6"/>
+                </menupopup>
+            </menulist>
+        </toolbar>
+        <toolbar>
+            <toolbarbutton class="ed-toolbar-button" id="edBoldButton" command="editBoldCommand" tooltiptext="&toolbar.bold.tooltiptext;"/>
+            <toolbarbutton class="ed-toolbar-button" id="edItalicButton" command="editItalicCommand" tooltiptext="&toolbar.italic.tooltiptext;"/>
+            <toolbarbutton class="ed-toolbar-button" id="edUnderlineButton" command="editUnderlineCommand" tooltiptext="&toolbar.underline.tooltiptext;"/>
+            <toolbarbutton class="ed-toolbar-button" id="edUnderlineButton" command="editStrikeCommand" tooltiptext="&toolbar.strike.through.tooltiptext;" style="display: none;"/>
+            <toolbarseparator/>
+            <toolbarbutton class="ed-toolbar-button" id="edBulletedListButton" command="editBulletedListCommand" tooltiptext="&toolbar.unordered.list.tooltiptext;"/>
+            <toolbarbutton class="ed-toolbar-button" id="edNumberedListButton" command="editNumberedListCommand" tooltiptext="&toolbar.ourdered.list.tooltiptext;"/>
+            <toolbarbutton class="ed-toolbar-button" id="edIndentButton" command="editIndentCommand" tooltiptext="&toolbar.indent.tooltiptext;"/>
+            <toolbarbutton class="ed-toolbar-button" id="edOutdentButton" command="editOutdentCommand" tooltiptext="&toolbar.outdent.tooltiptext;"/>
+            <toolbarseparator/>
+            <toolbarbutton id="fillColorButton" class="ed-toolbar-button" tooltiptext="&toolbar.bgr.color.tooltiptext;" popup="backgroundPopup" image="chrome://pencil-os/skin/images/MozIcons/stock/toolbar/stock_bucketfill.png"/>
+            <panel id="backgroundPopup">
+                <colorpicker color="#ffffff" onselect="runEditorCommand('hilitecolor', this.color); this.parentNode.hidePopup();"/>
+            </panel>
+            <toolbarbutton id="textColorButton" class="ed-toolbar-button" tooltiptext="&toolbar.text.color.tooltiptext;" popup="foregroundPopup" image="chrome://pencil-os/skin/images/MozIcons/stock/toolbar/stock_text_color_foreground.png"/>
+            <panel id="foregroundPopup">
+                <colorpicker color="#ffffff" onselect="runEditorCommand('forecolor', this.color); this.parentNode.hidePopup();"/>
+            </panel>
+            <toolbarseparator/>
+            <toolbarbutton id="clearButton" class="ed-toolbar-button" tooltiptext="&toolbar.clear.format.tooltiptext;" oncommand="runEditorCommand('removeformat')"/>
+            <toolbarbutton id="insertLinkButton" class="ed-toolbar-button" tooltiptext="&toolbar.insert.link.tooltiptext;" oncommand="doInsertLink();"/>
+        </toolbar>
+    </toolbox>
+    <editor id="editor" type="html" width="300" height="150" src="about:blank"/>
+</dialog>

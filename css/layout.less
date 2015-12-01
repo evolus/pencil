@@ -1,0 +1,56 @@
+hbox, vbox {
+
+}
+.hbox {
+    flex-direction: row;
+    display: flex;
+}
+.vbox {
+    flex-direction: column;
+    display: flex;
+}
+
+html {
+
+    .hbox();
+}
+body {
+    height: 500px;
+    flex: 1;
+    .vbox();
+}
+
+hbox { .hbox(); }
+vbox { .vbox(); }
+
+*[flex='1'] {
+    flex: 1;
+}
+*[flex='2'] {
+    flex: 2;
+}
+*[flex='3'] {
+    flex: 3;
+}
+*[flex='4'] {
+    flex: 4;
+}
+*[flex='5'] {
+    flex: 5;
+}
+*[flex='6'] {
+    flex: 6;
+}
+*[flex='7'] {
+    flex: 7;
+}
+*[flex='8'] {
+    flex: 8;
+}
+*[flex='9'] {
+    flex: 9;
+}
+*[flex='10'] {
+    flex: 10;
+}
+

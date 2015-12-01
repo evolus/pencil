@@ -1,0 +1,227 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+pcollectionpane {
+    -moz-binding: url(chrome://pencil/content/bindings/collectionPane.xbl#collectionPane);
+    padding: 0em;
+    margin: 0em;
+}
+
+pcollectionpane:focus,
+pcollectionpane:hover {
+}
+pcollectionpane > vbox {
+}
+pcollectionpane hbox.Heading {
+    -moz-box-align: center;
+}
+pcollectionpane label.Title,
+pcollectionpane hbox.Heading button {
+}
+
+pcollectionpane hbox.Heading label {
+    margin-left: 0px;
+    opacity: .5;
+    font-size: .85em;
+}
+
+pcollectionpane label.Title {
+    font-weight: bold;
+    margin: 0px;
+}
+pcollectionpane hbox.Heading button label {
+    margin: 0px;
+}
+pcollectionpane hbox.Heading:hover toolbarbutton {
+    opacity: 1;
+}
+pcollectionpane vbox[aid="filterPanel"] {
+	overflow: auto;
+    background-color: threedface;
+    border: solid 1px;
+
+	border-radius: 3.5px;
+	border-bottom-left-radius:  0;
+	border-bottom-right-radius:  0;
+
+	border-color: threedshadow;
+	border-bottom: none;
+	padding: 0;
+	margin: 0;
+}
+pcollectionpane vbox[aid="filterPanel"] textbox {
+	margin: 2px;
+}
+pcollectionpane vbox[aid="filterPanel"] textbox image {
+	list-style-image: url("chrome://pencil/skin/images/collection-filter.png");
+}
+pcollectionpane vbox[aid="contentBox"] {
+    overflow: auto;
+    border: solid 1px;
+    border-color: threedshadow;
+
+	border-radius: 3.5px;
+	border-top-left-radius:  0;
+	border-top-right-radius:  0;
+}
+pcollectionpane .Collection {
+    padding: 0px;
+}
+pcollectionpane .Collection > hbox:first-child {
+    -moz-box-align: start;
+    background-image: -moz-linear-gradient(bottom, #4084B0 0%, #417496 100%);
+    color: rgba(255, 255, 255, .85);
+    padding: .3em;
+    cursor: default;
+}
+pcollectionpane .Collection > hbox:first-child h4 {
+    color: #FFF;
+    text-shadow: 1px 1px 0px rgba(0, 0, 0, .4);
+    margin: 0px;
+    line-height: 1.1em;
+}
+pcollectionpane .Collection > hbox:first-child > button {
+    -moz-appearance: none;
+    border: none;
+    padding: 0px;
+    width: 9px;
+    height: 9px;
+    min-width: 0px;
+    min-height: 0px;
+    margin: 2px;
+    margin-right: 5px;
+    background: url(chrome://pencil/skin/images/twisty.png) 0% 0% no-repeat transparent;
+    opacity: .3;
+}
+pcollectionpane .Collection > hbox:first-child:hover > button {
+    opacity: 1;
+}
+pcollectionpane .Collection > hbox:first-child > button image {
+    margin: 0px;
+}
+pcollectionpane .Collection > hbox:first-child div > * {
+    margin: 0px;
+}
+pcollectionpane .Collection > hbox:first-child div > p {
+    font-size: .95em;
+    opacity: .5;
+    width: 100%;
+}
+pcollectionpane .Collection > hbox:first-child div {
+}
+pcollectionpane .Collection .CustomLayoutContent {
+    height: auto !important;
+    background: blue;
+}
+pcollectionpane *[pcollapsed='true'].Collection > hbox:first-child {
+    background-image: -moz-linear-gradient(bottom, #CACACA 0%, #CACACA 100%);
+    opacity: .7;
+}
+pcollectionpane *[pcollapsed='true'].Collection > hbox:first-child h4 {
+    color: #333;
+    text-shadow: 1px 1px 0px rgba(255, 255, 255, .6);
+}
+pcollectionpane *[pcollapsed='true'].Collection > hbox:first-child > button {
+    background-position: -9px 0px;
+}
+pcollectionpane *[pcollapsed='true'].Collection > hbox:first-child div,
+pcollectionpane *[pcollapsed='true'].Collection > hbox:first-child label {
+    opacity: .5;
+}
+pcollectionpane *[pcollapsed='true'].Collection > hbox:first-child label {
+    display: none;
+}
+pcollectionpane *[pcollapsed='true'].Collection > hbox:first-child:hover div {
+    opacity: 1;
+}
+pcollectionpane *[pcollapsed='true'].Collection > hbox:first-child:hover label {
+    opacity: 1;
+}
+pcollectionpane *[pcollapsed='true'].Collection > hbox:first-child div > p,
+pcollectionpane *[pcollapsed='true'].Collection .Content,
+pcollectionpane *[pcollapsed='true'].Collection .CustomLayoutContent {
+    display: none;
+}
+pcollectionpane .Collection {
+    background: #E7EDF1;
+}
+pcollectionpane .Collection .Content {
+    padding: .3em;
+    min-width: 8em;
+    margin: 0px auto;
+}
+pcollectionpane .Collection .Content > div {
+    border: none;
+    background: transparent;
+    text-align: center;
+    display: inline-block;
+
+    width: 55px;
+
+    margin: .6em;
+
+    vertical-align: top;
+	font-size: .85em;
+}
+pcollectionpane .Collection .Content > div .Container {
+    background: rgba(0, 0, 0, 0.06);
+    width: 55px;
+    height: 55px;
+    overflow: hidden;
+    -moz-border-radius: 8px;
+    display: table-cell;
+    line-height: 1px;
+    vertical-align: middle;
+}
+pcollectionpane .Collection .Content > div:hover .Container {
+    background: rgba(67, 136, 204, .3);
+}
+pcollectionpane .Collection .Content > div img {
+	max-width: 50px;
+    max-height: 50px;
+}
+pcollectionpane .Collection .Content > div:hover img {
+    opacity: 1;
+}
+pcollectionpane .Collection .Content > div label {
+    display: block;
+	overflow: hidden;
+	font: -moz-list;
+	font-size: 1em;
+	color: #666;
+	text-shadow: 1px 1px 0px rgba(255, 255, 255, .7);
+}
+
+
+pcollectionpane button {
+    min-width: 4.5em;
+    min-height: 4em;
+
+    -moz-appearance: none !important;
+    border: solid 1px transparent;
+    -moz-border-top-colors: transparent;
+    -moz-border-right-colors: transparent;
+    -moz-border-bottom-colors: transparent;
+    -moz-border-left-colors: transparent;
+    padding: .6em;
+
+    margin: .2em;
+}
+pcollectionpane button:hover {
+    background-color: highlight;
+    color: highlighttext;
+}
+pcollectionpane button:focus label {
+    text-decoration: underline;
+}
+pcollectionpane button:hover label,
+pcollectionpane button:active label {
+    text-decoration: none;
+}
+pcollectionpane button:active {
+    border-width: 2px 0px 0px 2px;
+}
+pcollectionpane button .button-icon {
+}
+pcollectionpane button .button-box {
+    -moz-box-orient: vertical;
+}

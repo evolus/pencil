@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:svg="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="fontEditor">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                this.fontList = document.getAnonymousElementByAttribute(this, "aid", "fontList");
+                this.fontPopup = document.getAnonymousElementByAttribute(this, "aid", "fontPopup");
+                this.size = document.getAnonymousElementByAttribute(this, "aid", "size");
+                this.bold = document.getAnonymousElementByAttribute(this, "aid", "bold");
+                this.italic = document.getAnonymousElementByAttribute(this, "aid", "italic");
+                this.underline = document.getAnonymousElementByAttribute(this, "aid", "underline");
+
+                this.box = document.getAnonymousElementByAttribute(this, "aid", "box");
+                var thiz = this;
+                this.box.addEventListener("command", function (event) {
+                    Dom.emitEvent("p:ValueChanged", thiz, {value: thiz.getValue()});
+                }, false);
+
+                //setup font list
+                var localFonts = Local.getInstalledFonts();
+                for (var i in localFonts) {
+                    var item = document.createElement("menuitem");
+                    item.setAttribute("label", localFonts[i]);
+                    item.setAttribute("value", localFonts[i]);
+                    this.fontPopup.appendChild(item);
+                }
+                this.localFonts = localFonts;
+
+                if (this.hasAttribute("value")) this.setValue(Font.fromString(this.getAttribute("value")));
+            ]]>
+            </constructor>
+            <method name="setTypeMeta">
+                <parameter name="meta"/>
+                <body>
+                <![CDATA[
+                    this.meta = meta;
+                ]]>
+                </body>
+            </method>
+            <method name="setValue">
+                <parameter name="font"/>
+                <body>
+                <![CDATA[
+                    if (Local.isFontExisting(font.family)) {
+                        this.fontList.value = font.family;
+                    } else {
+                        var families = font.getFamilies();
+                        for (var i = 0; i < families.length; i ++) {
+                            var f = families[i];
+                            if (Local.isFontExisting(f)) {
+                                this.fontList.value = f;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (font.size.match(/^([0-9]+)[^0-9]*$/)) {
+                        this.size.value = RegExp.$1;
+                    }
+                    this.bold.checked = (font.weight == "bold");
+                    this.italic.checked = (font.style == "italic");
+                    this.underline.checked = (font.decor == "underline");
+                ]]>
+                </body>
+            </method>
+            <method name="getValue">
+                <body>
+                <![CDATA[
+                    var font = new Font();
+                    font.family = this.fontList.value;
+                    font.size = this.size.value + "px";
+                    font.weight = this.bold.checked ? "bold" : "normal";
+                    font.style = this.italic.checked ? "italic" : "normal";
+                    font.decor = this.underline.checked ? "underline" : "none";
+
+                    return font;
+                ]]>
+                </body>
+            </method>
+            <method name="isModified">
+                <body>
+                <![CDATA[
+                    return true; //this.isUserModified;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <content>
+            <hbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1" aid="box">
+                <vbox flex="1">
+                    <label value="&label.family.value;"/>
+                    <menulist aid="fontList" flex="1" xbl:inherits="disabled">
+                        <menupopup aid="fontPopup"></menupopup>
+                    </menulist>
+                </vbox>
+                <vbox>
+                    <label value="&label.size.value;"/>
+                    <textbox type="number" min="5" max="100" size="3" increment="1" aid="size" flex="1" xbl:inherits="disabled"/>
+                </vbox>
+                <vbox>
+                    <label value="&label.style.weight.value;"/>
+                    <hbox flex="1">
+                        <button type="checkbox" aid="bold" label="&button.b.label;" xbl:inherits="disabled"/>
+                        <button type="checkbox" aid="italic" label="&button.i.label;" xbl:inherits="disabled"/>
+                        <button type="checkbox" aid="underline" label="&button.u.label;" xbl:inherits="disabled"/>
+                    </hbox>
+                </vbox>
+            </hbox>
+        </content>
+    </binding>
+</bindings>

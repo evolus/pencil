@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/dialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/content/bindings/colorPickerButton.css" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/content/bindings/commonEditors.css" type="text/css"?>
+
+<dialog id="pencilPageDialog" title="&dialog.new.page.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        buttons="accept,cancel"
+        buttonlabelaccept="&button.accept.label.apply;"
+        buttonlabelcancel="&button.cancel.label.cancel;"
+        persist="lastsize screenX screenY width height"
+        lastsize="800x600"
+        style="min-width:36em;min-height:18em;"
+        ondialogaccept="return handleDialogAccept();"
+        ondialogcancel="return handleDialogCancel();">
+
+    <script src="chrome://pencil/content/common/config.js"/>
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/propertyType/color.js"/>
+    <script src="chrome://pencil/content/common/colorDroppers.js"/>
+    <script src="chrome://pencil/content/pageDetailDialog.js"/>
+
+    <vbox class="Header">
+        <label class="Name" value="&label.create.new.page.value;" id="nameText"/>
+        <label class="Description" value="&label.enter.page.prop.value;" id="descText"/>
+    </vbox>
+    <vbox>
+        <hbox>
+            <label value="&label.page.title.value;"/>
+            <textbox id="pageTitle"/>
+        </hbox>
+        <hbox>
+            <label value="&label.page.size.value;"/>
+            <hbox>
+                <menulist id="size">
+                    <menupopup>
+                        <menuitem label="&menu.last.used.label;" value="xxxx" id="lastUsedItem" style="display: none;"/>
+                        <menuitem label="&menu.fit.current.view.label;" value="" id="bestFitItem" style="display: none;"/>
+                        <menuitem label="&menu.custom.size.label;" value=""/>
+                        <menuseparator/>
+                        <menuitem p:predefined="true" label="&menu.compact.web.page.label;" value="800x600"/>
+                        <menuitem p:predefined="true" label="&menu.960.web.page.label;" value="960x600"/>
+                        <menuitem p:predefined="true" label="&menu.960.web.page.long.label;" value="960x900"/>
+                        <menuitem p:predefined="true" label="&menu.normal.web.page.label;" value="1024x768"/>
+                        <menuitem p:predefined="true" label="&menu.large.web.page.label;" value="1280x800"/>
+                        <menuitem p:predefined="true" label="&menu.a4.at.90dpi.label;" value="774x1052"/>
+                        <menuitem p:predefined="true" label="&menu.a4.at.300dpi.label;" value="2480x3508"/>
+                    </menupopup>
+                </menulist>
+                <box style="display: none;">
+                    <html:a href="#">&html.config.size.value;</html:a>
+                </box>
+            </hbox>
+        </hbox>
+        <hbox>
+            <label value=""/>
+            <vbox>
+                <hbox>
+                    <textbox size="3" type="number" min="24" id="width"/>
+                    <textbox size="3" type="number" min="24" id="height"/>
+                    <label value="&label.pixels.value;"/>
+                </hbox>
+            </vbox>
+        </hbox>
+        <hbox>
+            <label value="&label.background.value;"/>
+            <hbox flex="1">
+                <menulist id="backgroundPage" sizetopopup="none" flex="1">
+                    <menupopup>
+                        <menuitem label="&menu.transparent.bgr.label;" value="transparent"/>
+                        <menuitem label="&menu.background.color.label;" value="" selected="true"/>
+                        <menuseparator/>
+                    </menupopup>
+                </menulist>
+                <hbox id="backgroundColorPane">
+                    <pcolorbutton id="backgroundColorButton" tooltiptext="&colorbutton.select.bgr.tooltiptext;" mode="full" type="preview" allow-opacity="false"/>
+                </hbox>
+                <hbox id="dimBackgroundPane" style="visibility:hidden;">
+                    <checkbox id="dimBackground" label="&checkbox.dim.background.label;" checked="false"/>
+                </hbox>
+            </hbox>
+        </hbox>
+    </vbox>
+</dialog>

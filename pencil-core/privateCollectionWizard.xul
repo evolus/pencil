@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE wizard SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/privateCollectionWizard.css" type="text/css"?>
+
+<wizard id="pencilPrivateCollectionWizard"
+        title="&create.pri.collection.wizard.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        minwidth="550"
+        onwizardfinish="PrivateCollectionWizard.onFinish();">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/common/io.js"/>
+    <script src="chrome://pencil/content/common/util.js"/>
+
+    <script src="chrome://pencil/content/privateCollectionWizard.js"/>
+    <script src="chrome://pencil/content/privateCollection/privateCollection.js"/>
+    <script src="chrome://pencil/content/privateCollection/privateShapeDef.js"/>
+    <script src="chrome://pencil/content/privateCollection/privateCollectionManager.js"/>
+
+    <wizardpage description="&wizard.select.pcollection.desc;" onpageadvanced="return PrivateCollectionWizard.checkCollection();">
+        <label value="&label.select.pri.collection.value;" class="Primary"/>
+        <hbox flex="1">
+            <listbox id="collectionList" flex="1" oncommand="PrivateCollectionWizard.onPageSelectionChanged();">
+            </listbox>
+        </hbox>
+    </wizardpage>
+
+    <wizardpage description="&wizard.collection.infor.desc;" onpageadvanced="return PrivateCollectionWizard.validatePage();">
+        <hbox id="collection">
+            <groupbox flex="1">
+                <caption label="&caption.collection.infor.label;"/>
+                <grid>
+                    <columns>
+                        <column />
+                        <column flex="1"/>
+                    </columns>
+                    <rows>
+                        <row align="center">
+                            <hbox align="right" style="width:75px">
+                                <label control="collectionName" value="&label.name.value;" />
+                            </hbox>
+                            <textbox id="collectionName" size="22" maxlength="255" flex="1" />
+                        </row>
+                        <row align="center">
+                            <hbox align="right">
+                                <label control="collectionDescription" value="&label.description.value;" />
+                            </hbox>
+                            <textbox id="collectionDescription" multiline="true" rows="2"/>
+                        </row>
+                    </rows>
+                </grid>
+            </groupbox>
+        </hbox>
+        <hbox>
+            <groupbox flex="1">
+                <caption label="&caption.shape.definition.label;"/>
+                <grid>
+                    <columns>
+                        <column />
+                        <column flex="1"/>
+                    </columns>
+                    <rows>
+                        <row align="center">
+                            <hbox align="right" style="width:75px">
+                                <label control="shapeName" value="&label.name.value;" />
+                            </hbox>
+                            <hbox>
+                                <textbox id="shapeName" size="22" maxlength="255" flex="1" />
+                                <checkbox id="autoGenerateIcon" label="&checkbox.auto.generate.icon.label;" checked="true" oncommand="if (this.checked) {document.getElementById('shapeIcon').disabled=true;document.getElementById('browse').disabled=true;} else {document.getElementById('shapeIcon').disabled=false;document.getElementById('browse').disabled=false;}"/>
+                            </hbox>
+                        </row>
+                        <row align="center">
+                            <hbox align="right">
+                                <label control="icon" value="&label.icon.value;" />
+                            </hbox>
+                            <hbox>
+                                <textbox id="shapeIcon" size="22" maxlength="255" flex="1" disabled="true"/>
+                                <button id="browse" label="&button.browse.label;" disabled="true" oncommand="PrivateCollectionWizard.browseIconFile();"></button>
+                            </hbox>
+                        </row>
+                        <!--<row align="left">
+                            <hbox align="right"></hbox>
+                            <checkbox id="autoGenerateIcon" label="&checkbox.auto.generate.icon.label;" checked="true" oncommand="if (this.checked) {document.getElementById('shapeIcon').disabled=true;document.getElementById('browse').disabled=true;} else {document.getElementById('shapeIcon').disabled=false;document.getElementById('browse').disabled=false;}"/>
+                        </row>-->
+                    </rows>
+                </grid>
+            </groupbox>
+        </hbox>
+    </wizardpage>
+</wizard>
+

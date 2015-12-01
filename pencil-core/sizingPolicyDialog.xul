@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/dialog.css" type="text/css"?>
+
+<dialog id="pencilSizingPolicyDialog" title="Sizing Policy"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        buttons="cancel,accept"
+        buttonlabelaccept="&button.accept.label.apply;"
+        buttonlabelcancel="&button.cancel.label.cancel;"
+        ondialogaccept="return handleDialogAccept();"
+        style="min-width: 25em;">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/common/io.js"/>
+    <script src="chrome://pencil/content/sizingPolicyDialog.js"/>
+
+    <vbox style="padding: 1em;">
+        <box style="margin-bottom: 1em; padding: 1ex; background: #fff; border: solid 1px #999;">
+            <html:div style="width: 30em;">
+                Define how the element size and position are changed when its container is scaled. Please note that these
+                rules are applied only when the element is grouped. 
+            </html:div>
+        </box>
+        <groupbox>
+            <caption>Width:</caption>
+            <vbox>
+                <hbox id="group-w" oncommand="validateXPolicySelection();">
+                    <button type="radio" group="w" id="w-fixed" image="chrome://pencil/skin/images/sizepolicy-w-fixed.png" tooltiptext="Keep fixed width"/>
+                    <button type="radio" group="w" id="w-start-end" image="chrome://pencil/skin/images/sizepolicy-w-start-end.png" tooltiptext="Resize to maintain constant distances to both left and right sides"/>
+                    <button type="radio" group="w" id="w-relative" image="chrome://pencil/skin/images/sizepolicy-w-relative.png" tooltiptext="Resize according to group's width"/>
+                </hbox>
+            </vbox>
+        </groupbox>
+        <groupbox>
+            <caption>Height:</caption>
+            <vbox>
+                <hbox id="group-h" oncommand="validateYPolicySelection();">
+                    <button type="radio" group="h" id="h-fixed" image="chrome://pencil/skin/images/sizepolicy-h-fixed.png" tooltiptext="Keep fixed height"/>
+                    <button type="radio" group="h" id="h-start-end" image="chrome://pencil/skin/images/sizepolicy-h-start-end.png" tooltiptext="Resize to maintain constant distances to both top and bottom"/>
+                    <button type="radio" group="h" id="h-relative" image="chrome://pencil/skin/images/sizepolicy-h-relative.png" tooltiptext="Resize according to group's height"/>
+                </hbox>
+            </vbox>
+        </groupbox>
+        <groupbox>
+            <caption>Horizontal:</caption>
+            <vbox>
+                <hbox id="group-x">
+                    <button type="radio" group="x" id="x-start" image="chrome://pencil/skin/images/sizepolicy-x-start.png" tooltiptext="Align to parent's left side"/>
+                    <button type="radio" group="x" id="x-middle" image="chrome://pencil/skin/images/sizepolicy-x-middle.png" tooltiptext="Align to parent's center"/>
+                    <button type="radio" group="x" id="x-end" image="chrome://pencil/skin/images/sizepolicy-x-end.png" tooltiptext="Align to parent's right side"/>
+                    <button type="radio" group="x" id="x-relative" image="chrome://pencil/skin/images/sizepolicy-x-relative.png" tooltiptext="Move according to group's width"/>
+                </hbox>
+            </vbox>
+        </groupbox>
+        <groupbox>
+            <caption>Vertical:</caption>
+            <vbox>
+                <hbox id="group-y">
+                    <button type="radio" group="y" id="y-start" image="chrome://pencil/skin/images/sizepolicy-y-start.png" tooltiptext="Align to parent's top"/>
+                    <button type="radio" group="y" id="y-middle" image="chrome://pencil/skin/images/sizepolicy-y-middle.png" tooltiptext="Align to parent's middle"/>
+                    <button type="radio" group="y" id="y-end" image="chrome://pencil/skin/images/sizepolicy-y-end.png" tooltiptext="Align to parent's bottom"/>
+                    <button type="radio" group="y" id="y-relative" image="chrome://pencil/skin/images/sizepolicy-y-relative.png" tooltiptext="Move according to group's height"/>
+                </hbox>
+            </vbox>
+        </groupbox>
+    </vbox>
+
+</dialog>

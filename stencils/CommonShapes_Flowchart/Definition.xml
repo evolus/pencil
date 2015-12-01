@@ -1,0 +1,1591 @@
+<Shapes xmlns="http://www.evolus.vn/Namespace/Pencil"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:cc="http://web.resource.org/cc/"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+
+        id="Mtv.CommonShapes_Flowchart"
+        displayName="&displayName;"
+        description="&collectionDesc;"
+        author="IDSL"
+        url="http://www.evolus.vn/mtv/shapes/common/flowchart">
+    <Properties>
+        <PropertyGroup name="Background">
+            <Property name="fillColor" displayName="&backgrcolor;" type="Color">#336699ff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Border">
+            <Property name="strokeColor" displayName="&linecolor;" type="Color">#000000FF</Property>
+            <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle">2|</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Text">
+            <Property name="defaultTextFont" type="Font" displayName="&defaultfont;">Helvetica|normal|normal|12px</Property>
+            <Property name="defaultTextColor" type="Color" displayName="&defaultextcolor;">#ffffffff</Property>
+        </PropertyGroup>
+    </Properties>
+    <Styles>
+        <Group name="Style" defaultIcon="icons://Styles/Images/default-style.png">
+            <Style name="Strong" icon="icons://Styles/Images/red.png">
+                <Property name="fillColor" type="Color">#ff0000ff</Property>
+                <Property name="strokeColor" type="Color">#00000000</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#ffffffff</Property>
+            </Style>
+            <Style name="Yellow" icon="icons://Styles/Images/yellow-border.png">
+                <Property name="fillColor" type="Color" >#ffff00ff</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Gray" icon="icons://Styles/Images/gray-border.png">
+                <Property name="fillColor" type="Color">#e3e3e3ff</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Magenta" icon="icons://Styles/Images/magenta.png">
+                <Property name="fillColor" type="Color">#ff00ffff</Property>
+                <Property name="strokeColor" type="Color">#00000000</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#ffffffff</Property>
+            </Style>
+            <Style name="Blue" icon="icons://Styles/Images/blue-border.png">
+                <Property name="fillColor" type="Color" >#0000ffff</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#ffffffff</Property>
+            </Style>
+            <Style name="Outline" icon="icons://Styles/Images/white-border.png">
+                <Property name="fillColor" type="Color">#80b3ffff</Property>
+                <Property name="strokeColor" type="Color">#ffffffff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Green" icon="icons://Styles/Images/green.png">
+                <Property name="fillColor" type="Color">#00ff00ff</Property>
+                <Property name="strokeColor" type="Color">#00000000</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Empty" icon="icons://Styles/Images/empty.png">
+                <Property name="fillColor" type="Color" >#00000000</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+        </Group>
+    </Styles>
+    <Script>
+        <![CDATA[
+            collection.LUDArrow = function (a, b, box) {
+                var y = b.y;
+                var x = y + box.w - box.h;
+                return {
+                    x: x, y: y
+                };
+            };
+            collection.calloutPoint = function(a, box) {
+                var pos = F.getRelativeLocation(a, box);
+                var w = box.w;
+                var h = box.h;
+                if (pos == "top") {
+                    return a.x < w/2 ? {a: {x: w/6, y: 0}, b: {x: 4*w/10, y: 0}, t: 1} : {a: {x: 6*w/10, y: 0}, b: {x: 5*w/6, y: 0}, t: 2};
+                }
+                if (pos == "right") {
+                    return a.y < h/2 ? {a: {x: w, y: h/6}, b: {x: w, y: 4*h/10}, t: 3} : {a: {x: w, y: 6*h/10}, b: {x: w, y: 5*h/6}, t: 4};
+                }
+                if (pos == "bottom") {
+                    return a.x > w/2 ? {a: {x: 5*w/6, y: h}, b: {x: 6*w/10, y: h}, t: 5} : {a: {x: 4*w/10, y: h}, b: {x: w/6, y: h}, t: 6};
+                }
+                if (pos == "left") {
+                    return a.y > h/2 ? {a: {x: 0, y: 5*h/6}, b: {x: 0, y: 6*h/10}, t: 7} : {a: {x: 0, y: 4*h/10}, b: {x: 0, y: h/6}, t: 8};
+                }
+                return null;
+            };
+            collection.circularConstraint = function(a, b, box) {
+                var rx = 2*box.w/5;
+                var ry = 2*box.h/5;
+
+                var alpha = Math.atan2(b.y - box.h/2, b.x - box.w/2);
+
+                var co = Math.cos(alpha);
+                var si = Math.sin(alpha);
+
+                var m = Math.sqrt(ry * ry * co * co + rx * rx * si * si);
+                var r = rx * ry / m;
+
+                var x = r * co + box.w/2;
+                var y = r * si + box.h/2;
+
+                return {
+                    x: x, y: y
+                };
+            };
+            collection.circularConstraint5 = function(a, b, box, h4) {
+                var dx = (h4.x - box.w/2)*(b.y - box.h/2)/(h4.y - box.h/2);
+                if (h4.y > box.h/2) {
+                    return {
+                        x: h4.x < box.w/2 ? Math.max(h4.x, Math.min(box.w/2 + dx, box.w/2 - 5)) : Math.max(box.w/2 + 5, Math.min(box.w/2 + dx, h4.x)), y: Math.max(box.h/2 + 5, Math.min(b.y, h4.y))
+                    };
+                }
+                return {
+                    x: h4.x < box.w/2 ? Math.max(h4.x, Math.min(box.w/2 + dx, box.w/2 - 5)) : Math.max(box.w/2 + 5, Math.min(box.w/2 + dx, h4.x)), y: Math.max(h4.y, Math.min(b.y, box.h/2 - 5))
+                };
+            };
+            collection.Donut = function (a, b, box) {
+                var y = a.y;
+                var t = Math.sqrt(Math.abs(box.w/2 - b.x)*Math.abs(box.w/2 - b.x) + Math.abs(box.h/2 - b.y)*Math.abs(box.h/2 - b.y));
+                var x = (t <= box.w/2 - Math.min(box.w/2, box.h/2)) ? Math.min(box.w/2, box.h/2) : (box.w/2 - t);
+                return {
+                    x: x, y: y
+                };
+            };
+            collection.radiusConFun = function(aa, bb, r, box) {
+                var a = {
+                    x: aa.x, y: aa.y, toString: function() {
+                        return this.x + "," + this.y;
+                    }
+                };
+                var b = {
+                    x: bb.x, y: bb.y, toString: function() {
+                        return this.x + "," + this.y;
+                    }
+                };
+
+                var rx = r;
+                var ry = box.h / 2 - (box.w/2 - rx);
+
+                var alpha = Math.atan2(b.y - box.h / 2, b.x - box.w / 2);
+
+                var co = Math.cos(alpha);
+                var si = Math.sin(alpha);
+
+                var m = Math.sqrt(ry * ry * co * co + rx * rx * si * si);
+                var r = rx * ry / m;
+
+                var x = box.w/2 + r * co ;
+                var y = box.h/2 + r * si ;
+
+                return {
+                    x: x, y: y
+                };
+            };
+        ]]>
+    </Script>
+
+    <Shape id="ms-fcDisplay" displayName="&flowchartdispl;" icon="Icons/fc-display.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+                <Property name="textPadding" displayName="&textpadding;" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.h / 2" p:disabled="$textAlign.h == 1 &amp;&amp; $textAlign.v == 1">20,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"></Property>
+                <Property name="textFont" displayName="&defaultfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, $box.h / 2), L($box.w / 6, 0), L(5 * $box.w / 6, 0),
+                    C(5 * $box.w / 6 + $box.w / 6 / 2, 0, $box.w, $box.h / 4, $box.w, $box.h / 2),
+                    S(5 * $box.w / 6 + $box.w / 6 / 2, $box.h, 5 * $box.w / 6, $box.h),
+                    L($box.w / 6, $box.h), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $textPadding.x)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcMagneticDisk" displayName="&flowchartmagndsk;" icon="Icons/fc-magnetic-disk.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+             <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    var ay = $box.h / 3;
+                    [M(0, ay/2), L(0, $box.h - ay/2), C(0, $box.h - ay/4, $box.w/4, $box.h, $box.w/2, $box.h),
+                    S($box.w, $box.h - ay/4, $box.w, $box.h - ay/2), L($box.w, ay/2),
+                    C($box.w, 3*ay/4, 3*$box.w/4, ay, $box.w/2, ay), S(0, 3*ay/4, 0, ay/2),
+                    C(0, ay/4, $box.w/4, 0, $box.w/2, 0), S($box.w, ay/4, $box.w, ay/2)
+                    ]
+                </D>
+            </For>
+            <For ref="fill">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor</Fill>
+                <D>
+                    var ay = $box.h / 3;
+                    [M(0, ay/2), L(0, $box.h - ay/2), C(0, $box.h - ay/4, $box.w/4, $box.h, $box.w/2, $box.h),
+                    S($box.w, $box.h - ay/4, $box.w, $box.h - ay/2), L($box.w, ay/2),
+                    C($box.w, ay/4, 3*$box.w/4, 0, $box.w/2, 0), S(0, ay/4, 0, ay/2), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound(0, $box.h/3, $box.w, $box.h * 2 / 3)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="fill" stroke="none" style="stroke-linejoin: round;"/>
+            <path id="path" fill="none" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                        Balloon message
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-directAccessStorage" displayName="&flowchartdiraccstor;" icon="Icons/fc-direct-access-storage.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+             <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    var ay = $box.w / 3;
+                    [M($box.w - ay/2, $box.h), L(ay/2, $box.h), C(ay/4, $box.h, 0, 3*$box.h/4, 0, $box.h/2),
+                    S(ay/4, 0, ay/2, 0), L($box.w - ay/2, 0),
+                    C($box.w - ay/4, 0, $box.w, $box.h/4, $box.w, $box.h/2), S($box.w - ay/4, $box.h, $box.w - ay/2, $box.h),
+                    C($box.w - 3*ay/4, $box.h, $box.w - ay, 3*$box.h/4, $box.w - ay, $box.h/2), S($box.w - 3*ay/4, 0, $box.w - ay/2, 0)
+                    ]
+                </D>
+            </For>
+            <For ref="fill">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor</Fill>
+                <D>
+                    var ay = $box.w / 3;
+                    [M(ay/2, 0), L($box.w - ay/2, 0), C($box.w - ay/4, 0, $box.w, $box.h/4, $box.w, $box.h/2),
+                    S($box.w - ay/4, $box.h, $box.w - ay/2, $box.h), L(ay/2, $box.h),
+                    C(ay/4, $box.h, 0, 3*$box.h/4, 0, $box.h/2), S(ay/4, 0, ay/2, 0)
+                    ]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound($box.w / 6, 0, $box.w / 2, $box.h)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="fill" stroke="none" style="stroke-linejoin: round;"/>
+            <path id="path" fill="none" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                        Balloon message
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcSequentialtAccessStorage" displayName="&flowchartseqaccstor;" icon="Icons/fc-sequential-access-storage.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(5*$box.w/6, 5*$box.h/6), A($box.w / 2, $box.h / 2, 1, 1, 0, $box.w/2, $box.h), L($box.w, $box.h),
+                    L($box.w, 5*$box.h/6), L(5*$box.w/6, 5*$box.h/6), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 10)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcDelay" displayName="&flowchartdelay;" icon="Icons/fc-delay.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, 0), L($box.w/2, 0), C(3*$box.w/4, 0, $box.w, $box.h/4, $box.w, $box.h/2),
+                    S(3*$box.w/4, $box.h, $box.w/2, $box.h), L(0, $box.h), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 10)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcStoredData" displayName="&flowchartstordata;" icon="Icons/fc-stored-data.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    var ay = $box.w / 3;
+                    [M(ay/2, 0), L($box.w - ay/2, 0), C($box.w - 3*ay/4, 0, $box.w - ay, $box.h/4, $box.w - ay, $box.h/2),
+                    S($box.w - 3*ay/4, $box.h, $box.w - ay/2, $box.h), L(ay/2, $box.h),
+                    C(ay/4, $box.h, 0, 3*$box.h/4, 0, $box.h/2), S(ay/4, 0, ay/2, 0)
+                    ]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound($box.w / 6, 0, $box.w / 2, $box.h)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcMerge" displayName="&flowchartmrg;" icon="Icons/merge.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, 0), L($box.w, 0), L($box.w/2, $box.h), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound($box.w / 4, 0, $box.w / 2, $box.h / 2)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcExtract" displayName="&flowchartextr;" icon="Icons/fc-extract.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M($box.w/2, 0), L($box.w, $box.h), L(0, $box.h), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound($box.w / 4, $box.h / 2, $box.w / 2, $box.h / 2)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcSort" displayName="&flowchartsort;" icon="Icons/fc-sort.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M($box.w/2, 0), L($box.w, $box.h/2), L($box.w/2, $box.h), L(0, $box.h/2), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound($box.w / 4, $box.h / 4, $box.w / 2, $box.h / 2)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcCollate" displayName="&flowchartcoll;" icon="Icons/fc-collate.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, 0), L($box.w, $box.h), L(0, $box.h), L($box.w, 0), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound($box.w / 4, 0, $box.w / 2, $box.h)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcOr" displayName="&flowchartor;" icon="Icons/fc-or.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    [
+                    M($box.w/2, 0),
+                    C(3*$box.w/4, 0, $box.w, $box.h/4, $box.w, $box.h/2), S(3*$box.w/4, $box.h, $box.w/2, $box.h),
+                    C($box.w/4, $box.h, 0, 3*$box.h/4, 0, $box.h/2), S($box.w/4, 0, $box.w/2, 0),
+                    L($box.w/2, $box.h), M(0, $box.h/2), L($box.w, $box.h/2)
+                    ]
+                </D>
+            </For>
+            <For ref="fill">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [
+                    M($box.w/2, 0),
+                    C(3*$box.w/4, 0, $box.w, $box.h/4, $box.w, $box.h/2), S(3*$box.w/4, $box.h, $box.w/2, $box.h),
+                    C($box.w/4, $box.h, 0, 3*$box.h/4, 0, $box.h/2), S($box.w/4, 0, $box.w/2, 0), z
+                    ]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w / 5, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="fill" stroke="none" style="stroke-linejoin: round;"/>
+            <path id="path" fill="none" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcSummingJunction" displayName="&flowchartsummjunct;" icon="Icons/fc-summing-junction.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="clipPath">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    [
+                    M($box.w/2, 0 - $strokeStyle.w / 2),
+                    C(3*$box.w/4 + $strokeStyle.w / 3, 0 - $strokeStyle.w / 2, $box.w + $strokeStyle.w / 2, $box.h/4,
+                    $box.w + $strokeStyle.w / 2, $box.h/2), S(3*$box.w/4 + $strokeStyle.w / 3, $box.h + $strokeStyle.w / 2,
+                    $box.w/2, $box.h + $strokeStyle.w / 2),
+                    C($box.w/4 - $strokeStyle.w / 3, $box.h + $strokeStyle.w / 2, 0 - $strokeStyle.w / 2, 3*$box.h/4,
+                    0 - $strokeStyle.w / 2, $box.h/2),
+                    S($box.w/4 - $strokeStyle.w / 3, 0 - $strokeStyle.w / 2, $box.w/2, 0 - $strokeStyle.w / 2)
+                    ]
+                </D>
+            </For>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    [
+                    M($box.w/2, 0),
+                    C(3*$box.w/4, 0, $box.w, $box.h/4, $box.w, $box.h/2), S(3*$box.w/4, $box.h, $box.w/2, $box.h),
+                    C($box.w/4, $box.h, 0, 3*$box.h/4, 0, $box.h/2), S($box.w/4, 0, $box.w/2, 0),
+                    M(0, 0), L($box.w, $box.h), M($box.w, 0), L(0, $box.h)]
+                </D>
+            </For>
+            <For ref="fill">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [
+                    M($box.w/2, 0),
+                    C(3*$box.w/4, 0, $box.w, $box.h/4, $box.w, $box.h/2), S(3*$box.w/4, $box.h, $box.w/2, $box.h),
+                    C($box.w/4, $box.h, 0, 3*$box.h/4, 0, $box.h/2), S($box.w/4, 0, $box.w/2, 0), z
+                    ]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w / 5, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <clipPath id="MyClip">
+                <path id="clipPath" clip-rule="evenodd" />
+            </clipPath>
+            <path id="fill" stroke="none" style="stroke-linejoin: round;"/>
+            <path id="path" fill="none" style="stroke-linejoin: round;" clip-path="url(#MyClip)"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcPunchedTape" displayName="&flowchartpunchtape;" icon="Icons/fc-punched-tape.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, $box.h/10), C(0, $box.h/5, $box.w/2, $box.h/5, $box.w/2, $box.h/10), S($box.w, 0, $box.w, $box.h/10),
+                    L($box.w, 9*$box.h/10), C($box.w, 4*$box.h/5, $box.w/2, 4*$box.h/5, $box.w/2, 9*$box.h/10), S(0, $box.h, 0, 9*$box.h/10), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 1, $box.h / 6)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcCard" displayName="&flowchartcard;" icon="Icons/fc-card.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, $box.h / 5), L($box.w/5, 0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound(0, $box.h/5 , $box.w, $box.h * 4 / 5)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcOffpageConnector" displayName="&flowchartoffpgconn;" icon="Icons/fc-off-page-connector.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, 0), L($box.w, 0), L($box.w, 4*$box.h/5), L($box.w/2, $box.h), L(0, 4*$box.h/5), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound(0, 0 , $box.w, $box.h * 4 / 5)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcConnector" displayName="&flowchartconn;" icon="Icons/fc-connector.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <Attr>
+                    <Arg>"cx"</Arg>
+                    <Arg>$box.w/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"cy"</Arg>
+                    <Arg>$box.h/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"rx"</Arg>
+                    <Arg>$box.w/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"ry"</Arg>
+                    <Arg>$box.h/2</Arg>
+                </Attr>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w / 5, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+       </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <ellipse id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcManualOperation" displayName="&flowchartmanoper;" icon="Icons/fc-manual-operation.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, 0), L($box.w, 0), L(4*$box.w/5, $box.h), L($box.w/5, $box.h), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w / 5, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcManualInput" displayName="&flowchartmaninp;" icon="Icons/fc-manual-input.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, $box.h/5), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound(0, $box.h/5, $box.w, $box.h * 4 / 5)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcPreparation" displayName="&flowchartprep;" icon="Icons/fc-preparation.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, $box.h/2), L($box.w/5, 0), L(4*$box.w/5, 0), L($box.w, $box.h/2), L(4*$box.w/5, $box.h), L($box.w/5, $box.h), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w/ 5, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcTerminator" displayName="&flowchartterm;" icon="Icons/fc-terminator.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    var ay = $box.w / 3;
+                    [M(ay/2, 0), L($box.w - ay/2, 0), C($box.w - ay/4, 0, $box.w, $box.h/4, $box.w, $box.h/2),
+                    S($box.w - ay/4, $box.h, $box.w - ay/2, $box.h), L(ay/2, $box.h),
+                    C(ay/4, $box.h, 0, 3*$box.h/4, 0, $box.h/2), S(ay/4, 0, ay/2, 0)
+                    ]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w/ 6, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcProcess" displayName="&flowchartproc;" icon="Icons/fc-process.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <rect id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcAlternateProcess" displayName="&flowchartaltroc;" icon="Icons/fc-alternate-process.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <Bound>Bound.fromBox($box)</Bound>
+                <Attr>
+                    <Arg>"rx"</Arg>
+                    <Arg>Math.min($box.w/8, $box.h/8)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"ry"</Arg>
+                    <Arg>Math.min($box.w/8, $box.h/8)</Arg>
+                </Attr>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w/8, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <rect id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcDecision" displayName="&flowchartdecis;" icon="Icons/fc-decision.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M($box.w/2, 0), L($box.w, $box.h/2), L($box.w/2, $box.h), L(0, $box.h/2), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w/6, $box.h/6)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcData" displayName="&flowchartdata;" icon="Icons/fc-data.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M($box.w/5, 0), L($box.w, 0), L(4*$box.w/5, $box.h), L(0, $box.h), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w/5, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcPredefinedProcess" displayName="&flowchartpredefproc;" icon="Icons/fc-predefined-process.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, 0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), L(0, 0), M($box.w/8, 0), L($box.w/8, $box.h), M(7*$box.w/8, 0), L(7*$box.w/8, $box.h)]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $box.w/8, 1)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+             <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+       </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcInternalStorage" displayName="&flowchartinternstor;" icon="Icons/fc-internal-storage.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, 0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), L(0, 0), M($box.w/8, 0), L($box.w/8, $box.h), M(0, $box.h/8), L($box.w, $box.h/8)]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound($box.w/8, $box.h/8, $box.w * 7 / 8, $box.h * 7 / 8)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+             <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcDocument" displayName="&flowchartdoc;" icon="Icons/fc-document.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, 0), L($box.w, 0), L($box.w, 4*$box.h/5), C(3*$box.w/4, 4*$box.h/5, 3*$box.w/4, 4*$box.h/5, $box.w/2, 9*$box.h/10), S($box.w/4, $box.h, 0, 9*$box.h/10), z]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound(0, 0, $box.w, $box.h * 4 / 5)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+             <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ms-fcMultiDocument" displayName="&flowchartmultidoc;" icon="Icons/fc-multi-document.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="&box;" type="Dimension">100,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textfont;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="&textalign;" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, $box.h/5), L(4*$box.w/5, $box.h/5), L(4*$box.w/5, 4*$box.h/5), C(3*$box.w/4, 4*$box.h/5, 3*$box.w/4, 4*$box.h/5, $box.w/2, 9*$box.h/10), S($box.w/4, $box.h, 0, 9*$box.h/10), L(0, $box.h/5),
+                    M($box.w/10, $box.h/5), L($box.w/10, $box.h/10), L(9*$box.w/10, $box.h/10), L(9*$box.w/10, 7*$box.h/10), L(4*$box.w/5, 7*$box.h/10),
+                    M($box.w/5, $box.h/10), L($box.w/5, 0), L($box.w, 0), L($box.w, 6*$box.h/10), L(9*$box.w/10, 6*$box.h/10)]
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound(0, $box.h / 5, $box.w * 4 / 5, $box.h * 4 / 5)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+             <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+</Shapes>

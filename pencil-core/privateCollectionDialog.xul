@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<dialog id="pencilEditPrivateCollectionDialog" title="&dialog.edit.pri.collection.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        buttons="accept,cancel"
+        buttonlabelaccept="&button.accept.label.apply;"
+        buttonlabelcancel="&button.cancel.label.cancel;"
+        persist="screenX screenY width height"
+        ondialogaccept="return PrivateCollectionDialog.onFinish();"
+        minwidth="400">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/common/io.js"/>
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/privateCollection/privateCollection.js"/>
+    <script src="chrome://pencil/content/privateCollection/privateShapeDef.js"/>
+    <script src="chrome://pencil/content/privateCollection/privateCollectionManager.js"/>
+    <script src="chrome://pencil/content/privateCollectionDialog.js"/>
+
+    <hbox id="collection">
+        <groupbox flex="1">
+            <caption label="&caption.collection.infor.label;"/>
+            <grid>
+            <columns>
+                <column />
+                <column flex="1"/>
+            </columns>
+            <rows>
+                <row align="center">
+                    <hbox align="right" style="width:65px">
+                        <label control="collectionName" value="&label.name.value;" />
+                    </hbox>
+                    <textbox id="collectionName" size="32" maxlength="255" />
+                </row>
+                <row align="center">
+                    <hbox align="right">
+                        <label control="collectionDescription" value="&label.description.value;" />
+                    </hbox>
+                    <textbox id="collectionDescription" multiline="true" rows="2"/>
+                </row>
+                <row align="center">
+                    <hbox align="right">
+                        <label control="collectionAuthor" value="&label.author.value;" />
+                    </hbox>
+                    <textbox id="collectionAuthor" size="32" maxlength="255"/>
+                </row>
+                <row align="center">
+                    <hbox align="right">
+                        <label control="collectionInfoUrl" value="&label.website.value;" />
+                    </hbox>
+                    <textbox id="collectionInfoUrl" size="32" maxlength="255"/>
+                </row>
+            </rows>
+            </grid>
+        </groupbox>
+    </hbox>
+
+</dialog>

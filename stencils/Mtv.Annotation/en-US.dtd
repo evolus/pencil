@@ -1,0 +1,32 @@
+<!ENTITY displayName "Annotation">
+<!ENTITY collectionDesc "Collection of shapes for annotations">
+<!ENTITY defaultfont "Default Font">
+<!ENTITY defaultextcolor "Default Text Color">
+<!ENTITY defbordercolor "Default Border Color">
+<!ENTITY defborderstyle "Default Border Style">
+<!ENTITY defbackgrcolor "Default Background Color">
+<!ENTITY circleNumberingCallout "Circle Numbering Callout">
+<!ENTITY pinNumberingCallout "Pin Numbering Callout">
+<!ENTITY circleAlphaCallout "Circle Alpha Callout">
+<!ENTITY circleNormalCallout "Circle Callout">
+<!ENTITY smallTextCallout "Small Text">
+<!ENTITY pinNormalCallout "Pin Callout">
+<!ENTITY pinAlphaCallout "Pin Alpha Callout">
+<!ENTITY numbertextfont "Numbering Text Font">
+<!ENTITY numbertextcolor "Numbering Text Color">
+<!ENTITY text "Text">
+<!ENTITY numberbackgrcolor "Numbering Background Color">
+<!ENTITY background "Background">
+<!ENTITY border "Border">
+<!ENTITY backgrcolor "Background Color">
+<!ENTITY linecolor "Line Color">
+<!ENTITY linestyle "Line Style">
+<!ENTITY shape "Shape">
+
+<!ENTITY textcont "Text Content">
+<!ENTITY textfont "Text Font">
+<!ENTITY textcol "Text Color">
+<!ENTITY textsize "Text Size">
+
+<!ENTITY defaultfont "Default Font">
+<!ENTITY defaultextcolor "Default Text Color">

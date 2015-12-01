@@ -1,0 +1,7 @@
+/*
+    place extra stylesheet here
+*/
+
+.ImageContainer img {
+    border: solid 2px #999;
+}

@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<!DOCTYPE wizard SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/stencilGenerator.css" type="text/css"?>
+
+<wizard id="stencilGenerator"
+        title="&stencil.generator.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        minwidth="650"
+        minheight="420"
+        onwizardfinish="return StencilGenerator.onFinish();">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/common/io.js"/>
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/common/base64.js"/>
+    <script src="chrome://pencil/content/common/svgRasterizer.js"/>
+    <script src="chrome://pencil/content/document/xmlDocumentPersister.js"/>
+    <script src="chrome://pencil/content/stencilGenerator.js"/>
+
+    <wizardpage description="&wizardpage.collection.infor.desc;" onpageadvanced="return StencilGenerator.initStencils();">
+        <label value="&label.select.images.value;" class="Primary"/>
+        <hbox id="stencilPane1">
+            <vbox width="200" height="250">
+                <listbox id="imageList" flex="1" oncommand=""></listbox>
+                <label id="infoLabel" value="&label.drag.images.value;" class="Info"/>
+            </vbox>
+
+            <vbox flex="1">
+                <groupbox flex="1">
+                    <caption label="&caption.collection.definition.label;"/>
+                        <grid>
+                        <columns>
+                            <column />
+                            <column flex="1"/>
+                        </columns>
+                        <rows>
+                            <row align="center">
+                                <hbox align="right" style="width:75px">
+                                    <label control="collectionName" value="&label.name.value;" />
+                                </hbox>
+                                <textbox id="collectionName" size="32" maxlength="255" />
+                            </row>
+                            <row align="center">
+                                <hbox align="right" style="width:75px">
+                                    <label control="collectionDescription" value="&label.description.value;" />
+                                </hbox>
+                                <textbox id="collectionDescription" multiline="true" rows="2" />
+                            </row>
+                            <row align="center">
+                                <hbox align="right">
+                                    <label control="collectionIcon" value="&label.icon.value;" />
+                                </hbox>
+                                <hbox>
+                                    <textbox id="collectionIcon" size="32" maxlength="255" flex="1" disabled="true"/>
+                                    <button id="browse" label="&button.browse.label;" disabled="true" oncommand="document.getElementById('collectionIcon').value = StencilGenerator.selectIconFile();" />
+                                </hbox>
+                            </row>
+                            <row align="center">
+                                <hbox align="right" style="width:75px">
+                                    <label control="collectionAuthor" value="&label.author.value;" />
+                                </hbox>
+                                <textbox id="collectionAuthor" size="32" maxlength="255" />
+                            </row>
+                            <row align="center">
+                                <hbox align="right" style="width:75px">
+                                    <label control="collectionUrl" value="&label.website.value;" />
+                                </hbox>
+                                <textbox id="collectionUrl" size="32" maxlength="255" value="http://www.evolus.vn/Pencil"/>
+                            </row>
+                        </rows>
+                    </grid>
+                </groupbox>
+                <groupbox>
+                    <caption label="&caption.options.label;"/>
+                    <checkbox id="detectInkscape" checked="true" label="&checkbox.detect.inkscape.label;"/>
+                </groupbox>
+            </vbox>
+        </hbox>
+    </wizardpage>
+
+    <wizardpage description="&wizardpage.stencil.infor.desc;">
+        <vbox id="stencilPane2">
+            <label id="stencilSelectedCountLabel" value="" class="Info"/>
+            <hbox>
+                <vbox id="stencilList" class="Stencil"></vbox>
+            </hbox>
+            <hbox class="StencilInformation" id="stencilInformation" style="disply:none;">
+                <groupbox flex="1">
+                    <caption label="&caption.stencil.information.label;"/>
+                    <grid>
+                        <columns>
+                            <column />
+                            <column flex="1"/>
+                        </columns>
+                        <rows>
+                            <row align="center">
+                                <hbox align="right" style="width:75px">
+                                    <label control="stencilName" value="Name" />
+                                </hbox>
+                                <hbox>
+                                    <textbox id="stencilName" size="16" maxlength="255" width="250" oninput="StencilGenerator.onStencilNameChanged();"/>
+                                    <spacer flex="1" />
+                                </hbox>
+                            </row>
+                            <row align="center">
+                                <hbox align="right" style="width:75px">
+                                    <label control="stencilIcon" value="&label.icon.value;" />
+                                </hbox>
+                                <hbox>
+                                    <textbox id="stencilIcon" size="32" maxlength="255" flex="1" disabled="true"/>
+                                    <button id="browse" label="&button.browse.label;" disabled="true" oncommand="document.getElementById('stencilIcon').value = StencilGenerator.selectIconFile();" />
+                                </hbox>
+                            </row>
+                        </rows>
+                    </grid>
+                </groupbox>
+            </hbox>
+        </vbox>
+    </wizardpage>
+</wizard>

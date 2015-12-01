@@ -1,0 +1,13 @@
+<!ENTITY displayName "Safety Signs">
+<!ENTITY collectionDesc "Collection of Sign Shapes">
+<!ENTITY box "Box">
+<!ENTITY backgrcolor "Background Color">
+<!ENTITY linecolor "Line Color">
+<!ENTITY linestyle "Line Style">
+<!ENTITY defaultfont "Default Font">
+<!ENTITY defaultextcolor "Default Text Color">
+
+<!ENTITY handle1 "Handle 1">
+<!ENTITY handle2 "Handle 2">
+<!ENTITY textcont "Text Content">
+<!ENTITY textfont "Text Font">

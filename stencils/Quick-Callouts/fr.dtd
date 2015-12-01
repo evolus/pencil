@@ -1,0 +1,22 @@
+<!ENTITY displayName "Légendes rapide">
+<!ENTITY collectionDesc "Collection de légende des formes arrondies avec des textes">
+<!ENTITY box "Boîte">
+<!ENTITY backgrcolor "Couleur de fond">
+<!ENTITY linecolor "Couleur de ligne">
+<!ENTITY linestyle "Style de ligne">
+<!ENTITY defaultfont "Police par défaut">
+<!ENTITY defaultextcolor "Couleur du texte par défaut">
+<!ENTITY textcont "Contenu du texte">
+<!ENTITY textfont "Police du texte">
+<!ENTITY textcol "Couleur du texte">
+<!ENTITY textsize "Taille du texte">
+
+<!ENTITY accident "Accident">
+<!ENTITY usure "Usure">
+<!ENTITY usureAnormal "Usure Anormal">
+<!ENTITY mauvaiseInstallation "Mauvaise Installation">
+<!ENTITY reglageDefectueux "Réglage défectueux">
+<!ENTITY regalageAFaire "Régalage à faire">
+
+<!ENTITY text "Texte">
+<!ENTITY shape "Shape">

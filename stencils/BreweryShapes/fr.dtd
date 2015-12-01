@@ -1,0 +1,16 @@
+<!ENTITY displayName "Brewery shape">
+<!ENTITY collectionDesc "Collection of brewery shapes">
+<!ENTITY box "Boîte">
+<!ENTITY backgrcolor "Couleur de fond">
+<!ENTITY linecolor "Couleur de ligne">
+<!ENTITY linestyle "Style de ligne">
+<!ENTITY defaultfont "Police par défaut">
+<!ENTITY defaultextcolor "Couleur du texte par défaut">
+<!ENTITY image2 "Image2">
+<!ENTITY image3 "Image3">
+<!ENTITY image4 "Image4">
+<!ENTITY adjustablewrench "Clé à mollette">
+<!ENTITY handle1 "Poignée 1">
+<!ENTITY handle2 "Poignée 2">
+<!ENTITY textcont "Contenu du texte">
+<!ENTITY textfont "Police du texte">

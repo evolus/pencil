@@ -1,0 +1,73 @@
+Index: bindings/shadowStyleEditor.xbl
+===================================================================
+--- bindings/shadowStyleEditor.xbl	(revision 262)
++++ bindings/shadowStyleEditor.xbl	(working copy)
+@@ -69,7 +69,7 @@
+                 <textbox type="number" min="-30" max="30" size="2" aid="dy" xbl:inherits="disabled"/>
+ 
+                 <label value="&label.blur.size.value;"/>
+-                <textbox type="number" min="0" max="30" size="2" aid="size" xbl:inherits="disabled"/>
++                <textbox type="number" min="-30" max="30" size="2" aid="size" xbl:inherits="disabled"/>
+             </hbox>
+         </content>
+     </binding>
+Index: propertyType/shadowStyle.js
+===================================================================
+--- propertyType/shadowStyle.js	(revision 262)
++++ propertyType/shadowStyle.js	(working copy)
+@@ -17,7 +17,9 @@
+     return [this.dx, this.dy, this.size].join('|');
+ };
+ ShadowStyle.prototype.toCSSString = function (color) {
+-    return [this.dx + "px", this.dy + "px", this.size + "px", color.toRGBAString()].join(" ");
++    var css = [this.dx + "px", this.dy + "px", Math.abs(this.size) + "px", color.toRGBAString()].join(" ");
++    if (this.size < 0) css = "inset " + css;
++    return css;
+ };
+ 
+ pencilSandbox.ShadowStyle = {
+Index: stencil/BasicWebElements/Definition.xml
+===================================================================
+--- stencil/BasicWebElements/Definition.xml	(revision 262)
++++ stencil/BasicWebElements/Definition.xml	(working copy)
+@@ -127,10 +127,10 @@
+             <For ref="div">
+                 <Attr>
+                     <Arg>"style"</Arg>
+-                    <Arg>"-moz-box-sizing: border-box; overflow: hidden; " + $customStyle.value</Arg>
++                    <Arg>"box-sizing: border-box; -moz-box-sizing: border-box; overflow: hidden; " + $customStyle.value</Arg>
+                 </Attr>
+                 <CustomStyle>
+-                    <Arg>"-moz-box-shadow"</Arg>
++                    <Arg>"box-shadow"</Arg>
+                     <Arg>$shadowColor.a > 0 ? $shadowStyle.toCSSString($shadowColor) : "none"</Arg>
+                 </CustomStyle>
+                 <CustomStyle>
+@@ -150,19 +150,23 @@
+                     <Arg>$fillColor.toRGBAString()</Arg>
+                 </CustomStyle>
+                 <CustomStyle>
+-                    <Arg>"-moz-border-radius-topleft"</Arg>
++                    <Arg>"border-radius"</Arg>
++                    <Arg>($cornerStyle.value == "all") ? ($radius.x + "px") : "0px"</Arg>
++                </CustomStyle>
++                <CustomStyle>
++                    <Arg>"border-radius-topleft"</Arg>
+                     <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "top" || $cornerStyle.value == "left") ? ($radius.x + "px") : "0px"</Arg>
+                 </CustomStyle>
+                 <CustomStyle>
+-                    <Arg>"-moz-border-radius-topright"</Arg>
++                    <Arg>"border-radius-topright"</Arg>
+                     <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "top" || $cornerStyle.value == "right") ? ($radius.x + "px") : "0px"</Arg>
+                 </CustomStyle>
+                 <CustomStyle>
+-                    <Arg>"-moz-border-radius-bottomleft"</Arg>
++                    <Arg>"border-radius-bottomleft"</Arg>
+                     <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "bottom" || $cornerStyle.value == "left") ? ($radius.x + "px") : "0px"</Arg>
+                 </CustomStyle>
+                 <CustomStyle>
+-                    <Arg>"-moz-border-radius-bottomright"</Arg>
++                    <Arg>"border-radius-bottomright"</Arg>
+                     <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "bottom" || $cornerStyle.value == "right") ? ($radius.x + "px") : "0px"</Arg>
+                 </CustomStyle>
+                 <CustomStyle>

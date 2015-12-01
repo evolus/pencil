@@ -1,0 +1,761 @@
+<Shapes xmlns="http://www.evolus.vn/Namespace/Pencil"
+                xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                xmlns:svg="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:dc="http://purl.org/dc/elements/1.1/"
+                xmlns:cc="http://web.resource.org/cc/"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+                id="Mtv.Annotation"
+                displayName="&displayName;"
+                description="&collectionDesc;"
+                annotation="true"
+                >
+    <Properties>
+        <PropertyGroup name="&text;">
+            <Property name="defaultTextFont" type="Font" displayName="&defaultfont;">Arial Black|normal|normal|12pt</Property>
+            <Property name="defaultTextColor" type="Color" displayName="&defaultextcolor;">#ffffffff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="&border;">
+            <Property name="strokeColor" type="Color" displayName="&defbordercolor;">#ffffffff</Property>
+            <Property name="strokeStyle" type="StrokeStyle" displayName="&defborderstyle;">2|</Property>
+        </PropertyGroup>
+        <PropertyGroup name="&background;">
+            <Property name="fillColor" type="Color" displayName="&defbackgrcolor;">#e24846ff</Property>
+        </PropertyGroup>
+    </Properties>
+    <Styles>
+        <Group name="Style" defaultIcon="icons://Styles/Images/default-style.png">
+            <Style name="Strong" icon="icons://Styles/Images/red.png">
+                <Property name="fillColor" type="Color">#ff0000ff</Property>
+                <Property name="strokeColor" type="Color">#00000000</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="numberingTextColor" type="Color" >#ffffffff</Property>
+            </Style>
+            <Style name="Yellow" icon="icons://Styles/Images/yellow-border.png">
+                <Property name="fillColor" type="Color" >#ffff00ff</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Gray" icon="icons://Styles/Images/gray-border.png">
+                <Property name="fillColor" type="Color">#e3e3e3ff</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Magenta" icon="icons://Styles/Images/magenta.png">
+                <Property name="fillColor" type="Color">#ff00ffff</Property>
+                <Property name="strokeColor" type="Color">#00000000</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="numberingTextColor" type="Color" >#ffffffff</Property>
+            </Style>
+            <Style name="Blue" icon="icons://Styles/Images/blue-border.png">
+                <Property name="fillColor" type="Color" >#0000ffff</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="numberingTextColor" type="Color" >#ffffffff</Property>
+            </Style>
+            <Style name="Outline" icon="icons://Styles/Images/white-border.png">
+                <Property name="fillColor" type="Color">#80b3ffff</Property>
+                <Property name="strokeColor" type="Color">#ffffffff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Green" icon="icons://Styles/Images/green.png">
+                <Property name="fillColor" type="Color">#00ff00ff</Property>
+                <Property name="strokeColor" type="Color">#00000000</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Empty" icon="icons://Styles/Images/empty.png">
+                <Property name="fillColor" type="Color" >#00000000</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+            </Style>
+        </Group>
+    </Styles>
+    <Script>
+        <![CDATA[
+            collection.calloutPoint = function(a, box) {
+                var pos = F.getRelativeLocation(a, box);
+                var w = box.w;
+                var h = box.h;
+                if (pos == "top") {
+                    return a.x < w/2 ? {a: {x: w/6, y: 0}, b: {x: 4*w/10, y: 0}, t: 1} : {a: {x: 6*w/10, y: 0}, b: {x: 5*w/6, y: 0}, t: 2};
+                }
+                if (pos == "right") {
+                    return a.y < h/2 ? {a: {x: w, y: h/6}, b: {x: w, y: 4*h/10}, t: 3} : {a: {x: w, y: 6*h/10}, b: {x: w, y: 5*h/6}, t: 4};
+                }
+                if (pos == "bottom") {
+                    return a.x > w/2 ? {a: {x: 5*w/6, y: h}, b: {x: 6*w/10, y: h}, t: 5} : {a: {x: 4*w/10, y: h}, b: {x: w/6, y: h}, t: 6};
+                }
+                if (pos == "left") {
+                    return a.y > h/2 ? {a: {x: 0, y: 5*h/6}, b: {x: 0, y: 6*h/10}, t: 7} : {a: {x: 0, y: 4*h/10}, b: {x: 0, y: h/6}, t: 8};
+                }
+                return null;
+            };
+        ]]>
+    </Script>
+
+    <Shape id="circleCallout" displayName="&circleNormalCallout;" icon="Icons/circle.png" system="true">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">30,30</Property>
+                <Property name="numbering" type="Numbering">A</Property>
+                <Property name="comment" type="PlainText"></Property>
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['alpha|Alpha', 'number|Number', 'normal|Normal']">alpha</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="numberingTextFont" displayName="&numbertextfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="numberingTextColor" displayName="&numbertextcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="numberingText">
+                <TextContent>
+                    if ($type.value == "normal") {
+                        new PlainText("")
+                    } else {
+                        new PlainText($numbering &lt; 10 ? "0" + $numbering : $numbering)
+                    }
+                </TextContent>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <Fill>$numberingTextColor</Fill>
+                <Font>var f = new Font($numberingTextFont.toString()); f.size = $numberingTextFont.getPixelHeight()*Math.min($box.h,$box.w)/30 + "pt"; f;</Font>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 0)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="ellipse">
+                <Attr>
+                    <Arg>"cx"</Arg>
+                    <Arg>$box.w/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"cy"</Arg>
+                    <Arg>$box.h/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"rx"</Arg>
+                    <Arg>$box.w/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"ry"</Arg>
+                    <Arg>$box.h/2</Arg>
+                </Attr>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+        </Behaviors>
+        <Actions>
+        	    <Action id="updateNumbering">
+                <Impl>
+                    <![CDATA[
+                        var type = this.getProperty("type");
+                        if (type.value != "normal") {
+                            var alphaArray = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                            var baseNumbering = this.getProperty("numbering");
+					        if (baseNumbering && baseNumbering.value) {
+					            var numbering = alphaArray.indexOf(baseNumbering);
+					            if (numbering == -1) {
+					                numbering = parseInt(baseNumbering);
+					            }
+					            var sequelId = this.getSequelId();
+					            var numberingCallouts = this.getShapesBySequelId(sequelId);
+					            for (var i = 0; i < numberingCallouts.length; i++) {
+					                var shape = numberingCallouts[i];
+					                var controller = this.createControllerFor(shape);
+					                var currentPropertyNumber = controller.getProperty("numbering");
+					                if (currentPropertyNumber && currentPropertyNumber.value) {
+                                        var currentNumber = alphaArray.indexOf(currentPropertyNumber);
+					                    if (currentNumber == -1) {
+					                        currentNumber = parseInt(currentPropertyNumber);
+					                    }
+					                    if (currentNumber > numbering) {
+					                        if (type.value == "alpha") {
+					                            var number = alphaArray.charAt(currentNumber - 1);
+					                            controller.setProperty("numbering", number, true);
+					                        } else {
+					                            controller.setProperty("numbering", "" + (currentNumber - 1), true);
+					                        }
+					                    }
+					                }
+					            }
+					        }
+					    }
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="startNumbering">
+                <Impl>
+                    <![CDATA[
+                        var type = this.getProperty("type");
+                        var alphaArray = new Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z");
+                        //var sequelId = "numbering-" + this.defId + "-" + type.value;
+                        var sequelId = "numbering-Callout-" + type.value;
+                        var shapes = this.getShapesBySequelId(sequelId);
+                        var currentNumbering = shapes.length;
+                        currentNumbering++;
+                        if (type.value == "alpha") {
+                            this.setNumbering(alphaArray[((currentNumbering - 1) % 26)], sequelId);
+                        } else {
+                            this.setNumbering(currentNumbering, sequelId);
+                        }
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+            xmlns="http://www.w3.org/2000/svg">
+            <ellipse id="ellipse"/>
+            <text x="0" y="0" width="1" height="1" id="numberingText"></text>
+        </p:Content>
+    </Shape>
+
+    <Shape id="circleNumberingCallout" displayName="&circleNumberingCallout;" icon="Icons/circle_number.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">30,30</Property>
+                <Property name="numbering" type="Numbering">1</Property>
+                <Property name="comment" type="PlainText"></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="numberingTextFont" displayName="&numbertextfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="numberingTextColor" displayName="&numbertextcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="numberingText">
+                <TextContent>new PlainText($numbering &lt; 10 ? "0" +$numbering : $numbering)</TextContent>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <Fill>$numberingTextColor</Fill>
+                <Font>var f = new Font($numberingTextFont.toString()); f.size = $numberingTextFont.getPixelHeight()*Math.min($box.h,$box.w)/30 + "pt"; f;</Font>
+                <BoxFit>
+                <Arg>Bound.fromBox($box, 0)</Arg>
+                <Arg>$textAlign</Arg>
+            </BoxFit>
+            </For>
+            <For ref="ellipse">
+                <Attr>
+                    <Arg>"cx"</Arg>
+                    <Arg>$box.w/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"cy"</Arg>
+                    <Arg>$box.h/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"rx"</Arg>
+                    <Arg>$box.w/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"ry"</Arg>
+                    <Arg>$box.h/2</Arg>
+                </Attr>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+        </Behaviors>
+        <Actions>
+        	<Action id="updateNumbering">
+                <Impl>
+                    <![CDATA[
+                        var numbering = this.getProperty("numbering");
+					    if (numbering && numbering.value) {
+					        numbering = parseInt(numbering);
+					        var sequelId = this.getSequelId();
+					        var numberingCallouts = this.getShapesBySequelId(sequelId);
+					        for (var i = 0; i < numberingCallouts.length; i++) {
+					            var shape = numberingCallouts[i];
+					            var controller = this.createControllerFor(shape);
+					            var sn = controller.getProperty("numbering");
+					            if (sn) {
+					                sn = parseInt(sn);
+					                if (sn > numbering) {
+					                    controller.setProperty("numbering", "" + (sn - 1), true);
+					                }
+					            }
+					        }
+					    }
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="startNumbering">
+                <Impl>
+                    <![CDATA[
+                        var sequelId = "numbering-" + this.defId;
+                        var shapes = this.getShapesBySequelId(sequelId);
+                        var currentNumbering = shapes.length;
+                        currentNumbering++;
+                        this.setNumbering(currentNumbering, sequelId);
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+            xmlns="http://www.w3.org/2000/svg">
+            <ellipse id="ellipse"/>
+            <text x="0" y="0" width="1" height="1" id="numberingText"></text>
+        </p:Content>
+    </Shape>
+
+
+    <Shape id="circleAlphaCallout" displayName="&circleAlphaCallout;" icon="Icons/circle_alpha.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">30,30</Property>
+                <Property name="numbering" type="Numbering">1</Property>
+                <Property name="comment" type="PlainText"></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="numberingTextFont" displayName="&numbertextfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="numberingTextColor" displayName="&numbertextcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="numberingText">
+                <TextContent>$numbering</TextContent>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <Fill>$numberingTextColor</Fill>
+                <Font>var f = new Font($numberingTextFont.toString()); f.size = $numberingTextFont.getPixelHeight()*Math.min($box.h,$box.w)/30 + "pt"; f;</Font>
+                <BoxFit>
+                <Arg>Bound.fromBox($box, 0)</Arg>
+                <Arg>$textAlign</Arg>
+            </BoxFit>
+            </For>
+            <For ref="ellipse">
+                <Attr>
+                    <Arg>"cx"</Arg>
+                    <Arg>$box.w/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"cy"</Arg>
+                    <Arg>$box.h/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"rx"</Arg>
+                    <Arg>$box.w/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"ry"</Arg>
+                    <Arg>$box.h/2</Arg>
+                </Attr>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+        </Behaviors>
+        <Actions>
+        	<Action id="updateNumbering">
+                <Impl>
+                    <![CDATA[
+						var alphaArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                        var numbering = this.getProperty("numbering");
+					    if (numbering && numbering.value) {
+					        numbering = alphaArray.indexOf(numbering);
+					        var sequelId = this.getSequelId();
+					        var numberingCallouts = this.getShapesBySequelId(sequelId);
+					        for (var i = 0; i < numberingCallouts.length; i++) {
+					            var shape = numberingCallouts[i];
+					            var controller = this.createControllerFor(shape);
+					            var sn = controller.getProperty("numbering");
+					            if (sn) {
+					                sn = alphaArray.indexOf(sn);
+					                if (sn > numbering) {
+										var number = alphaArray.charAt(sn-1);
+
+					                    controller.setProperty("numbering", number, true);
+					                }
+					            }
+					        }
+					    }
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="startNumbering">
+                <Impl>
+                    <![CDATA[
+                        var alphaArray = new Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z");
+                        var sequelId = "numbering-" + this.defId;
+                        var shapes = this.getShapesBySequelId(sequelId);
+                        var currentNumbering = shapes.length;
+                        currentNumbering++;
+                        this.setNumbering(alphaArray[((currentNumbering-1)%26)], sequelId);
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+            xmlns="http://www.w3.org/2000/svg">
+            <ellipse id="ellipse"/>
+            <text x="0" y="0" width="1" height="1" id="numberingText"></text>
+        </p:Content>
+    </Shape>
+
+    <Shape id="pinCallout" displayName="&pinNormalCallout;" icon="Icons/pin.png" system="true">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">30,52</Property>
+                <Property name="comment" type="PlainText"></Property>
+                <Property name="numbering" type="Numbering">1</Property>
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['alpha|Alpha', 'number|Number', 'normal|Normal']">alpha</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="numberingTextFont" displayName="&numbertextfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="numberingTextColor" displayName="&numbertextcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="numberingText">
+                <TextContent>
+                    if ($type.value == "normal") {
+                        new PlainText("")
+                    } else {
+                        new PlainText($numbering &lt; 10 ? "0" +$numbering : $numbering)
+                    }
+                </TextContent>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <Fill>$numberingTextColor</Fill>
+                <Font>var f = new Font($numberingTextFont.toString()); f.size = $numberingTextFont.getPixelHeight()*$box.w/30 + "pt"; f;</Font>
+                <BoxFit>
+                    <Arg>new Bound(0,0,$box.w, $box.h/2)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="path">
+                <Scale>
+                    <Arg>$box.w/30</Arg>
+                    <Arg>$box.h/52</Arg>
+                </Scale>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+        </Behaviors>
+        <Actions>
+        	    <Action id="updateNumbering">
+                <Impl>
+                    <![CDATA[
+                        var type = this.getProperty("type");
+                        if (type.value != "normal") {
+                            var alphaArray = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                            var baseNumbering = this.getProperty("numbering");
+					        if (baseNumbering && baseNumbering.value) {
+					            var numbering = alphaArray.indexOf(baseNumbering);
+					            if (numbering == -1) {
+					                numbering = parseInt(baseNumbering);
+					            }
+					            var sequelId = this.getSequelId();
+					            var numberingCallouts = this.getShapesBySequelId(sequelId);
+					            for (var i = 0; i < numberingCallouts.length; i++) {
+					                var shape = numberingCallouts[i];
+					                var controller = this.createControllerFor(shape);
+					                var currentPropertyNumber = controller.getProperty("numbering");
+					                if (currentPropertyNumber && currentPropertyNumber.value) {
+					                    var currentNumber = alphaArray.indexOf(currentPropertyNumber);
+					                    if (currentNumber == -1) {
+					                        currentNumber = parseInt(currentPropertyNumber);
+					                    }
+					                    if (currentNumber > numbering) {
+					                        if (type.value == "alpha") {
+					                            var number = alphaArray.charAt(currentNumber - 1);
+					                            controller.setProperty("numbering", number, true);
+					                        } else {
+					                            controller.setProperty("numbering", "" + (currentNumber - 1), true);
+					                        }
+					                    }
+					                }
+					            }
+					        }
+					    }
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="startNumbering">
+                <Impl>
+                    <![CDATA[
+                        var type = this.getProperty("type");
+                        var alphaArray = new Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z");
+                        //var sequelId = "numbering-" + this.defId + "-" + type.value;
+                        var sequelId = "numbering-Callout-" + type.value;
+                        var shapes = this.getShapesBySequelId(sequelId);
+                        var currentNumbering = shapes.length;
+                        currentNumbering++;
+                        if (type.value == "alpha") {
+                            this.setNumbering(alphaArray[((currentNumbering - 1) % 26)], sequelId);
+                        } else {
+                            this.setNumbering(currentNumbering, sequelId);
+                        }
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+            xmlns="http://www.w3.org/2000/svg">
+            <path id="path" d="m 14.781646,0.13430774 c -7.8495428,0 -14.2610163,6.24255116 -14.64978742,14.05770226 -0.0245195,3.104677 0.62398576,4.373329 1.35952722,6.8208 C 5.1024899,31.611982 10.259586,41.773034 15.065296,51.869589 19.969959,41.555538 25.22345,30.487473 28.508613,21.01281 29.244156,18.565339 29.892635,17.296687 29.868142,14.19201 29.479368,6.3768589 23.067871,0.13430774 15.218325,0.13430774 c -0.07538,-0.001833 -0.14802,-0.002347 -0.211695,-0.002347 -0.131647,-5.734e-5 -0.224984,0.002347 -0.224984,0.002347 z"/>
+            <text x="0" y="0" width="1" height="1" id="numberingText"></text>
+        </p:Content>
+    </Shape>
+
+    <Shape id="pinNumberingCallout" displayName="&pinNumberingCallout;" icon="Icons/pin_number.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">30,52</Property>
+                <Property name="numbering" type="Numbering">1</Property>
+                <Property name="comment" type="PlainText"></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="numberingTextFont" displayName="&numbertextfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="numberingTextColor" displayName="&numbertextcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="numberingText">
+                <TextContent>new PlainText($numbering &lt; 10 ? "0" +$numbering : $numbering)</TextContent>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <Fill>$numberingTextColor</Fill>
+                <Font>var f = new Font($numberingTextFont.toString()); f.size = $numberingTextFont.getPixelHeight()*$box.w/30 + "pt"; f;</Font>
+                <BoxFit>
+                <Arg>new Bound(0,0,$box.w, $box.h/2)</Arg>
+                <Arg>$textAlign</Arg>
+            </BoxFit>
+            </For>
+            <For ref="path">
+                <Scale>
+                    <Arg>$box.w/30</Arg>
+                    <Arg>$box.h/52</Arg>
+                </Scale>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+        </Behaviors>
+        <Actions>
+        	    <Action id="updateNumbering">
+                <Impl>
+                    <![CDATA[
+                        var numbering = this.getProperty("numbering");
+					    if (numbering && numbering.value) {
+					        numbering = parseInt(numbering);
+					        var sequelId = this.getSequelId();
+					        var numberingCallouts = this.getShapesBySequelId(sequelId);
+					        for (var i = 0; i < numberingCallouts.length; i++) {
+					            var shape = numberingCallouts[i];
+					            var controller = this.createControllerFor(shape);
+					            var sn = controller.getProperty("numbering");
+					            if (sn) {
+					                sn = parseInt(sn);
+					                if (sn > numbering) {
+					                    controller.setProperty("numbering", "" + (sn - 1), true);
+					                }
+					            }
+					        }
+					    }
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="startNumbering">
+                <Impl>
+                    <![CDATA[
+                        var sequelId = "numbering-" + this.defId;
+                        var shapes = this.getShapesBySequelId(sequelId);
+                        var currentNumbering = shapes.length;
+                        currentNumbering++;
+                        this.setNumbering(currentNumbering, sequelId);
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+            xmlns="http://www.w3.org/2000/svg">
+            <path id="path" d="m 14.781646,0.13430774 c -7.8495428,0 -14.2610163,6.24255116 -14.64978742,14.05770226 -0.0245195,3.104677 0.62398576,4.373329 1.35952722,6.8208 C 5.1024899,31.611982 10.259586,41.773034 15.065296,51.869589 19.969959,41.555538 25.22345,30.487473 28.508613,21.01281 29.244156,18.565339 29.892635,17.296687 29.868142,14.19201 29.479368,6.3768589 23.067871,0.13430774 15.218325,0.13430774 c -0.07538,-0.001833 -0.14802,-0.002347 -0.211695,-0.002347 -0.131647,-5.734e-5 -0.224984,0.002347 -0.224984,0.002347 z"/>
+            <text x="0" y="0" width="1" height="1" id="numberingText"></text>
+        </p:Content>
+    </Shape>
+
+    <Shape id="pinAlphaCallout" displayName="&pinAlphaCallout;" icon="Icons/pin_alpha.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">30,52</Property>
+                <Property name="numbering" type="Numbering">1</Property>
+                <Property name="comment" type="PlainText"></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="numberingTextFont" displayName="&numbertextfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="numberingTextColor" displayName="&numbertextcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="numberingText">
+                <TextContent>$numbering</TextContent>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <Fill>$numberingTextColor</Fill>
+                <Font>var f = new Font($numberingTextFont.toString()); f.size = $numberingTextFont.getPixelHeight()*$box.w/30 + "pt"; f;</Font>
+                <BoxFit>
+                <Arg>new Bound(0,0,$box.w, $box.h/2)</Arg>
+                <Arg>$textAlign</Arg>
+            </BoxFit>
+            </For>
+            <For ref="path">
+                <Scale>
+                    <Arg>$box.w/30</Arg>
+                    <Arg>$box.h/52</Arg>
+                </Scale>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+        </Behaviors>
+        <Actions>
+        	<Action id="updateNumbering">
+                <Impl>
+                    <![CDATA[
+						var alphaArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                        var numbering = this.getProperty("numbering");
+					    if (numbering && numbering.value) {
+					        numbering = alphaArray.indexOf(numbering);
+					        var sequelId = this.getSequelId();
+					        var numberingCallouts = this.getShapesBySequelId(sequelId);
+					        for (var i = 0; i < numberingCallouts.length; i++) {
+					            var shape = numberingCallouts[i];
+					            var controller = this.createControllerFor(shape);
+					            var sn = controller.getProperty("numbering");
+					            if (sn) {
+					                sn = alphaArray.indexOf(sn);
+					                if (sn > numbering) {
+										var number = alphaArray.charAt(sn-1);
+
+					                    controller.setProperty("numbering", number, true);
+					                }
+					            }
+					        }
+					    }
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="startNumbering">
+                <Impl>
+                    <![CDATA[
+                        var alphaArray = new Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z");
+                        var sequelId = "numbering-" + this.defId;
+                        var shapes = this.getShapesBySequelId(sequelId);
+                        var currentNumbering = shapes.length;
+                        currentNumbering++;
+                        this.setNumbering(alphaArray[((currentNumbering-1)%26)], sequelId);
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+            xmlns="http://www.w3.org/2000/svg">
+            <path id="path" d="m 14.781646,0.13430774 c -7.8495428,0 -14.2610163,6.24255116 -14.64978742,14.05770226 -0.0245195,3.104677 0.62398576,4.373329 1.35952722,6.8208 C 5.1024899,31.611982 10.259586,41.773034 15.065296,51.869589 19.969959,41.555538 25.22345,30.487473 28.508613,21.01281 29.244156,18.565339 29.892635,17.296687 29.868142,14.19201 29.479368,6.3768589 23.067871,0.13430774 15.218325,0.13430774 c -0.07538,-0.001833 -0.14802,-0.002347 -0.211695,-0.002347 -0.131647,-5.734e-5 -0.224984,0.002347 -0.224984,0.002347 z"/>
+            <text x="0" y="0" width="1" height="1" id="numberingText"></text>
+        </p:Content>
+    </Shape>
+
+    <Shape id="smallTextCallout" displayName="&smallTextCallout;" icon="Icons/small-text.png" system="true">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="Handle" type="Handle">30,100</Property>
+                <Property name="box" displayName="Box" type="Dimension">140,70</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&background;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="comment" displayName="&textcont;" type="PlainText">Small text</Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textcol;" type="Color"><E>$$defaultTextColor</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    x = [];
+                    var points = collection.calloutPoint($a, $box);
+                    if (points != null) {
+                        switch (points.t) {
+                            case 1: case 2: x = [M(0, 0), L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), z]; break;
+                            case 3: case 4: x = [M(0, 0), L($box.w, 0), L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y), L($box.w, $box.h), L(0, $box.h), z]; break;
+                            case 5: case 6: x = [M(0, 0), L($box.w, 0), L($box.w, $box.h), L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y), L(0, $box.h), z]; break;
+                            case 7: case 8: x = [M(0, 0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y), z]; break;
+                        }
+                    }
+                    x
+                </D>
+            </For>
+            <For ref="text">
+                <TextContent>
+                    var comment = $comment.value;
+                    if (comment.length > 35) {
+                        comment = comment.substring(0, 35) + "...";
+                    }
+                    new PlainText(comment);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                    <div xmlns="http://www.w3.org/1999/xhtml">
+                            Balloon message
+                    </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+</Shapes>

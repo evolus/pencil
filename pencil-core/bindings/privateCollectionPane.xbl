@@ -1,0 +1,338 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:svg="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="privateCollectionPane">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                this.contentBox = document.getAnonymousElementByAttribute(this, "aid", "contentBox");
+                this.popup = document.getAnonymousElementByAttribute(this, "aid", "contextPopup");
+                this.removeAllCollectionMenuItem = document.getAnonymousElementByAttribute(this, "aid", "removeAllCollectionMenuItem");
+                this.editCollectionMenuItem = document.getAnonymousElementByAttribute(this, "aid", "editCollectionMenuItem");
+                this.importCollectionMenuItem = document.getAnonymousElementByAttribute(this, "aid", "importCollectionMenuItem");
+                this.exportCollectionMenuItem = document.getAnonymousElementByAttribute(this, "aid", "exportCollectionMenuItem");
+                this.deleteCollectionMenuItem = document.getAnonymousElementByAttribute(this, "aid", "deleteCollectionMenuItem");
+                this.deleteShapeMenuItem = document.getAnonymousElementByAttribute(this, "aid", "deleteShapeMenuItem");
+                this.editShapeMenuItem = document.getAnonymousElementByAttribute(this, "aid", "editShapeMenuItem");
+                this.aboutMenuItem = document.getAnonymousElementByAttribute(this, "aid", "aboutMenuItem");
+                this.sepAboutMenuItem = document.getAnonymousElementByAttribute(this, "aid", "sepAboutMenuItem");
+
+                var id = "popup" + Math.round(1000 * Math.random());
+                this.popup.setAttribute("id", id);
+                this.contentBox.setAttribute("context", id);
+                var thiz = this;
+
+                this.addEventListener("click", function (event) {
+                    if (event.button != 0) return;
+                    var defNode = Dom.findUpward(event.originalTarget, function (node) { return node._def; });
+                    if (defNode) {
+                        var e = document.createEvent("Events");
+                        e.initEvent("ShapeSelected", false, false);
+                        e.shapeDef = defNode._def;
+                        this.dispatchEvent(e);
+                    }
+
+                    var header = Dom.findUpward(event.originalTarget, function (node) { return node._isHeader; });
+                    if (header) {
+                        collection = Dom.findUpward(event.originalTarget, function (node) { return node._collection; });
+                        if (collection) {
+                            var collapsed = collection.getAttribute("pcollapsed");
+                            collapsed = (collapsed == "true");
+                            collection.setAttribute("pcollapsed", !collapsed);
+                            CollectionManager.setCollectionCollapsed(collection._collection, !collapsed);
+                        }
+                    }
+                }, false);
+                this.contentBox.addEventListener("contextmenu", function (event) {
+                    try {
+                        var collection = Dom.findUpward(event.originalTarget, function (node) { return node._collection; });
+                        thiz.removeAllCollectionMenuItem.disabled = PrivateCollectionManager.privateShapeDef.collections.length == 0;
+                        var hasCollection = false;
+                        if (collection && collection._collection) {
+                            hasCollection = true;
+                            thiz.currentCollection = collection._collection;
+                            collection = collection._collection;
+                        }
+                        thiz.exportCollectionMenuItem.disabled = !hasCollection;
+                        thiz.deleteCollectionMenuItem.disabled = !hasCollection;
+                        thiz.editCollectionMenuItem.disabled = !hasCollection;
+                        var hasShapeDef = false;
+                        if (collection) {
+                            var defNode = Dom.findUpward(event.originalTarget, function (node) { return node._def; });
+                            if (defNode && defNode._def) {
+                                hasShapeDef = true;
+                                thiz.currentShapeDef = defNode._def;
+                            }
+                        }
+                        thiz.deleteShapeMenuItem.disabled = !hasShapeDef;
+                        thiz.editShapeMenuItem.disabled = !hasShapeDef;
+                        if (collection) {
+                            thiz.aboutMenuItem.setAttribute("label", Util.getMessage("collectionpane.about.collection", thiz.currentCollection.displayName));
+                            thiz.aboutMenuItem.style.display = '';
+                            thiz.sepAboutMenuItem.style.display = '';
+                        } else {
+                            thiz.aboutMenuItem.style.display = 'none';
+                            thiz.sepAboutMenuItem.style.display = 'none';
+                        }
+                    } catch (e) { Console.dumpError(e);}
+                }, false);
+                this.importCollectionMenuItem.addEventListener("command", function (event) {
+                    //debug("import menuitem clicked ");
+                    PrivateCollectionManager.importNewCollection();
+                }, false);
+                this.exportCollectionMenuItem.addEventListener("command", function (event) {
+                    //debug("export menuitem clicked " + thiz.currentCollection);
+                    if (thiz.currentCollection) {
+                        PrivateCollectionManager.exportCollection(thiz.currentCollection);
+                    }
+                }, false);
+                this.deleteCollectionMenuItem.addEventListener("command", function (event) {
+                    //debug("delete collection menuitem clicked");
+                    if (thiz.currentCollection) {
+                        PrivateCollectionManager.deleteCollection(thiz.currentCollection);
+                    }
+                }, false);
+                this.editCollectionMenuItem.addEventListener("command", function (event) {
+                    if (thiz.currentCollection) {
+                        var data = {
+                            collectionName: thiz.currentCollection.displayName,
+                            collectionDescription: thiz.currentCollection.description,
+                            collectionAuthor: thiz.currentCollection.author,
+                            collectionInfoUrl: thiz.currentCollection.infoUrl,
+                            valueHolder: {}
+                        };
+                        var d = window.openDialog('chrome://pencil/content/privateCollectionDialog.xul', 'PrivateCollectionDialog', 'chrome,centerscreen,modal', data);
+                        var valueHolder = data.valueHolder;
+                        if (!valueHolder.collectionName) return;
+
+                        thiz.currentCollection.displayName = valueHolder.collectionName;
+                        thiz.currentCollection.description = valueHolder.collectionDescription;
+                        thiz.currentCollection.author = valueHolder.collectionAuthor;
+                        thiz.currentCollection.infoUrl = valueHolder.collectionInfoUrl;
+
+                        PrivateCollectionManager.savePrivateCollections();
+                        thiz.reloadCollections();
+                    }
+                }, false);
+                this.editShapeMenuItem.addEventListener("command", function (event) {
+                    if (thiz.currentCollection && thiz.currentShapeDef) {
+                        var data = {
+                            shapeName: thiz.currentShapeDef.displayName,
+                            valueHolder: {}
+                        };
+                        var d = window.openDialog('chrome://pencil/content/privateShapeDialog.xul', 'PrivateShapeDialog', 'chrome,centerscreen,modal', data);
+                        var valueHolder = data.valueHolder;
+                        if (!valueHolder.shapeName) return;
+
+                        thiz.currentShapeDef.displayName = valueHolder.shapeName;
+                        if (valueHolder.changeIcon) {
+                            var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+                            file.initWithPath(valueHolder.shapeIcon);
+
+                            var ios = Components.classes["@mozilla.org/network/io-service;1"].
+                                            getService(Components.interfaces.nsIIOService);
+                            var istream = Components.classes["@mozilla.org/network/file-input-stream;1"].
+                                                    createInstance(Components.interfaces.nsIFileInputStream);
+                            istream.init(file, -1, -1, false);
+
+                            var bstream = Components.classes["@mozilla.org/binaryinputstream;1"].
+                                                    createInstance(Components.interfaces.nsIBinaryInputStream);
+                            bstream.setInputStream(istream);
+                            var bytes = bstream.readBytes(bstream.available());
+                            istream.close();
+                            bstream.close();
+
+                            var base64 = Base64.encode(bytes, true);
+                            thiz.currentShapeDef.iconData = "data:image/png;base64," + base64;
+                        }
+                        PrivateCollectionManager.savePrivateCollections();
+                        thiz.reloadCollections();
+                    }
+                }, false);
+                this.deleteShapeMenuItem.addEventListener("command", function (event) {
+                    //debug("delete collection menuitem clicked");
+                    if (thiz.currentCollection && thiz.currentShapeDef) {
+                        PrivateCollectionManager.deleteShape(thiz.currentCollection, thiz.currentShapeDef);
+                    }
+                }, false);
+                this.removeAllCollectionMenuItem.addEventListener("command", function (event) {
+                    //debug("remove all menuitem clicked");
+                    PrivateCollectionManager.deleteAllCollection();
+                }, false);
+
+                this.aboutMenuItem.addEventListener("command", function (event) {
+                    if (thiz.currentCollection) {
+                        var collection = thiz.currentCollection;
+                        var detail = "<div>" + Dom.htmlEncode(collection.description) + "</div><ul>";
+                        if (collection.author) {
+                            detail += "<li><strong>" + Util.getMessage("collectionpane.author.label") + "</strong> " + Dom.htmlEncode(collection.author) + "</li>";
+                        }
+                        if (collection.infoUrl) {
+                            detail += "<li><strong>" + Util.getMessage("collectionpane.more.information.label") + "</strong> <a href=\"" + collection.infoUrl + "\">" + collection.infoUrl + "</a></li>";
+                        }
+                        detail += "</ul>"
+                        Util.info(collection.displayName, new RichText(detail));
+                    }
+                }, false);
+
+                this.dragObserver = {
+                    getSupportedFlavours : function () {
+                        var flavours = new FlavourSet();
+
+                        flavours.appendFlavour("pencil/def");
+                        flavours.appendFlavour("text/unicode");
+                        //flavours.appendFlavour("image/png");
+
+                        return flavours;
+                    },
+                    onDragOver: function (evt, flavour, session){},
+                    onDrop: function (evt, transferData, session) {
+                        //debug("onDrop");
+                    }
+                };
+            ]]>
+            </constructor>
+            <method name="addShapeCollection">
+                <parameter name="collection"/>
+                <body>
+                <![CDATA[
+                    var collectionBox = document.createElementNS(PencilNamespaces.xul, "vbox");
+
+                    collectionBox._collection = collection;
+                    collectionBox.setAttribute("id", collection.id);
+                    collectionBox.setAttribute("class", "Collection");
+                    collectionBox.setAttribute("pcollapsed", collection.collapsed);
+                    this.contentBox.appendChild(collectionBox);
+
+                    var hbox = document.createElementNS(PencilNamespaces.xul, "hbox");
+                    collectionBox.appendChild(hbox);
+                    hbox._isHeader = true;
+
+                    var button = document.createElementNS(PencilNamespaces.xul, "button");
+                    hbox.appendChild(button);
+                    button.setAttribute("type", "checkbox");
+
+                    var div = document.createElementNS(PencilNamespaces.html, "div");
+                    hbox.appendChild(div);
+                    div.setAttribute("flex", "1");
+
+                    var h4 = document.createElementNS(PencilNamespaces.html, "h4");
+                    div.appendChild(h4);
+                    h4.appendChild(document.createTextNode(collection.displayName));
+
+                    var p = document.createElementNS(PencilNamespaces.html, "p");
+                    div.appendChild(p);
+                    p.appendChild(document.createTextNode(collection.description));
+
+                    div = document.createElementNS(PencilNamespaces.html, "div");
+                    collectionBox.appendChild(div);
+
+                    div.setAttribute("class", "Content");
+
+                    var thiz = this;
+                    for (var i in collection.shapeDefs) {
+                        var def = collection.shapeDefs[i];
+                        var button = document.createElementNS(PencilNamespaces.html, "div");
+                        button._def = def;
+                        div.appendChild(button);
+
+                        button.addEventListener("draggesture", function (event) {
+                            thiz.handleDragStart(event);
+                        }, false);
+
+                        var image = document.createElementNS(PencilNamespaces.html, "img");
+                        image.setAttribute("src", def.iconData);
+                        button.appendChild(image);
+
+                        var label = document.createElementNS(PencilNamespaces.html, "label");
+                        label.appendChild(document.createTextNode(def.displayName));
+                        button.appendChild(label);
+                    }
+                ]]>
+                </body>
+            </method>
+            <method name="reloadCollections">
+                <body>
+                <![CDATA[
+                    Dom.empty(this.contentBox);
+                    for (var i in PrivateCollectionManager.privateShapeDef.collections) {
+                        var collection = PrivateCollectionManager.privateShapeDef.collections[i];
+                        this.addShapeCollection(collection);
+                    }
+                ]]>
+                </body>
+            </method>
+            <method name="handleDragStart">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+
+                    try {
+                        var defNode = Dom.findUpward(event.originalTarget, function (node) { return node._def; });
+                        //debug("start draging: " + defNode._def.displayName);
+                        nsDragAndDrop.startDrag(event, {
+                            onDragStart: function (evt, transferData, action) {
+                                //debug("dragging started: " + defNode._def.displayName);
+                                transferData.data = new TransferData();
+                                transferData.data.addDataForFlavour("pencil/privatedef", defNode._def.id);
+                                transferData.data.addDataForFlavour("text/unicode", defNode._def.displayName);
+                            }
+                        });
+                        //debug("end draging: " + defNode._def.displayName);
+                    } catch (e) { alert(e); }
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <handlers>
+            <handler event="dragover">
+                <![CDATA[
+
+                    //debug("dragover");
+                    try {
+                        var accepted = nsDragAndDrop.dragOver(event, this.dragObserver);
+                    } catch (e) {}
+                ]]>
+            </handler>
+            <handler event="dragdrop">
+                <![CDATA[
+
+                    //debug("drop");
+                ]]>
+            </handler>
+        </handlers>
+        <xbl:content xmlns:xbl="http://www.mozilla.org/xbl"
+                 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+            <vbox flex="1">
+                <vbox flex="1" aid="contentBox">
+                </vbox>
+            </vbox>
+            <popupset>
+                <menupopup aid="contextPopup">
+                    <menuitem aid="editShapeMenuItem" label="&menu.edit.this.shape.label;" />
+                    <menuitem aid="deleteShapeMenuItem" label="&menu.delete.this.shape.label;" />
+                    <menuseparator/>
+                    <menuitem aid="importCollectionMenuItem" label="&menu.import.pri.collection.label;" />
+                    <menuitem aid="exportCollectionMenuItem" label="&menu.export.this.collection.label;" />
+                    <menuitem aid="editCollectionMenuItem" label="&menu.edit.this.collection.label;" />
+                    <menuseparator/>
+                    <menuitem aid="deleteCollectionMenuItem" label="&menu.delete.this.collection.label;" />
+                    <menuitem aid="removeAllCollectionMenuItem" label="&menu.delete.all.collections.label;" />
+                    <menuseparator aid="sepAboutMenuItem"/>
+                    <menuitem aid="aboutMenuItem" label="&menu.about.label;" />
+                </menupopup>
+            </popupset>
+        </xbl:content>
+    </binding>
+</bindings>
+

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<p:Config xmlns="http://www.w3.org/2000/svg"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+	      xmlns:svg="http://www.w3.org/2000/svg"
+	      xmlns:xlink="http://www.w3.org/1999/xlink"
+	      xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <g class="HandleEditor">
+        <defs>
+            <style type="text/css"><![CDATA[
+                @namespace p url(http://www.evolus.vn/Namespace/Pencil);
+                @namespace xul url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
+
+                g.HandleEditor rect[p|name='Handle'] {
+                    fill: #ff0;
+                    stroke: #0a0;
+                    stroke-width: 3;
+                    stroke-opacity: 0;
+                    fill-opacity: .7;
+                }
+                g.HandleEditor rect[p|name='Handle'][p|focused='true'] {
+                    stroke-width: 2;
+                    stroke-opacity: 1;
+                    stroke: #f00;
+                }
+                g.HandleEditor rect[p|name='Handle']:hover {
+                    stroke-width: 6 !important;
+                    stroke-opacity: .3;
+                    fill-opacity: 1;
+                }
+                g.HandleEditor rect[p|name='Handle'][p|connected='true'] {
+                    stroke-width: 15 !important;
+                    stroke: #f00 !important;
+                    stroke-opacity: .5 !important;
+                }
+            ]]></style>
+        </defs>
+        <g class="Inner"/>
+    </g>
+</p:Config>

@@ -1,0 +1,86 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+
+pwheelcolorpicker {
+    -moz-binding: url(chrome://pencil/content/bindings/colorPickers.xbl#wheelColorPicker);
+}
+pwheelcolorpicker > vbox > vbox > label {
+    margin-bottom: .2em;
+}
+pwheelcolorpicker > vbox > vbox > hbox {
+    padding-left: 1em;
+}
+pwheelcolorpicker > vbox > vbox + vbox {
+}
+pwheelcolorpicker .pwheelcolorpicker-scale-box {
+    margin-left: 1em;
+}
+pwheelcolorpicker .pwheelcolorpicker-scale-box > hbox {
+    -moz-box-align: end;
+}
+pwheelcolorpicker stack box {
+    border: solid 1px black;
+    opacity: .5;
+    cursor: pointer;
+}
+pwheelcolorpicker stack box:hover {
+    opacity: 1;
+}
+pwheelcolorpicker toolbarbutton.ClearButton {
+    list-style-image: url(moz-icon://stock/edit-clear?size=menu);
+    padding: 0px;
+}
+
+pwheelcolorpicker vbox textbox {
+	width: 40px;
+}
+
+
+pgridcolorpicker {
+    -moz-binding: url(chrome://pencil/content/bindings/colorPickers.xbl#gridColorPicker);
+}
+pgridcolorpicker > vbox > vbox > label {
+    margin-bottom: .2em;
+}
+pgridcolorpicker > vbox > vbox > hbox {
+    padding-left: 1em;
+}
+pgridcolorpicker > vbox > vbox + vbox {
+}
+pgridcolorpicker stack box {
+    border: solid 1px black;
+    opacity: .5;
+    cursor: pointer;
+}
+pgridcolorpicker stack box:hover {
+    opacity: 1;
+}
+pgridcolorpicker toolbarbutton.ClearButton {
+    list-style-image: url(moz-icon://stock/edit-clear?size=menu);
+    padding: 0px;
+}
+pgridcolorpicker .colorpickertile {
+	width: 20px;
+	height: 20px;
+	margin: 1px;
+	border-left: 1px solid ThreeDShadow;
+	border-top: 1px solid ThreeDShadow;
+	border-right: 1px solid ThreeDHighlight;
+	border-bottom: 1px solid ThreeDHighlight;
+}
+
+pgridcolorpicker .colorpickertile[hover="true"] {
+	border: 1px dotted #FFFFFF;
+}
+
+pgridcolorpicker .cp-light[hover="true"] {
+	border: 1px dotted #909090;
+}
+
+pgridcolorpicker .colorpickertile[selected="true"] {
+	border: 2px dotted #FFFFFF;
+}
+
+pgridcolorpicker .cp-light[selected="true"] {
+	border: 2px dotted #606060;
+}

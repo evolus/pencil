@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<overlay id="textToolOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    
+    <script src="chrome://pencil/content/common/androidSupports.js"/>
+    <toolbar id="primaryToolbar">
+        <commandset>
+            <command id="asCaptureCommand" oncommand="AndroidSupports.insertScreenCapture();"/>
+        </commandset>
+        <vbox class="Section" id="androidToolbar" insertafter="colorToolbar">
+            <label value="Android:"/>
+            <hbox align="center">
+                <toolbarbutton class="ed-toolbar-button" command="asCaptureCommand"
+                    id="asInsertScreenshotButton"
+                    text="Capture"
+                    tooltiptext="Insert screenshot from the connected Android device"
+                    image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3AUHBx0e/DOGxwAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAQ3SURBVEjHvZVfbFNlGMaf9zunPS1lGy1tt2WEbYUVEAYMQWCQoDXEIJshXPgnUS9M8JIbYwwYJURj8JbEBBNjxBiIJsQEATEjLBEyTNGATBhsY2vGtq5ru/5vT9tzvtcLnDDY6jDR5/J9z/v8zsn3fO8BKigen1qRTKb33bx5q+rR3tBQqCqZSO8LhyMr8W80EY5q2Uz+bN/YaS5k+WI0ktmg53iPnuM9U7H8Bj3PF/rGTnMykT7f23vLNpePOlejrt5TTCf1i6ZZfGE0c+HZRfYV3cPJbgsAcjvWl+6l7lQZZlFm0vql1tan9HkDbtzoxdq1rZicTDhZlJ53aPXKub7XYMhCNdH9x5kNmyrseHHVSarStO39/UOL/X5f/MyZs+jo2D3Dj+Yip1LJ03fiJzqDI5+grWE/+ie/Q74cBQAssHjg976Ma2NH+ZmlB2m589WzLqerYzYfMVsxFk105ozRzuDIETDADmsd+KE+A5iuBUeOQJfju0Ohkb1zApjvj0/F045UjB12e9WbA7FTYDahkpUuDx+AbsQhSIEgBboRx+XhA1DJSswmBmOnUF21+I3oeNkRiyYdD3uqAEBEGB8P+y1W5YupfHC5VzzttFs8WObuBJFSMW3MJmwWD+w2bVfE+G3AZVs9OHj37ttEdHvGGeSz5sXg6OHn+iLfYH3DfqT0IR5JdJEgtSJAsoGlzp1cY/PR9bGjWFX7OjbUvf9z9SJtx4wUqapoGU1d4rLMUzjdA5vqoqKRgiKsFQGmLEHKEoXTPSjLPEZTl3hro9U32yFLQYLuf5byxBdzekaQIOYHmRD4j/W/Aoj/yhbPSP38ND3DzEwPhUc8iBtMRWgk2YAqrE8EYTBUYYVkA4rQyJQsHwPkC5mvtzV9jGbXLmxu/ACmLM6bYMoib278EM2uXdjW9BEmIve+fWzZOV3Vh6KT6fCOJcdbNCu9wjAbKqyqR9aZpIVKc3jHkq9OprLRYd+yus9mAHp6rqC9fSs83upjAJDLGGsWaksayjLLgmqISIBZwuQSAEAhK6ZrZZllh9ZABT3X7/ZWvzNtHInEUFvrnv0Vh4ZCW7y1nq5o9rrtSuiQmij0w2Gtw8al7zEA/DryKeVKE3Da/djadNhwL1inX70afCkQCHT/Y0yZGT5f0y+9v99sbVjYfl6zOMFgWBQHvLYtmXrH9qRFcYDB0CxOeLX2rp/Od7UFAoHu6QVXEUBEYGYc+/xYiASGgb8DgbJRLEsu6Q9sJCQjdODgu3eZGUQ0v4tGRDh+/EtIRrbG5gNBsN3iBhgJQCTsFjcIgmtsPkhp5gYGBnk284p/NACYGI+1qXbj+/FMd2ON1Y9MbMFbHs/iQpHGTqSKt8lj2z4WGU3tXde2JlgpYxV1/dofXqPMLZlMKnbuxx8GNm7ahJX+1c2FQqE+k0sO7twZmKg0/yd2S/QnkfAFEAAAAABJRU5ErkJggg=="/>
+                <toolbarseparator />
+            </hbox>
+        </vbox>
+    </toolbar>
+</overlay>
+

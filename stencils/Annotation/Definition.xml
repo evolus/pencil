@@ -1,0 +1,809 @@
+<Shapes xmlns="http://www.evolus.vn/Namespace/Pencil"
+                xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                xmlns:svg="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+
+                xmlns:dc="http://purl.org/dc/elements/1.1/"
+                xmlns:cc="http://web.resource.org/cc/"
+                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+
+                id="Evolus.Annotation"
+                displayName="&displayName;"
+                description="&collectionDesc;"
+                annotation="true"
+                >
+    <Properties>
+        <PropertyGroup name="&text;">
+            <Property name="defaultTextFont" type="Font" displayName="&defaultfont;">Arial|normal|normal|13px</Property>
+            <Property name="defaultTextColor" type="Color" displayName="&defaultextcolor;">#ffffffff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="&border;">
+            <Property name="strokeColor" type="Color" displayName="&defbordercolor;">#1B3280ff</Property>
+            <Property name="strokeStyle" type="StrokeStyle" displayName="&defborderstyle;">2|</Property>
+        </PropertyGroup>
+        <PropertyGroup name="&background;">
+            <Property name="fillColor" type="Color" displayName="&defbackgrcolor;">#4388CCff</Property>
+        </PropertyGroup>
+    </Properties>
+    <Styles>
+        <Group name="Style" defaultIcon="icons://Styles/Images/default-style.png">
+            <Style name="Strong" icon="icons://Styles/Images/red.png">
+                <Property name="fillColor" type="Color">#ff0000ff</Property>
+                <Property name="strokeColor" type="Color">#00000000</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#ffffffff</Property>
+            </Style>
+            <Style name="Yellow" icon="icons://Styles/Images/yellow-border.png">
+                <Property name="fillColor" type="Color" >#ffff00ff</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Gray" icon="icons://Styles/Images/gray-border.png">
+                <Property name="fillColor" type="Color">#e3e3e3ff</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Magenta" icon="icons://Styles/Images/magenta.png">
+                <Property name="fillColor" type="Color">#ff00ffff</Property>
+                <Property name="strokeColor" type="Color">#00000000</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#ffffffff</Property>
+            </Style>
+            <Style name="Blue" icon="icons://Styles/Images/blue-border.png">
+                <Property name="fillColor" type="Color" >#0000ffff</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#ffffffff</Property>
+            </Style>
+            <Style name="Outline" icon="icons://Styles/Images/white-border.png">
+                <Property name="fillColor" type="Color">#80b3ffff</Property>
+                <Property name="strokeColor" type="Color">#ffffffff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Green" icon="icons://Styles/Images/green.png">
+                <Property name="fillColor" type="Color">#00ff00ff</Property>
+                <Property name="strokeColor" type="Color">#00000000</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+            <Style name="Empty" icon="icons://Styles/Images/empty.png">
+                <Property name="fillColor" type="Color" >#00000000</Property>
+                <Property name="strokeColor" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                <Property name="textColor" type="Color" >#000000ff</Property>
+            </Style>
+        </Group>
+    </Styles>
+    <Script>
+        <![CDATA[
+            collection.calloutPoint = function(a, box) {
+                var pos = F.getRelativeLocation(a, box);
+                var w = box.w;
+                var h = box.h;
+                if (pos == "top") {
+                    return a.x < w/2 ? {a: {x: w/6, y: 0}, b: {x: Math.min(4*w/10, 2*w/6), y: 0}, t: 1} : {a: {x: Math.max(6*w/10, 4*w/6), y: 0}, b: {x: 5*w/6, y: 0}, t: 2};
+                }
+                if (pos == "right") {
+                    return a.y < h/2 ? {a: {x: w, y: h/6}, b: {x: w, y: 4*h/10}, t: 3} : {a: {x: w, y: 6*h/10}, b: {x: w, y: 5*h/6}, t: 4};
+                }
+                if (pos == "bottom") {
+                    return a.x > w/2 ? {a: {x: 5*w/6, y: h}, b: {x: Math.max(6*w/10, 4*w/6), y: h}, t: 5} : {a: {x: Math.min(4*w/10, 2*w/6), y: h}, b: {x: w/6, y: h}, t: 6};
+                }
+                if (pos == "left") {
+                    return a.y > h/2 ? {a: {x: 0, y: 5*h/6}, b: {x: 0, y: 6*h/10}, t: 7} : {a: {x: 0, y: 4*h/10}, b: {x: 0, y: h/6}, t: 8};
+                }
+                return null;
+            };
+        ]]>
+    </Script>
+    <Shape id="newBalloon" displayName="&balloon;" icon="Icons/balloon.png" system="true">
+        <Properties>
+                <PropertyGroup>
+                    <Property name="a" displayName="&handle;" type="Handle" p:noScale="true" p:noMove="true">25,80</Property>
+                </PropertyGroup>
+                <PropertyGroup name="&shape;">
+                    <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                    <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                    <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+                </PropertyGroup>
+                <PropertyGroup name="&text;">
+                    <Property name="textContent" displayName="&textcont;" type="RichText">&annotation;</Property>
+                    <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                    <Property name="textColor" displayName="&textcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                    <Property name="textSize" displayName="&textsize;" type="Handle" p:lockX="true" p:minY="20" p:maxY="150" p:disabled="$textContent.html ? false : true">0,40</Property>
+                </PropertyGroup>
+            </Properties>
+            <Behaviors>
+                <For ref="richtext">
+                    <TextContent>$textContent</TextContent>
+                    <Font>var f = new Font($textFont.toString()); f.size = ($textSize.y - 10) + "px"; f;</Font>
+                    <Color>$textColor</Color>
+                    <Bound>
+                        <Arg>var ts = F.richTextSize("richtext"); var b = new Bound(0, 0, ts.w, ts.h); b;</Arg>
+                        <Arg>var p = {x: 10, y: 5}; p;</Arg>
+                    </Bound>
+                </For>
+                <For ref="path">
+                    <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                    <StrokeColor>$strokeColor</StrokeColor>
+                    <StrokeStyle>$strokeStyle</StrokeStyle>
+                    <Fill>$fillColor</Fill>
+                    <D>
+                        var zz = $textSize;
+                        var t = F.richTextSize("richtext");
+                        var w = t.w + 20;
+                        var h = t.h + 10;
+                        var r = Math.min(w/10, h/10);
+                        x = [];
+                        var points = collection.calloutPoint($a, {w: w, h: h});
+                        if (points != null) {
+                            switch (points.t) {
+                                case 1:
+                                case 2:
+                                        x = [M(r, 0), L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y), L(w - r, 0),
+                                            Q(w, 0, w, r), L(w, h - r), Q(w, h, w - r, h), L(r, h), Q(0, h, 0, h - r), L(0, r), Q(0, 0, r, 0), z];
+                                        break;
+                                case 3:
+                                case 4:
+                                        x = [M(r, 0), L(w - r, 0), Q(w, 0, w, r), L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y),
+                                        L(w, h - r), Q(w, h, w - r, h), L(r, h), Q(0, h, 0, h - r), L(0, r), Q(0, 0, r, 0), z];
+                                        break;
+                                case 5:
+                                case 6:
+                                        x = [M(r, 0), L(w - r, 0), Q(w, 0, w, r), L(w, h - r), Q(w, h, w - r, h), L(points.a.x, points.a.y),
+                                        L($a.x, $a.y), L(points.b.x, points.b.y), L(r, h), Q(0, h, 0, h - r), L(0, r), Q(0, 0, r, 0), z];
+                                        break;
+                                case 7:
+                                case 8:
+                                        x = [M(r, 0), L(w - r, 0), Q(w, 0, w, r), L(w, h - r), Q(w, h, w - r, h), L(r, h), Q(0, h, 0, h - r),
+                                        L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y), L(0, r), Q(0, 0, r, 0), z];
+                                        break;
+                            }
+                        }
+                        x;
+                    </D>
+                </For>
+            </Behaviors>
+            <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                        xmlns="http://www.w3.org/2000/svg">
+                <path id="path" style="stroke-linejoin: round;"/>
+                <foreignObject x="0" y="0" width="200" height="150" id="richtext">
+                    <div xmlns="http://www.w3.org/1999/xhtml">
+                            Balloon message
+                    </div>
+                </foreignObject>
+            </p:Content>
+    </Shape>
+
+    <Shape id="numberingCallout" displayName="&numberballoon;" icon="Icons/balloon.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="&handle;" type="Handle" p:noScale="true" p:noMove="true">25,80</Property>
+                <Property name="numbering" type="Numbering">1</Property>
+            </PropertyGroup>
+            <PropertyGroup name="&shape;">
+                <Property name="fillColor" displayName="&backgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="numberingFillColor" displayName="&numberbackgrcolor;" type="Color"><E>$$fillColor</E></Property>
+                <Property name="strokeColor" displayName="&linecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+                <Property name="numberingStrokeColor" displayName="&numberlinecolor;" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="numberingStrokeStyle" displayName="&numberlinestyle;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="&text;">
+                <Property name="textContent" displayName="&textcont;" type="RichText">&annotation;</Property>
+                <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="&textcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textSize" displayName="&textsize;" type="Handle" p:lockX="true" p:minY="20" p:maxY="90" p:disabled="$textContent.html ? false : true">0,23</Property>
+                <Property name="numberingTextFont" displayName="&numbertextfont;" type="Font">Tahoma|normal|normal|10pt</Property>
+                <Property name="numberingTextColor" displayName="&numbertextcolor;" type="Color">#ffffffff</Property>
+            </PropertyGroup>
+        </Properties>
+        <Styles>
+            <Group name="Style" defaultIcon="icons://Styles/Images/default-style.png">
+                <Style name="Strong" icon="icons://Styles/Images/red.png">
+                    <Property name="fillColor" type="Color">#ff0000ff</Property>
+                    <Property name="strokeColor" type="Color">#00000000</Property>
+                    <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="textColor" type="Color" >#ffffffff</Property>
+                    <Property name="numberingFillColor" type="Color">#ff0000ff</Property>
+                    <Property name="numberingStrokeColor" type="Color">#00000000</Property>
+                    <Property name="numberingStrokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="numberingTextColor" type="Color" >#ffffffff</Property>
+                </Style>
+                <Style name="Yellow" icon="icons://Styles/Images/yellow-border.png">
+                    <Property name="fillColor" type="Color" >#ffff00ff</Property>
+                    <Property name="strokeColor" type="Color">#000000ff</Property>
+                    <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="textColor" type="Color" >#000000ff</Property>
+                    <Property name="numberingFillColor" type="Color" >#ffff00ff</Property>
+                    <Property name="numberingStrokeColor" type="Color">#000000ff</Property>
+                    <Property name="numberingStrokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+                </Style>
+                <Style name="Gray" icon="icons://Styles/Images/gray-border.png">
+                    <Property name="fillColor" type="Color">#e3e3e3ff</Property>
+                    <Property name="strokeColor" type="Color">#000000ff</Property>
+                    <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="textColor" type="Color" >#000000ff</Property>
+                    <Property name="numberingFillColor" type="Color">#e3e3e3ff</Property>
+                    <Property name="numberingStrokeColor" type="Color">#000000ff</Property>
+                    <Property name="numberingStrokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+                </Style>
+                <Style name="Magenta" icon="icons://Styles/Images/magenta.png">
+                    <Property name="fillColor" type="Color">#ff00ffff</Property>
+                    <Property name="strokeColor" type="Color">#00000000</Property>
+                    <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="textColor" type="Color" >#ffffffff</Property>
+                    <Property name="numberingFillColor" type="Color">#ff00ffff</Property>
+                    <Property name="numberingStrokeColor" type="Color">#00000000</Property>
+                    <Property name="numberingStrokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="numberingTextColor" type="Color" >#ffffffff</Property>
+                </Style>
+                <Style name="Blue" icon="icons://Styles/Images/blue-border.png">
+                    <Property name="fillColor" type="Color" >#0000ffff</Property>
+                    <Property name="strokeColor" type="Color">#000000ff</Property>
+                    <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="textColor" type="Color" >#ffffffff</Property>
+                    <Property name="numberingFillColor" type="Color" >#0000ffff</Property>
+                    <Property name="numberingStrokeColor" type="Color">#000000ff</Property>
+                    <Property name="numberingStrokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="numberingTextColor" type="Color" >#ffffffff</Property>
+                </Style>
+                <Style name="Outline" icon="icons://Styles/Images/white-border.png">
+                    <Property name="fillColor" type="Color">#80b3ffff</Property>
+                    <Property name="strokeColor" type="Color">#ffffffff</Property>
+                    <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="textColor" type="Color" >#000000ff</Property>
+                    <Property name="numberingFillColor" type="Color">#80b3ffff</Property>
+                    <Property name="numberingStrokeColor" type="Color">#ffffffff</Property>
+                    <Property name="numberingStrokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+                </Style>
+                <Style name="Green" icon="icons://Styles/Images/green.png">
+                    <Property name="fillColor" type="Color">#00ff00ff</Property>
+                    <Property name="strokeColor" type="Color">#00000000</Property>
+                    <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="textColor" type="Color" >#000000ff</Property>
+                    <Property name="numberingFillColor" type="Color">#00ff00ff</Property>
+                    <Property name="numberingStrokeColor" type="Color">#00000000</Property>
+                    <Property name="numberingStrokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+                </Style>
+                <Style name="Empty" icon="icons://Styles/Images/empty.png">
+                    <Property name="fillColor" type="Color" >#00000000</Property>
+                    <Property name="strokeColor" type="Color">#000000ff</Property>
+                    <Property name="strokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="textColor" type="Color" >#000000ff</Property>
+                    <Property name="numberingFillColor" type="Color" >#00000000</Property>
+                    <Property name="numberingStrokeColor" type="Color">#000000ff</Property>
+                    <Property name="numberingStrokeStyle" type="StrokeStyle">2|</Property>
+                    <Property name="numberingTextColor" type="Color" >#000000ff</Property>
+                </Style>
+            </Group>
+        </Styles>
+        <Behaviors>
+            <For ref="richtext">
+                <TextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>false</Arg>
+                    <Arg>false</Arg>
+                    <Arg>$numbering</Arg>
+                </TextContent>
+                <Font>var f = new Font($textFont.toString()); f.size = ($textSize.y - 10) + "pt"; f;</Font>
+                <Color>$textColor</Color>
+                <Bound>
+                    <Arg>var ts = F.richTextSize("richtext"); var b = new Bound(0, 0, ts.w, ts.h); b;</Arg>
+                    <Arg>var p = {x: 10, y: 5}; p;</Arg>
+                </Bound>
+            </For>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    // @ref: $textSize, $numbering
+
+                    var t = F.richTextSize("richtext");
+                    var w = t.w + 20;   // padding 10
+                    var h = t.h + 10;   // padding 5
+                    var r = Math.min(w/10, h/10);
+
+                    x = [];
+                    var points = collection.calloutPoint($a, {w: w, h: h});
+                    if (points != null) {
+                        switch (points.t) {
+                            case 1:
+                            case 2:
+                                    x = [M(r, 0), L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y), L(w - r, 0),
+                                        Q(w, 0, w, r), L(w, h - r), Q(w, h, w - r, h), L(r, h), Q(0, h, 0, h - r), L(0, r), Q(0, 0, r, 0), z];
+                                    break;
+                            case 3:
+                            case 4:
+                                    x = [M(r, 0), L(w - r, 0), Q(w, 0, w, r), L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y),
+                                    L(w, h - r), Q(w, h, w - r, h), L(r, h), Q(0, h, 0, h - r), L(0, r), Q(0, 0, r, 0), z];
+                                    break;
+                            case 5:
+                            case 6:
+                                    x = [M(r, 0), L(w - r, 0), Q(w, 0, w, r), L(w, h - r), Q(w, h, w - r, h), L(points.a.x, points.a.y),
+                                    L($a.x, $a.y), L(points.b.x, points.b.y), L(r, h), Q(0, h, 0, h - r), L(0, r), Q(0, 0, r, 0), z];
+                                    break;
+                            case 7:
+                            case 8:
+                                    x = [M(r, 0), L(w - r, 0), Q(w, 0, w, r), L(w, h - r), Q(w, h, w - r, h), L(r, h), Q(0, h, 0, h - r),
+                                    L(points.a.x, points.a.y), L($a.x, $a.y), L(points.b.x, points.b.y), L(0, r), Q(0, 0, r, 0), z];
+                                    break;
+                        }
+                    }
+                    x;
+                </D>
+            </For>
+            <For ref="foreignNumberingText">
+                <Visibility>false</Visibility>
+                <TextContent>$numbering</TextContent>
+                <Font>$numberingTextFont</Font>
+                <Bound>
+                    <Arg>
+                        if ($numbering.value) {
+                            // @ref: $textSize
+                            var ts = F.richTextSize("foreignNumberingText");
+                            var w = Math.max(ts.w, ts.h);
+                            var b = new Bound(0, 0, w, w);
+                            b;
+                        } else {
+                            new Bound(0, 0, 0, 0);
+                        }
+                    </Arg>
+                    <Arg>var p = {x: 0, y: 0}; p;</Arg>
+                </Bound>
+            </For>
+            <For ref="numberingText">
+                <StrokeColor>$numberingStrokeColor</StrokeColor>
+                <Visibility>$numbering.value ? true : false</Visibility>
+                <TextContent>$numbering</TextContent>
+                <Color>$numberingTextColor</Color>
+                <Font>$numberingTextFont</Font>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                        // @ref: $textSize
+                        if ($numbering.value) {
+                            var t = F.richTextSize("richtext");
+                            var ts = F.richTextSize("foreignNumberingText");
+                            var w = Math.max(ts.w, ts.h);
+                            var b = new Bound(t.w + 20 - ts.w / 2, 0 - ts.h / 2, w, w);
+                            t.w + 20 - ts.w / 2;
+                        } else {
+                            0
+                        }
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                        // @ref: $textSize
+                        if ($numbering.value) {
+                            var t = F.richTextSize("richtext");
+                            var ts = F.richTextSize("foreignNumberingText");
+                            var w = Math.max(ts.w, ts.h);
+                            var b = new Bound(t.w + 20 - ts.w / 2, 0 - ts.h / 2, w, w);
+                            w - 4 - ts.h / 2;
+                        } else {
+                            0
+                        }
+                    </Arg>
+                </Attr>
+            </For>
+
+            <For ref="ellipse">
+                <Visibility>$numbering.value ? true : false</Visibility>
+                <Attr>
+                    <Arg>"cx"</Arg>
+                    <Arg>
+                        // @ref: $textSize
+                        if ($numbering.value) {
+                            var t = F.richTextSize("richtext");
+                            var cx = t.w + 20;
+                            cx;
+                        } else {
+                            0
+                        }
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"cy"</Arg>
+                    <Arg>0</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"rx"</Arg>
+                    <Arg>
+                        // @ref: $textSize, $numberingTextFont;
+                        if ($numbering.value) {
+                            var t = F.richTextSize("foreignNumberingText");
+                            Math.max(t.w, t.h) - 4;
+                        } else {
+                            0
+                        }
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"ry"</Arg>
+                    <Arg>
+                        // @ref: $textSize, $numberingTextFont;
+                        if ($numbering.value) {
+                            var t = F.richTextSize("foreignNumberingText");
+                            Math.max(t.w, t.h) - 4;
+                        } else {
+                            0
+                        }
+                    </Arg>
+                </Attr>
+                <Fill>$numberingFillColor</Fill>
+                <StrokeColor>$numberingStrokeColor</StrokeColor>
+                <StrokeStyle>$numberingStrokeStyle</StrokeStyle>
+            </For>
+        </Behaviors>
+        <Actions>
+        	<Action id="updateNumbering">
+                <Impl>
+                    <![CDATA[
+                        var numbering = this.getProperty("numbering");
+					    if (numbering && numbering.value) {
+					        numbering = parseInt(numbering);
+					        var sequelId = this.getSequelId();
+					        var numberingCallouts = this.getShapesBySequelId(sequelId);
+					        for (var i = 0; i < numberingCallouts.length; i++) {
+					            var shape = numberingCallouts[i];
+					            var controller = this.canvas.createControllerFor(shape);
+					            var sn = controller.getProperty("numbering");
+					            if (sn) {
+					                sn = parseInt(sn);
+					                if (sn > numbering) {
+					                    controller.setProperty("numbering", "" + (sn - 1), true);
+					                }
+					            }
+					        }
+					    }
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="startNumbering">
+                <Impl>
+                    <![CDATA[
+                        var sequelId = "numbering-" + this.defId;
+                        var shapes = this.getShapesBySequelId(sequelId);
+                        var currentNumbering = shapes.length;
+                        currentNumbering++;
+                        this.setNumbering(currentNumbering, sequelId);
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+            xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="richtext">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                    Balloon message
+                </div>
+            </foreignObject>
+            <defs>
+                <g id="container">
+                    <ellipse id="ellipse"/>
+                </g>
+            </defs>
+            <use xlink:href="#container"/>
+            <text x="0" y="0" width="1" height="1" id="numberingText"></text>
+            <foreignObject x="0" y="0" width="1" height="1" id="foreignNumberingText">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="display:none;"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+        <Shape id="Balloon" displayName="&balloon;" icon="Icons/balloon.png" system="true">
+            <Properties>
+                <PropertyGroup>
+                    <Property name="box" type="Dimension">200,80</Property>
+                    <Property name="withBlur" type="Bool" displayName="&withshadow;">false</Property>
+                </PropertyGroup>
+                <PropertyGroup name="&handles;">
+                    <Property name="radius" displayName="&corneradius;" type="Handle" p:lockY="true" p:minX="0" p:maxX="Math.min($box.w, $box.h) / 2">8,0</Property>
+
+                    <Property name="leftStart" displayName="&startpoint;" type="Handle"
+                        p:lockX="true" p:minY="$radius.x + 2" p:maxY="$leftEnd.y - 5"
+                        p:disabled="F.getRelativeLocation($pin, $box) != 'left'">0,12</Property>
+                    <Property name="leftEnd" displayName="&endpoint;" type="Handle"
+                        p:lockX="true" p:minY="$leftStart.y + 5" p:maxY="$box.h - $radius.x - 2"
+                        p:disabled="F.getRelativeLocation($pin, $box) != 'left'">0,33</Property>
+
+                    <Property name="rightStart" displayName="&startpoint;" type="Handle"
+                        p:lockX="true" p:expressionX="$box.w" p:minY="$radius.x + 2" p:maxY="$rightEnd.y - 5"
+                        p:disabled="F.getRelativeLocation($pin, $box) != 'right'">0,12</Property>
+                    <Property name="rightEnd" displayName="&endpoint;" type="Handle"
+                        p:lockX="true" p:expressionX="$box.w" p:minY="$rightStart.y + 5" p:maxY="$box.h - $radius.x - 2"
+                        p:disabled="F.getRelativeLocation($pin, $box) != 'right'">0,33</Property>
+
+                    <Property name="topStart" displayName="&startpoint;" type="Handle"
+                        p:lockY="true" p:minX="$radius.x + 2" p:maxX="$topEnd.x - 5"
+                        p:disabled="F.getRelativeLocation($pin, $box) != 'top'">12,0</Property>
+                    <Property name="topEnd" displayName="&endpoint;" type="Handle"
+                        p:lockY="true" p:minX="$topStart.x + 5" p:maxX="$box.w - $radius.x - 2"
+                        p:disabled="F.getRelativeLocation($pin, $box) != 'top'">33,0</Property>
+
+                    <Property name="bottomStart" displayName="&startpoint;" type="Handle"
+                        p:lockY="true" p:expressionY="$box.h" p:minX="$radius.x + 2" p:maxX="$bottomEnd.x - 5"
+                        p:disabled="F.getRelativeLocation($pin, $box) != 'bottom'">12,0</Property>
+                    <Property name="bottomEnd" displayName="&endpoint;" type="Handle"
+                        p:lockY="true" p:expressionY="$box.h" p:minX="$bottomStart.x + 5" p:maxX="$box.w - $radius.x - 2"
+                        p:disabled="F.getRelativeLocation($pin, $box) != 'bottom'">33,0</Property>
+
+                    <Property name="pin" displayName="&balloonpin;" type="Handle"  >-12,23</Property>
+                </PropertyGroup>
+                <PropertyGroup name="&background;">
+                    <Property name="fillColor" displayName="&color;" type="Color"><E>$$fillColor</E></Property>
+                </PropertyGroup>
+                <PropertyGroup name="&border;">
+                    <Property name="strokeColor" displayName="&color;" type="Color"><E>$$strokeColor</E></Property>
+                    <Property name="strokeStyle" displayName="&style;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+                </PropertyGroup>
+                <PropertyGroup name="&text;">
+                    <Property name="textContent" displayName="&textcont;" type="RichText">&annotation;</Property>
+                    <Property name="textFont" displayName="&defaultfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                    <Property name="textColor" displayName="&defaultextcolor;" type="Color"><E>$$defaultTextColor</E></Property>
+                </PropertyGroup>
+            </Properties>
+            <Behaviors>
+                <For ref="rect">
+                      <D>
+                            var type = F.getRelativeLocation($pin, $box);
+
+                            var x = {"left": [M($radius.x, 0), L($box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                                            L($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                                            L($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                                            L(0, $leftEnd.y), L($pin.x, $pin.y), L(0, $leftStart.y), L(0, $radius.x),
+                                            C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)],
+
+                                     "top": [M($radius.x, 0),L($topStart.x,0), L($pin.x, $pin.y), L($topEnd.x,0),
+                                            L($box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                                            L($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                                            L($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                                            L(0, $radius.x),C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)],
+                                     "right": [M($radius.x, 0), L($box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                                            L($box.w, $rightStart.y),L($pin.x, $pin.y), L($box.w, $rightEnd.y), L($box.w, $box.h - $radius.x),  C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                                            L($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                                            L(0, $radius.x),C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)] ,
+                                     "bottom": [M($radius.x, 0), L($box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                                            L($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                                            L($bottomEnd.x, $box.h), L($pin.x, $pin.y),L($bottomStart.x, $box.h),
+                                            L($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                                            L(0, $radius.x),C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)]
+                                      }[type];
+                        x</D>
+                    <Fill>$fillColor</Fill>
+                    <StrokeColor>$strokeColor</StrokeColor>
+                    <StrokeStyle>$strokeStyle</StrokeStyle>
+                </For>
+                <For ref="text">
+                    <TextContent>$textContent</TextContent>
+                    <Font>$textFont</Font>
+                    <Fill>$textColor</Fill>
+                    <Color>$textColor</Color>
+                    <Bound>Bound.fromBox($box, $radius.x)</Bound>
+                </For>
+                <!--<For ref="bgCopy">
+                    <ApplyFilter>$withBlur</ApplyFilter>
+                    <Visibility>$withBlur</Visibility>
+                </For>-->
+            </Behaviors>
+            <p:Content    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+
+                <defs>
+                    <filter
+                       id="imageShading"
+                       height="1.2558399"
+                       y="-0.12792"
+                       width="1.06396"
+                       x="-0.03198">
+                        <feGaussianBlur stdDeviation="1.3325" in="SourceAlpha"/>
+                    </filter>
+                    <g id="container">
+                        <!--<path
+                                transform="translate(0.5 0.5)"
+                                style="stroke-width: 1px;"
+                                id="rect" />-->
+                    </g>
+                </defs>
+                <!--<use xlink:href="#container" id="bgCopy" transform="translate(1, 1)" p:filter="url(#imageShading)" style=" opacity:0.6;" p:heavy="true"/>-->
+                <!--<use xlink:href="#container"/>-->
+                <path
+                    transform="translate(0.5 0.5)"
+                    style="stroke-width: 1px;"
+                    id="rect" />
+                <foreignObject x="0" y="0" width="200" height="150" id="text">
+                        <div xmlns="http://www.w3.org/1999/xhtml">
+                                Balloon message
+                        </div>
+                </foreignObject>
+            </p:Content>
+        </Shape>
+        <Shape id="Bullet" displayName="&bullet;" icon="Icons/bullet.png">
+            <Properties>
+                <PropertyGroup>
+                    <Property name="box" type="Dimension" p:lockRatio="true">30,30</Property>
+                    <Property name="withBlur" type="Bool" displayName="&withshadow;">false</Property>
+                </PropertyGroup>
+                <PropertyGroup name="&shape;">
+                    <Property name="fillColor" displayName="&color;" type="Color"><E>$$fillColor</E></Property>
+                    <Property name="strokeColor" displayName="&color;" type="Color"><E>$$strokeColor</E></Property>
+                    <Property name="strokeStyle" displayName="&style;" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+                </PropertyGroup>
+                <PropertyGroup name="&text;">
+                    <Property name="textContent" displayName="&textcont;" type="RichText"><![CDATA[1]]></Property>
+                    <Property name="textFont" displayName="&textfont;" type="Font"><E>$$defaultTextFont</E></Property>
+                    <Property name="textColor" displayName="&color;" type="Color"><E>$$defaultTextColor</E></Property>
+                </PropertyGroup>
+            </Properties>
+            <Behaviors>
+                <For ref="bgCopy">
+                    <ApplyFilter>$withBlur</ApplyFilter>
+                    <Visibility>$withBlur</Visibility>
+                </For>
+                <For ref="ellipse">
+                    <EllipseFit>$box</EllipseFit>
+                    <Fill>$fillColor</Fill>
+                    <StrokeColor>$strokeColor</StrokeColor>
+                    <StrokeStyle>$strokeStyle</StrokeStyle>
+                </For>
+                <For ref="text">
+                    <TextContent>$textContent</TextContent>
+                    <Fill>$textColor</Fill>
+                    <Color>$textColor</Color>
+                    <Font>$textFont</Font>
+                    <BoxFit>
+                        <Arg>Bound.fromBox($box, 0)</Arg>
+                        <Arg>new Alignment(1, 1)</Arg>
+                    </BoxFit>
+                </For>
+            </Behaviors>
+            <Actions>
+                <Action id="makeSquare" displayName="&makesquare;">
+                    <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        var size = Math.max(box.w, box.h);
+                        this.setProperty("box", new Dimension(size, size));
+                    ]]>
+                    </Impl>
+                </Action>
+            </Actions>
+            <p:Content    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                    xmlns="http://www.w3.org/2000/svg">
+
+                <defs>
+                    <filter
+                       id="imageShading"
+                       height="1.2558399"
+                       y="-0.12792"
+                       width="1.2558399"
+                       x="-0.12792">
+                        <feGaussianBlur stdDeviation="1.3325" in="SourceAlpha"/>
+                    </filter>
+                    <g id="container">
+                        <ellipse id="ellipse"/>
+                    </g>
+                </defs>
+                <use xlink:href="#container" id="bgCopy" transform="translate(1, 1)" p:filter="url(#imageShading)" style=" opacity:0.6;" p:heavy="true"/>
+                <use xlink:href="#container"/>
+                <foreignObject x="0" y="0" width="200" height="150" id="text">
+                        <div xmlns="http://www.w3.org/1999/xhtml">1</div>
+                </foreignObject>
+            </p:Content>
+        </Shape>
+        <Shape id="HollowBox" displayName="&hollowbox;" icon="Icons/hollowbox.png">
+            <Properties>
+                <PropertyGroup>
+                    <Property name="box" type="Dimension">96,96</Property>
+                    <Property name="a" displayName="&innertop;" type="Handle" p:minX="0" p:maxX="$b.x" p:minY="0" p:maxY="$b.y">20,20</Property>
+                    <Property name="b" displayName="&innerbottom;" type="Handle" p:minX="$a.x" p:maxX="$box.w" p:minY="$a.y" p:maxY="$box.h">70,70</Property>
+                </PropertyGroup>
+                <PropertyGroup name="&shape;">
+                    <Property name="fillColor" displayName="&backgrcolor;" type="Color">#00000055</Property>
+                </PropertyGroup>
+            </Properties>
+            <Behaviors>
+                <For ref="path">
+                    <D>[M(0, 0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), L(0, 0), z,
+                        M($a.x, $a.y), L($a.x, $b.y), L($b.x, $b.y), L($b.x, $a.y), L($a.x, $a.y), z]</D>
+                    <Fill>$fillColor</Fill>
+                </For>
+            </Behaviors>
+            <p:Content    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                        xmlns="http://www.w3.org/2000/svg">
+                <path style="stroke: none;" id="path"/>
+            </p:Content>
+        </Shape>
+        <Shape id="SimpleArrow" displayName="&simplearrow;" icon="Icons/arrow.png">
+            <Properties>
+                <PropertyGroup>
+                    <Property name="a" displayName="&innertop;" type="Handle" p:lockY="true" p:maxX="$b.x - 10">0,0</Property>
+                    <Property name="b" displayName="&innertop;" type="Handle" p:minX="$a.x + 10" p:disabled="$style.value == 'straight'">90,0</Property>
+                    <Property name="c" displayName="&innertop;" type="Handle">120,-20</Property>
+                    <Property name="style" displayName="&style;" type="Enum" p:enumValues="['hard|Hard Corner', 'smooth|Smooth Corner', 'straight|Straight']">hard</Property>
+                </PropertyGroup>
+                <PropertyGroup name="&shape;">
+                    <Property name="strokeColor" displayName="&linecolor;" type="Color">#336699ff</Property>
+                    <Property name="strokeStyle" displayName="&linestyle;" type="StrokeStyle">25|</Property>
+                </PropertyGroup>
+            </Properties>
+            <Styles>
+                <Group name="Style" defaultIcon="icons://Styles/Images/default-style.png">
+                    <Style name="Strong" icon="icons://Styles/Images/red.png">
+                        <Property name="strokeColor" type="Color">#ff0000ff</Property>
+                        <Property name="strokeStyle" type="StrokeStyle">25|</Property>
+                    </Style>
+                    <Style name="Yellow" icon="icons://Styles/Images/yellow-border.png">
+                        <Property name="strokeColor" type="Color" >#ffff00ff</Property>
+                        <Property name="strokeStyle" type="StrokeStyle">25|</Property>
+                    </Style>
+                    <Style name="Gray" icon="icons://Styles/Images/gray-border.png">
+                        <Property name="strokeColor" type="Color">#e3e3e3ff</Property>
+                        <Property name="strokeStyle" type="StrokeStyle">25|</Property>
+                    </Style>
+                    <Style name="Magenta" icon="icons://Styles/Images/magenta.png">
+                        <Property name="strokeColor" type="Color">#ff00ffff</Property>
+                        <Property name="strokeStyle" type="StrokeStyle">25|</Property>
+                    </Style>
+                    <Style name="Blue" icon="icons://Styles/Images/blue-border.png">
+                        <Property name="strokeColor" type="Color" >#0000ffff</Property>
+                        <Property name="strokeStyle" type="StrokeStyle">25|</Property>
+                    </Style>
+                    <Style name="Outline" icon="icons://Styles/Images/white-border.png">
+                        <Property name="strokeColor" type="Color">#80b3ffff</Property>
+                        <Property name="strokeStyle" type="StrokeStyle">25|</Property>
+                    </Style>
+                    <Style name="Green" icon="icons://Styles/Images/green.png">
+                        <Property name="strokeColor" type="Color">#00ff00ff</Property>
+                        <Property name="strokeStyle" type="StrokeStyle">25|</Property>
+                    </Style>
+                    <Style name="Empty" icon="icons://Styles/Images/empty.png">
+                        <Property name="strokeColor" type="Color" >#000000ff</Property>
+                        <Property name="strokeStyle" type="StrokeStyle">25|</Property>
+                    </Style>
+                </Group>
+            </Styles>
+            <Behaviors>
+                <For ref="path">
+                    <Transform>[translate(0, ($strokeStyle.w % 2) / 2)]</Transform>
+                    <StrokeColor>$strokeColor</StrokeColor>
+                    <StrokeStyle>$strokeStyle</StrokeStyle>
+                    <D>var x = {"smooth": [M($a.x, $a.y), S($b.x, $b.y, $c.x, $c.y)],
+                        "hard": [M($a.x, $a.y), L($b.x, $b.y), L($c.x, $c.y)],
+                        "straight": [M($a.x, $a.y), L($c.x, $c.y)]}[$style.value];
+                        x</D>
+                </For>
+                <For ref="markerPath">
+                    <Fill>$strokeColor</Fill>
+                </For>
+            </Behaviors>
+            <p:Content    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                                        xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <marker id="marker"
+                      viewBox="0 0 10 10" refX="0.01" refY="3"
+                      markerUnits="strokeWidth"
+                      markerWidth="4" markerHeight="3"
+                      orient="auto">
+                      <path d="M 0 0 L 2 3 L 0 6 z" id="markerPath" />
+                    </marker>
+                </defs>
+                <path id="path" marker-end="url(#marker)" fill="none" style="stroke-linejoin: round;"/>
+            </p:Content>
+        </Shape>
+</Shapes>

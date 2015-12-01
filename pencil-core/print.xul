@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<dialog id="pencilPrintDialog" title="Print"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        style="min-width:40em; min-height: 500px;">
+
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/common/io.js"/>
+    <script src="chrome://pencil/content/common/pdf.js"/>
+
+    <vbox flex="1">
+        <hbox>
+            <label value="Test printing" flex="1"/>
+            <button oncommand="test();" label="Test it!"/>
+        </hbox>
+        <browser type="content" src="http://arstechnica.com/" flex="1" id="browser"/>
+    </vbox>
+
+</dialog>

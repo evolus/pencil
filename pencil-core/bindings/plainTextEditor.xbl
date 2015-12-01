@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+        xmlns:xbl="http://www.mozilla.org/xbl"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="plainTextEditor">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                this.textBox = document.getAnonymousElementByAttribute(this, "aid", "textBox");
+
+                if (this._property && this._property.meta) {
+                    this.setTypeMeta(this._property.meta);
+                }
+
+                if (this.hasAttribute("value")) this.setValue(PlainText.fromString(this.getAttribute("value")));
+
+            ]]>
+            </constructor>
+            <method name="setTypeMeta">
+                <parameter name="meta"/>
+                <body>
+                <![CDATA[
+                    this.meta = meta;
+                ]]>
+                </body>
+            </method>
+            <method name="setValue">
+                <parameter name="plainText"/>
+                <body>
+                <![CDATA[
+                    if (plainText.value.indexOf("\r") >= 0 || plainText.value.indexOf("\n") >= 0) {
+                        this.textBox.setAttribute("multiline", true);
+                        this.textBox.setAttribute("height", "80");
+                    }
+                    this.textBox.value = plainText.value;
+                    this.textBox.setAttribute("value", plainText.value);
+                ]]>
+                </body>
+            </method>
+            <method name="getValue">
+                <body>
+                <![CDATA[
+                    var plainText = new PlainText(this.textBox.value);
+                    return plainText;
+                ]]>
+                </body>
+            </method>
+            <method name="isModified">
+                <body>
+                <![CDATA[
+                    return true; //this.isUserModified;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <content>
+            <textbox aid="textBox" flex="1" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xbl:inherits="disabled"/>
+        </content>
+    </binding>
+</bindings>

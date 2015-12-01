@@ -1,0 +1,405 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="clipartBrowserPane">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                if (this.initialized) return;
+                this.initialized = true;
+
+                this.contentBox = document.getAnonymousElementByAttribute(this, "aid", "contentBox");
+                this.popup = document.getAnonymousElementByAttribute(this, "aid", "contextPopup");
+                this.copyMenuItem = document.getAnonymousElementByAttribute(this, "aid", "copyMenuItem");
+                this.insertMenuItem = document.getAnonymousElementByAttribute(this, "aid", "insertMenuItem");
+
+                this.searchButton = document.getElementById("search-button");
+                this.loadingEl = document.getElementById("loading-box");
+
+                this.IMAGE_WIDTH = 150;
+                this.IMAGE_HEIGHT = 150;
+
+                this.rq = [];
+
+                var id = "popup" + Math.round(1000 * Math.random());
+                this.popup.setAttribute("id", id);
+                this.contentBox.setAttribute("context", id);
+                var thiz = this;
+
+                this.addEventListener("click", function (event) {
+                    //if (event.button != 0) return;
+                    var imgNode = Dom.findUpward(event.originalTarget, function (node) { return node._img; });
+                    if (imgNode) {
+                        if (thiz._lastSelected && thiz._lastSelected != null) {
+                            document.getElementById("_image_" + thiz._lastSelected).className = "Image";
+                        }
+                        thiz._lastSelected = imgNode._img._id;
+                        document.getElementById("_image_" + thiz._lastSelected).className = "Image Selected";
+                    }
+                }, false);
+                this.contentBox.addEventListener("contextmenu", function (event) {
+                    var img = Dom.findUpward(event.originalTarget, function (node) { return node._img; });
+                    var hasImg = false;
+                    if (img) {
+                        hasImg = true;
+                        thiz.currentImage = img;
+                    }
+                    thiz.copyMenuItem.disabled = !hasImg;
+                    thiz.insertMenuItem.disabled = !hasImg;
+                }, false);
+                this.copyMenuItem.addEventListener("command", function (event) {
+                    if (thiz.currentImage) {
+                        debug("copy: " + thiz.currentImage._img.src);
+                        thiz.doCopy(thiz.currentImage._img);
+                    }
+                }, false);
+                this.insertMenuItem.addEventListener("command", function (event) {
+                    if (thiz.currentImage) {
+                        debug("insert: " + thiz.currentImage._img.src);
+                        if (SearchManager.activeCanvas) {
+                            thiz.doCopy(thiz.currentImage._img);
+                            SearchManager.activeCanvas.doPaste();
+                        }
+                    }
+                }, false);
+            ]]>
+            </constructor>
+            <method name="_injectSvgInfo">
+                <parameter name="svg"/>
+                <body>
+                <![CDATA[
+                    try {
+                        var g = Dom.parseToNode(svg);
+                        g.setAttributeNS(PencilNamespaces.p, "p:ImageSource", "OpenClipart.org");
+                        return new XMLSerializer().serializeToString(g);
+                    } catch (e) {
+                        Console.dumpError(e);
+                    }
+                ]]>
+                </body>
+            </method>
+            <method name="doCopy">
+                <parameter name="image"/>
+                <body>
+                <![CDATA[
+                try {
+
+                    if (!image) return;
+
+                    if (image.type == "image/svg+xml") {
+                        var svgXMLSS   = Components.classes["@mozilla.org/supports-string;1"].
+                                                createInstance(Components.interfaces.nsISupportsString);
+                        if (!svgXMLSS) return false;
+
+                        svgXMLSS.data = this._injectSvgInfo(image._svg);
+
+                        var trans = Components.classes["@mozilla.org/widget/transferable;1"].
+                                                createInstance(Components.interfaces.nsITransferable);
+                        if (!trans) return false;
+
+                        trans.addDataFlavor("image/svg+xml");
+                        trans.setTransferData("image/svg+xml", svgXMLSS, svgXMLSS.data.length * 2);
+
+                        var clipId = Components.interfaces.nsIClipboard;
+                        var clip   = Components.classes["@mozilla.org/widget/clipboard;1"].getService(clipId);
+                        if (!clip) return false;
+
+                        clip.setData(trans, null, clipId.kGlobalClipboard);
+                    } else {
+                        var cmd = "cmd_copyImageContents";
+                        document.popupNode = image._targetImage;
+                        var controller = top.document.commandDispatcher.getControllerForCommand(cmd);
+                        if (controller && controller.isCommandEnabled(cmd))
+                        controller.doCommand(cmd);
+                    }
+                } catch (e) {
+                    error(e);
+                }
+                ]]>
+                </body>
+            </method>
+            <method name="addImages">
+                <parameter name="images"/>
+                <body>
+                <![CDATA[
+                    this.searchAborted = false;
+                    this.rq = [];
+
+                    Dom.empty(this.contentBox);
+
+                    var imageBox = document.createElementNS(PencilNamespaces.xul, "vbox");
+                    imageBox._images = images;
+                    imageBox.setAttribute("class", "Images");
+                    this.contentBox.appendChild(imageBox);
+
+                    var searchContent = document.createElementNS(PencilNamespaces.html, "div");
+                    searchContent.setAttribute("class", "SearchResult");
+                    this.contentBox.appendChild(searchContent);
+
+                    var contentInner = document.createElementNS(PencilNamespaces.html, "div");
+                    contentInner.setAttribute("class", "Inner");
+                    searchContent.appendChild(contentInner);
+
+                    var loaded = 1;
+                    var thiz = this;
+
+                    function addImage(img, i) {
+                        var button = document.createElementNS(PencilNamespaces.html, "div");
+                        button._img = img;
+                        button.setAttribute("class", "Item");
+                        contentInner.appendChild(button);
+
+                        button.addEventListener("draggesture", function (event) {
+                            thiz.handleDragStart(event);
+                        }, false);
+
+                        var span = document.createElementNS(PencilNamespaces.html, "span");
+                        span.setAttribute("class", "Image");
+                        span.setAttribute("id", "_image_" + i);
+                        img._id = i;
+
+                        button.appendChild(span);
+
+                        if (img.type == "image/svg+xml") {
+                            WebUtil.get(img.src, function(svg) {
+                                if (!svg ||  thiz.searchAborted) return;
+                                try {
+                                    img._svg = svg;
+                                    var domParser = new DOMParser();
+                                    var dom = domParser.parseFromString(svg, "text/xml");
+                                    if (!dom) return;
+
+                                    var width = Svg.getWidth(dom);
+                                    var height = Svg.getHeight(dom);
+
+                                    var scale = parseFloat(thiz.IMAGE_WIDTH / width);
+                                    if (height > width) {
+                                        scale = parseFloat(thiz.IMAGE_HEIGHT / height);
+                                    }
+
+                                    debug("w: " + width + ", h: " + height + ", scale: " + scale);
+
+                                    var attrs = dom.documentElement.attributes;
+                                    var svge = dom.createElementNS(PencilNamespaces.svg, "svg");
+                                    for (var a in attrs) {
+                                        if (attrs[a].nodeType == 2) {
+                                            svge.setAttribute(attrs[a].nodeName, attrs[a].nodeValue);
+                                        }
+                                    }
+
+                                    //if (scale < 1) {
+                                        var viewBox = Dom.getSingle("/svg:svg/@viewBox", dom);
+                                        if (viewBox != null) {
+                                            viewBox = viewBox.nodeValue.split(/\s+/);
+                                            if (viewBox.length >= 4) {
+                                                var vb = viewBox[0] + " " + viewBox[1] + " " + parseFloat(viewBox[2]) * scale + " " +
+                                                            parseFloat(viewBox[3]) * scale;
+                                                svge.setAttribute("viewBox", vb);
+                                            }
+                                        }
+                                    //}
+
+                                    svge.setAttribute("width", width * scale);
+                                    svge.setAttribute("height", height * scale);
+
+                                    var g = dom.createElementNS(PencilNamespaces.svg, "g");
+                                    //if (scale < 1) {
+                                        g.setAttribute("transform", "scale(" + scale + ")");
+                                    //}
+                                    while (dom.documentElement.childNodes.length > 0) {
+                                        var firstChild = dom.documentElement.firstChild;
+                                        dom.documentElement.removeChild(firstChild);
+                                        g.appendChild(firstChild);
+                                    }
+
+                                    svge.appendChild(g);
+
+                                    var _image = document.createElementNS(PencilNamespaces.html, "img");
+                                    _image.setAttribute("src", img.thumbnail);
+                                    //_image.setAttribute("width", 90);
+                                    //_image.setAttribute("height", 90);
+                                    debug(img.thumbnail);
+
+                                    var divv = document.getElementById("_image_" + img._id);
+                                    //divv.innerHTML = Dom.serializeNode(svge);
+                                    divv.appendChild(_image);
+
+                                    spanInfo = document.createElementNS(PencilNamespaces.html, "span");
+                                    spanInfo.setAttribute("class", "Info");
+
+                                    var size = img.size;
+                                    if (!size || size == "") {
+                                        size = img._svg.length;
+                                    }
+                                    spanInfo = thiz._buildInfoNode(spanInfo, img.displayName, "SVG", size, width, height);
+                                    button.appendChild(spanInfo);
+
+                                    loaded++;
+                                    debug("loaded: " + loaded);
+                                    thiz.loadingEl.value = Util.getMessage("clipartbrowser.loading.message", loaded, images.length);
+                                    if (loaded >= images.length) {
+                                        thiz.loadingEl.style.display = "none";
+                                        thiz.searchButton.className = "search-go-button";
+                                    }
+                                } catch (e) {
+                                    error(e);
+                                }
+                            }, thiz.rq);
+                        } else {
+                            WebUtil.getMetadata(img.src, function(size) {
+                                if (thiz.searchAborted) return;
+                                //img._png = Base64.encode(png, true);
+
+                                //debug("getMetadata - s: " + size);
+                                //debug("getMetadata - d: " + Base64.encode(img._png, true));
+
+                                var _image = document.createElementNS(PencilNamespaces.html, "img");
+
+                                _image.onload = function(exx) {
+                                    if (thiz.searchAborted) return;
+                                    //debug("getMetadata - w: " + _image.width + ", h: " + _image.height);
+                                    var ww = _image.width;
+                                    var hh = _image.height;
+
+                                    var scale = parseFloat(thiz.IMAGE_WIDTH / ww);
+                                    if (hh > ww) {
+                                        scale = parseFloat(thiz.IMAGE_HEIGHT / hh);
+                                    }
+
+                                    if (scale < 1) {
+                                        _image.setAttribute("width", ww * scale);
+                                        _image.setAttribute("height", hh * scale);
+                                    }
+
+                                    _image.setAttribute("style", "");
+
+                                    spanInfo = document.createElementNS(PencilNamespaces.html, "span");
+                                    spanInfo.setAttribute("class", "Info");
+
+                                    spanInfo = thiz._buildInfoNode(spanInfo, img.displayName, img.typeName, Math.round(size / 1024) + 'KB', ww, hh);
+                                    button.appendChild(spanInfo);
+
+                                    loaded++;
+                                    debug("loaded: " + loaded);
+                                    thiz.loadingEl.value = Util.getMessage("clipartbrowser.loading.message", loaded, images.length);
+                                    if (loaded >= images.length) {
+                                        thiz.loadingEl.style.display = "none";
+                                        thiz.searchButton.className = "search-go-button";
+                                    }
+                                }
+
+                                _image.setAttribute("style", "display:none;");
+                                _image.setAttribute("src", img.src);
+
+                                img._targetImage = _image;
+
+                                var divv = document.getElementById("_image_" + img._id);
+                                divv.appendChild(_image);
+                            }, thiz.rq);
+                        }
+                    };
+
+                    for (var i in images) {
+                        addImage(images[i], i);
+                    }
+                ]]>
+                </body>
+            </method>
+            <method name="_buildInfoNode">
+                <parameter name="span"/>
+                <parameter name="displayName"/>
+                <parameter name="typeName"/>
+                <parameter name="size"/>
+                <parameter name="w"/>
+                <parameter name="h"/>
+                <body>
+                <![CDATA[
+                    var n = document.createElementNS(PencilNamespaces.html, "h2");
+                    n.appendChild(document.createTextNode(displayName));
+                    span.appendChild(n);
+
+                    var a = document.createElementNS(PencilNamespaces.html, "a");
+                    a.setAttribute("title", "Public Domain");
+                    a.setAttribute("href", "#");
+                    span.appendChild(a);
+
+                    var i = document.createElementNS(PencilNamespaces.html, "img");
+                    i.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kIHwQeMDR+TOAAAANKSURBVDjLlZTLS2tXFMZ/Mb7y0GjEhHZQMIgaB0LwL1AHSlNLC1el6B3qQHQgxkH/gpbiwJbioBMFRxYpIhVBp2oVxYyCFiWmV+s9JxI5kNdNjuesTnJCfFzafrAni72+vdZe37fgJWxAI/AG+A24BYzSuS3FRgBP6e6L5Eo4gK+B74DPvF4vfr8fp9MJQC6XQ1VVHh4eAP4Gvi09kH2lMJqAnwFpbGyUubk5c3t7W66vryWdTks6nZZEIiE7OzsyPz9vNjc3CyDAL0DLc7J64CdAgsGgnJycmI+Pj/IxGIYh0WjU7O3trSR1VRK+AaSjo0Pu7u5MK9E0zRdklbFkMllJ+tb6wgbgyuVyydHRkSn/E9Fo1PR6vVIamAfgS0BmZmZMXddFRETTNFFVVRRFkVQqJSIimUxGVFWVZDIpmUymXK1hGBKJRMxSlSPVwNumpiYGBweprq4GYGlpif39fWprazEMg5GREVwuF8vLy+i6js/nY3x8nNHRUWw2GwMDA7aVlRVSqdQ3AO+6urokHo+X2wiHw9LZ2Snn5+cyNTUlDodDIpGI+Hw+2djYkLGxMXG73RKLxUREJJFISDAYFOC2CvjU5XLR2tpanpDdbqehoYH29nZqamrI5/PU1dXh9XoZGhpicXGRYrHI3t4eAC0tLZZWP6l+TZA2m43T01McDgf19fWsra0Rj8cREUzTpFAoICLY7fYXuVXA+2w2y/39fTmo6zqhUAhd10mn00xMTFAoFFAUhdXVVSYnJ/F4PITDYQBSqRS5XA7gfRXwh6IoxGIxsQj7+/sZHh5+8nIoFKKvr4/d3V0CgQDr6+u0tbUBcHFxQTKZBDgB+MKSTbFYFBGRfD4vuVzuid4KhULZgoZhPBH6wsKCJZtRS9h/Op1OOTw8NJ+7wjofw9nZmeXrsrABvgIkEAjIzc3Nf7aeoihmT0+PZb2Jyu1VC/xgkR4cHJTbfw26rsvx8bHZ3d1tkS0DzucTd1mkDodDpqenzc3NTfPy8lI0TRNN0+Tq6kq2trbM2dlZ0+12W2Q/llbfqwu2Fvgc+B7o9Hg8+P1+3G43ANlsFlVV0TQN4Kq0YH8HPvAvaChN/1fgXWn9PwJ/lWLDpTsv8A+MFbOuSbAwNgAAAABJRU5ErkJggg==");
+                    a.appendChild(i);
+
+                    n = document.createElementNS(PencilNamespaces.html, "span");
+                    var s = document.createElementNS(PencilNamespaces.html, "strong");
+                    s.appendChild(document.createTextNode(typeName));
+                    n.appendChild(s);
+
+                    if (/^\d+$/.test(size)) {
+                        size = Math.round(parseInt(size) / 1024) + "KB";
+                    }
+                    n.appendChild(document.createTextNode(" (" + size + ") " + w + "x" + h));
+                    span.appendChild(n);
+
+                    return span;
+                ]]>
+                </body>
+            </method>
+            <method name="clearImages">
+                <body>
+                <![CDATA[
+                    Dom.empty(this.contentBox);
+                    for (var i = 0; i < this.rq.length; i++) {
+                        if (this.rq[i]) {
+                            this.rq[i].abort();
+                            this.rq[i].onreadystatechange = null;
+                        }
+                    }
+                    this.searchAborted = true;
+                ]]>
+                </body>
+            </method>
+            <method name="handleDragStart">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                    try {
+                        var imgNode = Dom.findUpward(event.originalTarget, function (node) { return node._img; });
+                        var thiz = this;
+                        nsDragAndDrop.startDrag(event, {
+                            onDragStart: function (evt, transferData, action) {
+                                transferData.data = new TransferData();
+                                if (imgNode._img.type == "image/svg+xml") {
+                                    var svg = thiz._injectSvgInfo(imgNode._img._svg);
+                                    transferData.data.addDataForFlavour("image/svg+xml", svg);
+                                } else {
+                                    transferData.data.addDataForFlavour("pencil/png", imgNode._img.src);
+                                }
+                            }
+                        });
+                    } catch (e) { alert(e); }
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <handlers>
+        </handlers>
+        <xbl:content xmlns:xbl="http://www.mozilla.org/xbl"
+                xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+            <vbox aid="contentBox" flex="1"></vbox>
+            <popupset>
+                <menupopup aid="contextPopup">
+                    <menuitem aid="copyMenuItem" label="&menu.copy.image.label;" />
+                    <menuitem aid="insertMenuItem" label="&menu.insert.image.label;" />
+                </menupopup>
+            </popupset>
+        </xbl:content>
+    </binding>
+</bindings>
+

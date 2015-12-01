@@ -1,0 +1,10 @@
+{
+  "name": "Pencil",
+  "main": "app.xhtml",
+  "window": {
+    "toolbar": false,
+    "position": "center",
+    "width": 900,
+    "height": 900
+  }
+}

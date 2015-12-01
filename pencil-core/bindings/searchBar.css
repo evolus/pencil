@@ -1,0 +1,131 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+searchbar {
+    -moz-binding: url(chrome://pencil/content/bindings/searchBar.xbl#searchbar);
+}
+
+.searchbar-textbox {
+    -moz-binding: url(chrome://pencil/content/bindings/searchBar.xbl#searchbar-textbox);
+}
+
+.searchbar-engine-button {
+    -moz-user-focus: none;
+}
+
+.searchbar-textbox {
+    min-height: 22px;
+    width: 6em;
+    min-width: 6em;
+    background-color: -moz-field;
+}
+
+.searchbar-textbox:-moz-system-metric(windows-default-theme) {
+  -moz-appearance: none;
+  border-width: 1px;
+  -moz-border-top-colors: ThreeDShadow;
+  -moz-border-bottom-colors: ThreeDShadow;
+  -moz-border-right-colors: ThreeDShadow;
+  -moz-border-left-colors: ThreeDShadow;
+}
+
+.textbox-input-box {
+    margin: 0;
+}
+
+.searchbar-engine-menuitem[selected="true"] > .menu-iconic-text {
+    font-weight: bold;
+}
+
+/* Engine button */
+.searchbar-engine-image {
+    height: 16px;
+    width: 16px;
+    list-style-image: url("chrome://global/skin/icons/folder-item.png");
+    -moz-image-region: rect(0px, 16px, 16px, 0px);
+    -moz-margin-start: 2px;
+}
+
+.searchbar-engine-button {
+    -moz-appearance: none;
+    min-width: 0;
+    border: 0;
+    -moz-box-align: center;
+    background-color: -moz-dialog;
+    -moz-border-end: 1px solid;
+    -moz-border-right-colors: ThreeDShadow;
+    -moz-border-left-colors: ThreeDShadow;
+    margin: 0;
+    -moz-margin-end: 3px;
+    padding: 0;
+    height: 1.23em;
+    min-height: 20px;
+    border: 0 solid;
+    -moz-border-right-colors: ThreeDShadow;
+    -moz-border-left-colors: ThreeDShadow;
+    -moz-box-shadow: 1px 1px 0 rgba(255,255,255,.4) inset,
+                   0 -1px 0 rgba(255,255,255,.4) inset;
+
+}
+
+.searchbar-engine-button > .button-box {
+    -moz-appearance: none;
+    padding: 0;
+    -moz-padding-end: 3px;
+    border: 0;
+}
+
+.searchbar-engine-button:hover > .button-box {
+    background-color: rgba(255, 255, 255, .2);
+}
+
+.searchbar-engine-button:hover:active > .button-box,
+.searchbar-engine-button[open="true"] > .button-box {
+    background-color: rgba(0, 0, 0, .1);
+}
+
+.searchbar-engine-button[addengines="true"] {
+    -moz-box-shadow: 0 0 5px Highlight inset, 0 0 20px Highlight inset;
+}
+
+.searchbar-dropmarker-image {
+    list-style-image: url(chrome://global/skin/arrow/arrow-dn.gif);
+    -moz-appearance: toolbarbutton-dropdown !important;
+    width: 5px;
+    height: 3px;
+    -moz-margin-start: 1px;
+}
+
+/* Search go button */
+.search-go-container {
+    -moz-box-align: center;
+}
+
+.search-go-button {
+    padding: 2px;
+    list-style-image: url(chrome://pencil/skin/images/search-glass.png);
+    cursor: pointer;
+
+    -moz-image-region: rect(0px, 16px, 16px, 0px);
+}
+.search-go-button[chromedir="rtl"] {
+    list-style-image: url(chrome://pencil/skin/images/search-glass.png);
+}
+
+.Loading {
+    color: black;
+    font-family: sans-serif;
+}
+
+.searching {
+    padding: 1px;
+    list-style-image: url(chrome://pencil/skin/images/throbber.gif);
+    cursor: pointer;
+}
+
+menuitem[cmd="cmd_clearhistory"] {
+    list-style-image: url(moz-icon://stock/gtk-clear?size=menu);
+}
+
+menuitem[cmd="cmd_clearhistory"][disabled] {
+    list-style-image: url(moz-icon://stock/gtk-clear?size=menu&state=disabled);
+}

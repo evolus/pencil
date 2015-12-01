@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/dialog.css" type="text/css"?>
+
+<dialog id="pencilMessageDialog" title="Evolus Pencil"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        buttons="accept,cancel"
+        buttonlabelaccept="&button.accept.label.apply;"
+        buttonlabelcancel="&button.cancel.label.cancel;"
+        ondialogaccept="return handleDialogAccept();"
+        ondialogextra1="return handleDialogExtra1();"
+        ondialogcancel="return handleDialogCancel();">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/propertyType/richText.js"/>
+    <script src="chrome://pencil/content/messageDialog.js"/>
+
+    <hbox class="Body">
+        <image class="message-icon" id="icon"/>
+        <vbox>
+            <description id="titleText">Title</description>
+            <description id="descText">Message</description>
+            <html:div id="descHtml" xmlns="http://www.w3.org/1999/xhtml"></html:div>
+        </vbox>
+    </hbox>
+</dialog>

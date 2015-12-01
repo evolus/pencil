@@ -1,0 +1,35 @@
+
+
+footer {
+    .hbox();
+    padding: 0.5em;
+}
+footer:after {
+    content: " ";
+    flex: 1;
+    order: 50;
+}
+
+footer > button[role='primary'] {
+    order: 99;
+    margin-left: 0.3em;
+}
+footer > button:not([role]),
+footer > button[role='dismissal'] {
+    order: 98;
+    margin-left: 0.3em;
+}
+footer > button[role='extra1'] {
+    order: 1;
+    margin-right: 0.3em;
+}
+footer > button[role='extra2'] {
+    order: 2;
+    margin-right: 0.3em;
+}
+footer > button[role='extra3'] {
+    order: 3;
+    margin-right: 0.3em;
+}
+
+

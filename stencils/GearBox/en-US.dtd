@@ -1,0 +1,24 @@
+<!ENTITY displayName "GearBox Shapes">
+<!ENTITY collectionDesc "Collection of GearBox shapes">
+<!ENTITY box "Box">
+<!ENTITY backgrcolor "Background Color">
+<!ENTITY linecolor "Line Color">
+<!ENTITY linestyle "Line Style">
+<!ENTITY defaultfont "Default Font">
+<!ENTITY defaultextcolor "Default Text Color">
+<!ENTITY textcont "Text Content">
+<!ENTITY textfont "Text Font">
+
+<!ENTITY gearbox "Gearbox">
+<!ENTITY gearboxOverview "Gearbox Overview">
+<!ENTITY ringGear "Ring Gear">
+<!ENTITY gearboxHousing "Gear Box Housing">
+<!ENTITY Lowspeedshaft "Low Speed Shaft">
+<!ENTITY planetCarrier "Planet Carrier">
+<!ENTITY planetPin "Planet Pin">
+<!ENTITY gearboxOverview "Gearbox Overview">
+<!ENTITY intermediateSpeedShaft "Intermediate Speed Shaft">
+<!ENTITY highSpeedShaft "High speed shaft">
+<!ENTITY gearRim "Gear Rim">
+<!ENTITY gearProfile "Gear Profile">
+

@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<p:Config xmlns="http://www.w3.org/2000/svg"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:svg="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <g transform="translate(20, 20)" class="GeoEditor Tool_scale">
+        <defs>
+            <style type="text/css"><![CDATA[
+                @namespace p url(http://www.evolus.vn/Namespace/Pencil);
+                @namespace xul url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
+                g.GeoEditor rect[p|name='Bound'] {
+                    stroke: #00f;
+                    stroke-dasharray: 5,2;
+                    stroke-width: 1px;
+                    stroke-opacity: .2;
+
+                    fill: none;
+                }
+                xul|window.Beat g.GeoEditor rect[p|name='Bound'] {
+                    stroke-dashoffset: 3;
+                }
+                g.GeoEditor rect.Anchor {
+                    fill: #00f;
+                    stroke: #000;
+                    stroke-width: 6;
+                    stroke-opacity: 0;
+
+                    fill-opacity: .5;
+                }
+                g.GeoEditor[p|nobox='true'].Tool_scale rect.Anchor {
+                    display: none;
+                }
+                g.GeoEditor.Tool_rotate rect.Anchor {
+                    fill: #f00;
+                    cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAYAAADJViUEAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALxgAAC8YBviYg3gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAAQdEVYdFRpdGxlAFBJQ09MIEljb24VKfxaAAAAE3RFWHRBdXRob3IATWVsaWggQmlsZ2lse5m8LAAAADN0RVh0RGVzY3JpcHRpb24AVGhpcyBpcyBvbmUgaWNvbiBvdXQgb2YgYWxsIFBJQ09MIGljb25zsZaYewAAABh0RVh0Q3JlYXRpb24gVGltZQAyMDA5LTAzLTE15eHrfQAAABx0RVh0U291cmNlAGh0dHA6Ly9ibG9nLnBpY29sLm9yZx8o7y0AAABSdEVYdENvcHlyaWdodABDQyBBdHRyaWJ1dGlvbi1TaGFyZUFsaWtlIGh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL2xpY2Vuc2VzL2J5LXNhLzMuMC9eg1q8AAABLElEQVQokZXSLUvmQRQF8N8YlEUNDwbhEawGy4bVtFg07eInsFr8MpYFZUGDGmwWYYPBZPOlrIJiUJNZQZBFuQbvs4x%2FfHwZuMzMmXvOnJl7RYTXAiOYwTi%2BVPgw5iNCkzCEVVwjqviHFXzFXyy%2BIGO2It1jHxvYxW3i5zn%2F%2Bk%2FGJB7y4Df6G47aOK2cLCeuF8cJLrzy9j7sNJ6xEhEKFrCEPxHxU2OUUsYwgccqLiLiCNZT7Xu3n3%2BjIk5SbeCz5IIbPETEUNNyt1FKWU239nLR%2FqDVdubv9eAwBac%2BeHEn7xCmU%2BkKg%2B%2FcOph5gekOuJbAVjeBJG5l3lrdYa1K8RJzGM2z0dxfVg5bzd5uYdPLTrpr7Dc7xIhQOsWuyjCLH%2FiGMZzhwHMHbte5TyCBTcWc%2FWeFAAAAAElFTkSuQmCC) 8 8, default !important;
+                }
+                g.GeoEditor.Tool_rotate rect[p|name='Bound'] {
+                    stroke: #f00;
+                }
+                g.GeoEditor rect.Anchor:active,
+                g.GeoEditor rect.Anchor:hover {
+                    fill: #0f0;
+                }
+                g.GeoEditor.Tool_rotate rect.Anchor:active {
+                    cursor: -moz-grabbing !important;
+                }
+
+
+                g.GeoEditor rect[p|name='TopLeft'] {
+                    cursor: nw-resize;
+                }
+                g.GeoEditor rect[p|name='BottomRight'] {
+                    cursor: se-resize;
+                }
+                g.GeoEditor rect[p|name='TopRight'] {
+                    cursor: ne-resize;
+                }
+                g.GeoEditor rect[p|name='BottomLeft'] {
+                    cursor: sw-resize;
+                }
+                g.GeoEditor rect[p|name='Top'] {
+                    cursor: n-resize;
+                }
+                g.GeoEditor rect[p|name='Bottom'] {
+                    cursor: s-resize;
+                }
+
+                g.GeoEditor rect[p|name='Left'] {
+                    cursor: w-resize;
+                }
+                g.GeoEditor rect[p|name='Right'] {
+                    cursor: e-resize;
+                }
+            ]]></style>
+        </defs>
+        <rect x="0.5" y="0.5" width="50" height="120" p:name="Bound"/>
+        <g p:name="Anchors">
+            <rect x="0" y="0" width="6" height="6" class="Anchor" p:name="TopLeft" transform="translate(-3,-3)" xlink:title="This is the title"/>
+            <rect x="45" y="0" width="6" height="6" class="Anchor" p:name="TopRight" transform="translate(3,-3)"/>
+            <rect x="45" y="115" width="6" height="6" class="Anchor" p:name="BottomRight" transform="translate(3,3)"/>
+            <rect x="0" y="115" width="6" height="6" class="Anchor" p:name="BottomLeft" transform="translate(-3,3)"/>
+
+            <rect x="0" y="57" width="6" height="6" class="Anchor" p:name="Left" transform="translate(-3,0)"/>
+            <rect x="45" y="57" width="6" height="6" class="Anchor" p:name="Right" transform="translate(3,0)"/>
+
+            <rect x="22" y="0" width="6" height="6" class="Anchor" p:name="Top" transform="translate(0,-3)"/>
+            <rect x="22" y="115" width="6" height="6" class="Anchor" p:name="Bottom" transform="translate(0,3)"/>
+        </g>
+    </g>
+</p:Config>

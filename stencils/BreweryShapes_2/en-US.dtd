@@ -1,0 +1,26 @@
+<!ENTITY displayName "Brewery Elements - Extras">
+<!ENTITY collectionDesc "Collection of brewery shapes">
+<!ENTITY box "Box">
+<!ENTITY backgrcolor "Background Color">
+<!ENTITY linecolor "Line Color">
+<!ENTITY linestyle "Line Style">
+<!ENTITY defaultfont "Default Font">
+<!ENTITY defaultextcolor "Default Text Color">
+<!ENTITY image2 "Image2">
+<!ENTITY image3 "Image3">
+<!ENTITY image4 "Image4">
+<!ENTITY adjustablewrench "Adjustable Wrench">
+<!ENTITY handle1 "Handle 1">
+<!ENTITY handle2 "Handle 2">
+<!ENTITY textcont "Text Content">
+<!ENTITY textfont "Text Font">
+<!ENTITY phillipsscrew "Phillips Screwdriver">
+<!ENTITY slotscrew "Slotted Screwdriver">
+<!ENTITY pliers "Pliers">
+<!ENTITY visegrips "Vise Grips">
+<!ENTITY clawhammer "Claw Hammer">
+<!ENTITY tapemeasure "Tape Measure">
+<!ENTITY smalldrill "Small Drill">
+<!ENTITY mediumdrill "Medium Drill">
+<!ENTITY bigdrill "Big Drill">
+<!ENTITY saw "Saw">

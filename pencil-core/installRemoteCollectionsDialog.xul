@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+<!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+%pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/installRemoteCollectionsDialog.css" type="text/css"?>
+
+<dialog id="collectionManager"
+        title="Online Collections"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="cancel"   
+        buttonlabelcancel="close"
+        height="520"
+        width="800"
+        padding="0"
+        ondialogcancel="return true;">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"></script>
+    <script src="chrome://pencil/content/common/util.js"></script>
+    <script src="chrome://pencil/content/common/io.js"></script>
+    <script src="chrome://pencil/content/installRemoteCollectionsDialog.js"></script>
+    <vbox id="collectionListContent" style="padding-left: 5px; padding-right: 5px; overflow:auto" flex="1">
+        
+    </vbox>
+    <hbox style="margin-top: 5px">
+        <button id="backBtn" onclick="InstallRemoteCollectionsDialog.loadPreviousPage();" style="padding-left: 17px">Back</button>
+        <button id="nextBtn" onclick="InstallRemoteCollectionsDialog.loadNextPage();" style="padding-left: 17px">Next</button>
+        <label id="pagingLabel" style="margin-top: 5px; font-weight: bold;"></label>
+    </hbox>
+</dialog>

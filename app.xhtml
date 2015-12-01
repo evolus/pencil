@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://evolus.vn/Namespaces/WebUI/1.0">
+    <head>
+        <title>Pencil app</title>
+        <link rel="stylesheet" href="css/pencil.css"/>
+        <link rel="stylesheet" href="pencil-core/styles/canvas.css" />
+
+        <!-- Pencil Core -->
+        <script type="text/javascript" src="pencil-core/common/pencilNamespaces.js"></script>
+        <script type="text/javascript" src="pencil-core/common/nsDragAndDrop2.js"></script>
+        <script type="text/javascript" src="pencil-core/common/util.js"></script>
+        <!--
+        <script type="text/javascript" src="pencil-core/common/io.js"></script>
+        -->
+        <script type="text/javascript" src="pencil-core/common/lorem.js"></script>
+        <script type="text/javascript" src="pencil-core/common/base64.js"></script>
+        <script type="text/javascript" src="pencil-core/common/dockingManager.js"></script>
+
+        <script type="text/javascript" src="pencil-core/common/config.js"></script>
+
+        <script type="text/javascript" src="pencil-core/canvasHelper/canvasCareTaker.js"></script>
+        <script type="text/javascript" src="pencil-core/canvasHelper/canvasMemento.js"></script>
+        <script type="text/javascript" src="pencil-core/canvasHelper/canvasImpl.js"></script>
+        <script type="text/javascript" src="pencil-core/canvasHelper/snappingHelper.js"></script>
+
+        <script type="text/javascript" src="pencil-core/privateCollection/privateCollection.js"></script>
+        <script type="text/javascript" src="pencil-core/privateCollection/privateShapeDef.js"></script>
+        <script type="text/javascript" src="pencil-core/privateCollection/privateShapeDefParser.js"></script>
+        <script type="text/javascript" src="pencil-core/privateCollection/privateCollectionManager.js"></script>
+
+        <script type="text/javascript" src="pencil-core/definition/geometry.js"></script>
+        <script type="text/javascript" src="pencil-core/definition/shapeDef.js"></script>
+        <script type="text/javascript" src="pencil-core/definition/shapeDefCollection.js"></script>
+        <script type="text/javascript" src="pencil-core/definition/shapeDefCollectionParser.js"></script>
+        <script type="text/javascript" src="pencil-core/definition/collectionManager.js"></script>
+
+        <script type="text/javascript" src="pencil-core/definition/exportTemplate.js"></script>
+        <script type="text/javascript" src="pencil-core/definition/exportTemplateManager.js"></script>
+
+        <script type="text/javascript" src="pencil-core/common/pencil.js"></script>
+        <script type="text/javascript" src="pencil-core/common/controller.js"></script>
+
+        <script type="text/javascript" src="pencil-core/document/document.js"></script>
+        <script type="text/javascript" src="pencil-core/document/xmlDocumentPersister.js"></script>
+        <script type="text/javascript" src="pencil-core/document/persistentHooks.js"></script>
+
+        <script type="text/javascript" src="pencil-core/behavior/commonBehaviors.js"></script>
+        <script type="text/javascript" src="pencil-core/behavior/commonFunctions.js"></script>
+
+        <script type="text/javascript" src="pencil-core/propertyType/bound.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/dimension.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/point.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/handle.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/color.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/css.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/font.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/alignment.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/strokeStyle.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/bool.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/enum.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/plainText.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/richText.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/imageData.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/shadowStyle.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/snappingData.js"></script>
+
+        <script type="text/javascript" src="pencil-core/common/typeEditorRegistry.js"></script>
+        <script type="text/javascript" src="pencil-core/common/collectionSettingEditor.js"></script>
+
+        <script type="text/javascript" src="pencil-core/common/svgRasterizer.js"></script>
+
+        <script type="text/javascript" src="pencil-core/target/shape.js"></script>
+        <script type="text/javascript" src="pencil-core/target/targetSet.js"></script>
+        <script type="text/javascript" src="pencil-core/target/group.js"></script>
+        <script type="text/javascript" src="pencil-core/target/null.js"></script>
+
+        <script type="text/javascript" src="pencil-core/editor/geometryEditor.js"></script>
+        <script type="text/javascript" src="pencil-core/editor/handleEditor.js"></script>
+
+        <!--
+        <script type="text/javascript" src="pencil-core/editor/propertyPageEditor.js"></script>
+        <script type="text/javascript" src="pencil-core/editor/onMenuEditor.js"></script>
+        <script type="text/javascript" src="pencil-core/editor/onMenuTypeEditors.js"></script>
+        <script type="text/javascript" src="pencil-core/editor/onScreenTextEditor.js"></script>
+        <script type="text/javascript" src="pencil-core/editor/onScreenTextEditor-RichTextSupport.js"></script>
+
+        <script type="text/javascript" src="pencil-core/editor/sharedFontEditor.js"></script>
+        <script type="text/javascript" src="pencil-core/editor/sharedFillColorEditor.js"></script>
+        <script type="text/javascript" src="pencil-core/editor/sharedGeometryEditor.js"></script>
+        <script type="text/javascript" src="pencil-core/editor/sharedBorderStyleEditor.js"></script>
+        -->
+
+        <script type="text/javascript" src="pencil-core/xferHelper/shapeXferHelper.js"></script>
+        <script type="text/javascript" src="pencil-core/xferHelper/targetSetXferHelper.js"></script>
+        <script type="text/javascript" src="pencil-core/xferHelper/pngImageXferHelper.js"></script>
+        <script type="text/javascript" src="pencil-core/xferHelper/svgXferHelper.js"></script>
+        <script type="text/javascript" src="pencil-core/xferHelper/richTextXferHelper.js"></script>
+
+        <script type="text/javascript" src="pencil-core/xferHelper/dragObservers.js"></script>
+
+        <!--
+        <script type="text/javascript" src="pencil-core/exporter/baseExporter.js"></script>
+        <script type="text/javascript" src="pencil-core/exporter/baseRasterizedExporter.js"></script>
+        <script type="text/javascript" src="pencil-core/exporter/webPageExporter.js"></script>
+        <script type="text/javascript" src="pencil-core/exporter/printingExporter.js"></script>
+        <script type="text/javascript" src="pencil-core/exporter/svgExporter.js"></script>
+        <script type="text/javascript" src="pencil-core/exporter/odtExporter.js"></script>
+        <script type="text/javascript" src="pencil-core/exporter/ooConversionExporter.js"></script>
+        -->
+
+        <script type="text/javascript" src="pencil-core/common/colorDroppers.js"></script>
+        <script type="text/javascript" src="pencil-core/common/connectorSupports.js"></script>
+
+        <script type="text/javascript" src="pencil-core/common/jspdf.min.js"></script>
+        <script type="text/javascript" src="pencil-core/common/Canvas.js"></script>
+
+
+        <!-- Widget Framework -->
+        <script type="text/javascript" src="lib/widget/Common.js"></script>
+
+        <!-- Application Views -->
+        <script type="text/javascript" src="views/CollectionPane.js"></script>
+        <script type="text/javascript" src="views/ApplicationPane.js"></script>
+        <script type="text/javascript" src="views/ColorSelector.js"></script>
+        <script type="text/javascript" src="views/SharedColorEditor.js"></script>
+        <script type="text/javascript" src="views/SampleSharedColorEditor.js"></script>
+
+        <script type="text/javascript" src="app.js"></script>
+    </head>
+    <body style="height: 100%;">
+        <ui:ApplicationPane anon-id="appView" style="height: 100%; width: 100%;" flex="1" />
+    </body>
+</html>

@@ -1,0 +1,172 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+privatecollectionpane {
+    -moz-binding: url(chrome://pencil/content/bindings/privateCollectionPane.xbl#privateCollectionPane);
+    padding: 0em;
+    margin: 0em;
+}
+
+privatecollectionpane:focus,
+privatecollectionpane:hover {
+}
+privatecollectionpane > vbox {
+}
+privatecollectionpane hbox.Heading {
+    -moz-box-align: center;
+}
+privatecollectionpane label.Title,
+privatecollectionpane hbox.Heading button {
+    -moz-appearance: none;
+    padding: .2em 0px !important;
+    height: 2em;
+    max-height: 2em;
+    min-height: 2em;
+    background: transparent !important;
+}
+
+privatecollectionpane label.Title {
+    font-weight: bold;
+    margin: 0px;
+}
+privatecollectionpane hbox.Heading button label {
+    margin: 0px;
+}
+privatecollectionpane hbox.Heading:hover toolbarbutton {
+    opacity: 1;
+}
+
+privatecollectionpane vbox[aid="contentBox"] {
+    overflow: auto;
+    background-color: #ccc;
+    border: solid 1px;
+    border-color: threedshadow;
+}
+privatecollectionpane .Collection {
+    padding: 0px;
+}
+privatecollectionpane .Collection + .Collection {
+    margin-top: 2em;
+    border-top: solid 1px threedshadow;
+}
+privatecollectionpane *[pcollapsed='true'].Collection + .Collection {
+    margin-top: 0em;
+}
+privatecollectionpane .Collection > hbox:first-child {
+    -moz-box-align: start;
+    background-color: threedface;
+    color: buttontext;
+    padding: .3em;
+    cursor: default;
+}
+privatecollectionpane .Collection > hbox:first-child > button {
+    -moz-appearance: none;
+    border: none;
+    padding: 0px;
+    width: 9px;
+    height: 9px;
+    min-width: 0px;
+    min-height: 0px;
+    margin: 2px;
+    margin-right: 5px;
+    background: url(chrome://pencil/skin/images/twisty.png) 0% 0% no-repeat transparent;
+    opacity: .3;
+}
+privatecollectionpane .Collection > hbox:first-child:hover > button {
+    opacity: 1;
+}
+privatecollectionpane .Collection > hbox:first-child:hover div h4 {
+    color: highlight;
+}
+privatecollectionpane .Collection > hbox:first-child > button image {
+    margin: 0px;
+}
+privatecollectionpane .Collection > hbox:first-child div > * {
+    margin: 0px;
+}
+privatecollectionpane .Collection > hbox:first-child div > p {
+    font-size: .95em;
+    opacity: .5;
+    width: 100%;
+}
+privatecollectionpane .Collection > hbox:first-child div {
+}
+privatecollectionpane *[pcollapsed='true'].Collection > hbox:first-child > button {
+    background-position: -9px 0px;
+}
+privatecollectionpane *[pcollapsed='true'].Collection > hbox:first-child div {
+    opacity: .3;
+}
+privatecollectionpane *[pcollapsed='true'].Collection > hbox:first-child div > p,
+privatecollectionpane *[pcollapsed='true'].Collection .Content {
+    display: none;
+}
+privatecollectionpane .Collection .Content {
+    padding: .3em;
+    min-width: 8em;
+    margin: 0px auto;
+}
+privatecollectionpane .Collection .Content > div {
+    border: none;
+    background: transparent;
+    text-align: center;
+    display: inline-block;
+    width: 5.5em;
+
+    padding: .3em;
+
+    vertical-align: top;
+
+}
+privatecollectionpane .Collection .Content > div:hover {
+    background-color: highlight;
+    color: highlighttext;
+}
+privatecollectionpane .Collection .Content > div img {
+    opacity: .7;
+
+    max-width: 5em;
+    max-height: 5em;
+}
+privatecollectionpane .Collection .Content > div:hover img {
+    opacity: 1;
+}
+privatecollectionpane .Collection .Content > div label {
+    display: block;
+    font-size: .9em;
+
+    overflow: hidden;
+}
+
+privatecollectionpane button {
+    min-width: 4.5em;
+    min-height: 4em;
+
+    -moz-appearance: none !important;
+    border: solid 1px transparent;
+    -moz-border-top-colors: transparent;
+    -moz-border-right-colors: transparent;
+    -moz-border-bottom-colors: transparent;
+    -moz-border-left-colors: transparent;
+    padding: .6em;
+
+    margin: .2em;
+}
+privatecollectionpane button:hover {
+    background-color: highlight;
+    color: highlighttext;
+}
+privatecollectionpane button:focus label {
+    text-decoration: underline;
+}
+privatecollectionpane button:hover label,
+privatecollectionpane button:active label {
+    text-decoration: none;
+}
+privatecollectionpane button:active {
+    border-width: 2px 0px 0px 2px;
+}
+privatecollectionpane button .button-icon {
+}
+privatecollectionpane button .button-box {
+    -moz-box-orient: vertical;
+}

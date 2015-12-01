@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:svg="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="shadowStyleEditor">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                this.dx = document.getAnonymousElementByAttribute(this, "aid", "dx");
+                this.dy = document.getAnonymousElementByAttribute(this, "aid", "dy");
+                this.size = document.getAnonymousElementByAttribute(this, "aid", "size");
+
+                if (this.hasAttribute("value")) this.setValue(ShadowStyle.fromString(this.getAttribute("value")));
+            ]]>
+            </constructor>
+            <method name="setTypeMeta">
+                <parameter name="meta"/>
+                <body>
+                <![CDATA[
+                    this.meta = meta;
+                ]]>
+                </body>
+            </method>
+            <method name="setValue">
+                <parameter name="shadowStyle"/>
+                <body>
+                <![CDATA[
+                    this.dx.value = shadowStyle.dx;
+                    this.dy.value = shadowStyle.dy;
+                    this.size.value = shadowStyle.size;
+                ]]>
+                </body>
+            </method>
+            <method name="getValue">
+                <body>
+                <![CDATA[
+                    var shadowStyle = new ShadowStyle();
+                    shadowStyle.dx = this.dx.value;
+                    shadowStyle.dy = this.dy.value;
+                    shadowStyle.size = this.size.value;
+
+                    return shadowStyle;
+                ]]>
+                </body>
+            </method>
+            <method name="isModified">
+                <body>
+                <![CDATA[
+                    return true; //this.isUserModified;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <content>
+            <hbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1" align="center">
+                <label value="&label.x.offset.value;"/>
+                <textbox type="number" min="-30" max="30" size="2" aid="dx" xbl:inherits="disabled"/>
+
+                <label value="&label.y.offset.value;"/>
+                <textbox type="number" min="-30" max="30" size="2" aid="dy" xbl:inherits="disabled"/>
+
+                <label value="&label.blur.size.value;"/>
+                <textbox type="number" min="-30" max="30" size="2" aid="size" xbl:inherits="disabled"/>
+            </hbox>
+        </content>
+    </binding>
+</bindings>

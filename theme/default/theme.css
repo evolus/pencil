@@ -1,0 +1,144 @@
+body {
+    font: -webkit-control;
+    font-size: 0.95em;
+}
+input, button, selection, textarea {
+    font-family: inherit;
+    font-size: 1em;
+}
+
+body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+div[role='cover'] {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background: rgba(0, 0, 0, 0.15);
+}
+button, input[type='button'] {
+    padding: 0em 1em;
+    border: solid 1px transparent;
+    border-radius: 0.3em;
+    
+    background: transparent linear-gradient(#F2F2F2, #D9D9D9) repeat scroll 0% 0%;
+    border-color: #E6E6E6;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px, inset rgba(255, 255, 255, 0.88) 0px 1px 3px -1px;
+        
+    height: 2.4em;
+    box-sizing: border-box;
+    color: #555;
+
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.4);
+}
+button, input[type='button']:active {
+    background: transparent linear-gradient(#CCCCCC, #B3B3B3) repeat scroll 0% 0%;
+    border-color: #999;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px, inset rgba(0, 0, 0, 0.3) 0px 0px 0.1em;
+    margin-top: 1px;
+}
+button[role='primary'], input[type='button'][role='primary'] {
+    background: transparent linear-gradient(#E6E6E6, #CCCCCC) repeat scroll 0% 0%;
+    border-color: #D9D9D9;
+    color: #405B76;
+    font-weight: bold;
+}
+button[role='primary'], input[type='button'][role='primary']:active {
+    background: transparent linear-gradient(#78BAE6, #6AA6CC) repeat scroll 0% 0%;
+    border-color: #5D91B3;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px, inset rgba(0, 0, 0, 0.3) 0px 0px 0.1em;
+    margin-top: 1px;
+}
+button, input[type='button'], input[type='text'], textarea, select {
+    transition: box-shadow 0.1s ease-in-out;
+    outline: none;
+    font: inherit;
+}
+button:focus, input[type='button']:focus, select:focus {
+    box-shadow: 0px 0px 0.2em 1px rgba(51, 102, 153, 0.8);
+}
+input[type='text']:focus, textarea:focus {
+    box-shadow: inset 0px 0px 0.2em 1px rgba(51, 102, 153, 0.3);
+}
+textarea, input[type='text'] {
+    border: solid 1px transparent;
+    border-radius: 0.3em;
+    border-color: #E6E6E6;
+    padding: 0.5em;
+}
+input[type='text']:focus, textarea:focus {
+    border: solid 1px rgba(51, 102, 153, 0.6);
+}
+
+div[role='dialog'] {
+    position: absolute;
+    background: #F4F4F4;
+    border-radius: 0.3em;
+    box-shadow: 0em 0.2em 0.6em rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+div[role='dialog'] > div[role='footer'] {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    height: 4.2em;
+    box-sizing: border-box;
+    padding: 0.9em;
+    background: rgba(255, 255, 255, 1);
+    border-top: solid 1px #E1E1E1;
+}
+div[role='dialog'] > div[role='footer'] button,
+div[role='dialog'] > div[role='footer'] input[type='button'] {
+    display: block;
+    float: right;
+    margin-left: 0.5em;
+}
+div[role='dialog'] > div[role='header'] {
+    font-size: 1.3em;
+    background: #FFFFFF;
+    padding-left: 1em;
+    position: relative;
+    border-bottom: solid 1px #E1E1E1;
+}
+div[role='dialog'] > div[role='header'] strong {
+    font-weight: normal;
+    line-height: 3em;
+}
+div[role='dialog'] > div[role='body'] {
+    position: absolute;
+    top: 3.9em;
+    left: 0em;
+    right: 0em;
+    bottom: 4.2em;
+    padding: 1.3em;
+    overflow: auto;
+}
+div[role='dialog'] > div[role='header'] button[role='close'] {
+    border: none;
+    background: none;
+    width: 3em;
+    height: 3em;
+    box-shadow: none;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    border-left: solid 1px #E1E1E1;
+    border-radius: 0px;
+    text-shadow: none;
+    overflow: hidden;
+}
+div[role='dialog'] > div[role='header'] button[role='close']:after {
+}
+
+div[role='dialog'] > div[role='header'] button[role='close']:hover {
+    background: #FF0000;
+    color: #FFFFFF;
+}
+
+

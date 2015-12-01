@@ -1,0 +1,22 @@
+<!ENTITY displayName "Quick Callouts">
+<!ENTITY collectionDesc "Collection of rounded callout shapes with texts">
+<!ENTITY box "Box">
+<!ENTITY backgrcolor "Background Color">
+<!ENTITY linecolor "Line Color">
+<!ENTITY linestyle "Line Style">
+<!ENTITY defaultfont "Default Font">
+<!ENTITY defaultextcolor "Default Text Color">
+<!ENTITY textcont "Text Content">
+<!ENTITY textfont "Text Font">
+<!ENTITY textcol "Text Color">
+<!ENTITY textsize "Text Size">
+
+<!ENTITY accident "Accident">
+<!ENTITY usure "Wear">
+<!ENTITY usureAnormal "Abnormal Wear">
+<!ENTITY mauvaiseInstallation "Improper Installation">
+<!ENTITY reglageDefectueux "Incorrect Adjustment">
+<!ENTITY regalageAFaire "Regrading To">
+
+<!ENTITY text "Text">
+<!ENTITY shape "Shape">

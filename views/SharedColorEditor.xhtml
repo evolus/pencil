@@ -1,0 +1,36 @@
+<div style="position: relative;">
+    <style>
+        @colorButton {
+            width: 30px;
+            height: 30px;
+            padding: 0px !important;
+            /*color: #F00;*/
+        }
+        @colorDisplay {
+            font-size: 1em;
+            width: 1.2em;
+            height: 1.2em;
+            line-height: 1em;
+            overflow: hidden;
+            text-align: center;
+            vertical-align: middle;
+            display: inline-block;
+            margin: 0px;
+            font-weight: bold;
+
+            box-sizing: border-box;
+            border: solid 2px transparent;
+        }
+        body .ColorSelectorContainer {
+            position: absolute;
+            padding: 1em;
+            background: #EEE;
+            box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+
+    <button anon-id="colorButton" ><span anon-id="colorDisplay"></span></button>
+    <div anon-id="selectorContainer" class="ColorSelectorContainer" style="visibility: hidden;">
+        <ui:ColorSelector anon-id="selector" />
+    </div>
+</div>

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<dialog id="pencilEditPrivateShapeDialog" title="&dialog.edit.shape.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        buttons="accept,cancel"
+        buttonlabelaccept="&button.accept.label.apply;"
+        buttonlabelcancel="&button.cancel.label.cancel;"
+        persist="screenX screenY width height"
+        ondialogaccept="return PrivateShapeDialog.onFinish();"
+        minwidth="400">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/common/io.js"/>
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/privateCollection/privateCollection.js"/>
+    <script src="chrome://pencil/content/privateCollection/privateShapeDef.js"/>
+    <script src="chrome://pencil/content/privateCollection/privateCollectionManager.js"/>
+    <script src="chrome://pencil/content/privateShapeDialog.js"/>
+
+    <hbox id="shapeDefinition">
+        <groupbox flex="1">
+            <caption label="&caption.shape.definition.label;"/>
+            <grid>
+            <columns>
+                <column />
+                <column flex="1"/>
+            </columns>
+            <rows>
+                <row align="center">
+                    <hbox align="right" style="width:65px">
+                        <label control="shapeName" value="&label.name.value;" />
+                    </hbox>
+                    <textbox id="shapeName" size="32" maxlength="255" />
+                </row>
+                <row align="center">
+                    <hbox align="right">
+                        <label control="icon" value="&label.icon.value;" />
+                    </hbox>
+                    <hbox>
+                        <textbox id="shapeIcon" size="32" maxlength="255" flex="1"  disabled="true"/>
+                        <button id="browse" label="&button.browse.label;" disabled="true" oncommand="PrivateShapeDialog.browseIconFile();"></button>
+                    </hbox>
+                </row>
+                <row align="left">
+                    <hbox align="right"></hbox>
+                    <checkbox id="changeIcon" label="&checkbox.change.icon.label;" checked="false" oncommand="if (!this.checked) {document.getElementById('shapeIcon').disabled=true;document.getElementById('browse').disabled=true;} else {document.getElementById('shapeIcon').disabled=false;document.getElementById('browse').disabled=false;}"/>
+                </row>
+            </rows>
+            </grid>
+        </groupbox>
+    </hbox>
+
+</dialog>

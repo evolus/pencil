@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<overlay id="textToolOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <toolbar id="primaryToolbar">
+        <vbox class="Section" id="textFormatToolbar" insertbefore="alignmentToolbarSeparator">
+            <commandset>
+                <command id="editBoldCommand" oncommand="OnScreenTextEditor._runEditorCommand('bold');"/>
+                <command id="editItalicCommand" oncommand="OnScreenTextEditor._runEditorCommand('italic');"/>
+                <command id="editUnderlineCommand" oncommand="OnScreenTextEditor._runEditorCommand('underline');"/>
+                <command id="editStrikeCommand" oncommand="OnScreenTextEditor._runEditorCommand('strikethrough');"/>
+
+                <command id="editLeftCommand" oncommand="OnScreenTextEditor._runEditorCommand('justifyleft');"/>
+                <command id="editCenterCommand" oncommand="OnScreenTextEditor._runEditorCommand('justifycenter');"/>
+                <command id="editRightCommand" oncommand="OnScreenTextEditor._runEditorCommand('justifyright');"/>
+                <command id="editFullCommand" oncommand="OnScreenTextEditor._runEditorCommand('justifyfull');"/>
+
+                <command id="editBulletedListCommand" oncommand="OnScreenTextEditor._runEditorCommand('insertunorderedlist');"/>
+                <command id="editNumberedListCommand" oncommand="OnScreenTextEditor._runEditorCommand('insertorderedlist');"/>
+                <command id="editIndentCommand" oncommand="OnScreenTextEditor._runEditorCommand('indent');"/>
+                <command id="editOutdentCommand" oncommand="OnScreenTextEditor._runEditorCommand('outdent');"/>
+
+                <command id="editSuperScriptCommand" oncommand="OnScreenTextEditor._runEditorCommand('superscript');"/>
+                <command id="editSubScriptCommand" oncommand="OnScreenTextEditor._runEditorCommand('subscript');"/>
+
+                <command id="editHorzRuleCommmand" oncommand="OnScreenTextEditor._runEditorCommand('inserthorizontalrule');"/>
+                <command id="editInsertLinkCommand" oncommand="OnScreenTextEditor._runEditorCommand('createlink', '#');"/>
+            </commandset>
+            <label value="Text format:"/>
+            <hbox>
+                <toolbarbutton id="edBoldButton" tooltiptext="Bold" type="checkbox" image="chrome://pencil/skin/images/toolbar/format-text-bold.png"/>
+                <toolbarbutton id="edItalicButton" tooltiptext="Italic" type="checkbox" image="chrome://pencil/skin/images/toolbar/format-text-italic.png"/>
+                <toolbarbutton class="toolbarbutton-1 chromeclass-toolbar-additional" tooltiptext="&toolbar.copy.format.tooltiptext;" id="toolbarFormatPainterCommand" type="checkbox" command="formatPainterCommand"/>
+                <menulist class="PropertyList" id="fontlist" tooltiptext="Font face">
+                    <menupopup id="fontlist-popup">
+                        <menuitem label="&menu.text.font.label;" value="" class="NameItem"/>
+                    </menupopup>
+                </menulist>
+                <textbox id="fontsize" type="number" size="2" tooltiptext="Font size"/>
+            </hbox>
+        </vbox>
+        <separator insertbefore="alignmentToolbarSeparator"/>
+        <vbox class="Section" id="geometryToolbar" insertbefore="alignmentToolbarSeparator">
+            <label value="Location &amp; size:"/>
+            <hbox align="center">
+                <textbox type="number" size="2" id="shapeXTextBox" tooltiptext="Left"/>
+                <label value=":"/>
+                <textbox type="number" size="2" id="shapeYTextBox" tooltiptext="Top"/>
+                <label value=" "/>
+                <textbox type="number" size="2" id="shapeWidthTextBox" tooltiptext="Width"/>
+                <label value="x"/>
+                <textbox type="number" size="2" id="shapeHeightTextBox" tooltiptext="Height"/>
+                <label value=" a:"/>
+                <textbox type="number" size="2" min="-180" id="shapeAngleTextBox" tooltiptext="Rotation"/>
+            </hbox>
+        </vbox>
+    </toolbar>
+    <!--
+    <hbox id="toolbarExtra">
+        <toolbar id="richTextEditorToolbar">
+            <hbox align="center">
+                <button label="&toolbar.location.size.label;" type="panel" tooltiptext="&toolbar.location.size.tooltip;">
+                    <panel id="toolbar-locsize-panel" orient="horizontal" backdrag="true">
+                        <hbox align="center" id="geometryToolbar" class="PanelContent">
+                            <hbox>
+                                <textbox type="number" min="-5000" max="5000" size="2" increment="1" id="shapeXTextBox"/>
+                                <label value=":"/>
+                                <textbox type="number" min="-5000" max="5000" size="2" increment="1" id="shapeYTextBox"/>
+                            </hbox>
+                            <hbox>
+                                <textbox type="number" min="-5000" max="5000" size="2" increment="1" id="shapeWidthTextBox"/>
+                                <label value="x"/>
+                                <textbox type="number" min="-5000" max="5000" size="2" increment="1" id="shapeHeightTextBox"/>
+                            </hbox>
+                            <label value="A"/><textbox type="number" min="-360" max="360" size="2" increment="1" id="shapeAngleTextBox"/>
+                        </hbox>
+                    </panel>
+                </button>
+            </hbox>
+        </toolbar>
+    </hbox>
+    -->
+    <stack flex="1" id="mainBoxStack">
+        <vbox id="richTextEditorPane" top="0" left="0" width="100" height="100" style="border: dashed 1px highlight; background: #fff; visibility: hidden;">
+            <editor id="richTextEditor" type="html" flex="1" src="about:blank"/>
+        </vbox>
+        <vbox id="miniToolbar" top="0" left="0" width="0" height="0" style="visibility: hidden;">
+            <toolbox>
+                <toolbar mode="icons">
+                    <toolbarbutton type="checkbox" class="ed-toolbar-button" id="medBoldButton" tooltiptext="&toolbar.bold.tooltiptext;"/>
+                    <toolbarbutton type="checkbox" class="ed-toolbar-button" id="medItalicButton" tooltiptext="&toolbar.italic.tooltiptext;"/>
+                    <toolbarbutton type="checkbox" class="ed-toolbar-button" id="medUnderlineButton" tooltiptext="&toolbar.underline.tooltiptext;"/>
+                    <toolbarbutton type="checkbox" class="ed-toolbar-button" id="medStrikeButton" tooltiptext="&toolbar.strike.through.tooltiptext;"/>
+                    <toolbarbutton type="radio" group="AlignRadioGroup" tooltiptext="&toolbar.align.left.tooltiptext;" class="ed-toolbar-button" id="malignLeftCommand"/>
+                    <toolbarbutton type="radio" group="AlignRadioGroup" tooltiptext="&toolbar.align.center.tooltiptext;" class="ed-toolbar-button" id="malignCenterCommand"/>
+                    <toolbarbutton type="radio" group="AlignRadioGroup" tooltiptext="&toolbar.align.right.tooltiptext;" class="ed-toolbar-button" id="malignRightCommand"/>
+                    <toolbarbutton class="ed-toolbar-button" id="medBulletedListButton" tooltiptext="&toolbar.unordered.list.tooltiptext;"/>
+                    <toolbarbutton class="ed-toolbar-button" id="medNumberedListButton" tooltiptext="&toolbar.ourdered.list.tooltiptext;"/>
+                    <toolbarbutton class="ed-toolbar-button" id="medIndentButton" tooltiptext="&toolbar.indent.tooltiptext;"/>
+                    <toolbarbutton class="ed-toolbar-button" id="medOutdentButton" tooltiptext="&toolbar.outdent.tooltiptext;"/>
+                    <toolbarbutton class="ed-toolbar-button" id="mclearButton" tooltiptext="&toolbar.clear.format.tooltiptext;"/>
+                </toolbar>
+                <toolbar>
+                    <menulist class="PropertyList" id="mfontList" sizetopopup="none" flex="1">
+                        <menupopup id="mfontPopup">
+                            <menuitem label="&menu.font.label;" value="" class="NameItem"/>
+                        </menupopup>
+                    </menulist>
+                    <menulist class="PropertyList" id="mfontSize" sizetopopup="none">
+                        <menupopup id="msizePopup">
+                            <menuitem label="&menu.size.label;" value=""/>
+                            <menuitem label="1" value="1"/>
+                            <menuitem label="2" value="2"/>
+                            <menuitem label="3" value="3"/>
+                            <menuitem label="4" value="4"/>
+                            <menuitem label="5" value="5"/>
+                            <menuitem label="6" value="6"/>
+                            <menuitem label="7" value="7"/>
+                        </menupopup>
+                    </menulist>
+                    <toolbarbutton class="ed-toolbar-button" id="medIncreaseFontButton" tooltiptext="&toolbar.inc.font.size.tooltiptext;" image="chrome://pencil-os/skin/images/moblin/increase-font.png"/>
+                    <toolbarbutton class="ed-toolbar-button" id="medDecreaseFontButton" tooltiptext="&toolbar.dec.font.size.tooltiptext;" image="chrome://pencil-os/skin/images/moblin/decrease-font.png"/>
+                    <pcolorbutton id="mtextColorButton" value="AB" mode="text" tooltiptext="&pcolorbutton.text.color.tooltip;" class="ed-toolbar-button"/>
+                    <pcolorbutton id="mhilightColorButton" mode="full" tooltiptext="&pcolorbutton.bgr.color.tooltip;" class="ed-toolbar-button"/>
+                    <toolbarbutton class="ed-toolbar-button" id="medCleanUpButton" tooltiptext="Clean Up" image="chrome://pencil-os/skin/images/MozIcons/stock/edit_clear.png"/>
+                </toolbar>
+            </toolbox>
+        </vbox>
+        <image id="richtextEditorSizeGrip" src="chrome://pencil/skin/images/textarea-sizegrip.png" style="display:none;cursor:se-resize;" class="RichTextEditorSizeGrip"/>
+    </stack>
+</overlay>

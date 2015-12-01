@@ -1,0 +1,5 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+pshadowstyleeditor {
+    -moz-binding: url(chrome://pencil/content/bindings/shadowStyleEditor.xbl#shadowStyleEditor);
+}
