@@ -6,9 +6,12 @@ function ColorSelector() {
 
     this.color = Color.fromString("#DA8500");
     this.invalidateUI();
+    this.reloadRecentlyUsedColors();
 
     //get the radius
     this.pinHeld = false;
+
+    this.updatingColor = true;
 
     var thiz = this;
     //register the event handler
@@ -178,10 +181,13 @@ ColorSelector.prototype._handleMouseMove = function (event) {
 
     this.color = Color.fromHSV(h, s, value);
     this.color.a = a;
+    this.updatingColor = true;
     this.onValueChanged(this.wheelImage);
 };
 ColorSelector.prototype._handleMouseUp = function (event) {
     this.pinHeld = false;
+    this.updatingColor = false;
+    this.updateRecentlyUsedColors();
 };
 ColorSelector.prototype._handleHueSatNumberChange = function () {
     var hsv = this.color.getHSV();
@@ -232,18 +238,23 @@ ColorSelector.prototype.setGridSelectorColor = function () {
 
 };
 ColorSelector.prototype.initializeGridSelector = function () {
-    this.reloadRecentlyUsedColors();
 
     if (this._initialized) return;
     this._initialized = true;
 
     var thiz = this;
-    var el = this.recentlyUsedColor.childNodes;
+    var el = [];
+    Dom.doOnAllChildren(this.recentlyUsedColor, function (n) {
+        if (n.hasAttribute && n.hasAttribute("color")) {
+            el.push(n);
+        }
+    });
     if (this._timer) clearInterval(this._timer);
     this._timer = setInterval(function () {
         var colors = Config.get("gridcolorpicker.recentlyUsedColors");
         //debug("color: " + [colors, thiz._lastColors]);
         //debug("color: " + colors);
+
         if (colors != thiz._lastUsedColors) {
             thiz._lastUsedColors = colors;
             var c = colors.split(",");
@@ -254,13 +265,18 @@ ColorSelector.prototype.initializeGridSelector = function () {
                     color = color.substring(0, 7);
                 }
                 //debug("color: " + color);
-                el[i].setAttribute("color", color);
-                el[i].setAttribute("style", "background-color: " + color);
+                if (el[i].hasAttribute && el[i].hasAttribute("color")) {
+                    el[i].setAttribute("color", color);
+                    el[i].setAttribute("style", "background-color: " + color);
+                }
             }
         }
     }, 300);
 };
-ColorSelector.prototype.updateRecentlyUsedColors = function (aColor) {
+ColorSelector.prototype.updateRecentlyUsedColors = function () {
+    var aColor = this.color;
+    console.log("heldInstance: " + this.heldInstance);
+    console.log("selectorInstance: " + ColorSelector.heldInstance);
     if (this.updatingColor) return;
     this.updatingColor = true;
     for (var i = 0; i < this.recentlyUsedColors.length; i++) {
@@ -282,7 +298,7 @@ ColorSelector.prototype.reloadRecentlyUsedColors = function () {
     this.recentlyUsedColors = [];
     var colors = Config.get("gridcolorpicker.recentlyUsedColors");
     if (!colors) {
-        colors = "#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF";
+        colors = "#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF";
     }
     colors = colors.split(",");
     for (var i = 0; i < colors.length; i++) {
@@ -315,7 +331,6 @@ ColorSelector.prototype.selectColorCell = function (cell) {
     this.color.a = a;
 
     this.onValueChanged(this.gridSelectorContainer);
-    this.updateRecentlyUsedColors(this.color);
 };
 ColorSelector.prototype.isColorCell = function (cell) {
     return cell && cell.nodeType != 3 && cell.hasAttribute("color");
@@ -350,6 +365,7 @@ ColorSelector.prototype.invalidateUI = function (source) {
     this.previewBox.style.backgroundColor = this.color.toRGBAString();
 };
 ColorSelector.prototype.onValueChanged = function (source) {
+    this.updateRecentlyUsedColors();
     this.invalidateUI(source);
     this._emitChangeEvent();
 };

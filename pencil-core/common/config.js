@@ -1,9 +1,12 @@
-var Config = {};
+var Config = {
+};
 
 Config._buildName = function(name) {
     return "pencil.config." + name;
 };
 Config.set = function (name, value) {
+    Config[name] = value;
+
     return;
     if (typeof(value) == "boolean") {
         Config.prefs.setBoolPref(Config._buildName(name), value);
@@ -27,9 +30,11 @@ Config.set = function (name, value) {
         }
         return;
     }
+
 };
 
 Config.get = function (name, defaultValue) {
+    if (Config[name]) return Config[name];
     return defaultValue;
     var type = Config.prefs.getPrefType(Config._buildName(name));
 
