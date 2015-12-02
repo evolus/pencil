@@ -1,6 +1,9 @@
 function ColorSelector() {
     BaseTemplatedWidget.call(this);
 
+    this.modeTab.addTab("Grid", this.gridSelectorPane);
+    this.modeTab.addTab("Wheel", this.wheelSelectorPane);
+
     this.color = Color.fromString("#DA8500");
     this.invalidateUI();
 
@@ -14,7 +17,6 @@ function ColorSelector() {
         var a = thiz.color.a;
         thiz.color = Color.fromString(thiz.htmlCodeInput.value);
         thiz.color.a = a;
-        thiz.setGridSelectorColor(thiz.htmlCodeInput);
         thiz.onValueChanged(thiz.htmlCodeInput);
     }, false);
     this.brightScale.addEventListener("change", function(event) {
@@ -105,10 +107,11 @@ function ColorSelector() {
     //     this.hoverCell(event.originalTarget);
     // }, false);
     this.gridSelectorContainer.addEventListener("click", function (event) {
-        if (event.target.hasAttribute("color")) {
-            thiz.selectCell = true;
-            thiz.selectColorCell(event.target);
-        }
+        var colorCell = Dom.findUpward(event.target, function (n) {
+            return n.hasAttribute("color");
+        });
+        if (!colorCell) return;
+        thiz.selectColorCell(colorCell);
     }, false);
     // this.gridSelectorContainer.addEventListener("focus", function (event) {
     //     if (!mIsPopup && this.getAttribute('focused') != 'true') {
@@ -211,73 +214,18 @@ ColorSelector.prototype.setColor = function (color) {
     this.onValueChanged();
 };
 ColorSelector.prototype.setGridSelectorColor = function () {
-    var val = this.color;
-    val.a = 1;
     if (!this._initialized) this.initializeGridSelector();
 
-    var uppercaseVal = val.toRGBString ? val.toRGBString().toUpperCase() : (val.toUpperCase ? val.toUpperCase() : val);
-    // Translate standard HTML color strings:
-    if (uppercaseVal[0] != "#") {
-        switch (val) {
-            case "GREEN":
-                uppercaseVal = "#008000";
-                break;
-            case "LIME":
-                uppercaseVal = "#00FF00";
-                break;
-            case "OLIVE":
-                uppercaseVal = "#808000";
-                break;
-            case "TEAL":
-                uppercaseVal = "#008080";
-                break;
-            case "YELLOW":
-                uppercaseVal = "#FFFF00";
-                break;
-            case "RED":
-                uppercaseVal = "#FF0000";
-                break;
-            case "MAROON":
-                uppercaseVal = "#800000";
-                break;
-            case "PURPLE":
-                uppercaseVal = "#800080";
-                break;
-            case "FUCHSIA":
-                uppercaseVal = "#FF00FF";
-                break;
-            case "NAVY":
-                uppercaseVal = "#000080";
-                break;
-            case "BLUE":
-                uppercaseVal = "#0000FF";
-                break;
-            case "AQUA":
-                uppercaseVal = "#00FFFF";
-                break;
-            case "WHITE":
-                uppercaseVal = "#FFFFFF";
-                break;
-            case "SILVER":
-                uppercaseVal = "#CC0C0C0";
-                break;
-            case "GRAY":
-                uppercaseVal = "#808080";
-                break;
-            default: // BLACK
-                uppercaseVal = "#000000";
-                break;
-        }
-    } else if (uppercaseVal.length > 7) {
-        uppercaseVal = uppercaseVal.substring(7);
-    }
+    var uppercaseVal = this.color.toRGBString().toUpperCase();
 
     var thiz = this;
     Dom.doOnAllChildRecursively(this.gridSelectorContainer, function (n) {
         if (thiz.isColorCell(n)) {
             if (n.getAttribute("color") == uppercaseVal) {
-                thiz.selectCell = false;
-                thiz.selectColorCell(n);
+                n.setAttribute("selected", "true");
+                thiz.selectedCell = n;
+            } else {
+                n.removeAttribute("selected");
             }
         }
     });
@@ -355,25 +303,19 @@ ColorSelector.prototype.reloadRecentlyUsedColors = function () {
     }
 };
 ColorSelector.prototype.selectColorCell = function (cell) {
-    var thiz = this;
-    // Dom.doOnAllChildRecursively(thiz.gridSelectorContainer, function (n) {
-    //     if (thiz.isColorCell(n)) n.setAttribute("selected", n == event.target);
-    // });
-    if (!this.isColorCell(cell)) return;
-
+    //change selected cell
     if (this.selectedCell) {
         this.selectedCell.removeAttribute("selected");
     }
     this.selectedCell = cell;
     this.selectedCell.setAttribute("selected", "true");
 
+    var a = this.color.a;
     this.color =  Color.fromString(cell.getAttribute("color"));
-    this.color.a = this.opacity.value / 100;
+    this.color.a = a;
 
-    if (this.selecteCell) {
-        this.onValueChanged(this.gridSelectorContainer);        
-    }
-    this.updateRecentlyUsedColors(thiz.color);
+    this.onValueChanged(this.gridSelectorContainer);
+    this.updateRecentlyUsedColors(this.color);
 };
 ColorSelector.prototype.isColorCell = function (cell) {
     return cell && cell.nodeType != 3 && cell.hasAttribute("color");
