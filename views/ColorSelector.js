@@ -333,8 +333,6 @@ ColorSelector.prototype.initializeGridSelector = function () {
 };
 ColorSelector.prototype.updateRecentlyUsedColors = function () {
     var aColor = this.color;
-    console.log("heldInstance: " + this.heldInstance);
-    console.log("selectorInstance: " + ColorSelector.heldInstance);
     if (this.updatingColor) return;
     this.updatingColor = true;
     for (var i = 0; i < this.recentlyUsedColors.length; i++) {
@@ -363,7 +361,6 @@ ColorSelector.prototype.reloadRecentlyUsedColors = function () {
         this.recentlyUsedColors.push(colors[i]);
     }
 
-    console.log(this.recentlyUsedColor);
     var e = this.recentlyUsedColor.childNodes;
     for (var i = 0; i < Math.min(e.length, this.recentlyUsedColors.length); i++) {
         if (!this.isColorCell(e[i])) continue;

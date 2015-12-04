@@ -1,0 +1,18 @@
+<hbox>
+    <style>
+
+        @strokeContainer > * + * {
+            margin-left: 0.3em;
+            align-content: center;
+        }
+        @strokeWidth {
+            width: 4em;
+        }
+    </style>
+    <vbox>
+        <hbox anon-id="strokeContainer">
+            <input type="number" min="0" max="30" anon-id="strokeWidth" size="2"/>
+            <ui:ComboManager anon-id="styleCombo" />
+        </hbox>
+    </vbox>
+</hbox>
