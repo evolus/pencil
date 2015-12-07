@@ -2,7 +2,7 @@
     <style>
 
         @strokeContainer > * + * {
-            margin-left: 0.3em;
+            margin-left: 0.2em;
             align-content: center;
         }
         @strokeWidth {
@@ -10,6 +10,7 @@
         }
     </style>
     <vbox>
+        <div>line:</div>
         <hbox anon-id="strokeContainer">
             <input type="number" min="0" max="30" anon-id="strokeWidth" size="2"/>
             <ui:ComboManager anon-id="styleCombo" />

@@ -1,0 +1,15 @@
+<hbox>
+    <style>
+    @colorContainer > * + * {
+        margin-left: 0.2em;
+    }
+    </style>
+    <vbox>
+        <div>color:</div>
+        <hbox anon-id="colorContainer">
+            <ui:SharedColorEditor propertyName="textColor" />
+            <ui:SharedColorEditor propertyName="fillColor" />
+            <ui:SharedColorEditor propertyName="strokeColor" />
+        </hbox>
+    </vbox>
+</hbox>

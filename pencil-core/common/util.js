@@ -744,11 +744,24 @@ Svg.getHeight = function (dom) {
 
 var Local = {};
 Local.getInstalledFonts = function () {
-    var localFonts;
-    var enumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
-                            .getService(Components.interfaces.nsIFontEnumerator);
-    var localFontCount = { value: 0 }
-    localFonts = enumerator.EnumerateAllFonts(localFontCount);
+    var localFonts = [];
+
+    var fonts = fontManager.getAvailableFontsSync();
+    for (var i in fonts) {
+        var contained = false;
+        for (var j in localFonts) {
+            if (localFonts[j] == fonts[i].family) {
+                contained = true;
+                break;
+            }
+        }
+        if (contained) continue;
+        localFonts.push(fonts[i].family);
+    }
+    // var enumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
+    //                         .getService(Components.interfaces.nsIFontEnumerator);
+    // var localFontCount = { value: 0 }
+    // localFonts = enumerator.EnumerateAllFonts(localFontCount);
 
     /*/ google webfonts
     localFonts.push("Cantarell");
@@ -769,6 +782,7 @@ Local.getInstalledFonts = function () {
     localFonts.push("Vollkorn");
     localFonts.push("Yanone Kaffeesatz");
     localFonts.push("IM Fell English");*/
+
 
     Local.cachedLocalFonts = localFonts;
     Local.sortFont();

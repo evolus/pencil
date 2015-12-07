@@ -6,5 +6,8 @@
     "position": "center",
     "width": 900,
     "height": 900
+  },
+  "dependencies": {
+    "font-manager": "^0.1.0"
   }
 }

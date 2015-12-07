@@ -1,0 +1,1 @@
+cmd_Release/obj.target/fontmanager.node := flock ./Release/linker.lock g++ -shared -pthread -rdynamic -m64  -Wl,-soname=fontmanager.node -o Release/obj.target/fontmanager.node -Wl,--start-group Release/obj.target/fontmanager/src/FontManager.o Release/obj.target/fontmanager/src/FontManagerLinux.o -Wl,--end-group -lfontconfig

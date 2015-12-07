@@ -3,7 +3,7 @@ function ComboManager() {
 }
 __extend(BaseTemplatedWidget, ComboManager);
 
-ComboManager.prototype.setItems = function (items) {
+ComboManager.prototype.setItems = function (items, decorator) {
     this.selector.innerHTML = "";
     var first = null;
     this.items = items;
@@ -15,6 +15,7 @@ ComboManager.prototype.setItems = function (items) {
             _text: item.displayName,
             "value": item.value
         });
+        if (decorator) decorator(node, item);
         node._data = item;
         this.selector.appendChild(node);
         if (!first) first = node;
@@ -32,7 +33,7 @@ ComboManager.prototype.selectItem = function (value) {
     Dom.emitEvent("p:ComboItemChanged", this.node(), {});
 };
 
-ComboManager.prototype.getSeletedItem = function () {
+ComboManager.prototype.getSelectedItem = function () {
     var selectedIndex = this.selector.selectedIndex;
     var selectedItem = this.selector.options[selectedIndex];
     return selectedItem.value;

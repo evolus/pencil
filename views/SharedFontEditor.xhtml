@@ -1,0 +1,32 @@
+<hbox>
+    <style>
+        @fontContainer > * + * {
+            margin-left: 0.2em;
+        }
+        @boldButton span {
+            font-weight: bold;
+        }
+        @italicButton span {
+            font-style: italic;
+        }
+        @underlineButton span {
+            text-decoration: underline;
+        }
+        @fontContainer button[checked="true"]{
+            border-color: #000000;
+
+        }
+        @pixelFontSize {
+            width: 4em;
+        }
+    </style>
+    <vbox>
+        <div>text format:</div>
+        <hbox anon-id="fontContainer">
+            <button anon-id="boldButton"><span>A</span></button>
+            <button anon-id="italicButton"><span>A</span></button>
+            <ui:ComboManager anon-id="fontCombo" />
+            <input anon-id="pixelFontSize" type="number" min="0" />
+        </hbox>
+    </vbox>
+</hbox>

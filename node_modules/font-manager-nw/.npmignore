@@ -1,0 +1,7 @@
+.DS_Store
+build/
+node_modules/
+.travis.yml
+appveyor.yml
+travis-linux.sh
+travis-osx.sh

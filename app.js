@@ -1,4 +1,5 @@
 var nwgui = require("nw.gui");
+var fontManager = require("font-manager-nw");
 
 window.addEventListener("load", function () {
     var win = nwgui.Window.get();
