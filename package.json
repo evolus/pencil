@@ -1,13 +1,14 @@
 {
   "name": "Pencil",
-  "main": "app.xhtml",
+  "main": "test.xhtml",
   "window": {
-    "toolbar": false,
+    "toolbar": true,
     "position": "center",
     "width": 900,
     "height": 900
   },
   "dependencies": {
-    "font-manager": "^0.1.0"
+    "font-manager": "^0.1.0",
+    "material-design-lite": "^1.0.6"
   }
 }

@@ -42,7 +42,7 @@ StrokeEditor.prototype.setValue  = function (stroke) {
 StrokeEditor.prototype.getValue = function () {
     var stroke = new StrokeStyle();
     stroke.w = this.strokeWidth.value;
-    stroke.array = this.styleCombo.getSeletedItem();
+    stroke.array = this.styleCombo.getSelectedItem();
     return stroke.toString();
 };
 StrokeEditor.prototype.setDisabled = function (disabled) {
