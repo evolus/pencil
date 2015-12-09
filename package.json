@@ -1,24 +1,25 @@
 {
-    "name": "Pencil",
-    "version": "3.0.0",
-    "main": "app://host/app.xhtml",
-    "window": {
-        "toolbar": false,
-        "position": "center",
-        "width": 900,
-        "height": 900
-    },
-    "dependencies": {
-        "font-manager": "^0.1.0"
-    },
-    "devDependencies": {
-        "grunt": "0.4.5",
-        "grunt-contrib-compress": "^0.13.0",
-        "grunt-contrib-jshint": "^0.11.1",
-        "grunt-env": "^0.4.4",
-        "grunt-exec": "0.4.x",
-        "grunt-nw-builder": "~2.0.0",
-        "grunt-shell": "^1.1.2",
-        "load-grunt-tasks": "3.2.0"
-    }
+  "name": "Pencil",
+  "version": "3.0.0",
+  "main": "app://host/app.xhtml",
+  "window": {
+    "toolbar": false,
+    "position": "center",
+    "width": 900,
+    "height": 900
+  },
+  "dependencies": {
+    "font-manager": "^0.1.0",
+    "material-design-lite": "~1.0.6"
+  },
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-contrib-compress": "^0.13.0",
+    "grunt-contrib-jshint": "^0.11.1",
+    "grunt-env": "^0.4.4",
+    "grunt-exec": "0.4.x",
+    "grunt-nw-builder": "~2.0.0",
+    "grunt-shell": "^1.1.2",
+    "load-grunt-tasks": "3.2.0"
+  }
 }
