@@ -27,7 +27,7 @@ SharedFontEditor.prototype.setup = function () {
     this.fontCombo.setItems(items);
 
     var thiz = this;
-    this.fontCombo.addEventListener("change", function(event) {
+    this.fontCombo.addEventListener("p:ComboItemChanged", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
         thiz.font.family = thiz.fontCombo.getSelectedItem();
         thiz._applyValue();

@@ -120,10 +120,6 @@ body {
   padding: 0px;
   height: 100%;
 }
-::-webkit-scrollbar {
-  width: 0.4em;
-  height: 0.4em;
-}
 *:hover::-webkit-scrollbar {
   opacity: 1;
 }
@@ -133,6 +129,9 @@ body {
   -webkit-border-radius: 0.6em;
   border-radius: 0.6em;
   opacity: 0.2;
+}
+.mdl-menu__container::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 0.3em #FFF;
 }
 *:hover::-webkit-scrollbar-track {
   opacity: 1;
@@ -164,11 +163,7 @@ label {
 }
 input[type='number'],
 input[type='text'] {
-<<<<<<< HEAD
   /*.form-control(); */
-=======
-  /* .form-control(); */
->>>>>>> origin/developement
   padding: 0px 0px 0px 0.3ex;
 }
 input[type='text'] {

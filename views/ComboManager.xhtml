@@ -1,34 +1,47 @@
 <hbox>
     <style>
+        button {
+            background: #EEE;
+        }
+        .mdl-menu__container {
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+        }
+
+        @button {
+            position: relative;
+        }
+
+        @buttonDisplay {
+            position: absolute;
+            top: 50%;
+            left: 1ex;
+            right: 2ex;
+            margin-top: -0.5em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            line-height: 1em;
+            height: 1em;
+            white-space: nowrap;
+        }
+        @button .material-icons {
+            position: absolute;
+            top: 50%;
+            right: 0.2ex;
+            margin-top: -0.5em;
+            line-height: 1em;
+            height: 1em;
+        }
     </style>
     <div anon-id="selectContainer">
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-                anon-id="button">
-          Button
-        </button>
+        <button class="mdl-button mdl-js-button mdl-js-ripple-effect"
+                anon-id="button"><span anon-id="buttonDisplay"></span> <i class="material-icons">arrow_drop_down</i></button>
         <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
             for="button"
             anon-id="list">
-            <li class="mdl-menu__item">Some Action</li>
-            <li class="mdl-menu__item">Another Action</li>
-            <li disabled="disabled" class="mdl-menu__item">Disabled Action</li>
-            <li class="mdl-menu__item">Yet Another Action</li>
         </ul>
-
-        <span>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-                    anon-id="demo-menu-lower-right">
-              Button
-            </button>
-
-            <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-                for="demo-menu-lower-right">
-              <li class="mdl-menu__item">Some Action</li>
-              <li class="mdl-menu__item">Another Action</li>
-              <li disabled="disabled" class="mdl-menu__item">Disabled Action</li>
-              <li class="mdl-menu__item">Yet Another Action</li>
-            </ul>
-        </span>
-
     </div>
 </hbox>

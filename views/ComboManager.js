@@ -1,6 +1,8 @@
 function ComboManager() {
     BaseTemplatedWidget.call(this);
     this.renderer = ComboManager.DEFAULT_RENDERER;
+
+    this.bind("click", this.onItemClick, this.list);
 }
 
 ComboManager.DEFAULT_RENDERER = function (item) {
@@ -8,10 +10,17 @@ ComboManager.DEFAULT_RENDERER = function (item) {
 };
 
 __extend(BaseTemplatedWidget, ComboManager);
+
+ComboManager.prototype.onItemClick = function (event) {
+    var item = Dom.findUpwardForData(event.target, "_data");
+    if (!item) return;
+
+    this.selectItem(item);
+};
 ComboManager.prototype.setItems = function (items) {
     var first = null;
     this.items = items;
-    /*
+    this.list.innerHTML = "";
     for (var i = 0; i < items.length; i++) {
         var item = items[i];
         var node = Dom.newDOMElement({
@@ -25,13 +34,12 @@ ComboManager.prototype.setItems = function (items) {
         componentHandler.upgradeElement(node);
         if (!first) first = item;
     }
-    componentHandler.upgradeDom('MaterialMenu', 'mdl-menu');
-    */
     this.selectItem(first);
 };
 
 ComboManager.prototype.selectItem = function (item) {
-    this.button.innerHTML = Dom.htmlEncode(item);
+    this.buttonDisplay.innerHTML = Dom.htmlEncode(this.renderer(item));
+    this.button.setAttribute("title", this.renderer(item));
     this.selectedItem = item;
     Dom.emitEvent("p:ComboItemChanged", this.node(), {});
 };
