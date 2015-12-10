@@ -21,12 +21,21 @@ StrokeEditor.prototype.initialize = function () {
         var value = STYLES[i][1];
 
         var item = {
-            displayName: label,
+            label: label,
             value: value
         }
 
         strokeItems.push(item);
     }
+
+    this.items = strokeItems;
+
+    this.styleCombo.renderer = function (style) {
+        return style.label;
+    };
+    this.styleCombo.decorator = function (node, style) {
+    };
+
     this.styleCombo.setItems(strokeItems);
 
 };
@@ -36,13 +45,24 @@ StrokeEditor.prototype.setValue  = function (stroke) {
     // if (stroke.array) {
     //     this.styleCombo.selectItem(stroke.array);
     // }
-    this.styleCombo.selectItem(stroke.array);
+
+    var item = null;
+    for (var i = 0; i < this.items.length; i++) {
+        if (this.items[i].value == stroke.array) {
+            item = this.items[i];
+            break;
+        }
+    }
+
+    this.styleCombo.selectItem(item);
 };
 
 StrokeEditor.prototype.getValue = function () {
+    console.log("getValue");
     var stroke = new StrokeStyle();
     stroke.w = this.strokeWidth.value;
-    stroke.array = this.styleCombo.getSelectedItem();
+    console.log(this.styleCombo.getSelectedItem().value);
+    stroke.array = this.styleCombo.getSelectedItem().value;
     return stroke.toString();
 };
 StrokeEditor.prototype.setDisabled = function (disabled) {

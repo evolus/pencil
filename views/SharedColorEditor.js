@@ -7,8 +7,10 @@ __extend(BaseTemplatedWidget, SharedColorEditor);
 
 SharedColorEditor.prototype.setup = function () {
     var thiz = this;
-
+    this.color = null;
     if (this.propertyName == "textColor") this.colorDisplay.innerHTML = "A";
+    this.updateDisplayColor("#333333");
+
 
     this.selectorContainer.style.visibility = "hidden";
 
@@ -24,6 +26,7 @@ SharedColorEditor.prototype.setup = function () {
         thiz.color = thiz.selector.getColor();
         thiz._applyValue();
     }, false);
+
 };
 
 SharedColorEditor.prototype.attach = function (targetObject) {
@@ -52,17 +55,17 @@ SharedColorEditor.prototype._applyValue = function () {
 
     this.updateDisplayColor();
 };
-SharedColorEditor.prototype.updateDisplayColor = function () {
+SharedColorEditor.prototype.updateDisplayColor = function (defaultValue) {
     var thiz = this;
     var handler = {
         textColor: function () {
-            thiz.colorDisplay.style.color = thiz.color.toRGBAString();
+            thiz.colorDisplay.style.color = (thiz.color) ? thiz.color.toRGBAString() : defaultValue;
         },
         fillColor: function () {
-            thiz.colorDisplay.style.backgroundColor = thiz.color.toRGBAString();
+            thiz.colorDisplay.style.backgroundColor = (thiz.color) ? thiz.color.toRGBAString() : defaultValue;
         },
         strokeColor: function () {
-            thiz.colorDisplay.style.borderColor = thiz.color.toRGBAString();
+            thiz.colorDisplay.style.borderColor = (thiz.color) ? thiz.color.toRGBAString() : defaultValue;
         }
     }[this.propertyName];
 

@@ -12,7 +12,7 @@ SharedBorderStyleEditor.prototype.setup = function () {
     this.editor.setDisabled(this.disabledEditor);
 
     var thiz = this;
-    this.editor.addEventListener("command", function (event) {
+    this.editor.addEventListener("click", function (event) {
         thiz.handleCommandEvent();
     }, false);
     this.editor.addEventListener("change", function (event) {

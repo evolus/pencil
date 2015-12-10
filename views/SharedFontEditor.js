@@ -27,7 +27,7 @@ SharedFontEditor.prototype.setup = function () {
     this.fontCombo.setItems(items);
 
     var thiz = this;
-    this.fontCombo.addEventListener("p:ComboItemChanged", function(event) {
+    this.fontCombo.addEventListener("click", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
         thiz.font.family = thiz.fontCombo.getSelectedItem();
         thiz._applyValue();
@@ -99,22 +99,23 @@ SharedFontEditor.prototype._applyValue = function () {
     }, this.target, Util.getMessage("action.apply.properties.value"))
 };
 SharedFontEditor.prototype.attach = function (target) {
+    console.log("attach");
     this.target = target;
     this.font = target.getProperty(SharedFontEditor.PROPERTY_NAME, "any");
     if (!this.font)  {
         this.detach();
         return;
     }
-
+    //
     this.fontCombo.setDisabled(false);
     this.pixelFontSize.disabled = false;
     this.boldButton.disabled = false;
     this.italicButton.disabled = false;
     this.disabledEditor = false;
-    /*this.underlineButton.disabled = false;
-    this.strikeButton.disabled = false;*/
-
-    //set the value
+    // /*this.underlineButton.disabled = false;
+    // this.strikeButton.disabled = false;*/
+    //
+    // //set the value
     if (Local.isFontExisting(this.font.family)) {
         this.fontCombo.selectItem(this.font.family);
     } else {
@@ -127,13 +128,22 @@ SharedFontEditor.prototype.attach = function (target) {
             }
         }
     }
-
+    //
     if (this.font.size.match(/^([0-9]+)[^0-9]*$/)) {
         this.pixelFontSize.value = RegExp.$1;
     }
 
-    this.boldButton.checked = (this.font.weight == "bold");
-    this.italicButton.checked = (this.font.style == "italic");
+    if (this.font.weight == "bold") {
+        this.boldButton.setAttribute("checked", "true");
+    } else {
+        this.boldButton.removeAttribute("checked");
+    }
+
+    if (this.font.style == "italic") {
+        this.italicButton.setAttribute("checked", "true");
+    } else {
+        this.italicButton.removeAttribute("checked");
+    }
     /*this.underlineButton.checked = (this.font.decor == "underline");
     this.strikeButton.checked = (this.font.decor == "strikethrough");*/
 };

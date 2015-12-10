@@ -1,0 +1,23 @@
+<hbox>
+    <style>
+        @container > * + * {
+            margin-left: 0.2em;
+        }
+        @container input {
+            width: 4em;
+        }
+    </style>
+    <vbox>
+        <div>location &amp; size:</div>
+        <hbox anon-id="container">
+            <input anon-id="shapeX" type="number" min="0" />
+            <span>:</span>
+            <input anon-id="shapeY" type="number" min="0" />
+            <input anon-id="shapeWidth" type="number" min="0" />
+            <span>x</span>
+            <input anon-id="shapeHeight" type="number" min="0" />
+            <span>a:</span>
+            <input anon-id="shapeAngle" type="number" min="0" />
+        </hbox>
+    </vbox>
+</hbox>
