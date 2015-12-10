@@ -1,8 +1,5 @@
 function ApplicationPane() {
     BaseTemplatedWidget.call(this);
-
-    componentHandler.upgradeElements([this.testMenuButton, this.testMenuButtonList]);
-
     Pencil.boot();
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
