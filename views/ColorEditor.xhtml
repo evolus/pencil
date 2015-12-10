@@ -3,6 +3,12 @@
     @colorContainer > * + * {
         margin-left: 0.2em;
     }
+    button {
+        background: #EEE;
+    }
+    button .material-icons {
+        margin-right: -0.5em;
+    }
     </style>
     <vbox>
         <div>color:</div>
@@ -11,9 +17,7 @@
             <ui:SharedColorEditor propertyName="fillColor" />
             <ui:SharedColorEditor propertyName="strokeColor" />
 
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-              Button
-            </button>
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect">Button <i class="material-icons">arrow_drop_down</i></button>
 
             <button anon-id="demo-menu-lower-left"
                     class="mdl-button mdl-js-button mdl-button--icon">
