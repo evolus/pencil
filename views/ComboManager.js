@@ -1,47 +1,48 @@
 function ComboManager() {
     BaseTemplatedWidget.call(this);
+    this.renderer = ComboManager.DEFAULT_RENDERER;
 }
-__extend(BaseTemplatedWidget, ComboManager);
 
-ComboManager.prototype.setItems = function (items, decorator) {
-    this.selector.innerHTML = "";
+ComboManager.DEFAULT_RENDERER = function (item) {
+    return "" + item;
+};
+
+__extend(BaseTemplatedWidget, ComboManager);
+ComboManager.prototype.setItems = function (items) {
     var first = null;
     this.items = items;
+    /*
     for (var i = 0; i < items.length; i++) {
         var item = items[i];
         var node = Dom.newDOMElement({
-            _name: "option",
-            "class": "Item",
-            _text: item.displayName,
-            "value": item.value
+            _name: "li",
+            "class": "mdl-menu__item",
+            _text: this.renderer(item)
         });
-        if (decorator) decorator(node, item);
+        if (this.decorator) this.decorator(node, item);
         node._data = item;
-        this.selector.appendChild(node);
-        if (!first) first = node;
+        this.list.appendChild(node);
+        componentHandler.upgradeElement(node);
+        if (!first) first = item;
     }
-
-    first.setAttribute("selected", "true");
+    componentHandler.upgradeDom('MaterialMenu', 'mdl-menu');
+    */
+    this.selectItem(first);
 };
 
-ComboManager.prototype.selectItem = function (value) {
-    for (var i = 0; i < this.selector.options.length; i++) {
-        if (this.selector.options[i].value == value) {
-            this.selector.selectedIndex = i;
-        }
-    }
+ComboManager.prototype.selectItem = function (item) {
+    this.button.innerHTML = Dom.htmlEncode(item);
+    this.selectedItem = item;
     Dom.emitEvent("p:ComboItemChanged", this.node(), {});
 };
 
 ComboManager.prototype.getSelectedItem = function () {
-    var selectedIndex = this.selector.selectedIndex;
-    var selectedItem = this.selector.options[selectedIndex];
-    return selectedItem.value;
+    return this.selectedItem;
 };
 ComboManager.prototype.setDisabled = function (disabled) {
     if (disabled == true) {
-        this.selector.setAttribute("disabled", "true");
+        this.button.setAttribute("disabled", "true");
     } else {
-        this.selector.removeAttribute("disabled");
+        this.button.removeAttribute("disabled");
     }
-}
+};
