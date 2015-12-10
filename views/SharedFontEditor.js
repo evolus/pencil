@@ -15,18 +15,16 @@ SharedFontEditor.prototype.setup = function () {
     this.italicButton.disabled = true;
     this.disabledEditor = true;
 
+    this.fontCombo.renderer = function (font) {
+        return font;
+    };
+    this.fontCombo.decorator = function (node, font) {
+        node.style.fontFamily = "'" + font + "'";
+    };
+
     var localFonts = Local.getInstalledFonts();
-    var items = [];
-    for (var i in localFonts) {
-        var item = {
-            displayName: localFonts[i],
-            value: localFonts[i]
-        };
-        items.push(item);
-    }
-    this.fontCombo.setItems(items, function (node, item) {
-        node.style.fontFamily = "'" + item.value + "'";
-    });
+    var items = localFonts;
+    this.fontCombo.setItems(items);
 
     var thiz = this;
     this.fontCombo.addEventListener("change", function(event) {
