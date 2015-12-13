@@ -29,6 +29,7 @@
             box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.2);
             line-height: 1px;
             outline: none;
+            overflow: hidden;
         }
         .Canvas:focus {
             box-shadow: 0px 0px 5px 2px rgba(50, 100, 150, 0.5);
@@ -52,11 +53,15 @@
             <ui:ColorEditor />
             <ui:SharedBorderStyleEditor />
             <ui:SharedGeomtryEditor />
+            <div flex="1"></div>
+            <ui:ComboManager anon-id="pageCombo" />
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect"
+                    anon-id="addButton"><i class="material-icons">add</i></button>
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect"
+                    anon-id="deleteButton"><i class="material-icons">remove</i></button>
+            <button anon-id="testButton">Test Command</button>
         </hbox>
         <div anon-id="contentBody" flex="1" style="position: relative;">
-            <div class="CanvasWrapper"><div class="Canvas" anon-id="canvasContainer1" style="width: 600px; height: 400px;"></div></div>
-            <div style="position: absolute; top: 30%; left: 30%; border: solid 1px red; padding: 10px; text-align: left;">
-            </div>
         </div>
     </vbox>
 </hbox>

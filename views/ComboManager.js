@@ -15,7 +15,7 @@ ComboManager.prototype.onItemClick = function (event) {
     var item = Dom.findUpwardForData(event.target, "_data");
     if (!item) return;
 
-    this.selectItem(item);
+    this.selectItem(item, true);
 };
 ComboManager.prototype.setItems = function (items) {
     var first = null;
@@ -37,11 +37,11 @@ ComboManager.prototype.setItems = function (items) {
     this.selectItem(first);
 };
 
-ComboManager.prototype.selectItem = function (item) {
+ComboManager.prototype.selectItem = function (item, fromUserAction) {
     this.buttonDisplay.innerHTML = Dom.htmlEncode(this.renderer(item));
     this.button.setAttribute("title", this.renderer(item));
     this.selectedItem = item;
-    Dom.emitEvent("p:ComboItemChanged", this.node(), {});
+    if (fromUserAction) Dom.emitEvent("p:ComboItemChanged", this.node(), {});
 };
 
 ComboManager.prototype.getSelectedItem = function () {

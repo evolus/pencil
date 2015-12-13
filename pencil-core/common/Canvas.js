@@ -240,7 +240,7 @@ function Canvas(element) {
     this.focusableBox.addEventListener("focus", function () {
         Canvas.activeCanvas = thiz;
     }, false);
-    
+
     this.setupEventHandlers();
 }
 
@@ -2026,6 +2026,10 @@ Canvas.prototype.setSize = function (width, height) {
 
         CanvasImpl.setupGrid.apply(thiz);
     }, 50);
+
+    Dom.emitEvent("p:SizeChanged", this.element, {
+        canvas : this
+    });
 
 };
 Canvas.prototype.setBackgroundImageData = function (image, dimBackground) {
