@@ -10,7 +10,7 @@
     "height": 900
   },
   "dependencies": {
-    "font-manager": "^0.1.0",
+    "font-manager-nw": "^0.2.1",
     "material-design-lite": "^1.0.6",
     "tmp": "0.0.28"
   },

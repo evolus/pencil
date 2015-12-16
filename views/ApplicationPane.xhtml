@@ -49,6 +49,9 @@
     <ui:CollectionPane anon-id="collectionPane" style="width: 25em;"/>
     <vbox flex="1" anon-id="mainArea">
         <hbox anon-id="contentHeader">
+            <ui:AlignEditor />
+            <ui:FontEditor />
+            <ui:ColorPropertyEditor />
             <ui:SharedFontEditor />
             <ui:ColorEditor />
             <ui:SharedBorderStyleEditor />
@@ -62,6 +65,7 @@
             <button anon-id="testButton">Test Command</button>
         </hbox>
         <div anon-id="contentBody" flex="1" style="position: relative;">
+            <ui:SharedPropertyEditor />
         </div>
     </vbox>
 </hbox>

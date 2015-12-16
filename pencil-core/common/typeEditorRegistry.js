@@ -9,10 +9,15 @@ TypeEditorRegistry.getTypeEditor = function (type) {
     return editor;
 };
 
-TypeEditorRegistry.registerTypeEditor(Color, "pcoloreditor");
-TypeEditorRegistry.registerTypeEditor(Font, "pfonteditor");
-TypeEditorRegistry.registerTypeEditor(Alignment, "paligneditor");
-TypeEditorRegistry.registerTypeEditor(StrokeStyle, "pstrokeeditor");
-TypeEditorRegistry.registerTypeEditor(PlainText, "pplaintexteditor");
-TypeEditorRegistry.registerTypeEditor(ShadowStyle, "pshadowstyleeditor");
-TypeEditorRegistry.registerTypeEditor(Enum, "penumeditor");
+TypeEditorRegistry.registerTypeEditor(Color, "ColorPropertyEditor");
+TypeEditorRegistry.registerTypeEditor(Font, "FontEditor");
+TypeEditorRegistry.registerTypeEditor(Alignment, "AlignEditor");
+TypeEditorRegistry.registerTypeEditor(StrokeStyle, "StrokeEditor");
+
+// TypeEditorRegistry.registerTypeEditor(Color, "pcoloreditor");
+// TypeEditorRegistry.registerTypeEditor(Font, "pfonteditor");
+// TypeEditorRegistry.registerTypeEditor(Alignment, "paligneditor");
+// TypeEditorRegistry.registerTypeEditor(StrokeStyle, "pstrokeeditor");
+// TypeEditorRegistry.registerTypeEditor(PlainText, "pplaintexteditor");
+// TypeEditorRegistry.registerTypeEditor(ShadowStyle, "pshadowstyleeditor");
+// TypeEditorRegistry.registerTypeEditor(Enum, "penumeditor");
