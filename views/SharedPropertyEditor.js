@@ -38,11 +38,11 @@ SharedPropertyEditor.prototype.attach = function (target) {
 
             var editorWrapper = Dom.newDOMElement({
                 _name: "vbox",
-                "class": "Wrapper"
+                "class": "Wrapper",
                 _children: [
                     {
                         _name: "div",
-                        "class": "Label Property"
+                        "class": "Label Property",
                         _text: property.displayName
                     }
                 ]
