@@ -52,7 +52,7 @@ AlignEditor.prototype.setValue = function (alignment) {
 AlignEditor.prototype.getValue = function () {
     var checkedButton = null;
     for (var i in this.buttons) {
-        if (this.buttons[i].hasAttribute("checked") && this.button[i].getAttribute("checked") == "true") {
+        if (this.buttons[i].hasAttribute("checked") && this.buttons[i].getAttribute("checked") == "true") {
             checkedButton = this.buttons[i];
             break;
         }

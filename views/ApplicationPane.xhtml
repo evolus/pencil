@@ -44,14 +44,25 @@
             height: 1.7em;
             line-height: 1.7em;
         }
+        .widget_SharedPropertyEditor {
+            background: #fff;
+            padding: 1em;
+
+            position: absolute;
+            top: 0px;
+            right: 0px;
+
+            overflow-x: hidden;
+            z-index: 9;
+
+            border: solid 1px #555;
+            box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4);
+        }
     </style>
 
     <ui:CollectionPane anon-id="collectionPane" style="width: 25em;"/>
     <vbox flex="1" anon-id="mainArea">
         <hbox anon-id="contentHeader">
-            <ui:AlignEditor />
-            <ui:FontEditor />
-            <ui:ColorPropertyEditor />
             <ui:SharedFontEditor />
             <ui:ColorEditor />
             <ui:SharedBorderStyleEditor />
@@ -65,9 +76,7 @@
             <button anon-id="testButton">Test Command</button>
         </hbox>
         <div anon-id="contentBody" flex="1" style="position: relative;">
-            <div style="position: absolute; top: 30%; left: 30%; border: solid 1px red; padding: 10px; text-align: left;">
-                <!-- <ui:SharedPropertyEditor /> -->
-            </div>
         </div>
+        <ui:SharedPropertyEditor />
     </vbox>
 </hbox>

@@ -58,10 +58,8 @@ StrokeEditor.prototype.setValue  = function (stroke) {
 };
 
 StrokeEditor.prototype.getValue = function () {
-    console.log("getValue");
     var stroke = new StrokeStyle();
     stroke.w = this.strokeWidth.value;
-    console.log(this.styleCombo.getSelectedItem().value);
     stroke.array = this.styleCombo.getSelectedItem().value;
     return stroke.toString();
 };

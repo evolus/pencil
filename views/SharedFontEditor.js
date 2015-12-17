@@ -99,10 +99,6 @@ SharedFontEditor.prototype._applyValue = function () {
     }, this.target, Util.getMessage("action.apply.properties.value"))
 };
 SharedFontEditor.prototype.attach = function (target) {
-    var definedGroups = target.getPropertyGroups();
-    console.log(definedGroups);
-
-
     this.target = target;
     this.font = target.getProperty(SharedFontEditor.PROPERTY_NAME, "any");
     if (!this.font)  {
