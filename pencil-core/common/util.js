@@ -517,6 +517,15 @@ Dom.parseFile = function (file) {
     return dom;
 };
 
+Dom.hide = function (node) {
+    node._old_display = node.style.display;
+    node.style.display = "none";
+};
+Dom.show = function (node) {
+    if (node.style.display != "none") return;
+    node.style.display = node._old_display || "block";
+};
+
 Dom.newDOMElement = function (spec, doc) {
     var ownerDocument = doc ? doc : document;
     var e = spec._uri ? ownerDocument.createElementNS(spec._uri, spec._name) : ownerDocument.createElement(spec._name);

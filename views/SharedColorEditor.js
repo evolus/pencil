@@ -18,7 +18,6 @@ SharedColorEditor.prototype.setup = function () {
         if (!thiz.color) return;
         thiz.selector.setColor(thiz.color);
         widget.Util.positionAsPopup(thiz.selectorContainer, thiz.colorButton, "left-inside", "bottom", 0, 5);
-        thiz.selectorContainer.style.visibility = "visible";
         event.cancelBubble = true;
     }, false);
 

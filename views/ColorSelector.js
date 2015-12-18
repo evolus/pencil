@@ -1,5 +1,12 @@
 function ColorSelector() {
     BaseTemplatedWidget.call(this);
+    var thiz = this;
+    this.node().addEventListener("DOMNodeInsertedIntoDocument", function () {
+        window.setTimeout(function () {
+            thiz.radius = thiz.wheelImage.offsetWidth / 2;
+            thiz.invalidateUI();
+        }, 10);
+    }, false);
 
     this.modeTab.addTab("Grid", this.gridSelectorPane);
     this.modeTab.addTab("Wheel", this.wheelSelectorPane);

@@ -37,7 +37,7 @@ SharedPropertyEditor.prototype.setup = function () {
 
         thiz.target.setProperty(editor._property.name, thiz.propertyEditor[editor._property.name].getValue());
     }, false);
-    this.node().style.display = "none";
+    this.propertyContainer.style.display = "none";
 };
 SharedPropertyEditor.prototype.attach = function (target) {
     if (!target) return;
@@ -50,61 +50,86 @@ SharedPropertyEditor.prototype.attach = function (target) {
     this.propertyContainer.innerHTML = "";
     var definedGroups = this.target.getPropertyGroups();
     var groupNodes = [];
+
+    var properties = [];
     for (var i in definedGroups) {
         var group = definedGroups[i];
-        var groupNode = null;
         for (var j in group.properties) {
             var property = group.properties[j];
-            console.log(property);
             var editor = TypeEditorRegistry.getTypeEditor(property.type);
             if (!editor) continue;
-            console.log(editor);
-            if (!groupNode) {
-                groupNode = Dom.newDOMElement({
-                    _name: "vbox",
-                    "class": "Group"
-                });
 
-                groupNode._group = group;
-                var titleNode = Dom.newDOMElement({
-                    _name: "div",
-                    _text: group.name,
-                    "class": "Label Group"
-                });
-                groupNode.appendChild(titleNode);
-                this.propertyContainer.appendChild(groupNode);
-                groupNodes.push(groupNode);
-            }
-
-            var editorWrapper = Dom.newDOMElement({
-                _name: "vbox",
-                "class": "Wrapper",
-                _children: [
-                    {
-                        _name: "div",
-                        "class": "Label Property",
-                        _text: property.displayName
-                    }
-                ]
-            });
-
-            var constructeur = window[editor];
-            var editorWidget = new constructeur();
-
-            editorWrapper.appendChild(editorWidget.node());
-            editorWidget.setValue(this.target.getProperty(property.name));
-            this.propertyEditor[property.name] = editorWidget;
-            editorWrapper._property = property;
-
-            groupNode.appendChild(editorWrapper);
-            editorWidget.signalOnAttached();
+            property._group = group;
+            properties.push(property);
         }
     }
-    this.node().style.display = "block";
+
+    var thiz = this;
+    var currentGroupNode = null;
+
+    this.propertyContainer.style.display = "block";
+    this.propertyContainer.style.opacity = "0";
+
+    var executor = function () {
+        if (!thiz.target) return;
+        if (properties.length == 0) {
+            thiz.propertyContainer.style.display = "block";
+            thiz.propertyContainer.style.opacity = "1";
+            return;
+        }
+
+        var property = properties.shift();
+        if (!currentGroupNode || currentGroupNode._group != property._group) {
+            currentGroupNode = Dom.newDOMElement({
+                _name: "vbox",
+                "class": "Group"
+            });
+
+            currentGroupNode._group = group;
+            var titleNode = Dom.newDOMElement({
+                _name: "div",
+                _text: group.name,
+                "class": "Label Group"
+            });
+            currentGroupNode.appendChild(titleNode);
+            thiz.propertyContainer.appendChild(currentGroupNode);
+            groupNodes.push(currentGroupNode);
+        }
+
+        var editorWrapper = Dom.newDOMElement({
+            _name: "vbox",
+            "class": "Wrapper",
+            _children: [
+                {
+                    _name: "div",
+                    "class": "Label Property",
+                    _text: property.displayName
+                }
+            ]
+        });
+
+        var editor = TypeEditorRegistry.getTypeEditor(property.type);
+
+        var constructeur = window[editor];
+        var editorWidget = new constructeur();
+
+        editorWrapper.appendChild(editorWidget.node());
+        editorWidget.setValue(thiz.target.getProperty(property.name));
+        thiz.propertyEditor[property.name] = editorWidget;
+        editorWrapper._property = property;
+
+        currentGroupNode.appendChild(editorWrapper);
+        editorWidget.signalOnAttached();
+
+        window.setTimeout(executor, 80);
+    };
+
+    executor();
+
 };
 SharedPropertyEditor.prototype.detach = function () {
     this.propertyContainer.innerHTML = "";
-    this.node().style.display = "none";
+    this.propertyContainer.style.display = "none";
 };
 SharedPropertyEditor.prototype.invalidate = function () {
     if (!this.target) {

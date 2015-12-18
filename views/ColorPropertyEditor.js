@@ -6,12 +6,12 @@ function ColorPropertyEditor() {
 __extend(BaseTemplatedWidget, ColorPropertyEditor);
 ColorPropertyEditor.prototype.setup = function () {
     var thiz = this;
-    this.selectorContainer.style.display = "none";
+    Dom.hide(this.selectorContainer);
 
     this.colorButton.addEventListener("click", function (event) {
         thiz.selector.setColor(thiz.color);
         widget.Util.positionAsPopup(thiz.selectorContainer, thiz.colorButton, "left-inside", "bottom", 0, 5);
-        thiz.selectorContainer.style.display = "block";
+        Dom.show(thiz.selectorContainer);
         event.cancelBubble = true;
     }, false);
 

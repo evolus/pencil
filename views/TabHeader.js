@@ -10,6 +10,8 @@ function TabHeader() {
         if (!tab) return;
         thiz.setSelectedTab(tab);
     });
+
+    this.tabs = [];
 }
 __extend(BaseTemplatedWidget, TabHeader);
 
@@ -22,6 +24,7 @@ TabHeader.invalidateParentViewSize = function(node) {
 
     node.parentNode.style.width = w + "px";
     node.parentNode.style.height = h + "px";
+
 };
 
 TabHeader.prototype.addTab = function (name, node) {
@@ -31,12 +34,20 @@ TabHeader.prototype.addTab = function (name, node) {
     this.container.appendChild(view);
     view._node = node;
 
+    this.tabs.push(view);
+
     this.setSelectedTab(view);
     window.setTimeout(function () {
         TabHeader.invalidateParentViewSize(node);
     }, 10);
-};
 
+    var thiz = this;
+    node.addEventListener("DOMNodeInsertedIntoDocument", function () {
+        window.setTimeout(function () {
+            TabHeader.invalidateParentViewSize(node);
+        }, 10);
+    }, false);
+};
 
 
 TabHeader.prototype.setSelectedTab = function (tab) {
