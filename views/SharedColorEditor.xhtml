@@ -21,16 +21,10 @@
             box-sizing: border-box;
             border: solid 2px transparent;
         }
-        body .ColorSelectorContainer {
-            position: absolute;
-            padding: 1em;
-            background: #EEE;
-            box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.5);
-        }
     </style>
 
     <button anon-id="colorButton" ><span anon-id="colorDisplay"></span></button>
-    <div anon-id="selectorContainer" class="ColorSelectorContainer" style="visibility: hidden;">
+    <ui:Popup anon-id="selectorContainer">
         <ui:ColorSelector anon-id="selector" />
-    </div>
+    </ui:Popup>
 </div>

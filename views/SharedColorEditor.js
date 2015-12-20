@@ -12,12 +12,11 @@ SharedColorEditor.prototype.setup = function () {
     this.updateDisplayColor("#333333");
 
 
-    this.selectorContainer.style.visibility = "hidden";
 
     this.colorButton.addEventListener("click", function (event) {
         if (!thiz.color) return;
         thiz.selector.setColor(thiz.color);
-        widget.Util.positionAsPopup(thiz.selectorContainer, thiz.colorButton, "left-inside", "bottom", 0, 5);
+        thiz.selectorContainer.show(thiz.colorButton, "left-inside", "bottom", 0, 5);
         event.cancelBubble = true;
     }, false);
 

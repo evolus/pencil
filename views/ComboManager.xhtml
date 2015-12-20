@@ -35,13 +35,24 @@
             line-height: 1em;
             height: 1em;
         }
+        body @list .Item {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0.3em;
+            cursor: default;
+        }
+        body @list .Item:hover {
+            background: @selected_bg;
+            color: @selected_fg;
+        }
     </style>
     <div anon-id="selectContainer">
         <button class="mdl-button mdl-js-button mdl-js-ripple-effect"
                 anon-id="button"><span anon-id="buttonDisplay"></span> <i class="material-icons">arrow_drop_down</i></button>
-        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-            for="button"
-            anon-id="list">
-        </ul>
+        <ui:Popup anon-id="popup">
+            <vbox anon-id="list">
+            </vbox>
+        </ui:Popup>
     </div>
 </hbox>

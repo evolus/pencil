@@ -22,9 +22,31 @@ TabHeader.invalidateParentViewSize = function(node) {
     w = Math.max(w, node.offsetWidth);
     h = Math.max(h, node.offsetHeight);
 
+    if (w == 0 || h == 0) return;
+
     node.parentNode.style.width = w + "px";
     node.parentNode.style.height = h + "px";
 
+};
+TabHeader.prototype.onInsertedIntoDocument = function () {
+    this.invalidateSizing();
+};
+TabHeader.prototype.invalidateSizing = function () {
+    var w = 0;
+    var h = 0;
+
+    var container = null;
+    for (var i = 0; i < this.tabs.length; i ++) {
+        var node = this.tabs[i]._node;
+        w = Math.max(w, node.offsetWidth);
+        h = Math.max(h, node.offsetHeight);
+        container = node.parentNode;
+    }
+
+    if (w == 0 || h == 0) return;
+
+    container.style.width = w + "px";
+    container.style.height = h + "px";
 };
 
 TabHeader.prototype.addTab = function (name, node) {
@@ -35,13 +57,14 @@ TabHeader.prototype.addTab = function (name, node) {
     view._node = node;
 
     this.tabs.push(view);
-
     this.setSelectedTab(view);
-    window.setTimeout(function () {
-        TabHeader.invalidateParentViewSize(node);
-    }, 10);
 
     var thiz = this;
+
+    window.setTimeout(function () {
+        thiz.invalidateSizing();
+    }, 10);
+
     node.addEventListener("DOMNodeInsertedIntoDocument", function () {
         window.setTimeout(function () {
             TabHeader.invalidateParentViewSize(node);

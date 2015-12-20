@@ -12,7 +12,8 @@
   "dependencies": {
     "font-manager-nw": "^0.2.1",
     "material-design-lite": "^1.0.6",
-    "tmp": "0.0.28"
+    "tmp": "0.0.28",
+    "less": "~2.5.3"
   },
   "devDependencies": {
     "grunt": "0.4.5",

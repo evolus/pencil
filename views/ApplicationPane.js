@@ -16,10 +16,11 @@ function ApplicationPane() {
         this.controller.activatePage(page);
     }, this.addButton);
 
-    this.bind("p:ComboItemChanged", function () {
+    this.bind("p:ItemSelected", function () {
         var page = this.pageCombo.getSelectedItem();
         this.controller.activatePage(page);
     }, this.pageCombo.node());
+
 
 }
 __extend(BaseTemplatedWidget, ApplicationPane);

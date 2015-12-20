@@ -1,12 +1,6 @@
 function ColorSelector() {
     BaseTemplatedWidget.call(this);
-    var thiz = this;
-    this.node().addEventListener("DOMNodeInsertedIntoDocument", function () {
-        window.setTimeout(function () {
-            thiz.radius = thiz.wheelImage.offsetWidth / 2;
-            thiz.invalidateUI();
-        }, 10);
-    }, false);
+
 
     this.modeTab.addTab("Grid", this.gridSelectorPane);
     this.modeTab.addTab("Wheel", this.wheelSelectorPane);
@@ -217,7 +211,13 @@ document.addEventListener("mouseup", function () {
     ColorSelector.heldInstance._handleMouseUp(event);
     ColorSelector.heldInstance = null;
 }, false);
-
+ColorSelector.prototype.onInsertedIntoDocument = function () {
+    var thiz = this;
+    window.setTimeout(function () {
+        thiz.radius = thiz.wheelImage.offsetWidth / 2;
+        thiz.invalidateUI();
+    }, 10);
+};
 ColorSelector.prototype._handleMouseMove = function (event) {
     event.preventDefault();
 
