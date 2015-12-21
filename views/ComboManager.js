@@ -33,7 +33,6 @@ ComboManager.prototype.setItems = function (items) {
         if (this.decorator) this.decorator(node, item);
         node._data = item;
         this.list.appendChild(node);
-        componentHandler.upgradeElement(node);
         if (!first) first = item;
     }
     this.selectItem(first);
