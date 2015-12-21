@@ -31,13 +31,49 @@ StrokeEditor.prototype.initialize = function () {
     this.items = strokeItems;
 
     this.styleCombo.renderer = function (style) {
-        return style.label;
+        var svg = Dom.newDOMElement({
+            _name: "div",
+            "class": "StrokeStyleComboItem",
+            style: "width: 100px; height: 1em; position: relative;",
+            _children: [
+                {
+                    _name: "svg",
+                    _uri: PencilNamespaces.svg,
+                    version: "1.1",
+                    viewBox: "0 0 100 1",
+                    height: "8",
+                    width: "100",
+                    style: "position: absolute; top: 50%; left: 0px; margin-top: -4px;",
+                    _children: [
+                        {
+                            _name: "path",
+                            _uri: PencilNamespaces.svg,
+                            d: "m 0,0.5 100,0",
+                            style: "fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:" + style.value + ";stroke-dashoffset:0"
+                        }
+                    ]
+                }
+            ]
+        });
+        console.log("SVG", svg);
+        return svg;
     };
     this.styleCombo.decorator = function (node, style) {
     };
 
     this.styleCombo.setItems(strokeItems);
+    var thiz = this;
+    this.styleCombo.addEventListener("p:ItemSelected", function (event) {
+        thiz.fireEvent();
+    }, false);
+    this.strokeWidth.addEventListener("change", function (event) {
+        thiz.fireEvent();
+    }, false);
 
+};
+
+StrokeEditor.prototype.fireEvent = function() {
+    Dom.emitEvent("p:ValueChanged", this.node(), {});
 };
 
 StrokeEditor.prototype.setValue  = function (stroke) {

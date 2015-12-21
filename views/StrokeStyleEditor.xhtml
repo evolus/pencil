@@ -11,15 +11,11 @@
         .widget_ComboManager @button {
             width: 8em;
         }
-        body .Item:hover .StrokeStyleComboItem path {
-            stroke: @selected_fg !important;
-        }
     </style>
     <vbox>
-        <div>line:</div>
         <hbox anon-id="strokeContainer">
-            <input type="number" min="0" max="30" anon-id="strokeWidth" size="2"/>
             <ui:ComboManager anon-id="styleCombo" />
+            <input type="number" min="0" max="30" anon-id="strokeWidth" size="2"/>
         </hbox>
     </vbox>
 </hbox>

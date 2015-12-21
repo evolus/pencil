@@ -12,7 +12,7 @@ TypeEditorRegistry.getTypeEditor = function (type) {
 TypeEditorRegistry.registerTypeEditor(Color, "ColorPropertyEditor");
 TypeEditorRegistry.registerTypeEditor(Font, "FontEditor");
 TypeEditorRegistry.registerTypeEditor(Alignment, "AlignEditor");
-TypeEditorRegistry.registerTypeEditor(StrokeStyle, "StrokeEditor");
+TypeEditorRegistry.registerTypeEditor(StrokeStyle, "StrokeStyleEditor");
 
 // TypeEditorRegistry.registerTypeEditor(Color, "pcoloreditor");
 // TypeEditorRegistry.registerTypeEditor(Font, "pfonteditor");

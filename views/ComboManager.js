@@ -25,11 +25,21 @@ ComboManager.prototype.setItems = function (items) {
     this.list.innerHTML = "";
     for (var i = 0; i < items.length; i++) {
         var item = items[i];
-        var node = Dom.newDOMElement({
-            _name: "div",
-            "class": "Item",
-            _text: this.renderer(item)
-        });
+        var element = this.renderer(item);
+        var node = null;
+        if (element.getAttribute) {
+            node = Dom.newDOMElement({
+                _name: "div",
+                "class": "Item",
+            });
+            node.appendChild(element);
+        } else {
+            node = Dom.newDOMElement({
+                _name: "div",
+                "class": "Item",
+                _text: element
+            });
+        }
         if (this.decorator) this.decorator(node, item);
         node._data = item;
         this.list.appendChild(node);
@@ -39,8 +49,17 @@ ComboManager.prototype.setItems = function (items) {
 };
 
 ComboManager.prototype.selectItem = function (item, fromUserAction) {
-    this.buttonDisplay.innerHTML = Dom.htmlEncode(this.renderer(item));
-    this.button.setAttribute("title", this.renderer(item));
+    var element = this.renderer(item);
+    if (element.getAttribute) {
+        Dom.empty(this.buttonDisplay);
+        this.buttonDisplay.appendChild(element);
+    } else {
+        this.buttonDisplay.innerHTML = Dom.htmlEncode(element);
+        this.button.setAttribute("title", element);
+    }
+    if (this.decorator != null) {
+        this.decorator(this.buttonDisplay, item);
+    }
     this.selectedItem = item;
     if (fromUserAction) {
         Dom.emitEvent("p:ItemSelected", this.node(), {});
