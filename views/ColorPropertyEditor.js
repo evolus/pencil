@@ -93,7 +93,7 @@ ColorPropertyEditor.prototype.onValueChanged = function (element) {
     if (element != this.colorButton) this.colorButton.style.backgroundColor = this.color.toRGBString();
     if (element) {
         var event = document.createEvent("Events");
-        event.initEvent("modify", true, false);
+        event.initEvent("p:ValueChanged", true, false);
         this.dispatchEvent(event);
     }
 };

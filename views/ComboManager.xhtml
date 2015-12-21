@@ -12,13 +12,14 @@
 
         @button {
             position: relative;
+            height: 1.4em;
         }
 
         @buttonDisplay {
             position: absolute;
             top: 50%;
             left: 1ex;
-            right: 2ex;
+            right: 3ex;
             margin-top: -0.5em;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -48,8 +49,7 @@
         }
     </style>
     <div anon-id="selectContainer">
-        <button class="mdl-button mdl-js-button mdl-js-ripple-effect"
-                anon-id="button"><span anon-id="buttonDisplay"></span> <i class="material-icons">arrow_drop_down</i></button>
+        <button anon-id="button"><span anon-id="buttonDisplay"></span> <i class="material-icons">arrow_drop_down</i></button>
         <ui:Popup anon-id="popup">
             <vbox anon-id="list">
             </vbox>

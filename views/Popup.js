@@ -48,6 +48,20 @@ Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding) {
         thiz._showImpl(anchor, hAlign, vAlign, hPadding, vPadding);
     }, 10);
 };
+Popup.prototype.showAt = function (x, y) {
+    this.popupContainer.parentNode.removeChild(this.popupContainer);
+    this.node().ownerDocument.body.appendChild(this.popupContainer);
+    
+    this.popupContainer.style.position = "absolute";
+    this.popupContainer.style.left = x + "px";
+    this.popupContainer.style.top = y + "px";
+    this.popupContainer.style.zIndex = Popup.Z_INDEX;
+    this.popupContainer.style.visibility = "visible";
+    this.popupContainer.style.display = "block";
+    this.popupContainer.style.opacity = 1;
+
+    Popup.stack.push(this);
+};
 Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding) {
 
     var w = this.popupContainer.offsetWidth;

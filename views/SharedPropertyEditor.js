@@ -8,7 +8,7 @@ SharedPropertyEditor.prototype.setup = function () {
     this.propertyContainer.innerHTML = "";
     var thiz = this;
 
-    this.propertyContainer.addEventListener("change", function(event) {
+    this.propertyContainer.addEventListener("p:ValueChanged", function(event) {
         if (!thiz.target) return;
         var editor = Dom.findUpward(event.target, function (n) {
             return n._property;
@@ -18,25 +18,25 @@ SharedPropertyEditor.prototype.setup = function () {
         thiz.target.setProperty(editor._property.name, thiz.propertyEditor[editor._property.name].getValue());
 
     }, false);
-    this.propertyContainer.addEventListener("modify", function(event) {
-        if (!thiz.target) return;
-        var editor = Dom.findUpward(event.target, function (n) {
-            return n._property;
-        });
-        if (!editor) return;
-
-        thiz.target.setProperty(editor._property.name, thiz.propertyEditor[editor._property.name].getValue());
-
-    }, false);
-    this.propertyContainer.addEventListener("click", function(event) {
-        if (!thiz.target) return;
-        var editor = Dom.findUpward(event.target, function (n) {
-            return n._property;
-        });
-        if (!editor) return;
-
-        thiz.target.setProperty(editor._property.name, thiz.propertyEditor[editor._property.name].getValue());
-    }, false);
+    // this.propertyContainer.addEventListener("modify", function(event) {
+    //     if (!thiz.target) return;
+    //     var editor = Dom.findUpward(event.target, function (n) {
+    //         return n._property;
+    //     });
+    //     if (!editor) return;
+    //
+    //     thiz.target.setProperty(editor._property.name, thiz.propertyEditor[editor._property.name].getValue());
+    //
+    // }, false);
+    // this.propertyContainer.addEventListener("click", function(event) {
+    //     if (!thiz.target) return;
+    //     var editor = Dom.findUpward(event.target, function (n) {
+    //         return n._property;
+    //     });
+    //     if (!editor) return;
+    //
+    //     thiz.target.setProperty(editor._property.name, thiz.propertyEditor[editor._property.name].getValue());
+    // }, false);
     this.propertyContainer.style.display = "none";
 };
 SharedPropertyEditor.prototype.attach = function (target) {
@@ -85,10 +85,11 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 "class": "Group"
             });
 
-            currentGroupNode._group = group;
+            currentGroupNode._group = property._group;
+            console.log("New group", group);
             var titleNode = Dom.newDOMElement({
                 _name: "div",
-                _text: group.name,
+                _text: property._group.name,
                 "class": "Label Group"
             });
             currentGroupNode.appendChild(titleNode);
@@ -97,12 +98,13 @@ SharedPropertyEditor.prototype.attach = function (target) {
         }
 
         var editorWrapper = Dom.newDOMElement({
-            _name: "vbox",
+            _name: "hbox",
             "class": "Wrapper",
             _children: [
                 {
                     _name: "div",
                     "class": "Label Property",
+                    flex: 2,
                     _text: property.displayName
                 }
             ]
@@ -114,6 +116,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
         var editorWidget = new constructeur();
 
         editorWrapper.appendChild(editorWidget.node());
+        editorWidget.setAttribute("flex", "3");
         editorWidget.setValue(thiz.target.getProperty(property.name));
         thiz.propertyEditor[property.name] = editorWidget;
         editorWrapper._property = property;

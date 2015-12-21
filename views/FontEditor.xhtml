@@ -1,16 +1,18 @@
 <hbox>
     <style>
+        > * + * {
+            margin-left: 0.2em;
+        }
+        @pixelFontSize {
+            width: 3ex;
+        }
+        .widget_ComboManager @selectContainer,
+        .widget_ComboManager button {
+            width: 100%;
+        }
     </style>
-    <hbox>
-        <div>Font</div>
-        <vbox>
-            <ui:ComboManager anon-id="fontCombo" />
-            <hbox>
-                <input anon-id="pixelFontSize" type="number" />
-                <button anon-id="boldButton"><span>B</span></button>
-                <button anon-id="italicButton"><span>I</span></button>
-                <button anon-id="underlineButton"><span>U</span></button>
-            </hbox>
-        </vbox>
-    </hbox>
+    <ui:ComboManager anon-id="fontCombo" flex="1"/>
+    <input anon-id="pixelFontSize" type="number" />
+    <button anon-id="boldButton"><span>B</span></button>
+    <button anon-id="italicButton"><span>I</span></button>
 </hbox>

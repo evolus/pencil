@@ -1,11 +1,23 @@
 <vbox>
     <style>
-        @previewContainer {
+        @propertyContainer {
             overflow-x: hidden;
             overflow-y: auto;
             -webkit-transition: opacity 1s;
             transition: opacity 1s;
         }
+        @propertyContainer > .Group > * {
+            vertical-align: middle;
+        }
+        @propertyContainer > .Group > div.Label.Group {
+            font-weight: bold;
+        }
+        @propertyContainer > .Group > .Wrapper > div.Label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
     </style>
     <vbox anon-id="propertyContainer" style="transition: opacity 0.1s; -webkit-transition: opacity 0.1s;">
     </vbox>
