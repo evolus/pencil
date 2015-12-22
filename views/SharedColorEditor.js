@@ -1,7 +1,14 @@
 function SharedColorEditor() {
     BaseTemplatedWidget.call(this);
     Pencil.registerSharedEditor(this);
-    this.colorButton.disabled = true;
+    this.node().disabled = true;
+
+    this.bind("p:PopupShown", function () {
+        this.setAttribute("active", true);
+    }, this.selectorContainer.node());
+    this.bind("p:PopupHidden", function () {
+        this.removeAttribute("active");
+    }, this.selectorContainer.node());
 }
 __extend(BaseTemplatedWidget, SharedColorEditor);
 
@@ -13,10 +20,10 @@ SharedColorEditor.prototype.setup = function () {
 
 
 
-    this.colorButton.addEventListener("click", function (event) {
+    this.node().addEventListener("click", function (event) {
         if (!thiz.color) return;
         thiz.selector.setColor(thiz.color);
-        thiz.selectorContainer.show(thiz.colorButton, "left-inside", "bottom", 0, 5);
+        thiz.selectorContainer.show(thiz.node(), "left-inside", "bottom", 0, 5);
         event.cancelBubble = true;
     }, false);
 
@@ -36,11 +43,11 @@ SharedColorEditor.prototype.attach = function (targetObject) {
         this.detach();
         return;
     }
-    this.colorButton.disabled = false;
+    this.node().disabled = false;
     this.updateDisplayColor();
 };
 SharedColorEditor.prototype.detach = function () {
-    this.colorButton.disabled = true;
+    this.node().disabled = true;
     this.targetObject = null;
     this.color = null;
 };

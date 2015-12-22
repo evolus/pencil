@@ -17,18 +17,24 @@
 
         }
         @pixelFontSize {
-            width: 4em;
+            width: 3.5em;
         }
 
-        .widget_ComboManager @button {
+        .widget_ComboManager button @buttonDisplay {
             width: 10em;
+            display: inline-block;
+        }
+        @fontContainer @fontCombo {
+            margin-left: @toolbar_spacing;
+            margin-right: @toolbar_spacing;
         }
     </style>
     <vbox>
-        <div>text format:</div>
         <hbox anon-id="fontContainer">
-            <button anon-id="boldButton"><span>B</span></button>
-            <button anon-id="italicButton"><span>I</span></button>
+            <hbox class="ButtonGroup">
+                <button anon-id="boldButton" mode="icon"><i>format_bold</i></button>
+                <button anon-id="italicButton" mode="icon"><i>format_italic</i></button>
+            </hbox>
             <ui:ComboManager anon-id="fontCombo" />
             <input anon-id="pixelFontSize" type="number" min="0" />
         </hbox>

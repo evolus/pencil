@@ -5,6 +5,14 @@ function ComboManager() {
         this.popup.show(this.button, "left-inside", "bottom", 0, 5);
     }, this.button);
     this.bind("click", this.onItemClick, this.list);
+
+    this.bind("p:PopupShown", function () {
+        this.button.setAttribute("active", true);
+    }, this.popup);
+    this.bind("p:PopupHidden", function () {
+        this.button.removeAttribute("active");
+    }, this.popup);
+
 }
 
 ComboManager.DEFAULT_RENDERER = function (item) {

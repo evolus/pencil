@@ -1,0 +1,108 @@
+html {
+    font-size: 0.85em;
+}
+body {
+    font-size: 1em;
+}
+/* MATERIAL */
+button {
+    font-size: 1em;
+    border: none;
+    line-height: 2.4em;
+    height: 2.4em;
+    box-sizing: border-box;
+    padding: 0em 1.5em;
+
+    border-radius: 0.3ex;
+    box-shadow: 0em 0.15ex 0.25em rgba(0, 0, 0, 0.2);
+
+    background: #FFF;
+    text-transform: uppercase;
+    outline: none;
+}
+button > i {
+    font-size: 1.8em;
+    line-height: 1.33333333em;
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    opacity: 0.54;
+}
+button > * {
+    vertical-align: middle;
+}
+button > * + i {
+    margin-left: 0.35em;
+}
+button[mode='icon'] > i {
+    margin-left: 0em;
+}
+button[mode='icon'] {
+    padding: 0em 1em;
+}
+
+hbox.ButtonGroup > button {
+    display: inline-block;
+    box-shadow: none !important;
+}
+hbox.ButtonGroup > button:first-child,
+hbox.ButtonGroup > button + button {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+hbox.ButtonGroup > button + button {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+hbox.ButtonGroup > button:last-child {
+    border-top-right-radius: 0.3ex;
+    border-bottom-right-radius: 0.3ex;
+}
+hbox.ButtonGroup {
+    display: inline-flex;
+    border-radius: 0.3ex;
+    box-shadow: 0em 0.15ex 0.35em rgba(0, 0, 0, 0.5);
+}
+button[selected='true'],
+button[checked='true'] {
+    background: #C8C8C8;
+}
+button[active='true'] {
+    background: #E5E5E5;
+}
+
+button[selected='true'] > i,
+button[checked='true'] > i {
+    opacity: 1;
+}
+
+input[type="text"],
+input[type="number"] {
+    font-size: 1em;
+    line-height: 2.4em;
+    height: 2.4em;
+    box-sizing: border-box;
+    padding: 0em 0.3em;
+
+    background: transparent;
+
+    outline: none;
+    border: none;
+    border-bottom: solid 0.3ex #999;
+}
+input[type="number"] {
+    padding-right: 0em;
+}
+input[type="text"]:focus,
+input[type="number"]:focus {
+    background: rgba(255, 255, 255, 0.7);
+    border-bottom: solid 0.3ex #666;
+}

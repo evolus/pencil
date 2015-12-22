@@ -51,7 +51,7 @@ Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding) {
 Popup.prototype.showAt = function (x, y) {
     this.popupContainer.parentNode.removeChild(this.popupContainer);
     this.node().ownerDocument.body.appendChild(this.popupContainer);
-    
+
     this.popupContainer.style.position = "absolute";
     this.popupContainer.style.left = x + "px";
     this.popupContainer.style.top = y + "px";
@@ -110,10 +110,13 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
     this.popupContainer.style.display = "block";
     this.popupContainer.style.opacity = 1;
 
+    Dom.emitEvent("p:PopupShown", this.node());
+
     Popup.stack.push(this);
 };
 Popup.prototype.hide = function () {
     this.popupContainer.style.display = "none";
     this.popupContainer.style.opacity = 0;
     this.popupContainer.style.visibility = "hidden";
+    Dom.emitEvent("p:PopupHidden", this.node());
 };

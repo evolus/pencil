@@ -1,18 +1,8 @@
 <hbox>
     <style>
-    @colorContainer > * + * {
-        margin-left: 0.2em;
-    }
-    button {
-        background: #EEE;
-    }
-    button .material-icons {
-        margin-right: -0.5em;
-    }
     </style>
     <vbox>
-        <div>color:</div>
-        <hbox anon-id="colorContainer">
+        <hbox anon-id="colorContainer" class="ButtonGroup">
             <ui:SharedColorEditor propertyName="textColor" />
             <ui:SharedColorEditor propertyName="fillColor" />
             <ui:SharedColorEditor propertyName="strokeColor" />

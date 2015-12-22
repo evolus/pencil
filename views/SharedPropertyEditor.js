@@ -70,8 +70,11 @@ SharedPropertyEditor.prototype.attach = function (target) {
     this.propertyContainer.style.display = "block";
     this.propertyContainer.style.opacity = "0";
 
+    var uuid = Util.newUUID();
+    this.currentExecutorUUID = uuid;
+
     var executor = function () {
-        if (!thiz.target) return;
+        if (!thiz.target || uuid != thiz.currentExecutorUUID) return;
         if (properties.length == 0) {
             thiz.propertyContainer.style.display = "block";
             thiz.propertyContainer.style.opacity = "1";

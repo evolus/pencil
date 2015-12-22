@@ -4,47 +4,20 @@
             margin-left: 0.2em;
         }
         @container input {
-            width: 4em;
-        }
-        .Group input {
-            height: 2em;
-            border: solid 1px rgba(0, 0, 0, 0.2);
-            border-radius: 0.4em;
-            border-right-width: 0px;
-            border-top-right-radius: 0px;
-            border-bottom-right-radius: 0px;
-            text-align: center;
+            width: 3.5em;
         }
         .Group input[disabled] {
             opacity: 0.5;
         }
-        .Group * + input {
-            border-left-width: 0px;
-            border-right-width: 1px;
-            border-radius: 0.4em;
-            border-top-left-radius: 0px;
-            border-bottom-left-radius: 0px;
-        }
-        .Group {
-            position: relative;
+        .Group + .Group {
+            margin-left: 2em;
         }
         .Group span {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            line-height: 1em;
-            margin-top: -0.5em;
-            margin-left: -0.5ex;
             opacity: 0.3;
         }
-        .Group:hover span {
-            display: none;
-        }
-
 
     </style>
     <vbox>
-        <div>location &amp; size:</div>
         <hbox anon-id="container">
             <div anon-id="locationGroup" class="Group">
                 <input anon-id="shapeX" type="number" min="0" /><span>:</span><input anon-id="shapeY" type="number" min="0" />
@@ -52,8 +25,9 @@
             <div anon-id="sizeGroup" class="Group">
                 <input anon-id="shapeWidth" type="number" min="0" /><span>x</span><input anon-id="shapeHeight" type="number" min="0" />
             </div>
-            <span>a:</span>
-            <input anon-id="shapeAngle" type="number" min="0" />
+            <div anon-id="sizeGroup" class="Group">
+                <input anon-id="shapeAngle" type="number" min="0" />
+            </div>
         </hbox>
     </vbox>
 </hbox>

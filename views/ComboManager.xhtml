@@ -1,40 +1,14 @@
 <hbox>
     <style>
-        button {
-            background: #EEE;
-        }
-        .mdl-menu__container {
-            max-height: 500px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
-        }
-
         @button {
-            position: relative;
-            height: 1.4em;
+            white-space: nowrap;
+            text-align: left;
         }
 
         @buttonDisplay {
-            position: absolute;
-            top: 50%;
-            left: 1ex;
-            right: 3ex;
-            margin-top: -0.5em;
             overflow: hidden;
             text-overflow: ellipsis;
-            text-align: left;
-            line-height: 1em;
-            height: 1em;
             white-space: nowrap;
-        }
-        @button .material-icons {
-            position: absolute;
-            top: 50%;
-            right: 0.2ex;
-            margin-top: -0.5em;
-            line-height: 1em;
-            height: 1em;
         }
         body @list .Item {
             white-space: nowrap;
@@ -49,7 +23,7 @@
         }
     </style>
     <div anon-id="selectContainer">
-        <button anon-id="button"><span anon-id="buttonDisplay"></span> <i class="material-icons">arrow_drop_down</i></button>
+        <button anon-id="button"><span anon-id="buttonDisplay"></span><i>expand_more</i></button>
         <ui:Popup anon-id="popup">
             <vbox anon-id="list">
             </vbox>

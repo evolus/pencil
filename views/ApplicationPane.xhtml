@@ -57,12 +57,28 @@
             overflow-x: hidden;
             z-index: 9;
 
-            border: solid 1px #555;
-            box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4);
+            border-radius: 0.35ex;
+            box-shadow: @card_shadow;
         }
 
+        @contentHeader {
+            font-size: 0.9em;
+            background: #F0F0F0;
+        }
+        @contentHeader button,
+        @contentHeader hbox.ButtonGroup {
+            box-shadow: 0em 0.15ex 0.35em rgba(0, 0, 0, 0.3);
+        }
         @contentHeader button {
-
+            padding-left: 0.7em;
+            padding-right: 0.7em;
+        }
+        @contentHeader > * {
+            margin-left: 2em;
+            white-space: nowrap;
+        }
+        @contentHeader > *:first-child {
+            margin-left: 0em;
         }
     </style>
 
@@ -84,6 +100,6 @@
         <div anon-id="contentBody" flex="1" style="position: relative;">
             <ui:ComboTest />
         </div>
-        <ui:SharedPropertyEditor />
+        <ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />
     </vbox>
 </hbox>

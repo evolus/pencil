@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://evolus.vn/Namespaces/WebUI/1.0">
     <head>
@@ -7,84 +7,42 @@
 <!--
         <script type="text/javascript"></script>
 -->
+        <link rel="stylesheet" href="css/material-icons.css" />
         <link rel="stylesheet" href="css/pencil.css"/>
-        
+        <link rel="stylesheet" href="css/theme.css"/>
+
         <script type="text/javascript" src="lib/common-dom.js"></script>
         <script type="text/javascript" src="lib/widget/Common.js"></script>
-        
+
         <script type="text/javascript" src="views/SamplePanel.js"></script>
         <script type="text/javascript" src="views/FooPanel.js"></script>
         <script type="text/javascript" src="app.js"></script>
     </head>
     <body>
-        <div class="Form">
-            Themed
-            <h1>This is good</h1>
-            
-            <ui:SamplePanel anon-id="samplePanel" />
+        <div style="padding: 4em; font-size: 1em;">
+            <button><span>Button</span><i>assignment</i></button>
+            <button><span>Button</span><i>fingerprint</i></button>
+            <button><span>Button</span><i>feedback</i></button>
+            <button><span>Button</span><i>pan_tool</i></button>
+            <button mode="icon"><i>settings</i></button>
+            <button><span>Button</span><i>zoom_in</i></button>
+            <button mode="icon"><i>clear</i></button>
+            <button><span>Liberation Sans</span><i>expand_more</i></button>
         </div>
-        <div role="cover"></div>
-        <vbox style="width: 50%; height: 50%; margin-left: 2em; margint-top: 1em; background: threedface;">
-            <vbox flex="1" style="background: red;">a</vbox>
-            <footer>
-                <button>Cancel</button>
-                <button role="primary">Send</button>
-            </footer>
-        </vbox>
-        <div role="dialog" style="width: 40em; height: 30em; left: 50%; margin-left: -20em; top: 20em;">
-            <div role="header">
-                <strong role="title">Account Settings</strong>
-                <button role="close"><i class="fa fa-times"></i></button>
-            </div>
-            <div role="body">
-                <textarea style="width: 20em; height: 8em;"></textarea>
-                <br/>
-                <input type="text" style="width: 20em;" />
-            </div>
-            <div role="footer">
-                <input type="button" value="Export Document..." role="primary" />
-                <input type="button" value="Cancel" role="dismissal" />
-            </div>
-        </div>
-        <div style="text-align: center;">
-            <input type="button" value="Button text goes here" /><br/>&#160;<br/>
-            <input type="text" value="Text input value" /><br/>&#160;<br/>
-            <input type="checkbox"/><br/>&#160;<br/>
-            <input type="radio" />
-        </div>
-        
-        <div style="width: 40em; height: 40em; background: threedface; position: absolute; top: 30px; left: 100px;">
-        
-        <div xmlns="http://www.w3.org/1999/xhtml" class="modal-dialog" style="position: absolute; width: auto; top: 15px; right: 15px; bottom: 20px; left: 15px; margin: 0px;">
-					<div class="modal-content" style="height: 100%; display: flex; flex-direction: column;">
-					  <div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-						<h4 class="modal-title">Modal title</h4>
-					  </div>
-					  <div class="modal-body" style="flex: 1;">
-						
-						
-						<div class="dropup open">
-                          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Dropup
-                            <span class="caret"></span>
-                          </button>
-                          <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li><a href="#">Separated link</a></li>
-                          </ul>
-                        </div>
-						
-					  </div>
-					  <div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-						<button type="button" class="btn btn-primary">Save changes</button>
-					  </div>
-					</div>
-				</div>
+        <div style="padding: 4em; font-size: 1em;">
+            <hbox class="ButtonGroup">
+                <button mode="icon" selected="true"><i>format_align_left</i></button>
+                <button mode="icon"><i>format_align_center</i></button>
+                <button mode="icon" selected="true"><i>format_align_right</i></button>
+                <button mode="icon"><i>expand_more</i></button>
+            </hbox>
+            &#160;&#160;
+            <hbox class="ButtonGroup">
+                <button mode="icon"><i>format_bold</i></button>
+                <button mode="icon"><i>format_italic</i></button>
+                <button mode="icon" selected="true"><i>format_align_right</i></button>
+                <button mode="icon"><i>expand_more</i></button>
+            </hbox>
         </div>
     </body>
 </html>
-
