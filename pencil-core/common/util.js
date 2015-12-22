@@ -404,10 +404,11 @@ Dom.toXhtml = function (html) {
     if (!Dom._dummyDiv) {
         Dom._dummyDiv = document.createElement("div");
         document.body.appendChild(Dom._dummyDiv);
-        Dom._dummyDiv.style.display = "none";
     }
     Dom._dummyDiv.innerHTML = html;
+    Dom._dummyDiv.style.display = "block";
     var xhtml = Dom.serializeNode(Dom._dummyDiv);
+    Dom._dummyDiv.style.display = "none";
 //    xhtml = xhtml.replace(/(<[^>]+) xmlns=""([^>]*>)/g, function (zero, one, two) {
 //        return one + two;
 //    });

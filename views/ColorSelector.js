@@ -175,22 +175,14 @@ function ColorSelector() {
         if (!colorCell) return;
         thiz.selectColorCell(colorCell);
     }, false);
-    // this.gridSelectorContainer.addEventListener("focus", function (event) {
-    //     if (!mIsPopup && this.getAttribute('focused') != 'true') {
-    //         //debug("focused");
-    //         this.setAttribute('focused','true');
-    //         //document.addEventListener("keydown", this, true);
-    //         if (this.mSelectedCell)
-    //             this.hoverCell(this.mSelectedCell);
-    //     }
-    // }, false);
-    // this.gridSelectorContainer.addEventListener("blur", function (event) {
-    //     if (!mIsPopup && this.getAttribute('focused') == 'true') {
-    //         document.removeEventListener("keydown", this, true);
-    //         this.removeAttribute('focused');
-    //         this.resetHover();
-    //     }
-    // }, false);
+
+    this.recentlyUsedColor.addEventListener("click", function (event) {
+        var colorCell = Dom.findUpward(event.target, function (n) {
+            return n.hasAttribute("color");
+        });
+        if (!colorCell) return;
+        thiz.selectColorCell(colorCell, true);
+    }, false);
 
     this.initializeGridSelector();
 }
@@ -380,7 +372,7 @@ ColorSelector.prototype.reloadRecentlyUsedColors = function () {
         e[i].setAttribute("style", "background-color: " + color);
     }
 };
-ColorSelector.prototype.selectColorCell = function (cell) {
+ColorSelector.prototype.selectColorCell = function (cell, selectFromRecentlyUsedColors) {
     //change selected cell
     if (this.selectedCell) {
         this.selectedCell.removeAttribute("selected");
@@ -388,11 +380,16 @@ ColorSelector.prototype.selectColorCell = function (cell) {
     this.selectedCell = cell;
     this.selectedCell.setAttribute("selected", "true");
 
-    var a = this.color.a;
-    this.color =  Color.fromString(cell.getAttribute("color"));
-    this.color.a = a;
+    if (selectFromRecentlyUsedColors) {
+        this.color =  Color.fromString(cell.getAttribute("color"));
+        this.onValueChanged();
+    } else {
+        var a = this.color.a;
+        this.color =  Color.fromString(cell.getAttribute("color"));
+        this.color.a = a;
 
-    this.onValueChanged(this.gridSelectorContainer);
+        this.onValueChanged(this.gridSelectorContainer);
+    }
 };
 ColorSelector.prototype.isColorCell = function (cell) {
     return cell && cell.nodeType != 3 && cell.hasAttribute("color");
@@ -427,7 +424,9 @@ ColorSelector.prototype.invalidateUI = function (source) {
     this.previewBox.style.backgroundColor = this.color.toRGBAString();
 };
 ColorSelector.prototype.onValueChanged = function (source) {
-    this.updateRecentlyUsedColors();
+    if (source) {
+        this.updateRecentlyUsedColors();
+    }
     this.invalidateUI(source);
     this._emitChangeEvent();
 };

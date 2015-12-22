@@ -1,18 +1,18 @@
-function OnScreenTextEditor() {
+function OnScreenRichTextEditor() {
     BaseTemplatedWidget.call(this);
 }
-__extend(BaseTemplatedWidget, OnScreenTextEditor);
+__extend(BaseTemplatedWidget, OnScreenRichTextEditor);
 
-Pencil.registerEditor(OnScreenTextEditor);
+Pencil.registerEditor(OnScreenRichTextEditor);
 
-OnScreenTextEditor.isEditing = false;
-OnScreenTextEditor._initialized = false;
-OnScreenTextEditor._activeEditor = null;
+OnScreenRichTextEditor.isEditing = false;
+OnScreenRichTextEditor._initialized = false;
+OnScreenRichTextEditor._activeEditor = null;
 
-OnScreenTextEditor.prototype.initialize = function () {
+OnScreenRichTextEditor.prototype.initialize = function () {
 	this.popup.hide();
 };
-OnScreenTextEditor.prototype.install = function (canvas) {
+OnScreenRichTextEditor.prototype.install = function (canvas) {
     this.canvas = canvas;
     this.canvas.onScreenEditors.push(this);
 
@@ -51,20 +51,19 @@ OnScreenTextEditor.prototype.install = function (canvas) {
     this.bind("keyup", this.handleKeyPress, this.container);
 
 };
-OnScreenTextEditor.prototype.addEditorEvent = function (name, handler) {
-	this.singleTextEditor.addEventListener(name, handler, false);
-	this.multiLineTextEditor.addEventListener(name, handler, false);
+OnScreenRichTextEditor.prototype.addEditorEvent = function (name, handler) {
+	this.textEditor.addEventListener(name, handler, false);
 };
-OnScreenTextEditor.prototype.attach = function (targetObject) {
+OnScreenRichTextEditor.prototype.attach = function (targetObject) {
 };
-OnScreenTextEditor.prototype.invalidate = function () {
+OnScreenRichTextEditor.prototype.invalidate = function () {
 };
-OnScreenTextEditor.prototype.nextTool = function () {
+OnScreenRichTextEditor.prototype.nextTool = function () {
 };
-OnScreenTextEditor.prototype.dettach = function () {
+OnScreenRichTextEditor.prototype.dettach = function () {
 };
 
-OnScreenTextEditor.prototype.handleShapeDoubleClicked = function (event) {
+OnScreenRichTextEditor.prototype.handleShapeDoubleClicked = function (event) {
     this.currentTarget = event.controller;
     if (!this.currentTarget || !this.currentTarget.getTextEditingInfo) return;
 
@@ -72,7 +71,7 @@ OnScreenTextEditor.prototype.handleShapeDoubleClicked = function (event) {
 
     if (!this.textEditingInfo || this.textEditingInfo.readonly) return;
 
-    if (this.textEditingInfo.type == PlainText) {
+    if (this.textEditingInfo.type == RichText) {
         //setup
         console.log("currentTarget", this.currentTarget);
         this._lastTarget = this.currentTarget;
@@ -83,7 +82,7 @@ OnScreenTextEditor.prototype.handleShapeDoubleClicked = function (event) {
             alert(e);
         }
     // } else if (this.textEditingInfo.type == RichText) {
-    //     OnScreenTextEditor.currentInstance = this;
+    //     OnScreenRichTextEditor.currentInstance = this;
     //     try {
     //         this._setupRichTextEditor(event);
     //     } catch (e) {
@@ -91,15 +90,10 @@ OnScreenTextEditor.prototype.handleShapeDoubleClicked = function (event) {
     //     }
     }
 };
-OnScreenTextEditor.prototype._setupEditor = function () {
+OnScreenRichTextEditor.prototype._setupEditor = function () {
     var geo = this.canvas.getZoomedGeo(this.currentTarget);
     //Svg.ensureCTM(this.svgElement, geo.ctm);
     this.geo = geo;
-
-    this.textEditor = this.textEditingInfo.multi ? this.multiLineTextEditor : this.singleTextEditor;
-    this.node().setAttributeNS(PencilNamespaces.p, "p:mode", this.textEditingInfo.multi ? "Multi" : "Single");
-    this.multiLineTextEditor.style.display = this.textEditingInfo.multi ? "block" : "none";
-    this.singleTextEditor.style.display = this.textEditingInfo.multi ? "none" : "block";
 
     var bound = this.textEditingInfo.bound;
     var bbox = this.textEditingInfo.target.getBBox();
@@ -144,8 +138,6 @@ OnScreenTextEditor.prototype._setupEditor = function () {
     this.container.style.width = width + "px";
     this.container.style.height = height + "px";
 
-
-
     //this.foPane.setAttribute("transform", "scale(" + this.canvas.zoom + ")");
 
     //setup font
@@ -154,28 +146,25 @@ OnScreenTextEditor.prototype._setupEditor = function () {
     this.textEditor.style.width = "" + width + "px";
     Svg.setStyle(this.textEditor, "height", this.textEditingInfo.multi ? (height + "px") : null);
 
-    if (this.textEditingInfo.font) {
-        this.textEditor.style.fontFamily = this.textEditingInfo.font.family;
-        this.textEditor.style.fontSize = this.textEditingInfo.font.size;
-        this.textEditor.style.lineHeight = this.textEditingInfo.font.size;
-        this.textEditor.style.fontWeight = this.textEditingInfo.font.weight;
-        this.textEditor.style.fontStyle = this.textEditingInfo.font.style;
-    }
-    this.textEditor.style.textAlign = ["left", "center", "right"][align.h];
+    this.textEditor.style.fontFamily = this.textEditingInfo.font.family;
+    this.textEditor.style.fontSize = this.textEditingInfo.font.size;
+    this.textEditor.style.lineHeight = this.textEditingInfo.font.size;
+    this.textEditor.style.fontWeight = this.textEditingInfo.font.weight;
+    this.textEditor.style.fontStyle = this.textEditingInfo.font.style;
+    this.textEditor.style.textAlign = ["left", "center", "right"][align ? align.h : 0];
 
-    this.textEditor.value = this.textEditingInfo.value.value;   //PlainText.value
+    this.textEditor.innerHTML = this.textEditingInfo.value.value;   //PlainText.value
 
     this.popup.showAt(x, y + 5);
 
-    OnScreenTextEditor._activeEditor = this;
+    OnScreenRichTextEditor._activeEditor = this;
 
     var thiz = this;
     window.setTimeout(function () {
-        thiz.textEditor.select();
         thiz.textEditor.focus();
     }, 10);
 };
-OnScreenTextEditor.prototype.handleTextBlur = function (event) {
+OnScreenRichTextEditor.prototype.handleTextBlur = function (event) {
     this._focused = false;
     var that = this;
     setTimeout(function() {
@@ -184,7 +173,7 @@ OnScreenTextEditor.prototype.handleTextBlur = function (event) {
         }
     }, 100);
 };
-OnScreenTextEditor.prototype.handleKeyPress = function (event) {
+OnScreenRichTextEditor.prototype.handleKeyPress = function (event) {
     console.log("event.keyCode == DOM_VK_ESCAPE", event.keyCode, DOM_VK_ESCAPE);
     if (event.keyCode == DOM_VK_RETURN && !event.shiftKey && !event.accelKey && !event.ctrlKey) {
         this.commitChange(event);
@@ -194,11 +183,11 @@ OnScreenTextEditor.prototype.handleKeyPress = function (event) {
         event.preventDefault();
     }
 };
-OnScreenTextEditor.prototype.commitChange = function (event) {
+OnScreenRichTextEditor.prototype.commitChange = function (event) {
     if (!this._lastTarget || !this.textEditingInfo) return;
     try {
-        var plainText = new PlainText(this.textEditor.value);
-        this._lastTarget.setProperty(this.textEditingInfo.prop.name, plainText);
+        var richText = new RichText(this.textEditor.innerHTML);
+        this._lastTarget.setProperty(this.textEditingInfo.prop.name, richText);
         this.canvas.invalidateEditors(this);
     } finally {
         this.popup.hide("silent");
@@ -206,7 +195,7 @@ OnScreenTextEditor.prototype.commitChange = function (event) {
         this.canvas.focus();
     }
 };
-OnScreenTextEditor.prototype.cancelChange = function () {
+OnScreenRichTextEditor.prototype.cancelChange = function () {
     if (!this.textEditingInfo) return;
     this.popup.hide("silent");
     this.textEditingInfo = null;

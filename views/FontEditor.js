@@ -1,8 +1,7 @@
 function FontEditor() {
-    BaseTemplatedWidget.call(this);
-    this.setup();
+    PropertyEditor.call(this);
 }
-__extend(BaseTemplatedWidget, FontEditor);
+__extend(PropertyEditor, FontEditor);
 FontEditor.prototype.setup = function () {
     //grab control references
     /*this.underlineButton = document.getElementById("edUnderlineButton");
@@ -22,17 +21,17 @@ FontEditor.prototype.setup = function () {
     var thiz = this;
     this.fontCombo.addEventListener("p:ItemSelected", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
-        thiz.fireEvent();
+        thiz.fireChangeEvent();
     }, false);
 
     this.pixelFontSize.addEventListener("click", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
-        thiz.fireEvent();
+        thiz.fireChangeEvent();
     }, false);
     this.pixelFontSize.addEventListener("keyup", function(event) {
         if (event.keyCode == 13 || event.keyCode == 10) {
             if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
-            thiz.fireEvent();
+            thiz.fireChangeEvent();
         }
     }, false);
 
@@ -45,7 +44,7 @@ FontEditor.prototype.setup = function () {
             thiz.boldButton.setAttribute("checked", "true");
             checked = true;
         }
-        thiz.fireEvent();
+        thiz.fireChangeEvent();
     }, false);
 
     this.italicButton.addEventListener("click", function(event) {
@@ -58,7 +57,7 @@ FontEditor.prototype.setup = function () {
             checked = true;
         }
 
-        thiz.fireEvent();
+        thiz.fireChangeEvent();
     }, false);
 
 
@@ -75,9 +74,6 @@ FontEditor.prototype.setup = function () {
         thiz.fireEvent();
     }, false);*/
 
-};
-FontEditor.prototype.fireEvent = function () {
-    Dom.emitEvent("p:ValueChanged", this.node(), {});
 };
 FontEditor.prototype.setValue = function (font) {
     if (!font) return;

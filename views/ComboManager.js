@@ -58,6 +58,8 @@ ComboManager.prototype.setItems = function (items) {
 
 ComboManager.prototype.selectItem = function (item, fromUserAction) {
     var element = this.renderer(item);
+    if (!element) return;
+
     if (element.getAttribute) {
         Dom.empty(this.buttonDisplay);
         this.buttonDisplay.appendChild(element);

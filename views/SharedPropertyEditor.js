@@ -9,34 +9,17 @@ SharedPropertyEditor.prototype.setup = function () {
     var thiz = this;
 
     this.propertyContainer.addEventListener("p:ValueChanged", function(event) {
+        console.log("p:ValueChanged", event);
         if (!thiz.target) return;
         var editor = Dom.findUpward(event.target, function (n) {
             return n._property;
         });
         if (!editor) return;
 
-        thiz.target.setProperty(editor._property.name, thiz.propertyEditor[editor._property.name].getValue());
+        var propertyName = editor._property.name;
+        thiz.target.setProperty(propertyName, thiz.propertyEditor[propertyName].getValue());
 
     }, false);
-    // this.propertyContainer.addEventListener("modify", function(event) {
-    //     if (!thiz.target) return;
-    //     var editor = Dom.findUpward(event.target, function (n) {
-    //         return n._property;
-    //     });
-    //     if (!editor) return;
-    //
-    //     thiz.target.setProperty(editor._property.name, thiz.propertyEditor[editor._property.name].getValue());
-    //
-    // }, false);
-    // this.propertyContainer.addEventListener("click", function(event) {
-    //     if (!thiz.target) return;
-    //     var editor = Dom.findUpward(event.target, function (n) {
-    //         return n._property;
-    //     });
-    //     if (!editor) return;
-    //
-    //     thiz.target.setProperty(editor._property.name, thiz.propertyEditor[editor._property.name].getValue());
-    // }, false);
     this.propertyContainer.style.display = "none";
 };
 SharedPropertyEditor.prototype.attach = function (target) {
@@ -114,12 +97,16 @@ SharedPropertyEditor.prototype.attach = function (target) {
         });
 
         var editor = TypeEditorRegistry.getTypeEditor(property.type);
+        if (!editor) return;
 
         var constructeur = window[editor];
         var editorWidget = new constructeur();
 
         editorWrapper.appendChild(editorWidget.node());
         editorWidget.setAttribute("flex", "3");
+        if (editorWidget.setTypeMeta) {
+            editorWidget.setTypeMeta(property.meta);
+        }
         editorWidget.setValue(thiz.target.getProperty(property.name));
         thiz.propertyEditor[property.name] = editorWidget;
         editorWrapper._property = property;

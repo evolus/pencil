@@ -1,10 +1,9 @@
 function ColorPropertyEditor() {
-    BaseTemplatedWidget.call(this);
-    this.color = Color.fromString("#DA8500");
-    this.setup();
+    PropertyEditor.call(this);
 };
-__extend(BaseTemplatedWidget, ColorPropertyEditor);
+__extend(PropertyEditor, ColorPropertyEditor);
 ColorPropertyEditor.prototype.setup = function () {
+    this.color = Color.fromString("#DA8500");
     var thiz = this;
 
     this.colorButton.addEventListener("click", function (event) {
@@ -92,9 +91,7 @@ ColorPropertyEditor.prototype.onValueChanged = function (element) {
     if (element != this.colorText) this.colorText.value = this.color.toRGBString();
     if (element != this.colorButton) this.colorButton.style.backgroundColor = this.color.toRGBString();
     if (element) {
-        var event = document.createEvent("Events");
-        event.initEvent("p:ValueChanged", true, false);
-        this.dispatchEvent(event);
+        this.fireChangeEvent();
     }
 };
 ColorPropertyEditor.prototype.getValue = function () {
