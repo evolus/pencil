@@ -9,11 +9,16 @@
             transition: opacity 0.4s;
             box-sizing: border-box;
         }
+        body @popupContainer[mode='OnScreenTextEditor'] @textEditor {
+            width: 100%;
+            height: 100%;
+            background: #FFF;
+            overflow: auto;
+        }
     </style>
     <ui:Popup anon-id="popup" mode="OnScreenTextEditor">
         <div anon-id="container">
-            <input type="text" anon-id="singleTextEditor" />
-            <textarea anon-id="multiLineTextEditor"/>
+            <div anon-id="textEditor" contenteditable="true"></div>
         </div>
     </ui:Popup>
 </hbox>

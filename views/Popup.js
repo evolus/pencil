@@ -35,6 +35,9 @@ Popup.prototype.setContentFragment = function (fragment) {
 Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding) {
     this.popupContainer.parentNode.removeChild(this.popupContainer);
     this.node().ownerDocument.body.appendChild(this.popupContainer);
+    if (this.mode) {
+        this.popupContainer.setAttribute("mode", this.mode);
+    }
     this.popupContainer.style.left = "0px";
     this.popupContainer.style.top = "0px";
 
@@ -51,6 +54,9 @@ Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding) {
 Popup.prototype.showAt = function (x, y) {
     this.popupContainer.parentNode.removeChild(this.popupContainer);
     this.node().ownerDocument.body.appendChild(this.popupContainer);
+    if (this.mode) {
+        this.popupContainer.setAttribute("mode", this.mode);
+    }
 
     this.popupContainer.style.position = "absolute";
     this.popupContainer.style.left = x + "px";
@@ -114,9 +120,9 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
 
     Popup.stack.push(this);
 };
-Popup.prototype.hide = function () {
+Popup.prototype.hide = function (silent) {
     this.popupContainer.style.display = "none";
     this.popupContainer.style.opacity = 0;
     this.popupContainer.style.visibility = "hidden";
-    Dom.emitEvent("p:PopupHidden", this.node());
+    if (!silent) Dom.emitEvent("p:PopupHidden", this.node());
 };

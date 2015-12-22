@@ -18,8 +18,6 @@ SharedColorEditor.prototype.setup = function () {
     if (this.propertyName == "textColor") this.colorDisplay.innerHTML = "A";
     this.updateDisplayColor("#333333");
 
-
-
     this.node().addEventListener("click", function (event) {
         if (!thiz.color) return;
         thiz.selector.setColor(thiz.color);

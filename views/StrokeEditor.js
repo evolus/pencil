@@ -1,10 +1,9 @@
 function StrokeEditor() {
-    BaseTemplatedWidget.call(this);
-    this.initialize();
+    PropertyEditor.call(this);
 }
-__extend(BaseTemplatedWidget, StrokeEditor);
+__extend(PropertyEditor, StrokeEditor);
 
-StrokeEditor.prototype.initialize = function () {
+StrokeEditor.prototype.setup = function () {
     //setting up dasharray
     var STYLES = [
                     [Util.getMessage("stroke.style.solid"), ""],
@@ -55,7 +54,6 @@ StrokeEditor.prototype.initialize = function () {
                 }
             ]
         });
-        console.log("SVG", svg);
         return svg;
     };
     this.styleCombo.decorator = function (node, style) {
@@ -64,16 +62,12 @@ StrokeEditor.prototype.initialize = function () {
     this.styleCombo.setItems(strokeItems);
     var thiz = this;
     this.styleCombo.addEventListener("p:ItemSelected", function (event) {
-        thiz.fireEvent();
+        thiz.fireChangeEvent();
     }, false);
     this.strokeWidth.addEventListener("change", function (event) {
-        thiz.fireEvent();
+        thiz.fireChangeEvent();
     }, false);
 
-};
-
-StrokeEditor.prototype.fireEvent = function() {
-    Dom.emitEvent("p:ValueChanged", this.node(), {});
 };
 
 StrokeEditor.prototype.setValue  = function (stroke) {

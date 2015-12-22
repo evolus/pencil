@@ -1,8 +1,7 @@
 function AlignEditor() {
-    BaseTemplatedWidget.call(this);
-    this.setup();
+    PropertyEditor.call(this);
 }
-__extend(BaseTemplatedWidget, AlignEditor);
+__extend(PropertyEditor, AlignEditor);
 
 AlignEditor.prototype.setup = function () {
     var groupId = "align" + (new Date().getTime()) + Math.round(1000 * Math.random());
@@ -30,6 +29,7 @@ AlignEditor.prototype.setup = function () {
 
         var alignment = new Alignment(checkedButton._h, checkedButton._v);
         thiz.setValue(alignment);
+        thiz.fireChangeEvent();
     }, false);
 
     if (this.hasAttribute("value")) this.setValue(Alignment.fromString(this.getAttribute("value")));
