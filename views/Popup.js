@@ -125,4 +125,5 @@ Popup.prototype.hide = function (silent) {
     this.popupContainer.style.opacity = 0;
     this.popupContainer.style.visibility = "hidden";
     if (!silent) Dom.emitEvent("p:PopupHidden", this.node());
+    if (this._parentPopup) this._parentPopup.hide();
 };

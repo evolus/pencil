@@ -139,6 +139,28 @@ function Canvas(element) {
 
     this.onScreenEditors = [];
 
+    this.menu = new Menu();
+
+    this.menu.register({
+        getLabel: function () { return "Undo: Move"; },
+        icon: "undo",
+        shortcut: "Ctrl+Z"
+    });
+    this.menu.register({
+        label: "Redo",
+        icon: "redo",
+        shortcut: "Ctrl+Y",
+        isEnabled: function () { return false; }
+    });
+
+    this.menu.register(function () {
+        if (thiz.contextMenuEditor) {
+            return thiz.contextMenuEditor.generateMenuItems();
+        } else {
+            return [];
+        }
+    });
+
     // register event handler
     this.svg.addEventListener("click", function (event) {
         thiz.handleClick(event);
@@ -1335,7 +1357,16 @@ Canvas.prototype.updateContextMenu = function (currentAction, prevAction) {
 
 };
 Canvas.prototype.handleContextMenuShow = function (event) {
+    if (this.currentController) {
+        // attach now
+        if (this.contextMenuEditor) {
+            this.contextMenuEditor.attach(this.currentController);
+        }
+    }
 
+    this.menu.showMenuAt(event.clientX, event.clientY);
+};
+/*
     try {
         this._lastEvent = event;
         Dom.workOn("./xul:menuseparator", this.popup, function (sep) {
@@ -1441,7 +1472,8 @@ Canvas.prototype.handleContextMenuShow = function (event) {
         Console.dumpError(e);
     }
 
-};
+*/
+
 Canvas.prototype.buildAttachMenuItem = function () {
 
     if (this.attachToMenu) {

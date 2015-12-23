@@ -8,6 +8,7 @@ function ColorSelector() {
     this.color = Color.fromString("#DA8500");
     this.invalidateUI();
     this.reloadRecentlyUsedColors();
+    this.initializeGridSelector();
 
     //get the radius
     this.pinHeld = false;
@@ -183,8 +184,6 @@ function ColorSelector() {
         if (!colorCell) return;
         thiz.selectColorCell(colorCell, true);
     }, false);
-
-    this.initializeGridSelector();
 }
 __extend(BaseTemplatedWidget, ColorSelector);
 
@@ -347,6 +346,11 @@ ColorSelector.prototype.updateRecentlyUsedColors = function () {
     var colors = this.recentlyUsedColors.join(",");
     Config.set("gridcolorpicker.recentlyUsedColors", colors);
     this.updatingColor = false;
+    Dom.doOnAllChildren(this.recentlyUsedColors, function (n) {
+        if (thiz.isColorCell(n)) {
+            n.removeAttribute("selected");
+        }
+    });
 };
 ColorSelector.prototype.reloadRecentlyUsedColors = function () {
     var thiz = this;
@@ -371,6 +375,11 @@ ColorSelector.prototype.reloadRecentlyUsedColors = function () {
         e[i].setAttribute("color", color);
         e[i].setAttribute("style", "background-color: " + color);
     }
+    Dom.doOnAllChildren(this.recentlyUsedColors, function (n) {
+        if (thiz.isColorCell(n)) {
+            n.removeAttribute("selected");
+        }
+    });
 };
 ColorSelector.prototype.selectColorCell = function (cell, selectFromRecentlyUsedColors) {
     //change selected cell
@@ -424,9 +433,7 @@ ColorSelector.prototype.invalidateUI = function (source) {
     this.previewBox.style.backgroundColor = this.color.toRGBAString();
 };
 ColorSelector.prototype.onValueChanged = function (source) {
-    if (source) {
-        this.updateRecentlyUsedColors();
-    }
+    this.updateRecentlyUsedColors();
     this.invalidateUI(source);
     this._emitChangeEvent();
 };
