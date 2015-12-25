@@ -144,13 +144,19 @@ function Canvas(element) {
     this.menu.register({
         getLabel: function () { return "Undo: Move"; },
         icon: "undo",
-        shortcut: "Ctrl+Z"
+        shortcut: "Ctrl+Z",
+        handleAction: function () {
+            Pencil.activeCanvas.careTaker.undo();
+        }
     });
     this.menu.register({
         label: "Redo",
         icon: "redo",
         shortcut: "Ctrl+Y",
-        isEnabled: function () { return false; }
+        isEnabled: function () { return false; },
+        handleAction: function () {
+            Pencil.activeCanvas.careTaker.redo();
+        }
     });
 
     this.menu.register(function () {
@@ -161,6 +167,53 @@ function Canvas(element) {
         }
     });
 
+
+    this.menu.register({
+        label: "Cut",
+        icon: "redo",
+        shortcut: "Ctrl+Y",
+        isEnabled: function () { return false; },
+        handleAction: function () {
+            Pencil.activeCanvas.doCopy();
+            Pencil.activeCanvas.deleteSelected();
+        }
+    });
+    this.menu.register({
+        label: "Copy",
+        icon: "redo",
+        shortcut: "Ctrl+Y",
+        isEnabled: function () { return false; },
+        handleAction: function () {
+            Pencil.activeCanvas.careTaker.doCopy();
+        }
+    });
+    this.menu.register({
+        label: "Paste",
+        icon: "redo",
+        shortcut: "Ctrl+Y",
+        isEnabled: function () { return false; },
+        handleAction: function () {
+            Pencil.activeCanvas.doPaste();
+        }
+    });
+    this.menu.register({
+        label: "Delete",
+        icon: "redo",
+        shortcut: "Ctrl+Y",
+        isEnabled: function () { return false; },
+        handleAction: function () {
+            Pencil.activeCanvas.deleteSelected();
+        }
+    });
+    this.menu.register({
+        label: "Select all",
+        icon: "redo",
+        shortcut: "Ctrl+Y",
+        isEnabled: function () { return false; },
+        handleAction: function () {
+            Pencil.activeCanvas.selectAll();
+        }
+    });
     // register event handler
     this.svg.addEventListener("click", function (event) {
         thiz.handleClick(event);

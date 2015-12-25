@@ -1,18 +1,5 @@
 function OnMenuEditor() {
 }
-OnMenuEditor.typeEditorMap = [];
-OnMenuEditor.registerTypeEditor = function (type, editorClass) {
-    OnMenuEditor.typeEditorMap[type.name] = editorClass;
-};
-OnMenuEditor.getTypeEditor = function (type) {
-    var editorClass = OnMenuEditor.typeEditorMap[type.name];
-    if (!editorClass) return null;
-    return editorClass;
-};
-
-OnMenuEditor.registerTypeEditor(Bool, "BooleanEditor");
-OnMenuEditor.registerTypeEditor(Enum, "EnumEditor");
-
 OnMenuEditor.prototype.install = function (canvas) {
     this.canvas = canvas;
     this.canvas.contextMenuEditor = this;
@@ -25,7 +12,6 @@ OnMenuEditor.prototype.invalidate = function () {
 };
 OnMenuEditor.prototype.dettach = function () {
 };
-
 OnMenuEditor.prototype.generateMenuItems = function () {
     var definedGroups = this.targetObject.getPropertyGroups();
     var items = [];
@@ -44,27 +30,67 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                     handleAction: function (checked) {
                         var bool = Bool.fromString("" + checked);
                         thiz.targetObject.setProperty(this.property, bool);
-                        console.log("after: ", thiz.targetObject.getProperty(this.property));
                     }
                 };
                 items.push(item);
+            } else if (property.type == Enum) {
+                var enumItem = {
+                    type: "SubMenu",
+                    label: property.displayName,
+                    subItems: []
+                }
+                var value = thiz.targetObject.getProperty(property.name);
+                var enumValues = Enum.getValues(property);
+                for (var i in enumValues) {
+                    var enumValue = enumValues[i];
+                    var checked = value && value.equals(enumValue.value);
+                    enumItem.subItems.push({
+                        label: enumValue.label,
+                        value: enumValue.value,
+                        type: "Selection",
+                        checked: checked,
+                        property: property.name,
+                        handleAction: function (checked) {
+                            if (!checked) return;
+                            thiz.targetObject.setProperty(this.property, new Enum(this.value));
+                        }
+                    });
+                }
+                items.push(enumItem);
             }
-
-            console.log("property: ", property);
         }
     }
 
+    //actions
+    var actionItem = null;
+    if (this.targetObject.def && this.targetObject.performAction) {
+        for (var i in this.targetObject.def.actions) {
+            var action = this.targetObject.def.actions[i];
+            if (action.displayName) {
+                console.log("action: ", action);
+                if (!actionItem) {
+                    actionItem = {
+                        label: "Action",
+                        type: "SubMenu",
+                        subItems: []
+                    }
+                }
+                actionItem.subItems.push({
+                    label: action.displayName,
+                    type: "Normal",
+                    actionId: action.id,
+                    handleAction: function (){
+                        thiz.targetObject.performAction(this.actionId);
+                        thiz.canvas.invalidateEditors();
+                    }
+                });
+            }
+        }
+    }
 
-    // var thiz = this;
-    // //actions
-    // if (targetObject.def && targetObject.performAction) {
-    //     for (var i in targetObject.def.actions) {
-    //         var action = targetObject.def.actions[i];
-    //         if (action.displayName) {
-    //             console.log("action: ", action);
-    //         }
-    //     }
-    // }
+    if (actionItem) {
+        items.push(actionItem);
+    }
     return items;
 };
 

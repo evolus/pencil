@@ -7,7 +7,7 @@ function Menu() {
         if (!itemNode) return;
         var item = itemNode._item;
         if (itemNode.getAttribute && itemNode.getAttribute("disabled") == "true") return;
-        if (item.type == "Toggle") {
+        if (item.type == "Toggle" || item.type == "Selection") {
             var checkbox = itemNode._checkbox;
             if (item.handleAction) item.handleAction(checkbox.checked);
             thiz.hide();
@@ -44,11 +44,11 @@ Menu.prototype.renderItem = function (item) {
 
     this.popupContainer.appendChild(hbox);
     var checkboxId = null;
-    if (item.type == "Toggle") {
+    if (item.type == "Toggle" || item.type == "Selection") {
         checkboxId = Util.newUUID();
         var checkbox = Dom.newDOMElement({
             _name: "input",
-            type: "checkbox",
+            type: item.type == "Toggle" ? "checkbox" : "radio",
             "class": "Checkbox",
             id: checkboxId
         });
