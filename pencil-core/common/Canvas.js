@@ -139,81 +139,8 @@ function Canvas(element) {
 
     this.onScreenEditors = [];
 
-    this.menu = new Menu();
+    this.menu = new CanvasMenu(this);
 
-    this.menu.register({
-        getLabel: function () { return "Undo: Move"; },
-        icon: "undo",
-        shortcut: "Ctrl+Z",
-        handleAction: function () {
-            Pencil.activeCanvas.careTaker.undo();
-        }
-    });
-    this.menu.register({
-        label: "Redo",
-        icon: "redo",
-        shortcut: "Ctrl+Y",
-        isEnabled: function () { return false; },
-        handleAction: function () {
-            Pencil.activeCanvas.careTaker.redo();
-        }
-    });
-
-    this.menu.register(function () {
-        if (thiz.contextMenuEditor) {
-            return thiz.contextMenuEditor.generateMenuItems();
-        } else {
-            return [];
-        }
-    });
-
-
-    this.menu.register({
-        label: "Cut",
-        icon: "redo",
-        shortcut: "Ctrl+Y",
-        isEnabled: function () { return false; },
-        handleAction: function () {
-            Pencil.activeCanvas.doCopy();
-            Pencil.activeCanvas.deleteSelected();
-        }
-    });
-    this.menu.register({
-        label: "Copy",
-        icon: "redo",
-        shortcut: "Ctrl+Y",
-        isEnabled: function () { return false; },
-        handleAction: function () {
-            Pencil.activeCanvas.careTaker.doCopy();
-        }
-    });
-    this.menu.register({
-        label: "Paste",
-        icon: "redo",
-        shortcut: "Ctrl+Y",
-        isEnabled: function () { return false; },
-        handleAction: function () {
-            Pencil.activeCanvas.doPaste();
-        }
-    });
-    this.menu.register({
-        label: "Delete",
-        icon: "redo",
-        shortcut: "Ctrl+Y",
-        isEnabled: function () { return false; },
-        handleAction: function () {
-            Pencil.activeCanvas.deleteSelected();
-        }
-    });
-    this.menu.register({
-        label: "Select all",
-        icon: "redo",
-        shortcut: "Ctrl+Y",
-        isEnabled: function () { return false; },
-        handleAction: function () {
-            Pencil.activeCanvas.selectAll();
-        }
-    });
     // register event handler
     this.svg.addEventListener("click", function (event) {
         thiz.handleClick(event);
@@ -1832,88 +1759,28 @@ Canvas.prototype.doCopy = function () {
     var textualData = new XMLSerializer()
             .serializeToString(transferableData.dataNode);
 
-    var systemString = Components.classes["@mozilla.org/supports-string;1"]
-            .createInstance(Components.interfaces.nsISupportsString);
-    if (!systemString)
-        return false;
-    systemString.data = textualData;
+    var gui = require("nw.gui");
+    var clipboard = gui.Clipboard.get();
 
-    var trans = Components.classes["@mozilla.org/widget/transferable;1"]
-            .createInstance(Components.interfaces.nsITransferable);
-    if (!trans)
-        return false;
-
-    trans.addDataFlavor("text/unicode");
-    trans.setTransferData("text/unicode", systemString, textualData.length * 2);
-
-    trans.addDataFlavor(transferableData.type);
-    trans.setTransferData(transferableData.type, systemString,
-            textualData.length * 2);
-
-    try {
-        // generating text/xml+svg
-        if (transferableData.isSVG) {
-            var svg = this.svg.ownerDocument.createElementNS(
-                    PencilNamespaces.svg, "svg");
-
-            // svg.setAttribute("width", transferableData.svgDIM.w);
-            // svg.setAttribute("height", transferableData.svgDIM.h);
-            svg.appendChild(transferableData.dataNode);
-
-            var svgXML = new XMLSerializer().serializeToString(svg);
-            svgXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + svgXML;
-
-            var svgXMLSS = Components.classes["@mozilla.org/supports-string;1"]
-                    .createInstance(Components.interfaces.nsISupportsString);
-            if (!svgXMLSS)
-                return false;
-            svgXMLSS.data = svgXML;
-
-            trans.addDataFlavor("image/svg+xml");
-            trans.setTransferData("image/svg+xml", svgXMLSS, svgXML.length * 2);
-        }
-    } catch (e) {
-        Console.dumpError(e);
-    }
-
-    var clipId = Components.interfaces.nsIClipboard;
-    var clip = Components.classes["@mozilla.org/widget/clipboard;1"]
-            .getService(clipId);
-    if (!clip)
-        return false;
-
-    clip.setData(trans, null, clipId.kGlobalClipboard);
-
+    clipboard.set(textualData, "text");
 };
 Canvas.prototype.doPaste = function () {
+    var gui = require("nw.gui");
+    var clipboard = gui.Clipboard.get();
+    var text = clipboard.get("text");
 
-    var clip = Components.classes["@mozilla.org/widget/clipboard;1"]
-            .getService(Components.interfaces.nsIClipboard);
-    if (!clip)
-        return false;
+    var node = Dom.parseToNode(text);
+    if (!node) return;
+    if (node.localName != "g" || node.namespaceURI != PencilNamespaces.svg) return;
+
+    var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
+    var type = (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE;
 
     for (i in this.xferHelpers) {
         var helper = this.xferHelpers[i];
-        var trans = Components.classes["@mozilla.org/widget/transferable;1"]
-                .createInstance(Components.interfaces.nsITransferable);
-        if (!trans)
-            return;
 
-        trans.addDataFlavor(helper.type);
-        clip.getData(trans, clip.kGlobalClipboard);
-
-        var data = new Object();
-        var length = new Object();
-        var flavour = new Object();
-
-        try {
-            trans.getAnyTransferData(flavour, data, length);
-        } catch (e) {
-            continue;
-        }
-
-        if (data && length && data.value && length.value) {
-            helper.handleData(data.value, length.value);
+        if (helper.type == type) {
+            helper.handleData(text, text.length);
             break;
         }
     }

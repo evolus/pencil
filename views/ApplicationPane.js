@@ -21,43 +21,10 @@ function ApplicationPane() {
         this.controller.activatePage(page);
     }, this.pageCombo.node());
 
-    this.bind("click", function () {
-        var menu = new Menu();
-        menu.register({
-            getLabel: function () { return "Undo: Move"; },
-            icon: "undo",
-            shortcut: "Ctrl+Z"
-        });
-        menu.register({
-            label: "Redo",
-            icon: "redo",
-            shortcut: "Ctrl+Y",
-            isEnabled: function () { return false; }
-        });
+    this.bind("paste", function (event) {
+        console.log("pasted", event.clipboardData);
 
-        menu.register({
-            type: "Toggle",
-            label: "Lock"
-        });
-
-        menu.register({
-            type: "SubMenu",
-            label: "Resize Canvas",
-            subItems: [
-                {
-                    label: "Fit Content"
-                },
-                {
-                    label: "Fit Content with Padding..."
-                },
-                {
-                    label: "Fit Canvas"
-                }
-            ]
-        });
-
-        menu.showMenu(this.testMenu, "left-inside", "bottom");
-    }, this.testMenu);
+    }, document.body);
 
 }
 __extend(BaseTemplatedWidget, ApplicationPane);

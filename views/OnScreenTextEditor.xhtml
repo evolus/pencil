@@ -9,6 +9,23 @@
             transition: opacity 0.4s;
             box-sizing: border-box;
         }
+        body @popupContainer[mode='OnScreenTextEditor'] @singleTextEditor {
+            border: solid 1px #336699;
+            box-sizing: border-box;
+            width: 100%;
+            height: 1.5em;
+            line-height: 1.5em;
+            background: #fff;
+            padding: 0px;
+            box-shadow: @card_shadow;
+            outline: none;
+        }
+        body @popupContainer[mode='OnScreenTextEditor'] @multiLineTextEditor {
+            border: solid 1px #336699;
+            box-sizing: border-box;
+            box-shadow: @card_shadow;
+            outline: none;
+        }
     </style>
     <ui:Popup anon-id="popup" mode="OnScreenTextEditor">
         <div anon-id="container">

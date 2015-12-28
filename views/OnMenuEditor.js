@@ -13,6 +13,7 @@ OnMenuEditor.prototype.invalidate = function () {
 OnMenuEditor.prototype.dettach = function () {
 };
 OnMenuEditor.prototype.generateMenuItems = function () {
+    if (!this.targetObject) return [];
     var definedGroups = this.targetObject.getPropertyGroups();
     var items = [];
     var thiz = this;

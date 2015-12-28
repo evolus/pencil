@@ -9,10 +9,7 @@ TargetSetXferHelper.prototype.toString = function () {
     return "ShapeXferHelper: " + TargetSetXferHelper.MIME_TYPE;
 };
 TargetSetXferHelper.prototype.handleData = function (data, length) {
-
-
-    var systemString = data.QueryInterface(Components.interfaces.nsISupportsString);
-    var xml = systemString.data.substring(0, length / 2);
+    var xml = data.substring(0, length);
 
     var parser = new DOMParser();
     var dom = parser.parseFromString(xml, "text/xml");

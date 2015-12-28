@@ -9,10 +9,7 @@ ShapeXferHelper.prototype.toString = function () {
     return "ShapeXferHelper: " + ShapeXferHelper.MIME_TYPE;
 };
 ShapeXferHelper.prototype.handleData = function (data, length) {
-
-
-    var systemString = data.QueryInterface(Components.interfaces.nsISupportsString);
-    var xml = systemString.data.substring(0, length / 2);
+    var xml = data.substring(0, length);
 
     var parser = new DOMParser();
     var dom = parser.parseFromString(xml, "text/xml");
@@ -47,7 +44,7 @@ ShapeXferHelper.prototype.handleData = function (data, length) {
         var rect = this.canvas.currentController.getBoundingRect();
         var mx = 0;
         var my = 0;
-        
+
         if (rect.x + rect.width > this.canvas.getSize().width) {
             mx = this.canvas.getSize().width - (rect.x + rect.width);
         }
@@ -60,7 +57,7 @@ ShapeXferHelper.prototype.handleData = function (data, length) {
         } else {
             this.canvas.currentController.moveBy(dx, dy);
         }
-        
+
         this.canvas.ensureControllerInView();
 
         this.canvas.snappingHelper.updateSnappingGuide(this.canvas.currentController);

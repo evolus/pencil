@@ -1,10 +1,10 @@
 <div>
     <style>
-        body @popupContainer {
+        body .MenuPopupContainer {
             border: @popup_border;
             border-radius: 0.35ex;
             background: @popup_bg;
-            padding: 1ex;
+            padding: 0.5ex;
             box-shadow: @card_shadow;
             transition: opacity 0.4s;
             box-sizing: border-box;
@@ -12,7 +12,8 @@
 
         body .MenuPopupContainer .MenuItem {
             align-items: center;
-            padding: 0.2em;
+            padding: 0.3em 0.5em;
+            cursor: default;
         }
         body .MenuPopupContainer .MenuItem:not([disabled='true']):hover {
             background: @selected_bg;
@@ -47,14 +48,21 @@
             -webkit-font-smoothing: antialiased;
             opacity: 0.54;
         }
+        body .MenuPopupContainer.NoPrefix .MenuItem > i:first-child {
+            display: none;
+        }
+
         body .MenuPopupContainer .MenuItem > label + i {
             text-align: right;
         }
         body .MenuPopupContainer .MenuItem > *:first-child + label {
             margin-left: 0.8ex;
         }
+        body .MenuPopupContainer.NoPrefix .MenuItem > *:first-child + label {
+            margin-left: 0ex;
+        }
         body .MenuPopupContainer .MenuItem > *:first-child + label + * {
-            margin-left: 1.2ex;
+            margin-left: 2ex;
         }
     </style>
     <div anon-id="popupContainer" class="MenuPopupContainer">

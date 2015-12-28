@@ -17,7 +17,7 @@ function Menu() {
             for (var i in subItems) {
                 menu.register(subItems[i]);
             }
-            menu.showMenu(itemNode, "right", "top-inside");
+            menu.showMenu(itemNode, "right", "top-inside", -5, 1);
             menu._parentPopup = thiz;
         } else {
             if (item.handleAction) item.handleAction();
@@ -56,12 +56,14 @@ Menu.prototype.renderItem = function (item) {
         if (disabled) checkbox.setAttribute("disabled", "true");
         hbox.appendChild(checkbox);
         hbox._checkbox = checkbox;
+        hbox._prefixed = true;
     } else {
         var i = Dom.newDOMElement({
             _name: "i",
             _text: item.icon || ""
         });
         hbox.appendChild(i);
+        hbox._prefixed = item.icon ? true : false;
     }
 
     var label = Dom.newDOMElement({
@@ -88,6 +90,8 @@ Menu.prototype.renderItem = function (item) {
             }));
         }
     }
+
+    return hbox;
 };
 Menu.prototype.render = function () {
     Dom.empty(this.popupContainer);
@@ -100,8 +104,17 @@ Menu.prototype.render = function () {
             actualItems.push(item);
         }
     }
+
+    var withPrefix = false;
     for (var i in actualItems) {
-        this.renderItem(actualItems[i]);
+        var box = this.renderItem(actualItems[i]);
+        if (box._prefixed) withPrefix = true;
+    }
+
+    if (withPrefix) {
+        Dom.removeClass(this.popupContainer, "NoPrefix");
+    } else {
+        Dom.addClass(this.popupContainer, "NoPrefix")
     }
 };
 Menu.prototype.showMenu = function (anchor, hAlign, vAlign, hPadding, vPadding) {
