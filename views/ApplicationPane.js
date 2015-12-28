@@ -4,6 +4,7 @@ function ApplicationPane() {
 
     this.canvasPool = new CanvasPool(this, 3);
     this.controller = new Controller(this.canvasPool, this);
+    this.rasterizer = new Rasterizer(this.controller);
 
     this.pageCombo.renderer = function (canvas) {
         return canvas.name;
@@ -12,7 +13,10 @@ function ApplicationPane() {
     };
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
     this.bind("click", function () {
+        var currentPage = this.pageCombo.getSelectedItem();
         var page = this.controller.newPage("Page " + new Date().getTime(), 800, 600, null, null, "");
+        page.backgroundPage = currentPage;
+        
         this.controller.activatePage(page);
     }, this.addButton);
 
@@ -21,11 +25,12 @@ function ApplicationPane() {
         this.controller.activatePage(page);
     }, this.pageCombo.node());
 
-    this.bind("paste", function (event) {
-        console.log("pasted", event.clipboardData);
-
-    }, document.body);
-
+    this.bind("click", function (event) {
+        var page = this.pageCombo.getSelectedItem();
+        var xml = this.rasterizer.rasterizePageToFile(page, null, function (path) {
+            console.log("path", path);
+        });
+    }, this.testButton);
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {

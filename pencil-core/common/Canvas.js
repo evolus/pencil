@@ -1759,15 +1759,11 @@ Canvas.prototype.doCopy = function () {
     var textualData = new XMLSerializer()
             .serializeToString(transferableData.dataNode);
 
-    var gui = require("nw.gui");
-    var clipboard = gui.Clipboard.get();
-
-    clipboard.set(textualData, "text");
+    clipboard.writeText(textualData);
 };
 Canvas.prototype.doPaste = function () {
-    var gui = require("nw.gui");
-    var clipboard = gui.Clipboard.get();
-    var text = clipboard.get("text");
+    var text = clipboard.readText();
+    if (!text) return;
 
     var node = Dom.parseToNode(text);
     if (!node) return;

@@ -1,14 +1,5 @@
-var nwgui = require("nw.gui");
-var fontManager = require("font-manager-nw");
-
-window.addEventListener("load", function () {
-    var win = nwgui.Window.get();
-    win.maximize();
-    window.addEventListener("keyup", function (event) {
-        if (event.keyCode == DOM_VK_F5) {
-            window.location.reload();
-        } else if (event.keyCode == DOM_VK_F10) {
-            win.showDevTools();
-        }
-    }, false);
-}, false);
+const fontManager = require("font-manager");
+const clipboard = require("electron").clipboard;
+const tmp = require("tmp");
+const path = require("path");
+const fs = require("fs");
