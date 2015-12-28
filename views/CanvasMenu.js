@@ -31,6 +31,47 @@ CanvasMenu.prototype.setup = function () {
         }
     });
 
+    this.register({
+        label: "Arrangement",
+        isAvailable: function () {
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof TargetSet || thiz.canvas.currentController instanceof Group);
+        },
+        type: "SubMenu",
+        subItems: [
+            {
+                label: "Bring to Front",
+                shortcut: "Shiff+Page Up",
+                handleAction: function () {
+                    Pencil.activeCanvas.currentController.bringToFront();
+                }
+            },
+            {
+                label: "Bring Forward",
+                shortcut: "Page Up",
+                handleAction: function () {
+                    Pencil.activeCanvas.currentController.bringForward();
+                }
+            },
+            {
+                label: "Send Backward",
+                shortcut: "Page Down",
+                handleAction: function () {
+                    Pencil.activeCanvas.currentController.sendBackward();
+                }
+            },
+            {
+                label: "Send to Back",
+                shortcut: "Shiff+Page Down",
+                handleAction: function () {
+                    Pencil.activeCanvas.currentController.sendToBack();
+                }
+            }
+        ]
+    });
+
+    // <menuseparator/>
+
     this.register(function () {
         if (thiz.canvas.contextMenuEditor) {
             return thiz.canvas.contextMenuEditor.generateMenuItems();
@@ -39,6 +80,70 @@ CanvasMenu.prototype.setup = function () {
         }
     });
 
+    // <menuseparator/>
+
+
+    this.register({
+        type: "Toggle",
+        label: "Locked",
+        handleAction: function (checked) {
+            thiz.canvas.toggleLocking(); // FIXME: bug
+        }
+    });
+
+    this.register({
+        label: "Group",
+        shortcut: "Ctrl+G",
+        isAvailable: function () {
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof TargetSet);
+        },
+        isEnabled: function () { return thiz.canvas.currentController; },
+        handleAction: function () {
+            Pencil.activeCanvas.doGroup();
+        }
+    });
+
+    this.register({
+        label: "Ungroup",
+        shortcut: "Ctrl+Alt+G",
+        isAvailable: function () {
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Group);
+        },
+        isEnabled: function () { return thiz.canvas.currentController; },
+        handleAction: function () {
+            Pencil.activeCanvas.doUnGroup();
+        }
+    });
+
+    this.register({
+        label: "Delete",
+        icon: "delete",
+        shortcut: "Del",
+        isAvailable: function () {
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group || thiz.canvas.currentController instanceof TargetSet);
+        },
+        isEnabled: function () { return thiz.canvas.currentController; },
+        handleAction: function () {
+            thiz.canvas.deleteSelected();
+        }
+    });
+
+    this.register({
+        label: "Add to My Collections",
+        isAvailable: function () {
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
+        },
+        isEnabled: function () { return thiz.canvas.currentController; },
+        handleAction: function () {
+            thiz.canvas.addSelectedToMyCollection();
+        }
+    });
+
+    // <menuseparator/>
 
     this.register({
         label: "Cut",
@@ -68,15 +173,7 @@ CanvasMenu.prototype.setup = function () {
             thiz.canvas.doPaste();
         }
     });
-    this.register({
-        label: "Delete",
-        icon: "delete",
-        shortcut: "Del",
-        isEnabled: function () { return thiz.canvas.currentController; },
-        handleAction: function () {
-            thiz.canvas.deleteSelected();
-        }
-    });
+
     this.register({
         label: "Select All",
         icon: "select_all",
@@ -86,4 +183,57 @@ CanvasMenu.prototype.setup = function () {
             thiz.canvas.selectAll();
         }
     });
+
+
+    // <menuseparator/>
+
+    this.register({
+        label: "Resize Canvas",
+        type: "SubMenu",
+        subItems: [
+            {
+                label: "Fit Content",
+                handleAction: function () {
+                    Pencil.controller.sizeToContent(null, false); // FIXME: bug
+                }
+            },
+            {
+                label: "Fit with Padding",
+                handleAction: function () {
+                    Pencil.controller.sizeToContent(null, true); // FIXME: bug
+                }
+            },
+            {
+                label: "Fit Screen",
+                handleAction: function () {
+                    Pencil.controller.sizeToBestFit(); // FIXME: bug
+                }
+            }
+        ]
+    });
+
+    // <menuseparator/>
+
+    this.register({
+        label: "Sizing Policy...",
+        isAvailable: function () {
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
+        },
+        isEnabled: function () { return true; },
+        handleAction: function () {
+            Group.openSizingPolicyDialog(Pencil.activeCanvas.currentController); // FIXME: bug
+        }
+    });
+
+    // <menuseparator/>
+
+    // this.register({
+    //     label: "Properties...",
+    //     isEnabled: function () { return true; },
+    //     handleAction: function () {
+    //         // show properties...
+    //     }
+    // });
+
 };

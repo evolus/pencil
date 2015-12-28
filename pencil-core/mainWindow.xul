@@ -15,10 +15,10 @@
 <?xul-overlay href="chrome://pencil/content/textToolOverlay.xul"?>
 <?xul-overlay href="chrome://pencil/content/colorToolOverlay.xul"?>
 <?xul-overlay href="chrome://pencil/content/borderToolOverlay.xul"?>
-<!-- 
+<!--
 <?xul-overlay href="chrome://pencil/content/androidSupportOverlay.xul"?>
  -->
- 
+
 <window
         title="&pencil.title;"
         id="main-window"
@@ -129,7 +129,7 @@
 
     <script src="chrome://pencil/content/common/colorDroppers.js"/>
     <script src="chrome://pencil/content/common/connectorSupports.js"/>
-    
+
     <script src="chrome://pencil/content/common/jspdf.min.js"/>
 
     <commandset>
@@ -215,6 +215,7 @@
         <key id="exportPageKey" command="rasterizeCommand" modifiers="accel" key="E"/>
         <key id="exportDocumentKey" command="exportCommand" modifiers="accel shift" key="E"/>
         <key id="printKey" command="printCommand" modifiers="accel" key="P"/>
+
 
         <key id="zoomInKey" command="zoomInCommand" modifiers="accel" key="="/>
         <key id="zoomInKey2" command="zoomInCommand" modifiers="accel shift" key="+"/>
@@ -357,7 +358,7 @@
                     <menuseparator/>
                     <menuitem label="&menu.dom.inspector.label;" oncommand="window.open('chrome://inspector/content/inspector.xul', '', 'chrome,resizable');" style="display:none" id="domInspector"/>
                     <menuitem label="&menu.install.new.collection.label;" command="installNewCollectionCommand"/>
-                    <!-- 
+                    <!--
                     <menuitem label="Find online collections..." command="installRemoteCollectionCommand"/>
                      -->
                     <menuitem label="&menu.manage.template.label;" command="manageExportTemplateCommand"/>
@@ -562,4 +563,3 @@
     </vbox>
     <html:img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9oBEAgTHGn1p6MAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAADUlEQVQI12P4//8/AwAI/AL+XJ/P2gAAAABJRU5ErkJggg==" width="1" height="1" style="display: none;" id="blankImage"/>
 </window>
-

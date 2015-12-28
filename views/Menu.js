@@ -108,7 +108,9 @@ Menu.prototype.render = function () {
     var withPrefix = false;
     for (var i in actualItems) {
         var box = this.renderItem(actualItems[i]);
-        if (box._prefixed) withPrefix = true;
+        console.log("item: ", actualItems[i]);
+        console.log(box);
+        if (box && box._prefixed) withPrefix = true;
     }
 
     if (withPrefix) {
