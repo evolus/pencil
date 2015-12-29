@@ -6,6 +6,7 @@ function Menu() {
         var itemNode = Dom.findUpwardForNodeWithData(event.target, "_item");
         if (!itemNode) return;
         var item = itemNode._item;
+        console.log("item: ", item);
         if (itemNode.getAttribute && itemNode.getAttribute("disabled") == "true") return;
         if (item.type == "Toggle" || item.type == "Selection") {
             var checkbox = itemNode._checkbox;
@@ -18,7 +19,7 @@ function Menu() {
                 menu.register(subItems[i]);
             }
             menu.showMenu(itemNode, "right", "top-inside", -5, 1);
-            menu._parentPopup = thiz;
+            menu._parent = thiz;
         } else {
             if (item.handleAction) item.handleAction();
             thiz.hide();

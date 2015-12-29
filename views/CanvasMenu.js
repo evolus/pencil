@@ -12,6 +12,7 @@ CanvasMenu.prototype.getTemplatePath = function () {
 
 CanvasMenu.prototype.setup = function () {
     var thiz = this;
+    var target = this.canvas.currentController;
     this.register({
         getLabel: function () { return "Undo: " + thiz.canvas.careTaker.getCurrentAction(); },
         icon: "undo",
@@ -34,14 +35,15 @@ CanvasMenu.prototype.setup = function () {
     this.register({
         label: "Arrangement",
         isAvailable: function () {
-            return thiz.canvas.currentController &&
-            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof TargetSet || thiz.canvas.currentController instanceof Group);
+            return target &&
+            (target instanceof Shape || target instanceof TargetSet || target instanceof Group);
         },
         type: "SubMenu",
         subItems: [
             {
                 label: "Bring to Front",
                 shortcut: "Shiff+Page Up",
+                isEnabled: function () { return target && target.bringToFront},
                 handleAction: function () {
                     Pencil.activeCanvas.currentController.bringToFront();
                 }
@@ -49,6 +51,7 @@ CanvasMenu.prototype.setup = function () {
             {
                 label: "Bring Forward",
                 shortcut: "Page Up",
+                isEnabled: function () { return target && target.bringForward; },
                 handleAction: function () {
                     Pencil.activeCanvas.currentController.bringForward();
                 }
@@ -56,6 +59,7 @@ CanvasMenu.prototype.setup = function () {
             {
                 label: "Send Backward",
                 shortcut: "Page Down",
+                isEnabled: function () { return target && target.sendBackward; },
                 handleAction: function () {
                     Pencil.activeCanvas.currentController.sendBackward();
                 }
@@ -63,6 +67,7 @@ CanvasMenu.prototype.setup = function () {
             {
                 label: "Send to Back",
                 shortcut: "Shiff+Page Down",
+                isEnabled: function () { return target && target.sendToBack; },
                 handleAction: function () {
                     Pencil.activeCanvas.currentController.sendToBack();
                 }
@@ -95,10 +100,10 @@ CanvasMenu.prototype.setup = function () {
         label: "Group",
         shortcut: "Ctrl+G",
         isAvailable: function () {
-            return thiz.canvas.currentController &&
-            (thiz.canvas.currentController instanceof TargetSet);
+            return target &&
+            (target instanceof TargetSet);
         },
-        isEnabled: function () { return thiz.canvas.currentController; },
+        isEnabled: function () { return target; },
         handleAction: function () {
             Pencil.activeCanvas.doGroup();
         }
@@ -108,10 +113,10 @@ CanvasMenu.prototype.setup = function () {
         label: "Ungroup",
         shortcut: "Ctrl+Alt+G",
         isAvailable: function () {
-            return thiz.canvas.currentController &&
-            (thiz.canvas.currentController instanceof Group);
+            return target &&
+            (target instanceof Group);
         },
-        isEnabled: function () { return thiz.canvas.currentController; },
+        isEnabled: function () { return target; },
         handleAction: function () {
             Pencil.activeCanvas.doUnGroup();
         }
@@ -122,10 +127,10 @@ CanvasMenu.prototype.setup = function () {
         icon: "delete",
         shortcut: "Del",
         isAvailable: function () {
-            return thiz.canvas.currentController &&
-            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group || thiz.canvas.currentController instanceof TargetSet);
+            return target &&
+            (target instanceof Shape || target instanceof Group || target instanceof TargetSet);
         },
-        isEnabled: function () { return thiz.canvas.currentController; },
+        isEnabled: function () { return target; },
         handleAction: function () {
             thiz.canvas.deleteSelected();
         }
@@ -134,10 +139,10 @@ CanvasMenu.prototype.setup = function () {
     this.register({
         label: "Add to My Collections",
         isAvailable: function () {
-            return thiz.canvas.currentController &&
-            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
+            return target &&
+            (target instanceof Shape || target instanceof Group);
         },
-        isEnabled: function () { return thiz.canvas.currentController; },
+        isEnabled: function () { return target; },
         handleAction: function () {
             thiz.canvas.addSelectedToMyCollection();
         }
@@ -149,7 +154,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Cut",
         icon: "content_cut",
         shortcut: "Ctrl+X",
-        isEnabled: function () { return thiz.canvas.currentController; },
+        isEnabled: function () { return thiz.canvas && thiz.canvas.doCopy && target; },
         handleAction: function () {
             thiz.canvas.doCopy();
             thiz.canvas.deleteSelected();
@@ -159,7 +164,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Copy",
         icon: "content_copy",
         shortcut: "Ctrl+C",
-        isEnabled: function () { return thiz.canvas.currentController; },
+        isEnabled: function () { return thiz.canvas && thiz.canvas.doCopy && target; },
         handleAction: function () {
             thiz.canvas.doCopy();
         }
@@ -168,7 +173,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Paste",
         icon: "content_paste",
         shortcut: "Ctrl+V",
-        isEnabled: function () { return true; /*FIXME: check for clipboard content*/ },
+        isEnabled: function () { return thiz.canvas && thiz.canvas.doPaste; /*FIXME: check for clipboard content*/ },
         handleAction: function () {
             thiz.canvas.doPaste();
         }
@@ -194,7 +199,7 @@ CanvasMenu.prototype.setup = function () {
             {
                 label: "Fit Content",
                 handleAction: function () {
-                    Pencil.controller.sizeToContent(null, false); // FIXME: bug
+                    // Pencil.controller.sizeToContent(null, false); // FIXME: bug
                 }
             },
             {
@@ -208,6 +213,18 @@ CanvasMenu.prototype.setup = function () {
                 handleAction: function () {
                     Pencil.controller.sizeToBestFit(); // FIXME: bug
                 }
+            },
+            {
+                type: "SubMenu",
+                label: "test",
+                subItems: [
+                    {
+                        label: "Fit Screen",
+                        handleAction: function () {
+                            Pencil.controller.sizeToBestFit(); // FIXME: bug
+                        }
+                    }
+                ]
             }
         ]
     });
@@ -217,8 +234,8 @@ CanvasMenu.prototype.setup = function () {
     this.register({
         label: "Sizing Policy...",
         isAvailable: function () {
-            return thiz.canvas.currentController &&
-            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
+            return target &&
+            (target instanceof Shape || target instanceof Group);
         },
         isEnabled: function () { return true; },
         handleAction: function () {

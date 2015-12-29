@@ -20,6 +20,13 @@ Popup.tryRegisterCloseHandlers = function () {
             return n == popup.popupContainer;
         });
         if (node) return;
+        // if (popup._parentPopup) {
+        //     node = Dom.findUpward(event.target, function (n) {
+        //         return n == popup._parentPopup.popupContainer;
+        //     });
+        //     if (node) popup._keepParentShowing = true;
+        // }
+        popup.checkToCloseParent(event.target);
         popup.hide();
         Popup.stack.pop();
         event.preventDefault();
@@ -28,7 +35,26 @@ Popup.tryRegisterCloseHandlers = function () {
     Popup.closeHandlersRegistered = true;
 };
 Popup.stack = [];
+Popup.prototype.checkToCloseParent = function (element) {
+    var thiz = this;
+    var handler = function (popup) {
+        if (!popup._parent) return;
 
+        var node = Dom.findUpward(element, function (n) {
+            return n == popup._parent.popupContainer;
+        });
+
+        if (node) {
+            popup._parent._keepShowing = true;
+        } else {
+            popup._parent._keepShowing = false;
+        }
+
+        handler(popup._parent);
+    };
+
+    handler(this);
+};
 Popup.prototype.setContentFragment = function (fragment) {
     this.popupContainer.appendChild(fragment);
 };
@@ -125,5 +151,11 @@ Popup.prototype.hide = function (silent) {
     this.popupContainer.style.opacity = 0;
     this.popupContainer.style.visibility = "hidden";
     if (!silent) Dom.emitEvent("p:PopupHidden", this.node());
-    if (this._parentPopup) this._parentPopup.hide();
+    if (this._parent) {
+        if (!this._parent._keepShowing) {
+           this._parent.hide();
+       } else {
+           this._parent._keepShowing = false;
+       }
+    }
 };
