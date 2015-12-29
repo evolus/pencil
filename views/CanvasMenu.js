@@ -12,7 +12,6 @@ CanvasMenu.prototype.getTemplatePath = function () {
 
 CanvasMenu.prototype.setup = function () {
     var thiz = this;
-    var target = this.canvas.currentController;
     this.register({
         getLabel: function () { return "Undo: " + thiz.canvas.careTaker.getCurrentAction(); },
         icon: "undo",
@@ -35,15 +34,15 @@ CanvasMenu.prototype.setup = function () {
     this.register({
         label: "Arrangement",
         isAvailable: function () {
-            return target &&
-            (target instanceof Shape || target instanceof TargetSet || target instanceof Group);
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof TargetSet || thiz.canvas.currentController instanceof Group);
         },
         type: "SubMenu",
         subItems: [
             {
                 label: "Bring to Front",
                 shortcut: "Shiff+Page Up",
-                isEnabled: function () { return target && target.bringToFront},
+                isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringToFront},
                 handleAction: function () {
                     Pencil.activeCanvas.currentController.bringToFront();
                 }
@@ -51,7 +50,7 @@ CanvasMenu.prototype.setup = function () {
             {
                 label: "Bring Forward",
                 shortcut: "Page Up",
-                isEnabled: function () { return target && target.bringForward; },
+                isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringForward; },
                 handleAction: function () {
                     Pencil.activeCanvas.currentController.bringForward();
                 }
@@ -59,7 +58,7 @@ CanvasMenu.prototype.setup = function () {
             {
                 label: "Send Backward",
                 shortcut: "Page Down",
-                isEnabled: function () { return target && target.sendBackward; },
+                isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendBackward; },
                 handleAction: function () {
                     Pencil.activeCanvas.currentController.sendBackward();
                 }
@@ -67,7 +66,7 @@ CanvasMenu.prototype.setup = function () {
             {
                 label: "Send to Back",
                 shortcut: "Shiff+Page Down",
-                isEnabled: function () { return target && target.sendToBack; },
+                isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendToBack; },
                 handleAction: function () {
                     Pencil.activeCanvas.currentController.sendToBack();
                 }
@@ -100,10 +99,10 @@ CanvasMenu.prototype.setup = function () {
         label: "Group",
         shortcut: "Ctrl+G",
         isAvailable: function () {
-            return target &&
-            (target instanceof TargetSet);
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof TargetSet);
         },
-        isEnabled: function () { return target; },
+        isEnabled: function () { return thiz.canvas.currentController; },
         handleAction: function () {
             Pencil.activeCanvas.doGroup();
         }
@@ -113,10 +112,10 @@ CanvasMenu.prototype.setup = function () {
         label: "Ungroup",
         shortcut: "Ctrl+Alt+G",
         isAvailable: function () {
-            return target &&
-            (target instanceof Group);
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Group);
         },
-        isEnabled: function () { return target; },
+        isEnabled: function () { return thiz.canvas.currentController; },
         handleAction: function () {
             Pencil.activeCanvas.doUnGroup();
         }
@@ -127,10 +126,10 @@ CanvasMenu.prototype.setup = function () {
         icon: "delete",
         shortcut: "Del",
         isAvailable: function () {
-            return target &&
-            (target instanceof Shape || target instanceof Group || target instanceof TargetSet);
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group || thiz.canvas.currentController instanceof TargetSet);
         },
-        isEnabled: function () { return target; },
+        isEnabled: function () { return thiz.canvas.currentController; },
         handleAction: function () {
             thiz.canvas.deleteSelected();
         }
@@ -139,10 +138,10 @@ CanvasMenu.prototype.setup = function () {
     this.register({
         label: "Add to My Collections",
         isAvailable: function () {
-            return target &&
-            (target instanceof Shape || target instanceof Group);
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
         },
-        isEnabled: function () { return target; },
+        isEnabled: function () { return thiz.canvas.currentController; },
         handleAction: function () {
             thiz.canvas.addSelectedToMyCollection();
         }
@@ -154,7 +153,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Cut",
         icon: "content_cut",
         shortcut: "Ctrl+X",
-        isEnabled: function () { return thiz.canvas && thiz.canvas.doCopy && target; },
+        isEnabled: function () { return thiz.canvas.currentController; },
         handleAction: function () {
             thiz.canvas.doCopy();
             thiz.canvas.deleteSelected();
@@ -164,7 +163,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Copy",
         icon: "content_copy",
         shortcut: "Ctrl+C",
-        isEnabled: function () { return thiz.canvas && thiz.canvas.doCopy && target; },
+        isEnabled: function () { return thiz.canvas.currentController; },
         handleAction: function () {
             thiz.canvas.doCopy();
         }
@@ -173,7 +172,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Paste",
         icon: "content_paste",
         shortcut: "Ctrl+V",
-        isEnabled: function () { return thiz.canvas && thiz.canvas.doPaste; /*FIXME: check for clipboard content*/ },
+        isEnabled: function () { return true; /*FIXME: check for clipboard content*/ },
         handleAction: function () {
             thiz.canvas.doPaste();
         }
@@ -199,7 +198,7 @@ CanvasMenu.prototype.setup = function () {
             {
                 label: "Fit Content",
                 handleAction: function () {
-                    // Pencil.controller.sizeToContent(null, false); // FIXME: bug
+                    Pencil.controller.sizeToContent(null, false); // FIXME: bug
                 }
             },
             {
@@ -213,18 +212,6 @@ CanvasMenu.prototype.setup = function () {
                 handleAction: function () {
                     Pencil.controller.sizeToBestFit(); // FIXME: bug
                 }
-            },
-            {
-                type: "SubMenu",
-                label: "test",
-                subItems: [
-                    {
-                        label: "Fit Screen",
-                        handleAction: function () {
-                            Pencil.controller.sizeToBestFit(); // FIXME: bug
-                        }
-                    }
-                ]
             }
         ]
     });
@@ -234,8 +221,8 @@ CanvasMenu.prototype.setup = function () {
     this.register({
         label: "Sizing Policy...",
         isAvailable: function () {
-            return target &&
-            (target instanceof Shape || target instanceof Group);
+            return thiz.canvas.currentController &&
+            (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
         },
         isEnabled: function () { return true; },
         handleAction: function () {

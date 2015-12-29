@@ -10,12 +10,12 @@
     "height": 900
   },
   "dependencies": {
-    "electron-prebuilt": "^0.36.2",
     "font-manager": "git+https://github.com/princejwesley/font-manager.git",
     "less": "~2.5.3",
     "tmp": "0.0.28"
   },
   "devDependencies": {
+    "electron-prebuilt": "^0.36.2",
     "electron-rebuild": "^1.0.2",
     "grunt": "0.4.5",
     "grunt-contrib-compress": "^0.13.0",

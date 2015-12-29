@@ -6,6 +6,8 @@ function ApplicationPane() {
     this.controller = new Controller(this.canvasPool, this);
     this.rasterizer = new Rasterizer(this.controller);
 
+    Pencil.controller = this.controller;
+
     this.pageCombo.renderer = function (canvas) {
         return canvas.name;
     };
@@ -16,7 +18,7 @@ function ApplicationPane() {
         var currentPage = this.pageCombo.getSelectedItem();
         var page = this.controller.newPage("Page " + new Date().getTime(), 800, 600, null, null, "");
         page.backgroundPage = currentPage;
-        
+
         this.controller.activatePage(page);
     }, this.addButton);
 
