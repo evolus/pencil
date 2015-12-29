@@ -1,11 +1,10 @@
-var tmp = require("tmp");
-var path = require("path");
-var fs = require("fs");
-
 function Controller(canvasPool, applicationPane) {
     this.canvasPool = canvasPool;
     this.applicationPane = applicationPane;
 }
+
+Controller.parser = new DOMParser();
+Controller.serializer = new XMLSerializer();
 
 Controller.prototype.newDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
@@ -41,7 +40,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 };
 
 Controller.prototype.serializePage = function (page, outputPath) {
-    var dom = new DOMParser().parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
+    var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
     var props = dom.createElementNS(PencilNamespaces.p, "p:Properties");
     dom.documentElement.appendChild(props);
 
@@ -50,16 +49,44 @@ Controller.prototype.serializePage = function (page, outputPath) {
 
     if (page.canvas) {
         var node = dom.importNode(page.canvas.drawingLayer, true);
-        content.appendChild(node);
+        while (node.hasChildNodes()) {
+            var c = node.firstChild;
+            node.removeChild(c);
+            content.appendChild(c);
+        }
     }
 
-    var serializer = new XMLSerializer();
-
-    var xml = serializer.serializeToString(dom);
+    var xml = Controller.serializer.serializeToString(dom);
     fs.writeFileSync(outputPath, xml, "utf8");
 
     console.log("write to: " + outputPath);
 };
+
+Controller.prototype.getPageSVG = function (page) {
+    var svg = document.createElementNS(PencilNamespaces.svg, "svg");
+    svg.setAttribute("width", "" + page.width  + "px");
+    svg.setAttribute("height", "" + page.height  + "px");
+
+    if (page.canvas) {
+        var node = page.canvas.drawingLayer.cloneNode(true);
+        while (node.hasChildNodes()) {
+            var c = node.firstChild;
+            node.removeChild(c);
+            svg.appendChild(c);
+        }
+    } else {
+        var dom = Controller.parser.parseFromString(fs.readFileSync(page.tempFilePath, "utf8"), "text/xml");
+        var content = Dom.getSingle("/p:Page/p:Content", dom);
+        while (content.hasChildNodes()) {
+            var c = content.firstChild;
+            content.removeChild(c);
+            svg.appendChild(c);
+        }
+    }
+
+    return svg;
+};
+
 
 Controller.prototype.swapOut = function (page) {
     if (!page.canvas) throw "Invalid page state. Unable to swap out un-attached page";
@@ -71,10 +98,8 @@ Controller.prototype.swapOut = function (page) {
 };
 Controller.prototype.swapIn = function (page, canvas) {
     if (page.canvas) throw "Invalid page state. Unable to swap in attached page.";
-    console.log("Swapping int page: " + page.tempFilePath + " -> " + page.name);
 
-    var dom = new DOMParser().parseFromString(fs.readFileSync(page.tempFilePath, "utf8"), "text/xml");
-    console.log("DOM: ", dom);
+    var dom = Controller.parser.parseFromString(fs.readFileSync(page.tempFilePath, "utf8"), "text/xml");
     var content = Dom.getSingle("/p:Page/p:Content", dom);
 
     Dom.empty(canvas.drawingLayer);

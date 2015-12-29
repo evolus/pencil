@@ -90,12 +90,12 @@
             <ui:SharedBorderStyleEditor />
             <ui:SharedGeomtryEditor />
             <div flex="1"></div>
-            <ui:ComboManager anon-id="pageCombo" />
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect"
-                    anon-id="addButton"><i class="material-icons">add</i></button>
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect"
-                    anon-id="deleteButton"><i class="material-icons">remove</i></button>
-            <button anon-id="testMenu">Test Menu</button>
+            <hbox class="ButtonGroup">
+                <ui:ComboManager anon-id="pageCombo" />
+                <button anon-id="addButton" mode="icon"><i>add</i></button>
+                <button anon-id="deleteButton" mode="icon"><i>remove</i></button>
+                <button anon-id="testButton" mode="icon"><i>pets</i></button>
+            </hbox>
         </hbox>
         <div anon-id="contentBody" flex="1" style="position: relative;">
             <ui:ComboTest />

@@ -1,71 +1,5 @@
-function Rasterizer(format) {
-	//TODO: fix this
-	return;
-	
-    this.format = format;
-
-    //create the window
-    var iframe = document.createElementNS(PencilNamespaces.html, "html:iframe");
-
-    var container = document.body;
-    if (!container) container = document.documentElement;
-    var box = document.createElement("box");
-    box.setAttribute("style", "-moz-box-pack: start; -moz-box-align: start;");
-
-    iframe.setAttribute("style", "border: none; min-width: 0px; min-height: 0px; width: 1px; height: 1px; visibility: visible;");
-    iframe.setAttribute("src", "blank.html");
-
-    box.appendChild(iframe);
-    container.appendChild(box);
-
-    box.style.MozBoxPack = "start";
-    box.style.MozBoxAlign = "start";
-
-    var thiz = this;
-
-    this.nextHandler = null;
-    
-    var start = 0;
-
-    window.addEventListener("DOMFrameContentLoaded", function (event) {
-        var win = iframe.contentWindow;
-        debug("Rasterizer: DOMFrameContentLoaded, " + win);
-        if (!win._initialized) {
-            debug("Initializing content window");
-            win._isRasterizeFrame = true;
-            win.addEventListener("MozAfterPaint", function (event) {
-                //debug("MozAfterPaint: " + [event, event.originalTarget, win.document]);
-
-                if (!event.originalTarget._isRasterizeFrame) return;
-                if (!thiz.nextHandler) return;
-                start = new Date().getTime();
-                doLater(function () {
-                    if (!thiz.nextHandler) return;
-
-                    var f = thiz.nextHandler;
-                    thiz.nextHandler = null;
-                    //alert("calling next handler after " + (new Date().getTime() - start) + " ms");
-                    f();
-                }, 500, win);
-
-                /*if (!event.originalTarget._isRasterizeFrame) return;
-                if (!thiz.nextHandler) return;
-
-                var f = thiz.nextHandler;
-                thiz.nextHandler = null;
-                f();*/
-
-            }, false);
-
-            var document = iframe.contentDocument.documentElement;
-            document.style = document.style || {};
-            document.style.backgroundColor = "rgba(0, 0, 0, 0)";
-            win._initialized = true;
-        }
-    }, false);
-
-    this.win = iframe.contentWindow;
-    this.win.document.body.setAttribute("style", "padding: 0px; margin: 0px;")
+function Rasterizer(controller) {
+    this.controller = controller;
 };
 Rasterizer.prototype.getImageDataFromUrl = function (url, callback) {
     this.win.document.body.innerHTML = "";
@@ -84,30 +18,54 @@ Rasterizer.prototype.getImageDataFromUrl = function (url, callback) {
     image.setAttribute("src", url);
 };
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback) {
-    var svg = document.createElementNS(PencilNamespaces.svg, "svg");
-    svg.setAttribute("width", "" + page.properties.width  + "px");
-    svg.setAttribute("height", "" + page.properties.height  + "px");
-
-    this._width = page.properties.width;
-    this._height = page.properties.height;
-
-    this._backgroundColor = page.properties.transparentBackground == "false" && !page.properties.background ? page.properties.backgroundColor : null;
-
-    if (page._view.canvas.hasBackgroundImage) {
-        var bgImage = page._view.canvas.backgroundImage.cloneNode(true);
-        bgImage.removeAttribute("transform");
-        bgImage.removeAttribute("id");
-        svg.appendChild(bgImage);
-    }
-
-    var drawingLayer = page._view.canvas.drawingLayer.cloneNode(true);
-    drawingLayer.removeAttribute("transform");
-    drawingLayer.removeAttribute("id");
-    svg.appendChild(drawingLayer);
-
+    var svg = this.controller.getPageSVG(page);
     var thiz = this;
-    this._saveNodeToTempFileAndLoad(svg, function () {
-        thiz.rasterizeWindowToUrl(callback);
+    var f = function () {
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("width", page.width);
+        canvas.setAttribute("height", page.height);
+        var ctx = canvas.getContext("2d");
+
+        var img = new Image();
+        var url = "data:image/svg+xml;charset=utf-8," + Controller.serializer.serializeToString(svg);
+
+        img.onload = function () {
+            ctx.drawImage(img, 0, 0);
+            window.URL.revokeObjectURL(url);
+            callback(canvas.toDataURL());
+        };
+        img.src = url;
+    };
+
+    if (page.backgroundPage) {
+        thiz.rasterizePageToUrl(page.backgroundPage, function (dataURL) {
+            var image = svg.ownerDocument.createElementNS(PencilNamespaces.svg, "image");
+            image.setAttribute("x", "0");
+            image.setAttribute("y", "0");
+            image.setAttribute("width", page.backgroundPage.width);
+            image.setAttribute("height", page.backgroundPage.height);
+            image.setAttributeNS(PencilNamespaces.xlink, "xlink:href", dataURL);
+
+            if (svg.firstChild) {
+                svg.insertBefore(image, svg.firstChild);
+            } else {
+                svg.appendChild(image);
+            }
+            
+            f();
+        });
+    } else {
+        f();
+    }
+};
+Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback) {
+    this.rasterizePageToUrl(page, function (dataURI) {
+        var actualPath = filePath ? filePath : tmp.fileSync().name;
+        var base64Data = dataURI.replace(/^data:image\/png;base64,/, "");
+
+        fs.writeFile(actualPath, base64Data, 'base64', function (err) {
+            callback(actualPath, err);
+        });
     });
 };
 
@@ -163,11 +121,11 @@ Rasterizer.prototype.rasterizeWindowToUrl = function (callback) {
     debug("Rasterizing window to URL");
     canvas = this._prepareWindowForRasterization();
     var dataURL = canvas.canvas.toDataURL("image/png", "");
-    
+
     var path = "/home/dgthanhan/Desktop/tmp.png";
     //this.saveURI(dataURL, path);
     //alert("data saved to " + path);
-    
+
     data = {
         url: dataURL,
         width: canvas.width,
