@@ -13,7 +13,7 @@ UICommandManager.prototype.register = function (command) {
     this.commands.push(command);
 };
 UICommandManager.prototype.parseShortcut = function (command) {
-    
+
 };
 UICommandManager.prototype.handleKeyEvent = function (event) {
 

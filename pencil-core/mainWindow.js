@@ -33,7 +33,7 @@ Pencil.postBoot = function() {
         }, false);
 
         Pencil.buildRecentFileMenu();
-        
+
         var toolBox = document.getElementById("navigator-toolbox");
         toolBox.addEventListener("mouseup", function (event) {
             Pencil.activeCanvas.endFormatPainter();
@@ -107,17 +107,22 @@ function czGetScreenColor(x, y) {
 	return col;
 }
 Pencil._getCanvasPadding = function () {
+    console.log("window: ", window);
     return window.fullScreen ? 10 : 60;
 };
 Pencil.getBestFitSize = function () {
-    var mainViewPanel = document.getElementById("mainViewPanel");
+    // var mainViewPanel = document.getElementById("mainViewPanel");
+    var mainViewPanel = Pencil.controller.applicationPane.node();
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
     return [zoom * (mainViewPanel.boxObject.width - Pencil._getCanvasPadding()), zoom * (mainViewPanel.boxObject.height - Pencil._getCanvasPadding())].join("x");
 };
 Pencil.getBestFitSizeObject = function () {
-    var mainViewPanel = document.getElementById("mainViewPanel");
+    // var mainViewPanel = document.getElementById("mainViewPanel");
+    var mainViewPanel = Pencil.controller.applicationPane.node();
+    console.log("controller: ", Pencil.controller);
+    console.log("mainViewPanel: ", mainViewPanel);
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
-    return {width: zoom * (mainViewPanel.boxObject.width - Pencil._getCanvasPadding()), height: zoom * (mainViewPanel.boxObject.height - Pencil._getCanvasPadding())};
+    return {width: zoom * (mainViewPanel.style.width - Pencil._getCanvasPadding()), height: zoom * (mainViewPanel.style.height - Pencil._getCanvasPadding())};
 };
 Pencil.toggleShowHeavyElements = function () {
     var show = Config.get("view.showHeavyElements", false);
@@ -186,9 +191,9 @@ Pencil.selectDeveloperStencilDir = function () {
     var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     fp.init(window, "Select Developer Stencil 'Definition.xml' file", nsIFilePicker.modeGetFile);
     fp.appendFilter("Definition.xml", "Definition.xml");
-    
+
     if (fp.show() != nsIFilePicker.returnOK) return;
-    
+
     var path = fp.file.parent.path;
     Config.set("dev.stencil.path", path);
     CollectionManager.loadStencils();

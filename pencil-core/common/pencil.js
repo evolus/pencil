@@ -204,50 +204,331 @@ Pencil.getCanvasList = function () {
     return r;
 };
 Pencil.setupCommands = function () {
-    var canvas = Pencil.activeCanvas;
-    var target = canvas ? canvas.currentController : null;
 
-    Pencil._enableCommand("rasterizeSelectionCommand", target && target.getGeometry);
-    Pencil._enableCommand("rasterizeCommand", canvas != null);
+    // Pencil.uiCommandManager = new UICommandManager();
+    //
+    Pencil.cutCommand = {
+        label: "Cut",
+        icon: "content_cut",
+        shortcut: "Ctrl+X",
+        isEnabled: function () { return Pencil.activeCanvas.currentController; },
+        handleAction: function () {
+            Pencil.activeCanvas.doCopy();
+            Pencil.activeCanvas.deleteSelected();
+        }
+    };
 
-    Pencil._enableCommand("zoomInCommand", canvas != null);
-    Pencil._enableCommand("zoom1Command", canvas != null);
-    Pencil._enableCommand("zoomOutCommand", canvas != null);
+    Pencil.copyCommand = {
+        label: "Copy",
+        icon: "content_copy",
+        shortcut: "Ctrl+C",
+        isEnabled: function () { return Pencil.activeCanvas.currentController; },
+        handleAction: function () {
+            Pencil.activeCanvas.doCopy();
+        }
+    };
+    //
+    Pencil.pasteCommand = {
+        label: "Paste",
+        icon: "content_paste",
+        shortcut: "Ctrl+V",
+        isEnabled: function () { return true; /*FIXME: check for clipboard content*/ },
+        handleAction: function () {
+            Pencil.activeCanvas.doPaste();
+        }
+    };
+    //
+    // Pencil.selectAll = {
+    //     label: "Select All",
+    //     icon: "select_all",
+    //     shortcut: "Ctrl+A",
+    //     isEnabled: function () { return true; },
+    //     handleAction: function () {
+    //         thiz.canvas.selectAll();
+    //     }
+    // };
+    //
+    // Pencil.undoCommand = {
+    //     getLabel: function () { return "Undo: " + thiz.canvas.careTaker.getCurrentAction(); },
+    //     icon: "undo",
+    //     shortcut: "Ctrl+Z",
+    //     isEnabled: function () { return thiz.canvas.careTaker.canUndo(); },
+    //     handleAction: function () {
+    //         thiz.canvas.careTaker.undo();
+    //     }
+    // };
+    //
+    // Pencil.redoCommand = {
+    //     getLabel: function () { return "Redo: " + thiz.canvas.careTaker.getPrevAction(); },
+    //     icon: "redo",
+    //     shortcut: "Ctrl+Y",
+    //     isEnabled: function () { return thiz.canvas.careTaker.canRedo(); },
+    //     handleAction: function () {
+    //         thiz.canvas.careTaker.redo();
+    //     }
+    // };
+    //
+    // Pencil.bringToFrontCommand = {
+    //     label: "Bring to Front",
+    //     shortcut: "Shiff+Page Up",
+    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringToFront},
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.currentController.bringToFront();
+    //     }
+    // };
+    //
+    // Pencil.bringForwardCommand = {
+    //     label: "Bring Forward",
+    //     shortcut: "Page Up",
+    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringForward; },
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.currentController.bringForward();
+    //     }
+    // };
+    //
+    // Pencil.bringToFrontCommand = {
+    //     label: "Bring to Front",
+    //     shortcut: "Shiff+Page Up",
+    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringToFront},
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.currentController.bringToFront();
+    //     }
+    // };
+    //
+    // Pencil.sendBackwardCommand = {
+    //     label: "Send Backward",
+    //     shortcut: "Page Down",
+    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendBackward; },
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.currentController.sendBackward();
+    //     }
+    // };
+    //
+    // Pencil.sendToBackCommand = {
+    //     label: "Send to Back",
+    //     shortcut: "Shiff+Page Down",
+    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendToBack; },
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.currentController.sendToBack();
+    //     }
+    // };
+    //
+    // Pencil.groupCommand = {
+    //     label: "Group",
+    //     shortcut: "Ctrl+G",
+    //     isAvailable: function () {
+    //         return thiz.canvas.currentController &&
+    //         (thiz.canvas.currentController instanceof TargetSet);
+    //     },
+    //     isEnabled: function () { return thiz.canvas.currentController; },
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.doGroup();
+    //     }
+    // };
+    //
+    // Pencil.unGroupCommand = {
+    //     label: "Ungroup",
+    //     shortcut: "Ctrl+Alt+G",
+    //     isAvailable: function () {
+    //         return thiz.canvas.currentController &&
+    //         (thiz.canvas.currentController instanceof Group);
+    //     },
+    //     isEnabled: function () { return thiz.canvas.currentController; },
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.doUnGroup();
+    //     }
+    // };
+    //
+    // Pencil.deleteSelectedCommand = {
+    //     label: "Delete",
+    //     icon: "delete",
+    //     shortcut: "Del",
+    //     isAvailable: function () {
+    //         return thiz.canvas.currentController &&
+    //         (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group || thiz.canvas.currentController instanceof TargetSet);
+    //     },
+    //     isEnabled: function () { return thiz.canvas.currentController; },
+    //     handleAction: function () {
+    //         thiz.canvas.deleteSelected();
+    //     }
+    // };
+    //
+    // Pencil.addSelectedToMyCollectionsCommand = {
+    //     label: "Add to My Collections",
+    //     isAvailable: function () {
+    //         return thiz.canvas.currentController &&
+    //         (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
+    //     },
+    //     isEnabled: function () { return thiz.canvas.currentController; },
+    //     handleAction: function () {
+    //         thiz.canvas.addSelectedToMyCollection();
+    //     }
+    // };
+    //
+    // Pencil.fitContentCommand = {
+    //     label: "Fit Content",
+    //     handleAction: function () {
+    //         Pencil.controller.sizeToContent(null, false); // FIXME: bug
+    //     }
+    // };
+    //
+    // Pencil.fitwithPaddingCommand = {
+    //     label: "Fit with Padding",
+    //     handleAction: function () {
+    //         Pencil.controller.sizeToContent(null, true); // FIXME: bug
+    //     }
+    // };
+    // Pencil.fitScreenCommand = {
+    //     label: "Fit Screen",
+    //     handleAction: function () {
+    //         Pencil.controller.sizeToBestFit(); // FIXME: bug
+    //     }
+    // };
+    // Pencil.sizingPolicyCommand = {
+    //     label: "Sizing Policy...",
+    //     isAvailable: function () {
+    //         return thiz.canvas.currentController &&
+    //         (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
+    //     },
+    //     isEnabled: function () { return true; },
+    //     handleAction: function () {
+    //         Group.openSizingPolicyDialog(Pencil.activeCanvas.currentController); // FIXME: bug
+    //     }
+    // };
+    //
+    //
+    Pencil.zoomInCommand = {
+        label: "Zoom in",
+        icon: "zoom_in",
+        handleAction: function () {
+            Pencil.activeCanvas.zoomTo(Pencil.activeCanvas.zoom * 1.25);
+        }
+    };
+    Pencil.zoomOutCommand = {
+        label: "Zoom out",
+        icon: "zoom_out",
+        handleAction: function () {
+            Pencil.activeCanvas.zoomTo(Pencil.activeCanvas.zoom / 1.25);
+        }
+    };
+    Pencil.zoom1Command = {
+        label: "Actual size",
+        icon: "fullscreen",
+        handleAction: function () {
+            Pencil.activeCanvas.zoomTo(1);
+        }
+    };
+    Pencil.alignLeftCommand = {
+        label: "Align Left",
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.alignLeft();
+        }
+    };
+    Pencil.alignCenterCommand = {
+        label: "Align Center",
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.alignCenter();
+        }
+    };
+    Pencil.alignRightCommand = {
+        label: "Align Right",
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.alignRight();
+        }
+    };
+    Pencil.alignTopCommand = {
+        label: "Align Top",
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.alignTop();
+        }
+    };
 
-    Pencil._enableCommand("moveLeftCommand", canvas != null);
-    Pencil._enableCommand("moveRightCommand", canvas != null);
+    Pencil.alignMiddleCommand = {
+        label: "Align Middle",
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.alignMiddle();
+        }
+    };
+    Pencil.alignBottomCommand = {
+        label: "Align Bottom",
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.alignBottom();
+        }
+    };
+    // Pencil.fitContentCommand = {
+    //     label: "Fit Content",
+    //     handleAction: function () {
+    //         Pencil.controller.sizeToContent(null, false); // FIXME: bug
+    //     }
+    // };
+    //
+    // Pencil.fitContentCommand = {
+    //     label: "Fit Content",
+    //     handleAction: function () {
+    //         Pencil.controller.sizeToContent(null, false); // FIXME: bug
+    //     }
+    // };
+    // Pencil.fitContentCommand = {
+    //     label: "Fit Content",
+    //     handleAction: function () {
+    //         Pencil.controller.sizeToContent(null, false); // FIXME: bug
+    //     }
+    // };
+    // Pencil.fitContentCommand = {
+    //     label: "Fit Content",
+    //     handleAction: function () {
+    //         Pencil.controller.sizeToContent(null, false); // FIXME: bug
+    //     }
+    // };
 
-    Pencil._enableCommand("makeSameHorizontalSpaceCommand", target && target.makeSameHorizontalSpace);
-    Pencil._enableCommand("makeSameVerticalSpaceCommand", target && target.makeSameVerticalSpace);
 
-    Pencil._enableCommand("alignLeftCommand", target && target.alignLeft);
-    Pencil._enableCommand("alignCenterCommand", target && target.alignCenter);
-    Pencil._enableCommand("alignRightCommand", target && target.alignRight);
-    Pencil._enableCommand("alignTopCommand", target && target.alignTop);
-    Pencil._enableCommand("alignMiddleCommand", target && target.alignMiddle);
-    Pencil._enableCommand("alignBottomCommand", target && target.alignBottom);
 
-    Pencil._enableCommand("makeSameWidthCommand", target && target.makeSameWidth);
-    Pencil._enableCommand("makeSameHeightCommand", target && target.makeSameHeight);
-    Pencil._enableCommand("makeSameMinWidthCommand", target && target.makeSameMinWidth);
-    Pencil._enableCommand("makeSameMinHeightCommand", target && target.makeSameMinHeight);
+    // var canvas = Pencil.activeCanvas;
+    // var target = canvas ? canvas.currentController : null;
+    //
+    // Pencil._enableCommand("rasterizeSelectionCommand", target && target.getGeometry);
+    // Pencil._enableCommand("rasterizeCommand", canvas != null);
+    //
+    // Pencil._enableCommand("zoomInCommand", canvas != null);
+    // Pencil._enableCommand("zoom1Command", canvas != null);
+    // Pencil._enableCommand("zoomOutCommand", canvas != null);
+    //
+    // Pencil._enableCommand("moveLeftCommand", canvas != null);
+    // Pencil._enableCommand("moveRightCommand", canvas != null);
+    //
+    // Pencil._enableCommand("makeSameHorizontalSpaceCommand", target && target.makeSameHorizontalSpace);
+    // Pencil._enableCommand("makeSameVerticalSpaceCommand", target && target.makeSameVerticalSpace);
+    //
+    // Pencil._enableCommand("alignLeftCommand", target && target.alignLeft);
+    // Pencil._enableCommand("alignCenterCommand", target && target.alignCenter);
+    // Pencil._enableCommand("alignRightCommand", target && target.alignRight);
+    // Pencil._enableCommand("alignTopCommand", target && target.alignTop);
+    // Pencil._enableCommand("alignMiddleCommand", target && target.alignMiddle);
+    // Pencil._enableCommand("alignBottomCommand", target && target.alignBottom);
+    //
+    // Pencil._enableCommand("makeSameWidthCommand", target && target.makeSameWidth);
+    // Pencil._enableCommand("makeSameHeightCommand", target && target.makeSameHeight);
+    // Pencil._enableCommand("makeSameMinWidthCommand", target && target.makeSameMinWidth);
+    // Pencil._enableCommand("makeSameMinHeightCommand", target && target.makeSameMinHeight);
+    //
+    // Pencil._enableCommand("bringToFrontCommand", target && target.bringToFront);
+    // Pencil._enableCommand("bringForwardCommand", target && target.bringForward);
+    // Pencil._enableCommand("sendBackwardCommand", target && target.sendBackward);
+    // Pencil._enableCommand("sendToBackCommand", target && target.sendToBack);
+    //
+    // Pencil._enableCommand("formatPainterCommand", canvas && canvas.beginFormatPainter && target && (target.constructor == Group || target.constructor == Shape));
+    //
+    // Pencil._enableCommand("copyCommand", canvas && canvas.doCopy && target);
+    // Pencil._enableCommand("cutCommand", canvas && canvas.doCopy && target);
+    // Pencil._enableCommand("pasteCommand", canvas && canvas.doPaste);
+    // Pencil._enableCommand("deleteSelectedCommand", target != null);
+    //
+    // Pencil._enableCommand("groupCommand", target && target.constructor == TargetSet);
+    // Pencil._enableCommand("unGroupCommand", target && target.constructor == Group);
+    //
+    // Pencil._setupUndoRedoCommand();
 
-    Pencil._enableCommand("bringToFrontCommand", target && target.bringToFront);
-    Pencil._enableCommand("bringForwardCommand", target && target.bringForward);
-    Pencil._enableCommand("sendBackwardCommand", target && target.sendBackward);
-    Pencil._enableCommand("sendToBackCommand", target && target.sendToBack);
 
-    Pencil._enableCommand("formatPainterCommand", canvas && canvas.beginFormatPainter && target && (target.constructor == Group || target.constructor == Shape));
-
-    Pencil._enableCommand("copyCommand", canvas && canvas.doCopy && target);
-    Pencil._enableCommand("cutCommand", canvas && canvas.doCopy && target);
-    Pencil._enableCommand("pasteCommand", canvas && canvas.doPaste);
-    Pencil._enableCommand("deleteSelectedCommand", target != null);
-
-    Pencil._enableCommand("groupCommand", target && target.constructor == TargetSet);
-    Pencil._enableCommand("unGroupCommand", target && target.constructor == Group);
-
-    Pencil._setupUndoRedoCommand();
 };
 Pencil._setupUndoRedoCommand = function () {
     var canvas = Pencil.activeCanvas;
