@@ -1,7 +1,7 @@
 Setting up
 ==========
 
-Pencil uses [Atom Eletron](http://electron.atom.io/) as the runtime, follow the these steps to setup the environment:
+Pencil uses [Atom Electron](http://electron.atom.io/) as the runtime, follow the these steps to setup the environment:
 
 * Clone this repository
 * Make sure you are using *nodejs 4.2+*
@@ -11,13 +11,13 @@ Pencil uses [Atom Eletron](http://electron.atom.io/) as the runtime, follow the 
     $ npm install
     ```
 
-* Rebuilding native modules for Eletron:
+* Rebuilding native modules for Electron:
 
     ```bash
-    $ ./node_modules/.bin/eletron_rebuild
+    $ ./node_modules/.bin/electron-rebuild
     ```
 
-* Start Pencil using the prebuilt version of Eletron
+* Start Pencil using the prebuilt version of Electron
 
     ```bash
     $ ./node_modules/.bin/electron .
