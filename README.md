@@ -9,4 +9,4 @@ Pencil uses Atom Eletron as the runtime, follow the these steps to setup the env
 * Rebuilding native modules for Eletron:
     $ ./node_modules/.bin/eletron_rebuild
 * Start Pencil using the prebuilt version of Eletron
-    $ ./node_modules/.bin/eletron .
+    $ ./node_modules/.bin/electron .
