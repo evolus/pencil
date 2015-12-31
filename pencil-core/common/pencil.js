@@ -420,24 +420,28 @@ Pencil.setupCommands = function () {
     };
     Pencil.alignLeftCommand = {
         label: "Align Left",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignLeft; },
         handleAction: function () {
             Pencil.activeCanvas.currentController.alignLeft();
         }
     };
     Pencil.alignCenterCommand = {
         label: "Align Center",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignCenter; },
         handleAction: function () {
             Pencil.activeCanvas.currentController.alignCenter();
         }
     };
     Pencil.alignRightCommand = {
         label: "Align Right",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignRight; },
         handleAction: function () {
             Pencil.activeCanvas.currentController.alignRight();
         }
     };
     Pencil.alignTopCommand = {
         label: "Align Top",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignTop; },
         handleAction: function () {
             Pencil.activeCanvas.currentController.alignTop();
         }
@@ -445,41 +449,48 @@ Pencil.setupCommands = function () {
 
     Pencil.alignMiddleCommand = {
         label: "Align Middle",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignMiddle; },
         handleAction: function () {
             Pencil.activeCanvas.currentController.alignMiddle();
         }
     };
     Pencil.alignBottomCommand = {
         label: "Align Bottom",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignBottom; },
         handleAction: function () {
             Pencil.activeCanvas.currentController.alignBottom();
         }
     };
-    // Pencil.fitContentCommand = {
-    //     label: "Fit Content",
-    //     handleAction: function () {
-    //         Pencil.controller.sizeToContent(null, false); // FIXME: bug
-    //     }
-    // };
-    //
-    // Pencil.fitContentCommand = {
-    //     label: "Fit Content",
-    //     handleAction: function () {
-    //         Pencil.controller.sizeToContent(null, false); // FIXME: bug
-    //     }
-    // };
-    // Pencil.fitContentCommand = {
-    //     label: "Fit Content",
-    //     handleAction: function () {
-    //         Pencil.controller.sizeToContent(null, false); // FIXME: bug
-    //     }
-    // };
-    // Pencil.fitContentCommand = {
-    //     label: "Fit Content",
-    //     handleAction: function () {
-    //         Pencil.controller.sizeToContent(null, false); // FIXME: bug
-    //     }
-    // };
+
+    Pencil.makeSameWidthCommand = {
+        label: "Make Same Width",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.makeSameWidth; },
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.makeSameWidth();
+        }
+    };
+
+    Pencil.makeSameHeightCommand = {
+        label: "Make Same Height",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.makeSameMinHeight; },
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.makeSameMinHeight();
+        }
+    };
+    Pencil.makeSameHorizontalSpaceCommand = {
+        label: "Make Same Horizontal Space",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignBomakeSameHorizontalSpacettom; },
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.makeSameHorizontalSpace();
+        }
+    };
+    Pencil.makeSameVerticalSpaceCommand = {
+        label: "Make Same Vertical Space",
+        isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.makeSameVerticalSpace; },
+        handleAction: function () {
+            Pencil.activeCanvas.currentController.makeSameVerticalSpace();
+        }
+    };
 
 
 

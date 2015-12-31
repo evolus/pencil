@@ -22,20 +22,20 @@ SharedCommand.prototype.setup = function() {
 
 SharedCommand.prototype.attach = function(target) {
     if (!target || !this.commandContainer) return;
-    Dom.doOnAllChildren(this.commandContainer, function (n) {
-        if (n.getAttribute && n.getAttribute("command")) {
-            var command = n.getAttribute("command");
-            if (!command || !Pencil[command]) return;
-            if (!Pencil[command].isEnabled || Pencil[command].isEnabled()) {
-                n.removeAttribute("disabled");
-            }
+    Dom.doOnAllChildRecursively(this.commandContainer, function (n) {
+        if (!n.getAttribute || !n.getAttribute("command")) return;
+        var command = n.getAttribute("command");
+        if (!command || !Pencil[command]) return;
+        if (!Pencil[command].isEnabled || Pencil[command].isEnabled()) {
+            n.removeAttribute("disabled");
         }
     });
 }
 
 SharedCommand.prototype.detach = function() {
     if (!this.commandContainer) return;
-    Dom.doOnAllChildren(this.commandContainer, function (n) {
+    Dom.doOnAllChildRecursively(this.commandContainer, function (n) {
+        if (!n.getAttribute || !n.getAttribute("command")) return;
         if (n.getAttribute && n.getAttribute("isEnabled") == "true") return;
         n.setAttribute("disabled", "true");
     });
