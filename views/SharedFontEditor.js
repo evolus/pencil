@@ -13,6 +13,7 @@ SharedFontEditor.prototype.setup = function () {
     this.pixelFontSize.disabled = true;
     this.boldButton.disabled = true;
     this.italicButton.disabled = true;
+    this.formatPainterButton.disabled = true;
     this.disabledEditor = true;
 
     this.fontCombo.renderer = function (font) {
@@ -73,6 +74,14 @@ SharedFontEditor.prototype.setup = function () {
         thiz._applyValue();
     }, false);
 
+    this.formatPainterButton.addEventListener("click", function (event) {
+        if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
+        if (thiz.formatPainterButton.setAttribute) {
+            thiz.formatPainterButton.setAttribute("checked", "true");
+        }
+        Pencil.activeCanvas.beginFormatPainter();
+    }, false);
+
     /*
     this.underlineButton.addEventListener("command", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
@@ -110,6 +119,8 @@ SharedFontEditor.prototype.attach = function (target) {
     this.pixelFontSize.disabled = false;
     this.boldButton.disabled = false;
     this.italicButton.disabled = false;
+    var formatPainter = Pencil.activeCanvas && Pencil.activeCanvas.beginFormatPainter && target && (target.constructor == Group || target.constructor == Shape);
+    this.formatPainterButton.disabled = !formatPainter;
     this.disabledEditor = false;
     // /*this.underlineButton.disabled = false;
     // this.strikeButton.disabled = false;*/
@@ -143,6 +154,7 @@ SharedFontEditor.prototype.attach = function (target) {
     } else {
         this.italicButton.removeAttribute("checked");
     }
+
     /*this.underlineButton.checked = (this.font.decor == "underline");
     this.strikeButton.checked = (this.font.decor == "strikethrough");*/
 };
@@ -151,6 +163,7 @@ SharedFontEditor.prototype.detach = function () {
     this.pixelFontSize.disabled = true;
     this.boldButton.disabled = true;
     this.italicButton.disabled = true;
+    this.formatPainterButton.disabled = true;
     this.disabledEditor = true;
     /*this.underlineButton.disabled = true;
     this.strikeButton.disabled = true;*/
