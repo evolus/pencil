@@ -1,14 +1,17 @@
-<vbox>
+<vbox class="Form">
     <style>
-        hbox > * + * {
-            margin-left: 1ex;
-        }
     </style>
     <div>
         This is the <strong>content</strong> of the dialog
     </div>
-    <hbox>
+    <hbox class="InputRow">
         <ui:ComboManager flex="1"/>
         <button>Test</button>
+    </hbox>
+    <hbox class="InputRow">
+        <input type="checkbox" anon-id="test" />
+        <label for="test">Check me</label>
+        <input type="radio" anon-id="test1" />
+        <label for="test1">Tune me</label>
     </hbox>
 </vbox>

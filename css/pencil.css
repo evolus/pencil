@@ -60,6 +60,12 @@ vbox {
 *[flex='10'] {
   flex: 10;
 }
+hbox.InputRow > * + * {
+  margin-left: 1ex;
+}
+hbox.InputRow {
+  align-items: center;
+}
 /*
 button {
     .btn();

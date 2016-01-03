@@ -8,10 +8,13 @@
         }
 
         @contentHeader {
-            padding: 2em;
+            padding: 0.7em;
             box-shadow: 0px 0px 1.5em 0.4em #FFF;
         }
-        @contentHeader > * + * {
+        @contentHeader > hbox + hbox {
+            margin-top: 0.5em;
+        }
+        @contentHeader > hbox > * + * {
             margin-left: 1em;
         }
         @contentBody {
@@ -30,19 +33,10 @@
             outline: none;
             overflow: hidden;
         }
-        .Canvas:focus {
-            box-shadow: 0px 0px 5px 2px rgba(50, 100, 150, 0.5);
-            border: solid 1px #336699;
-        }
         .Canvas svg {
             line-height: 1.428;
         }
 
-        @contentHeader .mdl-button {
-            font-size: 1em;
-            height: 1.7em;
-            line-height: 1.7em;
-        }
         .widget_SharedPropertyEditor {
             background: #fff;
             padding: 1em;
@@ -61,12 +55,12 @@
         }
 
         @contentHeader {
-            font-size: 0.9em;
+            font-size: 0.85em;
             background: #F0F0F0;
         }
         @contentHeader button,
         @contentHeader hbox.ButtonGroup {
-            box-shadow: 0em 0.15ex 0.35em rgba(0, 0, 0, 0.3);
+            box-shadow: 0em 0.1ex 0.25em rgba(0, 0, 0, 0.15);
         }
         @contentHeader button {
             padding-left: 0.7em;
@@ -75,33 +69,37 @@
         @contentHeader .widget_ComboManager @selectContainer > button {
             padding-right: 0.3em;
         }
-        @contentHeader > * {
-            margin-left: 2em;
+        @contentHeader > hbox > * {
+            margin-left: 1em;
             white-space: nowrap;
         }
-        @contentHeader > *:first-child {
+        @contentHeader > hbox > *:first-child {
             margin-left: 0em;
         }
     </style>
 
     <ui:CollectionPane anon-id="collectionPane" style="width: 25em;"/>
     <vbox flex="1" anon-id="mainArea">
-        <hbox anon-id="contentHeader">
-            <button anon-id="testButton" mode="icon"><i>pets</i></button>
-            <ui:SharedEdit />
-            <ui:SharedZoom />
-            <ui:SharedAlignment />
-            <ui:SharedFontEditor />
-            <ui:ColorEditor />
-            <ui:SharedBorderStyleEditor />
-            <ui:SharedGeomtryEditor />
-            <div flex="1"></div>
-            <hbox class="ButtonGroup">
+        <vbox anon-id="contentHeader">
+            <hbox>
                 <ui:ComboManager anon-id="pageCombo" />
-                <button anon-id="addButton" mode="icon"><i>add</i></button>
-                <button anon-id="deleteButton" mode="icon"><i>remove</i></button>
+                <hbox class="ButtonGroup">
+                    <button anon-id="addButton" mode="icon"><i>add</i></button>
+                    <button anon-id="deleteButton" mode="icon"><i>remove</i></button>
+                </hbox>
+                <button anon-id="testButton" mode="icon"><i>pets</i></button>
+                <ui:SharedEdit />
+                <ui:SharedZoom />
+                <ui:SharedAlignment />
+                <div flex="1"></div>
             </hbox>
-        </hbox>
+            <hbox>
+                <ui:SharedFontEditor />
+                <ui:ColorEditor />
+                <ui:SharedBorderStyleEditor />
+                <ui:SharedGeomtryEditor />
+            </hbox>
+        </vbox>
         <div anon-id="contentBody" flex="1" style="position: relative;">
             <ui:ComboTest />
         </div>
