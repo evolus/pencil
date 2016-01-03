@@ -37,7 +37,7 @@ SharedCommand.prototype.detach = function() {
     if (!this.commandContainer) return;
     Dom.doOnAllChildren(this.commandContainer, function (n) {
         if (n.getAttribute && n.getAttribute("isEnabled") == "true") return;
-        n.setAttribute("disabled", "true");
+        if (n.setAttribute) n.setAttribute("disabled", "true");
     });
 
 }

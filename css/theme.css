@@ -78,7 +78,8 @@ button[selected='true'],
 button[checked='true'] {
     background: #C8C8C8;
 }
-button[active='true'] {
+button[active='true'],
+button:active {
     background: #E5E5E5;
 }
 
@@ -86,6 +87,7 @@ button[selected='true'] > i,
 button[checked='true'] > i {
     opacity: 1;
 }
+
 
 input[type="text"],
 input[type="number"] {

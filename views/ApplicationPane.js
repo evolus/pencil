@@ -28,10 +28,8 @@ function ApplicationPane() {
     }, this.pageCombo.node());
 
     this.bind("click", function (event) {
-        var page = this.pageCombo.getSelectedItem();
-        var xml = this.rasterizer.rasterizePageToFile(page, null, function (path) {
-            console.log("path", path);
-        });
+        var dialog = new TestDialog();
+        dialog.open();
     }, this.testButton);
 }
 __extend(BaseTemplatedWidget, ApplicationPane);

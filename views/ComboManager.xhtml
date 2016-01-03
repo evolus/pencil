@@ -1,8 +1,21 @@
 <hbox>
     <style>
+        body .widget_ComboManager[flex] @selectContainer {
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+        }
+        body .widget_ComboManager[flex] @selectContainer > button {
+            flex: 1;
+            display: inline-flex;
+        }
+        body .widget_ComboManager[flex] @selectContainer > button > @buttonDisplay {
+            flex: 1;
+        }
         @button {
             white-space: nowrap;
             text-align: left;
+            padding-right: 0.5em;
         }
 
         @buttonDisplay {
