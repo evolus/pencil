@@ -31,6 +31,12 @@ function ApplicationPane() {
         var dialog = new TestDialog();
         dialog.open();
     }, this.testButton);
+    this.bind("click", function (event) {
+        var currentPage = this.pageCombo.getSelectedItem();
+        this.rasterizer.rasterizePageToFile(currentPage, null, function (path, error) {
+            console.log(path);
+        }, 0.5);
+    }, this.rasterizeButton);
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {
