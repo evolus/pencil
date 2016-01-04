@@ -72,7 +72,6 @@ SharedPropertyEditor.prototype.attach = function (target) {
             });
 
             currentGroupNode._group = property._group;
-            console.log("New group", group);
             var titleNode = Dom.newDOMElement({
                 _name: "div",
                 _text: property._group.name,
@@ -83,6 +82,11 @@ SharedPropertyEditor.prototype.attach = function (target) {
             groupNodes.push(currentGroupNode);
         }
 
+        var propName = property.displayName.trim();
+        if (propName.indexOf(property._group.name.trim()) == 0) {
+            propName = propName.substring(property._group.name.trim().length);
+        }
+
         var editorWrapper = Dom.newDOMElement({
             _name: "hbox",
             "class": "Wrapper",
@@ -90,8 +94,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 {
                     _name: "div",
                     "class": "Label Property",
-                    flex: 2,
-                    _text: property.displayName
+                    _text: propName
                 }
             ]
         });
@@ -103,7 +106,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
         var editorWidget = new constructeur();
 
         editorWrapper.appendChild(editorWidget.node());
-        editorWidget.setAttribute("flex", "3");
+        editorWidget.setAttribute("flex", "1");
         if (editorWidget.setTypeMeta) {
             editorWidget.setTypeMeta(property.meta);
         }
