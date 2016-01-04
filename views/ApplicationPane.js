@@ -28,11 +28,15 @@ function ApplicationPane() {
     }, this.pageCombo.node());
 
     this.bind("click", function (event) {
-        var page = this.pageCombo.getSelectedItem();
-        var xml = this.rasterizer.rasterizePageToFile(page, null, function (path) {
-            console.log("path", path);
-        });
+        var dialog = new TestDialog();
+        dialog.open();
     }, this.testButton);
+    this.bind("click", function (event) {
+        var currentPage = this.pageCombo.getSelectedItem();
+        this.rasterizer.rasterizePageToFile(currentPage, null, function (path, error) {
+            console.log(path);
+        }, 0.5);
+    }, this.rasterizeButton);
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {

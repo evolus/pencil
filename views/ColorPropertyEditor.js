@@ -88,8 +88,10 @@ ColorPropertyEditor.prototype.setValue = function (color) {
     this.onValueChanged();
 };
 ColorPropertyEditor.prototype.onValueChanged = function (element) {
-    if (element != this.colorText) this.colorText.value = this.color.toRGBString();
-    if (element != this.colorButton) this.colorButton.style.backgroundColor = this.color.toRGBString();
+    if (element != this.colorText) {
+        this.colorText.value = this.color.toRGBString();
+        this.colorText.style.backgroundColor = this.color.toRGBString();
+    }
     if (element) {
         this.fireChangeEvent();
     }

@@ -31,7 +31,13 @@ CanvasPool.prototype.return = function (canvas) {
     canvas.selectNone();
 };
 CanvasPool.prototype.newCanvas = function () {
-    return this.applicationPane.createCanvas();
+    var canvas = this.applicationPane.createCanvas();
+    var thiz = this;
+    canvas.element.addEventListener("p:ContentModified", function () {
+        if (thiz.canvasContentModifiedListener) thiz.canvasContentModifiedListener(canvas);
+    }, false);
+
+    return canvas;
 };
 CanvasPool.prototype.show = function (canvas) {
     this.applicationPane.setActiveCanvas(canvas);

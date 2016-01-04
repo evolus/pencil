@@ -1,14 +1,35 @@
 function Controller(canvasPool, applicationPane) {
     this.canvasPool = canvasPool;
     this.applicationPane = applicationPane;
+
+    var thiz = this;
+    this.canvasPool.canvasContentModifiedListener = function (canvas) {
+        thiz.handleCanvasModified(canvas);
+    };
 }
 
 Controller.parser = new DOMParser();
 Controller.serializer = new XMLSerializer();
 
+Controller.SUB_THUMBNAILS = "thumbnails";
+Controller.SUB_REFERENCE = "refs";
+Controller.THUMBNAIL_SIZE = 256;
+
+Controller.prototype.makeSubDir = function (sub) {
+    const fs = require("fs");
+    var fullPath = path.join(this.tempDir.name, sub);
+    try {
+        fs.mkdirSync(fullPath);
+    } catch(e) {
+        if ( e.code != 'EEXIST' ) throw e;
+    }
+
+    return fullPath;
+};
 Controller.prototype.newDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
-    this.tempDir = tmp.dirSync();
+    this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
+
     this.pages = [];
 
     var size = this.applicationPane.getPreferredCanvasSize();
@@ -190,4 +211,30 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
         page.properties.height = newSize.height;
         Config.set("lastSize", [newSize.width, newSize.height].join("x"));
     }
+};
+
+Controller.prototype.handleCanvasModified = function (canvas) {
+    if (!canvas || !canvas.page) return;
+    canvas.page.lastModified = new Date();
+    if (!this.pendingThumbnailerMap) this.pendingThumbnailerMap = {};
+    var pending = this.pendingThumbnailerMap[canvas.page.id];
+    if (pending) {
+        window.clearTimeout(pending);
+    }
+
+    var thiz = this;
+    this.pendingThumbnailerMap[canvas.page.id] = window.setTimeout(function () {
+        thiz.pendingThumbnailerMap[canvas.page.id] = null;
+        thiz.updatePageThumbnail(canvas.page);
+    }, 3000);
+};
+Controller.prototype.updatePageThumbnail = function (page) {
+    var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
+    var scale = Controller.THUMBNAIL_SIZE / page.width;
+    if (page.height > page.width) scale = Controller.THUMBNAIL_SIZE / page.height;
+
+    this.applicationPane.rasterizer.rasterizePageToFile(page, thumbPath, function (p, error) {
+        page.thumbPath = p;
+        page.thumbCreated = new Date();
+    }, scale);
 };

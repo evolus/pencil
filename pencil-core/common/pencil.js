@@ -83,7 +83,6 @@ Pencil.boot = function (event) {
         Pencil.booted = true;
         Pencil.window = document.documentElement;
         Pencil.rasterizer = new Rasterizer("image/png");
-        Pencil.controller = new Controller();
 
         CollectionManager.loadStencils();
         ExportTemplateManager.loadTemplates();

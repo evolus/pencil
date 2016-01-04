@@ -17,20 +17,23 @@ Rasterizer.prototype.getImageDataFromUrl = function (url, callback) {
     this.win.document.body.appendChild(image);
     image.setAttribute("src", url);
 };
-Rasterizer.prototype.rasterizePageToUrl = function (page, callback) {
+Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
     var svg = this.controller.getPageSVG(page);
     var thiz = this;
+    var s = (typeof (scale) == "undefined") ? 1 : scale;
     var f = function () {
         var canvas = document.createElement("canvas");
-        canvas.setAttribute("width", page.width);
-        canvas.setAttribute("height", page.height);
+        canvas.setAttribute("width", page.width * s);
+        canvas.setAttribute("height", page.height * s);
         var ctx = canvas.getContext("2d");
 
         var img = new Image();
         var url = "data:image/svg+xml;charset=utf-8," + Controller.serializer.serializeToString(svg);
 
         img.onload = function () {
+            ctx.scale(s, s);
             ctx.drawImage(img, 0, 0);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
             window.URL.revokeObjectURL(url);
             callback(canvas.toDataURL());
         };
@@ -51,14 +54,14 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback) {
             } else {
                 svg.appendChild(image);
             }
-            
+
             f();
-        });
+        }, s);
     } else {
         f();
     }
 };
-Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback) {
+Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, scale) {
     this.rasterizePageToUrl(page, function (dataURI) {
         var actualPath = filePath ? filePath : tmp.fileSync().name;
         var base64Data = dataURI.replace(/^data:image\/png;base64,/, "");
@@ -66,7 +69,7 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback) {
         fs.writeFile(actualPath, base64Data, 'base64', function (err) {
             callback(actualPath, err);
         });
-    });
+    }, scale);
 };
 
 Rasterizer.prototype._prepareWindowForRasterization = function(backgroundColor) {
