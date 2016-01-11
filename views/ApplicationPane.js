@@ -28,7 +28,7 @@ function ApplicationPane() {
     }, this.pageCombo.node());
 
     this.bind("click", function (event) {
-        var dialog = new TestDialog();
+        var dialog = new SizingPolicyDialog();
         dialog.open();
     }, this.testButton);
     this.bind("click", function (event) {
@@ -103,4 +103,13 @@ ApplicationPane.prototype.getPreferredCanvasSize = function () {
         w: Math.round(this.contentBody.offsetWidth * 0.95),
         h: Math.round(this.contentBody.offsetHeight * 0.95)
     }
+};
+
+ApplicationPane.prototype.getBestFitSize = function () {
+    var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
+    return [zoom * (this.contentBody.offsetWidth - Pencil._getCanvasPadding()), zoom * (this.contentBody.offsetHeight - Pencil._getCanvasPadding())].join("x");
+};
+ApplicationPane.prototype.getBestFitSizeObject = function () {
+    var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
+    return {width: zoom * (this.contentBody.offsetWidth - Pencil._getCanvasPadding()), height: zoom * (this.contentBody.offsetHeight - Pencil._getCanvasPadding())};
 };

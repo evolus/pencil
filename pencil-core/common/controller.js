@@ -184,31 +184,47 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
     var page = passedPage ? passedPage : this.activePage;
     var canvas = page.canvas;
     if (!canvas) return;
+    var padding  = 0;
 
-    var padding = 0;
+    var handler = function () {
+        var canvas = page.canvas;
+        if (!canvas) return;
+        var newSize = canvas.sizeToContent(padding, padding);
+        console.log("page: ", page);
+        if (newSize) {
+            page.width = newSize.width;
+            page.height = newSize.height;
+        }
+    };
+
     if (askForPadding) {
-        var paddingString = window.prompt(Util.getMessage("please.enter.the.padding"), "0");
-        if (!paddingString) return null;
-        var padding = parseInt(paddingString, 10);
-        if (!padding) padding = 0;
+        var paddingDialog = new PromptDialog();
+        paddingDialog.open({
+            title: "Fit content with padding",
+            message: "Please enter the padding",
+            defaultValue: "0",
+            callback: function (paddingString) {
+                if (!paddingString) return;
+                padding = parseInt(paddingString, 10);
+                if (!padding) padding = 0;
+                handler();
+            }
+        });
+        return;
     }
 
-    var newSize = canvas.sizeToContent(padding, padding);
-    if (newSize) {
-        page.properties.width = newSize.width;
-        page.properties.height = newSize.height;
-    }
+    handler();
 };
 Controller.prototype.sizeToBestFit = function (passedPage) {
     var page = passedPage ? passedPage : this.activePage;
     var canvas = page.canvas;
     if (!canvas) return;
 
-    var newSize = Pencil.getBestFitSizeObject();
+    var newSize = this.applicationPane.getBestFitSizeObject();
     if (newSize) {
         canvas.setSize(newSize.width, newSize.height);
-        page.properties.width = newSize.width;
-        page.properties.height = newSize.height;
+        page.width = newSize.width;
+        page.height = newSize.height;
         Config.set("lastSize", [newSize.width, newSize.height].join("x"));
     }
 };

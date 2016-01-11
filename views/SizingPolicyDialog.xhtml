@@ -1,0 +1,55 @@
+<vbox style="padding: 1em;" class="Form">
+    <style>
+        .SizingPolicy > * + * {
+            margin-left: 0.0em;
+        }
+    </style>
+    <vbox style="margin-bottom: 1em; padding: 1ex; background: #fff; border: solid 1px #999;">
+        <div style="width: 30em;">
+            Define how the element size and position are changed when its container is scaled. Please note that these
+            rules are applied only when the element is grouped.
+        </div>
+    </vbox>
+    <vbox>
+        <strong>Width:</strong>
+        <vbox>
+            <hbox id="group-w" oncommand="validateXPolicySelection();" class="SizingPolicy">
+                <button type="radio" group="w" id="w-fixed" style="background:url(css/images/sizepolicy-w-fixed.png);" tooltiptext="Keep fixed width"/>
+                <button type="radio" group="w" id="w-start-end" style="background:url(css/images/sizepolicy-w-start-end.png" tooltiptext="Resize to maintain constant distances to both left and right sides"/>
+                <button type="radio" group="w" id="w-relative" style="background:url(css/images/sizepolicy-w-relative.png" tooltiptext="Resize according to group's width"/>
+            </hbox>
+        </vbox>
+    </vbox>
+    <vbox>
+        <strong>Height:</strong>
+        <vbox>
+            <hbox id="group-h" oncommand="validateYPolicySelection();" class="SizingPolicy">
+                <button type="radio" group="h" id="h-fixed" style="background-image:url(css/images/sizepolicy-h-fixed.png" tooltiptext="Keep fixed height"/>
+                <button type="radio" group="h" id="h-start-end" style="background-image:url(css/images/sizepolicy-h-start-end.png" tooltiptext="Resize to maintain constant distances to both top and bottom"/>
+                <button type="radio" group="h" id="h-relative" style="background-image:url(css/images/sizepolicy-h-relative.png" tooltiptext="Resize according to group's height"/>
+            </hbox>
+        </vbox>
+    </vbox>
+    <vbox>
+        <strong>Horizontal:</strong>
+        <vbox>
+            <hbox id="group-x" class="SizingPolicy">
+                <button type="radio" group="x" id="x-start" style="background-image:url(css/images/sizepolicy-x-start.png" tooltiptext="Align to parent's left side"/>
+                <button type="radio" group="x" id="x-middle" style="background-image:url(css/images/sizepolicy-x-middle.png" tooltiptext="Align to parent's center"/>
+                <button type="radio" group="x" id="x-end" style="background-image:url(css/images/sizepolicy-x-end.png" tooltiptext="Align to parent's right side"/>
+                <button type="radio" group="x" id="x-relative" style="background-image:url(css/images/sizepolicy-x-relative.png" tooltiptext="Move according to group's width"/>
+            </hbox>
+        </vbox>
+    </vbox>
+    <vbox>
+        <strong>Vertical:</strong>
+        <vbox>
+            <hbox id="group-y" class="SizingPolicy">
+                <button type="radio" group="y" id="y-start" style="background-image:url(css/images/sizepolicy-y-start.png" tooltiptext="Align to parent's top"/>
+                <button type="radio" group="y" id="y-middle" style="background-image:url(css/images/sizepolicy-y-middle.png" tooltiptext="Align to parent's middle"/>
+                <button type="radio" group="y" id="y-end" style="background-image:url(css/images/sizepolicy-y-end.png" tooltiptext="Align to parent's bottom"/>
+                <button type="radio" group="y" id="y-relative" style="background-image:url(css/images/sizepolicy-y-relative.png" tooltiptext="Move according to group's height"/>
+            </hbox>
+        </vbox>
+    </vbox>
+</vbox>

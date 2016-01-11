@@ -122,6 +122,8 @@ SharedPropertyEditor.prototype.attach = function (target) {
 
     executor();
 
+    this.properties = this.target.getProperties();
+
 };
 SharedPropertyEditor.prototype.detach = function () {
     this.propertyContainer.innerHTML = "";
