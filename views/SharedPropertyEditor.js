@@ -26,7 +26,6 @@ SharedPropertyEditor.prototype.attach = function (target) {
     if (!target) return;
 
     var definedGroups = target.getPropertyGroups();
-    console.log(definedGroups);
 
     this.target = target;
     this.propertyEditor = {};
@@ -82,9 +81,10 @@ SharedPropertyEditor.prototype.attach = function (target) {
             groupNodes.push(currentGroupNode);
         }
 
-        var propName = property.displayName.trim();
-        if (propName.indexOf(property._group.name.trim()) == 0) {
-            propName = propName.substring(property._group.name.trim().length);
+        var propName = property.displayName ? property.displayName.trim() : property.displayName;
+        var groupName = property._group.name ? property._group.name.trim() : property._group.name;
+        if (propName.indexOf(groupName) == 0) {
+            propName = propName.substring(groupName.length);
         }
 
         var editorWrapper = Dom.newDOMElement({
