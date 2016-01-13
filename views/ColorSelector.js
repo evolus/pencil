@@ -416,6 +416,11 @@ ColorSelector.prototype.onAttached = function () {
     }, 10);
 };
 ColorSelector.prototype.invalidateUI = function (source) {
+    if (!source) {
+        this.previewBox.style.backgroundColor = this.color.toRGBAString();
+        return;
+    }
+    
     if (source) this.isUserModified = true;
     var hsv = this.color.getHSV();
 
@@ -433,7 +438,9 @@ ColorSelector.prototype.invalidateUI = function (source) {
     this.previewBox.style.backgroundColor = this.color.toRGBAString();
 };
 ColorSelector.prototype.onValueChanged = function (source) {
-    this.updateRecentlyUsedColors();
+    if (source) {
+        this.updateRecentlyUsedColors();
+    }
     this.invalidateUI(source);
     this._emitChangeEvent();
 };
