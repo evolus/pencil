@@ -3,12 +3,12 @@ function SizingPolicyDialog() {
     this.title = "Sizing Policy";
 
     var thiz = this;
-    this.groupW.addEventListener("click", function(event) {
-        thiz.validateXPolicySelection();
-    }, false);
-    this.groupH.addEventListener("click", function(event) {
-        thiz.validateYPolicySelection();
-    }, false);
+    // this.groupW.addEventListener("click", function(event) {
+    //     thiz.validateXPolicySelection();
+    // }, false);
+    // this.groupH.addEventListener("click", function(event) {
+    //     thiz.validateYPolicySelection();
+    // }, false);
 
     this.policyContainer.addEventListener("click", function (event) {
         var node = Dom.findUpward(event.target, function (n) {
@@ -28,6 +28,12 @@ function SizingPolicyDialog() {
                 b.removeAttribute("selected");
             }
         });
+
+        if (group == "w") {
+            thiz.validateXPolicySelection();
+        } else if (group == "h") {
+            thiz.validateYPolicySelection();
+        }
 
     }, false);
 
@@ -115,6 +121,8 @@ SizingPolicyDialog.prototype.disableGroup = function (group, disabled) {
 	for (var i = 0; i < buttons.length; i ++) {
 		buttons[i].disabled = disabled;
 	}
+
+    group.setAttribute("disabled", disabled);
 };
 
 SizingPolicyDialog.prototype.handleOnload = function () {
