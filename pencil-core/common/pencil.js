@@ -205,72 +205,72 @@ Pencil.getCanvasList = function () {
 Pencil.setupCommands = function () {
 
     // Pencil.uiCommandManager = new UICommandManager();
-    //
-    Pencil.cutCommand = {
-        label: "Cut",
-        icon: "content_cut",
-        shortcut: "Ctrl+X",
-        isEnabled: function () { return Pencil.activeCanvas.currentController; },
-        handleAction: function () {
-            Pencil.activeCanvas.doCopy();
-            Pencil.activeCanvas.deleteSelected();
-        }
-    };
 
-    Pencil.copyCommand = {
-        label: "Copy",
-        icon: "content_copy",
-        shortcut: "Ctrl+C",
-        isEnabled: function () { return Pencil.activeCanvas.currentController; },
-        handleAction: function () {
-            Pencil.activeCanvas.doCopy();
-        }
-    };
+    // Pencil.cutCommand = {
+    //     label: "Cut",
+    //     icon: "content_cut",
+    //     shortcut: "Ctrl+X",
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController; },
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.doCopy();
+    //         Pencil.activeCanvas.deleteSelected();
+    //     }
+    // };
     //
-    Pencil.pasteCommand = {
-        label: "Paste",
-        icon: "content_paste",
-        shortcut: "Ctrl+V",
-        isEnabled: function () { return true; /*FIXME: check for clipboard content*/ },
-        handleAction: function () {
-            Pencil.activeCanvas.doPaste();
-        }
-    };
+    // Pencil.copyCommand = {
+    //     label: "Copy",
+    //     icon: "content_copy",
+    //     shortcut: "Ctrl+C",
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController; },
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.doCopy();
+    //     }
+    // };
     //
-    // Pencil.selectAll = {
+    // Pencil.pasteCommand = {
+    //     label: "Paste",
+    //     icon: "content_paste",
+    //     shortcut: "Ctrl+V",
+    //     isEnabled: function () { return true; /*FIXME: check for clipboard content*/ },
+    //     handleAction: function () {
+    //         Pencil.activeCanvas.doPaste();
+    //     }
+    // };
+    //
+    // Pencil.selectAllCommand = {
     //     label: "Select All",
     //     icon: "select_all",
     //     shortcut: "Ctrl+A",
     //     isEnabled: function () { return true; },
     //     handleAction: function () {
-    //         thiz.canvas.selectAll();
+    //         Pencil.activeCanvas.selectAll();
     //     }
     // };
     //
     // Pencil.undoCommand = {
-    //     getLabel: function () { return "Undo: " + thiz.canvas.careTaker.getCurrentAction(); },
+    //     getLabel: function () { return "Undo: " + Pencil.activeCanvas.careTaker.getCurrentAction(); },
     //     icon: "undo",
     //     shortcut: "Ctrl+Z",
-    //     isEnabled: function () { return thiz.canvas.careTaker.canUndo(); },
+    //     isEnabled: function () { return Pencil.activeCanvas.careTaker.canUndo(); },
     //     handleAction: function () {
-    //         thiz.canvas.careTaker.undo();
+    //         Pencil.activeCanvas.careTaker.undo();
     //     }
     // };
     //
     // Pencil.redoCommand = {
-    //     getLabel: function () { return "Redo: " + thiz.canvas.careTaker.getPrevAction(); },
+    //     getLabel: function () { return "Redo: " + Pencil.activeCanvas.careTaker.getPrevAction(); },
     //     icon: "redo",
     //     shortcut: "Ctrl+Y",
-    //     isEnabled: function () { return thiz.canvas.careTaker.canRedo(); },
+    //     isEnabled: function () { return Pencil.activeCanvas.careTaker.canRedo(); },
     //     handleAction: function () {
-    //         thiz.canvas.careTaker.redo();
+    //         Pencil.activeCanvas.careTaker.redo();
     //     }
     // };
     //
     // Pencil.bringToFrontCommand = {
     //     label: "Bring to Front",
     //     shortcut: "Shiff+Page Up",
-    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringToFront},
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.bringToFront},
     //     handleAction: function () {
     //         Pencil.activeCanvas.currentController.bringToFront();
     //     }
@@ -279,7 +279,7 @@ Pencil.setupCommands = function () {
     // Pencil.bringForwardCommand = {
     //     label: "Bring Forward",
     //     shortcut: "Page Up",
-    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringForward; },
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.bringForward; },
     //     handleAction: function () {
     //         Pencil.activeCanvas.currentController.bringForward();
     //     }
@@ -288,7 +288,7 @@ Pencil.setupCommands = function () {
     // Pencil.bringToFrontCommand = {
     //     label: "Bring to Front",
     //     shortcut: "Shiff+Page Up",
-    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringToFront},
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.bringToFront},
     //     handleAction: function () {
     //         Pencil.activeCanvas.currentController.bringToFront();
     //     }
@@ -297,7 +297,7 @@ Pencil.setupCommands = function () {
     // Pencil.sendBackwardCommand = {
     //     label: "Send Backward",
     //     shortcut: "Page Down",
-    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendBackward; },
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.sendBackward; },
     //     handleAction: function () {
     //         Pencil.activeCanvas.currentController.sendBackward();
     //     }
@@ -306,7 +306,7 @@ Pencil.setupCommands = function () {
     // Pencil.sendToBackCommand = {
     //     label: "Send to Back",
     //     shortcut: "Shiff+Page Down",
-    //     isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendToBack; },
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.sendToBack; },
     //     handleAction: function () {
     //         Pencil.activeCanvas.currentController.sendToBack();
     //     }
@@ -316,10 +316,10 @@ Pencil.setupCommands = function () {
     //     label: "Group",
     //     shortcut: "Ctrl+G",
     //     isAvailable: function () {
-    //         return thiz.canvas.currentController &&
-    //         (thiz.canvas.currentController instanceof TargetSet);
+    //         return Pencil.activeCanvas.currentController &&
+    //         (Pencil.activeCanvas.currentController instanceof TargetSet);
     //     },
-    //     isEnabled: function () { return thiz.canvas.currentController; },
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController; },
     //     handleAction: function () {
     //         Pencil.activeCanvas.doGroup();
     //     }
@@ -329,10 +329,10 @@ Pencil.setupCommands = function () {
     //     label: "Ungroup",
     //     shortcut: "Ctrl+Alt+G",
     //     isAvailable: function () {
-    //         return thiz.canvas.currentController &&
-    //         (thiz.canvas.currentController instanceof Group);
+    //         return Pencil.activeCanvas.currentController &&
+    //         (Pencil.activeCanvas.currentController instanceof Group);
     //     },
-    //     isEnabled: function () { return thiz.canvas.currentController; },
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController; },
     //     handleAction: function () {
     //         Pencil.activeCanvas.doUnGroup();
     //     }
@@ -343,24 +343,24 @@ Pencil.setupCommands = function () {
     //     icon: "delete",
     //     shortcut: "Del",
     //     isAvailable: function () {
-    //         return thiz.canvas.currentController &&
-    //         (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group || thiz.canvas.currentController instanceof TargetSet);
+    //         return Pencil.activeCanvas.currentController &&
+    //         (Pencil.activeCanvas.currentController instanceof Shape || Pencil.activeCanvas.currentController instanceof Group || Pencil.activeCanvas.currentController instanceof TargetSet);
     //     },
-    //     isEnabled: function () { return thiz.canvas.currentController; },
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController; },
     //     handleAction: function () {
-    //         thiz.canvas.deleteSelected();
+    //         Pencil.activeCanvas.deleteSelected();
     //     }
     // };
     //
     // Pencil.addSelectedToMyCollectionsCommand = {
     //     label: "Add to My Collections",
     //     isAvailable: function () {
-    //         return thiz.canvas.currentController &&
-    //         (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
+    //         return Pencil.activeCanvas.currentController &&
+    //         (Pencil.activeCanvas.currentController instanceof Shape || Pencil.activeCanvas.currentController instanceof Group);
     //     },
-    //     isEnabled: function () { return thiz.canvas.currentController; },
+    //     isEnabled: function () { return Pencil.activeCanvas.currentController; },
     //     handleAction: function () {
-    //         thiz.canvas.addSelectedToMyCollection();
+    //         Pencil.activeCanvas.addSelectedToMyCollection();
     //     }
     // };
     //
@@ -386,16 +386,16 @@ Pencil.setupCommands = function () {
     // Pencil.sizingPolicyCommand = {
     //     label: "Sizing Policy...",
     //     isAvailable: function () {
-    //         return thiz.canvas.currentController &&
-    //         (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
+    //         return Pencil.activeCanvas.currentController &&
+    //         (Pencil.activeCanvas.currentController instanceof Shape || Pencil.activeCanvas.currentController instanceof Group);
     //     },
     //     isEnabled: function () { return true; },
     //     handleAction: function () {
     //         Group.openSizingPolicyDialog(Pencil.activeCanvas.currentController); // FIXME: bug
     //     }
     // };
-    //
-    //
+
+
     Pencil.zoomInCommand = {
         label: "Zoom in",
         icon: "zoom_in",
@@ -490,7 +490,6 @@ Pencil.setupCommands = function () {
             Pencil.activeCanvas.currentController.makeSameVerticalSpace();
         }
     };
-
 
 
     // var canvas = Pencil.activeCanvas;

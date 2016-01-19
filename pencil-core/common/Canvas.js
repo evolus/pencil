@@ -1342,6 +1342,22 @@ Canvas.prototype.handleContextMenuShow = function (event) {
         if (this.contextMenuEditor) {
             this.contextMenuEditor.attach(this.currentController);
         }
+
+        this.lockingStatus = {
+            controller : this.currentController
+        };
+
+    } else {
+        var top = Dom.findTop(event.originalTarget, function (node) {
+            return node.hasAttributeNS
+                    && node.hasAttributeNS(PencilNamespaces.p, "type");
+                });
+
+        if (top && this.isShapeLocked(top)) {
+            this.lockingStatus = {
+                node : top
+            };
+        }
     }
 
     this.menu.showMenuAt(event.clientX, event.clientY);
@@ -1877,7 +1893,7 @@ Canvas.prototype.toggleLocking = function () {
 
 };
 Canvas.prototype.toggleLockingImpl_ = function () {
-
+    console.log(("toggleLockingImpl_", this.lockingStatus));
     if (!this.lockingStatus)
         return;
     if (this.lockingStatus.controller && this.lockingStatus.controller.lock) {

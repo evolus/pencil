@@ -58,7 +58,7 @@ Popup.prototype.checkToCloseParent = function (element) {
 Popup.prototype.setContentFragment = function (fragment) {
     this.popupContainer.appendChild(fragment);
 };
-Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding) {
+Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding, autoFlip) {
     this.popupContainer.parentNode.removeChild(this.popupContainer);
     this.node().ownerDocument.body.appendChild(this.popupContainer);
     if (this.mode) {
@@ -74,7 +74,7 @@ Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding) {
 
     var thiz = this;
     window.setTimeout(function () {
-        thiz._showImpl(anchor, hAlign, vAlign, hPadding, vPadding);
+        thiz._showImpl(anchor, hAlign, vAlign, hPadding, vPadding, autoFlip);
     }, 10);
 };
 Popup.prototype.showAt = function (x, y) {
@@ -84,18 +84,36 @@ Popup.prototype.showAt = function (x, y) {
         this.popupContainer.setAttribute("mode", this.mode);
     }
 
+    this.popupContainer.style.visibility = "hidden";
+    this.popupContainer.style.display = "block";
+
+    var w = this.popupContainer.offsetWidth;
+    var h = this.popupContainer.offsetHeight;
+
+
+    var screenW = document.body.offsetWidth - 10;
+    var screenH = window.innerHeight - 10;
+
+    console.log(x, y, w, h, screenW, screenH);
+
+    if (y + h > screenH) {
+        y = screenH - h;
+    }
+
+    if (x + w > screenW) {
+        x = x - w;
+    }
+
     this.popupContainer.style.position = "absolute";
     this.popupContainer.style.left = x + "px";
     this.popupContainer.style.top = y + "px";
     this.popupContainer.style.zIndex = Popup.Z_INDEX;
     this.popupContainer.style.visibility = "visible";
-    this.popupContainer.style.display = "block";
     this.popupContainer.style.opacity = 1;
 
     Popup.stack.push(this);
 };
-Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding) {
-
+Popup.prototype._calculatePosition = function (anchor, hAlign, vAlign, hPadding, vPadding) {
     var w = this.popupContainer.offsetWidth;
     var h = this.popupContainer.offsetHeight;
 
@@ -123,15 +141,37 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
     if (vAlign == "bottom") y = ay + ah + p;
     if (vAlign == "bottom-inside") y = ay + ah - h - p;
 
+    return{x: x, y: y};
+};
+Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding, autoFlip) {
+    var w = this.popupContainer.offsetWidth;
+    var h = this.popupContainer.offsetHeight;
+
+    var p = this._calculatePosition(anchor, hAlign, vAlign, hPadding, vPadding);
+    var x = p.x;
+    var y = p.y;
+
     //invalidate into view
     var screenW = document.body.offsetWidth - 10;
     console.log("Location", x, w, screenW);``
-    if (x + w > screenW) x = screenW - w;
-
+    if (x + w > screenW) {
+        if (autoFlip && (hAlign == "right" || hAlign == "left-inside")) {
+            p = this._calculatePosition(anchor, hAlign == "right" ? "left" : "right-inside", vAlign, hPadding, vPadding);
+            x = p.x;
+        } else {
+            x = screenW - w;
+        }
+    }
     var screenH = window.innerHeight - 10;
     if (y + h > screenH) {
-        this.popupContainer.style.height = (screenH - y) + "px";
-        this.popupContainer.style.overflow = "auto";
+        var fixedY = false;
+        if (autoFlip && (vAlign == "bottom" || vAlign == "top-inside")) {
+            p = this._calculatePosition(anchor, hAlign, vAlign == "bottom" ? "top" : "bottom-inside", hPadding, vPadding);
+            y = p.y;
+        } else {
+            this.popupContainer.style.height = (screenH - y) + "px";
+            this.popupContainer.style.overflow = "auto";
+        }
     }
 
     this.popupContainer.style.position = "absolute";
@@ -151,11 +191,11 @@ Popup.prototype.hide = function (silent) {
     this.popupContainer.style.opacity = 0;
     this.popupContainer.style.visibility = "hidden";
     if (!silent) Dom.emitEvent("p:PopupHidden", this.node());
-    if (this._parent) {
-        if (!this._parent._keepShowing) {
-           this._parent.hide();
-       } else {
-           this._parent._keepShowing = false;
-       }
-    }
+    // if (this._parent) {
+    //     if (!this._parent._keepShowing) {
+    //        this._parent.hide();
+    //    } else {
+    //        this._parent._keepShowing = false;
+    //    }
+    // }
 };

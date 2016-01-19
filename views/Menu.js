@@ -12,20 +12,83 @@ function Menu() {
             if (item.handleAction) item.handleAction(checkbox.checked);
             thiz.hide();
         } else if (item.type == "SubMenu") {
-            var menu = new Menu();
-            var subItems = item.subItems || item.getSubItems();
-            for (var i in subItems) {
-                menu.register(subItems[i]);
-            }
-            menu.showMenu(itemNode, "right", "top-inside", -5, 1);
-            menu._parent = thiz;
+            thiz.openSubMenu(itemNode);
         } else {
             if (item.handleAction) item.handleAction();
             thiz.hide();
         }
     }, false);
+
+    this.bind("mouseover", this.handleMouseIn, this.popupContainer);
 }
 __extend(Popup, Menu);
+
+Menu.prototype.hideCurrentSubMenu = function () {
+    if (this.currentItemNodeWithSubMenu) {
+        this.currentItemNodeWithSubMenu._subMenu.hideMenu();
+        Dom.removeClass(this.currentItemNodeWithSubMenu, "ActiveItem");
+        this.currentItemNodeWithSubMenu = null;
+    }
+};
+Menu.prototype.openSubMenu = function (itemNode) {
+    if (itemNode == this.currentItemNodeWithSubMenu) return;
+
+    this.hideCurrentSubMenu();
+
+    var item = itemNode._item;
+    var menu = new Menu();
+    var subItems = item.subItems || item.getSubItems();
+    for (var i in subItems) {
+        menu.register(subItems[i]);
+    }
+    menu.showMenu(itemNode, "right", "top-inside", -5, 1, "auto-flip");
+    menu._parent = this;
+    itemNode._subMenu = menu;
+
+    this.currentItemNodeWithSubMenu = itemNode;
+    Dom.addClass(this.currentItemNodeWithSubMenu, "ActiveItem");
+};
+
+Menu.prototype.handleMouseIn = function (event) {
+    var thiz = this;
+
+    if (this._parent && this._parent.currentHideMenuTimeout && this == this._parent.currentItemNodeWithSubMenu._subMenu) {
+        window.clearTimeout(this._parent.currentHideMenuTimeout);
+        this._parent.currentHideMenuTimeout = null;
+    }
+
+    var itemNode = Dom.findUpwardForNodeWithData(event.target, "_item");
+    if (!itemNode) return;
+    var item = itemNode._item;
+    var disabled = itemNode.getAttribute && itemNode.getAttribute("disabled") == "true";
+
+    if (this.currentItemNodeWithSubMenu && (itemNode != this.currentItemNodeWithSubMenu)) {
+        //schedule close
+        if (this.currentHideMenuTimeout ) {
+            window.clearTimeout(this.currentHideMenuTimeout);
+        }
+
+        this.currentHideMenuTimeout = window.setTimeout(function () {
+            thiz.hideCurrentSubMenu();
+            thiz.currentHideMenuTimeout = null;
+        }, 100);
+    }
+
+    if (this.currentShowMenuTimeout) {
+        window.clearTimeout(this.currentShowMenuTimeout);
+        this.currentShowMenuTimeout = null;
+    }
+
+    if (item.type == "SubMenu" && !disabled && itemNode != this.currentItemNodeWithSubMenu) {
+
+        this.currentShowMenuTimeout = window.setTimeout(function () {
+            thiz.openSubMenu(itemNode);
+            thiz.currentShowMenuTimeout = null;
+        }, 200);
+
+    }
+
+};
 
 Menu.prototype.register = function (item) {
     this.items.push(item);
@@ -52,7 +115,10 @@ Menu.prototype.renderItem = function (item) {
             "class": "Checkbox",
             id: checkboxId
         });
-        if (item.checked) checkbox.setAttribute("checked", "true");
+        if ((item.isChecked && item.isChecked()) || item.checked) {
+            checkbox.setAttribute("checked", "true");
+        }
+
         if (disabled) checkbox.setAttribute("disabled", "true");
         hbox.appendChild(checkbox);
         hbox._checkbox = checkbox;
@@ -117,9 +183,9 @@ Menu.prototype.render = function () {
         Dom.addClass(this.popupContainer, "NoPrefix")
     }
 };
-Menu.prototype.showMenu = function (anchor, hAlign, vAlign, hPadding, vPadding) {
+Menu.prototype.showMenu = function (anchor, hAlign, vAlign, hPadding, vPadding, autoFlip) {
     this.render();
-    this.show(anchor, hAlign, vAlign, hPadding, vPadding);
+    this.show(anchor, hAlign, vAlign, hPadding, vPadding, autoFlip);
 };
 Menu.prototype.showMenuAt = function (x, y) {
     this.render();
@@ -127,4 +193,7 @@ Menu.prototype.showMenuAt = function (x, y) {
 };
 Menu.prototype.hideMenu = function () {
     this.hide();
+    if (this.currentItemNodeWithSubMenu && this.currentItemNodeWithSubMenu._subMenu) {
+        this.currentItemNodeWithSubMenu._subMenu.hideMenu();
+    }
 };
