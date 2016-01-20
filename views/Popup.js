@@ -16,25 +16,25 @@ Popup.tryRegisterCloseHandlers = function () {
     document.body.addEventListener("mousedown", function (event) {
         if (Popup.stack.length == 0) return;
         var popup = Popup.stack[Popup.stack.length - 1];
-        var node = Dom.findUpward(event.target, function (n) {
-            return n == popup.popupContainer;
-        });
-        if (node) return;
-        // if (popup._parentPopup) {
-        //     node = Dom.findUpward(event.target, function (n) {
-        //         return n == popup._parentPopup.popupContainer;
-        //     });
-        //     if (node) popup._keepParentShowing = true;
-        // }
-        popup.checkToCloseParent(event.target);
-        popup.hide();
-        Popup.stack.pop();
-        event.preventDefault();
+        popup.closeUpward(event);
     }, false);
 
     Popup.closeHandlersRegistered = true;
 };
 Popup.stack = [];
+Popup.prototype.closeUpward = function (event) {
+    var thiz = this;
+    var node = Dom.findUpward(event.target, function (n) {
+        return n == thiz.popupContainer;
+    });
+
+    if (node) return;
+    this.hide();
+    Popup.stack.pop();
+    event.preventDefault();
+
+    if (this._parent) this._parent.closeUpward(event);
+};
 Popup.prototype.checkToCloseParent = function (element) {
     var thiz = this;
     var handler = function (popup) {
@@ -191,6 +191,7 @@ Popup.prototype.hide = function (silent) {
     this.popupContainer.style.opacity = 0;
     this.popupContainer.style.visibility = "hidden";
     if (!silent) Dom.emitEvent("p:PopupHidden", this.node());
+    if (this.onHide) this.onHide();
     // if (this._parent) {
     //     if (!this._parent._keepShowing) {
     //        this._parent.hide();

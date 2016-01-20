@@ -25,8 +25,8 @@ __extend(Popup, Menu);
 
 Menu.prototype.hideCurrentSubMenu = function () {
     if (this.currentItemNodeWithSubMenu) {
+        Dom.removeClass(this.currentItemNodeWithSubMenu, "Active");
         this.currentItemNodeWithSubMenu._subMenu.hideMenu();
-        Dom.removeClass(this.currentItemNodeWithSubMenu, "ActiveItem");
         this.currentItemNodeWithSubMenu = null;
     }
 };
@@ -46,7 +46,7 @@ Menu.prototype.openSubMenu = function (itemNode) {
     itemNode._subMenu = menu;
 
     this.currentItemNodeWithSubMenu = itemNode;
-    Dom.addClass(this.currentItemNodeWithSubMenu, "ActiveItem");
+    Dom.addClass(this.currentItemNodeWithSubMenu, "Active");
 };
 
 Menu.prototype.handleMouseIn = function (event) {
@@ -55,6 +55,7 @@ Menu.prototype.handleMouseIn = function (event) {
     if (this._parent && this._parent.currentHideMenuTimeout && this == this._parent.currentItemNodeWithSubMenu._subMenu) {
         window.clearTimeout(this._parent.currentHideMenuTimeout);
         this._parent.currentHideMenuTimeout = null;
+        Dom.addClass(this._parent.currentItemNodeWithSubMenu, "Active");
     }
 
     var itemNode = Dom.findUpwardForNodeWithData(event.target, "_item");
@@ -68,10 +69,11 @@ Menu.prototype.handleMouseIn = function (event) {
             window.clearTimeout(this.currentHideMenuTimeout);
         }
 
+        Dom.removeClass(this.currentItemNodeWithSubMenu, "Active");
         this.currentHideMenuTimeout = window.setTimeout(function () {
             thiz.hideCurrentSubMenu();
             thiz.currentHideMenuTimeout = null;
-        }, 100);
+        }, 200);
     }
 
     if (this.currentShowMenuTimeout) {
@@ -84,7 +86,7 @@ Menu.prototype.handleMouseIn = function (event) {
         this.currentShowMenuTimeout = window.setTimeout(function () {
             thiz.openSubMenu(itemNode);
             thiz.currentShowMenuTimeout = null;
-        }, 200);
+        }, 300);
 
     }
 
@@ -196,4 +198,7 @@ Menu.prototype.hideMenu = function () {
     if (this.currentItemNodeWithSubMenu && this.currentItemNodeWithSubMenu._subMenu) {
         this.currentItemNodeWithSubMenu._subMenu.hideMenu();
     }
+};
+Menu.prototype.onHide = function () {
+    if (this._parent) this._parent.currentItemNodeWithSubMenu = null;
 };
