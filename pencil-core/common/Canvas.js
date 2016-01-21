@@ -18,6 +18,7 @@ function Canvas(element) {
 
     this.addEventListener("mousedown", function (event) {
         var inDrawing = Dom.findUpward(event.originalTarget, function (node) {
+
             return (node == thiz.svg);
         });
         if (!inDrawing) {
@@ -843,6 +844,7 @@ Canvas.prototype.finishMoving = function (event) {
 
 };
 Canvas.prototype.handleMouseUp = function (event) {
+    console.log("handleMouseUp");
 
     if (this.reClick && !this.hasMoved) {
         for (editor in this.onScreenEditors)
@@ -953,11 +955,16 @@ Canvas.prototype.handleMouseUp = function (event) {
 
         DockingManager.enableDocking(this.currentController);
 
-        var canvas = Dom.findUpward(event.originalTarget, function (node) {
-            return node.namespaceURI == PencilNamespaces.xul
-                    && node.localName == "pcanvas";
-        });
-        if (canvas && canvas == this && this.currentController) {
+        // var canvas = Dom.findUpward(event.originalTarget, function (node) {
+        //     return node.namespaceURI == PencilNamespaces.xul
+        //             && node.localName == "pcanvas";
+        // });
+
+        var canvasElement = Dom.findTop(event.originalTarget, function (node) {
+            return node.getAttribute && node.getAttribute("pencil-canvas") == "true";
+                });
+
+        if (canvasElement && canvasElement == this.element && this.currentController) {
             if (this.isFormatPainterAvailable()
                     && Pencil._painterSourceTarget.svg != this.currentController.svg) {
                 var currentTargetProperties = this.currentController
@@ -2255,31 +2262,8 @@ Canvas.prototype.insertPrivateShapeImpl_ = function (shapeDef, bound) {
     this.invalidateEditors();
 
 };
-Canvas.prototype.beginFormatPainter = function () {
-
-    if (this.isFormatPainterAvailable()) {
-        return this.endFormatPainter();
-    }
-    if (!this.currentController)
-        return;
-    try {
-        var target = this.currentController;
-        if (target
-                && (target.constructor == Shape || target.constructor == Group)) {
-            Pencil._painterSourceTarget = target;
-            Pencil._painterSourceProperties = target.getProperties();
-            var canvasList = Pencil.getCanvasList();
-            for (var i = 0; i < canvasList.length; i++) {
-                Dom.addClass(canvasList[i], "Painter");
-            }
-        }
-    } catch (e) {
-        Console.dumpError(e);
-    }
-
-};
 Canvas.prototype.endFormatPainter = function () {
-
+    console.log("endFormatPainter");
     Pencil._painterSourceTarget = null;
     Pencil._painterSourceProperties = null;
     Pencil.setPainterCommandChecked(false);

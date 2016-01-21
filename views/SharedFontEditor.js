@@ -79,7 +79,7 @@ SharedFontEditor.prototype.setup = function () {
         if (thiz.formatPainterButton.setAttribute) {
             thiz.formatPainterButton.setAttribute("checked", "true");
         }
-        Pencil.activeCanvas.beginFormatPainter();
+        thiz.beginFormatPainter();
     }, false);
 
     /*
@@ -94,6 +94,30 @@ SharedFontEditor.prototype.setup = function () {
         thiz.font.strike = thiz.strikeButton.checked ? "strikethrough" : "none";
         thiz._applyValue();
     }, false);*/
+
+    Pencil.formatPainterButton = this.formatPainterButton;
+};
+
+SharedFontEditor.prototype.beginFormatPainter = function () {
+    var activeCanvas = Pencil.activeCanvas;
+
+    console.log("beginFormatPainter");
+    if (activeCanvas.isFormatPainterAvailable()) {
+        return activeCanvas.endFormatPainter();
+    }
+    if (!activeCanvas.currentController) return;
+    try {
+        var target = activeCanvas.currentController;
+        if (target
+                && (target.constructor == Shape || target.constructor == Group)) {
+            Pencil._painterSourceTarget = target;
+            Pencil._painterSourceProperties = target.getProperties();
+
+            document.body.setAttribute("format-painter", "true");
+        }
+    } catch (e) {
+        Console.dumpError(e);
+    }
 
 };
 
@@ -119,7 +143,7 @@ SharedFontEditor.prototype.attach = function (target) {
     this.pixelFontSize.disabled = false;
     this.boldButton.disabled = false;
     this.italicButton.disabled = false;
-    var formatPainter = Pencil.activeCanvas && Pencil.activeCanvas.beginFormatPainter && target && (target.constructor == Group || target.constructor == Shape);
+    var formatPainter = Pencil.activeCanvas && target && (target.constructor == Group || target.constructor == Shape);
     this.formatPainterButton.disabled = !formatPainter;
     this.disabledEditor = false;
     // /*this.underlineButton.disabled = false;

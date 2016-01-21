@@ -8,6 +8,8 @@ function ApplicationPane() {
 
     Pencil.controller = this.controller;
 
+    this.sharedFontEditor.applicationPane = this;
+
     this.pageCombo.renderer = function (canvas) {
         return canvas.name;
     };

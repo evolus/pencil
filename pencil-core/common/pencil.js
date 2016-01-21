@@ -184,14 +184,21 @@ Pencil.invalidateSharedEditor = function() {
     }
 };
 Pencil.setPainterCommandChecked = function (v) {
-    var painterCommand = document.getElementById("toolbarFormatPainterCommand");
-    if (painterCommand) {
-        painterCommand.checked = v;
+    console.log("setPainterCommandChecked", v);
+    var painterButton = Pencil.formatPainterButton;
+    console.log("painterButton", painterButton);
+    if (painterButton) {
+        // painterCommand.checked = v;
+
         if (!v) {
-            var canvasList = Pencil.getCanvasList();
-            for (var i = 0; i < canvasList.length; i++) {
-                Dom.removeClass(canvasList[i], "Painter");
-            }
+            document.body.removeAttribute("format-painter");
+            // var canvasList = Pencil.getCanvasList();
+            // for (var i = 0; i < canvasList.length; i++) {
+            //     Dom.removeClass(canvasList[i], "Painter");
+            // }
+            painterButton.removeAttribute("checked");
+        } else {
+            painterButton.setAttribute("checked", "true");
         }
     }
 };
