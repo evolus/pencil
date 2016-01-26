@@ -174,6 +174,7 @@ function ColorSelector() {
             return n.hasAttribute("color");
         });
         if (!colorCell) return;
+        thiz.updatingColor = false;
         thiz.selectColorCell(colorCell);
     }, false);
 
@@ -416,11 +417,7 @@ ColorSelector.prototype.onAttached = function () {
     }, 10);
 };
 ColorSelector.prototype.invalidateUI = function (source) {
-    if (!source) {
-        this.previewBox.style.backgroundColor = this.color.toRGBAString();
-        return;
-    }
-    
+    this.previewBox.style.backgroundColor = this.color.toRGBAString();
     if (source) this.isUserModified = true;
     var hsv = this.color.getHSV();
 

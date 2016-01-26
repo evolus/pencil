@@ -15,6 +15,7 @@ function ApplicationPane() {
     };
     this.pageCombo.decorator = function (node, canvas) {
     };
+    var thiz = this;
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
     this.bind("click", function () {
         var currentPage = this.pageCombo.getSelectedItem();
@@ -30,8 +31,10 @@ function ApplicationPane() {
     }, this.pageCombo.node());
 
     this.bind("click", function (event) {
-        var dialog = new SizingPolicyDialog();
-        dialog.open();
+        var textToolOverlay = new TextToolOverlay();
+        textToolOverlay.show(thiz.testButton, "right", "bottom");
+        // var dialog = new SizingPolicyDialog();
+        // dialog.open();
     }, this.testButton);
     this.bind("click", function (event) {
         var currentPage = this.pageCombo.getSelectedItem();

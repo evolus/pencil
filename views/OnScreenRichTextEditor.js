@@ -49,7 +49,6 @@ OnScreenRichTextEditor.prototype.install = function (canvas) {
 
     this.bind("keypress", this.handleKeyPress, this.container);
     this.bind("keyup", this.handleKeyPress, this.container);
-
 };
 OnScreenRichTextEditor.prototype.addEditorEvent = function (name, handler) {
 	this.textEditor.addEventListener(name, handler, false);
@@ -157,6 +156,10 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
 
     this.popup.showAt(x, y + 5);
 
+    this.textToolOverlay = new TextToolOverlay();
+    this.textToolOverlay._richTextEditor = this;
+    this.textToolOverlay.showToolBar(this.currentTarget, this.textEditor, this.popup.popupContainer,"left-inside", "top", 0, 10);
+
     OnScreenRichTextEditor._activeEditor = this;
 
     var thiz = this;
@@ -191,6 +194,7 @@ OnScreenRichTextEditor.prototype.commitChange = function (event) {
         this.canvas.invalidateEditors(this);
     } finally {
         this.popup.hide("silent");
+        if (this.textToolOverlay) this.textToolOverlay.hide();
         this.textEditingInfo = null;
         this.canvas.focus();
     }
@@ -198,6 +202,21 @@ OnScreenRichTextEditor.prototype.commitChange = function (event) {
 OnScreenRichTextEditor.prototype.cancelChange = function () {
     if (!this.textEditingInfo) return;
     this.popup.hide("silent");
+    if (this.textToolOverlay) this.textToolOverlay.hide();
     this.textEditingInfo = null;
     this.canvas.focus();
+};
+OnScreenRichTextEditor.prototype.getRichtextValue = function () {
+    return this.textEditor.innerHTML;
+    var html = Dom.serializeNode(this.textEditor.innerHTML);
+    html = html.replace(/<[\/A-Z0-9]+[ \t\r\n>]/g, function (zero) {
+        return zero.toLowerCase();
+    });
+    if (html.match(/^<body[^>]*>([^\0]*)<\/body>$/)) {
+        html = RegExp.$1;
+    }
+    return html;
+};
+OnScreenRichTextEditor.prototype.setRichtextValue = function (html) {
+    this.textEditor.innerHTML = html;
 };

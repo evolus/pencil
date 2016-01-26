@@ -101,7 +101,6 @@ SharedFontEditor.prototype.setup = function () {
 SharedFontEditor.prototype.beginFormatPainter = function () {
     var activeCanvas = Pencil.activeCanvas;
 
-    console.log("beginFormatPainter");
     if (activeCanvas.isFormatPainterAvailable()) {
         return activeCanvas.endFormatPainter();
     }

@@ -29,6 +29,7 @@ Popup.prototype.closeUpward = function (event) {
     });
 
     if (node) return;
+    if (this.dontCloseUpward && this.dontCloseUpward(event)) return;
     this.hide();
     Popup.stack.pop();
     event.preventDefault();

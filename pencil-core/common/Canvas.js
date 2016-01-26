@@ -2263,7 +2263,6 @@ Canvas.prototype.insertPrivateShapeImpl_ = function (shapeDef, bound) {
 
 };
 Canvas.prototype.endFormatPainter = function () {
-    console.log("endFormatPainter");
     Pencil._painterSourceTarget = null;
     Pencil._painterSourceProperties = null;
     Pencil.setPainterCommandChecked(false);

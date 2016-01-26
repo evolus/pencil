@@ -2,28 +2,52 @@ function FontEditor() {
     PropertyEditor.call(this);
 }
 __extend(PropertyEditor, FontEditor);
+
+FontEditor._setupFontCombo = function (fontCombo, changeEvent, withNullValue) {
+    fontCombo.renderer = function (font) {
+        return font ? font : "Font";
+    };
+    fontCombo.decorator = function (node, font) {
+        if (font) {
+            node.style.fontFamily = "'" + font + "'";
+        }
+    };
+
+    var localFonts = Local.getInstalledFonts();
+    var items = localFonts;
+    if (withNullValue) items.unshift("");
+    fontCombo.setItems(items);
+    fontCombo.addEventListener("p:ItemSelected", function(event) {
+        // if (OnScreenTextEditor.isEditing) return;
+        changeEvent();
+    }, false);
+
+};
 FontEditor.prototype.setup = function () {
     //grab control references
     /*this.underlineButton = document.getElementById("edUnderlineButton");
     this.strikeButton = document.getElementById("edStrikeButton");*/
 
-    this.fontCombo.renderer = function (font) {
-        return font;
-    };
-    this.fontCombo.decorator = function (node, font) {
-        node.style.fontFamily = "'" + font + "'";
-    };
+    // this.fontCombo.renderer = function (font) {
+    //     return font;
+    // };
+    // this.fontCombo.decorator = function (node, font) {
+    //     node.style.fontFamily = "'" + font + "'";
+    // };
+    //
+    // var localFonts = Local.getInstalledFonts();
+    // var items = localFonts;
+    // this.fontCombo.setItems(items);
+    //
+    // var thiz = this;
+    // this.fontCombo.addEventListener("p:ItemSelected", function(event) {
+    //     if (!thiz.font || OnScreenTextEditor.isEditing) return;
+    //     thiz.fireChangeEvent();
+    // }, false);
 
-    var localFonts = Local.getInstalledFonts();
-    var items = localFonts;
-    this.fontCombo.setItems(items);
+    FontEditor._setupFontCombo(this.fontCombo, this.fireChangeEvent);
 
     var thiz = this;
-    this.fontCombo.addEventListener("p:ItemSelected", function(event) {
-        if (!thiz.font || OnScreenTextEditor.isEditing) return;
-        thiz.fireChangeEvent();
-    }, false);
-
     this.pixelFontSize.addEventListener("click", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
         thiz.fireChangeEvent();
