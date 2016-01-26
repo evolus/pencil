@@ -136,7 +136,6 @@ TextToolOverlay.prototype.getColorByCommandValue = function (commandName) {
         Console.dumpError(e, "stdout");
     }
     if (value == null) return null;
-    console.log("--------get color by commandName:", commandName, "color:", value);
     return Color.fromString(value);
 };
 
@@ -168,9 +167,9 @@ TextToolOverlay.prototype.updateButtonByCommandState = function (commandName, co
         control.removeAttribute("checked");
     }
 };
-TextToolOverlay.prototype.showToolBar = function (target, anchor, popupContainer, hAlign, vAlign, hPadding, vPadding, autoFlip) {
+TextToolOverlay.prototype.showToolBar = function (target, anchor, popup, hAlign, vAlign, hPadding, vPadding, autoFlip) {
     this.target = target;
-    this.relatedPopup = popupContainer;
+    this.relatedPopup = popup;
     this.show(anchor, hAlign, vAlign, hPadding, vPadding, autoFlip);
 };
 TextToolOverlay.prototype.showToolBarAt = function (target, x, y) {
@@ -181,11 +180,18 @@ TextToolOverlay.prototype.showToolBarAt = function (target, x, y) {
 TextToolOverlay.prototype.dontCloseUpward = function (event) {
     var thiz = this;
     var node = Dom.findUpward(event.target, function (n) {
-        return n == thiz.relatedPopup;
+        return thiz.relatedPopup && n == thiz.relatedPopup.popupContainer;
     });
     return node;
     // return true;
 };
+
+TextToolOverlay.prototype.onHide = function () {
+    if (this.relatedPopup) {
+        this.relatedPopup.hide("silent");
+    }
+};
+
 TextToolOverlay.prototype.runEditorCommand = function (command, arg) {
     try {
         if (typeof(arg) != "undefined") {

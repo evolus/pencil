@@ -154,11 +154,11 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
 
     this.textEditor.innerHTML = this.textEditingInfo.value.value;   //PlainText.value
 
-    this.popup.showAt(x, y + 5);
+    this.popup.showAt(x, y);
 
     this.textToolOverlay = new TextToolOverlay();
     this.textToolOverlay._richTextEditor = this;
-    this.textToolOverlay.showToolBar(this.currentTarget, this.textEditor, this.popup.popupContainer,"left-inside", "top", 0, 10);
+    this.textToolOverlay.showToolBar(this.currentTarget, this.textEditor, this.popup,"left-inside", "top", 0, 10);
 
     OnScreenRichTextEditor._activeEditor = this;
 
