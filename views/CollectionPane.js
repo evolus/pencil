@@ -32,15 +32,21 @@ function CollectionPane() {
 
     this.dndImage = new Image();
     this.dndImage.src = "css/bullet.png";
+
+    this.searchInput.addEventListener("keyup", function (event) {
+        thiz.filterCollections();
+    }, false);
+
 }
 __extend(BaseTemplatedWidget, CollectionPane);
 
 CollectionPane.prototype.reload = function () {
     Dom.empty(this.selectorPane);
 
-    var last = null;
-    for (var i = 0; i < CollectionManager.shapeDefinition.collections.length; i ++) {
-        var collection = CollectionManager.shapeDefinition.collections[i];
+    this.last = null;
+    var collections = CollectionManager.shapeDefinition.collections;
+    for (var i = 0; i < collections.length; i ++) {
+        var collection = collections[i];
         var node = Dom.newDOMElement({
             _name: "vbox",
             "class": "Item",
@@ -57,23 +63,60 @@ CollectionPane.prototype.reload = function () {
         });
 
         node._collection = collection;
-        if (!last) last = collection;
+        if (!this.last) this.last = collection;
 
         this.selectorPane.appendChild(node);
     }
 
-    this.openCollection(last);
+    this.openCollection(this.last);
+};
+
+CollectionPane.prototype.filterCollections = function () {
+    var filter = this.searchInput.value;
+    var collectionNodes = Dom.getList(".//*[@class='Item']", this.selectorPane);
+    var hasLast = false;
+    for (var i in collectionNodes) {
+        var collectionNode = collectionNodes[i];
+        var collection = collectionNodes[i]._collection;
+        collection._shapeCount = 0;
+        collection._filteredShapes = [];
+        for (var j in collection.shapeDefs) {
+            var def = collection.shapeDefs[j];
+            if (!def) continue;
+            if (def.displayName.toLowerCase().indexOf(filter.toLowerCase()) == -1) continue;
+            collection._shapeCount++;
+            collection._filteredShapes.push(def);
+        }
+        if (collection._shapeCount <= 0) {
+            collectionNode.setAttribute("_hidden", true);
+            collectionNode.style.display = "none";
+            collectionNode.style.visibility = "hidden";
+        } else {
+            if (!hasLast) hasLast = collection == this.last;
+            collectionNode.removeAttribute("_hidden");
+            collectionNode.style.display = "";
+            collectionNode.style.visibility = "visible";
+        }
+    }
+
+    if (hasLast) {
+        this.openCollection(this.last);
+    } else {
+        Dom.empty(this.shapeList);
+    }
 };
 CollectionPane.prototype.openCollection = function (collection) {
     Dom.empty(this.shapeList);
-
-    for (var i = 0; i < collection.shapeDefs.length; i ++) {
-        var def = collection.shapeDefs[i];
+    this.last = collection;
+    var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
+    for (var i = 0; i < shapeDefs.length; i ++) {
+        var def = shapeDefs[i];
         var icon = def.iconPath;
         if (!icon && def.shape) icon = def.shape.iconPath;
 
         var node = Dom.newDOMElement({
             _name: "li",
+            "type": "ShapeDef",
             _children: [
                 {
                     _name: "div",

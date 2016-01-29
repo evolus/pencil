@@ -165,7 +165,7 @@ OnScreenTextEditor.prototype._setupEditor = function () {
 
     this.textEditor.value = this.textEditingInfo.value.value;   //PlainText.value
 
-    this.popup.showAt(x, y + 5);
+    this.popup.showAt(x, y);
 
     OnScreenTextEditor._activeEditor = this;
 
