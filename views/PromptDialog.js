@@ -18,9 +18,11 @@ PromptDialog.prototype.getDialogActions = function () {
     var thiz = this;
     return [
         Dialog.ACTION_CANCEL,
-        { type: "accept", title: "OK", run: function () {
-            if (thiz.callback) thiz.callback(thiz.valueInput.value);
-            return true;
-        }}
+        {   type: "accept", title: "OK",
+            run: function () {
+                if (thiz.callback) thiz.callback(thiz.valueInput.value);
+                return true;
+            }
+        }
     ]
 };

@@ -13,185 +13,204 @@ CanvasMenu.prototype.getTemplatePath = function () {
 CanvasMenu.prototype.setup = function () {
     var thiz = this;
 
-    Pencil.undoCommand = {
+    UICommandManager.register({
+        key: "undoCommand",
         getLabel: function () { return "Undo: " + thiz.canvas.careTaker.getCurrentAction(); },
         icon: "undo",
         shortcut: "Ctrl+Z",
-        isEnabled: function () { return thiz.canvas.careTaker.canUndo(); },
-        handleAction: function () {
+        isValid: function () { return thiz.canvas.careTaker.canUndo(); },
+        run: function () {
             thiz.canvas.careTaker.undo();
         }
-    };
-    Pencil.redoCommand = {
+    });
+    UICommandManager.register({
+        key: "redoCommand",
         getLabel: function () { return "Redo: " + thiz.canvas.careTaker.getPrevAction(); },
         icon: "redo",
         shortcut: "Ctrl+Y",
-        isEnabled: function () { return thiz.canvas.careTaker.canRedo(); },
-        handleAction: function () {
+        isValid: function () { return thiz.canvas.careTaker.canRedo(); },
+        run: function () {
             thiz.canvas.careTaker.redo();
         }
-    };
+    });
 
-    Pencil.bringToFrontCommand = {
+    UICommandManager.register({
+        key: "bringToFrontCommand",
         label: "Bring to Front",
-        shortcut: "Shiff+Page Up",
-        isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringToFront},
-        handleAction: function () {
+        shortcut: "Shift+PAGE_UP",
+        isValid: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringToFront},
+        run: function () {
             Pencil.activeCanvas.currentController.bringToFront();
         }
-    };
-    Pencil.bringForwardCommand ={
+    });
+    UICommandManager.register({
+        key: "bringForwardCommand",
         label: "Bring Forward",
-        shortcut: "Page Up",
-        isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringForward; },
-        handleAction: function () {
+        shortcut: "PAGE_UP",
+        isValid: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringForward; },
+        run: function () {
             Pencil.activeCanvas.currentController.bringForward();
         }
-    };
-    Pencil.sendBackwardCommand = {
+    });
+    UICommandManager.register({
+        key: "sendBackwardCommand",
         label: "Send Backward",
-        shortcut: "Page Down",
-        isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendBackward; },
-        handleAction: function () {
+        shortcut: "PAGE_DOWN",
+        isValid: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendBackward; },
+        run: function () {
             Pencil.activeCanvas.currentController.sendBackward();
         }
-    };
-    Pencil.sendToBackCommand = {
+    });
+    UICommandManager.register({
+        key: "sendToBackCommand",
         label: "Send to Back",
-        shortcut: "Shiff+Page Down",
-        isEnabled: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendToBack; },
-        handleAction: function () {
+        shortcut: "Shift+PAGE_DOWN",
+        isValid: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendToBack; },
+        run: function () {
             Pencil.activeCanvas.currentController.sendToBack();
         }
-    };
-    Pencil.lockCommand = {
+    });
+    UICommandManager.register({
+        key: "lockCommand",
         type: "Toggle",
         label: "Locked",
         isChecked: function () {
             return thiz.canvas.lockingStatus && thiz.canvas.lockingStatus.node && thiz.canvas.isShapeLocked(thiz.canvas.lockingStatus.node);
         },
-        handleAction: function (checked) {
+        run: function (checked) {
             thiz.canvas.toggleLocking(); // FIXME: bug
         }
-    };
-    Pencil.groupCommand = {
+    });
+    UICommandManager.register({
+        key: "groupCommand",
         label: "Group",
         shortcut: "Ctrl+G",
         isAvailable: function () {
             return thiz.canvas.currentController &&
             (thiz.canvas.currentController instanceof TargetSet);
         },
-        isEnabled: function () { return thiz.canvas.currentController; },
-        handleAction: function () {
+        isValid: function () { return thiz.canvas.currentController; },
+        run: function () {
             Pencil.activeCanvas.doGroup();
         }
-    };
-    Pencil.unGroupCommand = {
+    });
+    UICommandManager.register({
+      key: "unGroupCommand",
         label: "Ungroup",
         shortcut: "Ctrl+Alt+G",
         isAvailable: function () {
             return thiz.canvas.currentController &&
             (thiz.canvas.currentController instanceof Group);
         },
-        isEnabled: function () { return thiz.canvas.currentController; },
-        handleAction: function () {
+        isValid: function () { return thiz.canvas.currentController; },
+        run: function () {
             Pencil.activeCanvas.doUnGroup();
         }
-    };
-    Pencil.deleteSelectedCommand = {
+    });
+    UICommandManager.register({
+        key: "deleteSelectedCommand",
         label: "Delete",
         icon: "delete",
-        shortcut: "Del",
+        shortcut: "DELETE",
         isAvailable: function () {
             return thiz.canvas.currentController &&
             (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group || thiz.canvas.currentController instanceof TargetSet);
         },
-        isEnabled: function () { return thiz.canvas.currentController; },
-        handleAction: function () {
+        isValid: function () { return thiz.canvas.currentController; },
+        run: function () {
             thiz.canvas.deleteSelected();
         }
-    };
-    Pencil.addSelectedToMyCollectionsCommand = {
+    });
+    UICommandManager.register({
+        key: "addSelectedToMyCollectionsCommand",
         label: "Add to My Collections",
         isAvailable: function () {
             return thiz.canvas.currentController &&
             (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
         },
-        isEnabled: function () { return thiz.canvas.currentController; },
-        handleAction: function () {
+        isValid: function () { return thiz.canvas.currentController; },
+        run: function () {
             thiz.canvas.addSelectedToMyCollection();
         }
-    };
-    Pencil.cutCommand = {
+    });
+    UICommandManager.register({
+      key: "cutCommand",
         label: "Cut",
         icon: "content_cut",
         shortcut: "Ctrl+X",
-        isEnabled: function () { return Pencil.activeCanvas.currentController; },
-        handleAction: function () {
+        isValid: function () { return Pencil.activeCanvas.currentController; },
+        run: function () {
             Pencil.activeCanvas.doCopy();
             Pencil.activeCanvas.deleteSelected();
         }
-    };
-    Pencil.copyCommand = {
+    });
+    UICommandManager.register({
+      key: "copyCommand",
         label: "Copy",
         icon: "content_copy",
         shortcut: "Ctrl+C",
-        isEnabled: function () { return Pencil.activeCanvas.currentController; },
-        handleAction: function () {
+        isValid: function () { return Pencil.activeCanvas.currentController; },
+        run: function () {
             Pencil.activeCanvas.doCopy();
         }
-    };
-    Pencil.pasteCommand = {
+    });
+    UICommandManager.register({
+      key: "pasteCommand",
         label: "Paste",
         icon: "content_paste",
         shortcut: "Ctrl+V",
-        isEnabled: function () { return true; /*FIXME: check for clipboard content*/ },
-        handleAction: function () {
+        isValid: function () { return true; /*FIXME: check for clipboard content*/ },
+        run: function () {
             Pencil.activeCanvas.doPaste();
         }
-    };
-    Pencil.selectAllCommand = {
+    });
+    UICommandManager.register({
+      key: "selectAllCommand",
         label: "Select All",
         icon: "select_all",
         shortcut: "Ctrl+A",
-        isEnabled: function () { return true; },
-        handleAction: function () {
+        isValid: function () { return true; },
+        run: function () {
             Pencil.activeCanvas.selectAll();
         }
-    };
-    Pencil.fitContentCommand = {
+    });
+    UICommandManager.register({
+      key: "fitContentCommand",
         label: "Fit Content",
-        handleAction: function () {
+        run: function () {
             Pencil.controller.sizeToContent(null, false); // FIXME: bug
         }
-    };
-    Pencil.fitwithPaddingCommand = {
+    });
+    UICommandManager.register({
+      key: "fitwithPaddingCommand",
         label: "Fit with Padding",
-        handleAction: function () {
+        run: function () {
             Pencil.controller.sizeToContent(null, true); // FIXME: bug
         }
-    };
-    Pencil.fitScreenCommand = {
+    });
+    UICommandManager.register({
+      key: "fitScreenCommand",
         label: "Fit Screen",
-        handleAction: function () {
+        run: function () {
             Pencil.controller.sizeToBestFit(); // FIXME: bug
         }
-    };
-    Pencil.sizingPolicyCommand = {
+    });
+    UICommandManager.register({
+      key: "sizingPolicyCommand",
         label: "Sizing Policy...",
         isAvailable: function () {
             return thiz.canvas.currentController &&
             (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group);
         },
-        isEnabled: function () { return true; },
-        handleAction: function () {
+        isValid: function () { return true; },
+        run: function () {
             Group.openSizingPolicyDialog(Pencil.activeCanvas.currentController); // FIXME: bug
         }
-    };
+    });
 
-    this.register(Pencil.undoCommand);
-    this.register(Pencil.redoCommand);
 
+    this.register(UICommandManager.getCommand("undoCommand"));
+    this.register(UICommandManager.getCommand("redoCommand"));
     this.register({
         label: "Arrangement",
         isAvailable: function () {
@@ -199,7 +218,10 @@ CanvasMenu.prototype.setup = function () {
             (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof TargetSet || thiz.canvas.currentController instanceof Group);
         },
         type: "SubMenu",
-        subItems: [Pencil.bringToFrontCommand, Pencil.bringToFrontCommand, Pencil.sendBackwardCommand, Pencil.sendToBackCommand]
+        subItems: [UICommandManager.getCommand("bringToFrontCommand"),
+                    UICommandManager.getCommand("bringForwardCommand"),
+                    UICommandManager.getCommand("sendBackwardCommand"),
+                    UICommandManager.getCommand("sendToBackCommand")]
     });
 
     // <menuseparator/>
@@ -214,29 +236,31 @@ CanvasMenu.prototype.setup = function () {
 
     // <menuseparator/>
 
-    this.register(Pencil.lockCommand);
-    this.register(Pencil.groupCommand);
-    this.register(Pencil.unGroupCommand);
-    this.register(Pencil.deleteSelectedCommand);
-    this.register(Pencil.addSelectedToMyCollectionsCommand);
+    this.register(UICommandManager.getCommand("lockCommand"));
+    this.register(UICommandManager.getCommand("groupCommand"));
+    this.register(UICommandManager.getCommand("unGroupCommand"));
+    this.register(UICommandManager.getCommand("deleteSelectedCommand"));
+    this.register(UICommandManager.getCommand("addSelectedToMyCollectionsCommand"));
 
     // <menuseparator/>
 
-    this.register(Pencil.cutCommand);
-    this.register(Pencil.copyCommand);
-    this.register(Pencil.pasteCommand);
-    this.register(Pencil.selectAllCommand);
+    this.register(UICommandManager.getCommand("cutCommand"));
+    this.register(UICommandManager.getCommand("copyCommand"));
+    this.register(UICommandManager.getCommand("pasteCommand"));
+    this.register(UICommandManager.getCommand("selectAllCommand"));
 
     // <menuseparator/>
 
     this.register({
         label: "Resize Canvas",
         type: "SubMenu",
-        subItems: [Pencil.fitContentCommand, Pencil.fitwithPaddingCommand, Pencil.fitScreenCommand]
+        subItems: [UICommandManager.getCommand("fitContentCommand"),
+                    UICommandManager.getCommand("fitwithPaddingCommand"),
+                    UICommandManager.getCommand("fitScreenCommand")]
     });
 
     // <menuseparator/>
-    this.register(Pencil.sizingPolicyCommand);
+    this.register(UICommandManager.getCommand("sizingPolicyCommand"));
 
     // <menuseparator/>
 

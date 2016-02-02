@@ -9,12 +9,20 @@ function Menu() {
         if (itemNode.getAttribute && itemNode.getAttribute("disabled") == "true") return;
         if (item.type == "Toggle" || item.type == "Selection") {
             var checkbox = itemNode._checkbox;
-            if (item.handleAction) item.handleAction(checkbox.checked);
+            if (item.handleAction) {
+                item.handleAction(checkbox.checked);
+            } else if (item.run) {
+                item.run();
+            }
             thiz.hide();
         } else if (item.type == "SubMenu") {
             thiz.openSubMenu(itemNode);
         } else {
-            if (item.handleAction) item.handleAction();
+            if (item.handleAction) {
+                item.handleAction();
+            } else if (item.run) {
+                item.run();
+            }
             thiz.hide();
         }
     }, false);
@@ -93,12 +101,13 @@ Menu.prototype.handleMouseIn = function (event) {
 };
 
 Menu.prototype.register = function (item) {
+    if (!item) return;
     this.items.push(item);
 };
 Menu.prototype.renderItem = function (item) {
-    if (item.isAvailable && !item.isAvailable()) return;
+    if (item.isAvailable && !item.isAvailable() || item.disabled) return;
 
-    var disabled = (item.isEnabled && !item.isEnabled()) ? true : false;
+    var disabled = (item.isEnabled && !item.isEnabled() || item.isValid && !item.isValid || item.disabled) ? true : false;
     var hbox = Dom.newDOMElement({
         _name: "hbox",
         "class": "MenuItem",
@@ -144,10 +153,11 @@ Menu.prototype.renderItem = function (item) {
     hbox.appendChild(label);
 
     if (item.shortcut) {
+        if (!item.parsedShortcut) UICommandManager.parseShortcut(item);
         var shortcutSpan = Dom.newDOMElement({
             _name: "span",
             "class": "Shortcut",
-            _text: item.shortcut
+            _text: item.parsedShortcut ? item.parsedShortcut.displayName : item.shortcut
         });
         hbox.appendChild(shortcutSpan);
     } else {

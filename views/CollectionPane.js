@@ -37,6 +37,15 @@ function CollectionPane() {
         thiz.filterCollections();
     }, false);
 
+    UICommandManager.register({
+        key: "searchFocusCommand",
+        shortcut: "Ctrl+F",
+        run: function () {
+            thiz.searchInput.focus();
+            thiz.searchInput.select();
+        }
+    });
+
 }
 __extend(BaseTemplatedWidget, CollectionPane);
 
@@ -44,6 +53,7 @@ CollectionPane.prototype.reload = function () {
     Dom.empty(this.selectorPane);
 
     this.last = null;
+    var lastNode = null;
     var collections = CollectionManager.shapeDefinition.collections;
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
@@ -63,18 +73,27 @@ CollectionPane.prototype.reload = function () {
         });
 
         node._collection = collection;
-        if (!this.last) this.last = collection;
+        if (!lastNode) {
+            lastNode = node;
+        }
 
         this.selectorPane.appendChild(node);
     }
+    if (lastNode) {
+        Dom.doOnAllChildren(this.selectorPane, function (n) {
+            if (n.setAttribute) n.setAttribute("active", n == lastNode);
+        });
 
-    this.openCollection(this.last);
+        this.last = lastNode._collection;
+        this.openCollection(this.last);
+    }
 };
 
 CollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
     var collectionNodes = Dom.getList(".//*[@class='Item']", this.selectorPane);
     var hasLast = false;
+    var firstNode = null;
     for (var i in collectionNodes) {
         var collectionNode = collectionNodes[i];
         var collection = collectionNodes[i]._collection;
@@ -93,6 +112,7 @@ CollectionPane.prototype.filterCollections = function () {
             collectionNode.style.visibility = "hidden";
         } else {
             if (!hasLast) hasLast = collection == this.last;
+            if (!firstNode) firstNode = collectionNode;
             collectionNode.removeAttribute("_hidden");
             collectionNode.style.display = "";
             collectionNode.style.visibility = "visible";
@@ -101,6 +121,12 @@ CollectionPane.prototype.filterCollections = function () {
 
     if (hasLast) {
         this.openCollection(this.last);
+    } else if (firstNode != null){
+
+        Dom.doOnAllChildren(this.selectorPane, function (n) {
+            if (n.setAttribute) n.setAttribute("active", n == firstNode);
+        });
+        this.openCollection(firstNode._collection);
     } else {
         Dom.empty(this.shapeList);
     }

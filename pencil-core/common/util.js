@@ -1,6 +1,11 @@
 // Copyright (c) Evolus Solutions. All rights reserved.
 // License: GPL/MPL
 // $Id$
+
+
+const IS_MAC = /^darwin/.test(process.platform);
+const IS_WIN32 = /^win/.test(process.platform);
+
 const PR_RDONLY      = 0x01;
 const PR_WRONLY      = 0x02;
 const PR_RDWR        = 0x04;
