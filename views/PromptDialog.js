@@ -11,7 +11,6 @@ PromptDialog.prototype.setup = function (options) {
     if (options.title) this.title = options.title;
     if (options.message) this.message.innerHTML = options.message;
     this.callback = options.callback;
-
 };
 
 PromptDialog.prototype.getDialogActions = function () {

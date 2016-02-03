@@ -31,6 +31,7 @@ ComboManager.prototype.setItems = function (items) {
     var first = null;
     this.items = items;
     this.list.innerHTML = "";
+    if (!this.items) return;
     for (var i = 0; i < items.length; i++) {
         var item = items[i];
         var element = this.renderer(item);

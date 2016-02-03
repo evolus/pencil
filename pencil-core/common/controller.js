@@ -228,6 +228,9 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
         Config.set("lastSize", [newSize.width, newSize.height].join("x"));
     }
 };
+Controller.prototype.getBestFitSize = function () {
+    return this.applicationPane.getBestFitSize();
+};
 
 Controller.prototype.handleCanvasModified = function (canvas) {
     if (!canvas || !canvas.page) return;

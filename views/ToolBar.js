@@ -1,6 +1,5 @@
 function ToolBar() {
     BaseTemplatedWidget.call(this);
-    // Pencil.registerSharedEditor(this);
     this.setup();
 }
 __extend(BaseTemplatedWidget, ToolBar);

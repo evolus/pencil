@@ -19,7 +19,7 @@ function ApplicationPane() {
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
     this.bind("click", function () {
         var currentPage = this.pageCombo.getSelectedItem();
-        var page = this.controller.newPage("Page " + new Date().getTime(), 800, 600, null, null, "");
+        var page = this.controller.newPage("Page " + new Date().getTime(), 800, 600, null, "#FF0000", "");
         page.backgroundPage = currentPage;
 
         this.controller.activatePage(page);
@@ -31,10 +31,14 @@ function ApplicationPane() {
     }, this.pageCombo.node());
 
     this.bind("click", function (event) {
-        var textToolOverlay = new TextToolOverlay();
-        textToolOverlay.show(thiz.testButton, "right", "bottom");
-        // var dialog = new SizingPolicyDialog();
-        // dialog.open();
+        var thiz = this;
+        var dialog = new PageDetailDialog();
+        dialog.open({
+            onDone: function (page) {
+                if (!page) return;
+                thiz.controller.activatePage(page);
+            }
+        });
     }, this.testButton);
     this.bind("click", function (event) {
         var currentPage = this.pageCombo.getSelectedItem();
