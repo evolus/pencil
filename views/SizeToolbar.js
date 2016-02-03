@@ -27,7 +27,7 @@ SizeToolbar.prototype.registerCommands = function () {
         key: "makeSameHorizontalSpaceCommand",
         watchEvents: "p:TargetChanged",
         label: "Make Same Horizontal Space",
-        isValid: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignBomakeSameHorizontalSpacettom; },
+        isValid: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.makeSameHorizontalSpace; },
         run: function () {
             Pencil.activeCanvas.currentController.makeSameHorizontalSpace();
         }

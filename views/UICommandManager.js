@@ -174,6 +174,7 @@ UICommandManager.invalidateCommand = function (command) {
         command.controls[i].disabled = !valid;
         if (command.controls[i].setEnabled) command.controls[i].setEnabled(valid);
     }
+
 };
 UICommandManager.invalidateCommands = function () {
     for (var i = 0; i < UICommandManager.commands.length; i ++) {
