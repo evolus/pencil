@@ -19,7 +19,7 @@ app.on('window-all-closed', function() {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({title: "Pencil"});
+  mainWindow = new BrowserWindow({title: "Pencil", autoHideMenuBar: true});
   mainWindow.hide();
   mainWindow.maximize();
 
@@ -28,7 +28,7 @@ app.on('ready', function() {
   mainWindow.show();
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {

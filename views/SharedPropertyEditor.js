@@ -24,6 +24,10 @@ SharedPropertyEditor.prototype.setup = function () {
 };
 SharedPropertyEditor.prototype.attach = function (target) {
     if (!target) return;
+    if (this.target && this.target.id == target.id) {
+        this.target = target;
+        return;
+    }
 
     var definedGroups = target.getPropertyGroups();
 
@@ -117,6 +121,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
         currentGroupNode.appendChild(editorWrapper);
         editorWidget.signalOnAttached();
 
+
         window.setTimeout(executor, 80);
     };
 
@@ -128,6 +133,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
 SharedPropertyEditor.prototype.detach = function () {
     this.propertyContainer.innerHTML = "";
     this.propertyContainer.style.display = "none";
+    this.target = null;
 };
 SharedPropertyEditor.prototype.invalidate = function () {
     if (!this.target) {
