@@ -20,7 +20,7 @@ function ApplicationPane() {
     this.bind("click", function () {
         var currentPage = this.pageCombo.getSelectedItem();
         var page = this.controller.newPage("Page " + new Date().getTime(), 800, 600, null, "#FF0000", "");
-        page.backgroundPage = currentPage;
+        // page.backgroundPage = currentPage;
 
         this.controller.activatePage(page);
     }, this.addButton);
