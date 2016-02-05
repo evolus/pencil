@@ -1,0 +1,60 @@
+<vbox>
+    <style>
+		@collapseablePanel {
+			position: absolute;
+            top: 6.78em;
+            right: 2.3em;
+            width: 20em;
+            bottom: 2.5em;
+            background: #fff;
+			overflow-x: hidden;
+            border-radius: 0.35ex;
+            box-shadow: @card_shadow;
+		}
+		.Collapsed {
+			top: 6.78em;
+            right: 2.3em;
+            width: 2.2em;
+			height: 1.7em;
+		}
+        @controlContainer {
+			height: 1.4em;
+			width: 100%;
+			background: #7D8B91;
+			padding: 0.2em;
+        }
+        @controlContainer button {
+			height: 1.3em;
+			line-height: 1em;
+			float:right;
+			position:absolute;
+			right:0.2em;
+			top:0.2em;
+			padding: 0em 0.2em 0em 0.2em;
+        }
+        @controlContainer button i {
+			line-height:1em;
+        }
+        
+        @contentContainer {
+			padding: 1em;
+        }
+        @panelTitleSpan {
+			padding: 0.2em;
+			color: white;
+			line-height: 0.8em;
+			font-size: 0.8em;
+			margin-top: 0.3em;
+			font-weight: bold;
+        }
+    </style>
+    <vbox anon-id="collapseablePanel">
+	   <hbox anon-id="controlContainer" class="ButtonGroup">
+			<hbox flex="1"><span anon-id="panelTitleSpan"></span></hbox>
+			<button anon-id="toogleButton"><i>image</i></button>
+	   </hbox>
+	   <hbox anon-id="contentContainer" flex="1">
+	   
+	   </hbox>
+   </vbox>
+</vbox>

@@ -38,20 +38,8 @@
         }
 
         .widget_SharedPropertyEditor {
-            background: #fff;
-            padding: 1em;
-
-            position: absolute;
-            top: 7em;
-            right: 0px;
-            width: 20em;
-            bottom: 2em;
-
             overflow-x: hidden;
             z-index: 9;
-
-            border-radius: 0.35ex;
-            box-shadow: @card_shadow;
         }
 
         @contentHeader {
@@ -102,6 +90,8 @@
             <hbox>
                 <ui:SharedFontEditor anon-id="sharedFontEditor" />
                 <ui:ColorEditor />
+                
+                
                 <ui:SharedBorderStyleEditor />
                 <ui:SharedGeomtryEditor />
             </hbox>
@@ -109,6 +99,8 @@
         <div anon-id="contentBody" flex="1" style="position: relative;">
             <ui:ComboTest />
         </div>
-        <ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />
+        <ui:CollapseablePanel>
+			<ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />
+        </ui:CollapseablePanel>
     </vbox>
 </hbox>
