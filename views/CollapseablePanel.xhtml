@@ -1,60 +1,136 @@
-<vbox>
+<box anon-id="collapseablePanel">
     <style>
-		@collapseablePanel {
-			position: absolute;
-            top: 6.78em;
-            right: 2.3em;
-            width: 20em;
-            bottom: 2.5em;
-            background: #fff;
-			overflow-x: hidden;
-            border-radius: 0.35ex;
-            box-shadow: @card_shadow;
-		}
-		.Collapsed {
-			top: 6.78em;
-            right: 2.3em;
-            width: 2.2em;
-			height: 1.7em;
-		}
-        @controlContainer {
-			height: 1.4em;
-			width: 100%;
-			background: #7D8B91;
-			padding: 0.2em;
+        body .widget_CollapseablePanel {
+            background: #F0F0F0;
+            z-index: 1;
+            position: relative;
         }
-        @controlContainer button {
-			height: 1.3em;
-			line-height: 1em;
-			float:right;
-			position:absolute;
-			right:0.2em;
-			top:0.2em;
-			padding: 0em 0.2em 0em 0.2em;
+        @contentContainer > * {
+            display: none;
+            flex: 1;
         }
-        @controlContainer button i {
-			line-height:1em;
-        }
-        
         @contentContainer {
-			padding: 1em;
+            padding: 0.5em;
+            box-sizing: border-box;
         }
-        @panelTitleSpan {
-			padding: 0.2em;
-			color: white;
-			line-height: 0.8em;
-			font-size: 0.8em;
-			margin-top: 0.3em;
-			font-weight: bold;
+        body .widget_CollapseablePanel[closed='true'] @contentContainer {
+            display: none;
+        }
+        @contentContainer > *[active='true'] {
+            display: block;
+        }
+        @contentContainer > vbox[active='true'],
+        @contentContainer > hbox[active='true'] {
+            display: flex;
+        }
+        body * > * + .widget_CollapseablePanel @controlContainer {
+            order: 1;
+        }
+        body * > * + .widget_CollapseablePanel @contentContainer {
+            order: 0;
+        }
+
+        body .widget_CollapseablePanel[orient='horizontal'] {
+            box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+        }
+        body * > * + .widget_CollapseablePanel[orient='horizontal'] {
+            box-shadow: -2px 2px 3px rgba(0, 0, 0, 0.2);
+        }
+        body .widget_CollapseablePanel[orient='horizontal'] @titleContainer {
+            width: 2.65em;
+        }
+        body * > * + .widget_CollapseablePanel[orient='horizontal'] @titleContainer {
+            padding-left: 0.25em;
+        }
+        body * > .widget_CollapseablePanel[orient='horizontal']:first-child @titleContainer {
+            padding-right: 0.25em;
+        }
+
+        @titleContainer .TitleElement {
+            width: 2.4em;
+            box-sizing: content-box;
+            cursor: pointer;
+        }
+        body * > .widget_CollapseablePanel[orient='horizontal']:first-child @titleContainer .TitleElement {
+            padding-left: 0.25em;
+        }
+        body * > * + .widget_CollapseablePanel[orient='horizontal'] @titleContainer .TitleElement {
+            padding-right: 0.25em;
+        }
+
+        body .widget_CollapseablePanel[orient='horizontal'] @titleContainer .TitleElement button {
+            transform: translate(2.4em, 0em) rotate(90deg);
+            transform-origin: 0 0px;
+            float: left;
+        }
+        body .widget_CollapseablePanel[orient='horizontal'] @titleContainer .TitleElement + .TitleElement {
+            margin-top: 0.25em;
+        }
+        @titleContainer .TitleElement button {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: none;
+            text-transform: none;
+            padding: 0em 0.8em;
+            line-height: normal;
+            cursor: inherit;
+        }
+        @titleContainer .TitleElement button i {
+        }
+        @titleContainer .TitleElement button > * + * {
+            margin-left: 0.5em;
+        }
+        @titleContainer .TitleElement:hover button {
+            background: lighten(@selected_button_bg, 18%);
+        }
+        @titleContainer .TitleElement[active='true'] button {
+            background: @selected_button_bg;
+        }
+
+        @titleContainer {
+            flex-direction: column;
+        }
+        body .widget_CollapseablePanel[orient='horizontal'] @titleContainer {
+            flex-direction: row;
+        }
+
+        @splitter {
+            position: absolute;
+        }
+        body .widget_CollapseablePanel[orient='horizontal'] @splitter {
+            top: 0px;
+            bottom: 0px;
+            width: 16px;
+            cursor: ew-resize;
+        }
+        body .widget_CollapseablePanel[orient='horizontal']:first-child @splitter {
+            right: -7px;
+        }
+        body * > * + .widget_CollapseablePanel[orient='horizontal'] @splitter {
+            left: -7px;
+        }
+        body .widget_CollapseablePanel[orient='horizontal'] @splitter div {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            width: 2px;
+            left: 7px;
+            background: rgba(0, 0, 0, 0.02);
+        }
+        body .widget_CollapseablePanel[orient='horizontal'] @splitter:hover div {
+            width: 4px;
+            left: 6px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        body .widget_CollapseablePanel[closed='true'] @splitter {
+            display: none;
         }
     </style>
-    <vbox anon-id="collapseablePanel">
-	   <hbox anon-id="controlContainer" class="ButtonGroup">
-			<hbox flex="1"><span anon-id="panelTitleSpan"></span></hbox>
-			<button anon-id="toogleButton"><i>image</i></button>
-	   </hbox>
-	   <hbox anon-id="contentContainer" flex="1">
-	   
-	   </hbox>
-   </vbox>
-</vbox>
+    <hbox anon-id="controlContainer">
+        <box flex="1" anon-id="titleContainer"></box>
+    </hbox>
+    <hbox anon-id="contentContainer" flex="1">
+    </hbox>
+    <div anon-id="splitter"><div></div></div>
+</box>

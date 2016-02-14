@@ -20,10 +20,16 @@
         @contentBody {
             text-align: center;
             overflow: auto;
-            padding: 1em;
+        }
+        @contentBody[overflowx='false'] {
+            justify-content: center;
+        }
+        @contentBody[overflowy='false'] {
+            align-items: center;
         }
         .CanvasWrapper {
-            display: inline-block;
+            padding: 10px;
+            box-sizing: content-box;
         }
         .Canvas {
             background: #FFF;
@@ -69,7 +75,10 @@
         }
     </style>
 
-    <ui:CollectionPane anon-id="collectionPane" style="width: 25em;"/>
+    <ui:CollapseablePanel orient="horizontal" name="left_pane">
+        <ui:CollectionPane anon-id="collectionPane"/>
+        <ui:CollectionPane anon-id="collectionPane2"/>
+    </ui:CollapseablePanel>
     <vbox flex="1" anon-id="mainArea">
         <vbox anon-id="contentHeader">
             <hbox>
@@ -90,17 +99,17 @@
             <hbox>
                 <ui:SharedFontEditor anon-id="sharedFontEditor" />
                 <ui:ColorEditor />
-                
-                
+
+
                 <ui:SharedBorderStyleEditor />
                 <ui:SharedGeomtryEditor />
             </hbox>
         </vbox>
-        <div anon-id="contentBody" flex="1" style="position: relative;">
-            <ui:ComboTest />
-        </div>
-        <ui:CollapseablePanel>
-			<ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />
-        </ui:CollapseablePanel>
+        <hbox flex="1" style="overflow: auto;">
+            <hbox anon-id="contentBody" flex="1" style="position: relative;"></hbox>
+            <ui:CollapseablePanel orient="horizontal" name="right_pane">
+                <ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />
+            </ui:CollapseablePanel>
+        </hbox>
     </vbox>
 </hbox>

@@ -30,6 +30,14 @@ vbox {
   flex-direction: column;
   display: flex;
 }
+box[orient="vertical"] {
+  flex-direction: column;
+  display: flex;
+}
+box[orient="horizontal"] {
+  flex-direction: row;
+  display: flex;
+}
 *[flex='1'] {
   flex: 1;
 }

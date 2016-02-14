@@ -49,6 +49,12 @@ function CollectionPane() {
 }
 __extend(BaseTemplatedWidget, CollectionPane);
 
+CollectionPane.prototype.getTitle = function() {
+	return "Shapes";
+}
+CollectionPane.prototype.getIconName = function() {
+	return "layers";
+}
 CollectionPane.prototype.reload = function () {
     Dom.empty(this.selectorPane);
 

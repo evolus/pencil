@@ -8,7 +8,7 @@ __extend(BaseTemplatedWidget, SharedPropertyEditor);
 SharedPropertyEditor.prototype.setup = function () {
     this.propertyContainer.innerHTML = "";
     var thiz = this;
-	
+
     this.propertyContainer.addEventListener("p:ValueChanged", function(event) {
         console.log("p:ValueChanged", event);
         if (!thiz.target) return;
@@ -24,36 +24,39 @@ SharedPropertyEditor.prototype.setup = function () {
     this.propertyContainer.style.display = "none";
 };
 SharedPropertyEditor.prototype.getTitle = function() {
-	return this.target ? (this.target.def.displayName + " Properties") : "";
+	return "Properties";
+}
+SharedPropertyEditor.prototype.getIconName = function() {
+	return "tune";
 }
 SharedPropertyEditor.prototype.sizeChanged = function (expanded) {
-	
+
 	this.canAttach = expanded;
-	
+
 	if (this.canAttach && this.pendingTarget) {
 		this.attach(this.pendingTarget);
-		this.pendingTarget = null;	
+		this.pendingTarget = null;
 	}
-	
+
 }
 SharedPropertyEditor.prototype.attach = function (target) {
-	
+
     if (!target) return;
-    
+
     if (!this.canAttach) {
 		this.pendingTarget = target;
 		return;
 	}
-    
+
     if (this.target && this.target.id == target.id) {
         this.target = target;
         return;
     }
-	
+
     var definedGroups = target.getPropertyGroups();
 
     this.target = target;
-    
+
     this.propertyEditor = {};
     this.propertyContainer.innerHTML = "";
     var definedGroups = this.target.getPropertyGroups();
@@ -75,8 +78,9 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var thiz = this;
     var currentGroupNode = null;
 
-    this.propertyContainer.style.display = "block";
+    this.propertyContainer.style.display = "none";
     this.propertyContainer.style.opacity = "0";
+    this.noTargetMessagePane.style.display = "none";
 
     var uuid = Util.newUUID();
     this.currentExecutorUUID = uuid;
@@ -84,7 +88,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var executor = function () {
         if (!thiz.target || uuid != thiz.currentExecutorUUID) return;
         if (properties.length == 0) {
-            thiz.propertyContainer.style.display = "block";
+            thiz.propertyContainer.style.display = "flex";
             thiz.propertyContainer.style.opacity = "1";
             return;
         }
@@ -144,18 +148,19 @@ SharedPropertyEditor.prototype.attach = function (target) {
         editorWidget.signalOnAttached();
 
 
-        window.setTimeout(executor, 80);
+        window.setTimeout(executor, 40);
     };
 
     executor();
 
     this.properties = this.target.getProperties();
-    
+
     Dom.emitEvent("p:TitleChanged", this.node(), {});
 };
 SharedPropertyEditor.prototype.detach = function () {
-    this.propertyContainer.innerHTML = "";
     this.propertyContainer.style.display = "none";
+    this.noTargetMessagePane.style.display = "flex";
+    this.propertyContainer.innerHTML = "";
     this.target = null;
     Dom.emitEvent("p:TitleChanged", this.node(), {});
 };

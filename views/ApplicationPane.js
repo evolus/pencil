@@ -46,6 +46,28 @@ function ApplicationPane() {
             console.log(path);
         }, 0.5);
     }, this.rasterizeButton);
+
+    var lastOverflowX = null;
+    var lastOverflowY = null;
+
+    var overflowChecker = function () {
+        var overflowX = thiz.contentBody.scrollWidth > thiz.contentBody.clientWidth;
+        var overflowY = thiz.contentBody.scrollHeight > thiz.contentBody.clientHeight;
+
+        if (lastOverflowX == null || lastOverflowX != overflowX || lastOverflowY == null || lastOverflowY != overflowY) {
+            thiz.contentBody.setAttribute("overflowx", overflowX);
+            thiz.contentBody.setAttribute("overflowy", overflowY);
+
+            thiz.contentBody.style.transform = "";
+            thiz.contentBody.style.transform = "translateZ(0)";
+        }
+
+        lastOverflowX = overflowX;
+        lastOverdlowY = overflowY;
+
+        window.setTimeout(overflowChecker, 200);
+    };
+    overflowChecker();
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {
@@ -81,8 +103,12 @@ ApplicationPane.prototype.createCanvas = function () {
     wrapper.style.display = "none";
 
     canvas.element.addEventListener("p:SizeChanged", function () {
-        container.style.width = canvas.width + "px";
-        container.style.height = canvas.height + "px";
+        var w = Math.ceil(canvas.width * canvas.zoom);
+        var h = Math.ceil(canvas.height * canvas.zoom);
+        container.style.width = w + "px";
+        container.style.height = h + "px";
+        container.parentNode.style.width = w + "px";
+        container.parentNode.style.height = h + "px";
     }, false);
     return canvas;
 };
