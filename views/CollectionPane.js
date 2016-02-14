@@ -49,12 +49,24 @@ function CollectionPane() {
 }
 __extend(BaseTemplatedWidget, CollectionPane);
 
+CollectionPane.ICON_MAP = {
+    "Evolus.Common": "layers",
+    "Evolus.BasicWebElements": "language",
+    "Evolus.Sketchy.GUI": "gesture",
+    "extJSKitchenSink": "",
+    "Evolus.iOS7": "phone",
+    "Evolus.Windows7": "web"
+};
+
 CollectionPane.prototype.getTitle = function() {
 	return "Shapes";
 }
 CollectionPane.prototype.getIconName = function() {
 	return "layers";
 }
+CollectionPane.prototype.getCollectionIcon = function (collection) {
+    return collection.icon || CollectionPane.ICON_MAP[collection.id] || "border_all";
+};
 CollectionPane.prototype.reload = function () {
     Dom.empty(this.selectorPane);
 
@@ -63,17 +75,25 @@ CollectionPane.prototype.reload = function () {
     var collections = CollectionManager.shapeDefinition.collections;
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
+        console.log("\"" + collection.id + "\": \"\",");
+        var icon = this.getCollectionIcon(collection);
         var node = Dom.newDOMElement({
             _name: "vbox",
             "class": "Item",
             _children: [
                 {
-                    _name: "i",
-                    "class": "fa fa-cube"
-                },
-                {
-                    _name: "span",
-                    _text: collection.displayName
+                    _name: "div",
+                    "class": "ItemInner",
+                    _children: [
+                        {
+                            _name: "span",
+                            _text: collection.displayName
+                        },
+                        {
+                            _name: "i",
+                            _text: icon
+                        }
+                    ]
                 }
             ]
         });
@@ -85,6 +105,19 @@ CollectionPane.prototype.reload = function () {
 
         this.selectorPane.appendChild(node);
     }
+    var thiz = this;
+    window.setTimeout(function () {
+        for (var i = 0; i < thiz.selectorPane.childNodes.length; i ++) {
+            var item = thiz.selectorPane.childNodes[i];
+            var inner = item.firstChild.firstChild;
+
+            var w = inner.offsetWidth + 4 * Util.em();
+            item.style.height = w + "px";
+            item.firstChild.style.width = w + "px";
+            item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)"
+        }
+    }, 0);
+
     if (lastNode) {
         Dom.doOnAllChildren(this.selectorPane, function (n) {
             if (n.setAttribute) n.setAttribute("active", n == lastNode);
@@ -139,6 +172,10 @@ CollectionPane.prototype.filterCollections = function () {
 };
 CollectionPane.prototype.openCollection = function (collection) {
     Dom.empty(this.shapeList);
+    this.collectionIcon.innerHTML = this.getCollectionIcon(collection);
+    this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
+    this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
+
     this.last = collection;
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
     for (var i = 0; i < shapeDefs.length; i ++) {

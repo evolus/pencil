@@ -11,10 +11,10 @@
             padding: 0.7em;
             box-shadow: 0px 0px 1.5em 0.4em #FFF;
         }
-        @contentHeader > hbox + hbox {
+        @contentHeader > vbox > hbox + hbox {
             margin-top: 0.5em;
         }
-        @contentHeader > hbox > * + * {
+        @contentHeader > vbox > hbox > * + * {
             margin-left: 1em;
         }
         @contentBody {
@@ -50,11 +50,12 @@
 
         @contentHeader {
             font-size: 0.85em;
-            background: #F0F0F0;
+            background: lighten(@selected_bg, 30%);
         }
         @contentHeader button,
         @contentHeader hbox.ButtonGroup {
             box-shadow: 0em 0.1ex 0.25em rgba(0, 0, 0, 0.15);
+            background: lighten(@selected_bg, 45%);
         }
         @contentHeader button {
             padding-left: 0.7em;
@@ -73,39 +74,77 @@
         @contentHeader input[type='number'] {
             text-align: center;
         }
+        @contentHeader @menuIcon {
+            @iconify();
+            opacity: 1;
+            font-size: 2.5em;
+            color: #fff;
+            padding: 0.3em;
+            border-radius: 1em;
+            cursor: pointer;
+        }
+        @contentHeader @menuIcon:hover {
+            background: #FFF;
+            color: @selected_bg;
+        }
+        @contentHeader @appName i {
+            @iconify();
+            font-size: 1.3em;
+            opacity: 1;
+        }
+        @logoBox {
+            padding-right: 3em;
+            align-items: center;
+        }
+        @appName {
+            font-size: 2em;
+            color: darken(saturate(#da8500, 20%), 0%);
+        }
+        @appName * {
+            vertical-align: middle;
+        }
     </style>
 
-    <ui:CollapseablePanel orient="horizontal" name="left_pane">
-        <ui:CollectionPane anon-id="collectionPane"/>
-        <ui:CollectionPane anon-id="collectionPane2"/>
-    </ui:CollapseablePanel>
     <vbox flex="1" anon-id="mainArea">
-        <vbox anon-id="contentHeader">
-            <hbox>
-                <ui:ComboManager anon-id="pageCombo" />
-                <hbox class="ButtonGroup">
-                    <button anon-id="addButton" mode="icon"><i>add</i></button>
-                    <button anon-id="deleteButton" mode="icon"><i>remove</i></button>
+        <hbox anon-id="contentHeader">
+            <hbox anon-id="logoBox">
+                <i anon-id="menuIcon">menu</i>
+                <div anon-id="appName">
+                    <i>mode_edit</i>
+                    <strong>PENCIL</strong>
+                </div>
+            </hbox>
+            <vbox flex="1">
+                <hbox>
+                    <ui:ComboManager anon-id="pageCombo" />
+                    <hbox class="ButtonGroup">
+                        <button anon-id="addButton" mode="icon"><i>add</i></button>
+                        <button anon-id="deleteButton" mode="icon"><i>remove</i></button>
+                    </hbox>
+                    <button anon-id="testButton" mode="icon"><i>pets</i></button>
+                    <button anon-id="rasterizeButton" mode="icon"><i>image</i></button>
+
+                    <ui:EditToolbar />
+                    <ui:ZoomToolbar />
+                    <ui:AlignmentToolbar />
+                    <ui:SizeToolbar />
+                    <div flex="1"></div>
                 </hbox>
-                <button anon-id="testButton" mode="icon"><i>pets</i></button>
-                <button anon-id="rasterizeButton" mode="icon"><i>image</i></button>
-
-                <ui:EditToolbar />
-                <ui:ZoomToolbar />
-                <ui:AlignmentToolbar />
-                <ui:SizeToolbar />
-                <div flex="1"></div>
-            </hbox>
-            <hbox>
-                <ui:SharedFontEditor anon-id="sharedFontEditor" />
-                <ui:ColorEditor />
+                <hbox>
+                    <ui:SharedFontEditor anon-id="sharedFontEditor" />
+                    <ui:ColorEditor />
 
 
-                <ui:SharedBorderStyleEditor />
-                <ui:SharedGeomtryEditor />
-            </hbox>
-        </vbox>
+                    <ui:SharedBorderStyleEditor />
+                    <ui:SharedGeomtryEditor />
+                </hbox>
+            </vbox>
+        </hbox>
         <hbox flex="1" style="overflow: auto;">
+            <ui:CollapseablePanel orient="horizontal" name="left_pane">
+                <ui:CollectionPane anon-id="collectionPane"/>
+                <ui:MyCollectionPane anon-id="MyCollectionPane"/>
+            </ui:CollapseablePanel>
             <hbox anon-id="contentBody" flex="1" style="position: relative;"></hbox>
             <ui:CollapseablePanel orient="horizontal" name="right_pane">
                 <ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />

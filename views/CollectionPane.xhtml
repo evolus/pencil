@@ -1,5 +1,8 @@
 <vbox>
     <style>
+        $selector_item_width: 3em;
+        $selector_item_height: 12em;
+
         @filter {
             background: #D3DADE;
             position: relative;
@@ -18,72 +21,87 @@
             font-size: 0.95em;
             background: #DA8500;
         }
+        @contentPane {
+            overflow: hidden;
+        }
         @selectorPane {
-            width: 6em;
-            background: #1C262B;
+            width: @selector_item_width;
+            background: fadeout(desaturate(@selected_bg, 5%), 30%);
             font-size: 0.95em;
-            overflow: auto;
             cursor: default;
+            overflow: hidden;
+        }
+        @selectorPaneContainer {
+            overflow: hidden;
         }
 
-
-        @selectorPane::-webkit-scrollbar {
+        @xxxselectorPane::-webkit-scrollbar {
             width: 0em;
         }
-        @selectorPane:hover::-webkit-scrollbar {
+        @xxxselectorPane:hover::-webkit-scrollbar {
             width: 0.4em;
         }
-        @selectorPane::-webkit-scrollbar-track {
+        @xxxselectorPane::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 0.3em rgba(255, 255, 255, 0);
         }
-        @selectorPane:hover::-webkit-scrollbar-track {
+        @xxxselectorPane:hover::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 0.3em rgba(255, 255, 255, 0.1);
         }
 
-        /* Handle */
-        @selectorPane::-webkit-scrollbar-thumb {
+        @xxxselectorPane::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0);
             -webkit-box-shadow: inset 0 0 0.3em rgba(255, 255, 255, 0);
         }
-        @selectorPane:hover::-webkit-scrollbar-thumb {
+        @xxxselectorPane:hover::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.3);
         }
 
-
         @selectorPane .Item {
+            padding: 0em;
+            color: rgba(0, 0, 0, 0.3);
+            line-height: @selector_item_width;
+        }
+        @selectorPane .Item > .ItemInner {
             text-align: center;
-            padding: 1em 0.6em;
-            color: #7D8B91;
+            height: @selector_item_width;
+            transform-origin: 0px 0px;
+
         }
         @selectorPane:hover .Item {
-            padding-right: 0.2em;
         }
         @selectorPane .Item i {
+            @iconify();
+            opacity: 1;
             font-size: 1.5em;
+            transform: rotate(90deg);
+            vertical-align: middle;
+            margin-left: 0.5em;
         }
         @selectorPane .Item span {
-            display: block;
-            margin-top: 0.5em;
-            font-size: 0.75em;
-            line-height: 1.2em;
+            vertical-align: middle;
+            display: inline-block;
             font-weight: bold;
-            height: 2.4em;
             text-overflow: ellipsis;
             overflow: hidden;
         }
         @selectorPane .Item + .Item {
-            border-top: solid 2px #243036;
+            border-top: solid 2px #536F88;
         }
         @selectorPane .Item[active='true'] {
-            color: #FFFFFF;
-            background: #3D535E;
+            color: @selected_bg;
+            background: @app_bg;
         }
-        @selectorPane .Item:hover {
-            background: #293A43;
+        @selectorPane .Item:not([active='true']):hover {
+            background: rgba(255, 255, 255, 0.2);
         }
         @shapePane {
-            background: #BACFD9;
+            background: @app_bg;
             overflow: auto;
+        }
+        @shapeListContainer {
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 1em;
         }
         .ShapeList {
             list-style: none;
@@ -139,6 +157,23 @@
             font-weight: bold;
             text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
         }
+        @collectionInfoPane {
+            padding: 1em;
+            color: @selected_bg;
+        }
+        @collectionIcon {
+            @iconify();
+            opacity: 1;
+            font-size: 3em;
+            margin-right: 0.3em;
+        }
+        @collectionTitle,
+        @collectionDescription {
+            display: block;
+        }
+        @collectionDescription {
+            opacity: 0.7;
+        }
     </style>
     <hbox anon-id="filter">
         <hbox anon-id="logo">
@@ -148,13 +183,22 @@
             <i class="fa fa-search"></i>
         </hbox>
     </hbox>
-    <hbox flex="1">
+    <hbox flex="1" anon-id="contentPane">
         <vbox anon-id="selectorPaneContainer">
             <div anon-id="selectorPane"></div>
         </vbox>
-        <hbox anon-id="shapePane" flex="1">
-            <ul anon-id="shapeList" class="ShapeList" flex="1">
-            </ul>
-        </hbox>
+        <vbox anon-id="shapePane" flex="1">
+            <hbox anon-id="collectionInfoPane">
+                <i anon-id="collectionIcon"></i>
+                <div flex="1">
+                    <strong anon-id="collectionTitle"></strong>
+                    <span anon-id="collectionDescription"></span>
+                </div>
+            </hbox>
+            <vbox flex="1" anon-id="shapeListContainer">
+                <ul anon-id="shapeList" class="ShapeList" flex="1">
+                </ul>
+            </vbox>
+        </vbox>
     </hbox>
 </vbox>

@@ -1510,6 +1510,22 @@ Util.isXul6OrLater = function() {
 Util.isMac = function() {
     return navigator.userAgent.indexOf("Intel Mac") != -1;
 }
+Util.em = function () {
+    if (Util._calculatedEM) return Util._calculatedEM;
+    var div = document.createElement("div");
+    var s = "mmmmmmmmmmmmmmmmmmmmmmmmmmm";
+    div.innerHTML = s;
+    document.body.appendChild(div);
+    div.style.position = "absolute";
+    div.style.top = "0px";
+    div.style.opacity = "0";
+    div.style.left = "0px";
+    div.style.whiteSpace = "nowrap";
+
+    Util._calculatedEM = div.offsetWidth / s.length;
+    document.body.removeChild(div);
+    return Util._calculatedEM;
+};
 function debugx(ex) {
     debug("debugx is no longer supported");
 }

@@ -124,7 +124,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 {
                     _name: "div",
                     "class": "Label Property",
-                    _text: propName
+                    _text: propName + ":"
                 }
             ]
         });

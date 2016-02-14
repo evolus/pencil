@@ -69,6 +69,7 @@ CollapseablePanel.ensureGlobalHandlers = function () {
 
     document.addEventListener("mousemove", CollapseablePanel.globalSplitterMoveListener, false);
     document.addEventListener("mouseup", function (event) {
+        if (!CollapseablePanel.heldInstance) return;
         Config.set(CollapseablePanel.heldInstance.sizeConfigName, CollapseablePanel.heldInstance.width);
         CollapseablePanel.heldInstance = null;
     }, false);

@@ -1,7 +1,7 @@
 <box anon-id="collapseablePanel">
     <style>
         body .widget_CollapseablePanel {
-            background: #F0F0F0;
+            background: @app_bg;
             z-index: 1;
             position: relative;
         }
@@ -105,10 +105,10 @@
             cursor: ew-resize;
         }
         body .widget_CollapseablePanel[orient='horizontal']:first-child @splitter {
-            right: -7px;
+            right: -8px;
         }
         body * > * + .widget_CollapseablePanel[orient='horizontal'] @splitter {
-            left: -7px;
+            left: -8px;
         }
         body .widget_CollapseablePanel[orient='horizontal'] @splitter div {
             position: absolute;
