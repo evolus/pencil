@@ -148,6 +148,7 @@ function ColorSelector() {
         var s = Math.round(r * 100 / thiz.radius);
 
         var value = thiz.color.getHSV().value;
+        if (value == 0) value = 100;
         var a = thiz.color.a;
 
         thiz.color = Color.fromHSV(h, s, value);
