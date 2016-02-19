@@ -26,6 +26,9 @@ Controller.prototype.makeSubDir = function (sub) {
 
     return fullPath;
 };
+Controller.prototype.getDocumentName = function () {
+    return "Untitled.epz";
+};
 Controller.prototype.newDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
@@ -37,13 +40,20 @@ Controller.prototype.newDocument = function () {
     var page = this.newPage("Untitled Page", size.w, size.h, null, null, "");
     this.activatePage(page);
 };
-Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note) {
+Controller.prototype.findPageById = function (id) {
+    for (var i in this.pages) {
+        if (this.pages[i].id == id) return this.pages[i];
+    }
+
+    return null;
+};
+Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId) {
     var id = Util.newUUID();
     var page = {
         name: name,
         width: width,
         height: height,
-        backgroundPageId: backgroundPageId,
+        backgroundPage: this.findPageById(backgroundPageId),
         backgroundColor: backgroundColor,
         note: note,
 
@@ -51,9 +61,21 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
         canvas: null,
         tempFilePath: path.join(this.tempDir.name, "page_" + id + ".xml")
     }
+    console.log("background page: " + page.backgroundPage);
 
     this.serializePage(page, page.tempFilePath);
     this.pages.push(page);
+
+    page.parentPage = null;
+    if (parentPageId) {
+        var parentPage = this.findPageById(parentPageId);
+        if (parentPage) {
+            if (!parentPage.children) parentPage.children = [];
+            parentPage.children.push(page);
+            page.parentPage = parentPage;
+        }
+    }
+
 
     this.sayDocumentChanged();
 
@@ -164,7 +186,7 @@ Controller.prototype.activatePage = function (page) {
     page.lastUsed = new Date();
 
     this.activePage = page;
-    this.sayDocumentChanged();
+    // this.sayDocumentChanged();
 };
 Controller.prototype.deletePage = function (page) {
     fs.unlinkSync(page.tempFilePath);
@@ -252,8 +274,10 @@ Controller.prototype.updatePageThumbnail = function (page) {
     var scale = Controller.THUMBNAIL_SIZE / page.width;
     if (page.height > page.width) scale = Controller.THUMBNAIL_SIZE / page.height;
 
+    var thiz = this;
     this.applicationPane.rasterizer.rasterizePageToFile(page, thumbPath, function (p, error) {
         page.thumbPath = p;
         page.thumbCreated = new Date();
+        Dom.emitEvent("p:PageInfoChanged", thiz.applicationPane, {page: page});
     }, scale);
 };

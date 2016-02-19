@@ -145,7 +145,10 @@
                 <ui:CollectionPane anon-id="collectionPane"/>
                 <ui:MyCollectionPane anon-id="MyCollectionPane"/>
             </ui:CollapseablePanel>
-            <hbox anon-id="contentBody" flex="1" style="position: relative;"></hbox>
+            <vbox flex="1">
+                <hbox anon-id="contentBody" flex="1" style="position: relative;"></hbox>
+                <ui:PageListView anon-id="pageListView" />
+            </vbox>
             <ui:CollapseablePanel orient="horizontal" name="right_pane">
                 <ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />
             </ui:CollapseablePanel>

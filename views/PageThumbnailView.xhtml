@@ -1,0 +1,67 @@
+<vbox>
+    <style>
+        body .widget_PageThumbnailView[selected="true"],
+        body .widget_PageThumbnailView:hover {
+            opacity: 1;
+        }
+
+        body .widget_PageThumbnailView {
+            opacity: 0.6;
+        }
+        @pageThumbnailContainer {
+            width: 6em;
+            height: 4em;
+            box-sizing: border-box;
+            border: 1px solid #999999;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            box-shadow: @card_shadow;
+        }
+        @pageThumbnailContainer[selected = "true"]{
+            border: 1px solid #336699;
+        }
+
+        @footer {
+            padding-top: 0.2em;
+            width: 6em;
+            height: 1em;
+            align-items: center;
+        }
+        @footer > * {
+            font-size: 0.85em;
+        }
+        @pageTitle {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.8em;
+        }
+        @pageTitle[selected="true"] {
+            color: #336699;
+        }
+
+        @footer button {
+            box-shadow: none;
+            padding: 0em;
+            background: transparent;
+            border-radius: 50%;
+            height: auto;
+            line-height: 1em;
+            margin-right: -0.4em;
+        }
+        @footer button i {
+            line-height: 1em;
+            font-size: 1em;
+        }
+        @footer button:hover {
+            background: #fff;
+        }
+    </style>
+    <hbox anon-id="pageThumbnailContainer" flex="1">
+        <img anon-id="pageThumbnail" />
+    </hbox>
+    <hbox anon-id="footer">
+        <span anon-id="pageTitle" flex="1"></span><button anon-id="pageActionButton"><i>more_vert</i></button>
+    </hbox>
+</vbox>
