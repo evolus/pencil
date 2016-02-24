@@ -22,6 +22,10 @@
             border: 1px solid #336699;
         }
 
+        @pageThumbnail {
+            height: 3em;
+        }
+
         @footer {
             padding-top: 0.2em;
             width: 6em;
@@ -59,7 +63,7 @@
         }
     </style>
     <hbox anon-id="pageThumbnailContainer" flex="1">
-        <img anon-id="pageThumbnail" />
+        <img anon-id="pageThumbnail" flex="1"/>
     </hbox>
     <hbox anon-id="footer">
         <span anon-id="pageTitle" flex="1"></span><button anon-id="pageActionButton"><i>more_vert</i></button>
