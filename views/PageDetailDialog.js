@@ -78,13 +78,16 @@ Page.defaultPageSizes = [
 PageDetailDialog.prototype.setup = function (options) {
     this.options = options;
     if (this.options && this.options.onDone) this.onDone = this.options.onDone;
-
     var pages = [];
     pages.push({
-        name: "None"
+        name: "(None)"
     });
     pages = pages.concat(Pencil.controller.pages);
     this.pageCombo.setItems(pages);
+
+    if (this.options && this.options.defaultParentPage) {
+        this.pageCombo.selectItem(this.options.defaultParentPage);
+    }
 
     var pageSizes = [];
 
@@ -165,14 +168,14 @@ PageDetailDialog.prototype.createPage = function () {
 
     var background = this.backgroundCombo.getSelectedItem();
     if (background.value != "transparent") {
-        if (typeof(background.value) != "undefined") {
+        if (typeof(background.value) == "undefined") {
             backgroundColor = this.colorButton.bgColor ? this.colorButton.bgColor.toRGBString() : "#FFFFFF";
         } else {
-            backgroundPageId = parseInt(background.value, 10);
+            backgroundPageId = background.value;
         }
     }
 
-    var page = Pencil.controller.newPage(name, width, height, backgroundPageId, backgroundColor, "");
+    var page = Pencil.controller.newPage(name, width, height, backgroundPageId, backgroundColor, "", this.pageCombo.getSelectedItem().id);
 
     Config.set("lastSize", [width, height].join("x"));
     return page;

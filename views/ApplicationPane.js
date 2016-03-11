@@ -15,6 +15,7 @@ function ApplicationPane() {
     };
     this.pageCombo.decorator = function (node, canvas) {
     };
+
     var thiz = this;
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
     this.bind("click", function () {
@@ -22,13 +23,20 @@ function ApplicationPane() {
         var page = this.controller.newPage("Page " + new Date().getTime(), 800, 600, null, "#FF0000", "");
         // page.backgroundPage = currentPage;
 
-        this.controller.activatePage(page);
+        // this.controller.activatePage(page);
+        this.pageListView.activatePage(page);
+
     }, this.addButton);
 
     this.bind("p:ItemSelected", function () {
         var page = this.pageCombo.getSelectedItem();
-        this.controller.activatePage(page);
+        // this.controller.activatePage(page);
+        this.pageListView.activatePage(page);
     }, this.pageCombo.node());
+
+    this.bind("p:PageInfoChanged", function (event) {
+        this.pageListView.handlePageInfoChangedEvent(event);
+    });
 
     this.bind("click", function (event) {
         var thiz = this;
@@ -36,7 +44,8 @@ function ApplicationPane() {
         dialog.open({
             onDone: function (page) {
                 if (!page) return;
-                thiz.controller.activatePage(page);
+                // thiz.controller.activatePage(page);
+                thiz.pageListView.activatePage(page);
             }
         });
     }, this.testButton);
@@ -68,6 +77,8 @@ function ApplicationPane() {
         window.setTimeout(overflowChecker, 200);
     };
     overflowChecker();
+
+    this.pageListView.setController(this.controller);
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {
@@ -115,6 +126,8 @@ ApplicationPane.prototype.createCanvas = function () {
 ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageCombo.setItems(this.controller.pages);
     if (this.controller.activePage) this.pageCombo.selectItem(this.controller.activePage);
+
+    this.pageListView.renderPages();
 };
 ApplicationPane.prototype.testSave = function () {
     this.controller.newDocument();

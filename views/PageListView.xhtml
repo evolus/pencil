@@ -1,0 +1,122 @@
+<vbox>
+    <style>
+        body .widget_PageListView {
+            /*height: 9em;*/
+        }
+        @header {
+            height: 1.6em;
+            background: @app_bg;
+            align-items: center;
+        }
+        @header button {
+            line-height: 1.6em;
+            padding: 0em 0.8em;
+            height: auto;
+        }
+
+        @header button i {
+            line-height: 1em;
+            font-size: 1.6em;
+        }
+        @header button:hover {
+            background: #369;
+        }
+
+        @pageListContainer {
+            padding: 0em 1em;
+            background: #EEE;
+            overflow-y: hidden;
+            overflow-x: auto;
+            align-items: center;
+        }
+        @pageListContainer > .widget_PageThumbnailView + .widget_PageThumbnailView {
+            margin-left: 1em;
+        }
+
+        @pageBreadcrumb {
+            margin-left: 1em;
+        }
+
+        @pageBreadcrumb,
+        @childPageContainer {
+            cursor: default;
+        }
+        @pageBreadcrumb i {
+            @iconify();
+        }
+        @pageBreadcrumb > hbox,
+        @childPageContainer > hbox {
+            line-height: 1.6em;
+            position: relative;
+            padding: 0em 1.2em 0em 0.5em;
+            background: #999;
+        }
+        @childPageContainer > hbox {
+            background: #F7F7F7;
+        }
+        @pageBreadcrumb > hbox:before,
+        @pageBreadcrumb > hbox:after {
+            width: 0px;
+            height: 0px;
+            border-top: 0.8em solid transparent;
+            border-bottom: 0.8em solid transparent;
+            border-left: 0.7em solid #999;
+            display: block;
+            content: " ";
+            overflow: hidden;
+            position: absolute;
+            top: 0px;
+            right: 0em;
+        }
+        @pageBreadcrumb > hbox:before {
+            border-left: 0.7em solid #000;
+            right: -1px;
+        }
+        @pageBreadcrumb > hbox:last-child:after,
+        @pageBreadcrumb > hbox:last-child:before {
+            display: none;
+        }
+        @pageBreadcrumb > hbox:hover,
+        @childPageContainer > hbox:hover {
+            color: #336699;
+        }
+        @pageBreadcrumb > hbox,
+        @childPageContainer > hbox {
+            align-items: center;
+        }
+        @pageBreadcrumb i {
+            padding-right: 0.3em;
+            font-size: 1em;
+        }
+        @pageBreadcrumb hbox span,
+        @childPageContainer hbox span {
+            text-align: center;
+        }
+
+        @childPageContainer > hbox {
+            border: 1px solid #999;
+            border-left: none;
+        }
+        @childPageContainer > hbox[selected="true"] {
+            background: #A8D4FF;
+        }
+
+        @pageListContainer {
+            padding-top: 1em;
+            padding-bottom: 1em;
+        }
+    </style>
+    <hbox anon-id="header">
+        <hbox flex="1">
+            <hbox anon-id="pageBreadcrumb">
+                <hbox><i>description</i><span>Untitled.epz</span></hbox>
+                <hbox><span>Untitled Page</span></hbox>
+            </hbox>
+            <hbox anon-id="childPageContainer"></hbox>
+        </hbox>
+        <hbox><button anon-id="addPageButton"><i>add</i></button></hbox>
+        <hbox><button anon-id="toggleButton"><i>expand_more</i></button></hbox>
+    </hbox>
+    <hbox anon-id="pageListContainer" flex="1">
+    </hbox>
+</vbox>
