@@ -110,7 +110,6 @@ CollectionPane.prototype.reload = function () {
                 }
             ]
         });
-
         node._collection = collection;
         if (!lastNode) {
             lastNode = node;

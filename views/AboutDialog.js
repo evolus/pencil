@@ -5,29 +5,29 @@ function AboutCollectionDialog(collection) {
     };
 
     //this.title = collection.displayName;
-    var node = Dom.newDOMElement(
-        {
-            _children:[
+    var node = Dom.newDOMElement({
+        _name: "div",
+        _children:[
             {
                 _name: "p",
                 _text: collection.description
             },
             {
-            _name : "ul",
-            _children :[
-                {
-                    _name: "li",
-                    _text: collection.author   
-                },
-                {
-                    _name: "li",
-                    _text: collection.infoUrl
-                }
-            ]
+                _name : "ul",
+                _children :[
+                    {
+                        _name: "li",
+                        _text: collection.author   
+                    },
+                    {
+                        _name: "li",
+                        _text: collection.infoUrl
+                    }
+                ]
             }
-        ]});
+        ]
+    });
     this.dialogBody.appendChild(node);
-
 }
 __extend(Dialog, AboutCollectionDialog);
 
