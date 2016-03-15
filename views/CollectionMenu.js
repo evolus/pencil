@@ -7,13 +7,13 @@ __extend(Menu, CollectionMenu);
 
 CollectionMenu.prototype.getTemplatePath = function () {
     return this.getTemplatePrefix() + "Menu.xhtml";
-}; // lay duong dan tra ve file Menu.xhtml
+};
 
 CollectionMenu.prototype.setup = function () {
     var thiz = this;
 
     UICommandManager.register({
-        key: "settingCommand",
+        key: "settingCollectionCommand",
         getLabel: function () { return "Collection setting" },
         isValid: function () { return true },
         run: function () {
@@ -21,7 +21,7 @@ CollectionMenu.prototype.setup = function () {
         }
     });
     UICommandManager.register({
-        key: "hideCollCommand",
+        key: "hideCollectionCommand",
         getLabel: function () { return "Hide this collection " },
         isValid: function () { return true },
         run: function () {
@@ -29,7 +29,7 @@ CollectionMenu.prototype.setup = function () {
         }
     });
     UICommandManager.register({
-        key: "uninstallCollCommand",
+        key: "uninstallCollectionCollCommand",
         getLabel: function () { return "Uninstall this collection" },
         isValid: function () { return true },
         run: function () {
@@ -37,18 +37,18 @@ CollectionMenu.prototype.setup = function () {
         }
     });
     UICommandManager.register({
-        key: "aboutCommand",
+        key: "aboutCollectionCommand",
         getLabel: function () { return "About "  + thiz.collection.displayName },
         isValid: function () { return true },
         run: function () {
             //alert("Fdlskjf");
-            this.aboutdg = new AboutDialog(thiz.collection);
+            this.aboutdg = new AboutCollectionDialog(thiz.collection);
             this.aboutdg.open();
             
         }
     });
     UICommandManager.register({
-        key: "installCommand",
+        key: "installCollectionCommand",
         getLabel: function () { return "Install new collection..." },
         isValid: function () { return true },
         run: function () {
@@ -56,17 +56,17 @@ CollectionMenu.prototype.setup = function () {
         }
     });
     UICommandManager.register({
-        key: "showhiddentCommand",
-        getLabel: function () { return "Show hiddent" },
+        key: "showHiddentCollectionCommand",
+        getLabel: function () { return "Show hiddent collection" },
         isValid: function () { return true },
         run: function () {
             // thiz.canvas.careTaker.undo();
         }
     });
-    this.register(UICommandManager.getCommand("settingCommand"));
-    this.register(UICommandManager.getCommand("hideCollCommand"));
-    this.register(UICommandManager.getCommand("uninstallCollCommand"));
-    this.register(UICommandManager.getCommand("aboutCommand"));
-    this.register(UICommandManager.getCommand("installCommand"));
-    this.register(UICommandManager.getCommand("showhiddentCommand"));
+    this.register(UICommandManager.getCommand("settingCollectionCommand"));
+    this.register(UICommandManager.getCommand("hideCollectionCommand"));
+    this.register(UICommandManager.getCommand("uninstallCollectionCollCommand"));
+    this.register(UICommandManager.getCommand("aboutCollectionCommand"));
+    this.register(UICommandManager.getCommand("installCollectionCommand"));
+    this.register(UICommandManager.getCommand("showHiddentCollectionCommand"));
 }
