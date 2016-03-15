@@ -103,7 +103,7 @@ Dialog.prototype.invalidateElements = function () {
 
     Dom.empty(this.dialogTitle);
     this.dialogTitle.appendChild(document.createTextNode(this.e(this.title)));
-
+    
     console.log(this.closeHandler);
     this.dialogClose.style.display = this.closeHandler ? "inline-block" : "none";
 };

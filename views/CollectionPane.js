@@ -1,8 +1,21 @@
 function CollectionPane() {
     BaseTemplatedWidget.call(this);
-
-
     var thiz = this;
+
+    
+    this.selectorPane.addEventListener("contextmenu",function(event) {
+
+        console.log("right click here");
+        var collection = Dom.findUpwardForData(event.target, "_collection");
+        this.menu = new CollectionMenu(collection);
+        
+        this.menu.collection = collection;
+        console.log(this.menu.collection.displayName);
+        this.menu.showMenuAt(event.clientX, event.clientY);
+        // thiz.handleContextMenuShow(event);
+    });
+    
+    //
     this.selectorPane.addEventListener("click", function(event) {
         var item = Dom.findUpward(Dom.getTarget(event), function (n) {
             return n._collection;
@@ -127,7 +140,32 @@ CollectionPane.prototype.reload = function () {
         this.openCollection(this.last);
     }
 };
+CollectionPane.prototype.handleContextMenuShow = function (event) {
+    if (this.currentController) {
+        // attach now
+        if (this.contextMenuEditor) {
+            this.contextMenuEditor.attach(this.currentController);
+        }
 
+        this.lockingStatus = {
+            controller : this.currentController
+        };
+
+    } else {
+        var top = Dom.findTop(event.originalTarget, function (node) {
+            return node.hasAttributeNS
+                    && node.hasAttributeNS(PencilNamespaces.p, "type");
+                });
+
+        if (top && this.isShapeLocked(top)) {
+            this.lockingStatus = {
+                node : top
+            };
+        }
+    }
+
+    this.menu.showMenuAt(event.clientX, event.clientY);
+};
 CollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
     var collectionNodes = Dom.getList(".//*[@class='Item']", this.selectorPane);
@@ -222,3 +260,4 @@ Object.defineProperty(CollectionPane.prototype, "foo", {
         console.log("set foo to: " + value);
     }
 });
+
