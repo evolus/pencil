@@ -3,19 +3,26 @@ function CollectionPane() {
     var thiz = this;
 
     
+    this.menu;
     this.selectorPane.addEventListener("contextmenu",function(event) {
 
         console.log("right click here");
         var collection = Dom.findUpwardForData(event.target, "_collection");
-        this.menu = new CollectionMenu(collection);
+
+        this.menu = new CollectionMenu(collection,thiz);
         
-        this.menu.collection = collection;
-        console.log(this.menu.collection.displayName);
+        //this.menu.collection = collection;
         this.menu.showMenuAt(event.clientX, event.clientY);
         // thiz.handleContextMenuShow(event);
+
+        // var collection = Dom.findUpwardForData(event.target, "_collection");
+        // CollectionManager.setCollectionVisible(collection,false);
+
+        // thiz.reload();
+
+
     });
     
-    //
     this.selectorPane.addEventListener("click", function(event) {
         var item = Dom.findUpward(Dom.getTarget(event), function (n) {
             return n._collection;
@@ -71,6 +78,23 @@ CollectionPane.ICON_MAP = {
     "Evolus.Windows7": "web"
 };
 
+// Function hide collection --
+CollectionPane.prototype.setVisibleCollection = function (collection,value) { // function Hide collection 
+    CollectionManager.setCollectionVisible(collection,value);
+    this.reload();
+}
+
+//Function return collection hidden
+CollectionPane.prototype.returnHiddenCollection = function() {
+    var collections = CollectionManager.shapeDefinition.collections;
+    var hiddenCollection = [];
+    for (var i = 0; i < collections.length; i ++) {
+        if(collections[i].visible == false) {
+            hiddenCollection.push(collections[i]);
+        }
+    }
+    return hiddenCollection;
+}
 CollectionPane.prototype.getTitle = function() {
 	return "Shapes";
 }
@@ -88,34 +112,35 @@ CollectionPane.prototype.reload = function () {
     var collections = CollectionManager.shapeDefinition.collections;
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
-        console.log("\"" + collection.id + "\": \"\",");
-        var icon = this.getCollectionIcon(collection);
-        var node = Dom.newDOMElement({
-            _name: "vbox",
-            "class": "Item",
-            _children: [
-                {
-                    _name: "div",
-                    "class": "ItemInner",
-                    _children: [
-                        {
-                            _name: "span",
-                            _text: collection.displayName
-                        },
-                        {
-                            _name: "i",
-                            _text: icon
-                        }
-                    ]
-                }
-            ]
-        });
-        node._collection = collection;
-        if (!lastNode) {
-            lastNode = node;
+        if(collection.visible == true) {
+            console.log("\"" + collection.id + "\": \"\",");
+            var icon = this.getCollectionIcon(collection);
+            var node = Dom.newDOMElement({
+                _name: "vbox",
+                "class": "Item",
+                _children: [
+                    {
+                        _name: "div",
+                        "class": "ItemInner",
+                        _children: [
+                            {
+                                _name: "span",
+                                _text: collection.displayName
+                            },
+                            {
+                                _name: "i",
+                                _text: icon
+                            }
+                        ]
+                    }
+                ]
+            });
+            node._collection = collection;
+            if (!lastNode) {
+                lastNode = node;
+            }
+            this.selectorPane.appendChild(node);
         }
-
-        this.selectorPane.appendChild(node);
     }
     var thiz = this;
     window.setTimeout(function () {

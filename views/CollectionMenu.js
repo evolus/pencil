@@ -1,7 +1,8 @@
-function CollectionMenu(collection) {
+function CollectionMenu(collection, collectionPane) {
     Menu.call(this);
     this.collection = collection;
     this.setup();
+    this.collectionPane = collectionPane;
 }
 __extend(Menu, CollectionMenu);
 
@@ -17,7 +18,7 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "Collection setting" },
         isValid: function () { return true },
         run: function () {
-            // thiz.canvas.careTaker.undo();
+            
         }
     });
     UICommandManager.register({
@@ -25,7 +26,7 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "Hide this collection " },
         isValid: function () { return true },
         run: function () {
-            // thiz.canvas.careTaker.undo();
+            thiz.collectionPane.setVisibleCollection(thiz.collection,false);
         }
     });
     UICommandManager.register({
@@ -33,7 +34,7 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "Uninstall this collection" },
         isValid: function () { return true },
         run: function () {
-            // thiz.canvas.careTaker.undo();
+           
         }
     });
     UICommandManager.register({
@@ -41,7 +42,7 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "About "  + thiz.collection.displayName },
         isValid: function () { return true },
         run: function () {
-            //alert("Fdlskjf");
+            
             this.aboutdg = new AboutCollectionDialog(thiz.collection);
             this.aboutdg.open();
             
@@ -52,21 +53,51 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "Install new collection..." },
         isValid: function () { return true },
         run: function () {
-            // thiz.canvas.careTaker.undo();
         }
     });
     UICommandManager.register({
-        key: "showHiddentCollectionCommand",
-        getLabel: function () { return "Show hiddent collection" },
+        key: "collectionDivitor",
+        getLabel: function () { return " " },
         isValid: function () { return true },
         run: function () {
-            // thiz.canvas.careTaker.undo();
+            
         }
     });
+    var createShowHiddentCommand = function() {
+        var commandName = [];
+        var collections = CollectionManager.shapeDefinition.collections;
+        for (var i = 0; i < collections.length; i ++) {
+            if(collections[i].visible == false) {
+                commandName.push(createNode(collections[i]));
+            }
+        }
+        return commandName;
+    }
+
+    var createNode = function(collection) {
+            var displayName = collection.displayName;
+            displayName = displayName.split(" ").join("");
+            var element = UICommandManager.register({
+                    key: displayName + "Collection",
+                    getLabel: function () { return  displayName },
+                    run: function () {
+                        thiz.collectionPane.setVisibleCollection(collection,true);  
+                    }
+            });
+            var setElement = UICommandManager.getCommand(displayName + "Collection");
+            return setElement;
+    }
+
     this.register(UICommandManager.getCommand("settingCollectionCommand"));
     this.register(UICommandManager.getCommand("hideCollectionCommand"));
     this.register(UICommandManager.getCommand("uninstallCollectionCollCommand"));
     this.register(UICommandManager.getCommand("aboutCollectionCommand"));
     this.register(UICommandManager.getCommand("installCollectionCommand"));
+    this.register(UICommandManager.getCommand("collectionDivitor"));
     this.register(UICommandManager.getCommand("showHiddentCollectionCommand"));
+    this.register({
+        label: "show Hidden Collections ",
+            type: "SubMenu",
+            subItems:  createShowHiddentCommand()
+        });
 }
