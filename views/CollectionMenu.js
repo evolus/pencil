@@ -42,7 +42,6 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "About "  + thiz.collection.displayName },
         isValid: function () { return true },
         run: function () {
-            
             this.aboutdg = new AboutCollectionDialog(thiz.collection);
             this.aboutdg.open();
             
@@ -79,9 +78,10 @@ CollectionMenu.prototype.setup = function () {
             displayName = displayName.split(" ").join("");
             var element = UICommandManager.register({
                     key: displayName + "Collection",
-                    getLabel: function () { return  displayName },
+                    getLabel: function () { return   collection.displayName },
                     run: function () {
                         thiz.collectionPane.setVisibleCollection(collection,true);  
+                        thiz.hideMenu();
                     }
             });
             var setElement = UICommandManager.getCommand(displayName + "Collection");
@@ -97,6 +97,7 @@ CollectionMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("showHiddentCollectionCommand"));
     this.register({
         label: "show Hidden Collections ",
+        run: function () {return } ,
             type: "SubMenu",
             subItems:  createShowHiddentCommand()
         });
