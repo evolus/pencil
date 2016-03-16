@@ -15,7 +15,7 @@ CollectionMenu.prototype.setup = function () {
 
     UICommandManager.register({
         key: "settingCollectionCommand",
-        getLabel: function () { return "Collection setting" },
+        getLabel: function () { return "Collection setting..." },
         isValid: function () { return true },
         run: function () {
             
@@ -23,7 +23,7 @@ CollectionMenu.prototype.setup = function () {
     });
     UICommandManager.register({
         key: "hideCollectionCommand",
-        getLabel: function () { return "Hide this collection " },
+        getLabel: function () { return "Hide this collection... " },
         isValid: function () { return true },
         run: function () {
             thiz.collectionPane.setVisibleCollection(thiz.collection,false);
@@ -32,14 +32,14 @@ CollectionMenu.prototype.setup = function () {
     UICommandManager.register({
         key: "uninstallCollectionCollCommand",
         getLabel: function () { return "Uninstall this collection" },
-        isValid: function () { return true },
+        isEnabled: function () {  return thiz.collection.userDefined },
         run: function () {
            
         }
     });
     UICommandManager.register({
         key: "aboutCollectionCommand",
-        getLabel: function () { return "About "  + thiz.collection.displayName },
+        getLabel: function () { return "About "  + thiz.collection.displayName + "..." },
         isValid: function () { return true },
         run: function () {
             this.aboutdg = new AboutCollectionDialog(thiz.collection);
@@ -62,29 +62,28 @@ CollectionMenu.prototype.setup = function () {
             
         }
     });
-    var createShowHiddentCommand = function() {
+    var createShowHiddenCommand = function() {
         var commandName = [];
         var collections = CollectionManager.shapeDefinition.collections;
         for (var i = 0; i < collections.length; i ++) {
             if(collections[i].visible == false) {
-                commandName.push(createNode(collections[i]));
+                commandName.push(createSubMenuItem(collections[i]));
             }
         }
         return commandName;
     }
 
-    var createNode = function(collection) {
-            var displayName = collection.displayName;
-            displayName = displayName.split(" ").join("");
+    var createSubMenuItem = function(collection) {
+        var key = collection.displayName.split(" ").join("") + "Collection" ;
             var element = UICommandManager.register({
-                    key: displayName + "Collection",
-                    getLabel: function () { return   collection.displayName },
+                    key: key,
+                    label: collection.displayName,
                     run: function () {
-                        thiz.collectionPane.setVisibleCollection(collection,true);  
+                        thiz.collectionPane.setVisibleCollection(collection, true);  
                         thiz.hideMenu();
                     }
             });
-            var setElement = UICommandManager.getCommand(displayName + "Collection");
+            var setElement = UICommandManager.getCommand(key);
             return setElement;
     }
 
@@ -94,11 +93,20 @@ CollectionMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("aboutCollectionCommand"));
     this.register(UICommandManager.getCommand("installCollectionCommand"));
     this.register(UICommandManager.getCommand("collectionDivitor"));
-    this.register(UICommandManager.getCommand("showHiddentCollectionCommand"));
-    this.register({
-        label: "show Hidden Collections ",
-        run: function () {return } ,
+     
+    var showHiddenMenu = function (){
+        var item = createShowHiddenCommand();
+        var check = false;
+        if( item.length > 0 ) {
+           check = true;
+        }
+        thiz.register({
+            label: "Show hidden collections ",
+            isEnabled: function() { return check},
+            run: function () { },
             type: "SubMenu",
-            subItems:  createShowHiddentCommand()
+            subItems:  item
         });
+    }
+    showHiddenMenu();
 }

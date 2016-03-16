@@ -5,22 +5,9 @@ function CollectionPane() {
     
     this.menu;
     this.selectorPane.addEventListener("contextmenu",function(event) {
-
-        console.log("right click here");
         var collection = Dom.findUpwardForData(event.target, "_collection");
-
-        this.menu = new CollectionMenu(collection,thiz);
-        
-        //this.menu.collection = collection;
+        this.menu = new CollectionMenu(collection, thiz);
         this.menu.showMenuAt(event.clientX, event.clientY);
-        // thiz.handleContextMenuShow(event);
-
-        // var collection = Dom.findUpwardForData(event.target, "_collection");
-        // CollectionManager.setCollectionVisible(collection,false);
-
-        // thiz.reload();
-
-
     });
     
     this.selectorPane.addEventListener("click", function(event) {
@@ -79,7 +66,7 @@ CollectionPane.ICON_MAP = {
 };
 
 // Function hide collection --
-CollectionPane.prototype.setVisibleCollection = function (collection,value) { // function Hide collection 
+CollectionPane.prototype.setVisibleCollection = function (collection, value) { // function Hide collection 
     CollectionManager.setCollectionVisible(collection,value);
     this.reload();
 }
@@ -88,7 +75,7 @@ CollectionPane.prototype.setVisibleCollection = function (collection,value) { //
 CollectionPane.prototype.returnHiddenCollection = function() {
     var collections = CollectionManager.shapeDefinition.collections;
     var hiddenCollection = [];
-    for (var i = 0; i < collections.length; i ++) {
+    for (var i = 0; i < collections.length; i++) {
         if(collections[i].visible == false) {
             hiddenCollection.push(collections[i]);
         }
