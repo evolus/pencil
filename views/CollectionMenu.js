@@ -94,12 +94,11 @@ CollectionMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("installCollectionCommand"));
     this.register(UICommandManager.getCommand("collectionDivitor"));
      
-    var showHiddenMenu = function (){
+    var showHiddenMenu = function() {
         var item = createShowHiddenCommand();
         var check = false;
-        if( item.length > 0 ) {
-           check = true;
-        }
+        if( item.length > 0 ) check = true;
+        
         thiz.register({
             label: "Show hidden collections ",
             isEnabled: function() { return check},
