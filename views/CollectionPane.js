@@ -44,6 +44,12 @@ function CollectionPane() {
         thiz.filterCollections();
     }, false);
 
+    this.showHiddenCollections.addEventListener("click",function(event) {
+        console.log("click test");
+        var hiddenCollectionDialog = new ShowHiddenCollectionDialog(thiz);
+        hiddenCollectionDialog.open();
+    });
+
     UICommandManager.register({
         key: "searchFocusCommand",
         shortcut: "Ctrl+F",

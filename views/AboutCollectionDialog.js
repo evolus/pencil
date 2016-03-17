@@ -27,6 +27,7 @@ function AboutCollectionDialog(collection) {
             }
         ]
     });
+    
     this.dialogBody.appendChild(node);
 }
 __extend(Dialog, AboutCollectionDialog);

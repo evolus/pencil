@@ -94,7 +94,7 @@ CollectionMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("installCollectionCommand"));
     this.register(UICommandManager.getCommand("collectionDivitor"));
      
-    var showHiddenMenu = function() {
+    var enableHiddenMenu = function() {
         var item = createShowHiddenCommand();
         var check = false;
         if( item.length > 0 ) check = true;
@@ -107,5 +107,5 @@ CollectionMenu.prototype.setup = function () {
             subItems:  item
         });
     }
-    showHiddenMenu();
+    enableHiddenMenu();
 }
