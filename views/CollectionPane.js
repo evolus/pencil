@@ -45,6 +45,7 @@ function CollectionPane() {
     }, false);
 
     this.showHiddenCollections.addEventListener("click",function(event) {
+        
         console.log("click test");
         var hiddenCollectionDialog = new ShowHiddenCollectionDialog(thiz);
         hiddenCollectionDialog.open();
@@ -78,16 +79,7 @@ CollectionPane.prototype.setVisibleCollection = function (collection, value) { /
 }
 
 //Function return collection hidden
-CollectionPane.prototype.returnHiddenCollection = function() {
-    var collections = CollectionManager.shapeDefinition.collections;
-    var hiddenCollection = [];
-    for (var i = 0; i < collections.length; i++) {
-        if(collections[i].visible == false) {
-            hiddenCollection.push(collections[i]);
-        }
-    }
-    return hiddenCollection;
-}
+
 CollectionPane.prototype.getTitle = function() {
 	return "Shapes";
 }
