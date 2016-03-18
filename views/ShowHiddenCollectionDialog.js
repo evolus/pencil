@@ -4,7 +4,7 @@ function ShowHiddenCollectionDialog(collectionPanel) {
     this.title = function () {
         return "Hidden Collection: ";
     };
-    this.hiddenCollections = this.returnHiddenCollection();
+    this.hiddenCollections = this.getHiddenCollection();
     for( var i = 0; i < this.hiddenCollections.length; i++) {
         this.dialogBody.appendChild(this.createCollectionNode(this.hiddenCollections[i]));
     }
@@ -26,42 +26,36 @@ ShowHiddenCollectionDialog.prototype.createCollectionNode = function(collection)
             }
         ]
     });
-   //  node.addEventListener("click",function(e) {
-   //      if( e.target.checked == true && e.target.tagName == "input") {
-   //          thiz.processCollection(collection,true);
-   //      } 
-   //      if(e.target.checked == false && e.target.tagName == "input") {
-   //          thiz.processCollection(collection,false);
-   //      }
-   // },false)
    node._collection = collection;
    return node;
 };
 
-ShowHiddenCollectionDialog.prototype.returnHiddenCollection = function() {
+ShowHiddenCollectionDialog.prototype.getHiddenCollection = function() {
     var collections = CollectionManager.shapeDefinition.collections;
-    var hiddenCollection = [];
+    var hiddenCollections = [];
     for (var i = 0; i < collections.length; i++) {
         if(collections[i].visible == false) {
-            hiddenCollection.push(collections[i]);
+            hiddenCollections.push(collections[i]);
         }
     }
-    return hiddenCollection;
+    return hiddenCollections;
 }
 
 ShowHiddenCollectionDialog.prototype.getDialogActions = function () {
     return [
         { type: "accept", title: "OK", run: function () {
-            for ( var i = 0; i < this.dialogBody.childNodes.length; i++) {
-                var currentNode = this.dialogBody.childNodes[i];
-                if(currentNode.nodeName == "div") {
-                    if(currentNode.childNodes[0].checked == true) {
-                       this.collectionPanel.setVisibleCollection(currentNode._collection,true);
+            if(this.hiddenCollections.length > 0) {
+                for ( var i = 0; i < this.dialogBody.childNodes.length; i++) {
+                    var currentNode = this.dialogBody.childNodes[i];
+                    if(currentNode.nodeName == "div") {
+                        if(currentNode.childNodes[0].checked == true) {
+                           this.collectionPanel.setVisibleCollection(currentNode._collection,true);
+                        }
                     }
                 }
-                
+                this.collectionPanel.reload();
             }
-            this.collectionPanel.reload();
+            
             return true;
         }}
     ]
