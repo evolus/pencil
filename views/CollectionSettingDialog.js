@@ -3,13 +3,21 @@ function CollectionSettingDialog(collection) {
     this.title = function () {
         return collection.displayName + " Properties Setting Dialog";
     };
+
+    this.propertyEditors = {};
     for (var i = 0; i < collection.propertyGroups.length; i ++) {
-        var property = collection.propertyGroups[i];
-        console.log("\"" + property.name + "\": \"\",");
-        this.propertyContainer.appendChild(this.createGroupNode(property));
+        var propertyGroup = collection.propertyGroups[i];
+        console.log("\"" + propertyGroup.name + "\": \"\",");
+        this.propertyContainer.appendChild(this.createGroupNode(propertyGroup));
+
     }
+    console.log("done");
 }
 __extend(Dialog, CollectionSettingDialog);
+
+CollectionSettingDialog.prototype.checkEditorValue = function() {
+
+}
 
 CollectionSettingDialog.prototype.createGroupNode = function(propertyGroup) {
         var currentGroupNode = Dom.newDOMElement({
@@ -49,6 +57,8 @@ CollectionSettingDialog.prototype.createGroupNode = function(propertyGroup) {
                 editorWidget.setTypeMeta(property.meta);
             }
             editorWidget.setValue(property.value);
+            editorWidget._property = property;
+            this.propertyEditors[propName] = editorWidget;
             editorWrapper._property = property;
             currentGroupNode.appendChild(editorWrapper);
         }
@@ -58,12 +68,20 @@ CollectionSettingDialog.prototype.createGroupNode = function(propertyGroup) {
 CollectionSettingDialog.prototype.getDialogActions = function () {
     return [
         // Dialog.ACTION_CANCEL,
-        // { type: "extra1", title: "Options...", run: function () {
-        //     new AboutDialog().open();
-        //     return false;
-        // }},
-        { type: "accept", title: "OK", run: function () {
-            // alert("accepted");
+        { type: "cancel", title: "cancel", run: function () {
+            
+            return true;
+        }},
+        { type: "save", title: "Save", run: function () {
+            for (propertyName in this.propertyEditors) {
+                var editor = this.propertyEditors[propertyName];
+                if(editor.modified == true) {
+                    console.log("change");
+
+                    var literal = editor.getValue();
+                    editor._property.value = literal;
+                }
+            }
             return true;
         }}
     ]
