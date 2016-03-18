@@ -18,7 +18,9 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "Collection setting..." },
         isValid: function () { return true },
         run: function () {
-            
+            var propertiesSettingDialog = new CollectionSettingDialog(thiz.collection);
+            propertiesSettingDialog.open()
+
         }
     });
     UICommandManager.register({

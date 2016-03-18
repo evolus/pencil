@@ -8,7 +8,7 @@ function ShowHiddenCollectionDialog(collectionPanel) {
     for( var i = 0; i < this.hiddenCollections.length; i++) {
         this.dialogBody.appendChild(this.createCollectionNode(this.hiddenCollections[i]));
     }
-    
+
 }
 __extend(Dialog, ShowHiddenCollectionDialog);
 
@@ -55,7 +55,6 @@ ShowHiddenCollectionDialog.prototype.getDialogActions = function () {
                 }
                 this.collectionPanel.reload();
             }
-            
             return true;
         }}
     ]
