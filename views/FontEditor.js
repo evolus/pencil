@@ -3,12 +3,6 @@ function FontEditor() {
 }
 __extend(PropertyEditor, FontEditor);
 
-FontEditor.prototype.comboChangeEvent = function(event) {
-    this.modified =true;
-    this.fontCombo.getSelectedItem();
-    Dom.emitEvent("p:ValueChanged",, {});
-};
-
 FontEditor._setupFontCombo = function (fontCombo, changeEvent, withNullValue) {
     fontCombo.renderer = function (font) {
         return font ? font : "Font";
@@ -23,11 +17,6 @@ FontEditor._setupFontCombo = function (fontCombo, changeEvent, withNullValue) {
     var items = localFonts;
     if (withNullValue) items.unshift("");
     fontCombo.setItems(items);
-    // fontCombo.addEventListener("p:ItemSelected", function(event) {
-    //     // if (OnScreenTextEditor.isEditing) return;
-    //     changeEvent();
-    // }, false);
-
     fontCombo.addEventListener("p:ItemSelected", function(event) {
         // if (OnScreenTextEditor.isEditing) return;
         changeEvent();
@@ -55,13 +44,10 @@ FontEditor.prototype.setup = function () {
     //     thiz.fireChangeEvent();
     // }, false);
     var thiz = this;
-    // FontEditor._setupFontCombo(this.fontCombo, function () {
-    //     thiz.fireChangeEvent();
-    // });
+    FontEditor._setupFontCombo(this.fontCombo, function () {
+        thiz.fireChangeEvent();
+    });
 
-    FontEditor._setupFontCombo(this.fontCombo, this.comboChangeEvent);
-
-    var thiz = this;
     this.pixelFontSize.addEventListener("click", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
         thiz.fireChangeEvent();
