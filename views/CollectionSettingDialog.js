@@ -1,12 +1,13 @@
 function CollectionSettingDialog(collection) {
     Dialog.call(this);
+    this.collection = collection;
     this.title = function () {
-        return collection.displayName + " Properties Setting Dialog";
+        return this.collection.displayName + " Properties Setting Dialog";
     };
 
     this.propertyEditors = {};
-    for (var i = 0; i < collection.propertyGroups.length; i ++) {
-        var propertyGroup = collection.propertyGroups[i];
+    for (var i = 0; i < this.collection.propertyGroups.length; i ++) {
+        var propertyGroup = this.collection.propertyGroups[i];
         console.log("\"" + propertyGroup.name + "\": \"\",");
         this.propertyContainer.appendChild(this.createGroupNode(propertyGroup));
 
@@ -79,6 +80,8 @@ CollectionSettingDialog.prototype.getDialogActions = function () {
                     console.log("changed");
                     var literal = editor.getValue();
                     editor._property.value = literal;
+                    var name = ShapeDefCollectionParser.getCollectionPropertyConfigName (this.collection.id, propertyName)
+                    Config.set(name, literal);
                 }
             }
             return true;
