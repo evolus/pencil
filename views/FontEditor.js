@@ -3,6 +3,12 @@ function FontEditor() {
 }
 __extend(PropertyEditor, FontEditor);
 
+FontEditor.prototype.comboChangeEvent = function(event) {
+    this.modified =true;
+    this.fontCombo.getSelectedItem();
+    Dom.emitEvent("p:ValueChanged",, {});
+};
+
 FontEditor._setupFontCombo = function (fontCombo, changeEvent, withNullValue) {
     fontCombo.renderer = function (font) {
         return font ? font : "Font";
@@ -17,11 +23,15 @@ FontEditor._setupFontCombo = function (fontCombo, changeEvent, withNullValue) {
     var items = localFonts;
     if (withNullValue) items.unshift("");
     fontCombo.setItems(items);
+    // fontCombo.addEventListener("p:ItemSelected", function(event) {
+    //     // if (OnScreenTextEditor.isEditing) return;
+    //     changeEvent();
+    // }, false);
+
     fontCombo.addEventListener("p:ItemSelected", function(event) {
         // if (OnScreenTextEditor.isEditing) return;
         changeEvent();
     }, false);
-
 };
 FontEditor.prototype.setup = function () {
     //grab control references
@@ -45,7 +55,7 @@ FontEditor.prototype.setup = function () {
     //     thiz.fireChangeEvent();
     // }, false);
 
-    FontEditor._setupFontCombo(this.fontCombo, this.fireChangeEvent);
+    FontEditor._setupFontCombo(this.fontCombo, this.comboChangeEvent);
 
     var thiz = this;
     this.pixelFontSize.addEventListener("click", function(event) {
@@ -99,6 +109,9 @@ FontEditor.prototype.setup = function () {
     }, false);*/
 
 };
+
+
+
 FontEditor.prototype.setValue = function (font) {
     if (!font) return;
     this.font = font;
