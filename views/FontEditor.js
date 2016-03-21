@@ -44,6 +44,10 @@ FontEditor.prototype.setup = function () {
     //     if (!thiz.font || OnScreenTextEditor.isEditing) return;
     //     thiz.fireChangeEvent();
     // }, false);
+    var thiz = this;
+    // FontEditor._setupFontCombo(this.fontCombo, function () {
+    //     thiz.fireChangeEvent();
+    // });
 
     FontEditor._setupFontCombo(this.fontCombo, this.fireChangeEvent);
 
