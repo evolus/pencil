@@ -1,8 +1,8 @@
-function CollectionSettingDialog(collection) {
+function CollectionSettingDialog (collection) {
     Dialog.call(this);
     this.collection = collection;
     this.title = function () {
-        return this.collection.displayName + " Properties Setting Dialog";
+        return this.collection.displayName + " Properties";
     };
 
     this.propertyEditors = {};
@@ -12,15 +12,10 @@ function CollectionSettingDialog(collection) {
         this.propertyContainer.appendChild(this.createGroupNode(propertyGroup));
 
     }
-    console.log("done");
 }
 __extend(Dialog, CollectionSettingDialog);
 
-CollectionSettingDialog.prototype.checkEditorValue = function() {
-
-}
-
-CollectionSettingDialog.prototype.createGroupNode = function(propertyGroup) {
+CollectionSettingDialog.prototype.createGroupNode = function (propertyGroup) {
         var currentGroupNode = Dom.newDOMElement({
             _name: "vbox",
             "class": "Group"
@@ -59,32 +54,34 @@ CollectionSettingDialog.prototype.createGroupNode = function(propertyGroup) {
             }
             editorWidget.setValue(property.value);
             editorWidget._property = property;
-            this.propertyEditors[propName] = editorWidget;
+            this.propertyEditors[property.name] = editorWidget;
+
             editorWrapper._property = property;
             currentGroupNode.appendChild(editorWrapper);
         }
         return currentGroupNode;
-}
+};
 
 CollectionSettingDialog.prototype.getDialogActions = function () {
     return [
-        // Dialog.ACTION_CANCEL,
-        { type: "cancel", title: "cancel", run: function () {
-            
-            return true;
-        }},
-        { type: "save", title: "Save", run: function () {
-            for (propertyName in this.propertyEditors) {
-                var editor = this.propertyEditors[propertyName];
-                if(editor.modified == true) {
-                    console.log("changed");
-                    var literal = editor.getValue();
-                    editor._property.value = literal;
-                    var name = ShapeDefCollectionParser.getCollectionPropertyConfigName (this.collection.id, propertyName)
-                    Config.set(name, literal);
+            Dialog.ACTION_CANCEL,
+            {
+                type: "accept", title: "SAVE",
+                run: function () {
+                    for (propertyName in this.propertyEditors) {
+                        var editor = this.propertyEditors[propertyName];
+                        if (editor.modified == true) {
+                            var value = editor.getValue();
+
+                            var name = ShapeDefCollectionParser.getCollectionPropertyConfigName(this.collection.id, propertyName);
+                            Config.set(name, value.toString());
+
+                            var property = this.collection.properties[propertyName];
+                            property.value = value;
+                        }
+                    }
+                    return true;
                 }
             }
-            return true;
-        }}
-    ]
+        ]
 };

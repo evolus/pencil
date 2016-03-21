@@ -2,14 +2,12 @@ function CollectionPane() {
     BaseTemplatedWidget.call(this);
     var thiz = this;
 
-    
-    this.menu;
     this.selectorPane.addEventListener("contextmenu",function(event) {
         var collection = Dom.findUpwardForData(event.target, "_collection");
-        this.menu = new CollectionMenu(collection, thiz);
-        this.menu.showMenuAt(event.clientX, event.clientY);
+        var menu = new CollectionMenu(collection, thiz);
+        menu.showMenuAt(event.clientX, event.clientY);
     });
-    
+
     this.selectorPane.addEventListener("click", function(event) {
         var item = Dom.findUpward(Dom.getTarget(event), function (n) {
             return n._collection;
@@ -25,7 +23,6 @@ function CollectionPane() {
     this.shapeList.addEventListener("dragstart", function (event) {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
-
         if (def.shape) {
             event.dataTransfer.setData("pencil/shortcut", def.id);
         } else {
@@ -45,8 +42,6 @@ function CollectionPane() {
     }, false);
 
     this.showHiddenCollections.addEventListener("click",function(event) {
-        
-        console.log("click test");
         var hiddenCollectionDialog = new ShowHiddenCollectionDialog(thiz);
         hiddenCollectionDialog.open();
     });
@@ -73,19 +68,19 @@ CollectionPane.ICON_MAP = {
 };
 
 // Function hide collection --
-CollectionPane.prototype.setVisibleCollection = function (collection, value) { // function Hide collection 
+CollectionPane.prototype.setVisibleCollection = function (collection, value) { // function Hide collection
     CollectionManager.setCollectionVisible(collection,value);
     this.reload();
-}
-
-//Function return collection hidden
+};
 
 CollectionPane.prototype.getTitle = function() {
 	return "Shapes";
-}
+};
+
 CollectionPane.prototype.getIconName = function() {
 	return "layers";
-}
+};
+
 CollectionPane.prototype.getCollectionIcon = function (collection) {
     return collection.icon || CollectionPane.ICON_MAP[collection.id] || "border_all";
 };
@@ -126,6 +121,7 @@ CollectionPane.prototype.reload = function () {
             }
             this.selectorPane.appendChild(node);
         }
+
     }
     var thiz = this;
     window.setTimeout(function () {
@@ -134,11 +130,12 @@ CollectionPane.prototype.reload = function () {
             var inner = item.firstChild.firstChild;
 
             var w = inner.offsetWidth + 4 * Util.em();
+
             item.style.height = w + "px";
             item.firstChild.style.width = w + "px";
             item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)"
         }
-    }, 0);
+    }, 100);
 
     if (lastNode) {
         Dom.doOnAllChildren(this.selectorPane, function (n) {
@@ -148,32 +145,6 @@ CollectionPane.prototype.reload = function () {
         this.last = lastNode._collection;
         this.openCollection(this.last);
     }
-};
-CollectionPane.prototype.handleContextMenuShow = function (event) {
-    if (this.currentController) {
-        // attach now
-        if (this.contextMenuEditor) {
-            this.contextMenuEditor.attach(this.currentController);
-        }
-
-        this.lockingStatus = {
-            controller : this.currentController
-        };
-
-    } else {
-        var top = Dom.findTop(event.originalTarget, function (node) {
-            return node.hasAttributeNS
-                    && node.hasAttributeNS(PencilNamespaces.p, "type");
-                });
-
-        if (top && this.isShapeLocked(top)) {
-            this.lockingStatus = {
-                node : top
-            };
-        }
-    }
-
-    this.menu.showMenuAt(event.clientX, event.clientY);
 };
 CollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
@@ -269,4 +240,3 @@ Object.defineProperty(CollectionPane.prototype, "foo", {
         console.log("set foo to: " + value);
     }
 });
-

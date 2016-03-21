@@ -5,3 +5,4 @@ tmp.setGracefulCleanup();
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
+const zlib = require("zlib");

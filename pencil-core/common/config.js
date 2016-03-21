@@ -3,6 +3,7 @@ var Config = {
 
 Config.data = {};
 Config.DATA_DIR_NAME = ".pencil";
+Config.STENCILS_DIR_NAME = "stencils";
 Config.CONFIG_FILE_NAME = "config.json";
 
 Config.getDataPath = function () {
@@ -31,7 +32,7 @@ Config.set = function (name, value) {
 };
 
 Config.get = function (name, defaultValue) {
-    if (Config.data[name]) return Config.data[name];
+    if (Config.data[name] != "undefined") return Config.data[name];
     return defaultValue;
 };
 Config.getLocale = function () {
