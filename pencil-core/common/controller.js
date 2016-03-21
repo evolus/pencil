@@ -82,6 +82,28 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     return page;
 };
 
+Controller.prototype.duplicatePage = function () {
+
+    var page = this.activatePage;
+
+    var name = page.name;
+    var width = page.width;
+    var height = page.height;
+    var backgroundPageId = page.backgroundPage;
+    var backgroundColor = page.backgroundColor;
+    var parentPageId = page.parentPage && page.parentPage.id;
+
+    var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
+
+    for (var i = 0; i < page._view.canvas.drawingLayer.childNodes.length; i ++) {
+        var node = page._view.canvas.drawingLayer.childNodes[i];
+        newPage._view.canvas.drawingLayer.appendChild(newPage._view.canvas.ownerDocument.importNode(node, true));
+        Dom.renewId(node);
+    }
+
+    this.sayDocumentChanged();
+};
+
 Controller.prototype.serializePage = function (page, outputPath) {
     var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
     var props = dom.createElementNS(PencilNamespaces.p, "p:Properties");
@@ -281,3 +303,60 @@ Controller.prototype.updatePageThumbnail = function (page) {
         Dom.emitEvent("p:PageInfoChanged", thiz.applicationPane, {page: page});
     }, scale);
 };
+
+// Controller.prototype.pageMoveRight = function () {
+//     var pageIndex = this._findPageToEditIndex();
+//     if (pageIndex < 0) return;
+//     this._movePage(pageIndex, true);
+// };
+// Controller.prototype.pageMoveLeft = function () {
+//     var pageIndex = this._findPageToEditIndex();
+//     if (pageIndex < 0) return;
+//     this._movePage(pageIndex, false);
+// };
+// Controller.prototype._movePage = function (index, forward) {
+//     debug("Moving: " + [index, forward]);
+//     try {
+//         if (index < 0 || index >= this.doc.pages.length) return;
+//         var otherIndex = index + (forward ? 1 : -1);
+//         if (otherIndex < 0 || otherIndex >= this.doc.pages.length) return;
+//
+//         var page = this.doc.pages[index];
+//         var otherPage = this.doc.pages[otherIndex];
+//
+//         if (!page || !otherPage) return;
+//
+//         debug("swapping: " + [index, otherIndex]);
+//
+//         this.doc.pages[index] = otherPage;
+//         this.doc.pages[otherIndex] = page;
+//
+//         this._updatePageFromView();
+//         this._clearView();
+//         this._pageSetupCount = 0;
+//         var thiz = this;
+//
+//         this.sayDocumentChanged();
+//
+//         for (p in this.doc.pages) {
+//             this._createPageView(this.doc.pages[p], function () {
+//                 thiz._pageSetupCount ++;
+//                 if (thiz._pageSetupCount == thiz.doc.pages.length) {
+//                     thiz._ensureAllBackgrounds(function () {});
+//                 }
+//             });
+//             this._setSelectedPageIndex(otherIndex);
+//         }
+//     } catch (e) {
+//         Console.dumpError(e);
+//     }
+// };
+// Controller.prototype._findPageToEditIndex = function () {
+//     for (var i = 0; i < this.doc.pages.length; i ++) {
+//         if (this._pageToEdit == this.doc.pages[i]) {
+//             return i;
+//             break;
+//         }
+//     }
+//     return -1;
+// }

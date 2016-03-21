@@ -17,7 +17,7 @@ function AboutCollectionDialog(collection) {
                 _children :[
                     {
                         _name: "li",
-                        _text: collection.author   
+                        _text: collection.author
                     },
                     {
                         _name: "li",
@@ -27,21 +27,16 @@ function AboutCollectionDialog(collection) {
             }
         ]
     });
-    
+
     this.dialogBody.appendChild(node);
 }
 __extend(Dialog, AboutCollectionDialog);
 
 AboutCollectionDialog.prototype.getDialogActions = function () {
     return [
-        // Dialog.ACTION_CANCEL,
-        // { type: "extra1", title: "Options...", run: function () {
-        //     new AboutDialog().open();
-        //     return false;
-        // }},
-        { type: "accept", title: "OK", run: function () {
-            // alert("accepted");
-            return true;
-        }}
+        {
+            type: "accept", title: "OK",
+            run: function () { return true; }
+        }
     ]
 };

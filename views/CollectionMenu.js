@@ -20,6 +20,7 @@ CollectionMenu.prototype.setup = function () {
         run: function () {
             var propertiesSettingDialog = new CollectionSettingDialog(thiz.collection);
             propertiesSettingDialog.open()
+            console.log("after setting:", thiz.collection);
 
         }
     });
@@ -36,7 +37,7 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "Uninstall this collection" },
         isEnabled: function () {  return thiz.collection.userDefined },
         run: function () {
-           
+
         }
     });
     UICommandManager.register({
@@ -46,7 +47,7 @@ CollectionMenu.prototype.setup = function () {
         run: function () {
             this.aboutdg = new AboutCollectionDialog(thiz.collection);
             this.aboutdg.open();
-            
+
         }
     });
     UICommandManager.register({
@@ -61,7 +62,7 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return " " },
         isValid: function () { return true },
         run: function () {
-            
+
         }
     });
     var createShowHiddenCommand = function() {
@@ -81,7 +82,7 @@ CollectionMenu.prototype.setup = function () {
                     key: key,
                     label: collection.displayName,
                     run: function () {
-                        thiz.collectionPane.setVisibleCollection(collection, true);  
+                        thiz.collectionPane.setVisibleCollection(collection, true);
                         thiz.hideMenu();
                     }
             });
@@ -95,12 +96,12 @@ CollectionMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("aboutCollectionCommand"));
     this.register(UICommandManager.getCommand("installCollectionCommand"));
     this.register(UICommandManager.getCommand("collectionDivitor"));
-     
+
     var enableHiddenMenu = function() {
         var item = createShowHiddenCommand();
         var check = false;
         if( item.length > 0 ) check = true;
-        
+
         thiz.register({
             label: "Show hidden collections ",
             isEnabled: function() { return check},

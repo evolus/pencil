@@ -39,16 +39,21 @@ function ApplicationPane() {
     });
 
     this.bind("click", function (event) {
-        var thiz = this;
-        var dialog = new PageDetailDialog();
-        dialog.open({
-            onDone: function (page) {
-                if (!page) return;
-                // thiz.controller.activatePage(page);
-                thiz.pageListView.activatePage(page);
-            }
-        });
+        // var thiz = this;
+        // var dialog = new PageDetailDialog();
+        // dialog.open({
+        //     onDone: function (page) {
+        //         if (!page) return;
+        //         // thiz.controller.activatePage(page);
+        //         thiz.pageListView.activatePage(page);
+        //     }
+        // });
+        var files  = document.querySelector();
+        console.log("file: ", files);
     }, this.testButton);
+    this.bind("change", function (event) {
+        console.log(this.fileButton.files);
+    }, this.fileButton);
     this.bind("click", function (event) {
         var currentPage = this.pageCombo.getSelectedItem();
         this.rasterizer.rasterizePageToFile(currentPage, null, function (path, error) {
