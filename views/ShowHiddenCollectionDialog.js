@@ -9,39 +9,54 @@ function ShowHiddenCollectionDialog(collectionPanel) {
     // for( var i = 0; i < this.hiddenCollections.length; i++) {
     //     this.dialogBody.appendChild(this.createCollectionNode(this.hiddenCollections[i]));
     // }
-    this.buttons = {};
-
 }
 __extend(Dialog, ShowHiddenCollectionDialog);
 
 
 ShowHiddenCollectionDialog.prototype.buildDOMNode = function () {
+    var thiz = this;
     var frameTemplate = this.getTemplatePrefix() + "Dialog.xhtml";
     var node = widget.Util.loadTemplateAsNodeSync(frameTemplate, this);
+    this.buttons = {};
     var contentNode = widget.Util.loadTemplateAsNodeSync(this.getTemplatePath(), this);
     this.hiddenCollections = this.getHiddenCollection();
     for( var i = 0; i < this.hiddenCollections.length; i++) {
-        this.dialogBody.appendChild(this.createCollectionButton(this.hiddenCollections[i]));
+        var button = this.dialogBody.appendChild(this.createCollectionButton(this.hiddenCollections[i]));
+        thiz.buttons[button._id] = button;
+        button.addEventListener("click",function(event) {
+            if(thiz.buttons[event.target.id]._show) {
+               thiz.buttons[event.target.id]._show = false;
+               //console.log(event.target.id + thiz.buttons[event.target.id]._show);
+               thiz.buttons[event.target.id].style.background = "#fff";
+            } else {
+                thiz.buttons[event.target.id]._show = true ;
+                //console.log(event.target.id + thiz.buttons[event.target.id]._show);
+                thiz.buttons[event.target.id].style.background = "#000";
+            }
+        },false);
     }
     return node;
 };
 
 ShowHiddenCollectionDialog.prototype.createCollectionButton = function(collection) {
+    var thiz = this;
     var button = document.createElement("button");
     var buttonText = document.createTextNode(collection.displayName);
     button.appendChild(buttonText);
     button._show = false;
+    button._id = collection.displayName;
+    button._collection = collection;
     button.setAttribute("id",collection.displayName);
-    this.buttons[collection.displayName] = button;
-    button.addEventListener("click",function(event) {
-        if(buttons[event.target.id]._show) {
-           buttons[event.target.id]._show = false;
-           console.log(event.target.id);
-        } else {
-            buttons[event.target.id]._show = true ;
-            console.log(event.target.id);
-        }
-    },false)
+    // thiz.buttons[collection.displayName] = button;
+    // button.addEventListener("click",function(event) {
+    //     if(thiz.buttons[event.target.id]._show) {
+    //        thiz.buttons[event.target.id]._show = false;
+    //        console.log(event.target.id);
+    //     } else {
+    //         thiz.buttons[event.target.id]._show = true ;
+    //         console.log(event.target.id);
+    //     }
+    // },false)
     return button;
 }
 
@@ -78,14 +93,20 @@ ShowHiddenCollectionDialog.prototype.getDialogActions = function () {
     return [
         { type: "showCollections", title: "Show", run: function() {
             if(this.hiddenCollections.length > 0) {
-                for ( var i = 0; i < this.dialogBody.childNodes.length; i++) {
-                    var currentNode = this.dialogBody.childNodes[i];
-                    if(currentNode.nodeName == "div") {
-                        if(currentNode.childNodes[0].checked == true) {
-                           this.collectionPanel.setVisibleCollection(currentNode._collection,true);
-                        }
+                // for ( var i = 0; i < this.dialogBody.childNodes.length; i++) {
+                //     var currentNode = this.dialogBody.childNodes[i];
+                //     if(currentNode.nodeName == "div") {
+                //         if(currentNode.childNodes[0].checked == true) {
+                //            this.collectionPanel.setVisibleCollection(currentNode._collection,true);
+                //         }
+                //     }
+                // }
+                for(var i = 0; i < this.hiddenCollections.length; i++) {
+                    if(this.buttons[this.hiddenCollections[i].displayName]._show) {
+                        this.collectionPanel.setVisibleCollection(this.buttons[this.hiddenCollections[i].displayName]._collection,true);
                     }
                 }
+
                 this.collectionPanel.reload();
             }
             return true;
