@@ -76,8 +76,7 @@ CollectionSettingDialog.prototype.getDialogActions = function () {
             for (propertyName in this.propertyEditors) {
                 var editor = this.propertyEditors[propertyName];
                 if(editor.modified == true) {
-                    console.log("change");
-
+                    console.log("changed");
                     var literal = editor.getValue();
                     editor._property.value = literal;
                 }
