@@ -11,21 +11,17 @@ function ShowHiddenCollectionDialog(collectionPanel) {
         this.collectionContainer.appendChild(this.createCollectionButton(this.hiddenCollections[i]));
     }
     this.collectionContainer.addEventListener("click",function(event) {
-        var node ;
-        if(event.target._collection) {
-            node = event.target;
+        var node = Dom.findUpwardForNodeWithData(event.target,"_collection");
+        var check = node.getAttribute("selected");
+        if(check == "true") {
+            node.setAttribute("selected","false");
         } else {
-            node = event.target.parentNode;
-        }
-        var check = node.getAttribute("selected")
-            if(check == "true") {
-                node.setAttribute("selected","false");
-            } else {
-                node.setAttribute("selected","true");
-            }
+            node.setAttribute("selected","true");
+        };
     },false);
 }
 __extend(Dialog, ShowHiddenCollectionDialog);
+
 
 ShowHiddenCollectionDialog.prototype.getCollectionIcon = function (collection) {
     return collection.icon || CollectionPane.ICON_MAP[collection.id] || "border_all";
@@ -33,8 +29,6 @@ ShowHiddenCollectionDialog.prototype.getCollectionIcon = function (collection) {
 
 ShowHiddenCollectionDialog.prototype.createCollectionButton = function(collection) {
     var thiz = this;
-    var name = collection.displayName;
-    name = name.slice(0,7);
     var icon = this.getCollectionIcon(collection);
     var button = Dom.newDOMElement({
         _name: "button",
@@ -42,6 +36,9 @@ ShowHiddenCollectionDialog.prototype.createCollectionButton = function(collectio
                             {
                                 _name: "i",
                                 _text: icon,
+                            },
+                            {
+                                _name: "br",
                             },
                             {
                                 _name: "span",
