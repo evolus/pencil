@@ -5,27 +5,23 @@ function ShowHiddenCollectionDialog(collectionPanel) {
     this.title = function () {
         return "Hidden Collection: ";
     };
-    // this.hiddenCollections = this.getHiddenCollection();
-    // for( var i = 0; i < this.hiddenCollections.length; i++) {
-    //     this.dialogBody.appendChild(this.createCollectionNode(this.hiddenCollections[i]));
-    // }
-    this.buttons = {};
     this.hiddenCollections = this.getHiddenCollection();
     var thiz = this;
      for( var i = 0; i < this.hiddenCollections.length; i++) {
-        var button = this.collectionContainer.appendChild(this.createCollectionButton(this.hiddenCollections[i]));
-        thiz.buttons[button._id] = button;
+        this.collectionContainer.appendChild(this.createCollectionButton(this.hiddenCollections[i]));
     }
     this.collectionContainer.addEventListener("click",function(event) {
-        if(event.target.tagName == "button") {
-            if(thiz.buttons[event.target.id]._show) {
-                thiz.buttons[event.target.id]._show = false; 
-                thiz.buttons[event.target.id].setAttribute("selected","false");
+        if(event.target._collection) {
+            var check = event.target.getAttribute("selected")
+            if(check == "true") {
+                event.target.setAttribute("selected","false");
             } else {
-                thiz.buttons[event.target.id]._show = true ;
-                thiz.buttons[event.target.id].setAttribute("selected","true");
+                event.target.setAttribute("selected","true");
             }
-
+        }
+        else
+        {
+            // when click in icon or text inside button, it will return parent node then handle on parent node had ._collecttion property : )
         }
     },false);
 }
@@ -33,15 +29,14 @@ __extend(Dialog, ShowHiddenCollectionDialog);
 
 ShowHiddenCollectionDialog.prototype.createCollectionButton = function(collection) {
     var thiz = this;
-    var button = document.createElement("button");
     var name = collection.displayName;
     name = name.slice(0,7);
-    var buttonText = document.createTextNode(name);
-    button.appendChild(buttonText);
-    button._show = false;
+    var button = Dom.newDOMElement({
+        _name: "button",
+        _text: name
+    });
     button._id = collection.displayName;
     button._collection = collection;
-    button.setAttribute("id",collection.displayName);
     button.setAttribute("selected","false");
     return button;
 }
@@ -60,9 +55,11 @@ ShowHiddenCollectionDialog.prototype.getDialogActions = function () {
     return [
         {   type: "accept", title: "Show", run: function() {
             if(this.hiddenCollections.length > 0) {
-                for(var i = 0; i < this.hiddenCollections.length; i++) {
-                    if(this.buttons[this.hiddenCollections[i].displayName]._show) {
-                        this.collectionPanel.setVisibleCollection(this.buttons[this.hiddenCollections[i].displayName]._collection,true);
+                var node = this.collectionContainer;
+                for( var i = 0; i < node.children.length; i++){
+                    var check = node.children[i].getAttribute("selected");
+                    if(check == "true") {
+                        this.collectionPanel.setVisibleCollection(node.children[i]._collection,true);
                     }
                 }
                 this.collectionPanel.reload();
