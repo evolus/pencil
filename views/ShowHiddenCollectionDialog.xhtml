@@ -1,17 +1,21 @@
 <vbox class="Form">
     <style>
-     
+        @collectionContainer {
+            display: inline-block;
+        }
+        @collectionContainer > button {
+            height : 150px;
+            width :  100px;
+            font-size : 10px;
+        }
+        @collectionContainer > button[selected = false] {
+            background-color: #fff;
+        }
+        @collectionContainer > button[selected = true] {
+            background-color: #DCD7D7;
+        }
     </style>
-    <vbox anon-id="dialogFrame" class="DialogFrame">
-        <hbox anon-id="dialogHeadCommand">
-            <hbox anon-id="dialogHeaderMiddlePane" flex="1"></hbox>
-            <hbox anon-id="dialogHeaderEndPane"></hbox>
-        </hbox>
-        <vbox flex="1" anon-id="dialogBody">
-
-        </vbox>
-        <hbox anon-id="dialogFooter">
-            <hbox anon-id="dialogFooterMiddlePane" flex="1"></hbox>
-        </hbox>
+    <vbox anon-id = "collectionContainer">
+        
     </vbox>
 </vbox>
