@@ -34,17 +34,17 @@ ShowHiddenCollectionDialog.prototype.createCollectionButton = function (collecti
     var thiz = this;
     var icon = this.getCollectionIcon(collection);
     var button = Dom.newDOMElement({
-        _name: "button",
+        _name: "button", 
         _children: [
             {
-                _name: "i",
-                _text: icon,
+                _name: "i", 
+                _text: icon
             }, 
             {
-                _name: "br",
+                _name: "br", 
             }, 
             {
-                _name: "span",
+                _name: "span", 
                 _text: collection.displayName
             } 
         ]
