@@ -2,9 +2,9 @@ function ShowHiddenCollectionDialog(collectionPanel) {
     Dialog.call(this);
     this.collectionPanel = collectionPanel;
     this.bind("click", this.handleActionClick, this.dialogHeadCommand);
-    // this.title = function () {
-    //     return "Hidden Collection: ";
-    // };
+    this.title = function () {
+        return "Hidden Collection: ";
+    };
     // this.hiddenCollections = this.getHiddenCollection();
     // for( var i = 0; i < this.hiddenCollections.length; i++) {
     //     this.dialogBody.appendChild(this.createCollectionNode(this.hiddenCollections[i]));
@@ -56,10 +56,9 @@ ShowHiddenCollectionDialog.prototype.getHiddenCollection = function() {
     }
     return hiddenCollections;
 }
-
 ShowHiddenCollectionDialog.prototype.getDialogActions = function () {
     return [
-        {   type: "showCollections", title: "Show", run: function() {
+        {   type: "accept", title: "Show", run: function() {
             if(this.hiddenCollections.length > 0) {
                 for(var i = 0; i < this.hiddenCollections.length; i++) {
                     if(this.buttons[this.hiddenCollections[i].displayName]._show) {
@@ -70,10 +69,10 @@ ShowHiddenCollectionDialog.prototype.getDialogActions = function () {
             }
             return true;
         }},
-        {   type: "uninstallCollections", title: "Uninstall Collections", run: function() {
+        {   type: "accept", title: "Uninstall Collections", run: function() {
             return true;
         }},
-        {   type: "installCollection", title: "Install New Collection", run: function() {
+        {   type: "extra1", title: "Install New Collection", run: function() {
             return true;
         }}
     ]
