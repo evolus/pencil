@@ -11,29 +11,43 @@ function ShowHiddenCollectionDialog(collectionPanel) {
         this.collectionContainer.appendChild(this.createCollectionButton(this.hiddenCollections[i]));
     }
     this.collectionContainer.addEventListener("click",function(event) {
+        var node ;
         if(event.target._collection) {
-            var check = event.target.getAttribute("selected")
+            node = event.target;
+        } else {
+            node = event.target.parentNode;
+        }
+        var check = node.getAttribute("selected")
             if(check == "true") {
-                event.target.setAttribute("selected","false");
+                node.setAttribute("selected","false");
             } else {
-                event.target.setAttribute("selected","true");
+                node.setAttribute("selected","true");
             }
-        }
-        else
-        {
-            // when click in icon or text inside button, it will return parent node then handle on parent node had ._collecttion property : )
-        }
     },false);
 }
 __extend(Dialog, ShowHiddenCollectionDialog);
+
+ShowHiddenCollectionDialog.prototype.getCollectionIcon = function (collection) {
+    return collection.icon || CollectionPane.ICON_MAP[collection.id] || "border_all";
+};
 
 ShowHiddenCollectionDialog.prototype.createCollectionButton = function(collection) {
     var thiz = this;
     var name = collection.displayName;
     name = name.slice(0,7);
+    var icon = this.getCollectionIcon(collection);
     var button = Dom.newDOMElement({
         _name: "button",
-        _text: name
+        _children: [
+                            {
+                                _name: "i",
+                                _text: icon,
+                            },
+                            {
+                                _name: "span",
+                                _text: collection.displayName
+                            } 
+                        ]
     });
     button._id = collection.displayName;
     button._collection = collection;
