@@ -76,7 +76,6 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
         }
     }
 
-
     this.sayDocumentChanged();
 
     return page;
@@ -84,7 +83,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
 Controller.prototype.duplicatePage = function () {
 
-    var page = this.activatePage;
+    var page = this.activePage;
 
     var name = page.name;
     var width = page.width;
@@ -92,16 +91,19 @@ Controller.prototype.duplicatePage = function () {
     var backgroundPageId = page.backgroundPage;
     var backgroundColor = page.backgroundColor;
     var parentPageId = page.parentPage && page.parentPage.id;
-
+    var note = page.note;
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
 
-    for (var i = 0; i < page._view.canvas.drawingLayer.childNodes.length; i ++) {
+    for (var i = 0; i < page.canvas.drawingLayer.childNodes.length; i++) {
         var node = page._view.canvas.drawingLayer.childNodes[i];
         newPage._view.canvas.drawingLayer.appendChild(newPage._view.canvas.ownerDocument.importNode(node, true));
         Dom.renewId(node);
     }
 
+    return newPage;
     this.sayDocumentChanged();
+
+
 };
 
 Controller.prototype.serializePage = function (page, outputPath) {

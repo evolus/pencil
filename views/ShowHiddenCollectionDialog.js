@@ -15,7 +15,7 @@ function ShowHiddenCollectionDialog (collectionPanel) {
         this.collectionContainer.appendChild(this.createCollectionButton(this.hiddenCollections[i]));
     }
     this.collectionContainer.addEventListener("click",function (event) {
-        var node = Dom.findUpwardForNodeWithData(event.target,"_collection");
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
         var check = node.getAttribute("selected");
         if(check == "true") {
             node.setAttribute("selected", "false");
@@ -33,7 +33,7 @@ ShowHiddenCollectionDialog.prototype.getCollectionIcon = function (collection) {
 ShowHiddenCollectionDialog.prototype.createCollectionButton = function (collection) {
     var thiz = this;
     var icon = this.getCollectionIcon(collection);
-    var button = Dom.newDOMElement({
+    var button = Dom.newDOMElement({ 
         _name: "button", 
         _children: [
             {
