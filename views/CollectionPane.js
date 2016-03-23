@@ -31,8 +31,6 @@ function CollectionPane() {
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
     });
 
-    CollectionManager.loadStencils();
-    this.reload();
 
     this.dndImage = new Image();
     this.dndImage.src = "css/bullet.png";
@@ -54,6 +52,10 @@ function CollectionPane() {
             thiz.searchInput.select();
         }
     });
+
+    Pencil.collectionPane = this;
+    CollectionManager.loadStencils();
+    this.reload();
 
 }
 __extend(BaseTemplatedWidget, CollectionPane);

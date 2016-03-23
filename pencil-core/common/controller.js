@@ -33,7 +33,8 @@ Controller.prototype.newDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
 
-    this.pages = [];
+    this.doc = new PencilDocument();
+    this.documentPath = null;
 
     var size = this.applicationPane.getPreferredCanvasSize();
 
@@ -41,14 +42,15 @@ Controller.prototype.newDocument = function () {
     this.activatePage(page);
 };
 Controller.prototype.findPageById = function (id) {
-    for (var i in this.pages) {
-        if (this.pages[i].id == id) return this.pages[i];
+    for (var i in this.doc.pages) {
+        if (this.doc.pages[i].id == id) return this.doc.pages[i];
     }
 
     return null;
 };
 Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId) {
     var id = Util.newUUID();
+    var pageFileName = "page_" + id + ".xml";
     var page = {
         name: name,
         width: width,
@@ -59,12 +61,13 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
         id: id,
         canvas: null,
-        tempFilePath: path.join(this.tempDir.name, "page_" + id + ".xml")
+        pageFileName: pageFileName,
+        tempFilePath: path.join(this.tempDir.name, pageFileName)
     }
     console.log("background page: " + page.backgroundPage);
 
     this.serializePage(page, page.tempFilePath);
-    this.pages.push(page);
+    this.doc.pages.push(page);
 
     page.parentPage = null;
     if (parentPageId) {
@@ -102,6 +105,69 @@ Controller.prototype.duplicatePage = function () {
     }
 
     this.sayDocumentChanged();
+};
+
+Controller.prototype.serializeDocument = function (onDone) {
+    var dom = this.doc.toDom();
+    var xml = Controller.serializer.serializeToString(dom);
+    var outputPath = path.join(this.tempDir.name, "content.xml");
+    fs.writeFileSync(outputPath, xml, "utf8");
+
+    var index = -1;
+    var thiz = this;
+
+    function next() {
+        index ++;
+        if (index >= thiz.doc.pages.length) {
+            if (onDone) onDone();
+            return;
+        }
+        var page = thiz.doc.pages[index];
+        thiz.serializePage(page, page.tempFilePath);
+        if (page.lastModified
+            && (!page.thumbCreated || page.lastModified.getTime() > page.thumbCreated.getTime())) {
+            if (thiz.pendingThumbnailerMap[page.id]) {
+                var pending = thiz.pendingThumbnailerMap[page.id];
+                window.clearTimeout(pending);
+                thiz.pendingThumbnailerMap[page.id] = null;
+            }
+            thiz.updatePageThumbnail(page, next);
+        } else {
+            next();
+        }
+    };
+
+    next();
+};
+Controller.prototype.save = function () {
+    if (!this.documentPath) {
+        var thiz = this;
+        dialog.showSaveDialog({
+            title: "Save as",
+            defaultPath: path.join(os.homedir(), "Untitled.epz"),
+            filters: [
+                { name: "Pencil Documents", extensions: ["epz"] }
+            ]
+        }, function (filePath) {
+            if (!filePath) return;
+            thiz.documentPath = filePath;
+            thiz.save();
+        });
+        return;
+    }
+
+    if (!this.doc) throw "No document";
+    if (!this.documentPath) throw "Path not specified";
+
+    this.serializeDocument(function () {
+        var archiver = require("archiver");
+        var archive = archiver("zip");
+        var output = fs.createWriteStream(this.documentPath);
+        archive.pipe(output);
+        archive.directory(this.tempDir.name, "/", {});
+        archive.finalize();
+        console.log("Saved");
+    }.bind(this));
 };
 
 Controller.prototype.serializePage = function (page, outputPath) {
@@ -186,8 +252,8 @@ Controller.prototype.activatePage = function (page) {
             console.log("No available canvas for swapping in, swapping a LRU page now.");
             var lruPage = null;
             var lru = new Date().getTime();
-            for (var i = 0; i < this.pages.length; i ++) {
-                var p = this.pages[i];
+            for (var i = 0; i < this.doc.pages.length; i ++) {
+                var p = this.doc.pages[i];
                 if (!p.canvas) continue;
                 if (p.lastUsed.getTime() < lru) {
                     lruPage = p;
@@ -214,8 +280,8 @@ Controller.prototype.deletePage = function (page) {
     fs.unlinkSync(page.tempFilePath);
     if (page.canvas) this.canvasPool.return(page.canvas);
 
-    var i = this.pages.indexOf(page);
-    this.pages.splice(i, 1);
+    var i = this.doc.pages.indexOf(page);
+    this.doc.pages.splice(i, 1);
     this.sayDocumentChanged();
 };
 Controller.prototype.sayDocumentChanged = function () {
@@ -291,7 +357,7 @@ Controller.prototype.handleCanvasModified = function (canvas) {
         thiz.updatePageThumbnail(canvas.page);
     }, 3000);
 };
-Controller.prototype.updatePageThumbnail = function (page) {
+Controller.prototype.updatePageThumbnail = function (page, done) {
     var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
     var scale = Controller.THUMBNAIL_SIZE / page.width;
     if (page.height > page.width) scale = Controller.THUMBNAIL_SIZE / page.height;
@@ -301,8 +367,10 @@ Controller.prototype.updatePageThumbnail = function (page) {
         page.thumbPath = p;
         page.thumbCreated = new Date();
         Dom.emitEvent("p:PageInfoChanged", thiz.applicationPane, {page: page});
+        if (done) done();
     }, scale);
 };
+
 
 // Controller.prototype.pageMoveRight = function () {
 //     var pageIndex = this._findPageToEditIndex();

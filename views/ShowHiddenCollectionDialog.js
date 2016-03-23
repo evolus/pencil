@@ -15,7 +15,7 @@ function ShowHiddenCollectionDialog (collectionPanel) {
         this.collectionContainer.appendChild(this.createCollectionButton(this.hiddenCollections[i]));
     }
     this.collectionContainer.addEventListener("click",function (event) {
-        var node = Dom.findUpwardForNodeWithData(event.target,"_collection");
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
         var check = node.getAttribute("selected");
         if(check == "true") {
             node.setAttribute("selected", "false");
@@ -34,19 +34,19 @@ ShowHiddenCollectionDialog.prototype.createCollectionButton = function (collecti
     var thiz = this;
     var icon = this.getCollectionIcon(collection);
     var button = Dom.newDOMElement({
-        _name: "button", 
+        _name: "button",
         _children: [
             {
-                _name: "i", 
+                _name: "i",
                 _text: icon
-            }, 
+            },
             {
-                _name: "br", 
-            }, 
+                _name: "br",
+            },
             {
-                _name: "span", 
+                _name: "span",
                 _text: collection.displayName
-            } 
+            }
         ]
     });
     button._id = collection.displayName;
@@ -67,24 +67,26 @@ ShowHiddenCollectionDialog.prototype.getHiddenCollection = function () {
 }
 ShowHiddenCollectionDialog.prototype.getDialogActions = function () {
     return [
-        {   type: "accept", title: "Show", run: function () {
-            if(this.hiddenCollections.length > 0) {
-                var node = this.collectionContainer;
-                for( var i = 0; i < node.children.length; i++){
-                    var check = node.children[i].getAttribute("selected");
-                    if(check == "true") {
-                        this.collectionPanel.setVisibleCollection(node.children[i]._collection,true);
+        Dialog.ACTION_CANCEL,
+        {   type: "accept", title: "Show",
+            run: function () {
+                if(this.hiddenCollections.length > 0) {
+                    var node = this.collectionContainer;
+                    for( var i = 0; i < node.children.length; i++){
+                        var check = node.children[i].getAttribute("selected");
+                        if(check == "true") {
+                            this.collectionPanel.setVisibleCollection(node.children[i]._collection, true);
+                        }
                     }
+                    this.collectionPanel.reload();
                 }
-                this.collectionPanel.reload();
+                return true;
             }
-            return true;
-        }}, 
-        {   type: "accept", title: "Uninstall Collections", run: function () {
-            return true;
-        }}, 
-        {   type: "extra1", title: "Install New Collection", run: function () {
-            return true;
-        }}
+        },
+        {   type: "extra1", title: "Install New Collection",
+            run: function () {
+                return true;
+            }
+        }
     ]
 };

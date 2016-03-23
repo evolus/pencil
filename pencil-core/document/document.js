@@ -3,7 +3,7 @@ function PencilDocument() {
     this.pages = [];
 }
 PencilDocument.prototype.toDom = function () {
-    var dom = document.implementation.createDocument(PencilNamespaces.p, "Document", null);
+    var dom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
 
     //properties
     var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "Properties");
@@ -22,7 +22,10 @@ PencilDocument.prototype.toDom = function () {
     dom.documentElement.appendChild(pageContainerNode);
 
     for (i in this.pages) {
-        pageContainerNode.appendChild(this.pages[i].toNode(dom));
+        var pageNode = dom.createElementNS(PencilNamespaces.p, "Page");
+        pageContainerNode.appendChild(pageNode);
+
+        pageNode.setAttribute("href", this.pages[i].pageFileName);
     }
 
     return dom;
@@ -212,7 +215,3 @@ Page.prototype.generateFriendlyId = function (usedFriendlyIds) {
     usedFriendlyIds.push(name);
     return name;
 };
-
-
-
-

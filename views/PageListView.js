@@ -42,8 +42,8 @@ function PageListView() {
         this.currentPage = null;
         if (this.currentParentPage) {
             if (page == null && this.currentParentPage) {
-                for (var i in this.controller.pages) {
-                    var p = this.controller.pages[i];
+                for (var i in this.controller.doc.pages) {
+                    var p = this.controller.doc.pages[i];
                     if (!p.parentPage && p.id == this.currentParentPage.id) {
                         this.currentPage = p;
                         break;
@@ -100,13 +100,13 @@ PageListView.prototype.renderPages = function() {
     this.childPageContainer.innerHTML = "";
 
     this.views = [];
-    if (!this.controller || !this.controller.pages) return;
+    if (!this.controller || !this.controller.doc) return;
 
     var pages = [];
     var parentPages = [];
     if (!this.currentParentPage) {
-        for (var i in this.controller.pages) {
-            var page = this.controller.pages[i];
+        for (var i in this.controller.doc.pages) {
+            var page = this.controller.doc.pages[i];
             if (!page.parentPage) pages.push(page);
         }
 
