@@ -75,8 +75,10 @@ Page.defaultPageSizes = [
     }
 ];
 
+
 PageDetailDialog.prototype.setup = function (options) {
     this.options = options;
+    this.defalutPage = options.defalutPage;
     if (this.options && this.options.onDone) this.onDone = this.options.onDone;
     var pages = [];
     pages.push({
@@ -143,9 +145,34 @@ PageDetailDialog.prototype.setup = function (options) {
 
     var background = this.backgroundCombo.getSelectedItem();
     this.colorButton.style.display = background.value ? "none" : "block";
+
+    if(options.defalutPage) {
+        this.setPageItem(options.defalutPage);
+    }
 };
 
+    PageDetailDialog.prototype.setPageItem = function (page) {
+        if(page.parentPage) {
+            this.pageCombo.selectItem(page.parentPage.name);
+        }
+        this.pageTitle.value = page.name; 
+        this.pageSizeCombo.selectItem({
+            displayName: "Custome size..."
+        });
+        this.widthInput.disabled = false;
+        this.heightInput.disabled = false;
+        this.widthInput.value = page.width;
+        this.heightInput.value = page.height;
+        if(page.backgroundColor) {
+            this.backgroundCombo.selectItem([{
+                 displayName: "Background Color"
+            }])
+            this.colorButton.style.backgroundColor = page.backgroundColor;
+        }
+    }
+
 const SIZE_RE = /^([0-9]+)x([0-9]+)$/;
+
 PageDetailDialog.prototype.createPage = function () {
     var name = this.pageTitle.value;
 
@@ -180,6 +207,31 @@ PageDetailDialog.prototype.createPage = function () {
     Config.set("lastSize", [width, height].join("x"));
     return page;
 };
+
+PageDetailDialog.prototype.updatePage = function() {
+    var page = this.defalutPage;
+    page.name = this.pageTitle.value;
+    page.width = parseInt(this.widthInput.value, 10);
+    page.height = parseInt(this.heightInput.value, 10);
+
+    var background = this.backgroundCombo.getSelectedItem();
+    if (background.value != "transparent") {
+        if (typeof(background.value) == "undefined") {
+            page.backgroundColor = this.colorButton.bgColor ? this.colorButton.bgColor.toRGBString() : "#FFFFFF";
+        } else {
+            page.backgroundPageId = background.value;
+        }
+    }
+    var parentPageId = this.pageCombo.getSelectedItem().id;
+     if (parentPageId) {
+        var parentPage = Pencil.controller.findPageById(parentPageId);
+        if (parentPage) {
+            if (!parentPage.children) parentPage.children = [];
+            parentPage.children.push(page);
+            page.parentPage = parentPage;
+        }
+    }
+}
 PageDetailDialog.prototype.getDialogActions = function () {
     var thiz = this;
     return [
@@ -187,7 +239,11 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {
             type: "accept", title: "APPLY",
             run: function () {
-                if (thiz.onDone) thiz.onDone(thiz.createPage());
+                if (thiz.defalutPage) {
+                    this.updatePage();
+                } else {
+                    if (thiz.onDone) thiz.onDone(thiz.createPage());                    
+                }
                 return true;
             }
         }

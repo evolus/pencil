@@ -7,6 +7,7 @@ function PageListView() {
         });
         return node;
     }
+
     this.bind("click", function (event) {
         var node = findPageThumbnailView(event);
         if (!node) return;
@@ -63,6 +64,16 @@ function PageListView() {
     }, this.pageBreadcrumb);
 
     var thiz = this;
+
+    this.bind("contextmenu", function (event) {
+        var page = Dom.findUpwardForData(event.target, "_page");
+        thiz.activatePage(page);
+        if (page) {
+            var pageMenu = new PageMenu(thiz,page);
+            pageMenu.showMenuAt(event.clientX, event.clientY);
+        }  
+    })
+
     this.bind("click", function (event) {
         var dialog = new PageDetailDialog();
         dialog.open({
