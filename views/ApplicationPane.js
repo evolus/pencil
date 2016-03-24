@@ -48,13 +48,7 @@ function ApplicationPane() {
         //         thiz.pageListView.activatePage(page);
         //     }
         // });
-        var files  = document.querySelector();
-        console.log("file: ", files);
     }, this.testButton);
-    this.bind("change", function (event) {
-        console.log(this.fileButton.files);
-        CollectionManager.installCollectionFromFile(this.fileButton.files[0]);
-    }, this.fileButton);
     this.bind("click", function (event) {
         var currentPage = this.pageCombo.getSelectedItem();
         this.rasterizer.rasterizePageToFile(currentPage, null, function (path, error) {

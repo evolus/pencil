@@ -5,20 +5,27 @@ __extend(ToolBar, FileToolbar);
 
 FileToolbar.prototype.registerCommands = function () {
     // UICommandManager.register({
-    //     key: "makeSameWidthCommand",
-    //     watchEvents: "p:TargetChanged",
-    //     label: "Make Same Width",
-    //     isValid: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.makeSameWidth; },
+    //     key: "newDocumentCommand",
+    //     label: "new Document",
+    //     isValid: function () { return true; },
     //     run: function () {
-    //         Pencil.activeCanvas.currentController.makeSameWidth();
+    //         Pencil.controller.newDocument();
+    //     }
+    // });
+    // UICommandManager.register({
+    //     key: "openDocumentCommand",
+    //     label: "open Document",
+    //     isValid: function () { return true; },
+    //     run: function () {
+    //         Pencil.controller.openDocument();
     //     }
     // });
     UICommandManager.register({
         key: "saveDocumentCommand",
-        label: "Make Same Width",
+        label: "save Document",
         isValid: function () { return true; },
         run: function () {
-            Pencil.controller.save();
+            Pencil.controller.saveDocument();
         }
     });
 };

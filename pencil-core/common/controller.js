@@ -141,7 +141,38 @@ Controller.prototype.serializeDocument = function (onDone) {
 
     next();
 };
-Controller.prototype.save = function () {
+Controller.prototype.newDocument = function () {
+
+};
+Controller.prototype.openDocument = function () {
+    var files = dialog.showOpenDialog({
+        title: "Open pencil document",
+        defaultPath: os.homedir(),
+        filters: [
+            { name: "Stencil files", extensions: ["epz", "ep"] }
+        ]
+
+    }, function (filenames) {
+        if (!filenames || filenames.lenth <= 0) return;
+        CollectionManager.installCollectionFromFilePath(filenames[0]);
+    });
+};
+
+Controller.prototype.confirmAndSaveDocument = function (onSaved) {
+    dialog.showMessageBox({
+        title: "Save pencil document",
+        type: "question",
+        buttons: ["Discard changes", "Save", "Cancel"],
+        defaultId: 1,
+        cancelId: 2,
+        message: "Save changes to document before closing?",
+        detail: "If you don't save, changes will be permanently lost."
+    }, function (result) {
+        console.log("result:", result);
+        // this.saveDocument(onSaved);
+    }.bind(this));
+};
+Controller.prototype.saveDocument = function (onSaved) {
     if (!this.documentPath) {
         var thiz = this;
         dialog.showSaveDialog({
@@ -168,7 +199,9 @@ Controller.prototype.save = function () {
         archive.pipe(output);
         archive.directory(this.tempDir.name, "/", {});
         archive.finalize();
+        this.sayDocumentSaved();
         console.log("Saved");
+        if (onSaved) onSaved();
     }.bind(this));
 };
 
@@ -287,9 +320,13 @@ Controller.prototype.deletePage = function (page) {
     this.sayDocumentChanged();
 };
 Controller.prototype.sayDocumentChanged = function () {
+    this.modified = true;
     Dom.emitEvent("p:DocumentChanged", this.applicationPane.node(), {
         controller : this
     });
+};
+Controller.prototype.sayDocumentSaved = function () {
+    this.modified = false;
 };
 
 Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
