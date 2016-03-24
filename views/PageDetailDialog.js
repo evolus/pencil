@@ -84,7 +84,7 @@ PageDetailDialog.prototype.setup = function (options) {
     pages.push({
         name: "(None)"
     });
-    pages = pages.concat(Pencil.controller.pages);
+    pages = pages.concat(Pencil.controller.doc.pages);
     this.pageCombo.setItems(pages);
 
     if (this.options && this.options.defaultParentPage) {
@@ -126,8 +126,7 @@ PageDetailDialog.prototype.setup = function (options) {
         }
     ];
 
-
-    var pages = Pencil.controller.pages;
+    var pages = Pencil.controller.doc.pages;
     if (pages) {
         for (var i in pages) {
             var page = pages[i];

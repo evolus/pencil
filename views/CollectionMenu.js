@@ -20,8 +20,6 @@ CollectionMenu.prototype.setup = function () {
         run: function () {
             var propertiesSettingDialog = new CollectionSettingDialog(thiz.collection);
             propertiesSettingDialog.open()
-            console.log("after setting:", thiz.collection);
-
         }
     });
     UICommandManager.register({
@@ -37,7 +35,7 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "Uninstall this collection" },
         isEnabled: function () {  return thiz.collection.userDefined },
         run: function () {
-
+            CollectionManager.uninstallCollection(thiz.collection);
         }
     });
     UICommandManager.register({
@@ -55,6 +53,7 @@ CollectionMenu.prototype.setup = function () {
         getLabel: function () { return "Install new collection..." },
         isValid: function () { return true },
         run: function () {
+            CollectionManager.installNewCollection();
         }
     });
     UICommandManager.register({

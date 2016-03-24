@@ -133,7 +133,7 @@ CollectionManager._loadStencil = function (dir, parser, isSystem) {
         console.log(collection);
         if (!collection) return;
         collection.userDefined = isSystem ? false : true;
-        collection.installDirPath = definitionFile;
+        collection.installDirPath = dir;
         CollectionManager.addShapeDefCollection(collection);
     } catch (e) {
         Console.dumpError(e);
@@ -252,8 +252,10 @@ CollectionManager.loadStencils = function() {
     	return a.displayName > b.displayName ? 1 : (a.displayName < b.displayName ? -1 : 0);
     });
     CollectionManager._loadDeveloperStencil();
+    Pencil.collectionPane.reload();
 };
 CollectionManager.installNewCollection = function () {
+    /*
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
     var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     fp.init(window, Util.getMessage("filepicker.open.document"), nsIFilePicker.modeOpen);
@@ -261,10 +263,66 @@ CollectionManager.installNewCollection = function () {
     fp.appendFilter(Util.getMessage("filepicker.all.files"), "*");
 
     if (fp.show() != nsIFilePicker.returnOK) return;
+    */
+    var files = dialog.showOpenDialog({
+        title: "Install from",
+        defaultPath: os.homedir(),
+        filters: [
+            { name: "Stencil files", extensions: ["zip", "epc"] }
+        ]
 
-    CollectionManager.installCollectionFromFile(fp.file);
-}
+    }, function (filenames) {
+        if (!filenames || filenames.lenth <= 0) return;
+        CollectionManager.installCollectionFromFilePath(filenames[0]);
+    });
+};
+
 CollectionManager.installCollectionFromFile = function (file) {
+    var filePath = file.path;
+    var fileName = file.name.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime());
+
+    var targetDir = path.join(CollectionManager.getUserStencilDirectory(), fileName);
+    console.log("targetPath:", targetDir);
+
+    var extractor = unzip.Extract({ path: targetDir });
+    extractor.on("close", function () {
+        try {
+            var definitionFile = path.join(targetDir, "Definition.xml");
+            if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+
+            var parser = new ShapeDefCollectionParser();
+            var collection = parser.parseURL(definitionFile);
+
+            if (collection && collection.id) {
+                //check for duplicate of name
+                for (i in CollectionManager.shapeDefinition.collections) {
+                    var existingCollection = CollectionManager.shapeDefinition.collections[i];
+                    if (existingCollection.id == collection.id) {
+                        throw Util.getMessage("collection.named.already.installed", collection.id);
+                    }
+                }
+                collection.userDefined = true;
+
+                CollectionManager.setCollectionVisible(collection, true);
+                CollectionManager.setCollectionCollapsed(collection, false);
+
+                CollectionManager.addShapeDefCollection(collection);
+                CollectionManager.loadStencils();
+            } else {
+                throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+            }
+        } catch (e) {
+            console.log("error:", e);
+            CollectionManager.removeCollectionDir(targetDir);
+        }
+
+    });
+
+    fs.createReadStream(filePath).pipe(extractor);
+
+};
+
+CollectionManager.installCollectionFromFile_old = function (file) {
     var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
                    .createInstance(Components.interfaces.nsIZipReader);
     zipReader.open(file);
@@ -365,11 +423,19 @@ CollectionManager.installCollectionFromFile = function (file) {
     }
 };
 CollectionManager.installCollectionFromFilePath = function (filePath) {
+    var file = {
+        path: filePath,
+        name: path.basename(filePath)
+    };
+    CollectionManager.installCollectionFromFile(file);
+
+    /*
     var file = Components.classes["@mozilla.org/file/local;1"]
                    .createInstance(Components.interfaces.nsILocalFile);
     file.initWithPath(filePath);
 
     CollectionManager.installCollectionFromFile(file);
+    */
 };
 CollectionManager.installCollectionFromUrl = function (url) {
     Net.downloadAsync(url, "e:\\t.txt", {
@@ -401,7 +467,32 @@ CollectionManager.isCollectionCollapsed = function (collection) {
     if (collapsed == null) collapsed = false;
     return collapsed;
 };
+
+CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
+    var deleteFolderRecursive = function(path) {
+        if( fs.existsSync(path)) {
+            fs.readdirSync(path).forEach(function (file, index) {
+                var curPath = path + "/" + file;
+                if(fs.lstatSync(curPath).isDirectory()) { // recurse
+                    deleteFolderRecursive(curPath);
+                } else { // delete file
+                    fs.unlinkSync(curPath);
+                }
+            });
+            fs.rmdirSync(path);
+            if (onRemoved) onRemoved();
+        }
+    };
+
+    deleteFolderRecursive(targetDir);
+};
 CollectionManager.uninstallCollection = function (collection) {
+    if (!collection.installDirPath || !collection.userDefined) return;
+    CollectionManager.removeCollectionDir(collection.installDirPath, function () {
+        CollectionManager.loadStencils();
+    });
+
+    /*
     if (!collection.installDirPath || !collection.userDefined) return;
     if (!Util.confirm(Util.getMessage("uninstall.the.collection.confirm", collection.displayName),
                       Util.getMessage("uninstall.the.collection.discription", collection.displayName))) return;
@@ -411,4 +502,5 @@ CollectionManager.uninstallCollection = function (collection) {
 
     dir.remove(true);
     CollectionManager.loadStencils();
+    */
 }

@@ -53,6 +53,7 @@ function ApplicationPane() {
     }, this.testButton);
     this.bind("change", function (event) {
         console.log(this.fileButton.files);
+        CollectionManager.installCollectionFromFile(this.fileButton.files[0]);
     }, this.fileButton);
     this.bind("click", function (event) {
         var currentPage = this.pageCombo.getSelectedItem();
