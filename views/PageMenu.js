@@ -25,6 +25,7 @@ PageMenu.prototype.setup = function () {
 
     UICommandManager.register({
         key: "PageNewPage",
+        icon: "add",
         getLabel: function () { return "New Page " },
         isValid: function () { return true },
         run: function () {
@@ -40,6 +41,7 @@ PageMenu.prototype.setup = function () {
 
     UICommandManager.register({
         key: "PageDuplicate",
+        icon: "content_copy",
         getLabel: function () { return "Duplicate " },
         isValid: function () { return true },
         run: function () {
@@ -50,6 +52,7 @@ PageMenu.prototype.setup = function () {
 
     UICommandManager.register({
         key: "PageDelete",
+        icon : "remove",
         getLabel: function () { return "Delete " },
         isValid: function () { return true },
         run: function () {
@@ -66,12 +69,13 @@ PageMenu.prototype.setup = function () {
 
     UICommandManager.register({
         key: "PageMoveLeft",
+        icon: "keyboard_arrow_left",
         getLabel: function () { return "Move Left " },
         isValid: function () { return true },
         run: function () {
           var parentPage = thiz.page.parentPage;
           if(!parentPage) {
-            parentPage = Pencil.controller.pages;
+            parentPage = Pencil.controller.doc.pages;
           } else {
             parentPage = thiz.page.parentPage.children;
           }
@@ -89,12 +93,13 @@ PageMenu.prototype.setup = function () {
 
     UICommandManager.register({
         key: "PageMoveRight",
+        icon: "keyboard_arrow_right",
         getLabel: function () { return "Move Right" },
         isValid: function () { return true },
         run: function () {
           var parentPage = thiz.page.parentPage;
           if(!parentPage) {
-            parentPage = Pencil.controller.pages;
+            parentPage = Pencil.controller.doc.pages;
           } else {
             parentPage = thiz.page.parentPage.children;
           }
@@ -157,8 +162,8 @@ PageMenu.prototype.setup = function () {
 
     var createGotoSubMenuItem = function() {
         var elements = [];
-        for (var i = 0; i < Pencil.controller.pages.length; i ++) {
-            elements.push(createGotoSubMenuElement(Pencil.controller.pages[i]));
+        for (var i = 0; i < Pencil.controller.doc.pages.length; i ++) {
+            elements.push(createGotoSubMenuElement(Pencil.controller.doc.pages[i]));
         }
         return elements;
     }
