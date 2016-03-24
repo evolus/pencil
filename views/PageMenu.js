@@ -53,7 +53,14 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Delete " },
         isValid: function () { return true },
         run: function () {
-             Pencil.controller.deletePage(thiz.page); 
+          if(thiz.page.parentPage) {
+            var parentPage = thiz.page.parentPage.children;
+            var index = parentPage.indexOf(thiz.page);
+            parentPage.splice(index, 1);
+            Pencil.controller.sayDocumentChanged();
+          } else {
+            Pencil.controller.deletePage(thiz.page);
+          }
         }
     });
 
@@ -62,11 +69,20 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Left " },
         isValid: function () { return true },
         run: function () {
-            var index = Pencil.controller.pages.indexOf(thiz.page);
+          var parentPage = thiz.page.parentPage;
+          if(!parentPage) {
+            parentPage = Pencil.controller.pages;
+          } else {
+            parentPage = thiz.page.parentPage.children;
+          }
+          var index = parentPage.indexOf(thiz.page);
             if (index == 0) {
                 return;
-            } else { 
-                thiz.pageListView.activatePage(Pencil.controller.pages[index - 1]);
+            } else {
+                var pageTmp = parentPage[index -1];
+                parentPage[index -1 ] = parentPage[index];
+                parentPage[index] = pageTmp;
+                thiz.pageListView.activatePage(parentPage[index - 1]);
             }
         }
     });
@@ -76,13 +92,21 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Right" },
         isValid: function () { return true },
         run: function () {
-            var index = Pencil.controller.pages.indexOf(thiz.page);
-            if (index == Pencil.controller.pages.length - 1) {
+          var parentPage = thiz.page.parentPage;
+          if(!parentPage) {
+            parentPage = Pencil.controller.pages;
+          } else {
+            parentPage = thiz.page.parentPage.children;
+          }
+          var index = parentPage.indexOf(thiz.page);
+            if (index == parentPage.length) {
                 return;
-            } else { 
-                thiz.pageListView.activatePage(Pencil.controller.pages[index + 1]);
+            } else {
+                var pageTmp = parentPage[index +1];
+                parentPage[index +1 ] = parentPage[index];
+                parentPage[index] = pageTmp;
+                thiz.pageListView.activatePage(parentPage[index + 1]);
             }
-
         }
     });
 
@@ -118,7 +142,7 @@ PageMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("PageMenuDivitor"));
     this.register(UICommandManager.getCommand("PageProperties"));
 
-    var createGotoSubMenuElement = function(page) { 
+    var createGotoSubMenuElement = function(page) {
         var key = page.name.split(" ").join("") + "Page" ;
             var element = UICommandManager.register({
                     key: key,
@@ -145,7 +169,7 @@ PageMenu.prototype.setup = function () {
         if( item.length > 0 ) check = true;
 
         thiz.register({
-            label: "Go to " , 
+            label: "Go to " ,
             isEnabled: function() { return check},
             run: function () { },
             type: "SubMenu",

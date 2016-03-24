@@ -78,14 +78,12 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
             page.parentPage = parentPage;
         }
     }
-
     this.sayDocumentChanged();
 
     return page;
 };
 
 Controller.prototype.duplicatePage = function () {
-
     var page = this.activePage;
 
     var name = page.name;
