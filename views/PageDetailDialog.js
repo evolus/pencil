@@ -156,7 +156,7 @@ PageDetailDialog.prototype.setup = function (options) {
         if(page.parentPage) {
             this.pageCombo.selectItem(page.parentPage.name);
         }
-        this.pageTitle.value = page.name; 
+        this.pageTitle.value = page.name;
         this.pageSizeCombo.selectItem({
             displayName: "Custome size..."
         });
@@ -223,6 +223,12 @@ PageDetailDialog.prototype.updatePage = function() {
             page.backgroundPageId = background.value;
         }
     }
+    if(page.parentPage) {
+      var parentedPage = page.parentPage;
+      var index = parentedPage.children.indexOf(page);
+      parentedPage.children.splice(index, 1);
+    }
+
     var parentPageId = this.pageCombo.getSelectedItem().id;
      if (parentPageId) {
         var parentPage = Pencil.controller.findPageById(parentPageId);
@@ -231,7 +237,10 @@ PageDetailDialog.prototype.updatePage = function() {
             parentPage.children.push(page);
             page.parentPage = parentPage;
         }
+    } else {
+      page.parentPage = null;
     }
+    Pencil.controller.sayDocumentChanged();
 }
 PageDetailDialog.prototype.getDialogActions = function () {
     var thiz = this;
@@ -243,7 +252,7 @@ PageDetailDialog.prototype.getDialogActions = function () {
                 if (thiz.defalutPage) {
                     this.updatePage();
                 } else {
-                    if (thiz.onDone) thiz.onDone(thiz.createPage());                    
+                    if (thiz.onDone) thiz.onDone(thiz.createPage());
                 }
                 return true;
             }
