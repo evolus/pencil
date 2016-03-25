@@ -314,33 +314,55 @@ Controller.prototype.sayDocumentChanged = function () {
 
 Controller.prototype.movePage = function (dir) {
   var page = this.activePage;
-  var pages;
+  var pages = [];
   var parentPage = page.parentPage;
   if(!parentPage) {
-    pages = this.doc.pages;
+    for(var i = 0; i < this.doc.pages.length; i++) {
+      if(!this.doc.pages[i].parentPage) {
+        pages.push(this.doc.pages[i]);
+      }
+    }
   } else {
-    pages = page.parentPage.children;
+    for(var i = 0; i < this.doc.pages.length; i++) {
+      if(this.doc.pages[i].parentPage == parentPage) {
+        pages.push(this.doc.pages[i]);
+      }
+    }
   }
   var index = pages.indexOf(page);
+  var pageReplace;
   if(dir == "left") {
     if (index == 0) {
         return;
     } else {
-        var pageTmp = pages[index -1];
-        pages[index -1 ] = pages[index];
-        pages[index] = pageTmp;
-        this.activatePage(pages[index - 1]);
-    }
-  } else {
-    if (index == pages.length) {
+        pageReplace = pages[index -1];
+        }
+    } else {
+    if (index == pages.length - 1) {
         return;
     } else {
-        var pageTmp = pages[index +1];
-        pages[index +1 ] = pages[index];
-        pages[index] = pageTmp;
-        this.activatePage(pages[index + 1]);
+      pageReplace = pages[index + 1];
     }
   }
+  var indexPage = this.doc.pages.indexOf(page);
+  var indexRelace = this.doc.pages.indexOf(pageReplace);
+  this.doc.pages[indexRelace] = page;
+  this.doc.pages[indexPage] = pageReplace;
+
+  if(parentPage) {
+    index = parentPage.children.indexOf(page);
+    if(dir == "left") {
+      var pageTmp = parentPage.children[index - 1];
+      parentPage.children[index - 1 ] = parentPage.children[index];
+      parentPage.children[index] = pageTmp;
+    } else {
+      var pageTmp = parentPage.children[index + 1];
+      parentPage.children[index + 1 ] = parentPage.children[index];
+      parentPage.children[index] = pageTmp;
+    }
+
+  }
+  this.activatePage(page);
   this.sayDocumentChanged();
 }
 
