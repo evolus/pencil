@@ -295,6 +295,7 @@ Controller.prototype.activatePage = function (page) {
 Controller.prototype.deletePage = function (page) {
     fs.unlinkSync(page.tempFilePath);
     if (page.canvas) this.canvasPool.return(page.canvas);
+
     if(page.parentPage) {
       var parentPage = page.parentPage.children;
       var index = parentPage.indexOf(page);
@@ -305,6 +306,8 @@ Controller.prototype.deletePage = function (page) {
     this.doc.pages.splice(i, 1);
     this.sayDocumentChanged();
 };
+
+
 Controller.prototype.sayDocumentChanged = function () {
     Dom.emitEvent("p:DocumentChanged", this.applicationPane.node(), {
         controller : this
@@ -315,9 +318,13 @@ Controller.prototype.movePage = function (dir) {
   var page = this.activePage;
   var pages = [];
   var parentPage = page.parentPage;
-  for(var i = 0; i < this.doc.pages.length; i++) {
-    if(this.doc.pages[i].parentPage == parentPage) {
-      pages.push(this.doc.pages[i]);
+  if(parentPage) {
+    pages = page.parent.children;
+  } else {
+    for(var i = 0; i < this.doc.pages.length; i++) {
+      if(this.doc.pages[i].parentPage == parentPage) {
+        pages.push(this.doc.pages[i]);
+      }
     }
   }
   var index = pages.indexOf(page);
@@ -372,6 +379,7 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
             page.height = newSize.height;
         }
     };
+
     if (askForPadding) {
         var paddingDialog = new PromptDialog();
         paddingDialog.open({
@@ -387,6 +395,7 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
         });
         return;
     }
+
     handler();
 };
 Controller.prototype.sizeToBestFit = function (passedPage) {
