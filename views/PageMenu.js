@@ -157,7 +157,7 @@ PageMenu.prototype.setup = function () {
 
     var createGotoSubMenuItem = function() {
         var elements = [];
-        for (var i = 0; i < Pencil.controller.pages.length; i ++) {
+        for (var i = 0; i < Pencil.controller.doc.pages.length; i ++) {
             elements.push(createGotoSubMenuElement(Pencil.controller.pages[i]));
         }
         return elements;

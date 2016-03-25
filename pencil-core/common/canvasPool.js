@@ -30,6 +30,11 @@ CanvasPool.prototype.return = function (canvas) {
     Dom.empty(canvas.drawingLayer);
     canvas.selectNone();
 };
+CanvasPool.prototype.reset = function () {
+    this.canvases.forEach(function (canvas) {
+        this.return(canvas);
+    }, this);
+};
 CanvasPool.prototype.newCanvas = function () {
     var canvas = this.applicationPane.createCanvas();
     var thiz = this;

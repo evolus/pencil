@@ -272,7 +272,7 @@ CollectionManager.installNewCollection = function () {
         ]
 
     }, function (filenames) {
-        if (!filenames || filenames.lenth <= 0) return;
+        if (!filenames || filenames.length <= 0) return;
         CollectionManager.installCollectionFromFilePath(filenames[0]);
     });
 };

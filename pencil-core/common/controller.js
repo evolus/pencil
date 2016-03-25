@@ -30,16 +30,30 @@ Controller.prototype.getDocumentName = function () {
     return "Untitled.epz";
 };
 Controller.prototype.newDocument = function () {
+    var thiz = this;
+
+    function create() {
+        thiz.resetDocument();
+
+        var size = thiz.applicationPane.getPreferredCanvasSize();
+        var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "");
+        thiz.activatePage(page);
+    };
+
+    if (this.modified) {
+        this.confirmAndSaveDocument(create);
+        return;
+    }
+
+    create();
+};
+Controller.property.resetDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
 
     this.doc = new PencilDocument();
     this.documentPath = null;
-
-    var size = this.applicationPane.getPreferredCanvasSize();
-
-    var page = this.newPage("Untitled Page", size.w, size.h, null, null, "");
-    this.activatePage(page);
+    this.canvasPool.reset();
 };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
@@ -51,7 +65,7 @@ Controller.prototype.findPageById = function (id) {
 Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId) {
     var id = Util.newUUID();
     var pageFileName = "page_" + id + ".xml";
-    var page = {
+    var properties = {
         name: name,
         width: width,
         height: height,
@@ -60,10 +74,26 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
         note: note,
 
         id: id,
-        canvas: null,
         pageFileName: pageFileName,
+        parentPageId: parentPageId
+    };
+    var page = {
+        properties: properties,
+        name: name,
+        width: width,
+        height: height,
+        backgroundPage: this.findPageById(backgroundPageId),
+        backgroundColor: backgroundColor,
+        note: note,
+
+        id: id,
+        pageFileName: pageFileName,
+        parentPageId: parentPageId,
+
+        canvas: null,
         tempFilePath: path.join(this.tempDir.name, pageFileName)
     }
+
     console.log("background page: " + page.backgroundPage);
 
     this.serializePage(page, page.tempFilePath);
@@ -103,8 +133,6 @@ Controller.prototype.duplicatePage = function () {
 
     return newPage;
     this.sayDocumentChanged();
-
-
 };
 
 Controller.prototype.serializeDocument = function (onDone) {
@@ -139,37 +167,86 @@ Controller.prototype.serializeDocument = function (onDone) {
 
     next();
 };
-Controller.prototype.newDocument = function () {
-
-};
 Controller.prototype.openDocument = function () {
-    var files = dialog.showOpenDialog({
-        title: "Open pencil document",
-        defaultPath: os.homedir(),
-        filters: [
-            { name: "Stencil files", extensions: ["epz", "ep"] }
-        ]
+    var thiz = this;
 
-    }, function (filenames) {
-        if (!filenames || filenames.lenth <= 0) return;
-        CollectionManager.installCollectionFromFilePath(filenames[0]);
-    });
+    function parse(doc) {
+        Dom.workOn("./Properties/Property", dom.documentElement, function (propNode) {
+            doc.properties[propNode.getAttribute("name")] = propNode.textContent;
+        });
+        Dom.workOn("./Pages/Page", dom.documentElement, function (pageNode) {
+            var page = {};
+            page.properties =
+            doc.pages.push(page);
+        });
+    }
+
+    function handler() {
+        dialog.showOpenDialog({
+            title: "Open pencil document",
+            defaultPath: os.homedir(),
+            filters: [
+                { name: "Stencil files", extensions: ["epz", "ep"] }
+            ]
+
+        }, function (filenames) {
+            if (!filenames || filenames.length <= 0) return;
+            this.resetDocument();
+
+
+        }.bind(thiz));
+
+    };
+
+    if (this.modified) {
+        this.confirmAndSaveDocument(handler);
+        return;
+    }
+
 };
+Controller.prototype.loadDocument = function (filePath) {
+    var targetDir = this.tempDir.name;
+    var extractor = unzip.Extract({ path: targetDir });
+    extractor.on("close", function () {
+        try {
+            var contentFilePath = path.join(targetDir, "Content.xml");
+            if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
+            var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
+            var content = Dom.getSingle("/Document/Properties", dom);
 
+            Dom.empty(canvas.drawingLayer);
+            if (content) {
+                while (content.hasChildNodes()) {
+                    var c = content.firstChild;
+                    content.removeChild(c);
+                    canvas.drawingLayer.appendChild(c);
+                }
+            }
+        } catch (e) {
+            console.log("error:", e);
+            CollectionManager.removeCollectionDir(targetDir);
+        }
+
+    });
+
+    fs.createReadStream(filePath).pipe(extractor);
+};
 Controller.prototype.confirmAndSaveDocument = function (onSaved) {
     dialog.showMessageBox({
         title: "Save pencil document",
         type: "question",
-        buttons: ["Discard changes", "Save", "Cancel"],
-        defaultId: 1,
-        cancelId: 2,
+        buttons: ["Discard changes", "Cancel", "Save"],
+        defaultId: 2,
+        cancelId: 1,
         message: "Save changes to document before closing?",
         detail: "If you don't save, changes will be permanently lost."
     }, function (result) {
         console.log("result:", result);
-        // this.saveDocument(onSaved);
+        if (result != 2) return;
+        this.saveDocument(onSaved);
     }.bind(this));
 };
+
 Controller.prototype.saveDocument = function (onSaved) {
     if (!this.documentPath) {
         var thiz = this;
@@ -182,7 +259,7 @@ Controller.prototype.saveDocument = function (onSaved) {
         }, function (filePath) {
             if (!filePath) return;
             thiz.documentPath = filePath;
-            thiz.save();
+            thiz.saveDocument(onSaved);
         });
         return;
     }
@@ -190,37 +267,53 @@ Controller.prototype.saveDocument = function (onSaved) {
     if (!this.doc) throw "No document";
     if (!this.documentPath) throw "Path not specified";
 
+    var thiz = this;
     this.serializeDocument(function () {
         var archiver = require("archiver");
         var archive = archiver("zip");
         var output = fs.createWriteStream(this.documentPath);
+        output.on("close", function () {
+            console.log("archived.");
+            thiz.sayDocumentSaved();
+            if (onSaved) onSaved();
+        });
         archive.pipe(output);
         archive.directory(this.tempDir.name, "/", {});
         archive.finalize();
-        this.sayDocumentSaved();
         console.log("Saved");
-        if (onSaved) onSaved();
+
     }.bind(this));
 };
 
 Controller.prototype.serializePage = function (page, outputPath) {
-    var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
-    var props = dom.createElementNS(PencilNamespaces.p, "p:Properties");
-    dom.documentElement.appendChild(props);
+    // var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
+    // var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
+    // dom.documentElement.appendChild(propertyContainerNode);
+    //
+    // for (name in page.properties) {
+    //     var propertyNode = dom.createElementNS(PencilNamespaces.p, "p:Property");
+    //     propertyContainerNode.appendChild(propertyNode);
+    //
+    //     propertyNode.setAttribute("name", name);
+    //     propertyNode.appendChild(dom.createTextNode(page.properties[name].toString()));
+    // }
+    //
+    // var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
+    // dom.documentElement.appendChild(content);
+    //
+    // if (page.canvas) {
+    //     var node = dom.importNode(page.canvas.drawingLayer, true);
+    //     while (node.hasChildNodes()) {
+    //         var c = node.firstChild;
+    //         node.removeChild(c);
+    //         content.appendChild(c);
+    //     }
+    // }
+    //
+    // var xml = Controller.serializer.serializeToString(dom);
+    // fs.writeFileSync(outputPath, xml, "utf8");
 
-    var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
-    dom.documentElement.appendChild(content);
-
-    if (page.canvas) {
-        var node = dom.importNode(page.canvas.drawingLayer, true);
-        while (node.hasChildNodes()) {
-            var c = node.firstChild;
-            node.removeChild(c);
-            content.appendChild(c);
-        }
-    }
-
-    var xml = Controller.serializer.serializeToString(dom);
+    var xml = page.toXml();
     fs.writeFileSync(outputPath, xml, "utf8");
 
     console.log("write to: " + outputPath);
@@ -250,7 +343,6 @@ Controller.prototype.getPageSVG = function (page) {
 
     return svg;
 };
-
 
 Controller.prototype.swapOut = function (page) {
     if (!page.canvas) throw "Invalid page state. Unable to swap out un-attached page";
@@ -381,6 +473,8 @@ Controller.prototype.getBestFitSize = function () {
 
 Controller.prototype.handleCanvasModified = function (canvas) {
     if (!canvas || !canvas.page) return;
+    this.modified = true;
+
     canvas.page.lastModified = new Date();
     if (!this.pendingThumbnailerMap) this.pendingThumbnailerMap = {};
     var pending = this.pendingThumbnailerMap[canvas.page.id];

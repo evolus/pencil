@@ -68,39 +68,34 @@ function Page(doc) {
     };
     this.rasterizeCache = null;
 }
-Page.prototype.validateLoadedData = function () {
-    this.properties.dimBackground = (this.properties.dimBackground == "true");
-};
-Page.prototype.toNode = function (dom, noContent) {
-    var pageNode = dom.createElementNS(PencilNamespaces.p, "Page");
+Page.prototype.toXml = function () {
+    var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
+    var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
+    dom.documentElement.appendChild(propertyContainerNode);
 
-    var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "Properties");
-    pageNode.appendChild(propertyContainerNode);
-
-    for (name in this.properties) {
-        var propertyNode = dom.createElementNS(PencilNamespaces.p, "Property");
+    for (name in page.properties) {
+        var propertyNode = dom.createElementNS(PencilNamespaces.p, "p:Property");
         propertyContainerNode.appendChild(propertyNode);
+
         propertyNode.setAttribute("name", name);
-        var propValue = this.properties[name];
-        if(propValue){
-            propertyNode.appendChild(dom.createTextNode(propValue.toString()));
-        } else if (name === "name") {
-            propertyNode.appendChild(dom.createTextNode(Util.getMessage("untitled.page")));
+        propertyNode.appendChild(dom.createTextNode(page.properties[name].toString()));
+    }
+
+    var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
+    dom.documentElement.appendChild(content);
+
+    if (page.canvas) {
+        var node = dom.importNode(page.canvas.drawingLayer, true);
+        while (node.hasChildNodes()) {
+            var c = node.firstChild;
+            node.removeChild(c);
+            content.appendChild(c);
         }
     }
 
-    if (this.contentNode && !noContent) {
-        var contentNode = dom.createElementNS(PencilNamespaces.p, "p:Content");
-        for (var i = 0; i < this.contentNode.childNodes.length; i ++) {
-            var node = this.contentNode.childNodes[i];
-            contentNode.appendChild(dom.importNode(node, true));
-        }
-
-        pageNode.appendChild(contentNode);
-    }
-
-    return pageNode;
+    return Controller.serializer.serializeToString(dom);
 };
+
 Page.prototype.equals = function (page) {
     if (page == null) return false;
     return page.constructor == Page && page.properties.id == this.properties.id;
