@@ -316,7 +316,7 @@ Controller.prototype.movePage = function (dir) {
   var pages = [];
   var parentPage = page.parentPage;
   for(var i = 0; i < this.doc.pages.length; i++) {
-    if(!this.doc.pages[i].parentPage) {
+    if(this.doc.pages[i].parentPage == parentPage) {
       pages.push(this.doc.pages[i]);
     }
   }
