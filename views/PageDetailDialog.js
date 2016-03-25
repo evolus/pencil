@@ -239,7 +239,9 @@ PageDetailDialog.prototype.updatePage = function() {
     } else {
       page.parentPage = null;
     }
+
     Pencil.controller.sayDocumentChanged();
+    return page;
 }
 PageDetailDialog.prototype.getDialogActions = function () {
     var thiz = this;
@@ -248,12 +250,14 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {
             type: "accept", title: "APPLY",
             run: function () {
+              if (thiz.onDone) {
                 if (thiz.defalutPage) {
-                    this.updatePage();
+                    thiz.onDone(thiz.updatePage());
                 } else {
-                    if (thiz.onDone) thiz.onDone(thiz.createPage());
+                    thiz.onDone(thiz.createPage());
                 }
-                return true;
+              }
+              return true;
             }
         }
     ];

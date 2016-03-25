@@ -3,7 +3,6 @@ function PageMenu (pageListView, page) {
     this.pageListView = pageListView;
     this.page = page;
     this.setup();
-
 }
 __extend(Menu, PageMenu);
 
@@ -45,8 +44,7 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Duplicate " },
         isValid: function () { return true },
         run: function () {
-            var page = Pencil.controller.duplicatePage();
-            thiz.pageListView.activatePage(page);
+            Pencil.controller.duplicatePage();
         }
     });
 
@@ -56,14 +54,7 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Delete " },
         isValid: function () { return true },
         run: function () {
-          if(thiz.page.parentPage) {
-            var parentPage = thiz.page.parentPage.children;
-            var index = parentPage.indexOf(thiz.page);
-            parentPage.splice(index, 1);
-            Pencil.controller.sayDocumentChanged();
-          } else {
             Pencil.controller.deletePage(thiz.page);
-          }
         }
     });
 
@@ -73,21 +64,7 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Left " },
         isValid: function () { return true },
         run: function () {
-          var parentPage = thiz.page.parentPage;
-          if(!parentPage) {
-            parentPage = Pencil.controller.doc.pages;
-          } else {
-            parentPage = thiz.page.parentPage.children;
-          }
-          var index = parentPage.indexOf(thiz.page);
-            if (index == 0) {
-                return;
-            } else {
-                var pageTmp = parentPage[index -1];
-                parentPage[index -1 ] = parentPage[index];
-                parentPage[index] = pageTmp;
-                thiz.pageListView.activatePage(parentPage[index - 1]);
-            }
+          Pencil.controller.movePage("left");
         }
     });
 
@@ -97,21 +74,7 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Right" },
         isValid: function () { return true },
         run: function () {
-          var parentPage = thiz.page.parentPage;
-          if(!parentPage) {
-            parentPage = Pencil.controller.doc.pages;
-          } else {
-            parentPage = thiz.page.parentPage.children;
-          }
-          var index = parentPage.indexOf(thiz.page);
-            if (index == parentPage.length) {
-                return;
-            } else {
-                var pageTmp = parentPage[index +1];
-                parentPage[index +1 ] = parentPage[index];
-                parentPage[index] = pageTmp;
-                thiz.pageListView.activatePage(parentPage[index + 1]);
-            }
+          Pencil.controller.movePage("right");
         }
     });
 
@@ -123,9 +86,12 @@ PageMenu.prototype.setup = function () {
             var dialog = new PageDetailDialog();
             dialog.title = "Edit Page Properties";
             dialog.open({
-                defalutPage : thiz.page
+                defalutPage : thiz.page,
+                onDone: function(page) {
+                  thiz.pageListView.activatePage(page);
+                }
             });
-            thiz.pageListView.activatePage(thiz.page);
+
         }
     });
 
