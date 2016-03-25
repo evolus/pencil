@@ -372,7 +372,6 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
             page.height = newSize.height;
         }
     };
-
     if (askForPadding) {
         var paddingDialog = new PromptDialog();
         paddingDialog.open({
@@ -388,7 +387,6 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
         });
         return;
     }
-
     handler();
 };
 Controller.prototype.sizeToBestFit = function (passedPage) {
