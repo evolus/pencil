@@ -297,13 +297,12 @@ Controller.prototype.deletePage = function (page) {
     if (page.canvas) this.canvasPool.return(page.canvas);
     if(page.parentPage) {
       var parentPage = page.parentPage.children;
-      var index = parentPage.indexOf(thiz.page);
+      var index = parentPage.indexOf(page);
       parentPage.splice(index, 1);
       this.activatePage(page.parentPage);
-    } else {
-      var i = this.doc.pages.indexOf(page);
-      this.doc.pages.splice(i, 1);
     }
+    var i = this.doc.pages.indexOf(page);
+    this.doc.pages.splice(i, 1);
     this.sayDocumentChanged();
 };
 Controller.prototype.sayDocumentChanged = function () {
@@ -316,17 +315,9 @@ Controller.prototype.movePage = function (dir) {
   var page = this.activePage;
   var pages = [];
   var parentPage = page.parentPage;
-  if(!parentPage) {
-    for(var i = 0; i < this.doc.pages.length; i++) {
-      if(!this.doc.pages[i].parentPage) {
-        pages.push(this.doc.pages[i]);
-      }
-    }
-  } else {
-    for(var i = 0; i < this.doc.pages.length; i++) {
-      if(this.doc.pages[i].parentPage == parentPage) {
-        pages.push(this.doc.pages[i]);
-      }
+  for(var i = 0; i < this.doc.pages.length; i++) {
+    if(!this.doc.pages[i].parentPage) {
+      pages.push(this.doc.pages[i]);
     }
   }
   var index = pages.indexOf(page);
@@ -360,7 +351,6 @@ Controller.prototype.movePage = function (dir) {
       parentPage.children[index + 1 ] = parentPage.children[index];
       parentPage.children[index] = pageTmp;
     }
-
   }
   this.activatePage(page);
   this.sayDocumentChanged();
