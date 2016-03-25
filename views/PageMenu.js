@@ -41,17 +41,18 @@ PageMenu.prototype.setup = function () {
     UICommandManager.register({
         key: "PageDuplicate",
         icon: "content_copy",
-        getLabel: function () { return "Duplicate " },
+        getLabel: function () { return "Duplicate" },
         isValid: function () { return true },
         run: function () {
             Pencil.controller.duplicatePage();
+
         }
     });
 
     UICommandManager.register({
         key: "PageDelete",
         icon : "remove",
-        getLabel: function () { return "Delete " },
+        getLabel: function () { return "Delete" },
         isValid: function () { return true },
         run: function () {
             Pencil.controller.deletePage(thiz.page);
@@ -61,7 +62,7 @@ PageMenu.prototype.setup = function () {
     UICommandManager.register({
         key: "PageMoveLeft",
         icon: "keyboard_arrow_left",
-        getLabel: function () { return "Move Left " },
+        getLabel: function () { return "Move Left" },
         isValid: function () { return true },
         run: function () {
           Pencil.controller.movePage("left");

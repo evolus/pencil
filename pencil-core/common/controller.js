@@ -85,7 +85,6 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
 Controller.prototype.duplicatePage = function () {
     var page = this.activePage;
-
     var name = page.name;
     var width = page.width;
     var height = page.height;
