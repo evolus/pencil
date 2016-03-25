@@ -314,30 +314,31 @@ Controller.prototype.sayDocumentChanged = function () {
 
 Controller.prototype.movePage = function (dir) {
   var page = this.activePage;
+  var pages;
   var parentPage = page.parentPage;
   if(!parentPage) {
-    parentPage = Pencil.controller.doc.pages;
+    pages = this.doc.pages;
   } else {
-    parentPage = page.parentPage.children;
+    pages = page.parentPage.children;
   }
-  var index = parentPage.indexOf(page);
+  var index = pages.indexOf(page);
   if(dir == "left") {
     if (index == 0) {
         return;
     } else {
-        var pageTmp = parentPage[index -1];
-        parentPage[index -1 ] = parentPage[index];
-        parentPage[index] = pageTmp;
-        this.activatePage(parentPage[index - 1]);
+        var pageTmp = pages[index -1];
+        pages[index -1 ] = pages[index];
+        pages[index] = pageTmp;
+        this.activatePage(pages[index - 1]);
     }
   } else {
-    if (index == parentPage.length) {
+    if (index == pages.length) {
         return;
     } else {
-        var pageTmp = parentPage[index +1];
-        parentPage[index +1 ] = parentPage[index];
-        parentPage[index] = pageTmp;
-        this.activatePage(parentPage[index + 1]);
+        var pageTmp = pages[index +1];
+        pages[index +1 ] = pages[index];
+        pages[index] = pageTmp;
+        this.activatePage(pages[index + 1]);
     }
   }
   this.sayDocumentChanged();
