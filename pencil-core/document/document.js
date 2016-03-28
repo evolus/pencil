@@ -67,18 +67,20 @@ function Page(doc) {
         lastUpdateTimestamp: 0
     };
     this.rasterizeCache = null;
+    this.children = [];
 }
+Page.PROPERTIES = ["id", "name", "width", "height", "backgroundPage", "backgroundColor", "note", "pageFileName", "parentPageId"];
 Page.prototype.toXml = function () {
     var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
     var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
     dom.documentElement.appendChild(propertyContainerNode);
 
-    for (name in page.properties) {
+    for (name in Page.PROPERTIES) {
         var propertyNode = dom.createElementNS(PencilNamespaces.p, "p:Property");
         propertyContainerNode.appendChild(propertyNode);
 
         propertyNode.setAttribute("name", name);
-        propertyNode.appendChild(dom.createTextNode(page.properties[name].toString()));
+        propertyNode.appendChild(dom.createTextNode(page[name].toString()));
     }
 
     var content = dom.createElementNS(PencilNamespaces.p, "p:Content");

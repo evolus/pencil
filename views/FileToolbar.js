@@ -17,7 +17,8 @@ FileToolbar.prototype.registerCommands = function () {
         label: "open Document",
         isValid: function () { return true; },
         run: function () {
-            Pencil.controller.openDocument();
+            Pencil.controller.loadDocument();
+            // Pencil.controller.openDocument();
         }
     });
     UICommandManager.register({

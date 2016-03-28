@@ -33,11 +33,13 @@ Controller.prototype.newDocument = function () {
     var thiz = this;
 
     function create() {
+        console.log("thiz:", thiz);
         thiz.resetDocument();
 
         var size = thiz.applicationPane.getPreferredCanvasSize();
         var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "");
         thiz.activatePage(page);
+        thiz.modified = false;
     };
 
     if (this.modified) {
@@ -47,7 +49,7 @@ Controller.prototype.newDocument = function () {
 
     create();
 };
-Controller.property.resetDocument = function () {
+Controller.prototype.resetDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
 
@@ -65,34 +67,20 @@ Controller.prototype.findPageById = function (id) {
 Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId) {
     var id = Util.newUUID();
     var pageFileName = "page_" + id + ".xml";
-    var properties = {
-        name: name,
-        width: width,
-        height: height,
-        backgroundPage: this.findPageById(backgroundPageId),
-        backgroundColor: backgroundColor,
-        note: note,
+    var page = new Page(this.doc);
+    page.name = name;
+    page.width = width;
+    page.height = height;
+    page.backgroundPage = this.findPageById(backgroundPageId);
+    page.backgroundColor = backgroundColor;
+    page.note = note;
 
-        id: id,
-        pageFileName: pageFileName,
-        parentPageId: parentPageId
-    };
-    var page = {
-        properties: properties,
-        name: name,
-        width: width,
-        height: height,
-        backgroundPage: this.findPageById(backgroundPageId),
-        backgroundColor: backgroundColor,
-        note: note,
+    page.id = id;
+    page.pageFileName = pageFileName;
+    page.parentPageId = parentPageId;
 
-        id: id,
-        pageFileName: pageFileName,
-        parentPageId: parentPageId,
-
-        canvas: null,
-        tempFilePath: path.join(this.tempDir.name, pageFileName)
-    }
+    page.canvas = null;
+    page.tempFilePath = path.join(this.tempDir.name, pageFileName);
 
     console.log("background page: " + page.backgroundPage);
 
@@ -115,7 +103,6 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
 Controller.prototype.duplicatePage = function () {
     var page = this.activePage;
-
     var name = page.name;
     var width = page.width;
     var height = page.height;
@@ -124,15 +111,34 @@ Controller.prototype.duplicatePage = function () {
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
+    if (!this.canvasPool.available()) {
+        console.log("No available canvas for swapping in, swapping a LRU page now.");
+        var lruPage = null;
+        var lru = new Date().getTime();
+        for (var i = 0; i < this.doc.pages.length; i ++) {
+            var p = this.doc.pages[i];
+            if (!p.canvas) continue;
+            if (p.lastUsed.getTime() < lru) {
+                lruPage = p;
+                lru = p.lastUsed.getTime();
+            }
+        }
 
+        if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
+        console.log("Found LRU page: " + lruPage.name);
+        this.swapOut(lruPage);
+    }
+    var canvas = this.canvasPool.obtain();
+    this.swapIn(newPage, canvas);
     for (var i = 0; i < page.canvas.drawingLayer.childNodes.length; i++) {
-        var node = page._view.canvas.drawingLayer.childNodes[i];
-        newPage._view.canvas.drawingLayer.appendChild(newPage._view.canvas.ownerDocument.importNode(node, true));
+        var node = page.canvas.drawingLayer.childNodes[i];
+        newPage.canvas.drawingLayer.appendChild(newPage.canvas.ownerDocument.importNode(node, true));
         Dom.renewId(node);
     }
-
-    return newPage;
     this.sayDocumentChanged();
+    this.canvasPool.show(newPage.canvas);
+    newPage.lastUsed = new Date();
+    this.activePage = newPage;
 };
 
 Controller.prototype.serializeDocument = function (onDone) {
@@ -168,19 +174,8 @@ Controller.prototype.serializeDocument = function (onDone) {
     next();
 };
 Controller.prototype.openDocument = function () {
+    console.log("openDocument");
     var thiz = this;
-
-    function parse(doc) {
-        Dom.workOn("./Properties/Property", dom.documentElement, function (propNode) {
-            doc.properties[propNode.getAttribute("name")] = propNode.textContent;
-        });
-        Dom.workOn("./Pages/Page", dom.documentElement, function (pageNode) {
-            var page = {};
-            page.properties =
-            doc.pages.push(page);
-        });
-    }
-
     function handler() {
         dialog.showOpenDialog({
             title: "Open pencil document",
@@ -190,12 +185,11 @@ Controller.prototype.openDocument = function () {
             ]
 
         }, function (filenames) {
+            console.log("this: ", this);
             if (!filenames || filenames.length <= 0) return;
-            this.resetDocument();
-
-
+            console.log("filenames:", filenames);
+            this.loadDocument(filenames[0]);
         }.bind(thiz));
-
     };
 
     if (this.modified) {
@@ -203,28 +197,73 @@ Controller.prototype.openDocument = function () {
         return;
     }
 
+    handler();
+
 };
 Controller.prototype.loadDocument = function (filePath) {
+    filePath = "/home/vananh/Music/Untitled.epz";
+    this.resetDocument();
+
+    var thiz = this;
     var targetDir = this.tempDir.name;
     var extractor = unzip.Extract({ path: targetDir });
     extractor.on("close", function () {
         try {
-            var contentFilePath = path.join(targetDir, "Content.xml");
+            var contentFile = path.join(targetDir, "content.xml");
             if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
             var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
-            var content = Dom.getSingle("/Document/Properties", dom);
+            Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                thiz.doc.properties[propNode.getAttribute("name")] = propNode.textContent;
+            });
+            Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
+                var page = new Page(thiz.doc);
+                var pageFileName = pageNode.getAttribute("href");
+                page.pageFileName = pageFileName;
+                page.canvas = null;
+                page.tempFilePath = path.join(targetDir, pageFileName);
+                thiz.doc.pages.push(page);
+            });
 
-            Dom.empty(canvas.drawingLayer);
-            if (content) {
-                while (content.hasChildNodes()) {
-                    var c = content.firstChild;
-                    content.removeChild(c);
-                    canvas.drawingLayer.appendChild(c);
+            thiz.doc.pages.forEach(function (page) {
+                var pageFile = path.join(targetDir, page.pageFileName);
+                if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
+                var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
+                Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                    page[propNode.getAttribute("name")] = propNode.textContent;
+                });
+            }, thiz);
+
+            thiz.doc.pages.forEach(function (page) {
+                if (page.width) page.width = parseInt(page.width, 10);
+                if (page.height) page.height = parseInt(page.height, 10);
+
+                if (!page.parentPageId) return;
+
+                for (var i in thiz.doc.pages) {
+                    var p = thiz.doc.pages[i];
+                    if (p.id != page.parentPageId) continue;
+                    p.children.push(page);
+                    page.parentPage = p;
+                    return;
                 }
-            }
+            }, thiz);
+            console.log("document:", thiz.doc);
+
+            thiz.activatePage(thiz.doc.pages[0]);
+            thiz.modified = false;
+            // var content = Dom.getSingle("/Document/Properties", dom);
+
+            // Dom.empty(canvas.drawingLayer);
+            // if (content) {
+            //     while (content.hasChildNodes()) {
+            //         var c = content.firstChild;
+            //         content.removeChild(c);
+            //         canvas.drawingLayer.appendChild(c);
+            //     }
+            // }
         } catch (e) {
             console.log("error:", e);
-            CollectionManager.removeCollectionDir(targetDir);
+            // thiz.newDocument();
         }
 
     });
@@ -273,53 +312,50 @@ Controller.prototype.saveDocument = function (onSaved) {
         var archive = archiver("zip");
         var output = fs.createWriteStream(this.documentPath);
         output.on("close", function () {
-            console.log("archived.");
             thiz.sayDocumentSaved();
             if (onSaved) onSaved();
         });
         archive.pipe(output);
         archive.directory(this.tempDir.name, "/", {});
         archive.finalize();
-        console.log("Saved");
-
     }.bind(this));
 };
 
 Controller.prototype.serializePage = function (page, outputPath) {
-    // var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
-    // var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
-    // dom.documentElement.appendChild(propertyContainerNode);
-    //
-    // for (name in page.properties) {
-    //     var propertyNode = dom.createElementNS(PencilNamespaces.p, "p:Property");
-    //     propertyContainerNode.appendChild(propertyNode);
-    //
-    //     propertyNode.setAttribute("name", name);
-    //     propertyNode.appendChild(dom.createTextNode(page.properties[name].toString()));
-    // }
-    //
-    // var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
-    // dom.documentElement.appendChild(content);
-    //
-    // if (page.canvas) {
-    //     var node = dom.importNode(page.canvas.drawingLayer, true);
-    //     while (node.hasChildNodes()) {
-    //         var c = node.firstChild;
-    //         node.removeChild(c);
-    //         content.appendChild(c);
-    //     }
-    // }
-    //
-    // var xml = Controller.serializer.serializeToString(dom);
-    // fs.writeFileSync(outputPath, xml, "utf8");
+    var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
+    var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
+    dom.documentElement.appendChild(propertyContainerNode);
 
-    var xml = page.toXml();
+    for (i in Page.PROPERTIES) {
+        var name = Page.PROPERTIES[i];
+        if (!page[name]) continue;
+        var propertyNode = dom.createElementNS(PencilNamespaces.p, "p:Property");
+        propertyContainerNode.appendChild(propertyNode);
+
+        propertyNode.setAttribute("name", name);
+        propertyNode.appendChild(dom.createTextNode(page[name] && page[name].toString() || page[name]));
+    }
+
+    var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
+    dom.documentElement.appendChild(content);
+
+    if (page.canvas) {
+        var node = dom.importNode(page.canvas.drawingLayer, true);
+        while (node.hasChildNodes()) {
+            var c = node.firstChild;
+            node.removeChild(c);
+            content.appendChild(c);
+        }
+    }
+
+    var xml = Controller.serializer.serializeToString(dom);
     fs.writeFileSync(outputPath, xml, "utf8");
 
     console.log("write to: " + outputPath);
 };
 
 Controller.prototype.getPageSVG = function (page) {
+    console.log("getPageSVG: ", page);
     var svg = document.createElementNS(PencilNamespaces.svg, "svg");
     svg.setAttribute("width", "" + page.width  + "px");
     svg.setAttribute("height", "" + page.height  + "px");
@@ -404,9 +440,15 @@ Controller.prototype.activatePage = function (page) {
 Controller.prototype.deletePage = function (page) {
     fs.unlinkSync(page.tempFilePath);
     if (page.canvas) this.canvasPool.return(page.canvas);
-
-    var i = this.doc.pages.indexOf(page);
-    this.doc.pages.splice(i, 1);
+    if(page.parentPage) {
+      var parentPage = page.parentPage.children;
+      var index = parentPage.indexOf(thiz.page);
+      parentPage.splice(index, 1);
+      this.activatePage(page.parentPage);
+    } else {
+      var i = this.doc.pages.indexOf(page);
+      this.doc.pages.splice(i, 1);
+    }
     this.sayDocumentChanged();
 };
 Controller.prototype.sayDocumentChanged = function () {
@@ -418,6 +460,50 @@ Controller.prototype.sayDocumentChanged = function () {
 Controller.prototype.sayDocumentSaved = function () {
     this.modified = false;
 };
+
+Controller.prototype.movePage = function (dir) {
+    console.log("movePage:", dir);
+    var page = this.activePage;
+      var pages = [];
+      var parentPage = page.parentPage;
+      if(!parentPage) {
+        pages = this.doc.pages;
+      } else {
+        pages = page.parentPage.children;
+      }
+      var index = pages.indexOf(page);
+      if(dir == "left") {
+        if (index == 0) {
+            return;
+        } else {
+            var pageTmp = pages[index -1];
+            pages[index -1 ] = pages[index];
+            pages[index] = pageTmp;
+            if(parentPage) {
+              var index1 = this.doc.pages.indexOf(page);
+              var pageTmp1 = this.doc.pages[index1 - 1];
+              this.doc.pages[index1 - 1 ] = this.doc.pages[index1];
+              this.doc.pages[index1] = pageTmp1;
+            }
+        }
+      } else {
+        if (index == pages.length) {
+            return;
+        } else {
+            var pageTmp = pages[index +1];
+            pages[index + 1 ] = pages[index];
+            pages[index] = pageTmp;
+            if(parentPage) {
+              var index1 = this.doc.pages.indexOf(page);
+              var pageTmp1 = this.doc.pages[index1 + 1];
+              this.doc.pages[index1 + 1 ] = this.doc.pages[index1];
+              this.doc.pages[index1] = pageTmp1;
+            }
+        }
+      }
+      this.activatePage(page);
+      this.sayDocumentChanged();
+}
 
 Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
     var page = passedPage ? passedPage : this.activePage;
