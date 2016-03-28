@@ -59,14 +59,14 @@ PencilDocument.prototype.getFirstPageByName = function (name) {
 
 function Page(doc) {
     if (!doc) throw Util.getMessage("attempting.to.construct.a.page.outside.the.scope.of.a.valid.document");
-    this.doc = doc;
-    this.properties = {};
-    this.contentNode = null;
-    this.bg = {
-        lastId: null,
-        lastUpdateTimestamp: 0
-    };
-    this.rasterizeCache = null;
+    // this.doc = doc;
+    // this.properties = {};
+    // this.contentNode = null;
+    // this.bg = {
+    //     lastId: null,
+    //     lastUpdateTimestamp: 0
+    // };
+    // this.rasterizeCache = null;
     this.children = [];
 }
 Page.PROPERTIES = ["id", "name", "width", "height", "backgroundPage", "backgroundColor", "note", "pageFileName", "parentPageId"];
@@ -76,6 +76,8 @@ Page.prototype.toXml = function () {
     dom.documentElement.appendChild(propertyContainerNode);
 
     for (name in Page.PROPERTIES) {
+        if (!page[name]) continue;
+        
         var propertyNode = dom.createElementNS(PencilNamespaces.p, "p:Property");
         propertyContainerNode.appendChild(propertyNode);
 
@@ -100,7 +102,7 @@ Page.prototype.toXml = function () {
 
 Page.prototype.equals = function (page) {
     if (page == null) return false;
-    return page.constructor == Page && page.properties.id == this.properties.id;
+    return page.constructor == Page && page.id == this.id;
 };
 Page.prototype.getBackgroundPage = function () {
     var bgPageId = this.properties.background;
