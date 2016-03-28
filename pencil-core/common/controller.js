@@ -295,12 +295,17 @@ Controller.prototype.activatePage = function (page) {
 Controller.prototype.deletePage = function (page) {
     fs.unlinkSync(page.tempFilePath);
     if (page.canvas) this.canvasPool.return(page.canvas);
-
     if(page.parentPage) {
       var parentPage = page.parentPage.children;
       var index = parentPage.indexOf(page);
       parentPage.splice(index, 1);
       this.activatePage(page.parentPage);
+    }
+    if(page.children) {
+      for(var i = 0;i < page.children.length; i++) {
+        var count = this.doc.pages.indexOf(page.children[i]);
+        this.doc.pages.splice(count, 1);
+      }
     }
     var i = this.doc.pages.indexOf(page);
     this.doc.pages.splice(i, 1);
@@ -319,7 +324,7 @@ Controller.prototype.movePage = function (dir) {
   var pages = [];
   var parentPage = page.parentPage;
   if(parentPage) {
-    pages = page.parent.children;
+    pages = parentPage.children;
   } else {
     for(var i = 0; i < this.doc.pages.length; i++) {
       if(this.doc.pages[i].parentPage == parentPage) {

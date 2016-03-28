@@ -54,11 +54,11 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Delete" },
         isValid: function () { return true },
         run: function () {
-            if(thiz.page.children ) {
-              for(var i = 0; i < thiz.page.children.length; i++){
-                Pencil.controller.deletePage(thiz.page.children[i]);
-              }
-            }
+            // if(thiz.page.children ) {
+            //   for(var i = 0; i < thiz.page.children.length; i++){
+            //     Pencil.controller.deletePage(thiz.page.children[i]);
+            //   }
+            // }
             Pencil.controller.deletePage(thiz.page);
 
         }
