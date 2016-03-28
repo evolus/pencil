@@ -56,6 +56,7 @@ PageMenu.prototype.setup = function () {
         isValid: function () { return true },
         run: function () {
             Pencil.controller.deletePage(thiz.page);
+            // thiz.pageListView.activatePage(Pencil.controller.doc.pages[0]);
 
         }
     });

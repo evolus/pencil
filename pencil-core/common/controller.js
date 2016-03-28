@@ -84,7 +84,6 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 };
 
 Controller.prototype.duplicatePage = function (pageIn) {
-    var canvasOld = pageIn.canvas;
     var page = pageIn;
     var name = page.name;
     var width = page.width;
@@ -96,6 +95,7 @@ Controller.prototype.duplicatePage = function (pageIn) {
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
+
     if (!this.canvasPool.available()) {
         console.log("No available canvas for swapping in, swapping a LRU page now.");
         var lruPage = null;
@@ -103,7 +103,7 @@ Controller.prototype.duplicatePage = function (pageIn) {
         for (var i = 0; i < this.doc.pages.length; i++) {
             var p = this.doc.pages[i];
             if (!p.canvas) continue;
-            if (p.lastUsed.getTime() < lru) {
+            if (p.lastUsed.getTime() < lru  ) {
                 lruPage = p;
                 lru = p.lastUsed.getTime();
             }
@@ -114,12 +114,34 @@ Controller.prototype.duplicatePage = function (pageIn) {
       }
     var canvas = this.canvasPool.obtain();
     this.swapIn(newPage, canvas);
-    for (var i = 0; i < canvasOld.drawingLayer.childNodes.length; i++) {
-        var node = canvasOld.drawingLayer.childNodes[i];
+
+    if(!page.canvas) {
+      var pageIncavans = this.canvasPool.obtain();
+      if (!this.canvasPool.available()) {
+          console.log("No available canvas for swapping in, swapping a LRU page now.");
+          var lruPage = null;
+          var lru = new Date().getTime();
+          for (var i = 0; i < this.doc.pages.length; i++) {
+              var p = this.doc.pages[i];
+              if (!p.canvas) continue;
+              if (p.lastUsed.getTime() < lru  ) {
+                  lruPage = p;
+                  lru = p.lastUsed.getTime();
+              }
+          }
+          if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
+          console.log("Found LRU page: " + lruPage.name);
+          this.swapOut(lruPage);
+        }
+        this.swapIn(page, pageIncavans);
+    }
+    for (var i = 0; i < page.canvas.drawingLayer.childNodes.length; i++) {
+        var node = page.canvas.drawingLayer.childNodes[i];
         newPage.canvas.drawingLayer.appendChild(newPage.canvas.ownerDocument.importNode(node, true));
         Dom.renewId(node);
     }
-    newPage.lastUsed = new Date();
+    // newPage.lastUsed = new Date();
+
     return newPage;
 };
 
@@ -230,7 +252,6 @@ Controller.prototype.getPageSVG = function (page) {
             svg.appendChild(c);
         }
     }
-
     return svg;
 };
 
@@ -289,7 +310,6 @@ Controller.prototype.activatePage = function (page) {
 
       this.canvasPool.show(page.canvas);
       page.lastUsed = new Date();
-
       this.activePage = page;
     }
 
@@ -298,32 +318,24 @@ Controller.prototype.activatePage = function (page) {
 Controller.prototype.deletePage = function (page) {
     fs.unlinkSync(page.tempFilePath);
     if (page.canvas) this.canvasPool.return(page.canvas);
+    if(page.children) {
+      var parentPage = page.parentPage;
+      for( var i = 0; i < page.children.length; i++) {
+        page.children[i].parentPage = parentPage;
+        if(parentPage){
+          parentPage.push(page.children[i]);
+        }
+      }
+    }
     if(page.parentPage) {
       var parentPage = page.parentPage.children;
       var index = parentPage.indexOf(page);
       parentPage.splice(index, 1);
-      this.activatePage(page.parentPage);
     }
-    var deleteChilds = function (pageIn,thizz) {
-      var thiz = thizz;
-      if(pageIn.children) {
-        for(var i = 0;i < pageIn.children.length; i++) {
-          deleteChilds(pageIn.children[i],thiz);
-          var count = thiz.doc.pages.indexOf(pageIn.children[i]);
-          thiz.doc.pages.splice(count, 1);
-        }
-        return;
-      }
-    }
-    deleteChilds(page,this);
     var i = this.doc.pages.indexOf(page);
     this.doc.pages.splice(i, 1);
     this.sayDocumentChanged();
 };
-
-
-
-
 Controller.prototype.sayDocumentChanged = function () {
     Dom.emitEvent("p:DocumentChanged", this.applicationPane.node(), {
         controller : this
