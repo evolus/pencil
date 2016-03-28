@@ -100,7 +100,10 @@ Controller.prototype.duplicatePage = function (pageIn) {
         for (var i = 0; i < this.doc.pages.length; i++) {
             var p = this.doc.pages[i];
             if (!p.canvas) continue;
-            lruPage = p;
+            if (p.lastUsed.getTime() < lru) {
+                lruPage = p;
+                lru = p.lastUsed.getTime();
+            }
         }
         this.swapOut(lruPage);
       }
@@ -115,7 +118,10 @@ Controller.prototype.duplicatePage = function (pageIn) {
           for (var i = 0; i < this.doc.pages.length; i++) {
               var p = this.doc.pages[i];
               if (!p.canvas || p == newPage) continue;
+              if (p.lastUsed.getTime() < lru) {
                   lruPage = p;
+                  lru = p.lastUsed.getTime();
+              }
           }
           this.swapOut(lruPage);
         }
