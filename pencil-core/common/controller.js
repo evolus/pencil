@@ -100,9 +100,7 @@ Controller.prototype.duplicatePage = function (pageIn) {
         for (var i = 0; i < this.doc.pages.length; i++) {
             var p = this.doc.pages[i];
             if (!p.canvas) continue;
-            if (p.lastUsed.getTime() < lru) {
                 lruPage = p;
-                lru = p.lastUsed.getTime();
             }
         }
         this.swapOut(lruPage);
@@ -118,9 +116,7 @@ Controller.prototype.duplicatePage = function (pageIn) {
           for (var i = 0; i < this.doc.pages.length; i++) {
               var p = this.doc.pages[i];
               if (!p.canvas || p == newPage) continue;
-              if (p.lastUsed.getTime() < lru) {
                   lruPage = p;
-                  lru = p.lastUsed.getTime();
               }
           }
           this.swapOut(lruPage);
@@ -272,9 +268,9 @@ Controller.prototype.swapIn = function (page, canvas) {
     page.canvas = canvas;
     canvas.page = page;
     canvas.setSize(page.width, page.height);
-};
+} ;
 Controller.prototype.activatePage = function (page) {
-    if(page != this.activePage) {
+    if (page != this.activePage) {
       if (!page.canvas) {
           console.log("Page is not in memory, swapping in now");
           if (!this.canvasPool.available()) {
@@ -309,19 +305,19 @@ Controller.prototype.deletePage = function (page) {
     if(page.children) {
       for( var i = 0; i < page.children.length; i++) {
         page.children[i].parentPage = parentPage;
-        if(parentPage){
+        if (parentPage){
           parentPage.children.push(page.children[i]);
         }
       }
     }
-    if(page.parentPage) {
+    if (page.parentPage) {
       var index = parentPage.children.indexOf(page);
       parentPage.children.splice(index, 1);
     }
     var i = this.doc.pages.indexOf(page);
     this.doc.pages.splice(i, 1);
     this.sayDocumentChanged();
-    if(this.activePage = page && parentPage) {
+    if (this.activePage = page && parentPage) {
       this.activatePage(parentPage)
     }
 };
@@ -335,7 +331,7 @@ Controller.prototype.movePage = function (pageIn, dir) {
     var page = pageIn;
     var pages = [];
     var parentPage = page.parentPage;
-    if(parentPage) {
+    if (parentPage) {
       pages = parentPage.children;
     } else {
       for(var i = 0; i < this.doc.pages.length; i++) {
@@ -345,34 +341,34 @@ Controller.prototype.movePage = function (pageIn, dir) {
       }
     }
     var index = pages.indexOf(page);
-    var pageReplace;
-    if(dir == "left") {
+    var replacePage;
+    if (dir == "left") {
         if (index == 0) {
             return;
         } else {
-            pageReplace = pages[index -1];
+            replacePage = pages[index -1];
         }
     } else {
         if (index == pages.length - 1) {
             return;
         } else {
-            pageReplace = pages[index + 1];
+            replacePage = pages[index + 1];
         }
     }
-    var indexPage = this.doc.pages.indexOf(page);
-    var indexRelace = this.doc.pages.indexOf(pageReplace);
-    this.doc.pages[indexRelace] = page;
-    this.doc.pages[indexPage] = pageReplace;
+    var pageIndex = this.doc.pages.indexOf(page);
+    var replaceIndex = this.doc.pages.indexOf(replacePage);
+    this.doc.pages[replaceIndex] = page;
+    this.doc.pages[pageIndex] = replacePage;
 
-    if(parentPage) {
+    if (parentPage) {
         index = parentPage.children.indexOf(page);
-        if(dir == "left") {
+        if (dir == "left") {
             var pageTmp = parentPage.children[index - 1];
-            parentPage.children[index - 1 ] = parentPage.children[index];
+            parentPage.children[index - 1] = parentPage.children[index];
             parentPage.children[index] = pageTmp;
         } else {
             var pageTmp = parentPage.children[index + 1];
-            parentPage.children[index + 1 ] = parentPage.children[index];
+            parentPage.children[index + 1] = parentPage.children[index];
             parentPage.children[index] = pageTmp;
         }
     }
