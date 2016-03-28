@@ -72,7 +72,7 @@ function PageListView() {
           if (!view) return;
           page = view.page;
         }
-        thiz.activatePage(page);
+        //thiz.activatePage(page);
         var pageMenu = new PageMenu(thiz,page);
         pageMenu.showMenuAt(event.clientX, event.clientY);
     })

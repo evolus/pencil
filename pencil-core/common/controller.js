@@ -23,7 +23,6 @@ Controller.prototype.makeSubDir = function (sub) {
     } catch(e) {
         if ( e.code != 'EEXIST' ) throw e;
     }
-
     return fullPath;
 };
 Controller.prototype.getDocumentName = function () {
@@ -90,8 +89,6 @@ Controller.prototype.duplicatePage = function (pageIn) {
     var height = page.height;
     var backgroundPageId = page.backgroundPage;
     var backgroundColor = page.backgroundColor;
-    var parentPageId;
-    var parentPageId = page.parentPage && page.parentPage.id;
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
@@ -103,36 +100,26 @@ Controller.prototype.duplicatePage = function (pageIn) {
         for (var i = 0; i < this.doc.pages.length; i++) {
             var p = this.doc.pages[i];
             if (!p.canvas) continue;
-            if (p.lastUsed.getTime() < lru  ) {
-                lruPage = p;
-                lru = p.lastUsed.getTime();
-            }
+            lruPage = p;
         }
-        if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
-        console.log("Found LRU page: " + lruPage.name);
         this.swapOut(lruPage);
       }
     var canvas = this.canvasPool.obtain();
     this.swapIn(newPage, canvas);
 
     if(!page.canvas) {
-      var pageIncavans = this.canvasPool.obtain();
       if (!this.canvasPool.available()) {
           console.log("No available canvas for swapping in, swapping a LRU page now.");
           var lruPage = null;
           var lru = new Date().getTime();
           for (var i = 0; i < this.doc.pages.length; i++) {
               var p = this.doc.pages[i];
-              if (!p.canvas) continue;
-              if (p.lastUsed.getTime() < lru  ) {
+              if (!p.canvas || p == newPage) continue;
                   lruPage = p;
-                  lru = p.lastUsed.getTime();
-              }
           }
-          if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
-          console.log("Found LRU page: " + lruPage.name);
           this.swapOut(lruPage);
         }
+        var pageIncavans = this.canvasPool.obtain();
         this.swapIn(page, pageIncavans);
     }
     for (var i = 0; i < page.canvas.drawingLayer.childNodes.length; i++) {
@@ -140,6 +127,7 @@ Controller.prototype.duplicatePage = function (pageIn) {
         newPage.canvas.drawingLayer.appendChild(newPage.canvas.ownerDocument.importNode(node, true));
         Dom.renewId(node);
     }
+    this.sayDocumentChanged();
     return newPage;
 };
 
@@ -172,7 +160,6 @@ Controller.prototype.serializeDocument = function (onDone) {
             next();
         }
     };
-
     next();
 };
 Controller.prototype.save = function () {
@@ -296,44 +283,41 @@ Controller.prototype.activatePage = function (page) {
                       lru = p.lastUsed.getTime();
                   }
               }
-
               if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
               console.log("Found LRU page: " + lruPage.name);
               this.swapOut(lruPage);
           }
-
           var canvas = this.canvasPool.obtain();
           this.swapIn(page, canvas);
       }
-
       this.canvasPool.show(page.canvas);
       page.lastUsed = new Date();
       this.activePage = page;
     }
-
     // this.sayDocumentChanged();
 };
 Controller.prototype.deletePage = function (page) {
     fs.unlinkSync(page.tempFilePath);
     if (page.canvas) this.canvasPool.return(page.canvas);
+    var parentPage = page.parentPage;
     if(page.children) {
-      var parentPage = page.parentPage;
       for( var i = 0; i < page.children.length; i++) {
         page.children[i].parentPage = parentPage;
         if(parentPage){
-          parentPage.push(page.children[i]);
+          parentPage.children.push(page.children[i]);
         }
       }
     }
     if(page.parentPage) {
-      var parentPage = page.parentPage.children;
-      var index = parentPage.indexOf(page);
-      parentPage.splice(index, 1);
+      var index = parentPage.children.indexOf(page);
+      parentPage.children.splice(index, 1);
     }
-    this.swapOut(page);
     var i = this.doc.pages.indexOf(page);
     this.doc.pages.splice(i, 1);
     this.sayDocumentChanged();
+    if(this.activePage = page && parentPage) {
+      this.activatePage(parentPage)
+    }
 };
 Controller.prototype.sayDocumentChanged = function () {
     Dom.emitEvent("p:DocumentChanged", this.applicationPane.node(), {
@@ -341,61 +325,59 @@ Controller.prototype.sayDocumentChanged = function () {
     });
 };
 
-Controller.prototype.movePage = function (dir) {
-  var page = this.activePage;
-  var pages = [];
-  var parentPage = page.parentPage;
-  if(parentPage) {
-    pages = parentPage.children;
-  } else {
-    for(var i = 0; i < this.doc.pages.length; i++) {
-      if(this.doc.pages[i].parentPage == parentPage) {
-        pages.push(this.doc.pages[i]);
+Controller.prototype.movePage = function (pageIn, dir) {
+    var page = pageIn;
+    var pages = [];
+    var parentPage = page.parentPage;
+    if(parentPage) {
+      pages = parentPage.children;
+    } else {
+      for(var i = 0; i < this.doc.pages.length; i++) {
+        if(this.doc.pages[i].parentPage == parentPage) {
+          pages.push(this.doc.pages[i]);
+        }
       }
     }
-  }
-  var index = pages.indexOf(page);
-  var pageReplace;
-  if(dir == "left") {
-    if (index == 0) {
-        return;
-    } else {
-        pageReplace = pages[index -1];
+    var index = pages.indexOf(page);
+    var pageReplace;
+    if(dir == "left") {
+        if (index == 0) {
+            return;
+        } else {
+            pageReplace = pages[index -1];
         }
     } else {
-    if (index == pages.length - 1) {
-        return;
-    } else {
-      pageReplace = pages[index + 1];
+        if (index == pages.length - 1) {
+            return;
+        } else {
+            pageReplace = pages[index + 1];
+        }
     }
-  }
-  var indexPage = this.doc.pages.indexOf(page);
-  var indexRelace = this.doc.pages.indexOf(pageReplace);
-  this.doc.pages[indexRelace] = page;
-  this.doc.pages[indexPage] = pageReplace;
+    var indexPage = this.doc.pages.indexOf(page);
+    var indexRelace = this.doc.pages.indexOf(pageReplace);
+    this.doc.pages[indexRelace] = page;
+    this.doc.pages[indexPage] = pageReplace;
 
-  if(parentPage) {
-    index = parentPage.children.indexOf(page);
-    if(dir == "left") {
-      var pageTmp = parentPage.children[index - 1];
-      parentPage.children[index - 1 ] = parentPage.children[index];
-      parentPage.children[index] = pageTmp;
-    } else {
-      var pageTmp = parentPage.children[index + 1];
-      parentPage.children[index + 1 ] = parentPage.children[index];
-      parentPage.children[index] = pageTmp;
+    if(parentPage) {
+        index = parentPage.children.indexOf(page);
+        if(dir == "left") {
+            var pageTmp = parentPage.children[index - 1];
+            parentPage.children[index - 1 ] = parentPage.children[index];
+            parentPage.children[index] = pageTmp;
+        } else {
+            var pageTmp = parentPage.children[index + 1];
+            parentPage.children[index + 1 ] = parentPage.children[index];
+            parentPage.children[index] = pageTmp;
+        }
     }
-  }
-  this.activatePage(page);
-  this.sayDocumentChanged();
+    this.activatePage(page);
+    this.sayDocumentChanged();
 }
-
 Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
     var page = passedPage ? passedPage : this.activePage;
     var canvas = page.canvas;
     if (!canvas) return;
     var padding  = 0;
-
     var handler = function () {
         var canvas = page.canvas;
         if (!canvas) return;
@@ -425,6 +407,7 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
 
     handler();
 };
+
 Controller.prototype.sizeToBestFit = function (passedPage) {
     var page = passedPage ? passedPage : this.activePage;
     var canvas = page.canvas;

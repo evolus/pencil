@@ -57,7 +57,6 @@ PageMenu.prototype.setup = function () {
         run: function () {
             Pencil.controller.deletePage(thiz.page);
             // thiz.pageListView.activatePage(Pencil.controller.doc.pages[0]);
-
         }
     });
 
@@ -67,7 +66,7 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Left" },
         isValid: function () { return true },
         run: function () {
-          Pencil.controller.movePage("left");
+          Pencil.controller.movePage(thiz.page, "left");
         }
     });
 
@@ -77,7 +76,7 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Right" },
         isValid: function () { return true },
         run: function () {
-          Pencil.controller.movePage("right");
+          Pencil.controller.movePage(thiz.page, "right");
         }
     });
 
