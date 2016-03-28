@@ -22,7 +22,6 @@ CanvasPool.prototype.obtain = function () {
         canvas.used = true;
         return canvas;
     }
-
     return null;
 };
 CanvasPool.prototype.return = function (canvas) {
@@ -41,7 +40,6 @@ CanvasPool.prototype.newCanvas = function () {
     canvas.element.addEventListener("p:ContentModified", function () {
         if (thiz.canvasContentModifiedListener) thiz.canvasContentModifiedListener(canvas);
     }, false);
-
     return canvas;
 };
 CanvasPool.prototype.show = function (canvas) {

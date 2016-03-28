@@ -17,8 +17,7 @@ FileToolbar.prototype.registerCommands = function () {
         label: "open Document",
         isValid: function () { return true; },
         run: function () {
-            Pencil.controller.loadDocument();
-            // Pencil.controller.openDocument();
+            Pencil.controller.openDocument();
         }
     });
     UICommandManager.register({
@@ -27,6 +26,14 @@ FileToolbar.prototype.registerCommands = function () {
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.saveDocument();
+        }
+    });
+    UICommandManager.register({
+        key: "saveAsDocumentCommand",
+        label: "save As Document",
+        isValid: function () { return true; },
+        run: function () {
+            Pencil.controller.saveAsDocument();
         }
     });
 };

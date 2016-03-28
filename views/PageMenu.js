@@ -15,10 +15,9 @@ PageMenu.prototype.setup = function () {
 
     UICommandManager.register({
         key: "PageMenuDivitor",
-        getLabel: function () { return " " },
+        getLabel: function () { return "" },
         isValid: function () { return true },
         run: function () {
-
         }
     });
 
@@ -55,7 +54,13 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Delete" },
         isValid: function () { return true },
         run: function () {
+            // if(thiz.page.children ) {
+            //   for(var i = 0; i < thiz.page.children.length; i++){
+            //     Pencil.controller.deletePage(thiz.page.children[i]);
+            //   }
+            // }
             Pencil.controller.deletePage(thiz.page);
+
         }
     });
 
@@ -106,13 +111,14 @@ PageMenu.prototype.setup = function () {
     });
 
     this.register(UICommandManager.getCommand("PageNewPage"));
+    this.register(UICommandManager.getCommand("PageMenuDivitor"));
     this.register(UICommandManager.getCommand("PageDuplicate"));
     this.register(UICommandManager.getCommand("PageDelete"));
-    this.register(UICommandManager.getCommand("PageMenuDivitor"));
     this.register(UICommandManager.getCommand("PageMoveLeft"));
     this.register(UICommandManager.getCommand("PageMoveRight"));
     this.register(UICommandManager.getCommand("PageMenuDivitor"));
     this.register(UICommandManager.getCommand("PageProperties"));
+    this.register(UICommandManager.getCommand("PageMenuDivitor"));
 
     var createGotoSubMenuElement = function(page) {
         var key = page.name.split(" ").join("") + "Page" ;

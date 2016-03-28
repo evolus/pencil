@@ -171,15 +171,17 @@ PageListView.prototype.renderPages = function() {
 
     for (var i in pages) {
         var page = pages[i];
+        var selected = this.currentPage && this.currentPage.id == page.id;
+
         var pageThumbnailView = new PageThumbnailView();
         pageThumbnailView.setPage(page);
         this.pageListContainer.appendChild(pageThumbnailView.node());
-        pageThumbnailView.selectPage(this.currentPage && this.currentPage.id == page.id);
+        pageThumbnailView.selectPage(selected);
         this.views.push(pageThumbnailView);
 
         var childNode = Dom.newDOMElement({
             _name: "hbox",
-            "selected": (this.currentPage && this.currentPage.id == page.id),
+            "selected": selected,
             _children: [
                 {
                     _name: "span",

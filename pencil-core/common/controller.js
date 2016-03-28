@@ -33,7 +33,6 @@ Controller.prototype.newDocument = function () {
     var thiz = this;
 
     function create() {
-        console.log("thiz:", thiz);
         thiz.resetDocument();
 
         var size = thiz.applicationPane.getPreferredCanvasSize();
@@ -56,6 +55,7 @@ Controller.prototype.resetDocument = function () {
     this.doc = new PencilDocument();
     this.documentPath = null;
     this.canvasPool.reset();
+    this.activePage = null;
 };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
@@ -67,6 +67,7 @@ Controller.prototype.findPageById = function (id) {
 Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId) {
     var id = Util.newUUID();
     var pageFileName = "page_" + id + ".xml";
+
     var page = new Page(this.doc);
     page.name = name;
     page.width = width;
@@ -81,8 +82,6 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
     page.canvas = null;
     page.tempFilePath = path.join(this.tempDir.name, pageFileName);
-
-    console.log("background page: " + page.backgroundPage);
 
     this.serializePage(page, page.tempFilePath);
     this.doc.pages.push(page);
@@ -174,7 +173,6 @@ Controller.prototype.serializeDocument = function (onDone) {
     next();
 };
 Controller.prototype.openDocument = function () {
-    console.log("openDocument");
     var thiz = this;
     function handler() {
         dialog.showOpenDialog({
@@ -185,9 +183,7 @@ Controller.prototype.openDocument = function () {
             ]
 
         }, function (filenames) {
-            console.log("this: ", this);
             if (!filenames || filenames.length <= 0) return;
-            console.log("filenames:", filenames);
             this.loadDocument(filenames[0]);
         }.bind(thiz));
     };
@@ -201,9 +197,7 @@ Controller.prototype.openDocument = function () {
 
 };
 Controller.prototype.loadDocument = function (filePath) {
-    filePath = "/home/vananh/Music/Untitled.epz";
     this.resetDocument();
-
     var thiz = this;
     var targetDir = this.tempDir.name;
     var extractor = unzip.Extract({ path: targetDir });
@@ -213,13 +207,14 @@ Controller.prototype.loadDocument = function (filePath) {
             if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
             var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
             Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                thiz.doc.properties[propNode.getAttribute("name")] = propNode.textContent;
+                var value = propNode.textContent;
+                if (value == "undefined" || value == "null") return;
+                thiz.doc.properties[propNode.getAttribute("name")] = value;
             });
             Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
                 var page = new Page(thiz.doc);
                 var pageFileName = pageNode.getAttribute("href");
                 page.pageFileName = pageFileName;
-                page.canvas = null;
                 page.tempFilePath = path.join(targetDir, pageFileName);
                 thiz.doc.pages.push(page);
             });
@@ -229,41 +224,35 @@ Controller.prototype.loadDocument = function (filePath) {
                 if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
                 var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
                 Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                    page[propNode.getAttribute("name")] = propNode.textContent;
+                    var value = propNode.textContent;
+                    if (value == "undefined" || value == "null") return;
+                    page[propNode.getAttribute("name")] = value;
                 });
-            }, thiz);
 
-            thiz.doc.pages.forEach(function (page) {
                 if (page.width) page.width = parseInt(page.width, 10);
                 if (page.height) page.height = parseInt(page.height, 10);
 
-                if (!page.parentPageId) return;
+                var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
+                page.thumbPath = thumbPath;
+                page.thumbCreated = new Date();
+                page.canvas = null;
 
-                for (var i in thiz.doc.pages) {
-                    var p = thiz.doc.pages[i];
+                if (!page.parentPageId) return;
+                for (var i in this.doc.pages) {
+                    var p = this.doc.pages[i];
                     if (p.id != page.parentPageId) continue;
                     p.children.push(page);
                     page.parentPage = p;
                     return;
                 }
+
             }, thiz);
-            console.log("document:", thiz.doc);
 
-            thiz.activatePage(thiz.doc.pages[0]);
+            thiz.applicationPane.onDocumentChanged();
             thiz.modified = false;
-            // var content = Dom.getSingle("/Document/Properties", dom);
-
-            // Dom.empty(canvas.drawingLayer);
-            // if (content) {
-            //     while (content.hasChildNodes()) {
-            //         var c = content.firstChild;
-            //         content.removeChild(c);
-            //         canvas.drawingLayer.appendChild(c);
-            //     }
-            // }
         } catch (e) {
             console.log("error:", e);
-            // thiz.newDocument();
+            thiz.newDocument();
         }
 
     });
@@ -286,6 +275,19 @@ Controller.prototype.confirmAndSaveDocument = function (onSaved) {
     }.bind(this));
 };
 
+Controller.prototype.saveAsDocument = function (onSaved) {
+    dialog.showSaveDialog({
+        title: "Save as",
+        defaultPath: path.join(os.homedir(), "Untitled.epz"),
+        filters: [
+            { name: "Pencil Documents", extensions: ["epz"] }
+        ]
+    }, function (filePath) {
+        if (!filePath) return;
+        if (!this.documentPath) this.documentPath = filePath;
+        this.saveDocumentImpl(filePath, onSaved);
+    }.bind(this));
+};
 Controller.prototype.saveDocument = function (onSaved) {
     if (!this.documentPath) {
         var thiz = this;
@@ -298,19 +300,23 @@ Controller.prototype.saveDocument = function (onSaved) {
         }, function (filePath) {
             if (!filePath) return;
             thiz.documentPath = filePath;
-            thiz.saveDocument(onSaved);
+            thiz.saveDocumentImpl(thiz.documentPath, onSaved);
         });
         return;
     }
 
+    this.saveDocumentImpl(this.documentPath, onSaved);
+};
+
+Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     if (!this.doc) throw "No document";
-    if (!this.documentPath) throw "Path not specified";
+    if (!documentPath) throw "Path not specified";
 
     var thiz = this;
     this.serializeDocument(function () {
         var archiver = require("archiver");
         var archive = archiver("zip");
-        var output = fs.createWriteStream(this.documentPath);
+        var output = fs.createWriteStream(documentPath);
         output.on("close", function () {
             thiz.sayDocumentSaved();
             if (onSaved) onSaved();
@@ -355,7 +361,6 @@ Controller.prototype.serializePage = function (page, outputPath) {
 };
 
 Controller.prototype.getPageSVG = function (page) {
-    console.log("getPageSVG: ", page);
     var svg = document.createElementNS(PencilNamespaces.svg, "svg");
     svg.setAttribute("width", "" + page.width  + "px");
     svg.setAttribute("height", "" + page.height  + "px");
@@ -442,15 +447,22 @@ Controller.prototype.deletePage = function (page) {
     if (page.canvas) this.canvasPool.return(page.canvas);
     if(page.parentPage) {
       var parentPage = page.parentPage.children;
-      var index = parentPage.indexOf(thiz.page);
+      var index = parentPage.indexOf(page);
       parentPage.splice(index, 1);
       this.activatePage(page.parentPage);
-    } else {
-      var i = this.doc.pages.indexOf(page);
-      this.doc.pages.splice(i, 1);
     }
+    if(page.children) {
+      for(var i = 0;i < page.children.length; i++) {
+        var count = this.doc.pages.indexOf(page.children[i]);
+        this.doc.pages.splice(count, 1);
+      }
+    }
+    var i = this.doc.pages.indexOf(page);
+    this.doc.pages.splice(i, 1);
     this.sayDocumentChanged();
 };
+
+
 Controller.prototype.sayDocumentChanged = function () {
     this.modified = true;
     Dom.emitEvent("p:DocumentChanged", this.applicationPane.node(), {
@@ -462,47 +474,52 @@ Controller.prototype.sayDocumentSaved = function () {
 };
 
 Controller.prototype.movePage = function (dir) {
-    console.log("movePage:", dir);
-    var page = this.activePage;
-      var pages = [];
-      var parentPage = page.parentPage;
-      if(!parentPage) {
-        pages = this.doc.pages;
-      } else {
-        pages = page.parentPage.children;
+  var page = this.activePage;
+  var pages = [];
+  var parentPage = page.parentPage;
+  if(parentPage) {
+    pages = parentPage.children;
+  } else {
+    for(var i = 0; i < this.doc.pages.length; i++) {
+      if(this.doc.pages[i].parentPage == parentPage) {
+        pages.push(this.doc.pages[i]);
       }
-      var index = pages.indexOf(page);
-      if(dir == "left") {
-        if (index == 0) {
-            return;
-        } else {
-            var pageTmp = pages[index -1];
-            pages[index -1 ] = pages[index];
-            pages[index] = pageTmp;
-            if(parentPage) {
-              var index1 = this.doc.pages.indexOf(page);
-              var pageTmp1 = this.doc.pages[index1 - 1];
-              this.doc.pages[index1 - 1 ] = this.doc.pages[index1];
-              this.doc.pages[index1] = pageTmp1;
-            }
+    }
+  }
+  var index = pages.indexOf(page);
+  var pageReplace;
+  if(dir == "left") {
+    if (index == 0) {
+        return;
+    } else {
+        pageReplace = pages[index -1];
         }
-      } else {
-        if (index == pages.length) {
-            return;
-        } else {
-            var pageTmp = pages[index +1];
-            pages[index + 1 ] = pages[index];
-            pages[index] = pageTmp;
-            if(parentPage) {
-              var index1 = this.doc.pages.indexOf(page);
-              var pageTmp1 = this.doc.pages[index1 + 1];
-              this.doc.pages[index1 + 1 ] = this.doc.pages[index1];
-              this.doc.pages[index1] = pageTmp1;
-            }
-        }
-      }
-      this.activatePage(page);
-      this.sayDocumentChanged();
+    } else {
+    if (index == pages.length - 1) {
+        return;
+    } else {
+      pageReplace = pages[index + 1];
+    }
+  }
+  var indexPage = this.doc.pages.indexOf(page);
+  var indexRelace = this.doc.pages.indexOf(pageReplace);
+  this.doc.pages[indexRelace] = page;
+  this.doc.pages[indexPage] = pageReplace;
+
+  if(parentPage) {
+    index = parentPage.children.indexOf(page);
+    if(dir == "left") {
+      var pageTmp = parentPage.children[index - 1];
+      parentPage.children[index - 1 ] = parentPage.children[index];
+      parentPage.children[index] = pageTmp;
+    } else {
+      var pageTmp = parentPage.children[index + 1];
+      parentPage.children[index + 1 ] = parentPage.children[index];
+      parentPage.children[index] = pageTmp;
+    }
+  }
+  this.activatePage(page);
+  this.sayDocumentChanged();
 }
 
 Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
@@ -515,7 +532,6 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
         var canvas = page.canvas;
         if (!canvas) return;
         var newSize = canvas.sizeToContent(padding, padding);
-        console.log("page: ", page);
         if (newSize) {
             page.width = newSize.width;
             page.height = newSize.height;
