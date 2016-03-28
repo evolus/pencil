@@ -43,7 +43,8 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Duplicate" },
         isValid: function () { return true },
         run: function () {
-            Pencil.controller.duplicatePage();
+            var page = Pencil.controller.duplicatePage(thiz.page);
+            thiz.pageListView.activatePage(page);
 
         }
     });
@@ -54,12 +55,8 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Delete" },
         isValid: function () { return true },
         run: function () {
-            // if(thiz.page.children ) {
-            //   for(var i = 0; i < thiz.page.children.length; i++){
-            //     Pencil.controller.deletePage(thiz.page.children[i]);
-            //   }
-            // }
             Pencil.controller.deletePage(thiz.page);
+            // thiz.pageListView.activatePage(Pencil.controller.doc.pages[0]);
 
         }
     });
