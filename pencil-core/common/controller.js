@@ -140,8 +140,6 @@ Controller.prototype.duplicatePage = function (pageIn) {
         newPage.canvas.drawingLayer.appendChild(newPage.canvas.ownerDocument.importNode(node, true));
         Dom.renewId(node);
     }
-    // newPage.lastUsed = new Date();
-
     return newPage;
 };
 
@@ -332,6 +330,7 @@ Controller.prototype.deletePage = function (page) {
       var index = parentPage.indexOf(page);
       parentPage.splice(index, 1);
     }
+    this.swapOut(page);
     var i = this.doc.pages.indexOf(page);
     this.doc.pages.splice(i, 1);
     this.sayDocumentChanged();
