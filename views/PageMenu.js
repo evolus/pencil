@@ -88,7 +88,7 @@ PageMenu.prototype.setup = function () {
             var dialog = new PageDetailDialog();
             dialog.title = "Edit Page Properties";
             dialog.open({
-                defalutPage : thiz.page,
+                defaultPage : thiz.page,
                 onDone: function(page) {
                     thiz.pageListView.activatePage(page);
                 }
