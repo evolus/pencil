@@ -100,10 +100,6 @@ Controller.prototype.duplicatePage = function (pageIn) {
         for (var i = 0; i < this.doc.pages.length; i++) {
             var p = this.doc.pages[i];
             if (!p.canvas) continue;
-            // if (!p.lastUsed) {
-            //   lruPage = p;
-            //   break;
-            // }
             if (p.lastUsed.getTime() < lru) {
                 lruPage = p;
                 lru = p.lastUsed.getTime();
@@ -115,23 +111,19 @@ Controller.prototype.duplicatePage = function (pageIn) {
     this.swapIn(newPage, canvas);
 
     if (!page.canvas) {
-      if (!this.canvasPool.available()) {
-          console.log("No available canvas for swapping in, swapping a LRU page now.");
-          var lruPage = null;
-          var lru = new Date().getTime();
-          for (var i = 0; i < this.doc.pages.length; i++) {
-              var p = this.doc.pages[i];
-              if (!p.canvas || p == newPage) continue;
-              // if (!p.lastUsed) {
-              //   lruPage = p;
-              //   break;
-              // }
-              if (p.lastUsed.getTime() < lru) {
-                  lruPage = p;
-                  lru = p.lastUsed.getTime();
-              }
-          }
-          this.swapOut(lruPage);
+        if (!this.canvasPool.available()) {
+            console.log("No available canvas for swapping in, swapping a LRU page now.");
+            var lruPage = null;
+            var lru = new Date().getTime();
+            for (var i = 0; i < this.doc.pages.length; i++) {
+                var p = this.doc.pages[i];
+                if (!p.canvas || p == newPage) continue;
+                if (p.lastUsed.getTime() < lru) {
+                    lruPage = p;
+                    lru = p.lastUsed.getTime();
+                }
+            }
+            this.swapOut(lruPage);
         }
         var pageIncavans = this.canvasPool.obtain();
         this.swapIn(page, pageIncavans);
@@ -141,7 +133,10 @@ Controller.prototype.duplicatePage = function (pageIn) {
         newPage.canvas.drawingLayer.appendChild(newPage.canvas.ownerDocument.importNode(node, true));
         Dom.renewId(node);
     }
-    this.swapOut(page);
+    if (this.activePage != page) {
+        this.swapOut(page);
+    }
+
     this.sayDocumentChanged();
     return newPage;
 };
@@ -282,30 +277,30 @@ Controller.prototype.swapIn = function (page, canvas) {
 } ;
 Controller.prototype.activatePage = function (page) {
     if (page != this.activePage) {
-      if (!page.canvas) {
-          console.log("Page is not in memory, swapping in now");
-          if (!this.canvasPool.available()) {
-              console.log("No available canvas for swapping in, swapping a LRU page now.");
-              var lruPage = null;
-              var lru = new Date().getTime();
-              for (var i = 0; i < this.doc.pages.length; i ++) {
-                  var p = this.doc.pages[i];
-                  if (!p.canvas) continue;
-                  if (p.lastUsed.getTime() < lru) {
+        if (!page.canvas) {
+            console.log("Page is not in memory, swapping in now");
+            if (!this.canvasPool.available()) {
+                console.log("No available canvas for swapping in, swapping a LRU page now.");
+                var lruPage = null;
+                var lru = new Date().getTime();
+                for (var i = 0; i < this.doc.pages.length; i ++) {
+                    var p = this.doc.pages[i];
+                    if (!p.canvas) continue;
+                    if (p.lastUsed.getTime() < lru) {
                     lruPage = p;
                     lru = p.lastUsed.getTime();
                   }
               }
-              if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
-              console.log("Found LRU page: " + lruPage.name);
-              this.swapOut(lruPage);
-          }
-          var canvas = this.canvasPool.obtain();
-          this.swapIn(page, canvas);
-      }
-      this.canvasPool.show(page.canvas);
-      page.lastUsed = new Date();
-      this.activePage = page;
+            if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
+            console.log("Found LRU page: " + lruPage.name);
+            this.swapOut(lruPage);
+            }
+            var canvas = this.canvasPool.obtain();
+            this.swapIn(page, canvas);
+        }
+        this.canvasPool.show(page.canvas);
+        page.lastUsed = new Date();
+        this.activePage = page;
     }
     // this.sayDocumentChanged();
 };
@@ -314,12 +309,12 @@ Controller.prototype.deletePage = function (page) {
     if (page.canvas) this.canvasPool.return(page.canvas);
     var parentPage = page.parentPage;
     if (page.children) {
-      for( var i = 0; i < page.children.length; i++) {
-        page.children[i].parentPage = parentPage;
-        if (parentPage){
-            parentPage.children.push(page.children[i]);
+        for( var i = 0; i < page.children.length; i++) {
+            page.children[i].parentPage = parentPage;
+            if (parentPage){
+                parentPage.children.push(page.children[i]);
+            }
         }
-      }
     }
     if (page.parentPage) {
         var index = parentPage.children.indexOf(page);
@@ -338,8 +333,7 @@ Controller.prototype.sayDocumentChanged = function () {
     });
 };
 
-Controller.prototype.movePage = function (pageIn, dir) {
-    var page = pageIn;
+Controller.prototype.movePage = function (page, dir) {
     var pages = [];
     var parentPage = page.parentPage;
     if (parentPage) {
@@ -353,7 +347,7 @@ Controller.prototype.movePage = function (pageIn, dir) {
     }
     var index = pages.indexOf(page);
     var replacePage;
-    if (dir == "left") {
+    if (dir == "left" ) {
         if (index == 0) {
             return;
         } else {
@@ -383,7 +377,6 @@ Controller.prototype.movePage = function (pageIn, dir) {
             parentPage.children[index] = pageTmp;
         }
     }
-    this.activatePage(page);
     this.sayDocumentChanged();
 }
 Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
