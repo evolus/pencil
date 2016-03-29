@@ -85,6 +85,17 @@ PageDetailDialog.prototype.setup = function (options) {
         name: "(None)"
     });
     pages = pages.concat(Pencil.controller.doc.pages);
+    if (this.options.defalutPage) {
+        var editPage = this.options.defalutPage;
+        var index = pages.indexOf(editPage);
+        pages.splice(index,1);
+        if (editPage.children) {
+            for ( var i = 0; i < editPage.children.length; i++) {
+              index = pages.indexOf(editPage.children[i]);
+              pages.splice(index,1);
+            }
+        }
+    }
     this.pageCombo.setItems(pages);
 
     if (this.options && this.options.defaultParentPage) {

@@ -488,7 +488,6 @@ Controller.prototype.retrievePageCanvas = function (page) {
                     lru = p.lastUsed.getTime();
                 }
             }
-
             if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
             console.log("Found LRU page: " + lruPage.name);
             this.swapOut(lruPage);
