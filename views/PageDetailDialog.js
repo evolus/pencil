@@ -78,22 +78,29 @@ Page.defaultPageSizes = [
 
 PageDetailDialog.prototype.setup = function (options) {
     this.options = options;
-    this.defalutPage = options.defalutPage;
+    this.defaultPage = options.defaultPage;
     if (this.options && this.options.onDone) this.onDone = this.options.onDone;
     var pages = [];
     pages.push({
         name: "(None)"
     });
     pages = pages.concat(Pencil.controller.doc.pages);
-    if (this.options.defalutPage) {
-        var editPage = this.options.defalutPage;
+
+    if (this.options && this.options.defaultPage) {
+        var hideChildren = function (page, pagesIn) {
+            for( var i = 0; i < page.children.length; i++) {
+                if (page.children[i].children) {
+                  hideChildren(page.children[i],pagesIn);
+                }
+                var index = pagesIn.indexOf(page.children[i]);
+                pagesIn.splice(index,1);
+            }
+        }
+        var editPage = this.options.defaultPage;
         var index = pages.indexOf(editPage);
         pages.splice(index,1);
         if (editPage.children) {
-            for ( var i = 0; i < editPage.children.length; i++) {
-              index = pages.indexOf(editPage.children[i]);
-              pages.splice(index,1);
-            }
+            hideChildren(editPage,pages);
         }
     }
     this.pageCombo.setItems(pages);
@@ -157,8 +164,8 @@ PageDetailDialog.prototype.setup = function (options) {
     var background = this.backgroundCombo.getSelectedItem();
     this.colorButton.style.display = background.value ? "none" : "block";
 
-    if(options.defalutPage) {
-        this.setPageItem(options.defalutPage);
+    if(options.defaultPage) {
+        this.setPageItem(options.defaultPage);
     }
 };
 
@@ -220,7 +227,7 @@ PageDetailDialog.prototype.createPage = function () {
 };
 
 PageDetailDialog.prototype.updatePage = function() {
-    var page = this.defalutPage;
+    var page = this.defaultPage;
     page.name = this.pageTitle.value;
     page.width = parseInt(this.widthInput.value, 10);
     page.height = parseInt(this.heightInput.value, 10);
@@ -261,14 +268,14 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {
             type: "accept", title: "APPLY",
             run: function () {
-              if (thiz.onDone) {
-                if (thiz.defalutPage) {
-                    thiz.onDone(thiz.updatePage());
-                } else {
-                    thiz.onDone(thiz.createPage());
+                if (thiz.onDone) {
+                  if (thiz.defaultPage) {
+                      thiz.onDone(thiz.updatePage());
+                  } else {
+                      thiz.onDone(thiz.createPage());
+                  }
                 }
-              }
-              return true;
+                return true;
             }
         }
     ];
