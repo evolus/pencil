@@ -17,7 +17,6 @@ PageMenu.prototype.setup = function () {
     }
     var thiz = this;
 
-
     UICommandManager.register({
         key: "PageMenuDivitor",
         getLabel: function () { return "" },
