@@ -66,7 +66,7 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Left" },
         isValid: function () { return true },
         run: function () {
-          Pencil.controller.movePage(thiz.page, "left");
+            Pencil.controller.movePage(thiz.page, "left");
         }
     });
 
@@ -76,7 +76,7 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Right" },
         isValid: function () { return true },
         run: function () {
-          Pencil.controller.movePage(thiz.page, "right");
+            Pencil.controller.movePage(thiz.page, "right");
         }
     });
 
@@ -90,7 +90,7 @@ PageMenu.prototype.setup = function () {
             dialog.open({
                 defalutPage : thiz.page,
                 onDone: function(page) {
-                  thiz.pageListView.activatePage(page);
+                    thiz.pageListView.activatePage(page);
                 }
             });
 

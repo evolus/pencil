@@ -109,7 +109,6 @@ Controller.prototype.duplicatePage = function (pageIn) {
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
-
     newPage.canvas = null;
     this.retrievePageCanvas(newPage);
 
@@ -160,7 +159,10 @@ Controller.prototype.duplicatePage = function (pageIn) {
         Dom.renewId(node);
     }
 
-    this.swapOut(page);
+    if (this.activePage && this.activePage.id != page.id) {
+        this.swapOut(page);
+    }
+
     this.sayDocumentChanged();
     return newPage;
 };
@@ -501,12 +503,12 @@ Controller.prototype.deletePage = function (page) {
     if (page.canvas) this.canvasPool.return(page.canvas);
     var parentPage = page.parentPage;
     if (page.children) {
-      for( var i = 0; i < page.children.length; i++) {
-        page.children[i].parentPage = parentPage;
-        if (parentPage){
-            parentPage.children.push(page.children[i]);
+        for( var i = 0; i < page.children.length; i++) {
+            page.children[i].parentPage = parentPage;
+            if (parentPage){
+                parentPage.children.push(page.children[i]);
+            }
         }
-      }
     }
     if (page.parentPage) {
         var index = parentPage.children.indexOf(page);
@@ -529,8 +531,7 @@ Controller.prototype.sayDocumentSaved = function () {
     this.modified = false;
 };
 
-Controller.prototype.movePage = function (pageIn, dir) {
-    var page = pageIn;
+Controller.prototype.movePage = function (page, dir) {
     var pages = [];
     var parentPage = page.parentPage;
     if (parentPage) {
@@ -544,7 +545,7 @@ Controller.prototype.movePage = function (pageIn, dir) {
     }
     var index = pages.indexOf(page);
     var replacePage;
-    if (dir == "left") {
+    if (dir == "left" ) {
         if (index == 0) {
             return;
         } else {
@@ -574,7 +575,6 @@ Controller.prototype.movePage = function (pageIn, dir) {
             parentPage.children[index] = pageTmp;
         }
     }
-    this.activatePage(page);
     this.sayDocumentChanged();
 }
 Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
