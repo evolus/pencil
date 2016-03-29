@@ -71,14 +71,15 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     page.name = name;
     page.width = width;
     page.height = height;
-    page.backgroundPage = this.findPageById(backgroundPageId);
     page.backgroundColor = backgroundColor;
     page.note = note;
 
     page.id = id;
     page.pageFileName = pageFileName;
     page.parentPageId = parentPageId;
+    page.backgroundPageId = backgroundPageId;
 
+    page.backgroundPage = this.findPageById(backgroundPageId);
     page.canvas = null;
     page.tempFilePath = path.join(this.tempDir.name, pageFileName);
 
@@ -110,47 +111,11 @@ Controller.prototype.duplicatePage = function (pageIn) {
     var note = page.note;
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
     newPage.canvas = null;
+
+    // retrieve new page
     this.retrievePageCanvas(newPage);
 
-    // if (!this.canvasPool.available()) {
-    //     console.log("No available canvas for swapping in, swapping a LRU page now.");
-    //     var lruPage = null;
-    //     var lru = new Date().getTime();
-    //     for (var i = 0; i < this.doc.pages.length; i++) {
-    //         var p = this.doc.pages[i];
-    //         if (!p.canvas) continue;
-    //         if (p.lastUsed.getTime() < lru  ) {
-    //             lruPage = p;
-    //             lru = p.lastUsed.getTime();
-    //         }
-    //     }
-    //     if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
-    //     console.log("Found LRU page: " + lruPage.name);
-    //     this.swapOut(lruPage);
-    //   }
-    // var canvas = this.canvasPool.obtain();
-    // this.swapIn(newPage, canvas);
-
-    // if(!page.canvas) {
-    //   var pageIncavans = this.canvasPool.obtain();
-    //   if (!this.canvasPool.available()) {
-    //       console.log("No available canvas for swapping in, swapping a LRU page now.");
-    //       var lruPage = null;
-    //       var lru = new Date().getTime();
-    //       for (var i = 0; i < this.doc.pages.length; i++) {
-    //           var p = this.doc.pages[i];
-    //           if (!p.canvas) continue;
-    //           if (p.lastUsed.getTime() < lru  ) {
-    //               lruPage = p;
-    //               lru = p.lastUsed.getTime();
-    //           }
-    //       }
-    //       if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
-    //       console.log("Found LRU page: " + lruPage.name);
-    //       this.swapOut(lruPage);
-    //     }
-    //     this.swapIn(page, pageIncavans);
-    // }
+    // retrieve page
     this.retrievePageCanvas(page);
 
     for (var i = 0; i < page.canvas.drawingLayer.childNodes.length; i++) {
@@ -222,6 +187,71 @@ Controller.prototype.openDocument = function () {
     handler();
 
 };
+Controller.prototype.parseOldFormatDocument = function (filePath) {
+    var targetDir = this.tempDir.name;
+    var thiz = this;
+    try {
+        if (path.extname(filePath) != ".ep" && path.extname(filePath) != ".epz") throw "Wrong format.";
+        var dom = Controller.parser.parseFromString(fs.readFileSync(filePath, "utf8"), "text/xml");
+
+        Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+            thiz.doc.properties[propNode.getAttribute("name")] = propNode.textContent;
+        });
+
+        Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
+            var page = new Page(thiz.doc);
+            Dom.workOn("./p:Properties/p:Property", pageNode, function (propNode) {
+                var name = propNode.getAttribute("name");
+                if (!Page.PROPERTY_MAP[name]) return;
+                page[Page.PROPERTY_MAP[name]] = propNode.textContent;
+            });
+
+            var contentNode = Dom.getSingle("./p:Content", pageNode);
+            if (contentNode) {
+                var node = dom.createElementNS(PencilNamespaces.p, "p:Content");
+                node.innerHTML = document.importNode(contentNode, true).innerHTML;
+                page._contentNode = node;
+            } else page.contentNode = null;
+
+            if (page.width) page.width = parseInt(page.width, 10);
+            if (page.height) page.height = parseInt(page.height, 10);
+
+            if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+
+            var pageFileName = "page_" + page.id + ".xml";
+            page.pageFileName = pageFileName;
+            page.tempFilePath = path.join(thiz.tempDir.name, pageFileName);
+
+            thiz.serializePage(page, page.tempFilePath);
+            delete page._contentNode;
+            thiz.doc.pages.push(page);
+        });
+
+        // update page thumbnails
+        var index = -1;
+        function next(onDone) {
+            index ++;
+            if (index >= thiz.doc.pages.length) {
+                if (onDone) onDone();
+                return;
+            }
+            var page = thiz.doc.pages[index];
+            thiz.updatePageThumbnail(page, function () {
+                next(onDone);
+            });
+        }
+
+        next(function () {
+            thiz.sayDocumentChanged();
+        });
+
+
+    } catch (e) {
+        console.log("error:", e);
+        thiz.newDocument();
+    }
+};
+
 Controller.prototype.loadDocument = function (filePath) {
     this.resetDocument();
     var thiz = this;
@@ -258,6 +288,8 @@ Controller.prototype.loadDocument = function (filePath) {
                 if (page.width) page.width = parseInt(page.width, 10);
                 if (page.height) page.height = parseInt(page.height, 10);
 
+                if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+
                 var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
                 page.thumbPath = thumbPath;
                 page.thumbCreated = new Date();
@@ -283,7 +315,7 @@ Controller.prototype.loadDocument = function (filePath) {
         }
 
     }).on("error", function () {
-
+        thiz.parseOldFormatDocument(filePath);
     });
 
     fs.createReadStream(filePath).pipe(extractor);
@@ -373,15 +405,19 @@ Controller.prototype.serializePage = function (page, outputPath) {
         propertyNode.appendChild(dom.createTextNode(page[name] && page[name].toString() || page[name]));
     }
 
-    var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
-    dom.documentElement.appendChild(content);
+    if (page._contentNode) {
+        dom.documentElement.appendChild(page._contentNode);
+    } else {
+        var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
+        dom.documentElement.appendChild(content);
 
-    if (page.canvas) {
-        var node = dom.importNode(page.canvas.drawingLayer, true);
-        while (node.hasChildNodes()) {
-            var c = node.firstChild;
-            node.removeChild(c);
-            content.appendChild(c);
+        if (page.canvas) {
+            var node = dom.importNode(page.canvas.drawingLayer, true);
+            while (node.hasChildNodes()) {
+                var c = node.firstChild;
+                node.removeChild(c);
+                content.appendChild(c);
+            }
         }
     }
 
@@ -442,34 +478,11 @@ Controller.prototype.swapIn = function (page, canvas) {
 } ;
 Controller.prototype.activatePage = function (page) {
     if (page != this.activePage) {
-    //   if (!page.canvas) {
-    //       console.log("Page is not in memory, swapping in now");
-    //       if (!this.canvasPool.available()) {
-    //           console.log("No available canvas for swapping in, swapping a LRU page now.");
-    //           var lruPage = null;
-    //           var lru = new Date().getTime();
-    //           for (var i = 0; i < this.doc.pages.length; i ++) {
-    //               var p = this.doc.pages[i];
-    //               if (!p.canvas) continue;
-    //               if (p.lastUsed.getTime() < lru) {
-    //                   lruPage = p;
-    //                   lru = p.lastUsed.getTime();
-    //               }
-    //           }
-      //
-    //           if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
-    //           console.log("Found LRU page: " + lruPage.name);
-    //           this.swapOut(lruPage);
-    //       }
-      //
-    //       var canvas = this.canvasPool.obtain();
-    //       this.swapIn(page, canvas);
-    //   }
-      this.retrievePageCanvas(page);
+        this.retrievePageCanvas(page);
 
-      this.canvasPool.show(page.canvas);
-      page.lastUsed = new Date();
-      this.activePage = page;
+        this.canvasPool.show(page.canvas);
+        page.lastUsed = new Date();
+        this.activePage = page;
     }
     // this.sayDocumentChanged();
 };

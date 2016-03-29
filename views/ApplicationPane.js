@@ -48,6 +48,7 @@ function ApplicationPane() {
         //         thiz.pageListView.activatePage(page);
         //     }
         // });
+        this.controller.loadOldDocument();
     }, this.testButton);
     this.bind("click", function (event) {
         var currentPage = this.pageCombo.getSelectedItem();

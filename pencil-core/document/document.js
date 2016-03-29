@@ -69,7 +69,16 @@ function Page(doc) {
     // this.rasterizeCache = null;
     this.children = [];
 }
-Page.PROPERTIES = ["id", "name", "width", "height", "backgroundPage", "backgroundColor", "note", "pageFileName", "parentPageId"];
+Page.PROPERTIES = ["id", "name", "width", "height", "backgroundPageId", "backgroundColor", "note", "pageFileName", "parentPageId"];
+Page.PROPERTY_MAP = {
+    "id": "id",
+    "name": "name",
+    "width": "width",
+    "height": "height",
+    "background": "backgroundPageId",
+    "backgroundColor": "backgroundColor"
+};
+
 Page.prototype.toXml = function () {
     var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
     var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
@@ -77,7 +86,7 @@ Page.prototype.toXml = function () {
 
     for (name in Page.PROPERTIES) {
         if (!page[name]) continue;
-        
+
         var propertyNode = dom.createElementNS(PencilNamespaces.p, "p:Property");
         propertyContainerNode.appendChild(propertyNode);
 
