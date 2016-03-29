@@ -11,10 +11,6 @@ PageMenu.prototype.getTemplatePath = function () {
 };
 
 PageMenu.prototype.setup = function () {
-    var checkEnable = true;
-    if (!this.page) {
-        checkEnable = false;
-    }
     var thiz = this;
 
     UICommandManager.register({
@@ -46,7 +42,13 @@ PageMenu.prototype.setup = function () {
         icon: "content_copy",
         getLabel: function () { return "Duplicate" },
         isValid: function () { return true },
-        isEnabled: function () { return  checkEnable },
+        isEnabled: function () {
+            if(thiz.page) {
+                return true;
+            } else {
+                return  false;
+            }
+        },
         run: function () {
             var page = Pencil.controller.duplicatePage(thiz.page);
             thiz.pageListView.activatePage(page);
@@ -58,7 +60,13 @@ PageMenu.prototype.setup = function () {
         icon : "remove",
         getLabel: function () { return "Delete" },
         isValid: function () { return true },
-        isEnabled: function () { return  checkEnable },
+        isEnabled: function () {
+            if(thiz.page) {
+                return true;
+            } else {
+                return  false;
+            }
+        },
         run: function () {
             Pencil.controller.deletePage(thiz.page);
             // thiz.pageListView.activatePage(Pencil.controller.doc.pages[0]);
@@ -71,7 +79,6 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Left" },
         isValid: function () { return true },
         isEnabled: function () {
-            if(!checkEnable) return false;
             return Pencil.controller.checkLeftRight(thiz.page, "left")
         },
         run: function () {
@@ -85,7 +92,6 @@ PageMenu.prototype.setup = function () {
         getLabel: function () { return "Move Right" },
         isValid: function () { return true },
         isEnabled: function () {
-            if(!checkEnable) return false;
             return Pencil.controller.checkLeftRight(thiz.page, "right") },
         run: function () {
             Pencil.controller.movePage(thiz.page, "right");
@@ -96,7 +102,13 @@ PageMenu.prototype.setup = function () {
         key: "PageProperties",
         getLabel: function () { return "Properties" },
         isValid: function () { return true },
-        isEnabled: function () { return  checkEnable },
+        isEnabled: function () {
+            if(thiz.page) {
+                return true;
+            } else {
+                return  false;
+            }
+        },
         run: function () {
             var dialog = new PageDetailDialog();
             dialog.title = "Edit Page Properties";
@@ -113,7 +125,13 @@ PageMenu.prototype.setup = function () {
         key: "PageEditPageNode",
         getLabel: function () { return "Edit Page Note..." },
         isValid: function () { return true },
-        isEnabled: function () { return  checkEnable },
+        isEnabled: function () {
+            if(thiz.page) {
+                return true;
+            } else {
+                return  false;
+            }
+        },
         run: function () {
 
         }

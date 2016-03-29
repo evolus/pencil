@@ -334,6 +334,9 @@ Controller.prototype.sayDocumentChanged = function () {
 };
 
 Controller.prototype.checkLeftRight = function (page, dir) {
+    if (!page) {
+        return false;
+    }
     var pages = [];
     var parentPage = page.parentPage;
     if (parentPage) {
@@ -342,7 +345,7 @@ Controller.prototype.checkLeftRight = function (page, dir) {
         for(var i = 0; i < this.doc.pages.length; i++) {
             if (this.doc.pages[i].parentPage == parentPage) {
                 pages.push(this.doc.pages[i]);
-            } 
+            }
         }
     }
     var index = pages.indexOf(page);
