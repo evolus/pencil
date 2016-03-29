@@ -100,7 +100,13 @@ Controller.prototype.duplicatePage = function (pageIn) {
         for (var i = 0; i < this.doc.pages.length; i++) {
             var p = this.doc.pages[i];
             if (!p.canvas) continue;
+            // if (!p.lastUsed) {
+            //   lruPage = p;
+            //   break;
+            // }
+            if (p.lastUsed.getTime() < lru) {
                 lruPage = p;
+                lru = p.lastUsed.getTime();
             }
         }
         this.swapOut(lruPage);
@@ -108,7 +114,7 @@ Controller.prototype.duplicatePage = function (pageIn) {
     var canvas = this.canvasPool.obtain();
     this.swapIn(newPage, canvas);
 
-    if(!page.canvas) {
+    if (!page.canvas) {
       if (!this.canvasPool.available()) {
           console.log("No available canvas for swapping in, swapping a LRU page now.");
           var lruPage = null;
@@ -116,7 +122,13 @@ Controller.prototype.duplicatePage = function (pageIn) {
           for (var i = 0; i < this.doc.pages.length; i++) {
               var p = this.doc.pages[i];
               if (!p.canvas || p == newPage) continue;
+              // if (!p.lastUsed) {
+              //   lruPage = p;
+              //   break;
+              // }
+              if (p.lastUsed.getTime() < lru) {
                   lruPage = p;
+                  lru = p.lastUsed.getTime();
               }
           }
           this.swapOut(lruPage);
@@ -129,6 +141,7 @@ Controller.prototype.duplicatePage = function (pageIn) {
         newPage.canvas.drawingLayer.appendChild(newPage.canvas.ownerDocument.importNode(node, true));
         Dom.renewId(node);
     }
+    this.swapOut(page);
     this.sayDocumentChanged();
     return newPage;
 };
@@ -180,7 +193,6 @@ Controller.prototype.save = function () {
         });
         return;
     }
-
     if (!this.doc) throw "No document";
     if (!this.documentPath) throw "Path not specified";
 
@@ -214,7 +226,6 @@ Controller.prototype.serializePage = function (page, outputPath) {
 
     var xml = Controller.serializer.serializeToString(dom);
     fs.writeFileSync(outputPath, xml, "utf8");
-
     console.log("write to: " + outputPath);
 };
 
@@ -281,8 +292,8 @@ Controller.prototype.activatePage = function (page) {
                   var p = this.doc.pages[i];
                   if (!p.canvas) continue;
                   if (p.lastUsed.getTime() < lru) {
-                      lruPage = p;
-                      lru = p.lastUsed.getTime();
+                    lruPage = p;
+                    lru = p.lastUsed.getTime();
                   }
               }
               if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
@@ -302,23 +313,23 @@ Controller.prototype.deletePage = function (page) {
     fs.unlinkSync(page.tempFilePath);
     if (page.canvas) this.canvasPool.return(page.canvas);
     var parentPage = page.parentPage;
-    if(page.children) {
+    if (page.children) {
       for( var i = 0; i < page.children.length; i++) {
         page.children[i].parentPage = parentPage;
         if (parentPage){
-          parentPage.children.push(page.children[i]);
+            parentPage.children.push(page.children[i]);
         }
       }
     }
     if (page.parentPage) {
-      var index = parentPage.children.indexOf(page);
-      parentPage.children.splice(index, 1);
+        var index = parentPage.children.indexOf(page);
+        parentPage.children.splice(index, 1);
     }
     var i = this.doc.pages.indexOf(page);
     this.doc.pages.splice(i, 1);
     this.sayDocumentChanged();
     if (this.activePage = page && parentPage) {
-      this.activatePage(parentPage)
+        this.activatePage(parentPage)
     }
 };
 Controller.prototype.sayDocumentChanged = function () {
@@ -332,13 +343,13 @@ Controller.prototype.movePage = function (pageIn, dir) {
     var pages = [];
     var parentPage = page.parentPage;
     if (parentPage) {
-      pages = parentPage.children;
+        pages = parentPage.children;
     } else {
-      for(var i = 0; i < this.doc.pages.length; i++) {
-        if(this.doc.pages[i].parentPage == parentPage) {
-          pages.push(this.doc.pages[i]);
+        for(var i = 0; i < this.doc.pages.length; i++) {
+            if (this.doc.pages[i].parentPage == parentPage) {
+                pages.push(this.doc.pages[i]);
+            }
         }
-      }
     }
     var index = pages.indexOf(page);
     var replacePage;
@@ -408,7 +419,7 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
     }
 
     handler();
-};
+} ;
 
 Controller.prototype.sizeToBestFit = function (passedPage) {
     var page = passedPage ? passedPage : this.activePage;
