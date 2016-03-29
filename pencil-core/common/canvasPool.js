@@ -22,7 +22,6 @@ CanvasPool.prototype.obtain = function () {
         canvas.used = true;
         return canvas;
     }
-
     return null;
 };
 CanvasPool.prototype.return = function (canvas) {
@@ -30,13 +29,17 @@ CanvasPool.prototype.return = function (canvas) {
     Dom.empty(canvas.drawingLayer);
     canvas.selectNone();
 };
+CanvasPool.prototype.reset = function () {
+    this.canvases.forEach(function (canvas) {
+        this.return(canvas);
+    }, this);
+};
 CanvasPool.prototype.newCanvas = function () {
     var canvas = this.applicationPane.createCanvas();
     var thiz = this;
     canvas.element.addEventListener("p:ContentModified", function () {
         if (thiz.canvasContentModifiedListener) thiz.canvasContentModifiedListener(canvas);
     }, false);
-
     return canvas;
 };
 CanvasPool.prototype.show = function (canvas) {

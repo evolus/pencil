@@ -1,8 +1,13 @@
 function CollectionPane() {
     BaseTemplatedWidget.call(this);
-
-
     var thiz = this;
+
+    this.selectorPane.addEventListener("contextmenu",function(event) {
+        var collection = Dom.findUpwardForData(event.target, "_collection");
+        var menu = new CollectionMenu(collection, thiz);
+        menu.showMenuAt(event.clientX, event.clientY);
+    });
+
     this.selectorPane.addEventListener("click", function(event) {
         var item = Dom.findUpward(Dom.getTarget(event), function (n) {
             return n._collection;
@@ -18,7 +23,6 @@ function CollectionPane() {
     this.shapeList.addEventListener("dragstart", function (event) {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
-
         if (def.shape) {
             event.dataTransfer.setData("pencil/shortcut", def.id);
         } else {
@@ -27,8 +31,6 @@ function CollectionPane() {
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
     });
 
-    CollectionManager.loadStencils();
-    this.reload();
 
     this.dndImage = new Image();
     this.dndImage.src = "css/bullet.png";
@@ -36,6 +38,11 @@ function CollectionPane() {
     this.searchInput.addEventListener("keyup", function (event) {
         thiz.filterCollections();
     }, false);
+
+    this.showHiddenCollections.addEventListener("click",function(event) {
+        var hiddenCollectionDialog = new ShowHiddenCollectionDialog(thiz);
+        hiddenCollectionDialog.open();
+    });
 
     UICommandManager.register({
         key: "searchFocusCommand",
@@ -45,6 +52,10 @@ function CollectionPane() {
             thiz.searchInput.select();
         }
     });
+
+    Pencil.collectionPane = this;
+    CollectionManager.loadStencils();
+    this.reload();
 
 }
 __extend(BaseTemplatedWidget, CollectionPane);
@@ -58,12 +69,20 @@ CollectionPane.ICON_MAP = {
     "Evolus.Windows7": "web"
 };
 
+// Function hide collection --
+CollectionPane.prototype.setVisibleCollection = function (collection, value) { // function Hide collection
+    CollectionManager.setCollectionVisible(collection,value);
+    this.reload();
+};
+
 CollectionPane.prototype.getTitle = function() {
 	return "Shapes";
-}
+};
+
 CollectionPane.prototype.getIconName = function() {
 	return "layers";
-}
+};
+
 CollectionPane.prototype.getCollectionIcon = function (collection) {
     return collection.icon || CollectionPane.ICON_MAP[collection.id] || "border_all";
 };
@@ -75,35 +94,36 @@ CollectionPane.prototype.reload = function () {
     var collections = CollectionManager.shapeDefinition.collections;
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
-        console.log("\"" + collection.id + "\": \"\",");
-        var icon = this.getCollectionIcon(collection);
-        var node = Dom.newDOMElement({
-            _name: "vbox",
-            "class": "Item",
-            _children: [
-                {
-                    _name: "div",
-                    "class": "ItemInner",
-                    _children: [
-                        {
-                            _name: "span",
-                            _text: collection.displayName
-                        },
-                        {
-                            _name: "i",
-                            _text: icon
-                        }
-                    ]
-                }
-            ]
-        });
-
-        node._collection = collection;
-        if (!lastNode) {
-            lastNode = node;
+        if(collection.visible == true) {
+            console.log("\"" + collection.id + "\": \"\",");
+            var icon = this.getCollectionIcon(collection);
+            var node = Dom.newDOMElement({
+                _name: "vbox",
+                "class": "Item",
+                _children: [
+                    {
+                        _name: "div",
+                        "class": "ItemInner",
+                        _children: [
+                            {
+                                _name: "span",
+                                _text: collection.displayName
+                            },
+                            {
+                                _name: "i",
+                                _text: icon
+                            }
+                        ]
+                    }
+                ]
+            });
+            node._collection = collection;
+            if (!lastNode) {
+                lastNode = node;
+            }
+            this.selectorPane.appendChild(node);
         }
 
-        this.selectorPane.appendChild(node);
     }
     var thiz = this;
     window.setTimeout(function () {
@@ -112,11 +132,12 @@ CollectionPane.prototype.reload = function () {
             var inner = item.firstChild.firstChild;
 
             var w = inner.offsetWidth + 4 * Util.em();
+
             item.style.height = w + "px";
             item.firstChild.style.width = w + "px";
             item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)"
         }
-    }, 0);
+    }, 100);
 
     if (lastNode) {
         Dom.doOnAllChildren(this.selectorPane, function (n) {
@@ -127,7 +148,6 @@ CollectionPane.prototype.reload = function () {
         this.openCollection(this.last);
     }
 };
-
 CollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
     var collectionNodes = Dom.getList(".//*[@class='Item']", this.selectorPane);

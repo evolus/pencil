@@ -21,7 +21,6 @@ FontEditor._setupFontCombo = function (fontCombo, changeEvent, withNullValue) {
         // if (OnScreenTextEditor.isEditing) return;
         changeEvent();
     }, false);
-
 };
 FontEditor.prototype.setup = function () {
     //grab control references
@@ -44,10 +43,11 @@ FontEditor.prototype.setup = function () {
     //     if (!thiz.font || OnScreenTextEditor.isEditing) return;
     //     thiz.fireChangeEvent();
     // }, false);
-
-    FontEditor._setupFontCombo(this.fontCombo, this.fireChangeEvent);
-
     var thiz = this;
+    FontEditor._setupFontCombo(this.fontCombo, function () {
+        thiz.fireChangeEvent();
+    });
+
     this.pixelFontSize.addEventListener("click", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
         thiz.fireChangeEvent();
@@ -99,6 +99,9 @@ FontEditor.prototype.setup = function () {
     }, false);*/
 
 };
+
+
+
 FontEditor.prototype.setValue = function (font) {
     if (!font) return;
     this.font = font;

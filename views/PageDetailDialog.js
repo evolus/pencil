@@ -75,14 +75,34 @@ Page.defaultPageSizes = [
     }
 ];
 
+
 PageDetailDialog.prototype.setup = function (options) {
     this.options = options;
+    this.defaultPage = options.defaultPage;
     if (this.options && this.options.onDone) this.onDone = this.options.onDone;
     var pages = [];
     pages.push({
         name: "(None)"
     });
-    pages = pages.concat(Pencil.controller.pages);
+    pages = pages.concat(Pencil.controller.doc.pages);
+
+    if (this.options && this.options.defaultPage) {
+        var hideChildren = function (page, pagesIn) {
+            for( var i = 0; i < page.children.length; i++) {
+                if (page.children[i].children) {
+                  hideChildren(page.children[i], pagesIn);
+                }
+                var index = pagesIn.indexOf(page.children[i]);
+                pagesIn.splice(index, 1);
+            }
+        }
+        var editPage = this.options.defaultPage;
+        var index = pages.indexOf(editPage);
+        pages.splice(index, 1);
+        if (editPage.children) {
+            hideChildren(editPage, pages);
+        }
+    }
     this.pageCombo.setItems(pages);
 
     if (this.options && this.options.defaultParentPage) {
@@ -124,7 +144,7 @@ PageDetailDialog.prototype.setup = function (options) {
         }
     ];
 
-    var pages = Pencil.controller.pages;
+    var pages = Pencil.controller.doc.pages;
     if (pages) {
         for (var i in pages) {
             var page = pages[i];
@@ -143,9 +163,34 @@ PageDetailDialog.prototype.setup = function (options) {
 
     var background = this.backgroundCombo.getSelectedItem();
     this.colorButton.style.display = background.value ? "none" : "block";
+
+    if(options.defaultPage) {
+        this.setPageItem(options.defaultPage);
+    }
 };
 
+    PageDetailDialog.prototype.setPageItem = function (page) {
+        if(page.parentPage) {
+            this.pageCombo.selectItem(page.parentPage.name);
+        }
+        this.pageTitle.value = page.name;
+        this.pageSizeCombo.selectItem({
+            displayName: "Custome size..."
+        });
+        this.widthInput.disabled = false;
+        this.heightInput.disabled = false;
+        this.widthInput.value = page.width;
+        this.heightInput.value = page.height;
+        if(page.backgroundColor) {
+            this.backgroundCombo.selectItem([{
+                 displayName: "Background Color"
+            }])
+            this.colorButton.style.backgroundColor = page.backgroundColor;
+        }
+    }
+
 const SIZE_RE = /^([0-9]+)x([0-9]+)$/;
+
 PageDetailDialog.prototype.createPage = function () {
     var name = this.pageTitle.value;
 
@@ -180,6 +225,42 @@ PageDetailDialog.prototype.createPage = function () {
     Config.set("lastSize", [width, height].join("x"));
     return page;
 };
+
+PageDetailDialog.prototype.updatePage = function() {
+    var page = this.defaultPage;
+    page.name = this.pageTitle.value;
+    page.width = parseInt(this.widthInput.value, 10);
+    page.height = parseInt(this.heightInput.value, 10);
+
+    var background = this.backgroundCombo.getSelectedItem();
+    if (background.value != "transparent") {
+        if (typeof(background.value) == "undefined") {
+            page.backgroundColor = this.colorButton.bgColor ? this.colorButton.bgColor.toRGBString() : "#FFFFFF";
+        } else {
+            page.backgroundPageId = background.value;
+        }
+    }
+    if(page.parentPage) {
+        var parentedPage = page.parentPage;
+        var index = parentedPage.children.indexOf(page);
+        parentedPage.children.splice(index, 1);
+    }
+
+    var parentPageId = this.pageCombo.getSelectedItem().id;
+     if (parentPageId) {
+        var parentPage = Pencil.controller.findPageById(parentPageId);
+        if (parentPage) {
+            if (!parentPage.children) parentPage.children = [];
+            parentPage.children.push(page);
+            page.parentPage = parentPage;
+        }
+    } else {
+        page.parentPage = null;
+    }
+
+    Pencil.controller.sayDocumentChanged();
+    return page;
+}
 PageDetailDialog.prototype.getDialogActions = function () {
     var thiz = this;
     return [
@@ -187,7 +268,13 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {
             type: "accept", title: "APPLY",
             run: function () {
-                if (thiz.onDone) thiz.onDone(thiz.createPage());
+                if (thiz.onDone) {
+                  if (thiz.defaultPage) {
+                      thiz.onDone(thiz.updatePage());
+                  } else {
+                      thiz.onDone(thiz.createPage());
+                  }
+                }
                 return true;
             }
         }

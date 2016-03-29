@@ -18,6 +18,7 @@ CollectionManager.addShapeDefCollection = function (collection) {
             CollectionManager.shapeDefinition.shapeDefMap[shapeDef.id] = shapeDef;
         }
     }
+
 };
 CollectionManager.shapeDefinition.locateDefinition = function (shapeDefId) {
     return CollectionManager.shapeDefinition.shapeDefMap[shapeDefId];
@@ -35,7 +36,8 @@ CollectionManager.loadUserDefinedStencils = function () {
     }
 };
 CollectionManager.getUserStencilDirectory = function () {
-    return CollectionManager.getSpecialDirs("ProfD", "Pencil/Stencils");
+    // return CollectionManager.getSpecialDirs("ProfD", "Pencil/Stencils");
+    return Config.getDataFilePath(Config.STENCILS_DIR_NAME);
 };
 CollectionManager.getSpecialDirs = function (id, subFolders) {
     var properties = Components.classes["@mozilla.org/file/directory_service;1"]
@@ -50,6 +52,39 @@ CollectionManager.getSpecialDirs = function (id, subFolders) {
     return stencilDir;
 };
 CollectionManager._loadDeveloperStencil = function () {
+    try {
+		var stencilPath = Config.get("dev.stencil.path", "null");
+		if (!stencilPath || stencilPath == "none" || stencilPath == "null") {
+			Config.set("dev.stencil.path", "none");
+		} else {
+			if (!fs.existsSync(stencilPath)) return;
+
+			var parser = new ShapeDefCollectionParser();
+			CollectionManager._loadStencil(stencilPath, parser, "isSystem");
+		}
+
+	} catch (e) {
+        Console.dumpError(e);
+        // Util.error("Failed to load developer stencil", ex.message + "\n" + definitionFile.path, Util.getMessage("button.cancel.close"));
+	}
+
+	try {
+		var dirPath = Config.get("dev.stencil.dir", "null");
+		if (!dirPath || dirPath == "none" || dirPath == "null") {
+			Config.set("dev.stencil.dir", "none");
+		} else {
+
+			if (!fs.existsSync(dirPath)) return;
+
+			CollectionManager._loadUserDefinedStencilsIn(dirPath, null, "isSystem");
+		}
+	} catch (e) {
+        Console.dumpError(e);
+        // Util.error("Failed to load developer stencil", ex.message + "\n" + definitionFile.path, Util.getMessage("button.cancel.close"));
+	}
+
+
+    /*
 	try {
 		var path = Config.get("dev.stencil.path", "null");
 		if (!path || path == "none" || path == "null") {
@@ -85,8 +120,27 @@ CollectionManager._loadDeveloperStencil = function () {
 	} catch (e) {
         Util.error("Failed to load developer stencil", ex.message + "\n" + definitionFile.path, Util.getMessage("button.cancel.close"));
 	}
+    */
 };
 CollectionManager._loadStencil = function (dir, parser, isSystem) {
+
+    var definitionFile = path.join(dir, "Definition.xml");
+    if (!fs.existsSync(definitionFile)) return;
+
+    try {
+        console.log("definitionFile:", definitionFile);
+        var collection = parser.parseURL(definitionFile);
+        console.log(collection);
+        if (!collection) return;
+        collection.userDefined = isSystem ? false : true;
+        collection.installDirPath = dir;
+        CollectionManager.addShapeDefCollection(collection);
+    } catch (e) {
+        Console.dumpError(e);
+        // Util.error(Util.getMessage("error.title"), Util.getMessage("stencil.cannot.be.parsed", definitionFile, ex.message), Util.getMessage("button.cancel.close"));
+    }
+
+    /*
 	var definitionFile = dir;
 	definitionFile.append("Definition.xml");
     if (!definitionFile.exists() || definitionFile.isDirectory()) return;
@@ -102,13 +156,33 @@ CollectionManager._loadStencil = function (dir, parser, isSystem) {
         Util.error(Util.getMessage("error.title"), Util.getMessage("stencil.cannot.be.parsed", definitionFile.path, ex.message), Util.getMessage("button.cancel.close"))
         //alert("Warning:\nThe stencil at: " + definitionFile.path + " cannot be parsed.\nError: " + ex.message);
     }
+    */
+
 };
 CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, isSystem) {
-    debug("Loading stencils in: " + stencilDir.path + "\n excluded: " + excluded);
+    debug("Loading stencils in: " + stencilDir + "\n excluded: " + excluded);
 
     var parser = new ShapeDefCollectionParser();
 
     //loading all stencils
+    try {
+        if (!fs.existsSync(stencilDir)) return;
+        var definitionFiles = fs.readdirSync(stencilDir);
+        for (var i in definitionFiles) {
+            var definitionFile = definitionFiles[i];
+            if (excluded && excluded.indexOf(definitionFile) >= 0) {
+                continue;
+            }
+            var folderPath = path.join(stencilDir, definitionFile);
+            CollectionManager._loadStencil(folderPath, parser, isSystem ? true : false);
+        }
+
+    } catch (e) {
+        Console.dumpError(e);
+    }
+
+
+    /*
     try {
         if (!stencilDir.exists() || !stencilDir.isDirectory()) return;
         var entries = stencilDir.directoryEntries;
@@ -125,6 +199,7 @@ CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, i
     } catch (e) {
         Console.dumpError(e);
     }
+    */
 };
 
 CollectionManager.loadStencils = function() {
@@ -150,6 +225,7 @@ CollectionManager.loadStencils = function() {
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Quick-Callouts/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/TemplateDesign/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Windows7/Definition.xml"));
+
     /*
     if (navigator.userAgent.indexOf("Firefox") < 0) {
         CollectionManager._loadUserDefinedStencilsIn(CollectionManager.getSpecialDirs("CurProcD", "content/pencil/stencil"),
@@ -169,8 +245,17 @@ CollectionManager.loadStencils = function() {
     Pencil.collectionPane.reloadCollections();
     Pencil.privateCollectionPane.reloadCollections();
     */
+
+    CollectionManager._loadUserDefinedStencilsIn(Config.getDataFilePath(Config.STENCILS_DIR_NAME));
+    CollectionManager.shapeDefinition.collections = CollectionManager.shapeDefinition.collections.sort(function (a, b) {
+    	if (a.id == "Evolus.Common") return -1;
+    	return a.displayName > b.displayName ? 1 : (a.displayName < b.displayName ? -1 : 0);
+    });
+    CollectionManager._loadDeveloperStencil();
+    Pencil.collectionPane.reload();
 };
 CollectionManager.installNewCollection = function () {
+    /*
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
     var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     fp.init(window, Util.getMessage("filepicker.open.document"), nsIFilePicker.modeOpen);
@@ -178,10 +263,66 @@ CollectionManager.installNewCollection = function () {
     fp.appendFilter(Util.getMessage("filepicker.all.files"), "*");
 
     if (fp.show() != nsIFilePicker.returnOK) return;
+    */
+    var files = dialog.showOpenDialog({
+        title: "Install from",
+        defaultPath: os.homedir(),
+        filters: [
+            { name: "Stencil files", extensions: ["zip", "epc"] }
+        ]
 
-    CollectionManager.installCollectionFromFile(fp.file);
-}
+    }, function (filenames) {
+        if (!filenames || filenames.length <= 0) return;
+        CollectionManager.installCollectionFromFilePath(filenames[0]);
+    });
+};
+
 CollectionManager.installCollectionFromFile = function (file) {
+    var filePath = file.path;
+    var fileName = file.name.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime());
+
+    var targetDir = path.join(CollectionManager.getUserStencilDirectory(), fileName);
+    console.log("targetPath:", targetDir);
+
+    var extractor = unzip.Extract({ path: targetDir });
+    extractor.on("close", function () {
+        try {
+            var definitionFile = path.join(targetDir, "Definition.xml");
+            if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+
+            var parser = new ShapeDefCollectionParser();
+            var collection = parser.parseURL(definitionFile);
+
+            if (collection && collection.id) {
+                //check for duplicate of name
+                for (i in CollectionManager.shapeDefinition.collections) {
+                    var existingCollection = CollectionManager.shapeDefinition.collections[i];
+                    if (existingCollection.id == collection.id) {
+                        throw Util.getMessage("collection.named.already.installed", collection.id);
+                    }
+                }
+                collection.userDefined = true;
+
+                CollectionManager.setCollectionVisible(collection, true);
+                CollectionManager.setCollectionCollapsed(collection, false);
+
+                CollectionManager.addShapeDefCollection(collection);
+                CollectionManager.loadStencils();
+            } else {
+                throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+            }
+        } catch (e) {
+            console.log("error:", e);
+            CollectionManager.removeCollectionDir(targetDir);
+        }
+
+    });
+
+    fs.createReadStream(filePath).pipe(extractor);
+
+};
+
+CollectionManager.installCollectionFromFile_old = function (file) {
     var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
                    .createInstance(Components.interfaces.nsIZipReader);
     zipReader.open(file);
@@ -282,11 +423,19 @@ CollectionManager.installCollectionFromFile = function (file) {
     }
 };
 CollectionManager.installCollectionFromFilePath = function (filePath) {
+    var file = {
+        path: filePath,
+        name: path.basename(filePath)
+    };
+    CollectionManager.installCollectionFromFile(file);
+
+    /*
     var file = Components.classes["@mozilla.org/file/local;1"]
                    .createInstance(Components.interfaces.nsILocalFile);
     file.initWithPath(filePath);
 
     CollectionManager.installCollectionFromFile(file);
+    */
 };
 CollectionManager.installCollectionFromUrl = function (url) {
     Net.downloadAsync(url, "e:\\t.txt", {
@@ -318,7 +467,32 @@ CollectionManager.isCollectionCollapsed = function (collection) {
     if (collapsed == null) collapsed = false;
     return collapsed;
 };
+
+CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
+    var deleteFolderRecursive = function(path) {
+        if( fs.existsSync(path)) {
+            fs.readdirSync(path).forEach(function (file, index) {
+                var curPath = path + "/" + file;
+                if(fs.lstatSync(curPath).isDirectory()) { // recurse
+                    deleteFolderRecursive(curPath);
+                } else { // delete file
+                    fs.unlinkSync(curPath);
+                }
+            });
+            fs.rmdirSync(path);
+            if (onRemoved) onRemoved();
+        }
+    };
+
+    deleteFolderRecursive(targetDir);
+};
 CollectionManager.uninstallCollection = function (collection) {
+    if (!collection.installDirPath || !collection.userDefined) return;
+    CollectionManager.removeCollectionDir(collection.installDirPath, function () {
+        CollectionManager.loadStencils();
+    });
+
+    /*
     if (!collection.installDirPath || !collection.userDefined) return;
     if (!Util.confirm(Util.getMessage("uninstall.the.collection.confirm", collection.displayName),
                       Util.getMessage("uninstall.the.collection.discription", collection.displayName))) return;
@@ -328,4 +502,5 @@ CollectionManager.uninstallCollection = function (collection) {
 
     dir.remove(true);
     CollectionManager.loadStencils();
+    */
 }

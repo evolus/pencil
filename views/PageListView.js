@@ -7,6 +7,7 @@ function PageListView() {
         });
         return node;
     }
+
     this.bind("click", function (event) {
         var node = findPageThumbnailView(event);
         if (!node) return;
@@ -42,8 +43,8 @@ function PageListView() {
         this.currentPage = null;
         if (this.currentParentPage) {
             if (page == null && this.currentParentPage) {
-                for (var i in this.controller.pages) {
-                    var p = this.controller.pages[i];
+                for (var i in this.controller.doc.pages) {
+                    var p = this.controller.doc.pages[i];
                     if (!p.parentPage && p.id == this.currentParentPage.id) {
                         this.currentPage = p;
                         break;
@@ -63,6 +64,18 @@ function PageListView() {
     }, this.pageBreadcrumb);
 
     var thiz = this;
+
+    this.bind("contextmenu", function (event) {
+        var page = Dom.findUpwardForData(event.target, "_page");
+        if (!page) {
+            var view = Dom.findUpwardForData(event.target, "__widget");
+            if (!view) return;
+              page = view.page;
+            }
+        var pageMenu = new PageMenu(thiz,page);
+        pageMenu.showMenuAt(event.clientX, event.clientY);
+    })
+
     this.bind("click", function (event) {
         var dialog = new PageDetailDialog();
         dialog.open({
@@ -100,13 +113,13 @@ PageListView.prototype.renderPages = function() {
     this.childPageContainer.innerHTML = "";
 
     this.views = [];
-    if (!this.controller || !this.controller.pages) return;
+    if (!this.controller || !this.controller.doc) return;
 
     var pages = [];
     var parentPages = [];
     if (!this.currentParentPage) {
-        for (var i in this.controller.pages) {
-            var page = this.controller.pages[i];
+        for (var i in this.controller.doc.pages) {
+            var page = this.controller.doc.pages[i];
             if (!page.parentPage) pages.push(page);
         }
 
@@ -157,15 +170,17 @@ PageListView.prototype.renderPages = function() {
 
     for (var i in pages) {
         var page = pages[i];
+        var selected = this.currentPage && this.currentPage.id == page.id;
+
         var pageThumbnailView = new PageThumbnailView();
         pageThumbnailView.setPage(page);
         this.pageListContainer.appendChild(pageThumbnailView.node());
-        pageThumbnailView.selectPage(this.currentPage && this.currentPage.id == page.id);
+        pageThumbnailView.selectPage(selected);
         this.views.push(pageThumbnailView);
 
         var childNode = Dom.newDOMElement({
             _name: "hbox",
-            "selected": (this.currentPage && this.currentPage.id == page.id),
+            "selected": selected,
             _children: [
                 {
                     _name: "span",
