@@ -544,9 +544,6 @@ Controller.prototype.sayDocumentSaved = function () {
 };
 
 Controller.prototype.checkLeftRight = function (page, dir) {
-    if (!page) {
-        return false;
-    }
     var pages = [];
     var parentPage = page.parentPage;
     if (parentPage) {
