@@ -68,11 +68,10 @@ function PageListView() {
     this.bind("contextmenu", function (event) {
         var page = Dom.findUpwardForData(event.target, "_page");
         if (!page) {
-          var view = Dom.findUpwardForData(event.target, "__widget");
-          if (!view) return;
-          page = view.page;
-        }
-        //thiz.activatePage(page);
+            var view = Dom.findUpwardForData(event.target, "__widget");
+            if (!view) return;
+              page = view.page;
+            }
         var pageMenu = new PageMenu(thiz,page);
         pageMenu.showMenuAt(event.clientX, event.clientY);
     })
