@@ -90,17 +90,17 @@ PageDetailDialog.prototype.setup = function (options) {
         var hideChildren = function (page, pagesIn) {
             for( var i = 0; i < page.children.length; i++) {
                 if (page.children[i].children) {
-                  hideChildren(page.children[i],pagesIn);
+                  hideChildren(page.children[i], pagesIn);
                 }
                 var index = pagesIn.indexOf(page.children[i]);
-                pagesIn.splice(index,1);
+                pagesIn.splice(index, 1);
             }
         }
         var editPage = this.options.defaultPage;
         var index = pages.indexOf(editPage);
-        pages.splice(index,1);
+        pages.splice(index, 1);
         if (editPage.children) {
-            hideChildren(editPage,pages);
+            hideChildren(editPage, pages);
         }
     }
     this.pageCombo.setItems(pages);
@@ -241,9 +241,9 @@ PageDetailDialog.prototype.updatePage = function() {
         }
     }
     if(page.parentPage) {
-      var parentedPage = page.parentPage;
-      var index = parentedPage.children.indexOf(page);
-      parentedPage.children.splice(index, 1);
+        var parentedPage = page.parentPage;
+        var index = parentedPage.children.indexOf(page);
+        parentedPage.children.splice(index, 1);
     }
 
     var parentPageId = this.pageCombo.getSelectedItem().id;
@@ -255,7 +255,7 @@ PageDetailDialog.prototype.updatePage = function() {
             page.parentPage = parentPage;
         }
     } else {
-      page.parentPage = null;
+        page.parentPage = null;
     }
 
     Pencil.controller.sayDocumentChanged();

@@ -11,7 +11,12 @@ PageMenu.prototype.getTemplatePath = function () {
 };
 
 PageMenu.prototype.setup = function () {
+    var checkEnable = true;
+    if (!this.page) {
+        checkEnable = false;
+    }
     var thiz = this;
+
 
     UICommandManager.register({
         key: "PageMenuDivitor",
@@ -42,10 +47,10 @@ PageMenu.prototype.setup = function () {
         icon: "content_copy",
         getLabel: function () { return "Duplicate" },
         isValid: function () { return true },
+        isEnabled: function () { return  checkEnable },
         run: function () {
             var page = Pencil.controller.duplicatePage(thiz.page);
             thiz.pageListView.activatePage(page);
-
         }
     });
 
@@ -54,6 +59,7 @@ PageMenu.prototype.setup = function () {
         icon : "remove",
         getLabel: function () { return "Delete" },
         isValid: function () { return true },
+        isEnabled: function () { return  checkEnable },
         run: function () {
             Pencil.controller.deletePage(thiz.page);
             // thiz.pageListView.activatePage(Pencil.controller.doc.pages[0]);
@@ -65,6 +71,10 @@ PageMenu.prototype.setup = function () {
         icon: "keyboard_arrow_left",
         getLabel: function () { return "Move Left" },
         isValid: function () { return true },
+        isEnabled: function () {
+            if(!checkEnable) return false;
+            return Pencil.controller.checkLeftRight(thiz.page, "left")
+        },
         run: function () {
             Pencil.controller.movePage(thiz.page, "left");
         }
@@ -75,6 +85,9 @@ PageMenu.prototype.setup = function () {
         icon: "keyboard_arrow_right",
         getLabel: function () { return "Move Right" },
         isValid: function () { return true },
+        isEnabled: function () {
+            if(!checkEnable) return false;
+            return Pencil.controller.checkLeftRight(thiz.page, "right") },
         run: function () {
             Pencil.controller.movePage(thiz.page, "right");
         }
@@ -84,6 +97,7 @@ PageMenu.prototype.setup = function () {
         key: "PageProperties",
         getLabel: function () { return "Properties" },
         isValid: function () { return true },
+        isEnabled: function () { return  checkEnable },
         run: function () {
             var dialog = new PageDetailDialog();
             dialog.title = "Edit Page Properties";
@@ -93,7 +107,6 @@ PageMenu.prototype.setup = function () {
                     thiz.pageListView.activatePage(page);
                 }
             });
-
         }
     });
 
@@ -101,6 +114,7 @@ PageMenu.prototype.setup = function () {
         key: "PageEditPageNode",
         getLabel: function () { return "Edit Page Note..." },
         isValid: function () { return true },
+        isEnabled: function () { return  checkEnable },
         run: function () {
 
         }
@@ -118,15 +132,15 @@ PageMenu.prototype.setup = function () {
 
     var createGotoSubMenuElement = function(page) {
         var key = page.name.split(" ").join("") + "Page" ;
-            var element = UICommandManager.register({
-                    key: key,
-                    label: page.name,
-                    run: function () {
-                        thiz.pageListView.activatePage(page);
-                    }
-            });
-            var setElement = UICommandManager.getCommand(key);
-            return setElement;
+        var element = UICommandManager.register({
+            key: key,
+            label: page.name,
+            run: function () {
+                thiz.pageListView.activatePage(page);
+            }
+        });
+        var setElement = UICommandManager.getCommand(key);
+        return setElement;
     }
 
     var createGotoSubMenuItem = function() {

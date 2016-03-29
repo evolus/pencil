@@ -530,6 +530,27 @@ Controller.prototype.sayDocumentSaved = function () {
     this.modified = false;
 };
 
+Controller.prototype.checkLeftRight = function (page, dir) {
+    var pages = [];
+    var parentPage = page.parentPage;
+    if (parentPage) {
+        pages = parentPage.children;
+    } else {
+        for(var i = 0; i < this.doc.pages.length; i++) {
+            if (this.doc.pages[i].parentPage == parentPage) {
+                pages.push(this.doc.pages[i]);
+            } 
+        }
+    }
+    var index = pages.indexOf(page);
+    if (dir == "left" ) {
+        if (index == 0) return false;
+    } else {
+        if (index == pages.length - 1) return false;
+    }
+    return true;
+}
+
 Controller.prototype.movePage = function (page, dir) {
     var pages = [];
     var parentPage = page.parentPage;
@@ -546,13 +567,13 @@ Controller.prototype.movePage = function (page, dir) {
     var replacePage;
     if (dir == "left" ) {
         if (index == 0) {
-            return;
+            return false;
         } else {
             replacePage = pages[index -1];
         }
     } else {
         if (index == pages.length - 1) {
-            return;
+            return false;
         } else {
             replacePage = pages[index + 1];
         }
@@ -575,6 +596,7 @@ Controller.prototype.movePage = function (page, dir) {
         }
     }
     this.sayDocumentChanged();
+    return true;
 }
 Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
     var page = passedPage ? passedPage : this.activePage;
