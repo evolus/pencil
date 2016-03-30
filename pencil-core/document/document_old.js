@@ -59,59 +59,51 @@ PencilDocument.prototype.getFirstPageByName = function (name) {
 
 function Page(doc) {
     if (!doc) throw Util.getMessage("attempting.to.construct.a.page.outside.the.scope.of.a.valid.document");
-    // this.doc = doc;
-    // this.properties = {};
-    // this.contentNode = null;
-    // this.bg = {
-    //     lastId: null,
-    //     lastUpdateTimestamp: 0
-    // };
-    // this.rasterizeCache = null;
-    this.children = [];
+    this.doc = doc;
+    this.properties = {};
+    this.contentNode = null;
+    this.bg = {
+        lastId: null,
+        lastUpdateTimestamp: 0
+    };
+    this.rasterizeCache = null;
 }
-Page.PROPERTIES = ["id", "name", "width", "height", "backgroundPageId", "backgroundColor", "note", "pageFileName", "parentPageId"];
-Page.PROPERTY_MAP = {
-    "id": "id",
-    "name": "name",
-    "width": "width",
-    "height": "height",
-    "background": "backgroundPageId",
-    "backgroundColor": "backgroundColor"
+Page.prototype.validateLoadedData = function () {
+    this.properties.dimBackground = (this.properties.dimBackground == "true");
 };
+Page.prototype.toNode = function (dom, noContent) {
+    var pageNode = dom.createElementNS(PencilNamespaces.p, "Page");
 
-Page.prototype.toXml = function () {
-    var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
-    var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
-    dom.documentElement.appendChild(propertyContainerNode);
+    var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "Properties");
+    pageNode.appendChild(propertyContainerNode);
 
-    for (name in Page.PROPERTIES) {
-        if (!page[name]) continue;
-
-        var propertyNode = dom.createElementNS(PencilNamespaces.p, "p:Property");
+    for (name in this.properties) {
+        var propertyNode = dom.createElementNS(PencilNamespaces.p, "Property");
         propertyContainerNode.appendChild(propertyNode);
-
         propertyNode.setAttribute("name", name);
-        propertyNode.appendChild(dom.createTextNode(page[name].toString()));
-    }
-
-    var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
-    dom.documentElement.appendChild(content);
-
-    if (page.canvas) {
-        var node = dom.importNode(page.canvas.drawingLayer, true);
-        while (node.hasChildNodes()) {
-            var c = node.firstChild;
-            node.removeChild(c);
-            content.appendChild(c);
+        var propValue = this.properties[name];
+        if(propValue){
+            propertyNode.appendChild(dom.createTextNode(propValue.toString()));
+        } else if (name === "name") {
+            propertyNode.appendChild(dom.createTextNode(Util.getMessage("untitled.page")));
         }
     }
 
-    return Controller.serializer.serializeToString(dom);
-};
+    if (this.contentNode && !noContent) {
+        var contentNode = dom.createElementNS(PencilNamespaces.p, "p:Content");
+        for (var i = 0; i < this.contentNode.childNodes.length; i ++) {
+            var node = this.contentNode.childNodes[i];
+            contentNode.appendChild(dom.importNode(node, true));
+        }
 
+        pageNode.appendChild(contentNode);
+    }
+
+    return pageNode;
+};
 Page.prototype.equals = function (page) {
     if (page == null) return false;
-    return page.constructor == Page && page.id == this.id;
+    return page.constructor == Page && page.properties.id == this.properties.id;
 };
 Page.prototype.getBackgroundPage = function () {
     var bgPageId = this.properties.background;

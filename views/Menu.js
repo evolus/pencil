@@ -200,6 +200,7 @@ Menu.prototype.showMenu = function (anchor, hAlign, vAlign, hPadding, vPadding, 
     this.show(anchor, hAlign, vAlign, hPadding, vPadding, autoFlip);
 };
 Menu.prototype.showMenuAt = function (x, y) {
+    console.log("showMenuAt");
     this.render();
     this.showAt(x, y);
 };

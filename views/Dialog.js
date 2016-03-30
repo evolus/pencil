@@ -37,8 +37,11 @@ Dialog.ensureGlobalHandlers = function () {
     Dialog.globalHandlersRegistered = true;
 };
 
+Dialog.prototype.getFrameTemplate = function () {
+    return this.getTemplatePrefix() + "Dialog.xhtml";
+};
 Dialog.prototype.buildDOMNode = function () {
-    var frameTemplate = this.getTemplatePrefix() + "Dialog.xhtml";
+    var frameTemplate = this.getFrameTemplate();
     var node = widget.Util.loadTemplateAsNodeSync(frameTemplate, this);
 
     //load also the sub-class template into the dialog body
@@ -71,7 +74,8 @@ Dialog.prototype.invalidateElements = function () {
     this.positiveHandler = null;
 
     actions.forEach(function (a) {
-        a.order = DIALOG_BUTTON_ORDER[a.type];
+        if (a.isValid && !a.isValid()) return;
+        a.order = a.order || DIALOG_BUTTON_ORDER[a.type];
         if (typeof(a.order) == "undefined") a.order = -99;
 
         if (a.type == "cancel") {
@@ -121,6 +125,9 @@ Dialog.prototype.createButton = function (action) {
     var text = this.e(action.title);
     button.appendChild(document.createTextNode(text));
     button.setAttribute("mode", action.type);
+
+    var disabled = action.isEnabled && !action.isEnabled();
+    if (disabled) button.setAttribute("disabled", "true");
 
     return button;
 };
