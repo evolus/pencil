@@ -132,7 +132,7 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     this.sayDocumentChanged();
 
     this.updatePageThumbnail(newPage, function() {
-        return onDone(newPage);
+        onDone(newPage);
     });
 
 };
