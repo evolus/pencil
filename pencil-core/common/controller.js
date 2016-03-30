@@ -113,14 +113,12 @@ Controller.prototype.duplicatePage = function (pageIn) {
     newPage.canvas = null;
 
     // retrieve new page
-    this.retrievePageCanvas(newPage, null);
+    this.retrievePageCanvas(newPage);
 
     // retrieve page
     if(!page.canvas) {
         this.retrievePageCanvas(page, newPage);
     }
-
-
 
     for (var i = 0; i < page.canvas.drawingLayer.childNodes.length; i++) {
         var node = page.canvas.drawingLayer.childNodes[i];
@@ -133,6 +131,7 @@ Controller.prototype.duplicatePage = function (pageIn) {
     }
 
     this.sayDocumentChanged();
+    this.updatePageThumbnail(newPage);
     return newPage;
 };
 
@@ -248,7 +247,6 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
         next(function () {
             thiz.sayDocumentChanged();
         });
-
 
     } catch (e) {
         console.log("error:", e);
