@@ -171,7 +171,7 @@ PageDetailDialog.prototype.setup = function (options) {
 
     PageDetailDialog.prototype.setPageItem = function (page) {
         if(page.parentPage) {
-            this.pageCombo.selectItem(page.parentPage.name);
+            this.pageCombo.selectItem(page.parentPage);
         }
         this.pageTitle.value = page.name;
         this.pageSizeCombo.selectItem({
