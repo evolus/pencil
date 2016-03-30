@@ -100,7 +100,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     return page;
 };
 
-Controller.prototype.duplicatePage = function (pageIn) {
+Controller.prototype.duplicatePage = function (pageIn, onDone) {
     var page = pageIn;
     var name = page.name;
     var width = page.width;
@@ -129,10 +129,9 @@ Controller.prototype.duplicatePage = function (pageIn) {
     if (this.activePage && this.activePage.id != page.id) {
         this.swapOut(page);
     }
-
     this.sayDocumentChanged();
-    this.updatePageThumbnail(newPage);
-    return newPage;
+    this.updatePageThumbnail(newPage,onDone(newPage));
+    //return newPage;
 };
 
 Controller.prototype.serializeDocument = function (onDone) {

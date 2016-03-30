@@ -44,8 +44,13 @@ PageMenu.prototype.setup = function () {
         isValid: function () { return true },
         isEnabled: function () { return thiz.page; },
         run: function () {
-            var page = Pencil.controller.duplicatePage(thiz.page);
-            thiz.pageListView.activatePage(page);
+            var onDone = function () {
+                return function (page) {
+                    thiz.pageListView.activatePage(page);
+                }
+            };
+            Pencil.controller.duplicatePage(thiz.page, onDone());
+
         }
     });
 
