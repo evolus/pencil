@@ -101,6 +101,10 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 };
 
 Controller.prototype.duplicatePage = function (pageIn, onDone) {
+    if(onDone) {
+        this.updatePageThumbnail(pageIn, onDone);
+        return;
+    }
     var page = pageIn;
     var name = page.name;
     var width = page.width;
@@ -131,9 +135,9 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     }
 
     this.sayDocumentChanged();
-    console.log("abc: ", onDone);
-    this.updatePageThumbnail(newPage, onDone(newPage));
-    //return newPage;
+    if (!onDone) {
+        return newPage;
+    }
 };
 
 Controller.prototype.serializeDocument = function (onDone) {
@@ -696,21 +700,21 @@ Controller.prototype.updatePageThumbnail = function (page, done) {
         page.thumbPath = p;
         page.thumbCreated = new Date();
         Dom.emitEvent("p:PageInfoChanged", thiz.applicationPane, {page: page});
-        console.log("update done:", done);
         if (done) done();
     }, scale);
 };
 
 Controller.prototype.rasterizeCurrentPage = function () {
+    var page = this.activePage;
     dialog.showSaveDialog({
         title: "Export page as PNG",
-        defaultPath: path.join(os.homedir(), thiz.activePage.name),
+        defaultPath: path.join(os.homedir(), (page.name + ".png")),
         filters: [
             { name: "PNG Image (*.png)", extensions: ["png"] }
         ]
     }, function (filePath) {
+        if (!filePath) return;
         this.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
-            console.log("rasterize page done.");
         });
     }.bind(this));
 };
@@ -721,49 +725,13 @@ Controller.prototype.rasterizeSelection = function () {
 
     dialog.showSaveDialog({
         title: "Export selection as PNG",
-        defaultPath: path.join(os.homedir(), thiz.activePage.name),
+        defaultPath: path.join(os.homedir(), ""),
         filters: [
             { name: "PNG Image (*.png)", extensions: ["png"] }
         ]
     }, function (filePath) {
-        var geo = target.getGeometry();
-        if (!geo) {
-            //Util.showStatusBarWarning(Util.getMessage("the.selected.objects.cannot.be.exported"), true);
-            alert(Util.getMessage("the.selected.objects.cannot.be.exported"));
-            return;
-        }
-
-        var padding = 2 * Config.get("export.selection.padding", 0);
-
-        //stroke fix?
-        var strokeStyle = target.getProperty("strokeStyle");
-        if (strokeStyle) {
-            padding += strokeStyle.w;
-        }
-
-        var w = geo.dim.w + padding;
-        var h = geo.dim.h + padding;
-
-        debug("w: " + w);
-
-        var svg = document.createElementNS(PencilNamespaces.svg, "svg");
-        svg.setAttribute("width", "" + w  + "px");
-        svg.setAttribute("height", "" + h  + "px");
-
-        var content = target.svg.cloneNode(true);
-        content.removeAttribute("transform");
-        content.removeAttribute("id");
-
-        try  {
-            var dx = Math.round((w - geo.dim.w) / 2);
-            var dy = Math.round((h - geo.dim.h) / 2);
-            content.setAttribute("transform", "translate(" + dx + ", " + dy + ")");
-        } catch (e) {
-            Console.dumpError(e);
-        }
-        svg.appendChild(content);
-
-        this.applicationPane.rasterizer.rasterizeDOM(svg, filePath, function () {});
+        if (!filePath) return;
+        this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function () {});
     }.bind(this));
 };
 

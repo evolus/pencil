@@ -72,6 +72,73 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, s
     }, scale);
 };
 
+Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, callback, scale) {
+    var geo = target.getGeometry();
+    if (!geo) {
+        //Util.showStatusBarWarning(Util.getMessage("the.selected.objects.cannot.be.exported"), true);
+        alert(Util.getMessage("the.selected.objects.cannot.be.exported"));
+        return;
+    }
+
+    var padding = 2 * Config.get("export.selection.padding", 0);
+
+    //stroke fix?
+    var strokeStyle = target.getProperty("strokeStyle");
+    if (strokeStyle) {
+        padding += strokeStyle.w;
+    }
+
+    var w = geo.dim.w + padding;
+    var h = geo.dim.h + padding;
+
+    debug("w: " + w);
+
+    var svg = document.createElementNS(PencilNamespaces.svg, "svg");
+    svg.setAttribute("width", "" + w  + "px");
+    svg.setAttribute("height", "" + h  + "px");
+
+    var content = target.svg.cloneNode(true);
+    content.removeAttribute("transform");
+    content.removeAttribute("id");
+
+    try  {
+        var dx = Math.round((w - geo.dim.w) / 2);
+        var dy = Math.round((h - geo.dim.h) / 2);
+        content.setAttribute("transform", "translate(" + dx + ", " + dy + ")");
+    } catch (e) {
+        Console.dumpError(e);
+    }
+    svg.appendChild(content);
+
+    var thiz = this;
+    var s = (typeof (scale) == "undefined") ? 1 : scale;
+    var canvas = document.createElement("canvas");
+    canvas.setAttribute("width", w * s);
+    canvas.setAttribute("height", h * s);
+    var ctx = canvas.getContext("2d");
+
+    var img = new Image();
+    var url = "data:image/svg+xml;charset=utf-8," + Controller.serializer.serializeToString(svg);
+
+    function saveFile (dataURI) {
+        var actualPath = filePath ? filePath : tmp.fileSync().name;
+        var base64Data = dataURI.replace(/^data:image\/png;base64,/, "");
+
+        fs.writeFile(actualPath, base64Data, 'base64', function (err) {
+            callback(actualPath, err);
+        });
+    };
+
+    img.onload = function () {
+        ctx.scale(s, s);
+        ctx.drawImage(img, 0, 0);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        window.URL.revokeObjectURL(url);
+        saveFile(canvas.toDataURL());
+    };
+    img.src = url;
+};
+
 Rasterizer.prototype._prepareWindowForRasterization = function(backgroundColor) {
     var h = 0;
     var w = 0;
