@@ -116,8 +116,10 @@ Controller.prototype.duplicatePage = function (pageIn) {
     this.retrievePageCanvas(newPage, null);
 
     // retrieve page
+    if(!page.canvas) {
+        this.retrievePageCanvas(page, newPage);
+    }
 
-    this.retrievePageCanvas(page, newPage);
 
 
     for (var i = 0; i < page.canvas.drawingLayer.childNodes.length; i++) {
@@ -488,7 +490,7 @@ Controller.prototype.activatePage = function (page) {
     }
     // this.sayDocumentChanged();
 };
-Controller.prototype.retrievePageCanvas = function (page) {
+Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {
         console.log("Page is not in memory, swapping in now");
         if (!this.canvasPool.available()) {
@@ -497,7 +499,7 @@ Controller.prototype.retrievePageCanvas = function (page) {
             var lru = new Date().getTime();
             for (var i = 0; i < this.doc.pages.length; i ++) {
                 var p = this.doc.pages[i];
-                if (!p.canvas ) continue;
+                if (!p.canvas || p == newPage ) continue;
                 if (p.lastUsed.getTime() < lru) {
                     lruPage = p;
                     lru = p.lastUsed.getTime();
