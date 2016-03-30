@@ -56,7 +56,13 @@ PageMenu.prototype.setup = function () {
         isValid: function () { return true },
         isEnabled: function () { return thiz.page; },
         run: function () {
-            Pencil.controller.deletePage(thiz.page);
+            console.log("dialog:", dialog);
+            //const dialog = require("electron").remote.dialog;
+            var dialogResult = dialog.showMessageBox({type: 'warning' , message : 'You realy want to delete this page ?',title :'Confirm', buttons : ['ok', 'cancel']});
+            if(dialogResult == 0 ) {
+                Pencil.controller.deletePage(thiz.page);
+                thiz.pageListView.renderPages();
+            }
             // thiz.pageListView.activatePage(Pencil.controller.doc.pages[0]);
         }
     });

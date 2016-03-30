@@ -113,10 +113,12 @@ Controller.prototype.duplicatePage = function (pageIn) {
     newPage.canvas = null;
 
     // retrieve new page
-    this.retrievePageCanvas(newPage);
+    this.retrievePageCanvas(newPage, null);
 
     // retrieve page
-    this.retrievePageCanvas(page);
+
+    this.retrievePageCanvas(page, newPage);
+
 
     for (var i = 0; i < page.canvas.drawingLayer.childNodes.length; i++) {
         var node = page.canvas.drawingLayer.childNodes[i];
@@ -495,7 +497,7 @@ Controller.prototype.retrievePageCanvas = function (page) {
             var lru = new Date().getTime();
             for (var i = 0; i < this.doc.pages.length; i ++) {
                 var p = this.doc.pages[i];
-                if (!p.canvas) continue;
+                if (!p.canvas ) continue;
                 if (p.lastUsed.getTime() < lru) {
                     lruPage = p;
                     lru = p.lastUsed.getTime();
