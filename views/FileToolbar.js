@@ -14,7 +14,7 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "openDocumentCommand",
-        label: "open Document",
+        label: "open Document...",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.openDocument();
@@ -30,10 +30,26 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "saveAsDocumentCommand",
-        label: "save As Document",
+        label: "save As Document...",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.saveAsDocument();
+        }
+    });
+    UICommandManager.register({
+        key: "exportPageAsPNGButton",
+        label: "export page as PNG...",
+        isValid: function () { return true; },
+        run: function () {
+            Pencil.controller.rasterizeCurrentPage();
+        }
+    });
+    UICommandManager.register({
+        key: "exportSelectionAsPNGButton",
+        label: "export selection as PNG...",
+        isValid: function () { return true; },
+        run: function () {
+            Pencil.controller.rasterizeSelection();
         }
     });
 };

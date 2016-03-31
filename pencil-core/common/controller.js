@@ -129,6 +129,7 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     if (this.activePage && this.activePage.id != page.id) {
         this.swapOut(page);
     }
+
     this.sayDocumentChanged();
 
     this.updatePageThumbnail(newPage, function() {
@@ -481,13 +482,13 @@ Controller.prototype.swapIn = function (page, canvas) {
     canvas.setSize(page.width, page.height);
 } ;
 Controller.prototype.activatePage = function (page) {
-    if (page != this.activePage) {
-        this.retrievePageCanvas(page);
+    if (this.activePage && page.id == this.activePage.id) return;
 
-        this.canvasPool.show(page.canvas);
-        page.lastUsed = new Date();
-        this.activePage = page;
-    }
+    this.retrievePageCanvas(page);
+
+    this.canvasPool.show(page.canvas);
+    page.lastUsed = new Date();
+    this.activePage = page;
     // this.sayDocumentChanged();
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
@@ -515,13 +516,12 @@ Controller.prototype.retrievePageCanvas = function (page, newPage) {
     }
 };
 Controller.prototype.deletePage = function (page) {
-    fs.unlinkSync(page.tempFilePath);
     if (page.canvas) this.canvasPool.return(page.canvas);
     var parentPage = page.parentPage;
     if (page.children) {
         for( var i = 0; i < page.children.length; i++) {
             page.children[i].parentPage = parentPage;
-            if (parentPage){
+            if (parentPage) {
                 parentPage.children.push(page.children[i]);
             }
         }
@@ -532,8 +532,13 @@ Controller.prototype.deletePage = function (page) {
     }
     var i = this.doc.pages.indexOf(page);
     this.doc.pages.splice(i, 1);
+
+    fs.unlinkSync(page.tempFilePath);
+    fs.unlinkSync(page.thumbPath);
+
     this.sayDocumentChanged();
-    if (this.activePage = page && parentPage) {
+
+    if (this.activePage && this.activePage.id == page.id && parentPage) {
         this.activatePage(parentPage)
     }
 };
@@ -695,6 +700,37 @@ Controller.prototype.updatePageThumbnail = function (page, done) {
         Dom.emitEvent("p:PageInfoChanged", thiz.applicationPane, {page: page});
         if (done) done();
     }, scale);
+};
+
+Controller.prototype.rasterizeCurrentPage = function () {
+    var page = this.activePage;
+    dialog.showSaveDialog({
+        title: "Export page as PNG",
+        defaultPath: path.join(os.homedir(), (page.name + ".png")),
+        filters: [
+            { name: "PNG Image (*.png)", extensions: ["png"] }
+        ]
+    }, function (filePath) {
+        if (!filePath) return;
+        this.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
+        });
+    }.bind(this));
+};
+
+Controller.prototype.rasterizeSelection = function () {
+    var target = Pencil.activeCanvas.currentController;
+    if (!target || !target.getGeometry) return;
+
+    dialog.showSaveDialog({
+        title: "Export selection as PNG",
+        defaultPath: path.join(os.homedir(), ""),
+        filters: [
+            { name: "PNG Image (*.png)", extensions: ["png"] }
+        ]
+    }, function (filePath) {
+        if (!filePath) return;
+        this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function () {});
+    }.bind(this));
 };
 
 

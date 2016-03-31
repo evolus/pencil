@@ -32,7 +32,7 @@ Config.set = function (name, value) {
 };
 
 Config.get = function (name, defaultValue) {
-    if (Config.data[name] != "undefined") return Config.data[name];
+    if (typeof(Config.data[name]) != "undefined") return Config.data[name];
     return defaultValue;
 };
 Config.getLocale = function () {
