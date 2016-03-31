@@ -19,9 +19,8 @@
         body @popupContainer .widget_ComboManager @selectContainer > button {
             padding-right: 0.3em;
         }
-        body @textArea {
+        @editor {
             height: 300px;
-            overflow-y: scroll;
         }
     </style>
     <div anon-id="popupContainer">
@@ -61,15 +60,5 @@
             </hbox>
        </vbox>
     </div>
-    <textarea  anon-id = "textArea">
-        slkdjfklsdfjdkslj
-    </textarea>
+    <div anon-id="editor" contenteditable="true">test test test</div>
 </vbox>
-
-<!-- <hbox class="ButtonGroup">
-    <button mode="icon" anon-id="medIncreaseFontButton" tooltiptext="toolbar.inc.font.size.tooltiptext;" command="increaseFontSize"><i>format_size</i></button>
-    <button mode="icon" anon-id="medDecreaseFontButton" tooltiptext="toolbar.dec.font.size.tooltiptext;" command="decreaseFontSize"><i>text_fields</i></button>
-</hbox> -->
-<!-- <ui:Popup anon-id="selectorContainer">
-    <ui:ColorSelector anon-id="selector" />
-</ui:Popup> -->

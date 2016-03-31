@@ -5,11 +5,11 @@ function EditPageNoteDialog () {
         if (!textSize.value) return textSize.displayName;
         return textSize.displayName + " (" + textSize.value + "pt )";
     }
-    this.setup();
+    this.initialize();
 }
 __extend(Dialog, EditPageNoteDialog);
 
-EditPageNoteDialog.prototype.setup = function () {
+EditPageNoteDialog.prototype.initialize = function () {
     var thiz = this;
     var localFonts = Local.getInstalledFonts();
     thiz.fontCombo.setItems(localFonts);
@@ -62,13 +62,11 @@ EditPageNoteDialog.prototype.setup = function () {
     }, false);
 
     this.bind("click", function (event) {
-        console.log("text tool overlay click");
         var node = Dom.findUpward(event.target, function (n) {
             return n.getAttribute && n.getAttribute("command");
         });
 
         if (!node) return;
-        console.log("node:", node);
         var command = node.getAttribute("command");
         var arg = node.hasAttribute("arg") ? node.getAttribute("arg") : undefined;
         thiz.runEditorCommand(command, arg);
@@ -77,6 +75,8 @@ EditPageNoteDialog.prototype.setup = function () {
 };
 
 EditPageNoteDialog.prototype.runEditorCommand = function (command, arg) {
+
+    this.editor.focus();
     try {
         if (typeof(arg) != "undefined") {
             window.document.execCommand(command, false, arg);
