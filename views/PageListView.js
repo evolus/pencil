@@ -74,6 +74,8 @@ function PageListView() {
             }
         var pageMenu = new PageMenu(thiz,page);
         pageMenu.showMenuAt(event.clientX, event.clientY);
+
+
     })
 
     this.bind("click", function (event) {

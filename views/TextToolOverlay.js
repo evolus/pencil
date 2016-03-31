@@ -1,6 +1,5 @@
 function TextToolOverlay() {
     Popup.call(this);
-
     var thiz = this;
     this.selectorContainer.onHide = function () {
         thiz.selector._commandName = "";
@@ -112,7 +111,6 @@ function TextToolOverlay() {
         thiz.runEditorCommand(commandName, color.toRGBAString());
         thiz.updateButtonColor(control, color.toRGBAString());
     }, false);
-
 }
 __extend(Popup, TextToolOverlay);
 

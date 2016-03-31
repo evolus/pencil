@@ -120,6 +120,8 @@ PageMenu.prototype.setup = function () {
         isValid: function () { return true },
         isEnabled: function () { return thiz.page; },
         run: function () {
+            var editPageNoteDialog = new EditPageNoteDialog();
+            editPageNoteDialog.open();
 
         }
     });
