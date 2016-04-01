@@ -72,9 +72,72 @@ EditPageNoteDialog.prototype.setup = function () {
         var command = node.getAttribute("command");
         var arg = node.hasAttribute("arg") ? node.getAttribute("arg") : undefined;
         thiz.runEditorCommand(command, arg);
-    }, this.popupContainer);
+    }, thiz.popupContainer);
 
+    window.document.body.addEventListener("mouseup", selectListener, false);
 };
+
+EditPageNoteDialog.prototype.updateListByCommandValue = function (commandName, control) {
+    var value = null;
+    try {
+        value = window.document.queryCommandValue(commandName);
+    } catch (e) {
+        Console.dumpError(e, "stdout");
+    }
+
+    if (value && control == this.fontCombo) value = value.replace(/[']/g,'');
+    control.selectItem(value);
+};
+
+EditPageNoteDialog.prototype.getColorByCommandValue = function (commandName) {
+    var value = null;
+    try {
+        value = window.document.queryCommandValue(commandName);
+    } catch (e) {
+        Console.dumpError(e, "stdout");
+    }
+    if (value == null) return null;
+    return Color.fromString(value);
+};
+
+EditPageNoteDialog.prototype.updateColorButtonByCommandValue = function (commandName, control) {
+    var value = this.getColorByCommandValue(commandName);
+    if (control.localName == "button") {
+        if (value == null) return;
+        this.updateButtonColor(control, value.toRGBString());
+    }
+};
+
+EditPageNoteDialog.prototype.updateButtonColor = function (control, value) {
+    if (control == this.mhilightColorButton) {
+        this.colorDisplay.style.backgroundColor = value;
+    } else if (control == this.mtextColorButton) {
+        this.mtextColorButton.style.color = value;
+    }
+};
+
+var selectListener = function (event) {
+    // var temp = OnScreenTextEditor.isEditing;
+    // OnScreenTextEditor.isEditing = false;
+    var thiz = this;
+    thiz.updateListByCommandValue("fontname", thiz.fontCombo);
+    thiz.updateListByCommandValue("fontsize", thiz.fontSizeCombo);
+
+    thiz.updateButtonByCommandState("bold", thiz.medBoldButton);
+    thiz.updateButtonByCommandState("italic", thiz.medItalicButton);
+    thiz.updateButtonByCommandState("underline", thiz.medUnderlineButton);
+    thiz.updateButtonByCommandState("strikethrough", thiz.medStrikeButton);
+
+    thiz.updateButtonByCommandState("justifyleft", thiz.malignLeftCommand);
+    thiz.updateButtonByCommandState("justifycenter", thiz.malignCenterCommand);
+    thiz.updateButtonByCommandState("justifyright", thiz.malignRightCommand);
+
+    thiz.updateColorButtonByCommandValue("forecolor", thiz.mtextColorButton);
+    // thiz.updateColorButtonByCommandValue("hiliteColor", thiz.mhilightColorButton);
+
+    // OnScreenTextEditor.isEditing = temp;
+};
+
 
 EditPageNoteDialog.prototype.runEditorCommand = function (command, arg) {
     try {
