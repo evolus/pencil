@@ -19,9 +19,10 @@
         body @popupContainer .widget_ComboManager @selectContainer > button {
             padding-right: 0.3em;
         }
-        body @textArea {
+        @editor {
             height: 300px;
             overflow-y: scroll;
+            border: inset 1px;
         }
     </style>
     <div anon-id="popupContainer">
@@ -54,22 +55,15 @@
                 <button anon-id="mtextColorButton" tooltiptext="pcolorbutton.text.color.tooltip;">AB</button>
                 <button anon-id="mhilightColorButton" tooltiptext="pcolorbutton.bgr.color.tooltip;"><span anon-id="colorDisplay" class="ColorDisplay"></span></button>
                 <button mode="icon" anon-id="medCleanUpButton" tooltiptext="Clean Up" command="removeformat"><i>clear</i></button>
-                <button mode="icon" anon-id="insertLinkButton" tooltiptext="Insert Link" command="insertlink"><i>clear</i></button>
+                <button mode="icon" anon-id="medInsertLinkButton" tooltiptext="Insert Link" command="insertlink"><i>insert_link</i></button>
                 <ui:Popup anon-id="selectorContainer">
                     <ui:ColorSelector anon-id="selector" />
                 </ui:Popup>
             </hbox>
        </vbox>
-    </div>
-    <textarea contentEditable = "true"  anon-id = "textArea">
-        slkdjfklsdfjdkslj
-    </textarea>
-</vbox>
 
-<!-- <hbox class="ButtonGroup">
-    <button mode="icon" anon-id="medIncreaseFontButton" tooltiptext="toolbar.inc.font.size.tooltiptext;" command="increaseFontSize"><i>format_size</i></button>
-    <button mode="icon" anon-id="medDecreaseFontButton" tooltiptext="toolbar.dec.font.size.tooltiptext;" command="decreaseFontSize"><i>text_fields</i></button>
-</hbox> -->
-<!-- <ui:Popup anon-id="selectorContainer">
-    <ui:ColorSelector anon-id="selector" />
-</ui:Popup> -->
+    </div>
+<!-- <<<<<<< HEAD >>>>>>> c5e748cadd82f900b721422fea43e54756fd8aab -->
+    <div anon-id="editor" contenteditable="true"> </div>
+
+</vbox>

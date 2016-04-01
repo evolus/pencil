@@ -120,9 +120,14 @@ PageMenu.prototype.setup = function () {
         isValid: function () { return true },
         isEnabled: function () { return thiz.page; },
         run: function () {
-            var editPageNoteDialog = new EditPageNoteDialog();
-            editPageNoteDialog.open();
-
+            var dialog = new EditPageNoteDialog();
+            dialog.open({
+                defaultPage : thiz.page,
+                onDone: function (nodeNote) {
+                    console.log("Complete note");
+                    thiz.page._pageNote = nodeNote;
+                }
+            });
         }
     });
 
