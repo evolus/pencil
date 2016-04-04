@@ -17,11 +17,31 @@ function AboutCollectionDialog(collection) {
                 _children :[
                     {
                         _name: "li",
-                        _text: collection.author
+                        _children :[
+                            {
+                                _name: "h4",
+                                _text: "Author: "
+                            },
+                            {
+                                _name: "p",
+                                _text: collection.author
+                            }
+                        ]
                     },
                     {
                         _name: "li",
-                        _text: collection.infoUrl
+                        _children :[
+                            {
+                                _name: "h4",
+                                _text: "More Information: "
+                            },
+                            {
+                                _name: "a",
+                                href:collection.infoUrl,
+                                _text: collection.infoUrl
+                            }
+                        ]
+
                     }
                 ]
             }
