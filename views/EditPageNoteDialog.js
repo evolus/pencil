@@ -106,8 +106,8 @@ EditPageNoteDialog.prototype.setup = function (options) {
             this.page = options.defaultPage;
             var parentNode = this.popupContainer.parentNode;
             if(this.page.note) {
-                var defaultEditor =  this.page.note;
-                this.editor.innerHTML = defaultEditor.html;
+                this.defaultEditor =  this.page.note;
+                this.editor.innerHTML = this.defaultEditor.html;
             }
 
         }
@@ -127,7 +127,7 @@ EditPageNoteDialog.prototype.setup = function (options) {
         var command = node.getAttribute("command");
         var arg = node.hasAttribute("arg") ? node.getAttribute("arg") : undefined;
         if(command == "createlink") {
-            var sel = window.document.getSelection ();
+            var sel = window.document.getSelection();
             if (sel.type != "Caret") {
                 var dialog = new PromptDialog();
                 var url;
@@ -273,16 +273,20 @@ EditPageNoteDialog.prototype.getDialogActions = function () {
     return [
         {   type: "cancel", title: "Cancel",
             run: function () {
-                var dialogResult = dialog.showMessageBox({type: 'warning' , message : "If you don't save changes will be permanently lost. ",title :'Saving you change before closing', buttons : ['ok', 'cancel']});
-                if(dialogResult == 0 ) {
-                    this.onDone(this.editor.innerHTML);
+                var newEditor = RichText.fromString(this.editor.innerHTML);
+                if ( this.defaultEditor && newEditor.html != this.defaultEditor.html) {
+                        var dialogResult = dialog.showMessageBox({type: 'warning' , message : "If you don't save changes will be permanently lost. ",title :'Saving you change before closing', buttons : ['ok', 'cancel']});
+                        if(dialogResult == 0 ) {
+                            this.onDone(newEditor);
+                        }
                 }
                 return true;
             }
         },
         {   type: "accept", title: "Apply",
             run: function () {
-                this.onDone(this.editor.innerHTML);
+                var newEditor = RichText.fromString(this.editor.innerHTML);
+                this.onDone(newEditor);
                 return true;
             }
         }
