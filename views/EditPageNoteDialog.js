@@ -126,7 +126,29 @@ EditPageNoteDialog.prototype.setup = function (options) {
         if (!node) return;
         var command = node.getAttribute("command");
         var arg = node.hasAttribute("arg") ? node.getAttribute("arg") : undefined;
-        thiz.runEditorCommand(command, arg);
+        if(command == "createlink") {
+            var sel = window.document.getSelection ();
+            if (sel.type != "Caret") {
+                var dialog = new PromptDialog();
+                var url;
+                dialog.open({
+                    title: "Url",
+                    message: "please specify the url",
+                    value: "http://www.evolus.vn",
+                    callback: function (urlOut) {
+                        url = urlOut ;
+                            if (url) {
+                                thiz.runEditorCommand('createlink', url);
+                            } else {
+                                thiz.runEditorCommand('unlink');
+                            }
+                        }
+                });
+            }
+        } else {
+            thiz.runEditorCommand(command, arg);
+        }
+
     }, this.popupContainer);
 
     FontEditor._setupFontCombo(this.fontCombo, function () {
@@ -249,7 +271,15 @@ EditPageNoteDialog.prototype.updateButtonByCommandState = function (commandName,
 
 EditPageNoteDialog.prototype.getDialogActions = function () {
     return [
-        Dialog.ACTION_CANCEL,
+        {   type: "cancel", title: "Cancel",
+            run: function () {
+                var dialogResult = dialog.showMessageBox({type: 'warning' , message : "If you don't save changes will be permanently lost. ",title :'Saving you change before closing', buttons : ['ok', 'cancel']});
+                if(dialogResult == 0 ) {
+                    this.onDone(this.editor.innerHTML);
+                }
+                return true;
+            }
+        },
         {   type: "accept", title: "Apply",
             run: function () {
                 this.onDone(this.editor.innerHTML);
