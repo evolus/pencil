@@ -208,8 +208,12 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
             var page = new Page(thiz.doc);
             Dom.workOn("./p:Properties/p:Property", pageNode, function (propNode) {
                 var name = propNode.getAttribute("name");
+                var value = propNode.textContent;
+                if(name == "note") {
+                    value = RichText.fromString(value);
+                }
                 if (!Page.PROPERTY_MAP[name]) return;
-                page[Page.PROPERTY_MAP[name]] = propNode.textContent;
+                page[Page.PROPERTY_MAP[name]] = value;
             });
 
             var contentNode = Dom.getSingle("./p:Content", pageNode);
@@ -285,13 +289,18 @@ Controller.prototype.loadDocument = function (filePath) {
                 if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
                 var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
                 Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                    var propName = propNode.getAttribute("name");
                     var value = propNode.textContent;
+                    if(propName == "note") {
+                        value = RichText.fromString(value);
+                    }
                     if (value == "undefined" || value == "null") return;
                     page[propNode.getAttribute("name")] = value;
                 });
 
                 if (page.width) page.width = parseInt(page.width, 10);
                 if (page.height) page.height = parseInt(page.height, 10);
+
 
                 if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
 

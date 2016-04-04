@@ -106,8 +106,8 @@ EditPageNoteDialog.prototype.setup = function (options) {
             this.page = options.defaultPage;
             var parentNode = this.popupContainer.parentNode;
             if(this.page.note) {
-                var defaultEditor = this.page.note;
-                this.editor.innerHTML = defaultEditor;
+                var defaultEditor =  this.page.note;
+                this.editor.innerHTML = defaultEditor.html;
             }
 
         }
