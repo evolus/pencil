@@ -125,7 +125,7 @@ PageMenu.prototype.setup = function () {
                 defaultPage : thiz.page,
                 onDone: function (nodeNote) {
                     console.log("Complete note");
-                    thiz.page._pageNote = RichText.fromString(nodeNote);
+                    thiz.page.note = RichText.fromString(nodeNote);
                 }
             });
         }

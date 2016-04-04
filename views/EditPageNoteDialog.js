@@ -105,9 +105,9 @@ EditPageNoteDialog.prototype.setup = function (options) {
         if (options.defaultPage) {
             this.page = options.defaultPage;
             var parentNode = this.popupContainer.parentNode;
-            if(this.page._pageNote) {
-                var defaultEditor = this.page._pageNote;
-                this.editor.innerHTML = defaultEditor.html.innerHTML;
+            if(this.page.note) {
+                var defaultEditor = this.page.note;
+                this.editor.innerHTML = defaultEditor;
             }
 
         }
@@ -252,7 +252,7 @@ EditPageNoteDialog.prototype.getDialogActions = function () {
         Dialog.ACTION_CANCEL,
         {   type: "accept", title: "Apply",
             run: function () {
-                this.onDone(this.editor);
+                this.onDone(this.editor.innerHTML);
                 return true;
             }
         }
