@@ -96,18 +96,22 @@ function EditPageNoteDialog () {
 }
 __extend(Dialog, EditPageNoteDialog);
 
-EditPageNoteDialog.prototype.setup = function (options) {
 
+EditPageNoteDialog.prototype.setup = function (options) {
     if (options) {
-        if (options.defaultPage) {
-            this.page = options.defaultPage;
-            // if(this.page._pageNote) {
-            //     var defaultEditor = this.page._pageNote;
-            //     //this.popupContainer.appendChild(this.page._pageNote);
-            // }
-        }
         if (options.onDone) {
             this.onDone = options.onDone;
+        }
+        if (options.defaultPage) {
+            this.page = options.defaultPage;
+            var parentNode = this.popupContainer.parentNode;
+            if(this.page._pageNote) {
+                var defaultEditor = this.page._pageNote;
+                parentNode.removeChild(this.editor);
+                parentNode.appendChild(defaultEditor);
+                this.editor = defaultEditor;
+            }
+
         }
     }
     var thiz = this;
@@ -246,13 +250,12 @@ EditPageNoteDialog.prototype.updateButtonByCommandState = function (commandName,
 };
 
 EditPageNoteDialog.prototype.getDialogActions = function () {
-    var thiz = this;
     return [
         Dialog.ACTION_CANCEL,
         {   type: "accept", title: "OK",
             run: function () {
                 //return true;
-                thiz.onDone(thiz.editor);
+                this.onDone(this.editor);
                 return true;
             }
         }
