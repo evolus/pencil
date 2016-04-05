@@ -275,7 +275,8 @@ EditPageNoteDialog.prototype.getDialogActions = function () {
             run: function () {
                 var newEditor = RichText.fromString(this.editor.innerHTML);
                 if ( this.defaultEditor && newEditor.html != this.defaultEditor.html || !this.defaultEditor && this.editor.innerHTML != " ") {
-                        var dialogResult = dialog.showMessageBox({type: 'Warning' , message : "If you don't save changes will be permanently lost. ",title :'Saving you change before closing', buttons : ['ok', 'cancel']});
+                    console.log(dialog);
+                        var dialogResult = dialog.showMessageBox({type: 'warning', message: "If you don't save changes will be permanently lost.", title :'Saving you change before closing', buttons : ['ok', 'cancel']});
                         if(dialogResult == 0 ) {
                             this.onDone(newEditor);
                         }
