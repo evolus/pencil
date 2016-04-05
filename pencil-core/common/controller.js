@@ -55,6 +55,7 @@ Controller.prototype.resetDocument = function () {
     this.documentPath = null;
     this.canvasPool.reset();
     this.activePage = null;
+    this.documentPath = null;
 };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
@@ -320,8 +321,8 @@ Controller.prototype.loadDocument = function (filePath) {
 
             }, thiz);
 
-            thiz.applicationPane.onDocumentChanged();
             thiz.documentPath = filePath;
+            thiz.applicationPane.onDocumentChanged();
             thiz.modified = false;
         } catch (e) {
             console.log("error:", e);

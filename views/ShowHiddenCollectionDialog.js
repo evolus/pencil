@@ -7,7 +7,7 @@ function ShowHiddenCollectionDialog (collectionPanel) {
     this.collectionPanel = collectionPanel;
     this.bind("click", this.handleActionClick, this.dialogHeadCommand);
     this.title = function () {
-        return "Hidden Collection:";
+        return "Hidden Collections:";
     };
     this.hiddenCollections = this.getHiddenCollection();
     var thiz = this;
@@ -39,9 +39,6 @@ ShowHiddenCollectionDialog.prototype.createCollectionButton = function (collecti
             {
                 _name: "i",
                 _text: icon
-            },
-            {
-                _name: "br",
             },
             {
                 _name: "span",
@@ -83,8 +80,10 @@ ShowHiddenCollectionDialog.prototype.getDialogActions = function () {
                 return true;
             }
         },
-        {   type: "extra1", title: "Install New Collection",
+        {
+            type: "extra1", title: "Install New Collection",
             run: function () {
+                CollectionManager.installNewCollection();
                 return true;
             }
         }

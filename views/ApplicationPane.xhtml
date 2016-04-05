@@ -11,11 +11,11 @@
             padding: 0.7em;
             box-shadow: 0px 0px 1.5em 0.4em #FFF;
         }
-        @contentHeader > vbox > hbox + hbox {
+        @contentHeader > vbox > * + * {
             margin-top: 0.5em;
         }
-        @contentHeader > vbox > hbox > * + * {
-            margin-left: 1em;
+        @contentHeader > vbox > .widget_ScrollableView > @content > * + * {
+            margin-left: 0.4em;
         }
         @contentBody {
             text-align: center;
@@ -115,7 +115,23 @@
                 </div>
             </hbox>
             <vbox flex="1">
-                <hbox>
+                <ui:ScrollableView>
+                    <hbox style="white-space: nowrap;">
+                        <hbox selected="false" class="ScrollableChild"><span>Untitled<br/>Page</span></hbox>
+                        <hbox selected="false"><span>Page 1459840474599</span></hbox>
+                        <hbox selected="false"><span>Page 1459840475287</span></hbox>
+                        <hbox selected="false"><span>Page 1459840477951</span></hbox>
+                        <hbox selected="false"><span>Page 1459840478727</span></hbox>
+                        <hbox selected="true"><span>Page 1459840480262</span></hbox>
+                        <hbox selected="false"><span>Page 1459840478727</span></hbox>
+                        <hbox selected="true"><span>Page 1459840480262</span></hbox>
+                        <hbox selected="false"><span>Page 1459840478727</span></hbox>
+                        <hbox selected="true"><span>Page 1459840480262</span></hbox>
+                        <hbox selected="false"><span>Page 1459840478727</span></hbox>
+                        <hbox selected="true"><span>Page 1459840480262</span></hbox>
+                    </hbox>
+                </ui:ScrollableView>
+                <ui:ScrollableView>
                     <ui:ComboManager anon-id="pageCombo" />
                     <hbox class="ButtonGroup">
                         <button anon-id="addButton" mode="icon"><i>add</i></button>
@@ -130,15 +146,15 @@
                     <ui:AlignmentToolbar />
                     <ui:SizeToolbar />
                     <div flex="1"></div>
-                </hbox>
-                <hbox>
+                </ui:ScrollableView>
+                <ui:ScrollableView>
                     <ui:SharedFontEditor anon-id="sharedFontEditor" />
                     <ui:ColorEditor />
 
 
                     <ui:SharedBorderStyleEditor />
                     <ui:SharedGeomtryEditor />
-                </hbox>
+                </ui:ScrollableView>
             </vbox>
         </hbox>
         <hbox flex="1" style="overflow: auto;">

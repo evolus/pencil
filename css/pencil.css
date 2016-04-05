@@ -30,6 +30,9 @@ vbox {
   flex-direction: column;
   display: flex;
 }
+box {
+  display: flex;
+}
 box[orient="vertical"] {
   flex-direction: column;
   display: flex;
