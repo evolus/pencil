@@ -48,8 +48,3 @@ AboutDialog.prototype.getDialogActions = function () {
         }
     ]
 };
-
-window.addEventListener("load", function (event) {
-    var dialog = new AboutDialog();
-    dialog.open();
-}, false);
