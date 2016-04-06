@@ -9,6 +9,7 @@ CollectionManager.addShapeDefCollection = function (collection) {
     CollectionManager.shapeDefinition.collections.push(collection);
     collection.visible = CollectionManager.isCollectionVisible(collection);
     collection.collapsed = CollectionManager.isCollectionCollapsed(collection);
+    collection.usage = CollectionManager.getCollectionUsage(collection);
 
     for (var item in collection.shapeDefs) {
         var shapeDef = collection.shapeDefs[item];
@@ -248,6 +249,7 @@ CollectionManager.loadStencils = function() {
 
     CollectionManager._loadUserDefinedStencilsIn(Config.getDataFilePath(Config.STENCILS_DIR_NAME));
     CollectionManager.shapeDefinition.collections = CollectionManager.shapeDefinition.collections.sort(function (a, b) {
+        if (a.usage != b.usage) return a.usage > b.usage ? -1 : (a.usage < b.usage ? 1 : 0);
     	if (a.id == "Evolus.Common") return -1;
     	return a.displayName > b.displayName ? 1 : (a.displayName < b.displayName ? -1 : 0);
     });
@@ -466,6 +468,16 @@ CollectionManager.isCollectionCollapsed = function (collection) {
     var collapsed = Config.get("Collection." + collection.id + ".collapsed");
     if (collapsed == null) collapsed = false;
     return collapsed;
+};
+CollectionManager.setCollectionUsage = function (collection, value) {
+    collection.usage = value;
+    Config.set("Collection." + collection.id + ".usage", value);
+};
+CollectionManager.getCollectionUsage = function (collection) {
+    collection.usage = value;
+    var value = Config.get("Collection." + collection.id + ".usage");
+    if (value) return parseInt(value, 10);
+    return 0;
 };
 
 CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
