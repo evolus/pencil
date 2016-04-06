@@ -42,10 +42,11 @@
         background-color: #3385ff;
         margin-bottom: 1em;
         position: relative;
+        border-radius: 0.3em;
     }
     .aboutBanner img {
         position: absolute;
-        left: 0em;
+        left: 0.3em;
         top: 1em;
         width: 3em;
     }
@@ -58,6 +59,14 @@
         padding: 0em;
         color:#fff;
     }
+
+    .Tab[selected='true'] {
+        border: none;
+        border-radius: 0.3em 0.3em 0em 0em;
+        border-radius: 0.3em ;
+        background-color: #3385ff;
+        color: #fff;
+    }
     </style>
     <vbox>
         <div class="aboutBanner">
@@ -65,7 +74,7 @@
             <div>
                 <h1>Evolus Pencil</h1>
                 <p style="position:relative;">
-                    Copyright (c) 2012 Evolus Co., Ltd <span style="position: absolute; right: 0em; top: 0em; margin:0em">Version: 3.0.0 </span>
+                    Copyright (c) 2012 Evolus Co., Ltd <span style="position: absolute; right: 0.3em; top: 0em; margin:0em">Version: 3.0.0 </span>
                 </p>
             </div>
         </div>
@@ -96,8 +105,8 @@
                 <img style="cursor:pointer;"  src="css/images/paypal.png" ></img>
             </div>
         </vbox>
-        <vbox anon-id = "LicenseTab">
-            <textarea name="name" rows="35" cols="60" style="border:none;" anon-id="licenseText" readonly="true">
+        <vbox anon-id="LicenseTab">
+            <textarea name="name" rows="32" cols="60" style="border:none;" anon-id="licenseText" readonly="true">
             </textarea>
         </vbox>
     </vbox>
