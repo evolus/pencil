@@ -1,80 +1,89 @@
 <vbox class="Form">
     <style>
-    body @tabSelector {
-        margin-bottom: 1.5em;
-    }
-    body @tabSelector div{
-        width:50px;
-        display: inline;
-    }
-    body @tabContent {
-        width: 30em;
-        height:30em;
+    body @aboutTabContent{
         position: relative;
-        z-index: 10;
-        display: block;
+        width: 500px !important;
+        height: 530px !important;
+
     }
-    body @tabContent vbox{
+    body @aboutTabContent vbox{
         position: absolute;
-        z-index: 20;
-        width: 100%;
-        height: 100%;
-        background-color: #fff;
-
-    }
-
-    body @tabSelector ul {
-        list-style-type: none;
-        margin: 0em;
-        padding: 0em;
-        line-height: 2em;
-    }
-
-    body @tabSelector ul li {
-        width: 100px;
-        display: inline-block;
-        list-style-type: none;
-        border-radius: 0.3em;
-        text-align: center;
-    }
-    body @tabSelector ul > li[active="true"]{
-        background-color:  	#A8A8A8 ;
-    }
-
-    body @tabContent vbox h4 {
-        margin: 0em;
-    }
-    body @tabContent vbox h4:nth-child(odd) {
+        top: 0px;
+        left: 0px;
         margin-top: 1em;
     }
 
-    body @tabContent vbox ul {
+    body @aboutTabContent vbox ul {
         margin: 0em;
-
+        margin-bottom: 1em;
     }
-
-    body @tabContent vbox ul li{
-        margin-top: 0.2em;
+    body @aboutTabContent vbox ul li{
+        margin-top: 0.5em;
     }
-
+    body @aboutTabContent vbox h4 {
+        margin: 0em;
+    }
     .donate {
         position: relative;
         line-height: 1.5em;
     }
+    .donate p{
+        width: 80%;
+    }
     .donate img{
-        position: absolute;
+        width: 20%;
         right: 0;
-        bottom: 1em;
+        height: 4em;
+        position: absolute;
+        top: 0em;
+    }
+    .aboutBanner {
+        height:5em;
+        background-color: #3385ff;
+        margin-bottom: 1em;
+        position: relative;
+        border-radius: 0.3em;
+    }
+    .aboutBanner img {
+        position: absolute;
+        left: 0.3em;
+        top: 1em;
+        width: 3em;
+    }
+    .aboutBanner div {
+        margin-left: 3.5em;
+    }
+    .aboutBanner div * {
+        margin: 0em;
+        margin-top: 0.3em;
+        padding: 0em;
+        color:#fff;
+    }
+
+    .Tab[selected='true'] {
+        border: none;
+        border-radius: 0.3em 0.3em 0em 0em;
+        border-radius: 0.3em ;
+        background-color: #3385ff;
+        color: #fff;
     }
     </style>
-    <vbox flex = "1" anon-id="tabSelector">
-        <ul anon-id="tabContainer" >
-            <li active ="true" name= "tab1">Credits</li>
-            <li name= "tab2">License</li>
-        </ul>
+    <vbox>
+        <div class="aboutBanner">
+            <img src="css/images/logo-shadow.png"  />
+            <div>
+                <h1>Evolus Pencil</h1>
+                <p style="position:relative;">
+                    Copyright (c) 2012 Evolus Co., Ltd <span style="position: absolute; right: 0.3em; top: 0em; margin:0em">Version: 3.0.0 </span>
+                </p>
+            </div>
+        </div>
     </vbox>
-    <vbox flex = "1" anon-id="tabContent" >
-        <vbox anon-id = "tab1" style =" z-index: 21;">
+    <vbox flex = "1" anon-id="aboutTabSelector">
+        <ui:TabHeader anon-id="tabHeader" />
+    </vbox>
+    <vbox flex = "1" anon-id="aboutTabContent" >
+        <vbox anon-id="creditsTab">
             <h4> Authors </h4>
             <ul>
                 <li>Dương Thành An</li>
@@ -93,11 +102,11 @@
             </ul>
             <div class="donate">
                 <p> Pencil is Free Software(GPL), but if you find it useful, you can support its development: ) </p>
-                <img style="cursor:pointer;"  src= "btn_donate_SM.gif" ></img>
+                <img style="cursor:pointer;"  src="css/images/paypal.png" ></img>
             </div>
         </vbox>
-        <vbox anon-id = "tab2" >
-            <textarea name="name" rows="40" cols="60" style="border:none;" anon-id= "licenseText">
+        <vbox anon-id="LicenseTab">
+            <textarea name="name" rows="32" cols="60" style="border:none;" anon-id="licenseText" readonly="true">
             </textarea>
         </vbox>
     </vbox>
