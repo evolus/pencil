@@ -6,11 +6,10 @@ function AboutDialog () {
 
 __extend(Dialog, AboutDialog);
 
-
 AboutDialog.prototype.setup = function (options) {
     fs.readFile("pencil-core/license.txt", 'utf8', (err, data) => {
-      if (err) throw err;
-      this.licenseText.value = data;
+        if (err) throw err;
+        this.licenseText.value = data;
     });
     for (var i = 0; i < this.tabContainer.children.length; i++) {
         if (this.tabContainer.children[i].hasAttribute("active") == true) {
@@ -37,7 +36,6 @@ AboutDialog.prototype.setup = function (options) {
             thiz.tabCurrentActive = event.target;
         }
     },false);
-
 }
 
 AboutDialog.prototype.getDialogActions = function () {
