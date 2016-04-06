@@ -3,7 +3,7 @@
     body @aboutTabContent{
         position: relative;
         width: 500px !important;
-        height: 550px !important;
+        height: 530px !important;
 
     }
     body @aboutTabContent vbox{
@@ -11,7 +11,6 @@
         top: 0px;
         left: 0px;
         margin-top: 1em;
-
     }
 
     body @aboutTabContent vbox ul {
@@ -20,6 +19,9 @@
     }
     body @aboutTabContent vbox ul li{
         margin-top: 0.5em;
+    }
+    body @aboutTabContent vbox h4 {
+        margin: 0em;
     }
     .donate {
         position: relative;
@@ -35,24 +37,22 @@
         position: absolute;
         top: 0em;
     }
-    .HeaderBanner {
+    .aboutBanner {
         height:5em;
         background-color: #3385ff;
         margin-bottom: 1em;
         position: relative;
-
     }
-    .HeaderBanner img {
+    .aboutBanner img {
         position: absolute;
         left: 0em;
         top: 1em;
         width: 3em;
-
     }
-    .HeaderBanner div {
+    .aboutBanner div {
         margin-left: 3.5em;
     }
-    .HeaderBanner div * {
+    .aboutBanner div * {
         margin: 0em;
         margin-top: 0.3em;
         padding: 0em;
@@ -60,12 +60,12 @@
     }
     </style>
     <vbox>
-        <div class="HeaderBanner">
-            <img src="logo-shadow.png"  />
+        <div class="aboutBanner">
+            <img src="css/images/logo-shadow.png"  />
             <div>
                 <h1>Evolus Pencil</h1>
                 <p style="position:relative;">
-                    Copyright (c) 2012 Evolus Co., Ltd <span style="position: absolute; right: 0em; top: 0em; margin:0em">Version</span>
+                    Copyright (c) 2012 Evolus Co., Ltd <span style="position: absolute; right: 0em; top: 0em; margin:0em">Version: 3.0.0 </span>
                 </p>
             </div>
         </div>
@@ -74,7 +74,7 @@
         <ui:TabHeader anon-id="tabHeader" />
     </vbox>
     <vbox flex = "1" anon-id="aboutTabContent" >
-        <vbox anon-id = "aboutTab1">
+        <vbox anon-id="creditsTab">
             <h4> Authors </h4>
             <ul>
                 <li>Dương Thành An</li>
@@ -93,11 +93,11 @@
             </ul>
             <div class="donate">
                 <p> Pencil is Free Software(GPL), but if you find it useful, you can support its development: ) </p>
-                <img style="cursor:pointer;"  src= "paypal.png" ></img>
+                <img style="cursor:pointer;"  src="css/images/paypal.png" ></img>
             </div>
         </vbox>
-        <vbox anon-id = "aboutTab2" >
-            <textarea name="name" rows="35" cols="60" style="border:none;" anon-id= "licenseText" readonly="true">
+        <vbox anon-id = "LicenseTab">
+            <textarea name="name" rows="35" cols="60" style="border:none;" anon-id="licenseText" readonly="true">
             </textarea>
         </vbox>
     </vbox>

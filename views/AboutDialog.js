@@ -10,13 +10,13 @@ AboutDialog.prototype.getLicense = function (thiz) {
 
 }
 AboutDialog.prototype.setup = function (options) {
-    fs.readFile("pencil-core/license.txt", 'utf8', (err, data) => {
+    fs.readFile("pencil-core/license.txt", (err, data) => {
         if (err) throw err;
         this.licenseText.value = data;
     });
-    this.tabHeader.addTab("Creadit", this.aboutTab1);
-    this.tabHeader.addTab("License", this.aboutTab2);
-
+    this.tabHeader.addTab("Credits", this.creditsTab);
+    this.tabHeader.addTab("License", this.LicenseTab);
+    this.tabHeader.setSelectedTab(this.tabHeader.tabs[0]);
 }
 
 AboutDialog.prototype.getDialogActions = function () {
