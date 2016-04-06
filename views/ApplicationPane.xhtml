@@ -19,7 +19,7 @@
         }
         @contentBody {
             text-align: center;
-            overflow: auto;
+            overflow: hidden;
         }
         @contentBody[overflowx='false'] {
             justify-content: center;
@@ -116,22 +116,6 @@
             </hbox>
             <vbox flex="1">
                 <ui:ScrollableView>
-                    <hbox style="white-space: nowrap;">
-                        <hbox selected="false" class="ScrollableChild"><span>Untitled<br/>Page</span></hbox>
-                        <hbox selected="false"><span>Page 1459840474599</span></hbox>
-                        <hbox selected="false"><span>Page 1459840475287</span></hbox>
-                        <hbox selected="false"><span>Page 1459840477951</span></hbox>
-                        <hbox selected="false"><span>Page 1459840478727</span></hbox>
-                        <hbox selected="true"><span>Page 1459840480262</span></hbox>
-                        <hbox selected="false"><span>Page 1459840478727</span></hbox>
-                        <hbox selected="true"><span>Page 1459840480262</span></hbox>
-                        <hbox selected="false"><span>Page 1459840478727</span></hbox>
-                        <hbox selected="true"><span>Page 1459840480262</span></hbox>
-                        <hbox selected="false"><span>Page 1459840478727</span></hbox>
-                        <hbox selected="true"><span>Page 1459840480262</span></hbox>
-                    </hbox>
-                </ui:ScrollableView>
-                <ui:ScrollableView>
                     <ui:ComboManager anon-id="pageCombo" />
                     <hbox class="ButtonGroup">
                         <button anon-id="addButton" mode="icon"><i>add</i></button>
@@ -157,7 +141,7 @@
                 </ui:ScrollableView>
             </vbox>
         </hbox>
-        <hbox flex="1" style="overflow: auto;">
+        <hbox flex="1" style="overflow: hidden;">
             <ui:CollapseablePanel orient="horizontal" name="left_pane">
                 <ui:CollectionPane anon-id="collectionPane"/>
                 <ui:MyCollectionPane anon-id="MyCollectionPane"/>
