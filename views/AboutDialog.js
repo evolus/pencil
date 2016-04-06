@@ -46,3 +46,7 @@ AboutDialog.prototype.getDialogActions = function () {
         }
     ]
 };
+window.addEventListener("load", function () {
+    var dialog = new AboutDialog();
+    dialog.open();
+},false)
