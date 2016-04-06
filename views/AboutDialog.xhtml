@@ -1,51 +1,24 @@
 <vbox class="Form">
     <style>
-    body @tabSelector {
-        margin-bottom: 1.5em;
-    }
-    body @tabSelector div{
-        width:50px;
-        display: inline;
-    }
-    body @tabContent {
-        width: 30em;
-        height:30em;
+    body @aboutTabContent{
         position: relative;
-        z-index: 10;
-        display: block;
+        width: 500px !important;
+        height: 550px !important;
+
     }
-    body @tabContent vbox{
-        padding: 0.3em;
+    body @aboutTabContent vbox{
         position: absolute;
-        z-index: 20;
-        width: 100%;
-        height: 100%;
-        background-color: #fff;
+        top: 0px;
+        left: 0px;
+        margin-top: 1em;
+
     }
-    body @tabSelector ul {
-        list-style-type: none;
-        margin: 0em;
-        padding: 0em;
-        line-height: 2em;
-    }
-    body @tabSelector ul li {
-        width: 100px;
-        display: inline-block;
-        list-style-type: none;
-        border-radius: 0.3em;
-        text-align: center;
-    }
-    body @tabSelector ul > li[active="true"]{
-        background-color:  	#A8A8A8 ;
-    }
-    body @tabContent vbox h4 {
-        margin: 0em;
-    }
-    body @tabContent vbox ul {
+
+    body @aboutTabContent vbox ul {
         margin: 0em;
         margin-bottom: 1em;
     }
-    body @tabContent vbox ul li{
+    body @aboutTabContent vbox ul li{
         margin-top: 0.5em;
     }
     .donate {
@@ -97,14 +70,11 @@
             </div>
         </div>
     </vbox>
-    <vbox flex = "1" anon-id="tabSelector">
-        <ul anon-id="tabContainer" >
-            <li active ="true" name= "tab1">Credits</li>
-            <li name= "tab2">License</li>
-        </ul>
+    <vbox flex = "1" anon-id="aboutTabSelector">
+        <ui:TabHeader anon-id="tabHeader" />
     </vbox>
-    <vbox flex = "1" anon-id="tabContent" >
-        <vbox anon-id = "tab1" style =" z-index: 21;">
+    <vbox flex = "1" anon-id="aboutTabContent" >
+        <vbox anon-id = "aboutTab1">
             <h4> Authors </h4>
             <ul>
                 <li>Dương Thành An</li>
@@ -126,8 +96,8 @@
                 <img style="cursor:pointer;"  src= "paypal.png" ></img>
             </div>
         </vbox>
-        <vbox anon-id = "tab2" >
-            <textarea name="name" rows="40" cols="60" style="border:none;" anon-id= "licenseText">
+        <vbox anon-id = "aboutTab2" >
+            <textarea name="name" rows="35" cols="60" style="border:none;" anon-id= "licenseText" readonly="true">
             </textarea>
         </vbox>
     </vbox>
