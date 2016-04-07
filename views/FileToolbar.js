@@ -10,7 +10,8 @@ FileToolbar.prototype.registerCommands = function () {
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.newDocument();
-        }
+        },
+        shortcut: "Ctrl+N"
     });
     UICommandManager.register({
         key: "openDocumentCommand",
@@ -18,7 +19,8 @@ FileToolbar.prototype.registerCommands = function () {
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.openDocument();
-        }
+        },
+        shortcut: "Ctrl+O"
     });
     UICommandManager.register({
         key: "saveDocumentCommand",
@@ -26,7 +28,8 @@ FileToolbar.prototype.registerCommands = function () {
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.saveDocument();
-        }
+        },
+        shortcut: "Ctrl+S"
     });
     UICommandManager.register({
         key: "saveAsDocumentCommand",
@@ -34,7 +37,8 @@ FileToolbar.prototype.registerCommands = function () {
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.saveAsDocument();
-        }
+        },
+        shortcut: "Ctrl+Shift+S"
     });
     UICommandManager.register({
         key: "exportPageAsPNGButton",
@@ -42,7 +46,8 @@ FileToolbar.prototype.registerCommands = function () {
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.rasterizeCurrentPage();
-        }
+        },
+        shortcut: "Ctrl+E"
     });
     UICommandManager.register({
         key: "exportSelectionAsPNGButton",
@@ -50,6 +55,27 @@ FileToolbar.prototype.registerCommands = function () {
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.rasterizeSelection();
+        },
+        shortcut: "Ctrl+Alt+E"
+    });
+
+    UICommandManager.register({
+        key: "aboutDialogCommand",
+        label: "About...",
+        isValid: function () { return true; },
+        run: function () {
+            var dialog = new AboutDialog();
+            dialog.open();
+        },
+        shortcut: "Ctrl+A"
+    });
+
+    UICommandManager.register({
+        key: "settingAllCommand",
+        label: "Setting",
+        isValid: function () { return true; },
+        run: function () {
+
         }
     });
 };
