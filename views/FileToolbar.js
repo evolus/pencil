@@ -58,24 +58,5 @@ FileToolbar.prototype.registerCommands = function () {
         },
         shortcut: "Ctrl+Alt+E"
     });
-
-    UICommandManager.register({
-        key: "aboutDialogCommand",
-        label: "About...",
-        isValid: function () { return true; },
-        run: function () {
-            var dialog = new AboutDialog();
-            dialog.open();
-        },
-        shortcut: "Ctrl+A"
-    });
-
-    UICommandManager.register({
-        key: "settingAllCommand",
-        label: "Setting",
-        isValid: function () { return true; },
-        run: function () {
-
-        }
-    });
+    
 };

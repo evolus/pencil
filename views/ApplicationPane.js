@@ -20,7 +20,7 @@ function ApplicationPane() {
 
     this.bind("click", function (event) {
         console.log("menu icon check");
-        var menu = new menuToolbar();
+        var menu = new MainMenu();
         menu.showMenuAt(event.clientX, event.clientY);
 
     }, this.menuIcon)
