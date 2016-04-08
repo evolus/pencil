@@ -2,8 +2,8 @@ function ColorSelector() {
     BaseTemplatedWidget.call(this);
 
 
-    this.modeTab.addTab("Grid", this.gridSelectorPane);
-    this.modeTab.addTab("Wheel", this.wheelSelectorPane);
+    // this.modeTab.addTab("Grid", this.gridSelectorPane);
+    // this.modeTab.addTab("Wheel", this.wheelSelectorPane);
 
     this.color = Color.fromString("#DA8500");
     this.invalidateUI();
@@ -412,7 +412,9 @@ ColorSelector.prototype.isModified = function () {
     return this.isUserModified;
 };
 ColorSelector.prototype.onAttached = function () {
+    console.log("onAttached on ColorSelector");
     var thiz = this;
+    thiz.radius = thiz.wheelImage.offsetWidth / 2;
     window.setTimeout(function () {
         thiz.radius = thiz.wheelImage.offsetWidth / 2;
     }, 10);

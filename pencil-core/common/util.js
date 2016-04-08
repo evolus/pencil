@@ -362,6 +362,38 @@ Dom.removeClass = function (node, className) {
     var reBlank = /(^[ ]+)|([ ]+$)/g;
     node.className = (node.className + "").replace(re, " ").replace(reBlank, "");
 };
+Dom.toggleClass = function (node, className, add) {
+    if (add) {
+        Dom.addClass(node, className);
+    } else {
+        Dom.removeClass(node, className);
+    }
+}
+Dom.getOffsetLeft = function (control) {
+    var offset = control.offsetLeft;
+    var parent = control.offsetParent;
+    if (parent) if (parent != control) return offset + Dom.getOffsetLeft(parent);
+    return offset;
+};
+
+Dom.getOffsetTop = function (control) {
+    var offset = control.offsetTop;
+    var parent = control.offsetParent;
+    if (parent) if (parent != control) {
+        var d = parent.scrollTop || 0;
+        return offset + Dom.getOffsetTop(parent) - d;
+    }
+    return offset;
+};
+
+Dom.getOffsetHeight = function (control) {
+    return control ? control.offsetHeight : 0;
+};
+
+Dom.getOffsetWidth = function (control) {
+    return control ? control.offsetWidth : 0;
+};
+
 Dom.findUpward = function (node, evaluator) {
     try {
         if (node == null) {
