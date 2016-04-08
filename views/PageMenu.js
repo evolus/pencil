@@ -102,7 +102,6 @@ PageMenu.prototype.setup = function () {
         isValid: function () { return true },
         isEnabled: function () { return thiz.page; },
         run: function () {
-            this.hideMenu();
             var dialog = new PageDetailDialog();
             dialog.title = "Edit Page Properties";
             dialog.open({

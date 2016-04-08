@@ -35,6 +35,7 @@
 
         @pageBreadcrumb {
             margin-left: 1em;
+            white-space: nowrap;
         }
 
         @pageBreadcrumb,
@@ -96,6 +97,7 @@
         @childPageContainer > hbox {
             border: 1px solid #999;
             border-left: none;
+
         }
         @childPageContainer > hbox[selected="true"] {
             background: #A8D4FF;
@@ -104,6 +106,12 @@
         @pageListContainer {
             padding-top: 1em;
             padding-bottom: 1em;
+
+        }
+
+        .widget_ScrollableView {
+            width: 100%;
+            height: 100%;
         }
     </style>
     <hbox anon-id="header">
@@ -112,7 +120,9 @@
                 <hbox><i>description</i><span>Untitled.epz</span></hbox>
                 <hbox><span>Untitled Page</span></hbox>
             </hbox>
-            <hbox anon-id="childPageContainer"></hbox>
+            <ui:ScrollableView anon-id="srollView">
+                <hbox anon-id="childPageContainer"></hbox>
+            </ui:ScrollableView>
         </hbox>
         <hbox><button anon-id="addPageButton"><i>add</i></button></hbox>
         <hbox><button anon-id="toggleButton"><i>expand_more</i></button></hbox>
