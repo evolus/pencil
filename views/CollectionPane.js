@@ -22,13 +22,18 @@ function CollectionPane() {
 
     this.shapeList.addEventListener("dragstart", function (event) {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
+
         var def = n._def;
         if (def.shape) {
             event.dataTransfer.setData("pencil/shortcut", def.id);
         } else {
             event.dataTransfer.setData("pencil/def", def.id);
         }
+        event.dataTransfer.setData("pencil/def", def.id);
+        event.dataTransfer.setData("collectionId", def.collection.id);
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
+        event.target.collection = def;
+
     });
 
 
