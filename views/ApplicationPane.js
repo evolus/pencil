@@ -17,6 +17,14 @@ function ApplicationPane() {
     };
 
     var thiz = this;
+
+    this.bind("click", function (event) {
+        console.log("menu icon check");
+        var menu = new MainMenu();
+        menu.showMenuAt(event.clientX, event.clientY);
+
+    }, this.menuIcon)
+
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
     this.bind("click", function () {
         var currentPage = this.pageCombo.getSelectedItem();

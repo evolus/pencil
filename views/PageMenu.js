@@ -12,7 +12,6 @@ PageMenu.prototype.getTemplatePath = function () {
 
 PageMenu.prototype.setup = function () {
     var thiz = this;
-
     UICommandManager.register({
         key: "PageMenuDivitor",
         getLabel: function () { return "" },
@@ -103,6 +102,7 @@ PageMenu.prototype.setup = function () {
         isValid: function () { return true },
         isEnabled: function () { return thiz.page; },
         run: function () {
+            this.hideMenu();
             var dialog = new PageDetailDialog();
             dialog.title = "Edit Page Properties";
             dialog.open({

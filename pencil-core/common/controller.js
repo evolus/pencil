@@ -324,6 +324,24 @@ Controller.prototype.loadDocument = function (filePath) {
             thiz.documentPath = filePath;
             thiz.applicationPane.onDocumentChanged();
             thiz.modified = false;
+            //new file was loaded, update recent file list
+            var files = Config.get("recent-documents");
+            if (!files) {
+                files = [filePath];
+            } else {
+                for (var i = 0; i < files.length; i ++) {
+                    if (files[i] == filePath) {
+                        //remove it
+                        files.splice(i, 1);
+                        break;
+                    }
+                }
+                files.unshift(filePath);
+                if (files.length > 10) {
+                    files.splice(files.length - 1, 1);
+                }
+            }
+            Config.set("recent-documents", files);
         } catch (e) {
             console.log("error:", e);
             thiz.newDocument();

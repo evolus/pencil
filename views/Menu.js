@@ -31,6 +31,7 @@ function Menu() {
 }
 __extend(Popup, Menu);
 
+
 Menu.prototype.hideCurrentSubMenu = function () {
     if (this.currentItemNodeWithSubMenu) {
         Dom.removeClass(this.currentItemNodeWithSubMenu, "Active");

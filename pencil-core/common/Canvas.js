@@ -2404,7 +2404,18 @@ Canvas.prototype.__dragover = function (event) {
 
 };
 Canvas.prototype.__drop = function (event) {
+    var data = event.dataTransfer.getData("collectionId");
+    var collections = CollectionManager.shapeDefinition.collections;
+    for (var i = 0; i < collections.length; i ++) {
+        if (collections[i].id == data) {
+            var count = CollectionManager.getCollectionUsage(collections[i]);
+            count++;
+            CollectionManager.setCollectionUsage(collections[i], count);
+            console.log(collections[i] + "count :" + count);
+        }
+    }
     this.element.removeAttribute("is-dragover");
+    console.log('drop excute');
     if (!this.currentDragObserver)
         return;
 
