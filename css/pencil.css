@@ -135,6 +135,22 @@ body {
   padding: 0px;
   height: 100%;
 }
+#appView {
+  visibility: hidden;
+}
+#bootingIndicator {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 46%;
+  text-align: center;
+}
+body[loaded] #appView {
+  visibility: visible;
+}
+body[loaded] #bootingIndicator {
+  display: none;
+}
 html {
   user-select: none;
   -o-user-select: none;

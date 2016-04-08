@@ -14,7 +14,7 @@ function Menu() {
             } else if (item.run) {
                 item.run();
             }
-            thiz.hide();
+            thiz.closeUpward();
         } else if (item.type == "SubMenu") {
             thiz.openSubMenu(itemNode);
         } else {
@@ -23,7 +23,7 @@ function Menu() {
             } else if (item.run) {
                 item.run();
             }
-            thiz.hide();
+            thiz.closeUpward();
         }
     }, false);
 
@@ -200,7 +200,7 @@ Menu.prototype.showMenu = function (anchor, hAlign, vAlign, hPadding, vPadding, 
     this.show(anchor, hAlign, vAlign, hPadding, vPadding, autoFlip);
 };
 Menu.prototype.showMenuAt = function (x, y) {
-    console.log("showMenuAt");
+    console.log("showMenuAt", [x, y]);
     this.render();
     this.showAt(x, y);
 };
@@ -212,4 +212,12 @@ Menu.prototype.hideMenu = function () {
 };
 Menu.prototype.onHide = function () {
     if (this._parent) this._parent.currentItemNodeWithSubMenu = null;
+};
+Menu.prototype.close = function (onBlur, event) {
+    this.hide();
+    if (onBlur && event && this._parent) BaseWidget.tryCloseClosableOnBlur(this._parent, event);
+};
+Menu.prototype.closeUpward = function (onBlur, event) {
+    this.hide();
+    if (this._parent) this._parent.closeUpward();
 };

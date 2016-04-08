@@ -9,25 +9,11 @@ function Dialog() {
 }
 __extend(BaseTemplatedWidget, Dialog);
 
-Dialog.stack = [];
 Dialog.ACTION_CANCEL = { type: "cancel", title: "Cancel", run: function () { return true; } };
 Dialog.ACTION_CLOSE = { type: "cancel", title: "Close", run: function () { return true; } };
 
 Dialog.ensureGlobalHandlers = function () {
     if (Dialog.globalHandlersRegistered) return;
-
-    window.addEventListener("keyup", function (event) {
-        if (Dialog.stack.length == 0) return;
-        var dialog = Dialog.stack[Dialog.stack.length - 1];
-        if (event.keyCode == DOM_VK_ESCAPE && dialog.closeHandler) {
-            var returnValue = dialog.closeHandler.apply(dialog);
-            if (returnValue) {
-                dialog.close();
-                Dialog.stack.pop();
-                event.preventDefault();
-            }
-        }
-    }, false);
 
     document.addEventListener("mousemove", Dialog.globalMouseMoveHandler, false);
     document.addEventListener("mouseup", function (event) {
@@ -37,6 +23,10 @@ Dialog.ensureGlobalHandlers = function () {
     Dialog.globalHandlersRegistered = true;
 };
 
+Dialog.prototype.canCloseNow = function () {
+    if (this.closeHandler) return this.closeHandler.apply(this);
+    return false;
+}
 Dialog.prototype.getFrameTemplate = function () {
     return this.getTemplatePrefix() + "Dialog.xhtml";
 };
@@ -175,7 +165,7 @@ Dialog.prototype.show = function () {
         thiz.dialogFrame.style.opacity = "1";
     }, 100);
 
-    Dialog.stack.push(this);
+    BaseWidget.registerClosable(this);
 };
 Dialog.prototype.moveTo = function (x, y) {
     this.dialogFrame.style.left = x + "px";
@@ -188,13 +178,13 @@ Dialog.prototype.moveBy = function (dx, dy) {
 };
 Dialog.prototype.close = function () {
     this.overlay.parentNode.removeChild(this.overlay);
-    this.dialogFrame.style.transition = "opacity 0.2s";
+    this.dialogFrame.style.transition = "opacity 0.1s";
     this.dialogFrame.style.opacity = "0";
     var thiz = this;
     window.setTimeout(function () {
         thiz.dialogFrame.parentNode.removeChild(thiz.dialogFrame);
         thiz.dialogFrame.style.display = "none";
-    }, 500);
+    }, 100);
     this.overlay.style.display = "none";
 
     if (arguments.length > 0 && this.callback) {
@@ -204,6 +194,8 @@ Dialog.prototype.close = function () {
         }
         this.callback.apply(window, args);
     }
+
+    BaseWidget.unregisterClosable(this);
 };
 Dialog.prototype.callback = function (callback) {
     this.callback = callback;

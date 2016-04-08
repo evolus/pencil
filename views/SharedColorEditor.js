@@ -9,6 +9,8 @@ function SharedColorEditor() {
     this.bind("p:PopupHidden", function () {
         this.removeAttribute("active");
     }, this.selectorContainer.node());
+
+    this.selectorContainer.setPopupClass("SharedColorEditorPopup");
 }
 __extend(BaseTemplatedWidget, SharedColorEditor);
 
@@ -19,6 +21,7 @@ SharedColorEditor.prototype.setup = function () {
     this.updateDisplayColor("#333333");
 
     this.node().addEventListener("click", function (event) {
+        // this.color = Color.fromString("#336699");
         if (!thiz.color) return;
         thiz.selector.setColor(thiz.color);
         thiz.selectorContainer.show(thiz.node(), "left-inside", "bottom", 0, 5);

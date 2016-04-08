@@ -121,6 +121,10 @@
                     var h = Math.max($box.h, $box.h + $shadowStyle.dy + $shadowStyle.size) - y;
                     new Bound(x, y, w, h);
                 </Bound>
+                <CustomStyle>
+                    <Arg>"padding-top"</Arg>
+                    <Arg>(0 - Math.min(0, $shadowStyle.dy - $shadowStyle.size)) + "px"</Arg>
+                </CustomStyle>
             </For>
             <For ref="div">
                 <Attr>
@@ -174,10 +178,6 @@
                 <CustomStyle>
                     <Arg>"margin-left"</Arg>
                     <Arg>(0 - Math.min(0, $shadowStyle.dx - $shadowStyle.size)) + "px"</Arg>
-                </CustomStyle>
-                <CustomStyle>
-                    <Arg>"margin-top"</Arg>
-                    <Arg>(0 - Math.min(0, $shadowStyle.dy - $shadowStyle.size)) + "px"</Arg>
                 </CustomStyle>
             </For>
         </Behaviors>
