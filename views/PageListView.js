@@ -233,21 +233,14 @@ PageListView.prototype.renderPages = function() {
 
 PageListView.prototype.toggle = function() {
     if (this.expanded) {
-
         this.pageListContainer.style.display = "flex";
         this.childPageContainer.style.display = "none";
-
-        // this.childPageSrollView.previousButton.style.display = "none";
-        // this.childPageSrollView.nextButton.style.display = "none";
 
         this.toggleButton.childNodes[0].innerHTML = "expand_less";
     } else {
         var h = this.pageListContainer.offsetHeight;
-
         this.pageListContainer.style.display = "none";
         this.childPageContainer.style.display = "flex";
-        // this.childPageSrollView.previousButton.style.display = "flex";
-        // this.childPageSrollView.nextButton.style.display = "flex";
 
         this.toggleButton.childNodes[0].innerHTML = "expand_more";
     }
