@@ -33,7 +33,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
         ipcRenderer.once("render-response", function (event, data) {
             callback(data);
         });
-        ipcRenderer.send("render-request", {svg: xml, width: page.width, height: page.height});
+        ipcRenderer.send("render-request", {svg: xml, width: page.width, height: page.height, scale: s});
     };
 
     if (page.backgroundPage) {

@@ -40,37 +40,49 @@ module.exports = function () {
     function createRenderTask(event, data) {
         return function(__callback) {
             //Save the svg
-            tmp.file(function (err, path, fd, cleanupCallback) {
+            tmp.file({prefix: 'render-', postfix: '.html' }, function (err, path, fd, cleanupCallback) {
                 if (err) throw err;
 
                 var svg = data.svg;
 
                 //path
-                svg = '<html>'
- + '<head>'
- + '<script type="text/javascript">'
- + '    document.addEventListener("DOMContentLoaded", function () {'
- + '        var images = document.querySelectorAll("svg image");'
- + '        for (var i = 0; i < images.length; i ++) {'
- + '            var image = images[i];'
- + '            image.addEventListener("load", function () {'
- + '                console.log("image loaded");'
- + '            });'
- + '        }'
- + '    }, false);'
- + '    document.addEventListener("load", function () {'
- + '        document.body.style.visibility = "hiden";'
- + '        window.setTimeout(function() {'
- + '            document.body.style.visibility = "visible";'
- + '        }, 1);'
- + '    }, false);'
- + '</script>'
- + '</head>'
- + '<body style="padding: 0px; margin: 0px;">'
+                svg = '<html><head>\n'
+ + '<script type="text/javascript">\n'
+ + '    var ipcRenderer = require("electron").ipcRenderer;\n'
+ + '    ipcRenderer.on("render-scale", function(event, data) {\n'
+ + '        var s = data.scale;\n'
+ + '        var canvas = document.createElement("canvas");\n'
+ + '        canvas.setAttribute("width", data.width * s);\n'
+ + '        canvas.setAttribute("height", data.height * s);\n'
+ + '        var ctx = canvas.getContext("2d");\n'
+ + '\n'
+ + '        var img = new Image();\n'
+ + '\n'
+ + '        img.onload = function () {\n'
+ + '            ctx.scale(s, s);\n'
+ + '            ctx.drawImage(img, 0, 0);\n'
+ + '            ctx.setTransform(1, 0, 0, 1, 0, 0);\n'
+ + '            ipcRenderer.send("render-scaled", {url: canvas.toDataURL()});\n'
+ + '        };\n'
+ + '        img.src = data.url;\n'
+ + '    });\n'
+ + '    \n'
+ + '    window.addEventListener("load", function () {\n'
+ + '        window.setTimeout(function() {\n'
+ + '            ipcRenderer.send("render-rendered", {});\n'
+ + '            console.log("Rendered signaled");\n'
+ + '        }, 400);\n'
+ + '    }, false);\n'
+ + '</script>\n'
+ + '</head>\n'
+ + '<body style="padding: 0px; margin: 0px;">\n'
  + svg
- + '</body>'
- + '</html>';
+ + '</body>\n'
+ + '</html>\n';
                 fs.writeFileSync(path, svg, "utf8");
+
+                console.log(svg);
+
                 console.log("SAVED to: ", path);
 
                 rendererWindow.setContentSize(data.width, data.height, false);
@@ -78,15 +90,32 @@ module.exports = function () {
 
                 var capturePendingTaskId = null;
 
-                currentRenderHandler = function () {
+                currentRenderHandler = function (renderedEvent) {
                     capturePendingTaskId = null;
                     rendererWindow.capturePage(function (nativeImage) {
                         var dataURL = nativeImage.toDataURL();
                         console.log("CAPTURED", dataURL.length);
-                        event.sender.send("render-response", dataURL);
+
                         cleanupCallback();
                         currentRenderHandler = null;
-                        __callback();
+
+                        if (data.scale != 1) {
+                            console.log("Got initial data, new request for scaling to " + data.scale);
+                            ipcMain.once("render-scaled", function (scaledEvent, renderedData) {
+                                console.log("Got scale response, size: " + renderedData.url.length);
+                                event.sender.send("render-response", renderedData.url);
+                                __callback();
+                            });
+                            renderedEvent.sender.send("render-scale", {
+                                url: dataURL,
+                                width: data.width,
+                                height: data.height,
+                                scale: data.scale
+                            });
+                        } else {
+                            event.sender.send("render-response", dataURL);
+                            __callback();
+                        }
                     });
                 };
 
@@ -98,20 +127,27 @@ module.exports = function () {
 
         rendererWindow = new BrowserWindow({show: false, frame: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         rendererWindow.webContents.openDevTools();
-        rendererWindow.webContents.on("did-finish-load", function () {
-            // if (currentRenderHandler) currentRenderHandler();
-        });
+        // rendererWindow.webContents.on("did-finish-load", function () {
+        //     // if (currentRenderHandler) currentRenderHandler();
+        // });
 
-        rendererWindow.webContents.beginFrameSubscription(function (frameBuffer) {
-            console.log("Got frameBuffer at: " + new Date().getTime() + ", frameBuffer: " + frameBuffer.length);
-            if (capturePendingTaskId) clearTimeout(capturePendingTaskId);
-            capturePendingTaskId = setTimeout(currentRenderHandler, 500);
-        });
 
-        console.log("RENDERER started.");
+
+        // rendererWindow.webContents.beginFrameSubscription(function (frameBuffer) {
+        //     console.log("Got frameBuffer at: " + new Date().getTime() + ", frameBuffer: " + frameBuffer.length);
+        //     if (capturePendingTaskId) clearTimeout(capturePendingTaskId);
+        //     capturePendingTaskId = setTimeout(currentRenderHandler, 500);
+        // });
+
         ipcMain.on("render-request", function (event, data) {
             queueHandler.submit(createRenderTask(event, data));
         });
+
+        ipcMain.on("render-rendered", function (event, data) {
+            if (currentRenderHandler) currentRenderHandler(event);
+        });
+
+        console.log("RENDERER started.");
     }
 
 
