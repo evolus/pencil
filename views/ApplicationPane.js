@@ -136,6 +136,7 @@ ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageCombo.setItems(this.controller.doc.pages);
     if (this.controller.activePage) this.pageCombo.selectItem(this.controller.activePage);
     this.pageListView.currentPage = this.controller.activePage;
+    this.pageListView.expanded = Config.get("pageListViewExpanded");
     this.pageListView.renderPages();
 };
 ApplicationPane.prototype.testSave = function () {

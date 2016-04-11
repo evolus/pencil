@@ -270,6 +270,26 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
     }
 };
 
+Controller.prototype.setRecentFile = function (filePath) {
+        var files = Config.get("recent-documents");
+        if (!files) {
+            files = [filePath];
+        } else {
+            for (var i = 0; i < files.length; i ++) {
+                if (files[i] == filePath) {
+                    //remove it
+                    files.splice(i, 1);
+                    break;
+                }
+            }
+            files.unshift(filePath);
+            if (files.length > 10) {
+                files.splice(files.length - 1, 1);
+            }
+        }
+        Config.set("recent-documents", files);
+};
+
 Controller.prototype.loadDocument = function (filePath) {
     this.resetDocument();
     var thiz = this;
@@ -333,23 +353,7 @@ Controller.prototype.loadDocument = function (filePath) {
             thiz.applicationPane.onDocumentChanged();
             thiz.modified = false;
             //new file was loaded, update recent file list
-            var files = Config.get("recent-documents");
-            if (!files) {
-                files = [filePath];
-            } else {
-                for (var i = 0; i < files.length; i ++) {
-                    if (files[i] == filePath) {
-                        //remove it
-                        files.splice(i, 1);
-                        break;
-                    }
-                }
-                files.unshift(filePath);
-                if (files.length > 10) {
-                    files.splice(files.length - 1, 1);
-                }
-            }
-            Config.set("recent-documents", files);
+            this.setRecentFile(filePath);
         } catch (e) {
             console.log("error:", e);
             thiz.newDocument();
@@ -392,6 +396,7 @@ Controller.prototype.saveAsDocument = function (onSaved) {
         if (!filePath) return;
         if (!this.documentPath) this.documentPath = filePath;
         this.saveDocumentImpl(filePath, onSaved);
+        this.setRecentFile(filePath);
     }.bind(this));
 };
 Controller.prototype.saveDocument = function (onSaved) {
