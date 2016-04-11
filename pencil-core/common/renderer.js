@@ -125,7 +125,7 @@ module.exports = function () {
 
     function start() {
 
-        rendererWindow = new BrowserWindow({show: false, frame: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
+        rendererWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         rendererWindow.webContents.openDevTools();
         // rendererWindow.webContents.on("did-finish-load", function () {
         //     // if (currentRenderHandler) currentRenderHandler();
