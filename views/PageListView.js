@@ -90,6 +90,8 @@ function PageListView() {
     this.bind("click", function (event) {
         this.expanded = !this.expanded;
         this.toggle();
+        this.pageListSrollView.invalidate();
+        this.childPageSrollView.invalidate();
         Config.set("pageListViewExpanded", this.expanded);
     }, this.toggleButton);
 
@@ -111,8 +113,6 @@ PageListView.prototype.renderPages = function() {
     this.pageBreadcrumb.innerHTML = "";
     this.pageListContainer.innerHTML = "";
     this.childPageContainer.innerHTML = "";
-    this.srollView.invalidate();
-    var count = 1;
 
     this.views = [];
     if (!this.controller || !this.controller.doc) return;
@@ -133,7 +133,7 @@ PageListView.prototype.renderPages = function() {
         while (p.parentPage) {
             parentPages.unshift(p.parentPage);
             p = p.parentPage;
-            count++;
+
         }
     }
 
@@ -155,7 +155,7 @@ PageListView.prototype.renderPages = function() {
     node._page = null;
     this.pageBreadcrumb.appendChild(node);
 
-    if(count < 3) {
+    if(parentPages.length < 3) {
         for (var i in parentPages) {
             var p = parentPages[i];
             node = Dom.newDOMElement({
@@ -223,25 +223,32 @@ PageListView.prototype.renderPages = function() {
         childNode._page = page;
         this.childPageContainer.appendChild(childNode);
     }
-    this.srollView.invalidate();
     this.toggle();
+    this.childPageSrollView.invalidate();
+    this.pageListSrollView.invalidate();
+
     this.controller.activatePage(this.currentPage);
 
 };
 
 PageListView.prototype.toggle = function() {
     if (this.expanded) {
+
         this.pageListContainer.style.display = "flex";
         this.childPageContainer.style.display = "none";
-        this.srollView.previousButton.style.display = "none";
-        this.srollView.nextButton.style.display = "none";
+
+        // this.childPageSrollView.previousButton.style.display = "none";
+        // this.childPageSrollView.nextButton.style.display = "none";
+
         this.toggleButton.childNodes[0].innerHTML = "expand_less";
     } else {
         var h = this.pageListContainer.offsetHeight;
+
         this.pageListContainer.style.display = "none";
         this.childPageContainer.style.display = "flex";
-        this.srollView.previousButton.style.display = "flex";
-        this.srollView.nextButton.style.display = "flex";
+        // this.childPageSrollView.previousButton.style.display = "flex";
+        // this.childPageSrollView.nextButton.style.display = "flex";
+
         this.toggleButton.childNodes[0].innerHTML = "expand_more";
     }
 };
