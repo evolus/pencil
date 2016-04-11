@@ -96,6 +96,7 @@ function PageListView() {
     }, this.toggleButton);
 
     //this.expanded = Config.get("pageListViewExpanded", "true") == "true" ? true : false;
+    this.expanded = Config.get("pageListViewExpanded");
 }
 __extend(BaseTemplatedWidget, PageListView);
 PageListView.prototype.setController = function (controller) {
