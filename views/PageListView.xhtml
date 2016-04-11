@@ -25,8 +25,8 @@
         @pageListContainer {
             padding: 0em 1em;
             background: #EEE;
-            overflow-y: hidden;
-            overflow-x: auto;
+            overflow-y: none;
+            overflow-x: none;
             align-items: center;
         }
         @pageListContainer > .widget_PageThumbnailView + .widget_PageThumbnailView {
@@ -120,13 +120,15 @@
                 <hbox><i>description</i><span>Untitled.epz</span></hbox>
                 <hbox><span>Untitled Page</span></hbox>
             </hbox>
-            <ui:ScrollableView anon-id="srollView">
+            <ui:ScrollableView anon-id="childPageSrollView">
                 <hbox anon-id="childPageContainer"></hbox>
             </ui:ScrollableView>
         </hbox>
         <hbox><button anon-id="addPageButton"><i>add</i></button></hbox>
         <hbox><button anon-id="toggleButton"><i>expand_more</i></button></hbox>
     </hbox>
-    <hbox anon-id="pageListContainer" flex="1">
-    </hbox>
+        <ui:ScrollableView anon-id="pageListSrollView">
+            <hbox anon-id="pageListContainer" flex="1"></hbox>
+        </ui:ScrollableView>
+
 </vbox>
