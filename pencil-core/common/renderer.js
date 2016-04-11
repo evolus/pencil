@@ -8,8 +8,8 @@ module.exports = function () {
     const fs = require("fs");
 
     const electron = require('electron');
-    const app = electron.app;  // Module to control application life.
-    const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
+    const app = electron.app;
+    const BrowserWindow = electron.BrowserWindow;
 
     var rendererWindow = null;
     var currentRenderHandler = null;

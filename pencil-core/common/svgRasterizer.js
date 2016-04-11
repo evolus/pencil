@@ -23,17 +23,84 @@ Rasterizer.prototype.getImageDataFromUrl = function (url, callback) {
     this.win.document.body.appendChild(image);
     image.setAttribute("src", url);
 };
+
+Rasterizer.ipcBasedBackend = function (svgNode, width, height, scale, callback) {
+    ipcRenderer.once("render-response", function (event, data) {
+        callback(data);
+    });
+
+    var xml = Controller.serializer.serializeToString(svgNode);
+    ipcRenderer.send("render-request", {svg: xml, width: width, height: height, scale: scale});
+};
+
+Rasterizer.inProcessCanvasBasedBackend = function (svgNode, width, height, s, callback) {
+    var images = svgNode.querySelectorAll("image");
+    var totalImageLength = 0;
+    for (var i = 0; i < images.length; i ++) {
+        var image = images[i];
+        var href = image.getAttributeNS(PencilNamespaces.xlink, "href");
+        if (href && href.match("^file://(.+)$")) {
+            var sourcePath = decodeURI(RegExp.$1);
+            try {
+                fs.accessSync(sourcePath, fs.R_OK);
+            } catch (e) {
+                continue;
+            }
+
+            var ext = (path.extname(sourcePath) || ".jpg").toLowerCase();
+            var mime = "image/jpeg";
+            if (ext == ".png") mine = "image/png";
+
+            var bitmap = fs.readFileSync(sourcePath);
+            var url = "data:" + mime + ";base64," + new Buffer(bitmap).toString("base64");
+
+            image.setAttributeNS(PencilNamespaces.xlink, "href", url);
+            totalImageLength += url.length;
+            console.log("converted " + href + " -> " + url.length);
+        }
+    }
+
+    var delay = Math.max(500, totalImageLength / 30000);
+    console.log("DELAY -> " + delay + " ms");
+
+    var canvas = document.createElement("canvas");
+    canvas.setAttribute("width", width * s);
+    canvas.setAttribute("height", height * s);
+    var ctx = canvas.getContext("2d");
+
+    var img = new Image();
+
+    img.onload = function () {
+        ctx.save();
+        ctx.scale(s, s);
+        ctx.drawImage(img, 0, 0);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        setTimeout(function () {
+            callback(canvas.toDataURL());
+            ctx.restore();
+            img.onload = null;
+            img.src = "";
+        }, delay);
+    };
+
+    var svg = Controller.serializer.serializeToString(svgNode);
+
+    img.src = "data:image/svg+xml;charset=utf-8," + svg;
+};
+
+Rasterizer.getBackend = function () {
+    //TODO: options or condition?
+    return Rasterizer.inProcessCanvasBasedBackend;
+};
+
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
     var svg = this.controller.getPageSVG(page);
     console.log("Page SVG: ", svg)
     var thiz = this;
     var s = (typeof (scale) == "undefined") ? 1 : scale;
     var f = function () {
-        var xml = Controller.serializer.serializeToString(svg);
-        ipcRenderer.once("render-response", function (event, data) {
-            callback(data);
-        });
-        ipcRenderer.send("render-request", {svg: xml, width: page.width, height: page.height, scale: s});
+        Rasterizer.getBackend()(svg, page.width, page.height, s, callback);
     };
 
     if (page.backgroundPage) {
