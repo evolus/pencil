@@ -25,11 +25,11 @@ Rasterizer.prototype.getImageDataFromUrl = function (url, callback) {
 };
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
     var svg = this.controller.getPageSVG(page);
-    var xml = Controller.serializer.serializeToString(svg);
     console.log("Page SVG: ", svg)
     var thiz = this;
     var s = (typeof (scale) == "undefined") ? 1 : scale;
     var f = function () {
+        var xml = Controller.serializer.serializeToString(svg);
         ipcRenderer.once("render-response", function (event, data) {
             callback(data);
         });
