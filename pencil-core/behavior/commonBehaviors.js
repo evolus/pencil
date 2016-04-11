@@ -224,7 +224,7 @@ const SKETCHY_ANGLE_LEN_REF = 50;
 function sk(x1, y1, x2, y2, d, noMove) {
 	var result = [];
     if (!noMove) result.push(M(x1, y1));
-    
+
     var p1 = {x: x1, y: y1,};
     var p2 = {x: x2, y: y2,};
     var l = geo_vectorLength (p1, p2) / 3;
@@ -233,36 +233,36 @@ function sk(x1, y1, x2, y2, d, noMove) {
     if (l > SKETCHY_ANGLE_LEN_REF) {
         maxAngle = SKETCHY_ANGLE_LEN_REF * SKETCHY_ANGLE / l;
     }
-    
+
 	var angle = Math.random() * maxAngle - (maxAngle / 2);
 	angle = Math.PI * angle / 180;
-	
+
 	var a = geo_getRotatedPoint(p2, p1, l, angle);
 	var b = geo_getRotatedPoint(p1, p2, l, 0 - angle);
 	result.push(C(a.x, a.y, b.x, b.y, x2, y2));
-	
+
 	Pencil.behaviors.D._setLastLocation(x2, y2);
-	
+
 	return result.join(" ");
 }
 
 function sk_old(x1, y1, x2, y2, d, noMove) {
 	var delta = (Math.random() - 1) * DEFAULT_SKETCHY_OVERSHOOT;
-	
+
 	var a = Math.PI * (180 - ROTATED_ANGLE + (Math.random() * ROTATED_ANGLE)) / 180;
 	var p1 = geo_getRotatedPoint({x: x2, y: y2}, {x: x1, y: y1}, delta, a);
-	
+
 	delta = (Math.random() - 1) * DEFAULT_SKETCHY_OVERSHOOT;
 	a = Math.PI * (180 - ROTATED_ANGLE + (Math.random() * ROTATED_ANGLE)) / 180;
 	var p2 = geo_getRotatedPoint({x: x1, y: y1}, {x: x2, y: y2}, delta, a);
 	x1 = p1.x;
 	y1 = p1.y;
-	
+
 	x2 = p2.x;
 	y2 = p2.y;
-	
+
 	var last = {x: x2, y: y2};
-	
+
     var dx = x2 - x1;
     var dy = y2 - y1;
     var l = Math.sqrt(dx * dx + dy * dy);
@@ -409,7 +409,8 @@ Pencil.behaviors.RichTextFit = function (width) {
     Svg.setHeight(this, Math.ceil(this.firstChild.scrollHeight));
 };
 Pencil.behaviors.Image = function (imageData) {
-    this.setAttributeNS(PencilNamespaces.xlink, "xlink:href", imageData.data);
+    var url = ImageData.refStringToUrl(imageData.data) || imageData.data;
+    this.setAttributeNS(PencilNamespaces.xlink, "xlink:href", url);
     Svg.setWidth(this, imageData.w);
     Svg.setHeight(this, imageData.h);
 };
@@ -523,7 +524,7 @@ function buildNPatchDomFragment(np, dim) {
     var n = np.patches.length;
     if (n == 0) return null;
     var m = np.patches[0].length;
-    
+
     var specs = [];
     var totalFlexW = 0;
     var totalFlexH = 0;
@@ -535,12 +536,12 @@ function buildNPatchDomFragment(np, dim) {
         var p = np.patches[i][0];
         if (p.scaleY) totalFlexH += p.h;
     }
-    
+
     var targetScaleX = dim.w - (np.w - totalFlexW);
     var targetScaleY = dim.h - (np.h - totalFlexH);
     var rX = targetScaleX / totalFlexW;
     var rY = targetScaleY / totalFlexH;
-    
+
     var x = 0;
     var y = 0;
     var accumulatedScaleW = 0;
@@ -552,10 +553,10 @@ function buildNPatchDomFragment(np, dim) {
         var scaledY = false;
         for (var j = 0; j < m; j ++) {
             var p = np.patches[i][j];
-            
+
             var w = p.w;
             var h = p.h;
-            
+
             if (p.scaleX) {
                 w = (j == np.lastScaleX) ? targetScaleX - accumulatedScaleW : Math.floor(p.w * rX);
                 accumulatedScaleW += w;
@@ -564,16 +565,16 @@ function buildNPatchDomFragment(np, dim) {
                 h = (i == np.lastScaleY) ? targetScaleY - accumulatedScaleH : Math.floor(p.h * rY);
                 scaledY = true;
             }
-            
+
             specs.push(imageNodeForPatch(p, x, y, w, h));
-            
+
             x += w;
             lastH = h;
         }
         y += lastH;
         if (scaledY) accumulatedScaleH += lastH;
     }
-    
+
     return Dom.newDOMFragment(specs);
 }
 
@@ -587,11 +588,3 @@ Pencil.behaviors.NPatchDomContent = function (nPatch, dim) {
     Dom.empty(this);
     this.appendChild(buildNPatchDomFragment(nPatch, dim));
 };
-
-
-
-
-
-
-
-

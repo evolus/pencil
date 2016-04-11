@@ -1,3 +1,9 @@
+const ipcRenderer = require('electron').ipcRenderer;
+
+ipcRenderer.on("render-response", function(event, arg) {
+    console.log("RENDER RESPONSE", arg); // prints "pong"
+});
+
 function Rasterizer(controller) {
     this.controller = controller;
 };
@@ -19,25 +25,15 @@ Rasterizer.prototype.getImageDataFromUrl = function (url, callback) {
 };
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
     var svg = this.controller.getPageSVG(page);
+    var xml = Controller.serializer.serializeToString(svg);
+    console.log("Page SVG: ", svg)
     var thiz = this;
     var s = (typeof (scale) == "undefined") ? 1 : scale;
     var f = function () {
-        var canvas = document.createElement("canvas");
-        canvas.setAttribute("width", page.width * s);
-        canvas.setAttribute("height", page.height * s);
-        var ctx = canvas.getContext("2d");
-
-        var img = new Image();
-        var url = "data:image/svg+xml;charset=utf-8," + Controller.serializer.serializeToString(svg);
-
-        img.onload = function () {
-            ctx.scale(s, s);
-            ctx.drawImage(img, 0, 0);
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            window.URL.revokeObjectURL(url);
-            callback(canvas.toDataURL());
-        };
-        img.src = url;
+        ipcRenderer.once("render-response", function (event, data) {
+            callback(data);
+        });
+        ipcRenderer.send("render-request", {svg: xml, width: page.width, height: page.height});
     };
 
     if (page.backgroundPage) {

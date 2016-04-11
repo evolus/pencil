@@ -372,6 +372,17 @@ Canvas.prototype.selectSibling = function (next) {
     this.selectShape(sibling);
 
 };
+Canvas.prototype.invalidateAll = function () {
+    console.log("Canvas.invalidateAll");
+    Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
+        try {
+            var controller = this.createControllerFor(node);
+            controller.validateAll();
+        } catch (e) {
+            console.error(e);
+        }
+    }.bind(this));
+};
 Canvas.prototype.selectAll = function () {
 
     this.clearSelection();

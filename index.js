@@ -1,40 +1,56 @@
-const electron = require('electron');
-const app = electron.app;  // Module to control application life.
-const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
+const electron = require("electron");
+const app = electron.app;
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
+app.commandLine.appendSwitch("allow-file-access-from-files");
+app.commandLine.appendSwitch("allow-file-access");
+
+const BrowserWindow = electron.BrowserWindow;
+
 var mainWindow = null;
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform != 'darwin') {
-    app.quit();
-  }
+    if (process.platform != 'darwin') {
+        app.quit();
+    }
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
 app.on('ready', function() {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({title: "Pencil", autoHideMenuBar: true});
-  mainWindow.hide();
-  mainWindow.maximize();
+    var protocol = require('protocol');
+    var fs = require('fs');
+    protocol.registerBufferProtocol('ref', function(request, callback) {
+        var path = request.url.substr(6);
+        console.log("PATH", path);
 
-  // and load the index.html of the app.
-  mainWindow.loadURL('file://' + __dirname + '/app.xhtml');
-  mainWindow.show();
+        fs.readFile(path, function (err, data ) {
+            console.log("Got data: ", data.length);
+            callback({mimeType: "image/jpeg", data: new Buffer(data)});
+        });
 
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
+    }, function (error, scheme) {
+        if (error) {
+            console.log("ERROR REGISTERING", error);
+        }
+    });
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
-  });
+
+    // Create the browser window.
+    mainWindow = new BrowserWindow({title: "Pencil", autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
+    mainWindow.hide();
+    mainWindow.maximize();
+
+    mainWindow.loadURL('file://' + __dirname + '/app.xhtml');
+    mainWindow.show();
+
+    //mainWindow.webContents.openDevTools();
+
+    mainWindow.on('closed', function() {
+        mainWindow = null;
+        app.exit(0);
+    });
+
+
+    const renderer = require("./pencil-core/common/renderer");
+    renderer.start();
 });

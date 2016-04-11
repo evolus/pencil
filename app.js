@@ -5,5 +5,5 @@ tmp.setGracefulCleanup();
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
-const unzip = require("unzip");
+const unzip = require("unzip2");
 const dialog = require("electron").remote.dialog;

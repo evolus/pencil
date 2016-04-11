@@ -15,22 +15,49 @@ ImageData.fromString = function (literal) {
     return new ImageData(literal);
 };
 
-ImageData.prompt = function (callback, embbeded) {
-    var nsIFilePicker = Components.interfaces.nsIFilePicker;
-    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    fp.init(window, Util.getMessage("select.image"), nsIFilePicker.modeOpen);
-    fp.appendFilter(Util.getMessage("filepicker.images.file"), "*.png; *.jpg; *.jpeg; *.gif; *.bmp; *.svg");
-    fp.appendFilter(Util.getMessage("filepicker.all.files"), "*");
+ImageData.filePathToURL = function (filePath, options) {
+    filePath = path.resolve(filePath).replace(/\\/g, "/");
 
-    if (fp.show() != nsIFilePicker.returnOK) return null;
-
-    var url = ImageData.ios.newFileURI(fp.file).spec;
-
-    if (!embbeded) {
-        ImageData.fromUrl(url, callback);
-    } else {
-        ImageData.fromUrlEmbedded(url, callback);
+    if (!filePath.match(/^\/.+$/)) {
+        filePath = "/" + filePath;
     }
+
+    return encodeURI("file://" + filePath);
+};
+
+ImageData.idToRefString = function (id) {
+    return "ref://" + id;
+};
+ImageData.refStringToId = function (refString) {
+    if (refString.match(/^ref:\/\/(.+)$/)) return RegExp.$1;
+    return null;
+};
+ImageData.refStringToUrl = function (refString) {
+    var id = ImageData.refStringToId(refString);
+    if (!id) return null;
+    return Pencil.controller.refIdToUrl(id);
+};
+
+ImageData.prompt = function (callback) {
+    dialog.showOpenDialog({
+        title: "Select Image",
+        defaultPath: os.homedir(),
+        filters: [
+            { name: "Stencil files", extensions: ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
+        ]
+
+    }, function (filenames) {
+        if (!filenames || filenames.length <= 0) return;
+        Pencil.controller.copyAsRef(filenames[0], function (id) {
+            var url = Pencil.controller.refIdToUrl(id);
+            var image = new Image();
+            image.onload = function () {
+                callback(new ImageData(image.width, image.height, ImageData.idToRefString(id)));
+                image.src = "";
+            };
+            image.src = url;
+        });
+    });
 };
 
 ImageData.fromUrl = function (url, callback) {

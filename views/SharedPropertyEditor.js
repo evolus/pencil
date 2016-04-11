@@ -145,8 +145,6 @@ SharedPropertyEditor.prototype.attach = function (target) {
         editorWrapper._property = property;
 
         currentGroupNode.appendChild(editorWrapper);
-        editorWidget.signalOnAttached();
-
 
         window.setTimeout(executor, 40);
     };

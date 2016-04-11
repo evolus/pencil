@@ -128,6 +128,40 @@ Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedPr
         Console.dumpError(e, "--to-console");
     }
 };
+Shape.prototype.validateAll = function () {
+    this.prepareExpressionEvaluation();
+
+    for (var b = 0; b < this.def.behaviors.length; b ++) {
+        var behavior = this.def.behaviors[b];
+        var target = this.targetMap[behavior.target];
+
+        if (!target) {
+            warn("Target '" + behavior.target + "' is not found. Ignoring...");
+            continue;
+        }
+
+        F._target = target;
+
+        for (var i in behavior.items) {
+            var item = behavior.items[i];
+            var args = [];
+            for (var j in item.args) {
+                var arg = item.args[j];
+                if (!arg.type) {
+                    args.push(this.evalExpression(arg.literal));
+                } else {
+                    //FIXME: this should inspect the type and do the conversion
+                    args.push(arg.literal);
+                }
+            }
+            try {
+                item.handler.apply(target, args);
+            } catch (e) {
+                Console.dumpError(e);
+            }
+        }
+    }
+};
 Shape.prototype.validateRelatedProperties = function (name) {
     for (propName in this.def.propertyMap) {
         //if (this.def.isPropertyAffectedBy(name, propName)) continue;

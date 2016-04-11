@@ -83,6 +83,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     page.backgroundPage = this.findPageById(backgroundPageId);
     page.canvas = null;
     page.tempFilePath = path.join(this.tempDir.name, pageFileName);
+    page.invalidatedAfterLoad = true;
 
     this.serializePage(page, page.tempFilePath);
     this.doc.pages.push(page);
@@ -131,6 +132,8 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
         this.swapOut(page);
     }
 
+    newPage.invalidatedAfterLoad = true;
+
     this.sayDocumentChanged();
 
     this.updatePageThumbnail(newPage, function() {
@@ -155,7 +158,12 @@ Controller.prototype.serializeDocument = function (onDone) {
             return;
         }
         var page = thiz.doc.pages[index];
-        thiz.serializePage(page, page.tempFilePath);
+
+        //serialize the page only when the page is in memory
+        if (page.canvas) {
+            thiz.serializePage(page, page.tempFilePath);
+        }
+
         if (page.lastModified
             && (!page.thumbCreated || page.lastModified.getTime() > page.thumbCreated.getTime())) {
             if (thiz.pendingThumbnailerMap[page.id]) {
@@ -508,6 +516,13 @@ Controller.prototype.swapIn = function (page, canvas) {
     page.canvas = canvas;
     canvas.page = page;
     canvas.setSize(page.width, page.height);
+
+    console.log("Swapped in page invalidate state: " + page.invalidatedAfterLoad);
+
+    if (!page.invalidatedAfterLoad) {
+        this.invalidatePageContent(page);
+        page.invalidatedAfterLoad = true;
+    }
 } ;
 Controller.prototype.activatePage = function (page) {
     if (this.activePage && page.id == this.activePage.id) return;
@@ -518,6 +533,11 @@ Controller.prototype.activatePage = function (page) {
     page.lastUsed = new Date();
     this.activePage = page;
     // this.sayDocumentChanged();
+};
+Controller.prototype.invalidatePageContent = function (page) {
+    if (!page || !page.canvas) return;
+
+    page.canvas.invalidateAll();
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {
@@ -759,6 +779,32 @@ Controller.prototype.rasterizeSelection = function () {
         if (!filePath) return;
         this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function () {});
     }.bind(this));
+};
+
+Controller.prototype.copyAsRef = function (sourcePath, callback) {
+    var id = Util.newUUID() + path.extname(sourcePath) || ".data";
+    var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+
+    var rd = fs.createReadStream(sourcePath);
+    rd.on("error", function (error) {
+        callback(null, error);
+    });
+    var wr = fs.createWriteStream(filePath);
+    wr.on("error", function (error) {
+        callback(null, error);
+    });
+
+    wr.on("close", function (ex) {
+        callback(id);
+    });
+
+    rd.pipe(wr);
+};
+Controller.prototype.refIdToUrl = function (id) {
+    var fullPath = path.join(this.tempDir.name, Controller.SUB_REFERENCE);
+    fullPath = path.join(fullPath, id);
+
+    return ImageData.filePathToURL(fullPath);
 };
 
 

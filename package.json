@@ -1,7 +1,7 @@
 {
   "name": "Pencil",
   "version": "3.0.0",
-  "main": "app://host/app.xhtml",
+  "main": "index.js",
   "js-flags": "--expose-gc",
   "window": {
     "toolbar": false,
@@ -14,7 +14,7 @@
     "font-manager": "git+https://github.com/princejwesley/font-manager.git",
     "less": "~2.5.3",
     "tmp": "0.0.28",
-    "unzip": "0.1.11"
+    "unzip2": "^0.2.5"
   },
   "devDependencies": {
     "electron-prebuilt": "^0.36.2",
