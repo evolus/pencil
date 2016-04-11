@@ -21,10 +21,32 @@ function PageListView() {
 
     }, this.pageListContainer);
 
+
+    // this.bind("mouseover", function (event) {
+    //     var page = Dom.findUpwardForData(event.target, "_page");
+    //     if(!page || page.children.length == 0) return;
+    //     // open child pages
+    //     var activePage = function (page) {
+    //         thiz.activatePage(page);
+    //     }
+    //     var childrenList = new ChildPageListMenu(page, activePage);
+    //     childrenList.showMenuAt(event.clientX,event.clientY);
+    //
+    // },this.childPageContainer)
+
     this.bind("click", function (event) {
         var page = Dom.findUpwardForData(event.target, "_page");
         if (!page) return;
-        this.handleSelectPage(page);
+        var type = event.target.nodeName ;
+        if(type=="button" || type == "i") {
+            var activePage = function (page) {
+                thiz.activatePage(page);
+            }
+            var childrenList = new ChildPageListMenu(page, activePage);
+            childrenList.showMenuAt(event.clientX,event.clientY);
+       } else {
+           this.handleSelectPage(page);
+       }
     }, this.childPageContainer);
 
     this.bind("dblclick", function (event) {
@@ -95,7 +117,8 @@ function PageListView() {
         Config.set("pageListViewExpanded", this.expanded);
     }, this.toggleButton);
 
-    this.expanded = Config.get("pageListViewExpanded", "true") == "true" ? true : false;
+    //this.expanded = Config.get("pageListViewExpanded", "true") == "true" ? true : false;
+    this.expanded = Config.get("pageListViewExpanded");
 }
 __extend(BaseTemplatedWidget, PageListView);
 PageListView.prototype.setController = function (controller) {
@@ -208,18 +231,40 @@ PageListView.prototype.renderPages = function() {
         this.pageListContainer.appendChild(pageThumbnailView.node());
         pageThumbnailView.selectPage(selected);
         this.views.push(pageThumbnailView);
-
-        var childNode = Dom.newDOMElement({
-            _name: "hbox",
-            "selected": selected,
-            _children: [
-                {
-                    _name: "span",
-                    _text: page.name
-                }
-            ]
-        });
-
+        var childNode;
+        if( page.children.length == 0 ) {
+            childNode = Dom.newDOMElement({
+                _name: "hbox",
+                "selected": selected,
+                _children: [
+                    {
+                        _name: "span",
+                        _text: page.name
+                    }
+                ]
+            });
+        }  else {
+            childNode = Dom.newDOMElement({
+                _name: "hbox",
+                "selected": selected,
+                _children: [
+                    {
+                        _name: "span",
+                        _text: page.name
+                    },
+                    {
+                        _name: "button",
+                        class:"button_Down",
+                        _children: [
+                            {
+                                _name: "i",
+                                _text: "keyboard_arrow_down"
+                            }
+                        ]
+                    }
+                ]
+            });
+        }
         childNode._page = page;
         this.childPageContainer.appendChild(childNode);
     }
@@ -233,21 +278,14 @@ PageListView.prototype.renderPages = function() {
 
 PageListView.prototype.toggle = function() {
     if (this.expanded) {
-
         this.pageListContainer.style.display = "flex";
         this.childPageContainer.style.display = "none";
-
-        // this.childPageSrollView.previousButton.style.display = "none";
-        // this.childPageSrollView.nextButton.style.display = "none";
 
         this.toggleButton.childNodes[0].innerHTML = "expand_less";
     } else {
         var h = this.pageListContainer.offsetHeight;
-
         this.pageListContainer.style.display = "none";
         this.childPageContainer.style.display = "flex";
-        // this.childPageSrollView.previousButton.style.display = "flex";
-        // this.childPageSrollView.nextButton.style.display = "flex";
 
         this.toggleButton.childNodes[0].innerHTML = "expand_more";
     }

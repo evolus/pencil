@@ -10,7 +10,7 @@ AboutDialog.prototype.setup = function (options) {
     this.getLicense();
     this.tabHeader.addTab("Credits", this.creditsTab);
     this.tabHeader.addTab("License", this.LicenseTab);
-    this.tabHeader.setSelectedTab(this.tabHeader.tabs[0]);
+    //this.tabHeader.setSelectedTab(this.tabHeader.tabs[0]);
 }
 
 AboutDialog.prototype.getLicense = function (thiz) {
