@@ -60,8 +60,6 @@ function PageListView() {
             }
         }
         this.currentParentPage = page;
-
-        this.pageListSrollView.setAttribute("display",none);
         this.renderPages();
     }, this.pageBreadcrumb);
 
@@ -92,6 +90,7 @@ function PageListView() {
     this.bind("click", function (event) {
         this.expanded = !this.expanded;
         this.toggle();
+        this.pageListSrollView.invalidate();
         this.childPageSrollView.invalidate();
         Config.set("pageListViewExpanded", this.expanded);
     }, this.toggleButton);
@@ -224,9 +223,10 @@ PageListView.prototype.renderPages = function() {
         childNode._page = page;
         this.childPageContainer.appendChild(childNode);
     }
+    this.toggle();
     this.childPageSrollView.invalidate();
     this.pageListSrollView.invalidate();
-    this.toggle();
+
     this.controller.activatePage(this.currentPage);
 
 };
@@ -237,16 +237,17 @@ PageListView.prototype.toggle = function() {
         this.pageListContainer.style.display = "flex";
         this.childPageContainer.style.display = "none";
 
-        this.childPageSrollView.previousButton.style.display = "none";
-        this.childPageSrollView.nextButton.style.display = "none";
+        // this.childPageSrollView.previousButton.style.display = "none";
+        // this.childPageSrollView.nextButton.style.display = "none";
 
         this.toggleButton.childNodes[0].innerHTML = "expand_less";
     } else {
         var h = this.pageListContainer.offsetHeight;
+
         this.pageListContainer.style.display = "none";
         this.childPageContainer.style.display = "flex";
-        this.childPageSrollView.previousButton.style.display = "flex";
-        this.childPageSrollView.nextButton.style.display = "flex";
+        // this.childPageSrollView.previousButton.style.display = "flex";
+        // this.childPageSrollView.nextButton.style.display = "flex";
 
         this.toggleButton.childNodes[0].innerHTML = "expand_more";
     }
