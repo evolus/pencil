@@ -46,6 +46,10 @@ Rasterizer.inProcessCanvasBasedBackend = {
     rasterize: function (svgNode, width, height, s, callback) {
         var images = svgNode.querySelectorAll("image");
         var totalImageLength = 0;
+
+        var tasks = [];
+
+
         for (var i = 0; i < images.length; i ++) {
             var image = images[i];
             var href = image.getAttributeNS(PencilNamespaces.xlink, "href");
@@ -57,47 +61,77 @@ Rasterizer.inProcessCanvasBasedBackend = {
                     continue;
                 }
 
-                var ext = (path.extname(sourcePath) || ".jpg").toLowerCase();
-                var mime = "image/jpeg";
-                if (ext == ".png") mine = "image/png";
-
-                var bitmap = fs.readFileSync(sourcePath);
-                var url = "data:" + mime + ";base64," + new Buffer(bitmap).toString("base64");
-
-                image.setAttributeNS(PencilNamespaces.xlink, "href", url);
-                totalImageLength += url.length;
-                console.log("converted " + href + " -> " + url.length);
+                tasks.push({
+                    image: image,
+                    sourcePath: sourcePath
+                });
             }
         }
 
-        // it looks like that the bigger images embedded, the longer time we need to wait for the image to be fully painted into the canvas
-        var delay = Math.max(500, totalImageLength / 30000);
-        console.log("DELAY -> " + delay + " ms");
+        var index = -1;
+        function convertNext() {
+            index ++;
+            if (index >= tasks.length) {
+                onConversionDone();
+                return;
+            }
 
-        var canvas = document.createElement("canvas");
-        canvas.setAttribute("width", width * s);
-        canvas.setAttribute("height", height * s);
-        var ctx = canvas.getContext("2d");
+            var sourcePath = tasks[index].sourcePath;
+            var image = tasks[index].image;
 
-        var img = new Image();
+            var ext = (path.extname(sourcePath) || ".jpg").toLowerCase();
+            var mime = "image/jpeg";
+            if (ext == ".png") mine = "image/png";
 
-        img.onload = function () {
-            ctx.save();
-            ctx.scale(s, s);
-            ctx.drawImage(img, 0, 0);
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            fs.readFile(sourcePath, function (error, bitmap) {
+                console.time("BASE64");
+                var url = "data:" + mime + ";base64," + new Buffer(bitmap).toString("base64");
+                console.timeEnd("BASE64");
 
-            setTimeout(function () {
-                callback(canvas.toDataURL());
-                ctx.restore();
-                img.onload = null;
-                img.src = "";
-            }, delay);
-        };
+                console.time("UPDATE HREF");
+                image.setAttributeNS(PencilNamespaces.xlink, "href", url);
+                console.timeEnd("UPDATE HREF");
+                totalImageLength += url.length;
+                console.log("converted " + href + " -> " + url.length);
 
-        var svg = Controller.serializer.serializeToString(svgNode);
+                convertNext();
+            });
+        }
 
-        img.src = "data:image/svg+xml;charset=utf-8," + svg;
+        function onConversionDone() {
+            // it looks like that the bigger images embedded, the longer time we need to wait for the image to be fully painted into the canvas
+            var delay = Math.max(500, totalImageLength / 30000);
+            console.log("DELAY -> " + delay + " ms");
+
+            var canvas = document.createElement("canvas");
+            canvas.setAttribute("width", width * s);
+            canvas.setAttribute("height", height * s);
+            var ctx = canvas.getContext("2d");
+
+            var img = new Image();
+
+            img.onload = function () {
+                ctx.save();
+                ctx.scale(s, s);
+                ctx.drawImage(img, 0, 0);
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+                setTimeout(function () {
+                    callback(canvas.toDataURL());
+                    ctx.restore();
+                    img.onload = null;
+                    img.src = "";
+                }, delay);
+            };
+
+            var svg = Controller.serializer.serializeToString(svgNode);
+
+            console.time("SETTING SRC");
+            img.setAttribute("src", "data:image/svg+xml;charset=utf-8," + svg);
+            console.timeEnd("SETTING SRC");
+        }
+
+        convertNext();
     }
 };
 
