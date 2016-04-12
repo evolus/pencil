@@ -40,7 +40,7 @@ app.on('ready', function() {
     mainWindow.hide();
     mainWindow.maximize();
 
-    mainWindow.loadURL('file://localhost' + __dirname + '/app.xhtml');
+    mainWindow.loadURL("file://" + __dirname + "/app.xhtml");
     mainWindow.show();
 
     global.mainWindow = mainWindow;
