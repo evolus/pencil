@@ -10,7 +10,11 @@ __extend(Menu, ChildPageListMenu);
 ChildPageListMenu.prototype.getTemplatePath = function () {
     return this.getTemplatePrefix() + "Menu.xhtml";
 };
-ChildPageListMenu.prototype.setup = function () {
+ChildPageListMenu.prototype.setup = function (page) {
+    if(page) {
+        this.items = [];
+        this.page = page;
+    }
     var thiz = this;
     var recentPage = function(page) {
         return page;

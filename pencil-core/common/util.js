@@ -433,7 +433,7 @@ Dom.doUpward = function (node, evaluator, worker) {
 };
 Dom.findParentWithClass = function (node, className) {
     return Dom.findUpward(node, function (node) {
-            var index = (" " + node.className + " ").indexOf(" " + this.className + " ") >= 0
+            var index = (" " + node.className + " ").indexOf(" " + className + " ") >= 0
             if(index > 0) {
                 return true;
             } else {
