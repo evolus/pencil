@@ -37,14 +37,14 @@ function PageListView() {
     this.bind("click", function (event) {
         var page = Dom.findUpwardForData(event.target, "_page");
         if (!page) return;
-        var type = event.target.nodeName ;
-        if(type=="button" || type == "i") {
+        var node = Dom.findParentWithClass(event.target, "nodeHasChild");
+        if (node) {
             var activePage = function (page) {
                 thiz.activatePage(page);
             }
             var childrenList = new ChildPageListMenu(page, activePage);
             childrenList.showMenuAt(event.clientX,event.clientY);
-       } else {
+        } else {
            this.handleSelectPage(page);
        }
     }, this.childPageContainer);
@@ -247,6 +247,7 @@ PageListView.prototype.renderPages = function() {
             childNode = Dom.newDOMElement({
                 _name: "hbox",
                 "selected": selected,
+                class: "nodeHasChild",
                 _children: [
                     {
                         _name: "span",
@@ -255,10 +256,12 @@ PageListView.prototype.renderPages = function() {
                     {
                         _name: "button",
                         class:"button_Down",
+                        name:"showChildren",
                         _children: [
                             {
                                 _name: "i",
-                                _text: "keyboard_arrow_down"
+                                _text: "keyboard_arrow_down",
+                                name:"showChildren",
                             }
                         ]
                     }

@@ -431,6 +431,14 @@ Dom.doUpward = function (node, evaluator, worker) {
     }
     return Dom.doUpward(node.parentNode, evaluator, worker);
 };
+Dom.findParentWithClass = function (node, className) {
+    return Dom.findUpward(node, {
+        className: className,
+        eval: function (node) {
+            return (" " + node.className + " ").indexOf(" " + this.className + " ") >= 0;
+        }
+    });
+};
 Dom.doOnChildRecursively = function (node, evaluator, worker) {
     if (!node || !node.childNodes) return null;
 
