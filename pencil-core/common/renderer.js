@@ -123,7 +123,7 @@ module.exports = function () {
         };
     }
 
-    function start() {
+    function init() {
 
         rendererWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         rendererWindow.webContents.openDevTools();
@@ -148,6 +148,12 @@ module.exports = function () {
         });
 
         console.log("RENDERER started.");
+    }
+
+    function start() {
+        ipcMain.on("render-init", function (event, data) {
+            init();
+        });
     }
 
 
