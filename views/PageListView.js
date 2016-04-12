@@ -39,13 +39,11 @@ function PageListView() {
         if (!page) return;
         var node = Dom.findParentWithClass(event.target, "button_Down");
         if (node && node.nodeName != "#document") {
-            var activePage = function (page) {
-                thiz.activatePage(page);
-            }
             if (!this.childrenListMenu) {
-                this.childrenListMenu = new ChildPageListMenu(page, activePage);
+                this.childrenListMenu = new ChildPageListMenu(page, function (selectedPage) {
+                    thiz.activatePage(selectedPage);
+                });
             } else {
-                // var newChildrenMenu = new ChildPageListMenu(page, activePage);
                 this.childrenListMenu.setup(page)
             }
             this.childrenListMenu.showMenuAt(event.clientX,event.clientY);
