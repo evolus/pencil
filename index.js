@@ -43,6 +43,8 @@ app.on('ready', function() {
     mainWindow.loadURL('file://localhost' + __dirname + '/app.xhtml');
     mainWindow.show();
 
+    global.mainWindow = mainWindow;
+
     //mainWindow.webContents.openDevTools();
 
     mainWindow.on('closed', function() {

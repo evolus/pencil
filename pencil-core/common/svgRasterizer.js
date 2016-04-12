@@ -38,7 +38,21 @@ Rasterizer.ipcBasedBackend = {
         ipcRenderer.send("render-request", {svg: xml, width: width, height: height, scale: scale});
     }
 };
+Rasterizer.outProcessCanvasBasedBackend = {
+    init: function () {
+        ipcRenderer.send("canvas-render-init", {});
+    },
+    rasterize: function (svgNode, width, height, scale, callback) {
+        var id = Util.newUUID();
+        ipcRenderer.once(id, function (event, data) {
+            callback(data);
+        });
 
+        var xml = Controller.serializer.serializeToString(svgNode);
+        console.log("Send render request for XML: " + xml.length + ", channel id: " + id);
+        ipcRenderer.send("canvas-render-request", {svg: xml, width: width, height: height, scale: scale, id: id});
+    }
+};
 Rasterizer.inProcessCanvasBasedBackend = {
     init: function () {
         //the in-process rasterize requires basicly nothing to init :)
@@ -137,7 +151,7 @@ Rasterizer.inProcessCanvasBasedBackend = {
 
 Rasterizer.prototype.getBackend = function () {
     //TODO: options or condition?
-    return Rasterizer.inProcessCanvasBasedBackend;
+    return Rasterizer.outProcessCanvasBasedBackend;
 };
 
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
