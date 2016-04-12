@@ -14,18 +14,8 @@
     "font-manager": "git+https://github.com/princejwesley/font-manager.git",
     "less": "~2.5.3",
     "tmp": "0.0.28",
-    "unzip2": "^0.2.5"
-  },
-  "devDependencies": {
-    "electron-prebuilt": "^0.37.5",
-    "electron-rebuild": "^1.0.2",
-    "grunt": "0.4.5",
-    "grunt-contrib-compress": "^0.13.0",
-    "grunt-contrib-jshint": "^0.11.1",
-    "grunt-env": "^0.4.4",
-    "grunt-exec": "0.4.x",
-    "grunt-nw-builder": "~2.0.0",
-    "grunt-shell": "^1.1.2",
-    "load-grunt-tasks": "3.2.0"
+    "unzip2": "^0.2.5",
+    "electron-prebuilt": "0.37.4",
+    "electron-rebuild": "^1.0.2"
   }
 }
