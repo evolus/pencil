@@ -152,11 +152,9 @@ module.exports = function () {
     function initOutProcessCanvasBasedRenderer() {
         var canvasWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         var url = "file://" + app.getAppPath() + "/renderer.xhtml";
-        console.log("URL: " + url);
         canvasWindow.loadURL(url);
 
         ipcMain.on("canvas-render-request", function (event, data) {
-            console.log("Got out-process render request, id: " + data.id);
             canvasWindow.webContents.send("canvas-render-request", data);
         });
         ipcMain.on("canvas-render-response", function (event, data) {
