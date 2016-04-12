@@ -10,7 +10,7 @@ PageMenu.prototype.getTemplatePath = function () {
     return this.getTemplatePrefix() + "Menu.xhtml";
 };
 
-PageMenu.prototype.setup = function () {
+PageMenu.prototype.setup = function (page) {
     var thiz = this;
     UICommandManager.register({
         key: "PageMenuDivitor",

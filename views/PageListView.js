@@ -37,7 +37,7 @@ function PageListView() {
     this.bind("click", function (event) {
         var page = Dom.findUpwardForData(event.target, "_page");
         if (!page) return;
-        var node = Dom.findParentWithClass(event.target, "nodeHasChild");
+        var node = Dom.findParentWithClass(event.target, "button_Down");
         if (node) {
             var activePage = function (page) {
                 thiz.activatePage(page);
@@ -93,9 +93,14 @@ function PageListView() {
             var view = Dom.findUpwardForData(event.target, "__widget");
             if (!view) return;
               page = view.page;
-            }
-        var pageMenu = new PageMenu(thiz, page);
-        pageMenu.showMenuAt(event.clientX, event.clientY);
+        }
+        if (!this.pageMenu) {
+            this.pageMenu = new PageMenu(thiz, page);
+        } else {
+            var newMenu = new PageMenu(thiz, page);
+            this.PageMenu = newMenu;
+        }
+        this.pageMenu.showMenuAt(event.clientX, event.clientY);
     })
 
     this.bind("click", function (event) {

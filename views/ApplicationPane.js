@@ -20,9 +20,10 @@ function ApplicationPane() {
 
     this.bind("click", function (event) {
         console.log("menu icon check");
-        var menu = new MainMenu();
-        menu.showMenuAt(event.clientX, event.clientY);
-
+        if (!this.MainMenu) {
+            this.MainMenu = new MainMenu();
+        }
+        this.MainMenu.showMenuAt(event.clientX, event.clientY);
     }, this.menuIcon)
 
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
@@ -136,7 +137,7 @@ ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageCombo.setItems(this.controller.doc.pages);
     if (this.controller.activePage) this.pageCombo.selectItem(this.controller.activePage);
     this.pageListView.currentPage = this.controller.activePage;
-    
+
     this.pageListView.renderPages();
 };
 ApplicationPane.prototype.testSave = function () {
