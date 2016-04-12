@@ -22,7 +22,7 @@ ImageData.filePathToURL = function (filePath, options) {
         filePath = "/" + filePath;
     }
 
-    return encodeURI("file://" + filePath);
+    return "file://" + encodeURI(filePath);
 };
 
 ImageData.idToRefString = function (id) {

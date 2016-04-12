@@ -36,11 +36,11 @@ app.on('ready', function() {
 
 
     // Create the browser window.
-    mainWindow = new BrowserWindow({title: "Pencil", autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
+    mainWindow = new BrowserWindow({title: "Pencil", autoHideMenuBar: true, webPreferences: {webSecurity: false, allowRunningInsecureContent: true, allowDisplayingInsecureContent: true, defaultEncoding: "UTF-8"}});
     mainWindow.hide();
     mainWindow.maximize();
 
-    mainWindow.loadURL('file://' + __dirname + '/app.xhtml');
+    mainWindow.loadURL('file://localhost' + __dirname + '/app.xhtml');
     mainWindow.show();
 
     //mainWindow.webContents.openDevTools();

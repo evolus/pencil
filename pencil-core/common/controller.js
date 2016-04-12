@@ -353,7 +353,7 @@ Controller.prototype.loadDocument = function (filePath) {
             thiz.applicationPane.onDocumentChanged();
             thiz.modified = false;
             //new file was loaded, update recent file list
-            this.setRecentFile(filePath);
+            thiz.setRecentFile(filePath);
         } catch (e) {
             console.log("error:", e);
             thiz.newDocument();

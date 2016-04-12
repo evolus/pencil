@@ -8,8 +8,8 @@ module.exports = function () {
     const fs = require("fs");
 
     const electron = require('electron');
-    const app = electron.app;  // Module to control application life.
-    const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
+    const app = electron.app;
+    const BrowserWindow = electron.BrowserWindow;
 
     var rendererWindow = null;
     var currentRenderHandler = null;
@@ -123,7 +123,7 @@ module.exports = function () {
         };
     }
 
-    function start() {
+    function init() {
 
         rendererWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         rendererWindow.webContents.openDevTools();
@@ -148,6 +148,12 @@ module.exports = function () {
         });
 
         console.log("RENDERER started.");
+    }
+
+    function start() {
+        ipcMain.on("render-init", function (event, data) {
+            init();
+        });
     }
 
 
