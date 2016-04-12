@@ -11,11 +11,11 @@ PageMenu.prototype.getTemplatePath = function () {
 };
 
 PageMenu.prototype.setup = function (page) {
+    var thiz = this;
     if(page) {
         this.items = [];
-        this.page = page;
+        thiz.page = page;
     }
-    var thiz = this;
     UICommandManager.register({
         key: "PageMenuDivitor",
         getLabel: function () { return "" },
