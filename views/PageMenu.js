@@ -11,6 +11,10 @@ PageMenu.prototype.getTemplatePath = function () {
 };
 
 PageMenu.prototype.setup = function (page) {
+    if(page) {
+        this.items = [];
+        this.page = page;
+    }
     var thiz = this;
     UICommandManager.register({
         key: "PageMenuDivitor",

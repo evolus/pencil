@@ -102,8 +102,7 @@ function PageListView() {
         if (!this.pageMenu) {
             this.pageMenu = new PageMenu(thiz, page);
         } else {
-            var newMenu = new PageMenu(thiz, page);
-            this.PageMenu = newMenu;
+            this.pageMenu.setup(page);
         }
         this.pageMenu.showMenuAt(event.clientX, event.clientY);
     })
