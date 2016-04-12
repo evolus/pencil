@@ -38,12 +38,17 @@ function PageListView() {
         var page = Dom.findUpwardForData(event.target, "_page");
         if (!page) return;
         var node = Dom.findParentWithClass(event.target, "button_Down");
-        if (node) {
+        if (node && node.nodeName != "#document") {
             var activePage = function (page) {
                 thiz.activatePage(page);
             }
-            var childrenList = new ChildPageListMenu(page, activePage);
-            childrenList.showMenuAt(event.clientX,event.clientY);
+            if (!this.childrenListMenu) {
+                this.childrenListMenu = new ChildPageListMenu(page, activePage);
+            } else {
+                // var newChildrenMenu = new ChildPageListMenu(page, activePage);
+                this.childrenListMenu.setup(page)
+            }
+            this.childrenListMenu.showMenuAt(event.clientX,event.clientY);
         } else {
            this.handleSelectPage(page);
        }
@@ -97,8 +102,7 @@ function PageListView() {
         if (!this.pageMenu) {
             this.pageMenu = new PageMenu(thiz, page);
         } else {
-            var newMenu = new PageMenu(thiz, page);
-            this.PageMenu = newMenu;
+            this.pageMenu.setup(page);
         }
         this.pageMenu.showMenuAt(event.clientX, event.clientY);
     })

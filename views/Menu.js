@@ -45,7 +45,14 @@ Menu.prototype.openSubMenu = function (itemNode) {
     this.hideCurrentSubMenu();
 
     var item = itemNode._item;
-    var menu = new Menu();
+
+    if (!this.menu) {
+        this.menu = new Menu();
+    } else {
+        this.menu.items=[];
+    }
+    var menu = this.menu;
+    // var menu = new Menu();
     var subItems = item.subItems || item.getSubItems();
     for (var i in subItems) {
         menu.register(subItems[i]);
