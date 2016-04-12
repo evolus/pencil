@@ -10,7 +10,10 @@ MainMenu.prototype.getTemplatePath = function () {
     return this.getTemplatePrefix() + "Menu.xhtml";
 };
 
-MainMenu.prototype.setup = function () {
+MainMenu.prototype.setup = function (reSetup) {
+    if (reSetup) {
+        this.items = [];
+    }
     UICommandManager.register({
         key: "aboutDialogCommand",
         label: "About...",

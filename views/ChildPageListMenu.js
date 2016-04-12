@@ -16,8 +16,17 @@ ChildPageListMenu.prototype.setup = function (page) {
         this.page = page;
     }
     var thiz = this;
-    var recentPage = function(page) {
-        return page;
+
+    var createUI = function(page) {
+        var key = "open" + page.name +"page";
+        var element = UICommandManager.register({
+            key:  key,
+            label: page.name,
+            run: function () {
+                 thiz.onDone(page);
+            },
+        });
+        return key;
     }
     var createChild = function (page, subMenu) {
       for(var i = 0; i < page.children.length; i++) {
@@ -40,15 +49,8 @@ ChildPageListMenu.prototype.setup = function (page) {
                   thiz.register(UICommandManager.getCommand(key));
               }
           } else {
-              var pageac = recentPage(page.children[i]);
-              var key = "open" + page.children[i].name +"page";
-              var element = UICommandManager.register({
-                  key:  key,
-                  label: page.children[i].name,
-                  run: function () {
-                       thiz.onDone(pageac);
-                  },
-              });
+              var cPage = page.children[i];
+              var key = createUI(cPage);
               if (subMenu) {
                   subMenu.push(UICommandManager.getCommand(key));
               } else {

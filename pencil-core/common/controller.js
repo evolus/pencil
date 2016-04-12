@@ -394,9 +394,9 @@ Controller.prototype.saveAsDocument = function (onSaved) {
         ]
     }, function (filePath) {
         if (!filePath) return;
+        this.setRecentFile(filePath);
         if (!this.documentPath) this.documentPath = filePath;
         this.saveDocumentImpl(filePath, onSaved);
-        this.setRecentFile(filePath);
     }.bind(this));
 };
 Controller.prototype.saveDocument = function (onSaved) {
@@ -410,6 +410,7 @@ Controller.prototype.saveDocument = function (onSaved) {
             ]
         }, function (filePath) {
             if (!filePath) return;
+            thiz.setRecentFile(filePath);
             thiz.documentPath = filePath;
             thiz.saveDocumentImpl(thiz.documentPath, onSaved);
         });
