@@ -1914,8 +1914,7 @@ Canvas.prototype.isShapeLocked = function (shape) {
 };
 Canvas.prototype.toggleLocking = function () {
 
-    this.run(this.toggleLockingImpl_, this, Util
-            .getMessage("action.lock.shape"));
+    this.run(this.toggleLockingImpl_, this, Util.getMessage("action.lock.shape"));
 
 };
 Canvas.prototype.toggleLockingImpl_ = function () {

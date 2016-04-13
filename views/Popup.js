@@ -235,7 +235,7 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
 };
 Popup.prototype.close = function () {
     this.hide();
-    document.body.removeChild(this.node());
+    // document.body.removeChild(this.node());
 };
 Popup.prototype.getClosableContainer = function () {
     return this.popupContainer;
