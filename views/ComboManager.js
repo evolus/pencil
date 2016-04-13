@@ -10,12 +10,12 @@ function ComboManager() {
         this.popup.show(this.button, "left-inside", "bottom", 0, 5);
     }, this.button);
     this.bind("click", this.onItemClick, this.list);
-
     this.bind("p:PopupShown", function () {
-
+        thiz.ensureSelectedItemVisible();
     }, this.popup);
     this.bind("p:PopupHidden", function () {
         this.button.removeAttribute("active");
+        this.popup.popupContainer.scrollTop = 0;
     }, this.popup);
     var thiz = this;
     this.popup.shouldCloseOnBlur = function (event) {
@@ -38,6 +38,25 @@ ComboManager.prototype.onItemClick = function (event) {
 
     this.selectItem(item, true);
 };
+ComboManager.prototype.ensureSelectedItemVisible = function() {
+    for (var i = 0; i < this.list.childNodes.length; i ++) {
+        var node = this.list.childNodes[i];
+        if (!node._data) continue;
+        if (this.selectedItem == node._data) {
+            var oT = Dom.getOffsetTop(node);
+            var oH = node.offsetHeight;
+            var pT = Dom.getOffsetTop(this.list.parentNode) + 10;
+            var pH = this.list.parentNode.offsetHeight - 20;
+
+            if (oT < pT) {
+                this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop - (pT - oT));
+            } else if (oT + oH > pT + pH) {
+                this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop + (oT + oH - pT - pH));
+            }
+            break;
+        }
+    }
+}
 ComboManager.prototype.setItems = function (items) {
     var first = null;
     this.items = items;
