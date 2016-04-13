@@ -114,13 +114,15 @@ function PageListView() {
 
     this.bind("click", function (event) {
         this.expanded = !this.expanded;
-        this.toggle();
+        this.invalidateExpandedState();
         this.pageListSrollView.invalidate();
         this.childPageSrollView.invalidate();
         Config.set("pageListViewExpanded.enabled", this.expanded);
     }, this.toggleButton);
 
     this.expanded = Config.get("pageListViewExpanded.enabled");
+
+    this.invalidateExpandedState();
 }
 __extend(BaseTemplatedWidget, PageListView);
 PageListView.prototype.setController = function (controller) {
@@ -273,7 +275,7 @@ PageListView.prototype.renderPages = function() {
         childNode._page = page;
         this.childPageContainer.appendChild(childNode);
     }
-    this.toggle();
+    this.invalidateExpandedState();
     this.childPageSrollView.invalidate();
     this.pageListSrollView.invalidate();
 
@@ -281,18 +283,18 @@ PageListView.prototype.renderPages = function() {
 
 };
 
-PageListView.prototype.toggle = function() {
+PageListView.prototype.invalidateExpandedState = function() {
     if (this.expanded) {
         this.pageListContainer.style.display = "flex";
         this.childPageContainer.style.display = "none";
 
-        this.toggleButton.childNodes[0].innerHTML = "expand_less";
+        this.toggleButton.childNodes[0].innerHTML = "expand_more";
     } else {
         var h = this.pageListContainer.offsetHeight;
         this.pageListContainer.style.display = "none";
         this.childPageContainer.style.display = "flex";
 
-        this.toggleButton.childNodes[0].innerHTML = "expand_more";
+        this.toggleButton.childNodes[0].innerHTML = "expand_less";
     }
 };
 
