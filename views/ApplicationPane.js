@@ -19,13 +19,8 @@ function ApplicationPane() {
     var thiz = this;
 
     this.bind("click", function (event) {
-        console.log("menu icon check");
-        if (!this.MainMenu) {
-            this.MainMenu = new MainMenu();
-        } else {
-            this.MainMenu.setup(true);
-        }
-        this.MainMenu.showMenuAt(event.clientX, event.clientY);
+        var mainMenu = new MainMenu();
+        mainMenu.showMenuAt(event.clientX, event.clientY);
     }, this.menuIcon)
 
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
