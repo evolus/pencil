@@ -30,6 +30,11 @@
             padding: 0.3em;
             cursor: default;
         }
+        body @list .Item[selected="true"] {
+            font-weight: bold;
+            background: @primary_color;
+            color: #FFF;
+        }
         body @list .Item:hover {
             background: @selected_bg;
             color: @selected_fg;

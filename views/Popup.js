@@ -33,7 +33,7 @@ Popup.prototype.closeUpward = function (event) {
 
     if (this._parent) this._parent.closeUpward(event);
 };
-Popup.prototype.shouldCloseOnBlur = function () {
+Popup.prototype.shouldCloseOnBlur = function (event) {
     return true;
 };
 Popup.prototype.checkToCloseParent = function (element) {
