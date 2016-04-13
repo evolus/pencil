@@ -175,7 +175,6 @@ Pencil.invalidateSharedEditor = function() {
         return;
     }
     for (var i in Pencil.sharedEditors) {
-
         try {
             Pencil.sharedEditors[i].attach(target);
         } catch (e) {

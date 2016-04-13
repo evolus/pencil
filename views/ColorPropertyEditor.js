@@ -1,5 +1,9 @@
 function ColorPropertyEditor() {
     PropertyEditor.call(this);
+    this.bind("p:PopupHidden", function () {
+        this.selectorContainer.removePopup();
+    }, this.selectorContainer);
+
 };
 __extend(PropertyEditor, ColorPropertyEditor);
 ColorPropertyEditor.prototype.setup = function () {
