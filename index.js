@@ -40,8 +40,12 @@ app.on('ready', function() {
     mainWindow.hide();
     mainWindow.maximize();
 
-    mainWindow.loadURL('file://localhost' + __dirname + '/app.xhtml');
+    var mainUrl = "file://" + __dirname + "/app.xhtml";
+    console.log("MainURL: " + mainUrl);
+    mainWindow.loadURL(mainUrl);
     mainWindow.show();
+
+    global.mainWindow = mainWindow;
 
     //mainWindow.webContents.openDevTools();
 

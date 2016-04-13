@@ -39,13 +39,11 @@ function PageListView() {
         if (!page) return;
         var node = Dom.findParentWithClass(event.target, "button_Down");
         if (node && node.nodeName != "#document") {
-            var activePage = function (page) {
-                thiz.activatePage(page);
-            }
             if (!this.childrenListMenu) {
-                this.childrenListMenu = new ChildPageListMenu(page, activePage);
+                this.childrenListMenu = new ChildPageListMenu(page, function (selectedPage) {
+                    thiz.activatePage(selectedPage);
+                });
             } else {
-                // var newChildrenMenu = new ChildPageListMenu(page, activePage);
                 this.childrenListMenu.setup(page)
             }
             this.childrenListMenu.showMenuAt(event.clientX,event.clientY);
@@ -127,11 +125,10 @@ function PageListView() {
         this.toggle();
         this.pageListSrollView.invalidate();
         this.childPageSrollView.invalidate();
-        Config.set("pageListViewExpanded", this.expanded);
+        Config.set("pageListViewExpanded.enabled", this.expanded);
     }, this.toggleButton);
 
-    //this.expanded = Config.get("pageListViewExpanded", "true") == "true" ? true : false;
-    this.expanded = Config.get("pageListViewExpanded");
+    this.expanded = Config.get("pageListViewExpanded.enabled");
 }
 __extend(BaseTemplatedWidget, PageListView);
 PageListView.prototype.setController = function (controller) {

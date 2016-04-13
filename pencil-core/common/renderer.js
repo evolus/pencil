@@ -149,10 +149,27 @@ module.exports = function () {
 
         console.log("RENDERER started.");
     }
+    function initOutProcessCanvasBasedRenderer() {
+        var canvasWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
+        var url = "file://" + app.getAppPath() + "/renderer.xhtml";
+        canvasWindow.loadURL(url);
+
+        ipcMain.on("canvas-render-request", function (event, data) {
+            canvasWindow.webContents.send("canvas-render-request", data);
+        });
+        ipcMain.on("canvas-render-response", function (event, data) {
+            global.mainWindow.webContents.send(data.id, data.url);
+        });
+
+        console.log("OUT-PROCESS CANVAS RENDERER started.");
+    }
 
     function start() {
-        ipcMain.on("render-init", function (event, data) {
+        ipcMain.once("render-init", function (event, data) {
             init();
+        });
+        ipcMain.once("canvas-render-init", function (event, data) {
+            initOutProcessCanvasBasedRenderer();
         });
     }
 

@@ -1,8 +1,5 @@
 const ipcRenderer = require('electron').ipcRenderer;
 
-ipcRenderer.on("render-response", function(event, arg) {
-    console.log("RENDER RESPONSE", arg); // prints "pong"
-});
 
 function Rasterizer(controller) {
     this.controller = controller;
@@ -38,7 +35,20 @@ Rasterizer.ipcBasedBackend = {
         ipcRenderer.send("render-request", {svg: xml, width: width, height: height, scale: scale});
     }
 };
+Rasterizer.outProcessCanvasBasedBackend = {
+    init: function () {
+        ipcRenderer.send("canvas-render-init", {});
+    },
+    rasterize: function (svgNode, width, height, scale, callback) {
+        var id = Util.newUUID();
+        ipcRenderer.once(id, function (event, data) {
+            callback(data);
+        });
 
+        var xml = Controller.serializer.serializeToString(svgNode);
+        ipcRenderer.send("canvas-render-request", {svg: xml, width: width, height: height, scale: scale, id: id});
+    }
+};
 Rasterizer.inProcessCanvasBasedBackend = {
     init: function () {
         //the in-process rasterize requires basicly nothing to init :)
@@ -84,15 +94,10 @@ Rasterizer.inProcessCanvasBasedBackend = {
             if (ext == ".png") mine = "image/png";
 
             fs.readFile(sourcePath, function (error, bitmap) {
-                console.time("BASE64");
                 var url = "data:" + mime + ";base64," + new Buffer(bitmap).toString("base64");
-                console.timeEnd("BASE64");
 
-                console.time("UPDATE HREF");
                 image.setAttributeNS(PencilNamespaces.xlink, "href", url);
-                console.timeEnd("UPDATE HREF");
                 totalImageLength += url.length;
-                console.log("converted " + href + " -> " + url.length);
 
                 convertNext();
             });
@@ -101,7 +106,6 @@ Rasterizer.inProcessCanvasBasedBackend = {
         function onConversionDone() {
             // it looks like that the bigger images embedded, the longer time we need to wait for the image to be fully painted into the canvas
             var delay = Math.max(500, totalImageLength / 30000);
-            console.log("DELAY -> " + delay + " ms");
 
             var canvas = document.createElement("canvas");
             canvas.setAttribute("width", width * s);
@@ -126,9 +130,7 @@ Rasterizer.inProcessCanvasBasedBackend = {
 
             var svg = Controller.serializer.serializeToString(svgNode);
 
-            console.time("SETTING SRC");
             img.setAttribute("src", "data:image/svg+xml;charset=utf-8," + svg);
-            console.timeEnd("SETTING SRC");
         }
 
         convertNext();
@@ -137,12 +139,11 @@ Rasterizer.inProcessCanvasBasedBackend = {
 
 Rasterizer.prototype.getBackend = function () {
     //TODO: options or condition?
-    return Rasterizer.inProcessCanvasBasedBackend;
+    return Rasterizer.outProcessCanvasBasedBackend;
 };
 
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
     var svg = this.controller.getPageSVG(page);
-    console.log("Page SVG: ", svg)
     var thiz = this;
     var s = (typeof (scale) == "undefined") ? 1 : scale;
     var f = function () {
@@ -173,9 +174,12 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
 Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, scale) {
     this.rasterizePageToUrl(page, function (dataURI) {
         var actualPath = filePath ? filePath : tmp.fileSync().name;
-        var base64Data = dataURI.replace(/^data:image\/png;base64,/, "");
+        const prefix = "data:image/png;base64,";
+        var base64Data = dataURI;
+        if (base64Data.startsWith(prefix)) base64Data = base64Data.substring(prefix.length);
 
-        fs.writeFile(actualPath, base64Data, 'base64', function (err) {
+        var buffer = new Buffer(base64Data, "base64");
+        fs.writeFile(actualPath, buffer, 0, buffer.length, function (err) {
             callback(actualPath, err);
         });
     }, scale);

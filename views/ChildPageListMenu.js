@@ -17,47 +17,48 @@ ChildPageListMenu.prototype.setup = function (page) {
     }
     var thiz = this;
 
-    var createUI = function(page) {
+    function createSubCommand (page) {
         var key = "open" + page.name +"page";
-        var element = UICommandManager.register({
+        UICommandManager.register({
             key:  key,
             label: page.name,
             run: function () {
-                 thiz.onDone(page);
+                thiz.onDone(page);
             },
         });
         return key;
     }
-    var createChild = function (page, subMenu) {
-      for(var i = 0; i < page.children.length; i++) {
-          if (page.children[i].children.length > 0) {
-              var subItems = [] ;
-              createChild(page.children[i],subItems);
-              var key = "open" + page.children[i].name +"page";
-              var element = UICommandManager.register({
-                  key:  key,
-                  label: page.children[i].name,
-                  run: function () {
-                      //return thiz.onDone(page.children[i]);
-                  },
-                  type: "SubMenu",
-                  subItems: subItems
-              });
-              if (subMenu) {
-                  subMenu.push(UICommandManager.getCommand(key));
-              } else {
-                  thiz.register(UICommandManager.getCommand(key));
-              }
-          } else {
-              var cPage = page.children[i];
-              var key = createUI(cPage);
-              if (subMenu) {
-                  subMenu.push(UICommandManager.getCommand(key));
-              } else {
-                  thiz.register(UICommandManager.getCommand(key));
-              }
-          }
-      }
+    function createChildMenu (page, subMenu) {
+        for(var i = 0; i < page.children.length; i++) {
+            var childPage = page.children[i];
+
+            if (childPage.children.length > 0) {
+                var subItems = [] ;
+                createChildMenu(childPage, subItems);
+
+                var key = "open" + childPage.name +"page";
+                UICommandManager.register({
+                    key:  key,
+                    label: childPage.name,
+                    type: "SubMenu",
+                    subItems: subItems
+                });
+
+                if (subMenu) {
+                    subMenu.push(UICommandManager.getCommand(key));
+                } else {
+                    thiz.register(UICommandManager.getCommand(key));
+                }
+            } else {
+                var key = createSubCommand(childPage);
+
+                if (subMenu) {
+                    subMenu.push(UICommandManager.getCommand(key));
+                } else {
+                    thiz.register(UICommandManager.getCommand(key));
+                }
+            }
+        }
     }
-    createChild(this.page);
+    createChildMenu(this.page);
 }
