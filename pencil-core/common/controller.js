@@ -410,7 +410,7 @@ Controller.prototype.saveDocument = function (onSaved) {
             ]
         }, function (filePath) {
             if (!filePath) return;
-            this.setRecentFile(filePath);
+            thiz.setRecentFile(filePath);
             thiz.documentPath = filePath;
             thiz.saveDocumentImpl(thiz.documentPath, onSaved);
         });

@@ -93,8 +93,12 @@ function PageListView() {
     var thiz = this;
 
     this.bind("contextmenu", function (event) {
-        var page = Dom.findUpwardForData(event.target, "_page");
-        if (!page) {
+        var childOfListPage = Dom.isChildOf(event.target, this.pageListContainer);
+        var childOfChildPage = Dom.isChildOf(event.target, this.childPageContainer);
+        var page = true;
+        if (childOfChildPage) {
+            page = Dom.findUpwardForData(event.target, "_page");
+        } else if (childOfListPage) {
             var view = Dom.findUpwardForData(event.target, "__widget");
             if (!view) return;
               page = view.page;
@@ -102,12 +106,10 @@ function PageListView() {
         if (!this.pageMenu) {
             this.pageMenu = new PageMenu(thiz, page);
         } else {
-            if (page) {
-                this.pageMenu.setup(page);
-            }
+            this.pageMenu.setup(page);
         }
         this.pageMenu.showMenuAt(event.clientX, event.clientY);
-    })
+    },this.node());
 
     this.bind("click", function (event) {
         var dialog = new PageDetailDialog();

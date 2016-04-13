@@ -394,6 +394,16 @@ Dom.getOffsetWidth = function (control) {
     return control ? control.offsetWidth : 0;
 };
 
+Dom.isChildOf = function (parent, child) {
+    if (!parent || !child) {
+        return false;
+    }
+    if (parent == child) {
+        return true;
+    }
+    return Dom.isChildOf(parent, child.parentNode);
+};
+
 Dom.findUpward = function (node, evaluator) {
     try {
         if (node == null) {

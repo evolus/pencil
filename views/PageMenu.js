@@ -15,6 +15,9 @@ PageMenu.prototype.setup = function (page) {
     if(page) {
         this.items = [];
         thiz.page = page;
+        if ( page == true ) {
+            thiz.page = null;
+        }
     }
     UICommandManager.register({
         key: "PageMenuDivitor",
