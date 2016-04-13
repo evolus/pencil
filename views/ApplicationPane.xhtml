@@ -101,6 +101,10 @@
         @appName * {
             vertical-align: middle;
         }
+        @documentContainer {
+            min-width: 0px;
+            flex: 1 1 auto;
+        }
     </style>
 
     <vbox flex="1" anon-id="mainArea">
@@ -144,7 +148,7 @@
                 <ui:CollectionPane anon-id="collectionPane"/>
                 <ui:MyCollectionPane anon-id="MyCollectionPane"/>
             </ui:CollapseablePanel>
-            <vbox flex="1">
+            <vbox flex="1" anon-id="documentContainer">
                 <hbox anon-id="contentBody" flex="1" style="position: relative;"></hbox>
                 <ui:PageListView anon-id="pageListView" />
             </vbox>
