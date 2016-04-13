@@ -15,11 +15,8 @@ function ComboManager() {
     }, this.popup);
     this.bind("p:PopupHidden", function () {
         this.button.removeAttribute("active");
-<<<<<<< HEAD
         this.popup.removePopup();
-    }, this.popup);
-=======
-        this.popup.popupContainer.scrollTop = 0;
+        // this.popup.popupContainer.scrollTop = 0;
     }, this.popup);
     var thiz = this;
     this.popup.shouldCloseOnBlur = function (event) {
@@ -28,7 +25,6 @@ function ComboManager() {
         });
         return !found;
     };
->>>>>>> 359a9c734f635393d79ed5bb7d1654daffc7da54
 }
 
 ComboManager.DEFAULT_RENDERER = function (item) {
