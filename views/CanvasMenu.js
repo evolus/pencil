@@ -75,7 +75,7 @@ CanvasMenu.prototype.setup = function () {
         type: "Toggle",
         label: "Locked",
         isAvailable: function () {
-            if (thiz.canvas.currentController || thiz.canvas.lockingStatus && thiz.canvas.isShapeLocked(thiz.canvas.lockingStatus.node)){
+            if (thiz.canvas.currentController || thiz.canvas.lockingStatus && thiz.canvas.lockingStatus.node && thiz.canvas.isShapeLocked(thiz.canvas.lockingStatus.node)){
                 return true;
             } else {
                 return false;
