@@ -11,8 +11,8 @@ function ComboManager() {
     }, this.popup);
     this.bind("p:PopupHidden", function () {
         this.button.removeAttribute("active");
+        this.popup.removePopup();
     }, this.popup);
-
 }
 
 ComboManager.DEFAULT_RENDERER = function (item) {

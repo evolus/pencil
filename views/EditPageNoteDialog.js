@@ -3,6 +3,10 @@ function EditPageNoteDialog () {
     this.title = "Edit Page Note";
     //this.initialize();
 
+    this.bind("p:PopupHidden", function () {
+        this.selectorContainer.removePopup();
+    }, this.selectorContainer);
+
     this.bind("click", function (event) {
         var node = Dom.findUpward(event.target, function (n) {
             return n.getAttribute && n.getAttribute("command");
