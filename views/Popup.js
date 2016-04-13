@@ -235,6 +235,7 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
 };
 Popup.prototype.close = function () {
     this.hide();
+    document.body.removeChild(this.node());
 };
 Popup.prototype.getClosableContainer = function () {
     return this.popupContainer;
@@ -247,6 +248,7 @@ Popup.prototype.hide = function (silent) {
     if (this.onHide) this.onHide();
 
     BaseWidget.unregisterClosable(this);
+
     // if (this._parent) {
     //     if (!this._parent._keepShowing) {
     //        this._parent.hide();
@@ -254,4 +256,7 @@ Popup.prototype.hide = function (silent) {
     //        this._parent._keepShowing = false;
     //    }
     // }
+};
+Popup.prototype.removePopup = function () {
+     document.body.removeChild(this.popupContainer);
 };

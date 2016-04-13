@@ -39,14 +39,10 @@ function PageListView() {
         if (!page) return;
         var node = Dom.findParentWithClass(event.target, "button_Down");
         if (node && node.nodeName != "#document") {
-            if (!this.childrenListMenu) {
-                this.childrenListMenu = new ChildPageListMenu(page, function (selectedPage) {
-                    thiz.activatePage(selectedPage);
-                });
-            } else {
-                this.childrenListMenu.setup(page)
-            }
-            this.childrenListMenu.showMenuAt(event.clientX,event.clientY);
+            var childrenListMenu = new ChildPageListMenu(page, function (selectedPage) {
+                thiz.activatePage(selectedPage);
+            });
+            childrenListMenu.showMenuAt(event.clientX,event.clientY);
         } else {
            this.handleSelectPage(page);
        }
@@ -93,7 +89,7 @@ function PageListView() {
     this.bind("contextmenu", function (event) {
         var childOfListPage = Dom.isChildOf(event.target, this.pageListContainer);
         var childOfChildPage = Dom.isChildOf(event.target, this.childPageContainer);
-        var page = true;
+        var page;
         if (childOfChildPage) {
             page = Dom.findUpwardForData(event.target, "_page");
         } else if (childOfListPage) {
@@ -101,12 +97,8 @@ function PageListView() {
             if (!view) return;
               page = view.page;
         }
-        if (!this.pageMenu) {
-            this.pageMenu = new PageMenu(thiz, page);
-        } else {
-            this.pageMenu.setup(page);
-        }
-        this.pageMenu.showMenuAt(event.clientX, event.clientY);
+        var pageMenu = new PageMenu(thiz, page);
+        pageMenu.showMenuAt(event.clientX, event.clientY);
     },this.node());
 
     this.bind("click", function (event) {
