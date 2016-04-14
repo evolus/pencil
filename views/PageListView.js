@@ -120,6 +120,10 @@ function PageListView() {
         Config.set("pageListViewExpanded.enabled", this.expanded);
     }, this.toggleButton);
 
+    this.pageListSrollView.getStep = function () {
+        return 120;
+    };
+
     this.expanded = Config.get("pageListViewExpanded.enabled");
 
     this.invalidateExpandedState();

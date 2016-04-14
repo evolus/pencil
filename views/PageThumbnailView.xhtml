@@ -6,24 +6,27 @@
         }
 
         body .widget_PageThumbnailView {
-            opacity: 0.6;
+            opacity: 0.5;
         }
         @pageThumbnailContainer {
             width: 6em;
             height: 4em;
             box-sizing: border-box;
-            border: 1px solid #999999;
+            border: 2px solid #999999;
             align-items: center;
             justify-content: center;
             background: #fff;
             box-shadow: @card_shadow;
+            position: relative;
+            overflow: hidden;
         }
         @pageThumbnailContainer[selected = "true"]{
-            border: 1px solid #336699;
+            border-color: @selected_bg;
+            box-shadow: 0px 0px 0.5em fadeout(@selected_bg, 50%);
         }
 
         @pageThumbnail {
-            height: 3em;
+            position: absolute;
         }
 
         @footer {

@@ -4,25 +4,26 @@ function ScrollableView () {
 
     this.invalidate();
 
-    const STEP = 50;
-
     this.bind("click", function () {
-        this.offset += STEP;
+        this.offset += this.getStep();
         this.invalidate();
     }, this.previousButton);
     this.bind("click", function () {
-        this.offset -= STEP;
+        this.offset -= this.getStep();
         this.invalidate();
     }, this.nextButton);
 
     this.bind("wheel", function (event) {
-        console.log(event.deltaY);
         this.offset -= event.deltaY;
         this.invalidate();
     }, this.node());
 }
 
 __extend(BaseTemplatedWidget, ScrollableView);
+
+ScrollableView.prototype.getStep = function () {
+    return 80;
+};
 
 ScrollableView.prototype.setContentFragment = function (fragment) {
     this.content.appendChild(fragment);
@@ -33,9 +34,9 @@ ScrollableView.prototype.onAttached = function () {
 };
 
 ScrollableView.prototype.invalidate = function () {
-    var contentSize = this.content.offsetWidth;
+    var contentSize = this.content.scrollWidth;
     var size = this.node().offsetWidth;
-    var buttonSize = this.previousButton.offsetWidth + 5;
+    var buttonSize = this.previousButton.offsetWidth;
 
     this.node().style.height = (this.content.offsetHeight) + "px";
 
@@ -51,6 +52,13 @@ ScrollableView.prototype.invalidate = function () {
 
         var min = size - 2 * buttonSize - contentSize;
         this.offset = Math.min(Math.max(this.offset, min), 0);
+
+        console.log("Sizing: ", {
+            size: size,
+            contentSize: contentSize,
+            min: min,
+            offset: this.offset
+        })
 
         this.previousButton.disabled = (this.offset >= 0);
         this.nextButton.disabled = (this.offset <= min);

@@ -13,6 +13,8 @@
             padding: 0em 0.2em !important;
 
             background: @app_bg !important;
+            border: none;
+            border-radius: 0px;
         }
         body .widget_ScrollableView > button:active {
             background: @selected_button_bg;
@@ -53,6 +55,7 @@
             flex-direction: row;
             position: absolute;
             top: 0px;
+            transition: left 0.2s ease;
         }
         body .widget_ScrollableView[orient="vertical"] @content {
             flex-direction: column;

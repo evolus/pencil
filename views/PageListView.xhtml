@@ -4,24 +4,32 @@
             /*height: 9em;*/
         }
         @header {
-            height: 1.6em;
+            height: 2em;
             background: @app_bg;
             align-items: center;
+            padding-right: 0.3em;
         }
-        @header button {
-            line-height: 1.6em;
-            padding: 0em 0.8em;
+        @header .widget_ScrollableView > button,
+        @actionButtonContainer button {
+            line-height: 1.4em;
+            height: 1.4em;
+            padding: 0em 0.3em;
             height: auto;
         }
 
-        @header button i {
-            line-height: 1em;
-            font-size: 1.6em;
-        }
-        @header button:hover {
-            background: #369;
+        @actionButtonContainer button:not(:hover) {
+            background: none;
+            border-color: transparent;
         }
 
+        @actionButtonContainer button i {
+            line-height: 1em;
+            font-size: 1em;
+        }
+        @actionButtonContainer button span {
+            line-height: 1em;
+            font-size: 0.9em;
+        }
         @pageListContainer {
             padding: 0em 1em;
             background: #EEE;
@@ -34,13 +42,16 @@
         }
 
         @pageBreadcrumb {
-            margin-left: 1em;
             white-space: nowrap;
         }
 
         @pageBreadcrumb,
         @childPageContainer {
             cursor: default;
+        }
+        .AnonId_childPageSrollView {
+            background: #FFF;
+            margin-right: 0.3em;
         }
         @pageBreadcrumb i {
             @iconify();
@@ -110,7 +121,7 @@
             display: none;
         }
 
-        @childPageContainer .button_Down{
+        @childPageContainer .button_Down {
             height: 100%;
             padding: 0em;
             border: none;
@@ -138,12 +149,14 @@
                 <hbox><i>description</i><span>Untitled.epz</span></hbox>
                 <hbox><span>Untitled Page</span></hbox>
             </hbox>
-            <ui:ScrollableView anon-id="childPageSrollView">
+            <ui:ScrollableView anon-id="childPageSrollView" flex="1">
                 <hbox anon-id="childPageContainer"></hbox>
             </ui:ScrollableView>
         </hbox>
-        <hbox><button anon-id="addPageButton"><i>add</i></button></hbox>
-        <hbox><button anon-id="toggleButton"><i>expand_more</i></button></hbox>
+        <hbox anon-id="actionButtonContainer">
+            <hbox><button anon-id="addPageButton"><i>note_add</i> <span>Page...</span></button></hbox>
+            <hbox><button anon-id="toggleButton"><i>expand_more</i></button></hbox>
+        </hbox>
     </hbox>
         <ui:ScrollableView anon-id="pageListSrollView">
             <hbox anon-id="pageListContainer" flex="1"></hbox>

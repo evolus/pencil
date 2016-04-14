@@ -20,7 +20,7 @@ function ApplicationPane() {
 
     this.bind("click", function (event) {
         var mainMenu = new MainMenu();
-        mainMenu.showMenuAt(event.clientX, event.clientY);
+        mainMenu.showMenu(this.menuIcon, "left-inside", "bottom", 0, 0);
     }, this.menuIcon)
 
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
