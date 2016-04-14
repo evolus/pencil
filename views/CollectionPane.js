@@ -2,11 +2,19 @@ function CollectionPane() {
     BaseTemplatedWidget.call(this);
     var thiz = this;
 
+    this.bind("click",function (event) {
+        var selectCollection = function (collection) {
+            thiz.openCollection(collection);
+        }
+        var menu = new ShowAllCollectionMenu(selectCollection);
+        menu.showMenuAt(event.clientX, event.clientY);
+    },this.showAllCollections);
+
     this.selectorPane.addEventListener("contextmenu",function(event) {
         var collection = Dom.findUpwardForData(event.target, "_collection");
         var menu = new CollectionMenu(collection, thiz);
         menu.showMenuAt(event.clientX, event.clientY);
-    });
+    },false);
 
     this.selectorPane.addEventListener("click", function(event) {
         var item = Dom.findUpward(Dom.getTarget(event), function (n) {
@@ -18,7 +26,7 @@ function CollectionPane() {
             if (n.setAttribute) n.setAttribute("active", n == item);
         });
         thiz.openCollection(item._collection);
-    });
+    },false);
 
     this.shapeList.addEventListener("dragstart", function (event) {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
