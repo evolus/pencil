@@ -58,5 +58,5 @@ FileToolbar.prototype.registerCommands = function () {
         },
         shortcut: "Ctrl+Alt+E"
     });
-    
+
 };

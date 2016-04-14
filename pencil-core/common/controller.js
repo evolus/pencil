@@ -34,8 +34,10 @@ Controller.prototype.newDocument = function () {
     function create() {
         thiz.resetDocument();
 
+        // thiz.sayDocumentChanged();
         var size = thiz.applicationPane.getPreferredCanvasSize();
         var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "");
+
         thiz.activatePage(page);
         thiz.modified = false;
     };
@@ -56,6 +58,10 @@ Controller.prototype.resetDocument = function () {
     this.canvasPool.reset();
     this.activePage = null;
     this.documentPath = null;
+
+    this.applicationPane.pageListView.currentParentPage = null;
+
+
 };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
@@ -200,7 +206,6 @@ Controller.prototype.openDocument = function () {
     }
 
     handler();
-
 };
 Controller.prototype.parseOldFormatDocument = function (filePath) {
     var targetDir = this.tempDir.name;
