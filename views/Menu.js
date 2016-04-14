@@ -215,7 +215,6 @@ Menu.prototype.hideMenu = function () {
 };
 Menu.prototype.onHide = function () {
     if (this._parent) this._parent.currentItemNodeWithSubMenu = null;
-    this.removePopup();
 };
 Menu.prototype.close = function (onBlur, event) {
     this.hide();
