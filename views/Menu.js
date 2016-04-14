@@ -47,7 +47,6 @@ Menu.prototype.openSubMenu = function (itemNode) {
     var item = itemNode._item;
 
     var menu = new Menu();
-    // var menu = new Menu();
     var subItems = item.subItems || item.getSubItems();
     for (var i in subItems) {
         menu.register(subItems[i]);

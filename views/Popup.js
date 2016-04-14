@@ -253,10 +253,11 @@ Popup.prototype.hide = function (silent) {
     if (this.onHide) this.onHide();
 
     BaseWidget.unregisterClosable(this);
-    if (this.shouldDetach) this.detach();
+    if (this.e(this.shouldDetach)) this.detach();
 };
 Popup.prototype.detach = function () {
-    if (Dom.isChildOf(document.body, this.popupContainer)) {
-        document.body.removeChild(this.popupContainer);
+    console.log("detach called on Popup, this = ", this.constructor.name);
+    if (this.popupContainer.parentNode) {
+        this.popupContainer.parentNode.removeChild(this.popupContainer);
     }
 };
