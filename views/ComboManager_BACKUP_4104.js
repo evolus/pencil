@@ -15,10 +15,13 @@ function ComboManager() {
     }, this.popup);
     this.bind("p:PopupHidden", function () {
         this.button.removeAttribute("active");
+<<<<<<< HEAD
         this.popup.popupContainer.scrollTop = 0;
         this.popup.removePopup();
+=======
+        this.popup.removePopup();
         // this.popup.popupContainer.scrollTop = 0;
-// >>>>>>> 1db759fff86f2d277dbe76b81c967a2214f79eb3
+>>>>>>> 1db759fff86f2d277dbe76b81c967a2214f79eb3
     }, this.popup);
     var thiz = this;
     this.popup.shouldCloseOnBlur = function (event) {

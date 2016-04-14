@@ -1378,7 +1378,7 @@ Canvas.prototype.handleContextMenuShow = function (event) {
             return node.hasAttributeNS
                     && node.hasAttributeNS(PencilNamespaces.p, "type");
                 });
-
+        this.currentController = top;
         if (top && this.isShapeLocked(top)) {
             this.lockingStatus = {
                 node : top
