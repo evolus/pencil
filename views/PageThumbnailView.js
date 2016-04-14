@@ -21,11 +21,18 @@ function PageThumbnailView() {
     }, this.pageThumbnail);
 
     this.pageThumbnail.style.visibility = "hidden";
+    var thiz = this;
+    this.bind("click",function (event) {
+        if (this.page.children.length > 0) {
+            this.childMenu.showMenuAt(event.clientX,event.clientY);
+        }
+    },this.pageActionButton)
 }
 __extend(BaseTemplatedWidget, PageThumbnailView);
 
-PageThumbnailView.prototype.setPage = function (page) {
+PageThumbnailView.prototype.setPage = function (page, childMenu) {
     this.page = page;
+    this.childMenu = childMenu;
     this._updateUI();
 };
 PageThumbnailView.prototype._updateUI = function () {

@@ -229,13 +229,16 @@ PageListView.prototype.renderPages = function() {
         node._page = lastParentPage;
         this.pageBreadcrumb.appendChild(node);
     }
-
+    var thiz = this;
     for (var i in pages) {
         var page = pages[i];
         var selected = this.currentPage && this.currentPage.id == page.id;
 
         var pageThumbnailView = new PageThumbnailView();
-        pageThumbnailView.setPage(page);
+        var childrenListMenu = new ChildPageListMenu(page, function (selectedPage) {
+            thiz.activatePage(selectedPage);
+        });
+        pageThumbnailView.setPage(page, childrenListMenu);
         this.pageListContainer.appendChild(pageThumbnailView.node());
         pageThumbnailView.selectPage(selected);
         this.views.push(pageThumbnailView);
