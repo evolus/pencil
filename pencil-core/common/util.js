@@ -427,11 +427,11 @@ Dom.findUpwardForNodeWithData = function (node, dataName) {
 
     return n;
 };
-Dom.isChildOf = function (childNode, parentNode) {
-    return Dom.findUpward(childNode, function (node) {
-        return node == parentNode;
-    });
-};
+// Dom.isChildOf = function (childNode, parentNode) {
+//     return Dom.findUpward(childNode, function (node) {
+//         return node == parentNode;
+//     });
+// };
 Dom.doUpward = function (node, evaluator, worker) {
     if (node == null) {
         return;

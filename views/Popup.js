@@ -4,17 +4,20 @@ function Popup() {
     this.forceInside = true;
     this.useZIndex = true;
     this.visible = false;
+    this.shouldDetach = true;
 }
 __extend(BaseTemplatedWidget, Popup);
 Popup.Z_INDEX = 9001;
 
 Popup.prototype.onAttached = function () {
+    console.log("on attached:", this.popupContainer);
     if (this.popupContainer) {
-        this.reparent();
+        // this.reparent();
 	    this.popupContainer.style.position = "absolute";
 	    this.popupContainer.style.left = "0px";
 	    this.popupContainer.style.top = "0px";
-	    this.hide();
+        this.hidePopupContainer();
+	    // this.hide();
 	}
 };
 Popup.prototype.setPopupClass = function (clazz) {
@@ -235,28 +238,26 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
 };
 Popup.prototype.close = function () {
     this.hide();
-    // document.body.removeChild(this.node());
 };
 Popup.prototype.getClosableContainer = function () {
     return this.popupContainer;
 };
-Popup.prototype.hide = function (silent) {
+Popup.prototype.hidePopupContainer = function () {
     this.popupContainer.style.opacity = 0;
     this.popupContainer.style.visibility = "hidden";
     this.visible = false;
+}
+Popup.prototype.hide = function (silent) {
+    this.hidePopupContainer();
     if (!silent) Dom.emitEvent("p:PopupHidden", this.node());
     if (this.onHide) this.onHide();
 
     BaseWidget.unregisterClosable(this);
-
-    // if (this._parent) {
-    //     if (!this._parent._keepShowing) {
-    //        this._parent.hide();
-    //    } else {
-    //        this._parent._keepShowing = false;
-    //    }
-    // }
+    if (this.e(this.shouldDetach)) this.detach();
 };
-Popup.prototype.removePopup = function () {
-     document.body.removeChild(this.popupContainer);
+Popup.prototype.detach = function () {
+    console.log("detach called on Popup, this = ", this.constructor.name);
+    if (this.popupContainer.parentNode) {
+        this.popupContainer.parentNode.removeChild(this.popupContainer);
+    }
 };
