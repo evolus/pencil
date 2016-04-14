@@ -108,7 +108,6 @@
             padding-top: 1em;
             padding-bottom: 1em;
             display: none;
-
         }
 
         @childPageContainer .button_Down{
@@ -124,8 +123,12 @@
             height: 100%;
         }
 
-        @childPageContainer .nodeHasChild{
+        @childPageContainer .nodeHasChild {
             padding-right: 0em;
+        }
+        @pageListContainer {
+            height: 6em;
+            align-items: center;
         }
 
     </style>
@@ -145,5 +148,4 @@
         <ui:ScrollableView anon-id="pageListSrollView">
             <hbox anon-id="pageListContainer" flex="1"></hbox>
         </ui:ScrollableView>
-
 </vbox>
