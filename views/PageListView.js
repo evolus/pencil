@@ -87,8 +87,8 @@ function PageListView() {
     var thiz = this;
 
     this.bind("contextmenu", function (event) {
-        var childOfListPage = Dom.isChildOf(event.target, this.pageListContainer);
-        var childOfChildPage = Dom.isChildOf(event.target, this.childPageContainer);
+        var childOfListPage = Dom.isChildOf(this.pageListContainer, event.target);
+        var childOfChildPage = Dom.isChildOf(this.childPageContainer, event.target);
         var page;
         if (childOfChildPage) {
             page = Dom.findUpwardForData(event.target, "_page");

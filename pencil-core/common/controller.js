@@ -295,10 +295,31 @@ Controller.prototype.setRecentFile = function (filePath) {
         Config.set("recent-documents", files);
 };
 
+Controller.prototype.removeRecentFile = function (filePath) {
+        var files = Config.get("recent-documents");
+        if (files) {
+            for (var i = 0; i < files.length; i ++) {
+                if (files[i] == filePath) {
+                    //remove it
+                    files.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        Config.set("recent-documents", files);
+};
+
 Controller.prototype.loadDocument = function (filePath) {
     this.resetDocument();
     var thiz = this;
     var targetDir = this.tempDir.name;
+    fs.exists(filePath, function (exists) {
+        if (!exists) {
+            dialog.showMessageBox({type: "warning" , message : 'Your file was delete or moved some where else ?',title :"File doesn't exist", buttons : ['ok']});
+            thiz.removeRecentFile(filePath);
+            return;
+        }
+    });
     var extractor = unzip.Extract({ path: targetDir });
     extractor.on("close", function () {
         try {
