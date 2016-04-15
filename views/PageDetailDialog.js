@@ -253,9 +253,11 @@ PageDetailDialog.prototype.updatePage = function() {
             if (!parentPage.children) parentPage.children = [];
             parentPage.children.push(page);
             page.parentPage = parentPage;
+            page.parentPageId = parentPageId;
         }
     } else {
         page.parentPage = null;
+        page.parentPageId = null;
     }
 
     Pencil.controller.sayDocumentChanged();

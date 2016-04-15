@@ -140,11 +140,11 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
 
     newPage.invalidatedAfterLoad = true;
 
-    this.sayDocumentChanged();
-
     this.updatePageThumbnail(newPage, function() {
         onDone(newPage);
     });
+
+    this.sayDocumentChanged();
 
 };
 
@@ -159,7 +159,7 @@ Controller.prototype.serializeDocument = function (onDone) {
 
     function next() {
         index ++;
-        if (index >= thiz.doc.pages.length) {
+        if (index == thiz.doc.pages.length) {
             if (onDone) onDone();
             return;
         }
