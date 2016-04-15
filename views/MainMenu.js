@@ -39,8 +39,15 @@ MainMenu.prototype.setup = function () {
             key: key,
             label: name,
             run: function () {
-                Pencil.controller.loadDocument(name);
-                thiz.hideMenu();
+                function handler() {
+                    Pencil.controller.loadDocument(name);
+                }
+                if (Pencil.controller.modified) {
+                    Pencil.controller.confirmAndSaveDocument(handler);
+                    thiz.hideMenu();
+                    return;
+                }
+                handler();
             }
         });
         var setElement = UICommandManager.getCommand(key);
