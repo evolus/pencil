@@ -159,7 +159,7 @@ Controller.prototype.serializeDocument = function (onDone) {
 
     function next() {
         index ++;
-        if (index == thiz.doc.pages.length) {
+        if (index >= thiz.doc.pages.length) {
             if (onDone) onDone();
             return;
         }
@@ -309,6 +309,7 @@ Controller.prototype.removeRecentFile = function (filePath) {
         Config.set("recent-documents", files);
 };
 
+
 Controller.prototype.loadDocument = function (filePath) {
     this.resetDocument();
     var thiz = this;
@@ -320,76 +321,103 @@ Controller.prototype.loadDocument = function (filePath) {
             return;
         }
     });
-    var extractor = unzip.Extract({ path: targetDir });
-    extractor.on("close", function () {
-        try {
-            var contentFile = path.join(targetDir, "content.xml");
-            if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
-            var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
-            Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                var value = propNode.textContent;
-                if (value == "undefined" || value == "null") return;
-                thiz.doc.properties[propNode.getAttribute("name")] = value;
-            });
-            Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-                var page = new Page(thiz.doc);
-                var pageFileName = pageNode.getAttribute("href");
-                page.pageFileName = pageFileName;
-                page.tempFilePath = path.join(targetDir, pageFileName);
-                thiz.doc.pages.push(page);
-            });
+    var checkOldFileType = function(callback) {
+        var result;
+        var unzipParse = unzip.Parse();
+        var ob = fs.createReadStream(filePath).pipe(unzipParse);
+        unzipParse.on('close', function() {
+            callback(result);
+        });
+        unzipParse.on('error', function() {
+            result = false;
+            callback(result);
+        });
+        ob.on('entry', function (entry) {
+            var fileName = entry.path;
+            if (fileName === "content.xml") {
+                result = true;
+            }else {
+              entry.autodrain();
+            }
+        });
+    }
+    var zipcallback = function (rs) {
+        if(rs == true) {
+            var extractor = unzip.Extract({ path: targetDir });
+            extractor.on("close", function () {
+                try {
+                    var contentFile = path.join(targetDir, "content.xml");
+                    if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
+                    var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
+                    Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                        var value = propNode.textContent;
+                        if (value == "undefined" || value == "null") return;
+                        thiz.doc.properties[propNode.getAttribute("name")] = value;
+                    });
+                    Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
+                        var page = new Page(thiz.doc);
+                        var pageFileName = pageNode.getAttribute("href");
+                        page.pageFileName = pageFileName;
+                        page.tempFilePath = path.join(targetDir, pageFileName);
+                        thiz.doc.pages.push(page);
+                    });
 
-            thiz.doc.pages.forEach(function (page) {
-                var pageFile = path.join(targetDir, page.pageFileName);
-                if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
-                var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
-                Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                    var propName = propNode.getAttribute("name");
-                    var value = propNode.textContent;
-                    if(propName == "note") {
-                        value = RichText.fromString(value);
-                    }
-                    if (value == "undefined" || value == "null") return;
-                    page[propNode.getAttribute("name")] = value;
-                });
+                    thiz.doc.pages.forEach(function (page) {
+                        var pageFile = path.join(targetDir, page.pageFileName);
+                        if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
+                        var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
+                        Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                            var propName = propNode.getAttribute("name");
+                            var value = propNode.textContent;
+                            if(propName == "note") {
+                                value = RichText.fromString(value);
+                            }
+                            if (value == "undefined" || value == "null") return;
+                            page[propNode.getAttribute("name")] = value;
+                        });
 
-                if (page.width) page.width = parseInt(page.width, 10);
-                if (page.height) page.height = parseInt(page.height, 10);
+                        if (page.width) page.width = parseInt(page.width, 10);
+                        if (page.height) page.height = parseInt(page.height, 10);
 
 
-                if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+                        if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
 
-                var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
-                page.thumbPath = thumbPath;
-                page.thumbCreated = new Date();
-                page.canvas = null;
+                        var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
+                        page.thumbPath = thumbPath;
+                        page.thumbCreated = new Date();
+                        page.canvas = null;
 
-                if (!page.parentPageId) return;
-                for (var i in this.doc.pages) {
-                    var p = this.doc.pages[i];
-                    if (p.id != page.parentPageId) continue;
-                    p.children.push(page);
-                    page.parentPage = p;
-                    return;
+                        if (!page.parentPageId) return;
+                        for (var i in this.doc.pages) {
+                            var p = this.doc.pages[i];
+                            if (p.id != page.parentPageId) continue;
+                            p.children.push(page);
+                            page.parentPage = p;
+                            return;
+                        }
+
+                    }, thiz);
+
+                    thiz.documentPath = filePath;
+                    thiz.applicationPane.onDocumentChanged();
+                    thiz.modified = false;
+                    //new file was loaded, update recent file list
+                    thiz.setRecentFile(filePath);
+                } catch (e) {
+                    console.log("error:", e);
+                    thiz.newDocument();
                 }
 
-            }, thiz);
-
-            thiz.documentPath = filePath;
-            thiz.applicationPane.onDocumentChanged();
-            thiz.modified = false;
-            //new file was loaded, update recent file list
+            }).on("error", function () {
+                // thiz.parseOldFormatDocument(filePath);
+            });
+            fs.createReadStream(filePath).pipe(extractor);
+        } else {
+            thiz.parseOldFormatDocument(filePath);
             thiz.setRecentFile(filePath);
-        } catch (e) {
-            console.log("error:", e);
-            thiz.newDocument();
         }
-
-    }).on("error", function () {
-        thiz.parseOldFormatDocument(filePath);
-    });
-
-    fs.createReadStream(filePath).pipe(extractor);
+    }
+    checkOldFileType(zipcallback);
 };
 Controller.prototype.confirmAndSaveDocument = function (onSaved) {
     dialog.showMessageBox({
