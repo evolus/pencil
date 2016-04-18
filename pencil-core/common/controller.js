@@ -477,12 +477,14 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     if (!documentPath) throw "Path not specified";
 
     var thiz = this;
+    ApplicationPane._instance.busy();
     this.serializeDocument(function () {
         var archiver = require("archiver");
         var archive = archiver("zip");
         var output = fs.createWriteStream(documentPath);
         output.on("close", function () {
             thiz.sayDocumentSaved();
+            ApplicationPane._instance.unbusy();
             if (onSaved) onSaved();
         });
         archive.pipe(output);
@@ -598,6 +600,20 @@ Controller.prototype.invalidatePageContent = function (page) {
     if (!page || !page.canvas) return;
 
     page.canvas.invalidateAll();
+
+    var children = [];
+    while (page.canvas.drawingLayer.hasChildNodes()) {
+        var c = page.canvas.drawingLayer.firstChild;
+        children.push(c);
+        page.canvas.drawingLayer.removeChild(c);
+    }
+
+    Dom.empty(page.canvas.drawingLayer);
+
+    while (children.length > 0) {
+        var c = children.shift();
+        page.canvas.drawingLayer.appendChild(c);
+    }
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {
