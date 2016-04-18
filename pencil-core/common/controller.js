@@ -26,7 +26,7 @@ Controller.prototype.makeSubDir = function (sub) {
     return fullPath;
 };
 Controller.prototype.getDocumentName = function () {
-    return "Untitled.epz";
+    return this.documentPath ? path.basename(this.documentPath).replace(/\.epz$/, "") : "* Unsaved document";
 };
 Controller.prototype.newDocument = function () {
     var thiz = this;

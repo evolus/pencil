@@ -50,19 +50,12 @@ ScrollableView.prototype.invalidate = function () {
         this.previousButton.style.visibility = "inherit";
         this.nextButton.style.visibility = "inherit";
 
-        var min = size - 2 * buttonSize - contentSize;
+        var min = size - contentSize;
         this.offset = Math.min(Math.max(this.offset, min), 0);
-
-        console.log("Sizing: ", {
-            size: size,
-            contentSize: contentSize,
-            min: min,
-            offset: this.offset
-        })
 
         this.previousButton.disabled = (this.offset >= 0);
         this.nextButton.disabled = (this.offset <= min);
 
-        this.content.style.left = (buttonSize + this.offset) + "px";
+        this.content.style.left = (this.offset) + "px";
     }
 };

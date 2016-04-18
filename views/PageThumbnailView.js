@@ -15,7 +15,7 @@ function PageThumbnailView() {
         this.pageThumbnail.style.height = h + "px";
 
         this.pageThumbnail.style.left = (W - w) / 2 + "px";
-        this.pageThumbnail.style.left = (H - h) / 2 + "px";
+        this.pageThumbnail.style.top = (H - h) / 2 + "px";
 
         this.pageThumbnail.style.visibility = "visible";
     }, this.pageThumbnail);
