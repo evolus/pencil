@@ -1,5 +1,6 @@
 function ApplicationPane() {
     BaseTemplatedWidget.call(this);
+    this.busyCount = 0;
     Pencil.boot();
 
     this.canvasPool = new CanvasPool(this, 3);
@@ -86,6 +87,20 @@ function ApplicationPane() {
     overflowChecker();
 
     this.pageListView.setController(this.controller);
+
+    //preventing drag and drop
+
+    document.addEventListener('dragover', function (event) {
+        event.preventDefault();
+        return false;
+    }, false);
+
+    document.addEventListener('drop', function (event) {
+        event.preventDefault();
+        return false;
+    }, false);
+
+    ApplicationPane._instance = this;
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {
@@ -168,4 +183,23 @@ ApplicationPane.prototype.getBestFitSize = function () {
 ApplicationPane.prototype.getBestFitSizeObject = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
     return {width: zoom * (this.contentBody.offsetWidth - Pencil._getCanvasPadding()), height: zoom * (this.contentBody.offsetHeight - Pencil._getCanvasPadding())};
+};
+ApplicationPane.prototype.showBusyIndicator = function () {
+    this.currentBusyOverlay = document.createElement("div");
+    document.body.appendChild(this.currentBusyOverlay);
+    this.currentBusyOverlay.style.cssText = "position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; cursor: wait;";
+};
+ApplicationPane.prototype.hideBusyIndicator = function () {
+    if (this.currentBusyOverlay) {
+        if (this.currentBusyOverlay.parentNode) this.currentBusyOverlay.parentNode.removeChild(this.currentBusyOverlay);
+        this.currentBusyOverlay = null;
+    }
+};
+ApplicationPane.prototype.busy = function () {
+    this.busyCount ++;
+    if (this.busyCount == 1) this.showBusyIndicator();
+};
+ApplicationPane.prototype.unbusy = function () {
+    if (this.busyCount > 0) this.busyCount --;
+    if (this.busyCount == 0) this.hideBusyIndicator();
 };

@@ -33,9 +33,23 @@ ScrollableView.prototype.onAttached = function () {
     window.setTimeout(this.invalidate.bind(this), 100);
 };
 
+function logSizing(name, node) {
+    console.log(name, {
+        scrollWidth: node.scrollWidth,
+        clientWidth: node.clientWidth,
+        offsetWidth: node.offsetWidth,
+        rect: node.getBoundingClientRect()
+    })
+}
 ScrollableView.prototype.invalidate = function () {
     var contentSize = this.content.scrollWidth;
-    var size = this.node().offsetWidth;
+    if (Dom.hasClass(this.node(), "AnonId_childPageSrollView")) {
+        logSizing("this.content", this.content);
+        logSizing("this.node()", this.node());
+    }
+
+    var size = this.node().clientWidth;
+    var borderWidth = Math.round((this.node().offsetWidth - size) / 2);
     var buttonSize = this.previousButton.offsetWidth;
 
     this.node().style.height = (this.content.offsetHeight) + "px";
@@ -56,6 +70,6 @@ ScrollableView.prototype.invalidate = function () {
         this.previousButton.disabled = (this.offset >= 0);
         this.nextButton.disabled = (this.offset <= min);
 
-        this.content.style.left = (this.offset) + "px";
+        this.content.style.left = (this.offset - borderWidth) + "px";
     }
 };

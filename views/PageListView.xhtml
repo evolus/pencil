@@ -30,7 +30,8 @@
             height: auto;
         }
 
-        @header button:not(:hover),
+        @pageBreadcrumb button:not(:hover),
+        @actionButtonContainer button:not(:hover),
         @pageBreadcrumb > hbox:last-child button {
             background: none;
             border-color: transparent;
@@ -70,7 +71,7 @@
             border: solid 1px darken(@app_bg, 15%);
         }
         @childPageSrollViewContainer {
-            padding: 0.2em;
+            padding: 3px;
         }
         @pageBreadcrumb i {
             @iconify();
@@ -120,7 +121,7 @@
         }
 
         @childPageContainer {
-            padding: 0.2em;
+            padding: 3px;
         }
 
         @childPageContainer > hbox {
@@ -142,15 +143,17 @@
             padding: 0em 0.3em;
             border: none;
             border-radius: 0em;
-            background-color: #8E8D86;
+            background: transparent;
             margin-left: 0.4em;
+        }
+        hbox > .button_Down:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        hbox[selected="true"] > .button_Down:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
         hbox[selected="true"] > .button_Down {
             color: #fff;
-        }
-        hbox[selected="true"] > .button_Down:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.2);
         }
         .widget_ScrollableView {
             width: 100%;
@@ -167,10 +170,6 @@
             box-shadow: inset 0px 0px 0.3em rgba(0, 0, 0, 0.2);
         }
 
-        @childPageSrollView {
-            visibility: hidden;
-        }
-
         @toggleButton > i + i {
             margin-left: 0px;
         }
@@ -180,8 +179,8 @@
             display: none;
         }
 
-        body .widget_PageListView.Collapsed @childPageSrollView {
-            visibility: inherit;
+        body .widget_PageListView:not(.Collapsed) @childPageSrollView {
+            visibility: hidden;
         }
         body .widget_PageListView.Collapsed @pageListSrollView {
             display: none;
