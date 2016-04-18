@@ -381,7 +381,7 @@ Canvas.prototype.invalidateAll = function () {
     Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
         try {
             var controller = this.createControllerFor(node);
-            controller.validateAll();
+            if (controller && controller.validateAll) controller.validateAll();
         } catch (e) {
             console.error(e);
         }

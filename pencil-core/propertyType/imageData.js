@@ -48,15 +48,19 @@ ImageData.prompt = function (callback) {
 
     }, function (filenames) {
         if (!filenames || filenames.length <= 0) return;
-        Pencil.controller.copyAsRef(filenames[0], function (id) {
-            var url = Pencil.controller.refIdToUrl(id);
-            var image = new Image();
-            image.onload = function () {
-                callback(new ImageData(image.width, image.height, ImageData.idToRefString(id)));
-                image.src = "";
-            };
-            image.src = url;
-        });
+        ImageData.fromExternalToImageData(filenames[0], callback);
+    });
+};
+
+ImageData.fromExternalToImageData = function (filePath, callback) {
+    Pencil.controller.copyAsRef(filePath, function (id) {
+        var url = Pencil.controller.refIdToUrl(id);
+        var image = new Image();
+        image.onload = function () {
+            callback(new ImageData(image.width, image.height, ImageData.idToRefString(id)));
+            image.src = "";
+        };
+        image.src = url;
     });
 };
 
