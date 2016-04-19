@@ -187,6 +187,7 @@ Controller.prototype.serializeDocument = function (onDone) {
 Controller.prototype.openDocument = function () {
     var thiz = this;
     function handler() {
+        ApplicationPane._instance.busy();
         dialog.showOpenDialog({
             title: "Open pencil document",
             defaultPath: os.homedir(),
@@ -195,6 +196,7 @@ Controller.prototype.openDocument = function () {
             ]
 
         }, function (filenames) {
+            ApplicationPane._instance.unbusy();
             if (!filenames || filenames.length <= 0) return;
             this.loadDocument(filenames[0]);
         }.bind(thiz));

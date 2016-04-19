@@ -82,7 +82,7 @@ function ApplicationPane() {
         lastOverflowX = overflowX;
         lastOverdlowY = overflowY;
 
-        window.setTimeout(overflowChecker, 200);
+        window.setTimeout(overflowChecker, 100);
     };
     overflowChecker();
 
