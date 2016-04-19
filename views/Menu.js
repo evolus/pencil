@@ -16,7 +16,7 @@ function Menu() {
             }
             thiz.closeUpward();
         } else if (item.type == "SubMenu") {
-            thiz.openSubMenu(itemNode);
+            // thiz.openSubMenu(itemNode);
         } else {
             if (item.handleAction) {
                 item.handleAction();
