@@ -364,42 +364,51 @@ Controller.prototype.loadDocument = function (filePath) {
                         thiz.doc.pages.push(page);
                     });
 
-                    thiz.doc.pages.forEach(function (page) {
-                        var pageFile = path.join(targetDir, page.pageFileName);
-                        if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
-                        var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
-                        Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                            var propName = propNode.getAttribute("name");
-                            var value = propNode.textContent;
-                            if(propName == "note") {
-                                value = RichText.fromString(value);
-                            }
-                            if (value == "undefined" || value == "null") return;
-                            page[propNode.getAttribute("name")] = value;
-                        });
+                        thiz.doc.pages.forEach(function (page) {
+                            var pageFile = path.join(targetDir, page.pageFileName);
+                            if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
+                            var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
+                            Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                                var propName = propNode.getAttribute("name");
+                                var value = propNode.textContent;
+                                if(propName == "note") {
+                                    value = RichText.fromString(value);
+                                }
+                                if (value == "undefined" || value == "null") return;
+                                page[propNode.getAttribute("name")] = value;
+                            });
 
-                        if (page.width) page.width = parseInt(page.width, 10);
-                        if (page.height) page.height = parseInt(page.height, 10);
+                            if (page.width) page.width = parseInt(page.width, 10);
+                            if (page.height) page.height = parseInt(page.height, 10);
 
 
-                        if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+                            if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
 
-                        var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
-                        page.thumbPath = thumbPath;
-                        page.thumbCreated = new Date();
-                        page.canvas = null;
+                            var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
+                            page.thumbPath = thumbPath;
+                            page.thumbCreated = new Date();
+                            page.canvas = null;
 
-                        if (!page.parentPageId) return;
-                        for (var i in this.doc.pages) {
-                            var p = this.doc.pages[i];
-                            if (p.id != page.parentPageId) continue;
-                            p.children.push(page);
-                            page.parentPage = p;
-                            return;
-                        }
-
+                            if (!page.parentPageId) return;
+                            // for (var i in this.doc.pages) {
+                            //     var p = this.doc.pages[i];
+                            //     if (p.id != page.parentPageId) continue;
+                            //     p.children.push(page);
+                            //     page.parentPage = p;
+                            //     return;
+                            // }
                     }, thiz);
-
+                    for (var i = 0; i < thiz.doc.pages.length; i++) {
+                        var p = thiz.doc.pages[i];
+                        if(!p.parentPageId) continue;
+                        for( var j = 0; j < thiz.doc.pages.length; j++) {
+                            var p1 = thiz.doc.pages[j];
+                            if(p1.id == p.parentPageId) {
+                                p1.children.push(p);
+                                p.parentPage = p1;
+                            }
+                        }
+                    }
                     thiz.documentPath = filePath;
                     thiz.applicationPane.onDocumentChanged();
                     thiz.modified = false;
