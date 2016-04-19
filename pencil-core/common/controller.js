@@ -26,7 +26,7 @@ Controller.prototype.makeSubDir = function (sub) {
     return fullPath;
 };
 Controller.prototype.getDocumentName = function () {
-    return "Untitled.epz";
+    return this.documentPath ? path.basename(this.documentPath).replace(/\.epz$/, "") : "* Unsaved document";
 };
 Controller.prototype.newDocument = function () {
     var thiz = this;
@@ -187,6 +187,7 @@ Controller.prototype.serializeDocument = function (onDone) {
 Controller.prototype.openDocument = function () {
     var thiz = this;
     function handler() {
+        ApplicationPane._instance.busy();
         dialog.showOpenDialog({
             title: "Open pencil document",
             defaultPath: os.homedir(),
@@ -195,6 +196,7 @@ Controller.prototype.openDocument = function () {
             ]
 
         }, function (filenames) {
+            ApplicationPane._instance.unbusy();
             if (!filenames || filenames.length <= 0) return;
             this.loadDocument(filenames[0]);
         }.bind(thiz));
@@ -477,12 +479,14 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     if (!documentPath) throw "Path not specified";
 
     var thiz = this;
+    ApplicationPane._instance.busy();
     this.serializeDocument(function () {
         var archiver = require("archiver");
         var archive = archiver("zip");
         var output = fs.createWriteStream(documentPath);
         output.on("close", function () {
             thiz.sayDocumentSaved();
+            ApplicationPane._instance.unbusy();
             if (onSaved) onSaved();
         });
         archive.pipe(output);
@@ -598,6 +602,20 @@ Controller.prototype.invalidatePageContent = function (page) {
     if (!page || !page.canvas) return;
 
     page.canvas.invalidateAll();
+
+    var children = [];
+    while (page.canvas.drawingLayer.hasChildNodes()) {
+        var c = page.canvas.drawingLayer.firstChild;
+        children.push(c);
+        page.canvas.drawingLayer.removeChild(c);
+    }
+
+    Dom.empty(page.canvas.drawingLayer);
+
+    while (children.length > 0) {
+        var c = children.shift();
+        page.canvas.drawingLayer.appendChild(c);
+    }
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {

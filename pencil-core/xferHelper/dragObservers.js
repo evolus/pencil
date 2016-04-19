@@ -280,26 +280,23 @@ function FileDragObserver(canvas) {
     this.canvas = canvas;
 }
 FileDragObserver.prototype = {
-    getSupportedFlavours : function () {
-        var flavours = new FlavourSet();
-
-        flavours.appendFlavour("text/x-moz-url");
-
-        return flavours;
+    acceptsDataTransfer : function (dataTransfer) {
+        return dataTransfer && dataTransfer.files && dataTransfer.files.length > 0;
     },
     onDragOver: function (evt, flavour, session){},
-    onDrop: function (evt, transferData, session) {
+    onDrop: function (evt, dataTransfer, session) {
 
-        var url = transferData.data;
-        if (!url.match(/^file:\/\/.*\.([a-zA-Z0-9]+)/)) return;
-        var fileType = RegExp.$1.toLowerCase();
+        for (var i = 0; i < dataTransfer.files.length; i ++) {
+            var file = dataTransfer.files[i];
+            var fileType = path.extname(file.path);
+            if (!fileType) return;
+            fileType = fileType.substring(1).toLowerCase();
 
-        debug(["got: ", url, fileType]);
+            var loc = this.canvas.getEventLocation(evt);
 
-        var loc = this.canvas.getEventLocation(evt);
-
-        if (FileDragObserver.fileTypeHandler[fileType]) {
-            FileDragObserver.fileTypeHandler[fileType](this.canvas, url, loc);
+            if (FileDragObserver.fileTypeHandler[fileType]) {
+                FileDragObserver.fileTypeHandler[fileType](this.canvas, file.path, loc);
+            }
         }
     }
 };
@@ -311,33 +308,27 @@ FileDragObserver.fileTypeHandler = {
             var def = CollectionManager.shapeDefinition.locateDefinition(PNGImageXferHelper.SHAPE_DEF_ID);
             if (!def) return;
 
-            if (Config.get("document.EmbedImages") == null){
-                Config.set("document.EmbedImages", false);
-            }
-            var embedImages = Config.get("document.EmbedImages")
-
             canvas.insertShape(def, new Bound(loc.x, loc.y, null, null));
             if (!canvas.currentController) return;
 
             var controller = canvas.currentController;
 
             var handler = function (imageData) {
-                debug("handler called: " + imageData);
-                var dim = new Dimension(imageData.w, imageData.h);
+                var r = imageData.w / (canvas.width * 0.9);
+                r = Math.max(r, imageData.h / (canvas.height * 0.9));
+
+                if (r < 1) r = 1;
+
+                var dim = new Dimension(imageData.w / r, imageData.h / r);
                 controller.setProperty("imageData", imageData);
                 controller.setProperty("box", dim);
                 if (transparent) {
                     controller.setProperty("fillColor", Color.fromString("#ffffff00"));
                 }
+                canvas.invalidateEditors();
             };
 
-            if (!embedImages) {
-                debug([embedImages, url]);
-                ImageData.fromUrl(url, handler);
-            } else {
-                ImageData.fromUrlEmbedded(url, handler);
-            }
-            canvas.invalidateEditors();
+            ImageData.fromExternalToImageData(url, handler);
         } catch (e) {
             Console.dumpError(e);
         }

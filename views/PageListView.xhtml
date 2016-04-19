@@ -4,37 +4,54 @@
             /*height: 9em;*/
         }
         @header {
-            height: 2em;
             background: @app_bg;
             align-items: center;
             padding-right: 0.3em;
+            border-top: solid 1px lighten(@app_bg, 30%);
+            border-bottom: solid 1px darken(@app_bg, 15%);
+            position: relative;
+            overflow: visible;
+        }
+        @header:before {
+            position: absolute;
+            content: " ";
+            display: block;
+            height: 1px;
+            left: 0px;
+            top: -2px;
+            right: 0px;
+            background: darken(@app_bg, 5%);
         }
         @header .widget_ScrollableView > button,
-        @actionButtonContainer button {
+        @header button {
             line-height: 1.4em;
             height: 1.4em;
             padding: 0em 0.3em;
             height: auto;
         }
 
-        @actionButtonContainer button:not(:hover) {
+        @pageBreadcrumb button:not(:hover),
+        @actionButtonContainer button:not(:hover),
+        @pageBreadcrumb > hbox:last-child button {
             background: none;
             border-color: transparent;
         }
+        @pageBreadcrumb > hbox:last-child button {
+            font-weight: bold;
+        }
 
-        @actionButtonContainer button i {
-            line-height: 1em;
+        @header button i {
             font-size: 1em;
         }
-        @actionButtonContainer button span {
-            line-height: 1em;
+        @header button span {
+            line-height: 1.555555556;
             font-size: 0.9em;
         }
         @pageListContainer {
-            padding: 0em 1em;
-            background: #EEE;
+            padding: 1em;
             overflow-y: none;
             overflow-x: none;
+            height: 6em;
             align-items: center;
         }
         @pageListContainer > .widget_PageThumbnailView + .widget_PageThumbnailView {
@@ -49,9 +66,12 @@
         @childPageContainer {
             cursor: default;
         }
-        .AnonId_childPageSrollView {
+        @childPageSrollView {
             background: #FFF;
-            margin-right: 0.3em;
+            border: solid 1px darken(@app_bg, 15%);
+        }
+        @childPageSrollViewContainer {
+            padding: 3px;
         }
         @pageBreadcrumb i {
             @iconify();
@@ -60,37 +80,31 @@
         @childPageContainer > hbox {
             line-height: 1.6em;
             position: relative;
-            padding: 0em 1.2em 0em 0.5em;
-            background: #999;
         }
         @childPageContainer > hbox {
             background: #F7F7F7;
         }
-        @pageBreadcrumb > hbox:before,
-        @pageBreadcrumb > hbox:after {
-            width: 0px;
-            height: 0px;
-            border-top: 0.8em solid transparent;
-            border-bottom: 0.8em solid transparent;
-            border-left: 0.7em solid #999;
-            display: block;
-            content: " ";
-            overflow: hidden;
-            position: absolute;
-            top: 0px;
-            right: 0em;
+        @pageBreadcrumb > hbox {
+
         }
-        @pageBreadcrumb > hbox:before {
-            border-left: 0.7em solid #000;
-            right: -1px;
+        @pageBreadcrumb > hbox + hbox:before {
+            @iconify();
+            content: "chevron_right";
+            opacity: 0.3;
         }
-        @pageBreadcrumb > hbox:last-child:after,
-        @pageBreadcrumb > hbox:last-child:before {
-            display: none;
-        }
-        @pageBreadcrumb > hbox:hover,
+        @pageBreadcrumb > hbox > span:hover,
         @childPageContainer > hbox:hover {
-            color: #336699;
+            color: @selected_bg;
+        }
+        @pageBreadcrumb > hbox > span {
+            padding: 0em 0.5em;
+            cursor: pointer;
+        }
+        @pageBreadcrumb > hbox:first-child {
+            margin-left: 0.3em;
+        }
+        @pageBreadcrumb > hbox > span:hover {
+            text-decoration: underline;
         }
         @pageBreadcrumb > hbox,
         @childPageContainer > hbox {
@@ -106,28 +120,40 @@
             text-align: center;
         }
 
-        @childPageContainer > hbox {
-            border: 1px solid #999;
-            border-left: none;
+        @childPageContainer {
+            padding: 3px;
+        }
 
+        @childPageContainer > hbox {
+            border: 1px solid #CCC;
+            padding: 0px 0.5em;
+            cursor: pointer;
+        }
+        @childPageContainer > hbox + hbox {
+            margin-left: 0.2em;
         }
         @childPageContainer > hbox[selected="true"] {
-            background: #A8D4FF;
-        }
-
-        @pageListContainer {
-            padding-top: 1em;
-            padding-bottom: 1em;
-            display: none;
+            background: @selected_bg;
+            color: @selected_fg;
+            border-color: @selected_fg;
         }
 
         @childPageContainer .button_Down {
             height: 100%;
-            padding: 0em;
+            padding: 0em 0.3em;
             border: none;
             border-radius: 0em;
-            background-color: #8E8D86;
-            margin-left: 1em;
+            background: transparent;
+            margin-left: 0.4em;
+        }
+        hbox > .button_Down:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        hbox[selected="true"] > .button_Down:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        hbox[selected="true"] > .button_Down {
+            color: #fff;
         }
         .widget_ScrollableView {
             width: 100%;
@@ -137,9 +163,38 @@
         @childPageContainer .nodeHasChild {
             padding-right: 0em;
         }
-        @pageListContainer {
-            height: 6em;
-            align-items: center;
+
+        @childPageSrollView,
+        @pageListSrollView {
+            background: #FFF;
+            box-shadow: inset 0px 0px 0.3em rgba(0, 0, 0, 0.2);
+        }
+
+        @toggleButton > i + i {
+            margin-left: 0px;
+        }
+
+        body .widget_PageListView:not(.Collapsed) @toggleButton > i + i,
+        body .widget_PageListView.Collapsed @toggleButton > i:first-child {
+            display: none;
+        }
+
+        body .widget_PageListView:not(.Collapsed) @childPageSrollView {
+            visibility: hidden;
+        }
+        body .widget_PageListView.Collapsed @pageListSrollView {
+            display: none;
+        }
+
+        @pageBreadcrumb:not([overflow="true"]) > .OverflowIndicator {
+            display: none;
+        }
+        body .widget_PageListView:not(.Collapsed) @pageBreadcrumb > .OverflowIndicator {
+            display: none;
+        }
+
+        body .widget_PageListView.Collapsed @pageBreadcrumb > .Overflow {
+            display: none;
         }
 
     </style>
@@ -149,16 +204,18 @@
                 <hbox><i>description</i><span>Untitled.epz</span></hbox>
                 <hbox><span>Untitled Page</span></hbox>
             </hbox>
-            <ui:ScrollableView anon-id="childPageSrollView" flex="1">
-                <hbox anon-id="childPageContainer"></hbox>
-            </ui:ScrollableView>
+            <hbox anon-id="childPageSrollViewContainer" flex="1">
+                <ui:ScrollableView anon-id="childPageSrollView" flex="1">
+                    <hbox anon-id="childPageContainer"></hbox>
+                </ui:ScrollableView>
+            </hbox>
         </hbox>
         <hbox anon-id="actionButtonContainer">
-            <hbox><button anon-id="addPageButton"><i>note_add</i> <span>Page...</span></button></hbox>
-            <hbox><button anon-id="toggleButton"><i>expand_more</i></button></hbox>
+            <hbox><button anon-id="addPageButton"><i>note_add</i> <span>Add Page...</span></button></hbox>
+            <hbox><button anon-id="toggleButton"><i>expand_more</i><i>expand_less</i></button></hbox>
         </hbox>
     </hbox>
-        <ui:ScrollableView anon-id="pageListSrollView">
-            <hbox anon-id="pageListContainer" flex="1"></hbox>
-        </ui:ScrollableView>
+    <ui:ScrollableView anon-id="pageListSrollView">
+        <hbox anon-id="pageListContainer" flex="1"></hbox>
+    </ui:ScrollableView>
 </vbox>

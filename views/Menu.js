@@ -15,9 +15,12 @@ function Menu() {
                 item.run();
             }
             thiz.closeUpward();
-        } else if (item.type == "SubMenu") {
-            thiz.openSubMenu(itemNode);
-        } else {
+        }
+        // } else if (item.type == "SubMenu") {
+        //     // thiz.openSubMenu(itemNode);
+        //     item.run();
+        // }
+        else {
             if (item.handleAction) {
                 item.handleAction();
             } else if (item.run) {

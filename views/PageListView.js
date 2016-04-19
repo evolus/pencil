@@ -42,7 +42,7 @@ function PageListView() {
             var childrenListMenu = new ChildPageListMenu(page, function (selectedPage) {
                 thiz.activatePage(selectedPage);
             });
-            childrenListMenu.showMenuAt(event.clientX,event.clientY);
+            childrenListMenu.showMenu(node, "left-inside", "top", 0, 0, true);
         } else {
            this.handleSelectPage(page);
        }
@@ -174,38 +174,28 @@ PageListView.prototype.renderPages = function() {
         _name: "hbox",
         _children: [
             {
-                _name: "i",
-                _text: "description"
-            },
-            {
-                _name: "span",
-                _text: this.controller.getDocumentName() + (parentPages.length == 0 ? ":" : "")
+                _name: "button",
+                type: "button",
+                _children: [
+                    {
+                        _name: "i",
+                        _text: "description"
+                    },
+                    {
+                        _name: "span",
+                        _text: this.controller.getDocumentName()
+                    }
+                ]
             }
         ]
     });
     node._page = null;
     this.pageBreadcrumb.appendChild(node);
 
-    if(parentPages.length < 3) {
-        for (var i in parentPages) {
-            var p = parentPages[i];
-            node = Dom.newDOMElement({
-                _name: "hbox",
-                _children: [
-                    {
-                        _name: "span",
-                        _text: p.name + ((i == (parentPages.length - 1)) ? ":" : "")
-                    }
-                ]
-            });
-
-            node._page = p;
-            this.pageBreadcrumb.appendChild(node);
-        }
-    } else {
-        var lastParentPage = this.currentParentPage;
+    if (parentPages.length > 0) {
         node = Dom.newDOMElement({
             _name: "hbox",
+            "class": "OverflowIndicator",
             _children: [
                 {
                     _name: "span",
@@ -214,21 +204,38 @@ PageListView.prototype.renderPages = function() {
             ]
         });
 
-        node._page = lastParentPage.parentPage;
         this.pageBreadcrumb.appendChild(node);
+    }
 
+    const MAX = 2;
+    var index = parentPages.length;
+    for (var i in parentPages) {
+        var p = parentPages[i];
         node = Dom.newDOMElement({
             _name: "hbox",
             _children: [
                 {
-                    _name: "span",
-                    _text: lastParentPage.name + " :"
+                    _name: "button",
+                    type: "button",
+                    _children: [
+                        {
+                            _name: "span",
+                            _text: p.name
+                        }
+                    ]
                 }
             ]
         });
-        node._page = lastParentPage;
+
+        node._page = p;
         this.pageBreadcrumb.appendChild(node);
+
+        if (index > MAX) Dom.addClass(node, "Overflow");
+        index --;
     }
+
+    this.pageBreadcrumb.setAttribute("overflow", parentPages.length > MAX);
+
     var thiz = this;
     for (var i in pages) {
         var page = pages[i];
@@ -291,18 +298,7 @@ PageListView.prototype.renderPages = function() {
 };
 
 PageListView.prototype.invalidateExpandedState = function() {
-    if (this.expanded) {
-        this.pageListContainer.style.display = "flex";
-        this.childPageContainer.style.display = "none";
-
-        this.toggleButton.childNodes[0].innerHTML = "expand_more";
-    } else {
-        var h = this.pageListContainer.offsetHeight;
-        this.pageListContainer.style.display = "none";
-        this.childPageContainer.style.display = "flex";
-
-        this.toggleButton.childNodes[0].innerHTML = "expand_less";
-    }
+    Dom.toggleClass(this.node(), "Collapsed", !this.expanded);
 };
 
 PageListView.prototype.handlePageInfoChangedEvent = function (event) {

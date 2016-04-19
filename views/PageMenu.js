@@ -140,38 +140,93 @@ PageMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("PageProperties"));
     this.register(UICommandManager.getCommand("PageMenuDivitor"));
 
-    var createGotoSubMenuElement = function(page) {
-        var key = page.name.split(" ").join("") + "Page" ;
-        var element = UICommandManager.register({
-            key: key,
+    // var createGotoSubMenuElement = function(page) {
+    //     var key = page.name.split(" ").join("") + "Page" ;
+    //     var element = UICommandManager.register({
+    //         key: key,
+    //         label: page.name,
+    //         run: function () {
+    //             thiz.pageListView.activatePage(page);
+    //         }
+    //     });
+    //     var setElement = UICommandManager.getCommand(key);
+    //     return setElement;
+    // }
+    //
+    // var createGotoSubMenuItem = function() {
+    //     var elements = [];
+    //     for (var i = 0; i < Pencil.controller.doc.pages.length; i ++) {
+    //         elements.push(createGotoSubMenuElement(Pencil.controller.doc.pages[i]));
+    //     }
+    //     return elements;
+    // }
+
+    function createSubCommand (page) {
+        var key = "open" + page.name +"page";
+        UICommandManager.register({
+            key:  key,
             label: page.name,
             run: function () {
                 thiz.pageListView.activatePage(page);
-            }
+            },
         });
-        var setElement = UICommandManager.getCommand(key);
-        return setElement;
+        return key;
     }
 
-    var createGotoSubMenuItem = function() {
-        var elements = [];
-        for (var i = 0; i < Pencil.controller.doc.pages.length; i ++) {
-            elements.push(createGotoSubMenuElement(Pencil.controller.doc.pages[i]));
+    function createSubItems (page,subItems) {
+        var key = "open" + page.name +"page";
+        UICommandManager.register({
+            key:  key,
+            label: page.name,
+            run: function () {
+                thiz.pageListView.activatePage(page);
+            },
+            type: "SubMenu",
+            subItems: subItems
+        });
+        return key;
+    }
+
+    function createChildMenu (page, items) {
+        for(var i = 0; i < page.children.length; i++) {
+            var childPage = page.children[i];
+            if (childPage.children.length > 0) {
+                var items = [] ;
+                createChildMenu(childPage, items);
+                var key = createSubItems(childPage,items);
+                items.push(UICommandManager.getCommand(key));
+            } else {
+                var key = createSubCommand(childPage);
+                items.push(UICommandManager.getCommand(key));
+            }
         }
-        return elements;
+    }
+    var subItems = [];
+    for (var i in Pencil.controller.doc.pages) {
+        var page = Pencil.controller.doc.pages[i];
+        if (!page.parentPage) {
+            var key;
+            if (page.children.length > 0) {
+                var items = [];
+                createChildMenu(page, items);
+                key = createSubItems(page,items);
+            } else {
+                key = createSubCommand(page);
+            }
+            subItems.push(UICommandManager.getCommand(key));
+        }
     }
 
     var createGotoButton = function() {
-        var item = createGotoSubMenuItem();
         var check = false;
-        if( item.length > 0 ) check = true;
+        if( subItems.length > 0 ) check = true;
 
         thiz.register({
             label: "Go to " ,
             isEnabled: function() { return check },
             run: function () { },
             type: "SubMenu",
-            subItems:  item
+            subItems:  subItems
         });
     }
     createGotoButton();

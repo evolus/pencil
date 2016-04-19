@@ -33,9 +33,23 @@ ScrollableView.prototype.onAttached = function () {
     window.setTimeout(this.invalidate.bind(this), 100);
 };
 
+function logSizing(name, node) {
+    console.log(name, {
+        scrollWidth: node.scrollWidth,
+        clientWidth: node.clientWidth,
+        offsetWidth: node.offsetWidth,
+        rect: node.getBoundingClientRect()
+    })
+}
 ScrollableView.prototype.invalidate = function () {
     var contentSize = this.content.scrollWidth;
-    var size = this.node().offsetWidth;
+    if (Dom.hasClass(this.node(), "AnonId_childPageSrollView")) {
+        logSizing("this.content", this.content);
+        logSizing("this.node()", this.node());
+    }
+
+    var size = this.node().clientWidth;
+    var borderWidth = Math.round((this.node().offsetWidth - size) / 2);
     var buttonSize = this.previousButton.offsetWidth;
 
     this.node().style.height = (this.content.offsetHeight) + "px";
@@ -50,19 +64,12 @@ ScrollableView.prototype.invalidate = function () {
         this.previousButton.style.visibility = "inherit";
         this.nextButton.style.visibility = "inherit";
 
-        var min = size - 2 * buttonSize - contentSize;
+        var min = size - contentSize;
         this.offset = Math.min(Math.max(this.offset, min), 0);
-
-        console.log("Sizing: ", {
-            size: size,
-            contentSize: contentSize,
-            min: min,
-            offset: this.offset
-        })
 
         this.previousButton.disabled = (this.offset >= 0);
         this.nextButton.disabled = (this.offset <= min);
 
-        this.content.style.left = (buttonSize + this.offset) + "px";
+        this.content.style.left = (this.offset - borderWidth) + "px";
     }
 };
