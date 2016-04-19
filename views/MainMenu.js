@@ -44,7 +44,6 @@ MainMenu.prototype.setup = function () {
                 }
                 if (Pencil.controller.modified) {
                     Pencil.controller.confirmAndSaveDocument(handler);
-                    thiz.hideMenu();
                     return;
                 }
                 handler();
