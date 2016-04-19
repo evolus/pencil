@@ -191,9 +191,9 @@ PageMenu.prototype.setup = function () {
         for(var i = 0; i < page.children.length; i++) {
             var childPage = page.children[i];
             if (childPage.children.length > 0) {
-                var items = [] ;
-                createChildMenu(childPage, items);
-                var key = createSubItems(childPage,items);
+                var subItem = [] ;
+                createChildMenu(childPage, subItem);
+                var key = createSubItems(childPage,subItem);
                 items.push(UICommandManager.getCommand(key));
             } else {
                 var key = createSubCommand(childPage);
