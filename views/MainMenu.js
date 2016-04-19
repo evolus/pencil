@@ -68,7 +68,7 @@ MainMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
     this.register(UICommandManager.getCommand("exportSelectionAsPNGButton"));
     var checkRecentButton = false;
-    if(thiz.itemRecentFile.length > 0) {
+    if(thiz.itemRecentFile && thiz.itemRecentFile.length > 0) {
         checkRecentButton = true;
     }
     thiz.register({
