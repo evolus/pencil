@@ -6,7 +6,7 @@ __extend(ToolBar, FileToolbar);
 FileToolbar.prototype.registerCommands = function () {
     UICommandManager.register({
         key: "newDocumentCommand",
-        label: "new Document",
+        label: "New Document",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.newDocument();
@@ -15,7 +15,7 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "openDocumentCommand",
-        label: "open Document...",
+        label: "Open Document...",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.openDocument();
@@ -24,7 +24,7 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "saveDocumentCommand",
-        label: "save Document",
+        label: "Save Document",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.saveDocument();
@@ -33,7 +33,7 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "saveAsDocumentCommand",
-        label: "save As Document...",
+        label: "Save As Document...",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.saveAsDocument();
@@ -42,7 +42,7 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "exportPageAsPNGButton",
-        label: "export page as PNG...",
+        label: "Export page as PNG...",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.rasterizeCurrentPage();
@@ -51,7 +51,7 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "exportSelectionAsPNGButton",
-        label: "export selection as PNG...",
+        label: "Export selection as PNG...",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.rasterizeSelection();
