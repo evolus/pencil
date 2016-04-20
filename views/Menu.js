@@ -22,7 +22,7 @@ function Menu() {
                     thiz.openSubMenu(itemNode);
                 } else {
                     item.run();
-                    thiz.closeUpward();
+                    thiz.currentSubMenu.closeUpward();
                 }
             } else {
                 thiz.openSubMenu(itemNode);
@@ -137,6 +137,7 @@ Menu.prototype.hideCurrentSubMenu = function () {
         Dom.removeClass(this.currentItemNodeWithSubMenu, "Active");
         this.currentItemNodeWithSubMenu._subMenu.hideMenu();
         this.currentItemNodeWithSubMenu = null;
+        this.currentSubMenu = null;
     }
 };
 Menu.prototype.openSubMenu = function (itemNode) {
@@ -157,6 +158,7 @@ Menu.prototype.openSubMenu = function (itemNode) {
 
     this.currentItemNodeWithSubMenu = itemNode;
     Dom.addClass(this.currentItemNodeWithSubMenu, "Active");
+    this.currentSubMenu = menu;
 };
 
 Menu.prototype.handleMouseIn = function (event) {
