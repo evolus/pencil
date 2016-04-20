@@ -15,12 +15,19 @@ function Menu() {
                 item.run();
             }
             thiz.closeUpward();
-        }
-        // } else if (item.type == "SubMenu") {
-        //     // thiz.openSubMenu(itemNode);
-        //     item.run();
-        // }
-        else {
+        } else if (item.type == "SubMenu") {
+            if (item.run) {
+                var iconNode = Dom.findParentWithClass(event.target, "SubMenuIcon");
+                if (iconNode) {
+                    thiz.openSubMenu(itemNode);
+                } else {
+                    item.run();
+                    thiz.closeUpward();
+                }
+            } else {
+                thiz.openSubMenu(itemNode);
+            }
+        } else {
             if (item.handleAction) {
                 item.handleAction();
             } else if (item.run) {
@@ -169,7 +176,8 @@ Menu.prototype.renderItem = function (item) {
         if (item.type == "SubMenu") {
             hbox.appendChild(Dom.newDOMElement({
                 _name: "i",
-                _text: "keyboard_arrow_right"
+                _text: "keyboard_arrow_right",
+                "class": "SubMenuIcon"
             }));
         }
     }
