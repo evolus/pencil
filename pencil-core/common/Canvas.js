@@ -2418,6 +2418,7 @@ Canvas.prototype.__dragover = function (event) {
 
 };
 Canvas.prototype.__drop = function (event) {
+    var thiz =this;
     var data = event.dataTransfer.getData("collectionId");
     var collections = CollectionManager.shapeDefinition.collections;
     for (var i = 0; i < collections.length; i ++) {
@@ -2430,6 +2431,10 @@ Canvas.prototype.__drop = function (event) {
     }
     this.element.removeAttribute("is-dragover");
     console.log('drop excute');
+    if(this.canvasContentModifiedListener) {
+        this.canvasContentModifiedListener(thiz);
+        this.canvasContentModifiedListener = null;
+    }
     if (!this.currentDragObserver)
         return;
 

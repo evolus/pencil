@@ -39,9 +39,10 @@ function Menu() {
             thiz.closeUpward();
         }
     }, false);
-
+    this.checkOpenSub = false;
     this.bind("mouseover", this.handleMouseIn, this.popupContainer);
     this.registerCommand();
+
 
 }
 __extend(Popup, Menu);
@@ -190,19 +191,15 @@ Menu.prototype.handleMouseIn = function (event) {
             thiz.currentHideMenuTimeout = null;
         }, 200);
     }
-
     if (this.currentShowMenuTimeout) {
         window.clearTimeout(this.currentShowMenuTimeout);
         this.currentShowMenuTimeout = null;
     }
-
     if (item.type == "SubMenu" && !disabled && itemNode != this.currentItemNodeWithSubMenu) {
-
         this.currentShowMenuTimeout = window.setTimeout(function () {
             thiz.openSubMenu(itemNode);
             thiz.currentShowMenuTimeout = null;
         }, 300);
-
     }
 
 };
