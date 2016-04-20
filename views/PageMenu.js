@@ -6,129 +6,71 @@ function PageMenu (pageListView, page) {
 }
 __extend(Menu, PageMenu);
 
+
 PageMenu.prototype.getTemplatePath = function () {
     return this.getTemplatePrefix() + "Menu.xhtml";
 };
 
 PageMenu.prototype.setup = function () {
     var thiz = this;
-    UICommandManager.register({
-        key: "PageMenuDivitor",
-        getLabel: function () { return "" },
-        isValid: function () { return true },
-        run: function () {
-        }
-    });
 
-    UICommandManager.register({
-        key: "PageNewPage",
-        icon: "add",
-        getLabel: function () { return "New Page " },
-        isValid: function () { return true },
-        run: function () {
-            var dialog = new PageDetailDialog();
-            dialog.open({
-                onDone: function (page) {
-                    if (!page) return;
-                    thiz.pageListView.activatePage(page);
-                }
-            });
-        }
-    });
-
-    UICommandManager.register({
-        key: "PageDuplicate",
-        icon: "content_copy",
-        getLabel: function () { return "Duplicate" },
-        isValid: function () { return true },
-        isEnabled: function () { return thiz.page; },
-        run: function () {
-            var onDone = function () {
-                return function (page) {
-                    thiz.pageListView.activatePage(page);
-                }
+    UICommandManager.getCommand("PageNewPage").run = function () {
+        var dialog = new PageDetailDialog();
+        dialog.open({
+            onDone: function (page) {
+                if (!page) return;
+                thiz.pageListView.activatePage(page);
             }
-            Pencil.controller.duplicatePage(thiz.page, onDone());
-        }
-    });
-
-    UICommandManager.register({
-        key: "PageDelete",
-        icon : "remove",
-        getLabel: function () { return "Delete" },
-        isValid: function () { return true },
-        isEnabled: function () { return thiz.page; },
-        run: function () {
-            console.log("dialog:", dialog);
-            //const dialog = require("electron").remote.dialog;
-            var dialogResult = dialog.showMessageBox({type: 'warning' , message : 'You realy want to delete this page ?',title :'Confirm', buttons : ['ok', 'cancel']});
-            if(dialogResult == 0 ) {
-                Pencil.controller.deletePage(thiz.page);
-                thiz.pageListView.renderPages();
+        });
+    };
+    UICommandManager.getCommand("PageDuplicate").isEnabled = function () { return thiz.page };
+    UICommandManager.getCommand("PageDuplicate").run = function () {
+        var onDone = function () {
+            return function (page) {
+            thiz.pageListView.activatePage(page);
             }
-            // thiz.pageListView.activatePage(Pencil.controller.doc.pages[0]);
         }
-    });
-
-    UICommandManager.register({
-        key: "PageMoveLeft",
-        icon: "keyboard_arrow_left",
-        getLabel: function () { return "Move Left" },
-        isValid: function () { return true },
-        isEnabled: function () {
-            return thiz.page && Pencil.controller.checkLeftRight(thiz.page, "left");
-        },
-        run: function () {
-            Pencil.controller.movePage(thiz.page, "left");
+        Pencil.controller.duplicatePage(thiz.page, onDone());
+    };
+    UICommandManager.getCommand("PageDelete").isEnabled = function () { return thiz.page };
+    UICommandManager.getCommand("PageDelete").run = function () {
+        console.log("dialog:", dialog);
+        var dialogResult = dialog.showMessageBox({type: 'warning' , message : 'You realy want to delete this page ?',title :'Confirm', buttons : ['ok', 'cancel']});
+        if(dialogResult == 0 ) {
+            Pencil.controller.deletePage(thiz.page);
+            thiz.pageListView.renderPages();
         }
-    });
-
-    UICommandManager.register({
-        key: "PageMoveRight",
-        icon: "keyboard_arrow_right",
-        getLabel: function () { return "Move Right" },
-        isValid: function () { return true },
-        isEnabled: function () {
-            return thiz.page && Pencil.controller.checkLeftRight(thiz.page, "right");
-        },
-        run: function () {
-            Pencil.controller.movePage(thiz.page, "right");
-        }
-    });
-
-    UICommandManager.register({
-        key: "PageProperties",
-        getLabel: function () { return "Properties" },
-        isValid: function () { return true },
-        isEnabled: function () { return thiz.page; },
-        run: function () {
-            var dialog = new PageDetailDialog();
-            dialog.title = "Edit Page Properties";
-            dialog.open({
-                defaultPage : thiz.page,
-                onDone: function(page) {
-                    thiz.pageListView.activatePage(page);
-                }
-            });
-        }
-    });
-
-    UICommandManager.register({
-        key: "PageEditPageNode",
-        getLabel: function () { return "Edit Page Note..." },
-        isValid: function () { return true },
-        isEnabled: function () { return thiz.page; },
-        run: function () {
-            var dialog = new EditPageNoteDialog();
-            dialog.open({
-                defaultPage : thiz.page,
-                onDone: function (editor) {
-                    console.log("Complete note");
-                    thiz.page.note = editor;
-                }
-            });
-        }
-    });
+    };
+    UICommandManager.getCommand("PageMoveLeft").isEnabled = function () { return thiz.page && Pencil.controller.checkLeftRight(thiz.page, "left")};
+    UICommandManager.getCommand("PageMoveLeft").run = function () {
+        Pencil.controller.movePage(thiz.page, "left");
+    };
+    UICommandManager.getCommand("PageMoveRight").isEnabled = function () {  return thiz.page && Pencil.controller.checkLeftRight(thiz.page, "right") };
+    UICommandManager.getCommand("PageMoveRight").run = function () {
+        Pencil.controller.movePage(thiz.page, "right");
+    };
+    UICommandManager.getCommand("PageProperties").isEnabled = function () { return thiz.page };
+    UICommandManager.getCommand("PageProperties").run = function () {
+        var dialog = new PageDetailDialog();
+        dialog.title = "Edit Page Properties";
+        dialog.open({
+            defaultPage : thiz.page,
+            onDone: function(page) {
+                thiz.pageListView.activatePage(page);
+            }
+        });
+    };
+    UICommandManager.getCommand("PageEditPageNode").isEnabled = function () { return thiz.page };
+    UICommandManager.getCommand("PageEditPageNode").run = function () {
+        var dialog = new EditPageNoteDialog();
+        dialog.open({
+            defaultPage : thiz.page,
+            onDone: function (editor) {
+                console.log("Complete note");
+                thiz.page.note = editor;
+            }
+        });
+    };
 
     this.register(UICommandManager.getCommand("PageNewPage"));
     this.register(UICommandManager.getCommand("PageMenuDivitor"));
@@ -163,19 +105,18 @@ PageMenu.prototype.setup = function () {
 
     function createSubCommand (page) {
         var key = "open" + page.name +"page";
-        UICommandManager.register({
+        var items = {"key": key, "item": {
             key:  key,
             label: page.name,
             run: function () {
                 thiz.pageListView.activatePage(page);
-            },
-        });
-        return key;
-    }
-
+            }
+        } };
+        return items;
+    };
     function createSubItems (page,subItems) {
         var key = "open" + page.name +"page";
-        UICommandManager.register({
+        var items = {"key": key, "item": {
             key:  key,
             label: page.name,
             run: function () {
@@ -183,37 +124,37 @@ PageMenu.prototype.setup = function () {
             },
             type: "SubMenu",
             subItems: subItems
-        });
-        return key;
-    }
-
+        }};
+        return items;
+    };
     function createChildMenu (page, items) {
         for(var i = 0; i < page.children.length; i++) {
             var childPage = page.children[i];
+            var item;
             if (childPage.children.length > 0) {
                 var subItem = [] ;
                 createChildMenu(childPage, subItem);
-                var key = createSubItems(childPage,subItem);
-                items.push(UICommandManager.getCommand(key));
+                item = createSubItems(childPage,subItem);
+
             } else {
-                var key = createSubCommand(childPage);
-                items.push(UICommandManager.getCommand(key));
+                item = createSubCommand(childPage);
             }
+            items.push(item["item"]);
         }
     }
     var subItems = [];
     for (var i in Pencil.controller.doc.pages) {
         var page = Pencil.controller.doc.pages[i];
         if (!page.parentPage) {
-            var key;
+            var item;
             if (page.children.length > 0) {
                 var items = [];
                 createChildMenu(page, items);
-                key = createSubItems(page,items);
+                item = createSubItems(page,items);
             } else {
-                key = createSubCommand(page);
+                item = createSubCommand(page);
             }
-            subItems.push(UICommandManager.getCommand(key));
+            subItems.push(item["item"]);
         }
     }
 
@@ -221,15 +162,13 @@ PageMenu.prototype.setup = function () {
         var check = false;
         if( subItems.length > 0 ) check = true;
 
-        thiz.register({
-            label: "Go to " ,
-            isEnabled: function() { return check },
-            run: function () { },
-            type: "SubMenu",
-            subItems:  subItems
-        });
+        var ui = UICommandManager.getCommand("GotoNode");
+        ui.isEnabled = function () { return check };
+        ui.type = "SubMenu";
+        ui.subItems = subItems;
     }
     createGotoButton();
+    this.register(UICommandManager.getCommand("GotoNode"));
     this.register(UICommandManager.getCommand("PageMenuDivitor"));
     this.register(UICommandManager.getCommand("PageEditPageNode"));
 }

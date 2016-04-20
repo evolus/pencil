@@ -15,19 +15,21 @@ ChildPageListMenu.prototype.setup = function () {
 
     function createSubCommand (page) {
         var key = "open" + page.name +"page";
-        UICommandManager.register({
+        var items = {};
+        items["key"] = key;
+        items["item"] = {
             key:  key,
             label: page.name,
             run: function () {
                 thiz.onDone(page);
             },
-        });
-        return key;
+        };
+        return items;
     }
 
     function createSubItems (page,subItems) {
         var key = "open" + page.name +"page";
-        UICommandManager.register({
+        var items = {"key": key, "item": {
             key:  key,
             label: page.name,
             run: function () {
@@ -35,8 +37,8 @@ ChildPageListMenu.prototype.setup = function () {
             },
             type: "SubMenu",
             subItems: subItems
-        });
-        return key;
+        }};
+        return items;
     }
 
     function createChildMenu (page, subMenu) {
@@ -46,33 +48,18 @@ ChildPageListMenu.prototype.setup = function () {
             if (childPage.children.length > 0) {
                 var subItems = [] ;
                 createChildMenu(childPage, subItems);
-
-                var key = createSubItems(childPage,subItems);
-
-                // var key = "open" + childPage.name +"page";
-                // UICommandManager.register({
-                //     key:  key,
-                //     label: childPage.name,
-                //     run: function () {
-                //         console.log("left Click");
-                //         activePage(childPage);
-                //     },
-                //     type: "SubMenu",
-                //     subItems: subItems
-                // });
-
+                var item = createSubItems(childPage,subItems);
                 if (subMenu) {
-                    subMenu.push(UICommandManager.getCommand(key));
+                    subMenu.push(item["item"]);
                 } else {
-                    thiz.register(UICommandManager.getCommand(key));
+                    thiz.register(item["item"]);
                 }
             } else {
-                var key = createSubCommand(childPage);
-
+                var item = createSubCommand(childPage);
                 if (subMenu) {
-                    subMenu.push(UICommandManager.getCommand(key));
+                    subMenu.push(item["item"]);
                 } else {
-                    thiz.register(UICommandManager.getCommand(key));
+                    thiz.register(item["item"]);
                 }
             }
         }

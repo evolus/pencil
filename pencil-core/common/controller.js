@@ -93,7 +93,6 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
     this.serializePage(page, page.tempFilePath);
     this.doc.pages.push(page);
-
     page.parentPage = null;
     if (parentPageId) {
         var parentPage = this.findPageById(parentPageId);
@@ -104,7 +103,6 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
         }
     }
     this.sayDocumentChanged();
-
     return page;
 };
 
@@ -389,7 +387,7 @@ Controller.prototype.loadDocument = function (filePath) {
                             page.thumbCreated = new Date();
                             page.canvas = null;
 
-                            if (!page.parentPageId) return;
+                            // if (!page.parentPageId) return;
                             // for (var i in this.doc.pages) {
                             //     var p = this.doc.pages[i];
                             //     if (p.id != page.parentPageId) continue;

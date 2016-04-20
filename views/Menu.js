@@ -15,12 +15,10 @@ function Menu() {
                 item.run();
             }
             thiz.closeUpward();
-        }
-        // } else if (item.type == "SubMenu") {
-        //     // thiz.openSubMenu(itemNode);
-        //     item.run();
-        // }
-        else {
+        } else if (item.type == "SubMenu") {
+            item.run();
+            thiz.openSubMenu(itemNode);
+        } else {
             if (item.handleAction) {
                 item.handleAction();
             } else if (item.run) {
@@ -31,9 +29,99 @@ function Menu() {
     }, false);
 
     this.bind("mouseover", this.handleMouseIn, this.popupContainer);
+    this.registerCommand();
+
 }
 __extend(Popup, Menu);
 
+Menu.prototype.registerCommand = function() {
+    // page menu Command
+    UICommandManager.register({
+        key: "PageMenuDivitor",
+        getLabel: function () { return "" },
+        isValid: function () { return true },
+        run: function () {
+        }
+    });
+
+    UICommandManager.register({
+        key: "PageNewPage",
+        icon: "add",
+        getLabel: function () { return "New Page " },
+        isValid: function () { return true },
+    });
+
+    UICommandManager.register({
+        key: "PageDuplicate",
+        icon: "content_copy",
+        getLabel: function () { return "Duplicate" },
+        isValid: function () { return true },
+    });
+
+    UICommandManager.register({
+        key: "PageDelete",
+        icon : "remove",
+        getLabel: function () { return "Delete" },
+        isValid: function () { return true }
+    });
+
+    UICommandManager.register({
+        key: "PageMoveLeft",
+        icon: "keyboard_arrow_left",
+        getLabel: function () { return "Move Left" },
+        isValid: function () { return true },
+    });
+
+    UICommandManager.register({
+        key: "PageMoveRight",
+        icon: "keyboard_arrow_right",
+        getLabel: function () { return "Move Right" },
+        isValid: function () { return true },
+    });
+
+    UICommandManager.register({
+        key: "PageProperties",
+        getLabel: function () { return "Properties" },
+        isValid: function () { return true }
+    });
+
+    UICommandManager.register({
+        key: "PageEditPageNode",
+        getLabel: function () { return "Edit Page Note..." },
+        isValid: function () { return true }
+    });
+
+    UICommandManager.register({
+        key: "GotoNode",
+        getLabel: function () { return "Go to" }
+    });
+    // Main menu Command
+
+    UICommandManager.register({
+        key: "aboutDialogCommand",
+        label: "About...",
+        isValid: function () { return true; },
+        run: function () {
+            var dialog = new AboutDialog();
+            dialog.open();
+        },
+        shortcut: "Ctrl+A"
+    });
+
+    UICommandManager.register({
+        key: "settingAllCommand",
+        label: "Setting",
+        isValid: function () { return true; },
+        run: function () {
+        }
+    });
+
+    UICommandManager.register({
+        key: "RecentFileCommand",
+        label: "Recent files "
+    });
+
+}
 
 Menu.prototype.hideCurrentSubMenu = function () {
     if (this.currentItemNodeWithSubMenu) {
@@ -95,12 +183,10 @@ Menu.prototype.handleMouseIn = function (event) {
     }
 
     if (item.type == "SubMenu" && !disabled && itemNode != this.currentItemNodeWithSubMenu) {
-
         this.currentShowMenuTimeout = window.setTimeout(function () {
             thiz.openSubMenu(itemNode);
             thiz.currentShowMenuTimeout = null;
         }, 300);
-
     }
 
 };

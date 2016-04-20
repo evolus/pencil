@@ -11,25 +11,6 @@ MainMenu.prototype.getTemplatePath = function () {
 };
 
 MainMenu.prototype.setup = function () {
-    UICommandManager.register({
-        key: "aboutDialogCommand",
-        label: "About...",
-        isValid: function () { return true; },
-        run: function () {
-            var dialog = new AboutDialog();
-            dialog.open();
-        },
-        shortcut: "Ctrl+A"
-    });
-
-    UICommandManager.register({
-        key: "settingAllCommand",
-        label: "Setting",
-        isValid: function () { return true; },
-        run: function () {
-        }
-    });
-
     var thiz = this;
     var createRecentSubMenuElement = function(fileName) {
         var index = fileName.indexOf("/");
@@ -61,24 +42,23 @@ MainMenu.prototype.setup = function () {
         }
         this.itemRecentFile = elements;
     }
+
+    var checkRecentButton = false;
+    if(thiz.itemRecentFile.length > 0) {
+        checkRecentButton = true;
+    }
+
+    var ui = UICommandManager.getCommand("RecentFileCommand");
+    ui.isEnabled = function () { return checkRecentButton };
+    ui.type = "SubMenu";
+    ui.subItems = thiz.itemRecentFile;
     // Register button
     this.register(UICommandManager.getCommand("openDocumentCommand"));
     this.register(UICommandManager.getCommand("saveDocumentCommand"));
     this.register(UICommandManager.getCommand("saveAsDocumentCommand"));
     this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
     this.register(UICommandManager.getCommand("exportSelectionAsPNGButton"));
-    var checkRecentButton = false;
-    if(thiz.itemRecentFile.length > 0) {
-        checkRecentButton = true;
-    }
-    thiz.register({
-        label: "Recent files " ,
-        isEnabled: function() { return checkRecentButton },
-        run: function () {
-         },
-        type: "SubMenu",
-        subItems:  thiz.itemRecentFile
-    });
+    this.register(UICommandManager.getCommand("RecentFileCommand"));
     this.register(UICommandManager.getCommand("settingAllCommand"));
     this.register(UICommandManager.getCommand("aboutDialogCommand"));
 
