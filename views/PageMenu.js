@@ -135,7 +135,6 @@ PageMenu.prototype.setup = function () {
                 var subItem = [] ;
                 createChildMenu(childPage, subItem);
                 item = createSubItems(childPage,subItem);
-
             } else {
                 item = createSubCommand(childPage);
             }

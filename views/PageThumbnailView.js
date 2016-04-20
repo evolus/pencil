@@ -34,6 +34,7 @@ PageThumbnailView.prototype.setPage = function (page, childMenu) {
     if (this.page.children.length > 0) {
         this.bind("click",function (event) {
             this.childMenu.showMenu(this.pageActionButton,"left-inside", "top", 0, 0, true);
+            event.stopPropagation();
         },this.pageActionButton)
     } else {
         this.pageActionButton.style.visibility = "hidden";

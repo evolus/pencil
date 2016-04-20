@@ -93,6 +93,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
     this.serializePage(page, page.tempFilePath);
     this.doc.pages.push(page);
+
     page.parentPage = null;
     if (parentPageId) {
         var parentPage = this.findPageById(parentPageId);
@@ -103,6 +104,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
         }
     }
     this.sayDocumentChanged();
+
     return page;
 };
 
@@ -386,27 +388,16 @@ Controller.prototype.loadDocument = function (filePath) {
                             page.thumbPath = thumbPath;
                             page.thumbCreated = new Date();
                             page.canvas = null;
-
-                            // if (!page.parentPageId) return;
-                            // for (var i in this.doc.pages) {
-                            //     var p = this.doc.pages[i];
-                            //     if (p.id != page.parentPageId) continue;
-                            //     p.children.push(page);
-                            //     page.parentPage = p;
-                            //     return;
-                            // }
                     }, thiz);
-                    for (var i = 0; i < thiz.doc.pages.length; i++) {
-                        var p = thiz.doc.pages[i];
-                        if(!p.parentPageId) continue;
-                        for( var j = 0; j < thiz.doc.pages.length; j++) {
-                            var p1 = thiz.doc.pages[j];
-                            if(p1.id == p.parentPageId) {
-                                p1.children.push(p);
-                                p.parentPage = p1;
-                            }
+                    thiz.doc.pages.forEach(function (page) {
+                        if (page.backgroundPageId) page.backgroundPage = this.findPageById(page.backgroundPageId);
+                        if (page.parentPageId) {
+                            var parentPage = this.findPageById(page.parentPageId);
+                            page.parentPage = parentPage;
+                            parentPage.children.push(page);
                         }
-                    }
+
+                    }, thiz);
                     thiz.documentPath = filePath;
                     thiz.applicationPane.onDocumentChanged();
                     thiz.modified = false;

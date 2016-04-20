@@ -11,6 +11,25 @@ MainMenu.prototype.getTemplatePath = function () {
 };
 
 MainMenu.prototype.setup = function () {
+    UICommandManager.register({
+        key: "aboutDialogCommand",
+        label: "About...",
+        isValid: function () { return true; },
+        run: function () {
+            var dialog = new AboutDialog();
+            dialog.open();
+        },
+        shortcut: "Ctrl+A"
+    });
+
+    UICommandManager.register({
+        key: "settingAllCommand",
+        label: "Setting",
+        isValid: function () { return true; },
+        run: function () {
+        }
+    });
+
     var thiz = this;
     var createRecentSubMenuElement = function(fileName) {
         var index = fileName.indexOf("/");
@@ -42,9 +61,8 @@ MainMenu.prototype.setup = function () {
         }
         this.itemRecentFile = elements;
     }
-
-    var checkRecentButton = false;
-    if(thiz.itemRecentFile.length > 0) {
+      var checkRecentButton = false;
+    if(thiz.itemRecentFile && thiz.itemRecentFile.length > 0) {
         checkRecentButton = true;
     }
 
