@@ -22,7 +22,10 @@ function Menu() {
                     thiz.openSubMenu(itemNode);
                 } else {
                     item.run();
-                    thiz.currentSubMenu.closeUpward();
+                    if (thiz.currentSubMenu) {
+                        thiz.currentSubMenu.closeUpward();
+                        this.currentSubMenu = null;
+                    }
                 }
             } else {
                 thiz.openSubMenu(itemNode);
@@ -137,7 +140,7 @@ Menu.prototype.hideCurrentSubMenu = function () {
         Dom.removeClass(this.currentItemNodeWithSubMenu, "Active");
         this.currentItemNodeWithSubMenu._subMenu.hideMenu();
         this.currentItemNodeWithSubMenu = null;
-        this.currentSubMenu = null;
+
     }
 };
 Menu.prototype.openSubMenu = function (itemNode) {
