@@ -37,10 +37,16 @@ CanvasPool.prototype.reset = function () {
 CanvasPool.prototype.newCanvas = function () {
     var canvas = this.applicationPane.createCanvas();
     var thiz = this;
-     if (thiz.canvasContentModifiedListener) canvas.canvasContentModifiedListener = thiz.canvasContentModifiedListener;
-    // canvas.element.addEventListener("p:ContentModified", function () {
-    //     if (thiz.canvasContentModifiedListener) canvas.canvasContentModifiedListener = thiz.canvasContentModifiedListener;
-    //
+    var checkSave = function () {
+        thiz.canvasContentModifiedListener(canvas);
+    }
+    canvas.startEventChange(checkSave);
+    // var oldElement = canvas.element.childNodes[0].childNodes[0].childNodes[1].innerHTML;
+    // canvas.element.addEventListener("p:ContentModified", function (event) {
+    //     if (thiz.canvasContentModifiedListener){
+    //         if(event.target.childNodes[0].childNodes[0].childNodes[1].innerHTML != oldElement)
+    //         thiz.canvasContentModifiedListener(canvas);
+    //     }
     // }, false);
     return canvas;
 };
