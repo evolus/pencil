@@ -43,7 +43,6 @@ function Menu() {
     this.bind("mouseover", this.handleMouseIn, this.popupContainer);
     this.registerCommand();
 
-
 }
 __extend(Popup, Menu);
 
@@ -199,7 +198,7 @@ Menu.prototype.handleMouseIn = function (event) {
         this.currentShowMenuTimeout = window.setTimeout(function () {
             thiz.openSubMenu(itemNode);
             thiz.currentShowMenuTimeout = null;
-        }, 300);
+        }, 150);
     }
 
 };

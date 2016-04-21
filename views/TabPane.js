@@ -10,7 +10,6 @@ function TabPane() {
 __extend(BaseTemplatedWidget, TabPane);
 
 TabPane.prototype.setContentFragment = function (fragment) {
-    console.log("setContentFragment called on splitview", fragment);
     for (var i = 0; i < fragment.childNodes.length; i ++) {
         var node = fragment.childNodes[i];
         if (!node.nodeName || !node.getAttribute) continue;
@@ -21,7 +20,6 @@ TabPane.prototype.setContentFragment = function (fragment) {
 
 };
 TabPane.prototype.addTab = function (title, contentNode) {
-    console.log("contentNode.className: " + contentNode.className);
     var header = document.createElement("div");
     Dom.addClass(header, "TabHeader");
     header.appendChild(document.createTextNode(title));
@@ -78,8 +76,6 @@ TabPane.prototype.ensureSizing = function () {
         var cw = Dom.getOffsetWidth(contentNode);
         var ch = Dom.getOffsetHeight(contentNode);
 
-        console.log(" > Size:", [cw, ch], contentNode);
-
         w = Math.max(w, cw);
         h = Math.max(h, ch);
     }
@@ -93,7 +89,6 @@ TabPane.prototype.ensureSizing = function () {
     }
 };
 TabPane.prototype.onAttached = function () {
-    console.log("onAttached on TabPane");
     this.ensureSizing();
     var thiz = this;
     window.setTimeout(function () {

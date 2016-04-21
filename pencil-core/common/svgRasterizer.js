@@ -41,7 +41,9 @@ Rasterizer.outProcessCanvasBasedBackend = {
     },
     rasterize: function (svgNode, width, height, scale, callback) {
         var id = Util.newUUID();
+        console.log("RASTER: Rasterize request sent for " + id);
         ipcRenderer.once(id, function (event, data) {
+            console.log("RASTER: Rasterize result received for " + id);
             callback(data);
         });
 

@@ -43,10 +43,6 @@ function logSizing(name, node) {
 }
 ScrollableView.prototype.invalidate = function () {
     var contentSize = this.content.scrollWidth;
-    if (Dom.hasClass(this.node(), "AnonId_childPageSrollView")) {
-        logSizing("this.content", this.content);
-        logSizing("this.node()", this.node());
-    }
 
     var size = this.node().clientWidth;
     var borderWidth = Math.round((this.node().offsetWidth - size) / 2);

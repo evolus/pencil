@@ -37,11 +37,11 @@ CanvasPool.prototype.reset = function () {
 CanvasPool.prototype.newCanvas = function () {
     var canvas = this.applicationPane.createCanvas();
     var thiz = this;
-     if (thiz.canvasContentModifiedListener) canvas.canvasContentModifiedListener = thiz.canvasContentModifiedListener;
-    // canvas.element.addEventListener("p:ContentModified", function () {
-    //     if (thiz.canvasContentModifiedListener) canvas.canvasContentModifiedListener = thiz.canvasContentModifiedListener;
-    //
-    // }, false);
+    canvas.element.addEventListener("p:ContentModified", function (event) {
+        if (thiz.canvasContentModifiedListener){
+            thiz.canvasContentModifiedListener(canvas);
+        }
+    }, false);
     return canvas;
 };
 CanvasPool.prototype.show = function (canvas) {
