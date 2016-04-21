@@ -3,6 +3,7 @@
         body .widget_CollapseablePanel {
             background: @app_bg;
             position: relative;
+            border-top: solid 1px lighten(@app_bg, 5%);
         }
         @contentContainer > * {
             display: none;
@@ -32,10 +33,10 @@
         }
 
         body .widget_CollapseablePanel[orient='horizontal'] {
-            box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+            border-right: solid 1px darken(@app_bg, 10%);
         }
         body * > * + .widget_CollapseablePanel[orient='horizontal'] {
-            box-shadow: -2px 2px 3px rgba(0, 0, 0, 0.2);
+            border-left: solid 1px lighten(@app_bg, 5%);
         }
         body .widget_CollapseablePanel[orient='horizontal'] @titleContainer {
             width: 2.65em;
@@ -122,6 +123,8 @@
         body .widget_CollapseablePanel[orient='horizontal'] @splitter:hover div {
             width: 4px;
             left: 6px;
+        }
+        body .widget_CollapseablePanel[orient='horizontal'] @splitter:active div {
             background: rgba(0, 0, 0, 0.1);
         }
         body .widget_CollapseablePanel[closed='true'] @splitter {

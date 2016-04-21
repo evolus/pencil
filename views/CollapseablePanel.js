@@ -10,7 +10,6 @@ function CollapseablePanel() {
         var title = Dom.findUpwardForNodeWithData(ev.target, "_child");
         if (!title) return;
 
-        console.log("title._child.getAttribute(active)", title._child.getAttribute("active"));
         var closing = (title._child.getAttribute("active") == "true");
 
         for (var i = 0; i < thiz.children.length; i ++) {
@@ -142,7 +141,6 @@ CollapseablePanel.prototype.updateTitle = function (titleElement) {
     Dom.setInnerText(titleElement._textSpan, title);
     window.setTimeout(function () {
         var w = Math.round(titleElement._button.offsetWidth);
-        console.log("titleElement._button.offsetWidth: ", titleElement._button.getBoundingClientRect());
         titleElement.style.height = w + "px";
     }, 500);
 };

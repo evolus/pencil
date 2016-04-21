@@ -10,6 +10,7 @@
         @contentHeader {
             padding: 0.7em;
             box-shadow: 0px 0px 1.5em 0.4em #FFF;
+            border-bottom: solid 1px darken(@app_bg, 10%);
         }
         @contentHeader > vbox > * + * {
             margin-top: 0.5em;
@@ -20,6 +21,8 @@
         @contentBody {
             text-align: center;
             overflow: auto;
+            background: darken(@app_bg, 10%);
+            box-shadow: inset 0px 0px 1ex rgba(0, 0, 0, 0.3);
         }
         @contentBody[overflowx='false'] {
             justify-content: center;

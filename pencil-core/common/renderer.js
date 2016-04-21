@@ -153,11 +153,14 @@ module.exports = function () {
         var canvasWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         var url = "file://" + app.getAppPath() + "/renderer.xhtml";
         canvasWindow.loadURL(url);
+        canvasWindow.webContents.openDevTools();
 
         ipcMain.on("canvas-render-request", function (event, data) {
+            console.log("RASTER: Forwarding render request for " + data.id);
             canvasWindow.webContents.send("canvas-render-request", data);
         });
         ipcMain.on("canvas-render-response", function (event, data) {
+            console.log("RASTER: Forwarding render result for " + data.id);
             global.mainWindow.webContents.send(data.id, data.url);
         });
 

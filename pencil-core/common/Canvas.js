@@ -167,7 +167,6 @@ function Canvas(element) {
         thiz.handleMouseMove(event);
     }, false);
     this.focusableBox.addEventListener("keydown", function (event) {
-        console.log(event);
         thiz.handleKeyPress(event);
     }, false);
 
@@ -873,7 +872,6 @@ Canvas.prototype.finishMoving = function (event) {
 
 };
 Canvas.prototype.handleMouseUp = function (event) {
-    console.log("handleMouseUp");
 
     if (this.reClick && !this.hasMoved) {
         for (editor in this.onScreenEditors)
