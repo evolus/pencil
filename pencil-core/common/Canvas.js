@@ -260,7 +260,6 @@ Object.defineProperty(Canvas.prototype, "ownerDocument", {
 });
 
 Canvas.prototype.startEventChange = function (onDone) {
-    // var oldElement = this.element.childNodes[0].childNodes[0].childNodes[1].innerHTML;
     var thiz = this;
     this.element.addEventListener("p:ContentModified", function (event) {
         if (onDone && event.target.childNodes[0].childNodes[0].childNodes[1].innerHTML != thiz.oldElement) {
