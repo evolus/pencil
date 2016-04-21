@@ -578,7 +578,6 @@ Controller.prototype.swapIn = function (page, canvas) {
     page.canvas = canvas;
     canvas.page = page;
     canvas.setSize(page.width, page.height);
-    canvas.oldElement = canvas.element.childNodes[0].childNodes[0].childNodes[1].innerHTML;
 
     console.log("Swapped in page invalidate state: " + page.invalidatedAfterLoad);
 

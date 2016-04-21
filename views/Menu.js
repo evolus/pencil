@@ -43,7 +43,6 @@ function Menu() {
     this.bind("mouseover", this.handleMouseIn, this.popupContainer);
     this.registerCommand();
 
-
 }
 __extend(Popup, Menu);
 
