@@ -128,6 +128,7 @@
             border: 1px solid #CCC;
             padding: 0px 0.5em;
             cursor: pointer;
+            align-items: center;
         }
         @childPageContainer > hbox + hbox {
             margin-left: 0.2em;
@@ -139,13 +140,16 @@
         }
 
         @childPageContainer .button_Down {
-            height: 100%;
             padding: 0em 0.3em;
             border: none;
             border-radius: 0em;
             background: transparent;
             margin-left: 0.4em;
         }
+        @childPageContainer .button_Down > i {
+            line-height: 1.5em;
+        }
+
         hbox > .button_Down:hover {
             background: rgba(0, 0, 0, 0.1);
         }
