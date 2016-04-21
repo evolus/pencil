@@ -10,7 +10,6 @@ __extend(BaseTemplatedWidget, Popup);
 Popup.Z_INDEX = 9001;
 
 Popup.prototype.onAttached = function () {
-    console.log("on attached:", this.popupContainer);
     if (this.popupContainer) {
         // this.reparent();
 	    this.popupContainer.style.position = "absolute";
@@ -256,7 +255,6 @@ Popup.prototype.hide = function (silent) {
     if (this.e(this.shouldDetach)) this.detach();
 };
 Popup.prototype.detach = function () {
-    console.log("detach called on Popup, this = ", this.constructor.name);
     if (this.popupContainer.parentNode) {
         this.popupContainer.parentNode.removeChild(this.popupContainer);
     }

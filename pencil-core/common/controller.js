@@ -797,6 +797,7 @@ Controller.prototype.getBestFitSize = function () {
 
 Controller.prototype.handleCanvasModified = function (canvas) {
     if (!canvas || !canvas.page) return;
+    console.log("Canvas modified: " + canvas.page.name);
     this.modified = true;
 
     canvas.page.lastModified = new Date();

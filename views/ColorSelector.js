@@ -412,7 +412,6 @@ ColorSelector.prototype.isModified = function () {
     return this.isUserModified;
 };
 ColorSelector.prototype.onAttached = function () {
-    console.log("onAttached on ColorSelector");
     var thiz = this;
     thiz.radius = thiz.wheelImage.offsetWidth / 2;
     window.setTimeout(function () {

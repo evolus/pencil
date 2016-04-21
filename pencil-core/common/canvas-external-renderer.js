@@ -125,6 +125,7 @@ function init() {
             //parse the SVG back into DOM
             var svgNode = parser.parseFromString(data.svg, "text/xml");
             rasterize(svgNode, data.width, data.height, data.scale, function (dataURL) {
+                console.log("RASTER: Returning render result for " + data.id);
                 ipcRenderer.send("canvas-render-response", {url: dataURL, id: data.id});
                 __callback();
             });
