@@ -1,7 +1,7 @@
 function Canvas(element) {
     this.element = element;
+    this.oldElement = "";
     this.__delegate("addEventListener", "hasAttribute", "getAttribute", "setAttribute", "setAttributeNS", "removeAttribute", "removeAttributeNS", "dispatchEvent");
-
     this.element.setAttribute("pencil-canvas", "true");
     this.element.setAttribute("tabindex", "0");
 
@@ -163,6 +163,7 @@ function Canvas(element) {
             document.removeEventListener("mousemove", arguments.callee, false);
             return;
         }
+
         thiz.handleMouseMove(event);
     }, false);
     this.focusableBox.addEventListener("keydown", function (event) {
@@ -185,6 +186,7 @@ function Canvas(element) {
             thiz.spaceHeld = false;
             Dom.removeClass(thiz, "PanDown");
         }
+
     }, false);
 
     this.propertyMenuItem.addEventListener("command", function (event) {
@@ -257,6 +259,15 @@ Object.defineProperty(Canvas.prototype, "ownerDocument", {
     }
 });
 
+Canvas.prototype.startEventChange = function (onDone) {
+    // var oldElement = this.element.childNodes[0].childNodes[0].childNodes[1].innerHTML;
+    var thiz = this;
+    this.element.addEventListener("p:ContentModified", function (event) {
+        if (onDone && event.target.childNodes[0].childNodes[0].childNodes[1].innerHTML != thiz.oldElement) {
+            onDone();
+        }
+    }, false);
+}
 Canvas.prototype.createElementByName = function (name) {
     return this.element.ownerDocument.createElement("span");
 };
@@ -2341,6 +2352,7 @@ Canvas.prototype.checkDnDEventTimestamp = function (event) {
 
     return delta > 500;
 
+
 };
 
 Canvas.prototype.__dragenter = function (event) {
@@ -2367,20 +2379,18 @@ Canvas.prototype.__dragenter = function (event) {
             Console.dumpError(e);
         }
     }
-
 };
 Canvas.prototype.__dragleave = function (event) {
     this.element.removeAttribute("is-dragover");
-
+    this.element.removeAttribute("p:holding");
+    // this.element.removeAttribute("p:selection");
     if (!this.currentDragObserver)
         return;
-
     try {
         nsDragAndDrop.dragExit(event, this.currentDragObserver);
     } catch (e) {
         Console.dumpError(e);
     }
-
 };
 Canvas.prototype.__dragend = function (event) {
     this.element.removeAttribute("is-dragover");
@@ -2443,5 +2453,4 @@ Canvas.prototype.__drop = function (event) {
     } catch (e) {
         Console.dumpError(e);
     }
-
 };

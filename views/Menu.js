@@ -199,7 +199,7 @@ Menu.prototype.handleMouseIn = function (event) {
         this.currentShowMenuTimeout = window.setTimeout(function () {
             thiz.openSubMenu(itemNode);
             thiz.currentShowMenuTimeout = null;
-        }, 300);
+        }, 150);
     }
 
 };
