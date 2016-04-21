@@ -883,60 +883,52 @@ Controller.prototype.refIdToUrl = function (id) {
     return ImageData.filePathToURL(fullPath);
 };
 
+Controller.prototype._findPageIndex = function (pages, id) {
+    for (var i in pages) {
+        if (pages[i].id == id) return i;
+    }
+    return -1;
+};
+Controller.prototype.movePage = function (page, steps) {
+    if (page.parentPage) {
+        var pages = page.parentPage.children;
+        var index = this._findPageIndex(pages, page.id);
+        if (index == 0 && steps < 0 || index == pages.length - 1 && steps > 0) return;
 
-// Controller.prototype.pageMoveRight = function () {
-//     var pageIndex = this._findPageToEditIndex();
-//     if (pageIndex < 0) return;
-//     this._movePage(pageIndex, true);
-// };
-// Controller.prototype.pageMoveLeft = function () {
-//     var pageIndex = this._findPageToEditIndex();
-//     if (pageIndex < 0) return;
-//     this._movePage(pageIndex, false);
-// };
-// Controller.prototype._movePage = function (index, forward) {
-//     debug("Moving: " + [index, forward]);
-//     try {
-//         if (index < 0 || index >= this.doc.pages.length) return;
-//         var otherIndex = index + (forward ? 1 : -1);
-//         if (otherIndex < 0 || otherIndex >= this.doc.pages.length) return;
-//
-//         var page = this.doc.pages[index];
-//         var otherPage = this.doc.pages[otherIndex];
-//
-//         if (!page || !otherPage) return;
-//
-//         debug("swapping: " + [index, otherIndex]);
-//
-//         this.doc.pages[index] = otherPage;
-//         this.doc.pages[otherIndex] = page;
-//
-//         this._updatePageFromView();
-//         this._clearView();
-//         this._pageSetupCount = 0;
-//         var thiz = this;
-//
-//         this.sayDocumentChanged();
-//
-//         for (p in this.doc.pages) {
-//             this._createPageView(this.doc.pages[p], function () {
-//                 thiz._pageSetupCount ++;
-//                 if (thiz._pageSetupCount == thiz.doc.pages.length) {
-//                     thiz._ensureAllBackgrounds(function () {});
-//                 }
-//             });
-//             this._setSelectedPageIndex(otherIndex);
-//         }
-//     } catch (e) {
-//         Console.dumpError(e);
-//     }
-// };
-// Controller.prototype._findPageToEditIndex = function () {
-//     for (var i = 0; i < this.doc.pages.length; i ++) {
-//         if (this._pageToEdit == this.doc.pages[i]) {
-//             return i;
-//             break;
-//         }
-//     }
-//     return -1;
-// }
+        var insertedIndex = index + steps;
+        if (insertedIndex < 0 || insertedIndex >= pages.length) return;
+        pages.splice(index, 1);
+        insertedIndex = insertedIndex + (steps <= 0 ? 0 : 1);
+        pages.splice(insertedIndex, 0, page);
+    } else {
+        var docIndex = this._pagePageIndex(this.doc.pages, page.id);
+        var count = steps;
+        var insertedIndex = 0;
+        if (steps > 0) {
+            for (var i = docIndex + 1; i < this.doc.pages.length; i ++) {
+                if (this.doc.pages[i].parentPage) continue;
+                if (count == steps) {
+                    insertedIndex = i;
+                    break;
+                }
+                count ++;
+            }
+        } else {
+            for (var i = docIndex - 1; i >= 0; i --) {
+                if (this.doc.pages[i].parentPage) continue;
+                if (count == 0) {
+                    insertedIndex = i;
+                    break;
+                }
+                count --;
+            }
+        }
+
+        if (insertedIndex < 0 || insertedIndex >= this.doc.pages.length) return;
+
+        this.doc.pages.splice(index, 1);
+        insertedIndex = insertedIndex + (steps <= 0 ? 0 : 1);
+        this.doc.pages.splice(insertedIndex, 0, page);
+    }
+    this.sayDocumentChanged();
+};
