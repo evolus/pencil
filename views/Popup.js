@@ -98,7 +98,7 @@ Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding, aut
 Popup.prototype.isVisible = function () {
     return this.visible;
 };
-Popup.prototype.showAt = function (x, y, skipEvent) {
+Popup.prototype.showAt = function (x, y, skipEvent, autoFlip) {
     this.reparent();
 
     if (this.mode) {
@@ -117,7 +117,7 @@ Popup.prototype.showAt = function (x, y, skipEvent) {
     var screenH = window.innerHeight - 10;
 
     if (y + h > screenH) {
-        y = screenH - h;
+        y = y - h;
     }
 
     if (x + w > screenW) {

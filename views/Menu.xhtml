@@ -3,17 +3,21 @@
         body .MenuPopupContainer {
             border: @popup_border;
             border-radius: 0.35ex;
-            background: @popup_bg;
+            background: lighten(@app_bg, 5%);
             padding: 0.5ex;
-            box-shadow: 0em 0.15ex 0.4em rgba(0, 0, 0, 0.3);
+            box-shadow: 0em 0.15ex 0.7em rgba(0, 0, 0, 0.3);
             transition: opacity 0.4s;
             box-sizing: border-box;
         }
 
-        body .MenuPopupContainer .MenuItem {
+        body .MenuPopupContainer .MenuItem:not(.MenuSeparator) {
             align-items: center;
             padding: 0.3em 0.5em;
             cursor: default;
+        }
+        body .MenuPopupContainer .MenuSeparator {
+            border: none;
+            margin: 0.8em 0em;
         }
         body .MenuPopupContainer .MenuItem.Active:not([disabled='true']),
         body .MenuPopupContainer .MenuItem:not([disabled='true']):hover {
