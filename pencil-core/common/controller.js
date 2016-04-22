@@ -364,31 +364,34 @@ Controller.prototype.loadDocument = function (filePath) {
                         thiz.doc.pages.push(page);
                     });
 
-                        thiz.doc.pages.forEach(function (page) {
-                            var pageFile = path.join(targetDir, page.pageFileName);
-                            if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
-                            var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
-                            Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                                var propName = propNode.getAttribute("name");
-                                var value = propNode.textContent;
-                                if(propName == "note") {
-                                    value = RichText.fromString(value);
-                                }
-                                if (value == "undefined" || value == "null") return;
-                                page[propNode.getAttribute("name")] = value;
-                            });
+                    thiz.doc.pages.forEach(function (page) {
+                        var pageFile = path.join(targetDir, page.pageFileName);
+                        if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
+                        var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
+                        Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                            var propName = propNode.getAttribute("name");
+                            var value = propNode.textContent;
+                            if(propName == "note") {
+                                value = RichText.fromString(value);
+                            }
+                            if (value == "undefined" || value == "null") return;
+                            page[propNode.getAttribute("name")] = value;
+                        });
 
-                            if (page.width) page.width = parseInt(page.width, 10);
-                            if (page.height) page.height = parseInt(page.height, 10);
+                        if (page.width) page.width = parseInt(page.width, 10);
+                        if (page.height) page.height = parseInt(page.height, 10);
 
 
-                            if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+                        // if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
 
-                            var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
+                        var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
+                        if (fs.existsSync(thumbPath)) {
                             page.thumbPath = thumbPath;
                             page.thumbCreated = new Date();
-                            page.canvas = null;
+                        }
+                        page.canvas = null;
                     }, thiz);
+
                     thiz.doc.pages.forEach(function (page) {
                         if (page.backgroundPageId) page.backgroundPage = this.findPageById(page.backgroundPageId);
                         if (page.parentPageId) {
@@ -398,6 +401,7 @@ Controller.prototype.loadDocument = function (filePath) {
                         }
 
                     }, thiz);
+
                     thiz.documentPath = filePath;
                     thiz.applicationPane.onDocumentChanged();
                     thiz.modified = false;
@@ -658,7 +662,7 @@ Controller.prototype.deletePage = function (page) {
     this.doc.pages.splice(i, 1);
 
     fs.unlinkSync(page.tempFilePath);
-    fs.unlinkSync(page.thumbPath);
+    if (page.thumbPath && fs.existsSync(page.thumbPath)) fs.unlinkSync(page.thumbPath);
 
     this.sayDocumentChanged();
 
@@ -885,12 +889,15 @@ Controller.prototype.refIdToUrl = function (id) {
 };
 
 Controller.prototype._findPageIndex = function (pages, id) {
-    for (var i in pages) {
+    for (var i = 0; i < pages.length; i ++) {
         if (pages[i].id == id) return i;
     }
     return -1;
 };
-Controller.prototype.movePage = function (page, steps) {
+Controller.prototype.movePageWithSteps = function (pageId, steps) {
+    if (steps == 0) return;
+    var page = this.findPageById(pageId);
+    if (!page) return;
     if (page.parentPage) {
         var pages = page.parentPage.children;
         var index = this._findPageIndex(pages, page.id);
@@ -899,36 +906,33 @@ Controller.prototype.movePage = function (page, steps) {
         var insertedIndex = index + steps;
         if (insertedIndex < 0 || insertedIndex >= pages.length) return;
         pages.splice(index, 1);
-        insertedIndex = insertedIndex + (steps <= 0 ? 0 : 1);
         pages.splice(insertedIndex, 0, page);
     } else {
-        var docIndex = this._pagePageIndex(this.doc.pages, page.id);
-        var count = steps;
+        var docIndex = this._findPageIndex(this.doc.pages, page.id);
+        var count = 0;
         var insertedIndex = 0;
         if (steps > 0) {
             for (var i = docIndex + 1; i < this.doc.pages.length; i ++) {
                 if (this.doc.pages[i].parentPage) continue;
+                count ++;
                 if (count == steps) {
                     insertedIndex = i;
                     break;
                 }
-                count ++;
             }
         } else {
             for (var i = docIndex - 1; i >= 0; i --) {
                 if (this.doc.pages[i].parentPage) continue;
-                if (count == 0) {
+                count ++;
+                if (count == Math.abs(steps)) {
                     insertedIndex = i;
                     break;
                 }
-                count --;
             }
         }
 
         if (insertedIndex < 0 || insertedIndex >= this.doc.pages.length) return;
-
-        this.doc.pages.splice(index, 1);
-        insertedIndex = insertedIndex + (steps <= 0 ? 0 : 1);
+        this.doc.pages.splice(docIndex, 1);
         this.doc.pages.splice(insertedIndex, 0, page);
     }
     this.sayDocumentChanged();
