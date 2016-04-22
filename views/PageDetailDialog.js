@@ -293,22 +293,24 @@ PageDetailDialog.prototype.updatePage = function() {
             page.backgroundPageId = background.value;
         }
     }
-    
+
     var parentPageId = this.pageCombo.getSelectedItem().id;
     if (parentPageId) {
+        var checkParent = false;
         if (page.parentPage) {
             if (page.parentPage.id != parentPageId) {
                 var index = page.parentPage.children.indexOf(page);
                 page.parentPage.children.splice(index, 1);
-
-                var parentPage = Pencil.controller.findPageById(parentPageId);
-                if (parentPage) {
-                    if (!parentPage.children) parentPage.children = [];
-                    parentPage.children.push(page);
-                    page.parentPage = parentPage;
-                    page.parentPageId = parentPageId;
-                }
+            } else {
+                checkParent = true;
             }
+        }
+        if (!checkParent) {
+            var parentPage = Pencil.controller.findPageById(parentPageId);
+            if (!parentPage.children) parentPage.children = [];
+            parentPage.children.push(page);
+            page.parentPage = parentPage;
+            page.parentPageId = parentPageId;
         }
     } else {
         if (page.parentPage) {
@@ -350,7 +352,7 @@ PageDetailDialog.prototype.getDialogActions = function () {
             type: "accept", title: "APPLY",
             run: function () {
                 if(this.pageTitle.value == "" ) {
-                    dialog.showMessageBox({type: 'warning', message: "The name Page is not allow to empty", title :'Page name is not declared', buttons : ['ok']});
+                    dialog.showMessageBox({type: 'warning', message: "The name Page is not allow empty value", title :'Page name is not declared', buttons : ['ok']});
                     return;
                 }
                 if(this.modified) {

@@ -54,11 +54,11 @@ PageMenu.prototype.setup = function () {
         var dialog = new PageDetailDialog();
         dialog.title = "Edit Page Properties";
         var index = Pencil.controller.doc.pages.indexOf(thiz.page);
-        var oldParentPage = thiz.page.parentPage;
+        var oldPage = thiz.page.parentPage;
         dialog.open({
             defaultPage : thiz.page,
             onDone: function(page) {
-                if (page.parentPage != oldParentPage) {
+                if (page.parentPage != oldPage) {
                     Pencil.controller.doc.pages.splice(index,1);
                     Pencil.controller.doc.pages.push(page);
                 }
