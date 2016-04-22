@@ -6,10 +6,22 @@
             align-content: center;
         }
         @strokeWidth {
-            width: 4em;
+            width: 5ex;
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
         }
-        .widget_ComboManager @button {
-            width: 8em;
+        @styleCombo {
+            width: 6ex;
+        }
+        @styleCombo button {
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+            border-right: none;
+        }
+        @styleCombo .StrokeStyleComboItem {
+            width: 100% !important;
+            overflow: hidden;
+            display: inline-block;
         }
     </style>
     <ui:ComboManager anon-id="styleCombo" flex="1"/>

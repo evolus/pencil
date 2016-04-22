@@ -417,7 +417,7 @@ Dom.findUpward = function (node, evaluator) {
 };
 Dom.findUpwardForData = function (node, dataName) {
     var n = Dom.findUpwardForNodeWithData(node, dataName);
-    if (!n) return null;
+    if (!n) return undefined;
     return n[dataName];
 };
 Dom.findUpwardForNodeWithData = function (node, dataName) {
@@ -619,6 +619,21 @@ Dom.htmlEncode = function (text) {
     Dom.htmlEncodeDiv.appendChild(document.createTextNode(text));
     return Dom.htmlEncodeDiv.innerHTML;
 };
+Dom.htmlStrip = function (s) {
+    if (!Dom.htmlEncodePlaceHolder) {
+        Dom.htmlEncodePlaceHolder = document.createElement("div");
+    }
+    Dom.htmlEncodePlaceHolder.innerHTML = s;
+    var t = Dom.getInnerText(Dom.htmlEncodePlaceHolder);
+    Dom.htmlEncodePlaceHolder.innerHTML = "";
+    return t;
+};
+
+Dom.getInnerText = function (node) {
+    return node.innerText || node.textContent
+            || ((node.firstChild && node.firstChild.value) ? node.firstChild.value : "");
+};
+
 Dom.setInnerText = function (element, text) {
     element.innerHTML = "";
     element.appendChild(element.ownerDocument.createTextNode(text));
