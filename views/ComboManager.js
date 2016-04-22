@@ -36,7 +36,7 @@ __extend(BaseTemplatedWidget, ComboManager);
 
 ComboManager.prototype.onItemClick = function (event) {
     var item = Dom.findUpwardForData(event.target, "_data");
-    if (!item) return;
+    if (typeof(item) == "undefined") return;
 
     this.selectItem(item, true);
 };
@@ -75,11 +75,13 @@ ComboManager.prototype.setItems = function (items) {
             });
             node.appendChild(element);
         } else {
-            node = Dom.newDOMElement({
+            var spec = {
                 _name: "div",
-                "class": "Item",
-                _text: element
-            });
+                "class": "Item"
+            };
+            spec[this.useHtml ? "_html" : "_text"] = element;
+
+            node = Dom.newDOMElement(spec);
         }
         if (this.decorator) this.decorator(node, item);
 
@@ -99,8 +101,8 @@ ComboManager.prototype.selectItem = function (item, fromUserAction) {
         Dom.empty(this.buttonDisplay);
         this.buttonDisplay.appendChild(element);
     } else {
-        this.buttonDisplay.innerHTML = Dom.htmlEncode(element);
-        this.button.setAttribute("title", element);
+        this.buttonDisplay.innerHTML = this.useHtml ? element : Dom.htmlEncode(element);
+        this.button.setAttribute("title", this.useHtml ? Dom.htmlStrip(element) : element);
     }
     if (this.decorator != null) {
         this.decorator(this.buttonDisplay, item);

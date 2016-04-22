@@ -9,14 +9,13 @@
             -webkit-transition: opacity 1s;
             transition: opacity 1s;
             font-size: 0.9em;
+            padding: 0.5em;
         }
         @propertyContainer > .Group + .Group {
             margin-top: 2em;
         }
         @propertyContainer > .Group > .Wrapper {
             align-items: center;
-            margin-left: 0.5em;
-            border-left: solid 1px rgba(0, 0, 0, 0.1);
             padding-left: 1em;
         }
         @propertyContainer > .Group > .Label + .Wrapper {
@@ -27,12 +26,15 @@
         }
         @propertyContainer > .Group > div.Label.Group {
             font-weight: bold;
+            color: darken(@app_bg, 50%);
+            text-shadow: 1px 1px 0px lighten(@app_bg, 20%);
         }
         @propertyContainer > .Group > .Wrapper > div.Label {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             width: 6em;
+            font-size: 0.9em;
         }
 
         @propertyContainer input[type='text'],
@@ -71,8 +73,8 @@
 
     </style>
     <vbox anon-id="noTargetMessagePane" flex="1">
-        <span>Select an object or a group of objects in the canvas to edit properties.</span>
+        <span>Select objects in the canvas to edit properties.</span>
     </vbox>
-    <vbox anon-id="propertyContainer" style="transition: opacity 0.1s; -webkit-transition: opacity 0.1s;">
+    <vbox anon-id="propertyContainer" flex="1" style="transition: opacity 0.1s; -webkit-transition: opacity 0.1s;">
     </vbox>
 </vbox>
