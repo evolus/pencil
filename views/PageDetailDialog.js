@@ -293,26 +293,31 @@ PageDetailDialog.prototype.updatePage = function() {
             page.backgroundPageId = background.value;
         }
     }
-    if(page.parentPage) {
-        var parentedPage = page.parentPage;
-        var index = parentedPage.children.indexOf(page);
-        parentedPage.children.splice(index, 1);
-    }
-
+    
     var parentPageId = this.pageCombo.getSelectedItem().id;
-     if (parentPageId) {
-        var parentPage = Pencil.controller.findPageById(parentPageId);
-        if (parentPage) {
-            if (!parentPage.children) parentPage.children = [];
-            parentPage.children.push(page);
-            page.parentPage = parentPage;
-            page.parentPageId = parentPageId;
+    if (parentPageId) {
+        if (page.parentPage) {
+            if (page.parentPage.id != parentPageId) {
+                var index = page.parentPage.children.indexOf(page);
+                page.parentPage.children.splice(index, 1);
+
+                var parentPage = Pencil.controller.findPageById(parentPageId);
+                if (parentPage) {
+                    if (!parentPage.children) parentPage.children = [];
+                    parentPage.children.push(page);
+                    page.parentPage = parentPage;
+                    page.parentPageId = parentPageId;
+                }
+            }
         }
     } else {
-        page.parentPage = null;
-        page.parentPageId = null;
+        if (page.parentPage) {
+            var index = page.parentPage.children.indexOf(page);
+            page.parentPage.children.splice(index, 1);
+            page.parentPage = null;
+            page.parentPageId = null;
+        }
     }
-
     Pencil.controller.sayDocumentChanged();
     return page;
 }
