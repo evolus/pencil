@@ -21,8 +21,6 @@ function PageThumbnailView() {
     }, this.pageThumbnail);
 
     this.pageThumbnail.style.visibility = "hidden";
-
-
 }
 __extend(BaseTemplatedWidget, PageThumbnailView);
 
