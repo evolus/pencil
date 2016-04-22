@@ -258,14 +258,6 @@ Object.defineProperty(Canvas.prototype, "ownerDocument", {
     }
 });
 
-// Canvas.prototype.startEventChange = function (onDone) {
-//     var thiz = this;
-//     this.element.addEventListener("p:ContentModified", function (event) {
-//         if (onDone && event.target.childNodes[0].childNodes[0].childNodes[1].innerHTML != thiz.oldElement) {
-//             onDone();
-//         }
-//     }, false);
-// }
 Canvas.prototype.createElementByName = function (name) {
     return this.element.ownerDocument.createElement("span");
 };

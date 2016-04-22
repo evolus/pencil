@@ -1,5 +1,6 @@
 function PageDetailDialog() {
     Dialog.call(this);
+    this.modified = false;
     this.title = "CREATE NEW PAGE";
     this.pageCombo.renderer = function (canvas) {
         return canvas.name;
@@ -17,15 +18,31 @@ function PageDetailDialog() {
     };
 
     var thiz = this;
+
+    this.dialogBody.addEventListener("p:ContentModified", function () {
+        thiz.modified = true;
+    }, false)
+
+    this.pageCombo.addEventListener("p:ItemSelected", function (event) {
+
+        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
+    }, false);
+
     this.pageSizeCombo.addEventListener("p:ItemSelected", function (event) {
         var pageSize = thiz.pageSizeCombo.getSelectedItem();
         thiz.widthInput.disabled = pageSize.value;
         thiz.heightInput.disabled = pageSize.value;
+        if (pageSize.value) {
+            thiz.setPageSizeValue(pageSize.value);
+        }
+
+        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
     }, false);
 
     this.backgroundCombo.addEventListener("p:ItemSelected", function (event) {
         var background = thiz.backgroundCombo.getSelectedItem();
         thiz.colorButton.style.display = background.value ? "none" : "block";
+        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
     }, false);
 
     this.colorButton.addEventListener("click", function (event) {
@@ -39,6 +56,11 @@ function PageDetailDialog() {
         var color = thiz.selector.getColor();
         thiz.colorButton.bgColor = color;
         thiz.colorButton.style.backgroundColor = color.toRGBString();
+        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
+    }, false);
+
+    this.pageTitle.addEventListener("change", function (event) {
+        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
     }, false);
 }
 
@@ -75,6 +97,14 @@ Page.defaultPageSizes = [
     }
 ];
 
+
+PageDetailDialog.prototype.setPageSizeValue = function (value) {
+    var index = value.indexOf("x");
+    if (index > -1) {
+        this.widthInput.value = value.substring(0, index);
+        this.heightInput.value = value.substring(index + 1);
+    }
+}
 
 PageDetailDialog.prototype.setup = function (options) {
     this.options = options;
@@ -167,13 +197,27 @@ PageDetailDialog.prototype.setup = function (options) {
     if(options.defaultPage) {
         this.setPageItem(options.defaultPage);
     }
+    this.oldBody = this.dialogBody;
 };
 
-    PageDetailDialog.prototype.setPageItem = function (page) {
-        if(page.parentPage) {
-            this.pageCombo.selectItem(page.parentPage);
+PageDetailDialog.prototype.setPageItem = function (page) {
+    if(page.parentPage) {
+        this.pageCombo.selectItem(page.parentPage);
+    }
+    this.pageTitle.value = page.name;
+
+    var pageSizeValue = page.width + "x" + page.height;
+    var index;
+    for (var i in Page.defaultPageSizes ) {
+        if(Page.defaultPageSizes[i].value == pageSizeValue) {
+            index = Page.defaultPageSizes[i];
         }
-        this.pageTitle.value = page.name;
+    }
+    var thiz = this;
+    if(index != null) {
+        this.pageSizeCombo.selectItem(index);
+        this.setPageSizeValue(index.value);
+    } else {
         this.pageSizeCombo.selectItem({
             displayName: "Custome size..."
         });
@@ -181,13 +225,21 @@ PageDetailDialog.prototype.setup = function (options) {
         this.heightInput.disabled = false;
         this.widthInput.value = page.width;
         this.heightInput.value = page.height;
-        if(page.backgroundColor) {
-            this.backgroundCombo.selectItem([{
-                 displayName: "Background Color"
-            }])
-            this.colorButton.style.backgroundColor = page.backgroundColor;
-        }
+        this.widthInput.addEventListener("change", function () {
+            thiz.modified = true;
+        }, false);
+        this.heightInput.addEventListener("change", function () {
+            thiz.modified = true;
+        }, false);
     }
+
+    if(page.backgroundColor) {
+        this.backgroundCombo.selectItem([{
+             displayName: "Background Color"
+        }])
+        this.colorButton.style.backgroundColor = page.backgroundColor;
+    }
+}
 
 const SIZE_RE = /^([0-9]+)x([0-9]+)$/;
 
@@ -227,15 +279,17 @@ PageDetailDialog.prototype.createPage = function () {
 };
 
 PageDetailDialog.prototype.updatePage = function() {
+
     var page = this.defaultPage;
     page.name = this.pageTitle.value;
     page.width = parseInt(this.widthInput.value, 10);
     page.height = parseInt(this.heightInput.value, 10);
 
-    var background = this.backgroundCombo.getSelectedItem();
+    var thiz = this;
+    var background = thiz.backgroundCombo.getSelectedItem();
     if (background.value != "transparent") {
         if (typeof(background.value) == "undefined") {
-            page.backgroundColor = this.colorButton.bgColor ? this.colorButton.bgColor.toRGBString() : "#FFFFFF";
+            page.backgroundColor = thiz.colorButton.bgColor ? this.colorButton.bgColor.toRGBString() : "#FFFFFF";
         } else {
             page.backgroundPageId = background.value;
         }
@@ -270,12 +324,14 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {
             type: "accept", title: "APPLY",
             run: function () {
-                if (thiz.onDone) {
-                  if (thiz.defaultPage) {
-                      thiz.onDone(thiz.updatePage());
-                  } else {
-                      thiz.onDone(thiz.createPage());
-                  }
+                if(this.modified) {
+                    if (thiz.onDone) {
+                      if (thiz.defaultPage) {
+                          thiz.onDone(thiz.updatePage());
+                      } else {
+                          thiz.onDone(thiz.createPage());
+                      }
+                    }
                 }
                 return true;
             }
