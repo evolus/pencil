@@ -19,13 +19,12 @@ function PageDetailDialog() {
 
     var thiz = this;
 
-    this.dialogBody.addEventListener("p:ContentModified", function () {
-        thiz.modified = true;
-    }, false)
+
+
+
 
     this.pageCombo.addEventListener("p:ItemSelected", function (event) {
-
-        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
+        thiz.modified = true;
     }, false);
 
     this.pageSizeCombo.addEventListener("p:ItemSelected", function (event) {
@@ -36,13 +35,13 @@ function PageDetailDialog() {
             thiz.setPageSizeValue(pageSize.value);
         }
 
-        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
+        thiz.modified = true;
     }, false);
 
     this.backgroundCombo.addEventListener("p:ItemSelected", function (event) {
         var background = thiz.backgroundCombo.getSelectedItem();
         thiz.colorButton.style.display = background.value ? "none" : "block";
-        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
+        thiz.modified = true;
     }, false);
 
     this.colorButton.addEventListener("click", function (event) {
@@ -56,11 +55,11 @@ function PageDetailDialog() {
         var color = thiz.selector.getColor();
         thiz.colorButton.bgColor = color;
         thiz.colorButton.style.backgroundColor = color.toRGBString();
-        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
+        thiz.modified = true;
     }, false);
 
     this.pageTitle.addEventListener("change", function (event) {
-        Dom.emitEvent("p:ContentModified", thiz.dialogBody);
+        thiz.modified = true;
     }, false);
 }
 
@@ -319,11 +318,36 @@ PageDetailDialog.prototype.updatePage = function() {
 }
 PageDetailDialog.prototype.getDialogActions = function () {
     var thiz = this;
+
     return [
-        Dialog.ACTION_CANCEL,
+        {   type: "cancel", title: "Cancel",
+            run: function () {
+                if(this.modified) {
+                    var dialogResult = dialog.showMessageBox({type: 'warning', message: "If you don't save changes will be permanently lost.", title :'Saving you change before closing', buttons : ['ok', 'cancel']});
+                    if(dialogResult == 0 ) {
+                        if(this.pageTitle.value == "" ) {
+                            dialog.showMessageBox({type: 'warning', message: "The name Page is not allow to empty", title :'Page name is not declared', buttons : ['ok']});
+                            return;
+                        }
+                        if (thiz.onDone) {
+                          if (thiz.defaultPage) {
+                              thiz.onDone(thiz.updatePage());
+                          } else {
+                              thiz.onDone(thiz.createPage());
+                          }
+                        }
+                    }
+                }
+                return true;
+            }
+        },
         {
             type: "accept", title: "APPLY",
             run: function () {
+                if(this.pageTitle.value == "" ) {
+                    dialog.showMessageBox({type: 'warning', message: "The name Page is not allow to empty", title :'Page name is not declared', buttons : ['ok']});
+                    return;
+                }
                 if(this.modified) {
                     if (thiz.onDone) {
                       if (thiz.defaultPage) {
