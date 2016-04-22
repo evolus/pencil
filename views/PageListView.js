@@ -124,8 +124,9 @@ function PageListView() {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_index");
         var page = n._page ? n._page : (n.__widget ? n.__widget.page : null);
         if (!page) return;
-        var dndImage = new Image();
-        dndImage.src = page.thumbPath;
+        // if (page.thumbPath) {
+        //     this.dndImage.src = page.thumbPath;
+        // }
         event.dataTransfer.setDragImage(this.dndImage, 8, 8);
         event.dataTransfer.setData("pageId", page.id);
         event.dataTransfer.setData("pageIndex", n._index);

@@ -21,27 +21,25 @@ function PageThumbnailView() {
     }, this.pageThumbnail);
 
     this.pageThumbnail.style.visibility = "hidden";
+
+    this.bind("click",function (event) {
+        if (!this.childMenu) return;
+        this.childMenu.showMenu(this.pageActionButton,"left-inside", "top", 0, 0, true);
+        event.stopPropagation();
+    }, this.pageActionButton);
 }
 __extend(BaseTemplatedWidget, PageThumbnailView);
 
 PageThumbnailView.prototype.setPage = function (page, childMenu) {
+    if (!page) return;
     this.page = page;
     this.childMenu = childMenu;
     this._updateUI();
-
-    if (this.page.children.length > 0) {
-        this.bind("click",function (event) {
-            this.childMenu.showMenu(this.pageActionButton,"left-inside", "top", 0, 0, true);
-            event.stopPropagation();
-        },this.pageActionButton)
-    } else {
-        this.pageActionButton.style.visibility = "hidden";
-    }
 };
 PageThumbnailView.prototype._updateUI = function () {
-    if (!this.page) return;
     this.pageThumbnail.style.visibility = "hidden";
-    this.pageThumbnail.src = this.page.thumbPath + "?time=" + (new Date().getTime());
+    if (!this.page.children || this.page.children.length == 0) this.pageActionButton.style.visibility = "hidden";
+    if (this.page.thumbPath) this.pageThumbnail.src = this.page.thumbPath + "?time=" + (new Date().getTime());
     this.pageTitle.innerHTML = this.page.name;
 };
 
