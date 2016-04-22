@@ -53,6 +53,7 @@ PageMenu.prototype.setup = function () {
     UICommandManager.getCommand("PageProperties").run = function () {
         var dialog = new PageDetailDialog();
         dialog.title = "Edit Page Properties";
+
         dialog.open({
             defaultPage : thiz.page,
             onDone: function(page) {

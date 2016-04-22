@@ -120,6 +120,34 @@ function PageListView() {
         Config.set("pageListViewExpanded.enabled", this.expanded);
     }, this.toggleButton);
 
+    this.bind("dragstart", function (event) {
+        var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_index");
+        var page = n._page ? n._page : (n.__widget ? n.__widget.page : null);
+        if (!page) return;
+        // if (page.thumbPath) {
+        //     this.dndImage.src = page.thumbPath;
+        // }
+        event.dataTransfer.setDragImage(this.dndImage, 8, 8);
+        event.dataTransfer.setData("pageId", page.id);
+        event.dataTransfer.setData("pageIndex", n._index);
+    }, this.node());
+
+    this.bind("drop", function (event) {
+        var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_index");
+        if (!n) return;
+        var pageId = event.dataTransfer.getData("pageId");
+        var index = event.dataTransfer.getData("pageIndex");
+        var moveToIndex = parseInt(n._index, 10);
+
+        var steps = moveToIndex - index;
+        if (steps == 0) return;
+        Pencil.controller.movePageWithSteps(pageId, steps);
+        this.renderPages();
+    }, this.node());
+
+    this.dndImage = new Image();
+    this.dndImage.src = "css/bullet.png";
+
     this.pageListSrollView.getStep = function () {
         return 120;
     };
@@ -242,6 +270,7 @@ PageListView.prototype.renderPages = function() {
         var selected = this.currentPage && this.currentPage.id == page.id;
 
         var pageThumbnailView = new PageThumbnailView();
+        pageThumbnailView.node()._index = i;
         var childrenListMenu = new ChildPageListMenu(page, function (selectedPage) {
             thiz.activatePage(selectedPage);
         });
@@ -287,6 +316,7 @@ PageListView.prototype.renderPages = function() {
             });
         }
         childNode._page = page;
+        childNode._index = i;
         this.childPageContainer.appendChild(childNode);
     }
     this.invalidateExpandedState();
