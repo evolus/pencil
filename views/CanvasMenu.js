@@ -212,6 +212,9 @@ CanvasMenu.prototype.setup = function () {
 
     this.register(UICommandManager.getCommand("undoCommand"));
     this.register(UICommandManager.getCommand("redoCommand"));
+
+    this.separator();
+
     this.register({
         label: "Arrangement",
         isAvailable: function () {
@@ -225,7 +228,8 @@ CanvasMenu.prototype.setup = function () {
                     UICommandManager.getCommand("sendToBackCommand")]
     });
 
-    // <menuseparator/>
+
+    this.separator();
 
     this.register(function () {
         if (thiz.canvas.contextMenuEditor) {
@@ -235,7 +239,7 @@ CanvasMenu.prototype.setup = function () {
         }
     });
 
-    // <menuseparator/>
+    this.separator();
 
     this.register(UICommandManager.getCommand("lockCommand"));
     this.register(UICommandManager.getCommand("groupCommand"));
@@ -243,14 +247,14 @@ CanvasMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("deleteSelectedCommand"));
     this.register(UICommandManager.getCommand("addSelectedToMyCollectionsCommand"));
 
-    // <menuseparator/>
+    this.separator();
 
     this.register(UICommandManager.getCommand("cutCommand"));
     this.register(UICommandManager.getCommand("copyCommand"));
     this.register(UICommandManager.getCommand("pasteCommand"));
     this.register(UICommandManager.getCommand("selectAllCommand"));
 
-    // <menuseparator/>
+    this.separator();
 
     this.register({
         label: "Resize Canvas",
@@ -260,7 +264,7 @@ CanvasMenu.prototype.setup = function () {
                     UICommandManager.getCommand("fitScreenCommand")]
     });
 
-    // <menuseparator/>
+    this.separator();
     this.register(UICommandManager.getCommand("sizingPolicyCommand"));
 
     // <menuseparator/>

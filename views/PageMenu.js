@@ -74,14 +74,14 @@ PageMenu.prototype.setup = function () {
     };
 
     this.register(UICommandManager.getCommand("PageNewPage"));
-    this.register(UICommandManager.getCommand("PageMenuDivitor"));
+    this.separator();
     this.register(UICommandManager.getCommand("PageDuplicate"));
     this.register(UICommandManager.getCommand("PageDelete"));
     this.register(UICommandManager.getCommand("PageMoveLeft"));
     this.register(UICommandManager.getCommand("PageMoveRight"));
-    this.register(UICommandManager.getCommand("PageMenuDivitor"));
+    this.separator();
     this.register(UICommandManager.getCommand("PageProperties"));
-    this.register(UICommandManager.getCommand("PageMenuDivitor"));
+    this.separator();
 
     // var createGotoSubMenuElement = function(page) {
     //     var key = page.name.split(" ").join("") + "Page" ;
@@ -169,6 +169,6 @@ PageMenu.prototype.setup = function () {
     }
     createGotoButton();
     this.register(UICommandManager.getCommand("GotoNode"));
-    this.register(UICommandManager.getCommand("PageMenuDivitor"));
+    this.separator();
     this.register(UICommandManager.getCommand("PageEditPageNode"));
 }

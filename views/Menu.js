@@ -198,7 +198,7 @@ Menu.prototype.handleMouseIn = function (event) {
         this.currentShowMenuTimeout = window.setTimeout(function () {
             thiz.openSubMenu(itemNode);
             thiz.currentShowMenuTimeout = null;
-        }, 150);
+        }, 300);
     }
 
 };
@@ -207,8 +207,33 @@ Menu.prototype.register = function (item) {
     if (!item) return;
     this.items.push(item);
 };
+Menu.SEPARATOR = {
+};
+Menu.prototype.separator = function () {
+    this.register(Menu.SEPARATOR);
+};
 Menu.prototype.renderItem = function (item) {
     if (item.isAvailable && !item.isAvailable() || item.disabled) return;
+
+    if (item == Menu.SEPARATOR) {
+        if (this.lastItemWasActualEntry) {
+            this.lastItemWasActualEntry = false;
+
+            var sep = Dom.newDOMElement({
+                _name: "hr",
+                "class": "MenuItem MenuSeparator",
+                disabled: true
+            });
+
+            sep._item = item;
+            this.popupContainer.appendChild(sep);
+
+            return sep;
+        }
+
+        return;
+
+    }
 
     var disabled = (item.isEnabled && !item.isEnabled() || item.isValid && !item.isValid || item.disabled) ? true : false;
     var hbox = Dom.newDOMElement({
@@ -273,6 +298,8 @@ Menu.prototype.renderItem = function (item) {
         }
     }
 
+    this.lastItemWasActualEntry = true;
+
     return hbox;
 };
 Menu.prototype.render = function () {
@@ -288,10 +315,15 @@ Menu.prototype.render = function () {
     }
 
     var withPrefix = false;
+    this.lastItemWasActualEntry = false;
+    var last = null;
     for (var i in actualItems) {
         var box = this.renderItem(actualItems[i]);
         if (box && box._prefixed) withPrefix = true;
+        if (box) last = box;
     }
+
+    if (last && last._item == Menu.SEPARATOR) last.parentNode.removeChild(last);
 
     if (withPrefix) {
         Dom.removeClass(this.popupContainer, "NoPrefix");
@@ -305,7 +337,7 @@ Menu.prototype.showMenu = function (anchor, hAlign, vAlign, hPadding, vPadding, 
 };
 Menu.prototype.showMenuAt = function (x, y) {
     this.render();
-    this.showAt(x, y);
+    this.showAt(x, y, false, "autoFlip");
 };
 Menu.prototype.hideMenu = function () {
     this.hide();

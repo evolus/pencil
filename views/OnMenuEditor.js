@@ -11,6 +11,7 @@ OnMenuEditor.prototype.attach = function (targetObject) {
 OnMenuEditor.prototype.invalidate = function () {
 };
 OnMenuEditor.prototype.dettach = function () {
+    this.targetObject = null;
 };
 OnMenuEditor.prototype.generateMenuItems = function () {
     if (!this.targetObject) return [];
