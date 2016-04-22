@@ -207,9 +207,9 @@ PageDetailDialog.prototype.setPageItem = function (page) {
 
     var pageSizeValue = page.width + "x" + page.height;
     var index;
-    for (var i in Page.defaultPageSizes ) {
-        if(Page.defaultPageSizes[i].value == pageSizeValue) {
-            index = Page.defaultPageSizes[i];
+    for (var i in this.pageSizeCombo.items ) {
+        if(this.pageSizeCombo.items[i].value == pageSizeValue) {
+            index = this.pageSizeCombo.items[i];
         }
     }
     var thiz = this;
@@ -278,8 +278,10 @@ PageDetailDialog.prototype.createPage = function () {
 };
 
 PageDetailDialog.prototype.updatePage = function() {
-
     var page = this.defaultPage;
+    var pageIndex = Pencil.controller.doc.pages.indexOf(page);
+    var oldPage = page.parentPage;
+
     page.name = this.pageTitle.value;
     page.width = parseInt(this.widthInput.value, 10);
     page.height = parseInt(this.heightInput.value, 10);
@@ -296,16 +298,16 @@ PageDetailDialog.prototype.updatePage = function() {
 
     var parentPageId = this.pageCombo.getSelectedItem().id;
     if (parentPageId) {
-        var checkParent = false;
+        var sameParent = false;
         if (page.parentPage) {
             if (page.parentPage.id != parentPageId) {
                 var index = page.parentPage.children.indexOf(page);
                 page.parentPage.children.splice(index, 1);
             } else {
-                checkParent = true;
+                 sameParent = true;
             }
         }
-        if (!checkParent) {
+        if (!sameParent) {
             var parentPage = Pencil.controller.findPageById(parentPageId);
             if (!parentPage.children) parentPage.children = [];
             parentPage.children.push(page);
@@ -319,6 +321,11 @@ PageDetailDialog.prototype.updatePage = function() {
             page.parentPage = null;
             page.parentPageId = null;
         }
+    }
+
+    if (page.parentPage != oldPage) {
+        Pencil.controller.doc.pages.splice(pageIndex,1);
+        Pencil.controller.doc.pages.push(page);
     }
     Pencil.controller.sayDocumentChanged();
     return page;
