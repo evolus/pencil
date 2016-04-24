@@ -19,6 +19,7 @@ app.on('window-all-closed', function() {
 app.on('ready', function() {
     var protocol = require('protocol');
     var fs = require('fs');
+
     protocol.registerBufferProtocol('ref', function(request, callback) {
         var path = request.url.substr(6);
         console.log("PATH", path);

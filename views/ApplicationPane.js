@@ -100,6 +100,13 @@ function ApplicationPane() {
         return false;
     }, false);
 
+    require("./desktop").getDesktopFontConfig(function (config) {
+        document.body.style.fontFamily = config.family;
+        document.body.style.fontStyle = config.style;
+        document.body.style.fontWeight = config.weight;
+        document.body.style.fontSize = config.size;
+    });
+
     ApplicationPane._instance = this;
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
@@ -171,8 +178,8 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
 };
 ApplicationPane.prototype.getPreferredCanvasSize = function () {
     return {
-        w: Math.round(this.contentBody.offsetWidth * 0.95),
-        h: Math.round(this.contentBody.offsetHeight * 0.95)
+        w: Math.round(this.contentBody.offsetWidth - Pencil._getCanvasPadding()),
+        h: Math.round(this.contentBody.offsetHeight - Pencil._getCanvasPadding())
     }
 };
 

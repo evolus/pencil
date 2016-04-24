@@ -31,29 +31,33 @@
 
         body @dialogFrame @dialogClose {
             @iconify();
-            width: 2em;
-            height: 2em;
+            width: 2em/1.5;
+            height: 2em/1.5;
             text-align: center;
-            line-height: 2em;
+            line-height: 2em/1.5;
             margin-left: 1em;
             font-weight: bold;
+            font-size: 1.5em;
             padding: 0em;
             position: relative;
-            left: 0.5em;
+            left: 0.5em/1.5;
         }
         body @dialogFrame @dialogClose:hover {
             color: #F00;
             background: rgba(0, 0, 0, 0.05);
         }
         body @dialogFrame @dialogTitle {
-            font-size: 1.2em;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 0px #FFF;
         }
         body @dialogFrame @dialogHeaderPane {
             align-items: center;
         }
-        body @dialogFrame @dialogBody,
-        body @dialogFrame @dialogHeaderPane {
+        body @dialogFrame @dialogBody {
             padding: 1.2em;
+        }
+        body @dialogFrame @dialogHeaderPane {
+            padding: 0.7em 1.2em;
         }
         body @dialogFrame @dialogBody {
             padding-top: 0em;
@@ -61,35 +65,38 @@
         }
         body @dialogFrame @dialogFooter {
             padding: 0.6em;
-            padding-top: 1.2em;
+            padding-top: 2em;
         }
         body @dialogFooter > hbox > * + * {
             margin-left: 1ex;
         }
-        body @dialogFooter > hbox > button {
-            color: rgba(0, 0, 0, 0.8);
-            box-shadow: none;
-            border: none;
-            background: transparent;
-            font-weight: bold;
-            padding: 0em 0.6em;
-            height: 2.2em;
-            line-height: 2.2em;
-            display: inline-block;
-        }
-        body @dialogFooter > hbox > button:active {
-            background: rgba(0, 0, 0, 0.1);
-        }
 
         body @dialogFooter > hbox > button[mode='accept'] {
-            color: @primary_color;
+            color: darken(@primary_color, 20%);
+            font-weight: bolder;
+        }
+
+        body @dialogFrame .MessageDialog {
+            padding: 1em;
+        }
+
+        body @dialogFrame .MessageDialog .DialogIcon {
+            @iconify();
+            font-size: 3em;
+        }
+
+        body @dialogFrame .MessageDialog .Messages {
+            margin-left: 2em;
+        }
+        body @dialogFrame .MessageDialog .Messages p {
+            margin-top: 0.5em;
         }
 
     </style>
     <vbox anon-id="dialogFrame" class="DialogFrame">
         <hbox anon-id="dialogHeaderPane">
             <strong anon-id="dialogTitle" flex="1">Dialog Title</strong>
-            <i anon-id="dialogClose" class="fa fa-times"></i>
+            <i anon-id="dialogClose">close</i>
         </hbox>
         <vbox flex="1" anon-id="dialogBody">
         </vbox>

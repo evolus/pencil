@@ -10,6 +10,7 @@
             padding-right: 0.3em;
             position: relative;
             overflow: visible;
+            min-height: 2.8em;
         }
         @header .widget_ScrollableView > button,
         @header button {
@@ -199,7 +200,8 @@
             </hbox>
             <hbox anon-id="childPageSrollViewContainer" flex="1">
                 <ui:ScrollableView anon-id="childPageSrollView" flex="1">
-                    <hbox anon-id="childPageContainer"></hbox>
+                    <hbox anon-id="childPageContainer">
+                    </hbox>
                 </ui:ScrollableView>
             </hbox>
         </hbox>

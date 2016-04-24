@@ -2,16 +2,12 @@ function CollectionPane() {
     BaseTemplatedWidget.call(this);
     var thiz = this;
 
-    this.bind("click",function (event) {
-        var selectCollection = function (collection) {
-            thiz.openCollection(collection);
-        }
-        var menu = new ShowAllCollectionMenu(selectCollection);
-        menu.showMenuAt(event.clientX, event.clientY);
-    },this.showAllCollections);
+    this.selectorPane.addEventListener("contextmenu", function(event) {
+        var collectionNode = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (!collectionNode) return;
 
-    this.selectorPane.addEventListener("contextmenu",function(event) {
-        var collection = Dom.findUpwardForData(event.target, "_collection");
+        collectionNode.focus();
+        var collection = collectionNode._collection;
         var menu = new CollectionMenu(collection, thiz);
         menu.showMenuAt(event.clientX, event.clientY);
     },false);
@@ -52,9 +48,8 @@ function CollectionPane() {
         thiz.filterCollections();
     }, false);
 
-    this.showHiddenCollections.addEventListener("click",function(event) {
-        var hiddenCollectionDialog = new ShowHiddenCollectionDialog(thiz);
-        hiddenCollectionDialog.open();
+    this.collectionManagementButton.addEventListener("click", function (event) {
+        new CollectionManagementDialog(thiz).open();
     });
 
     UICommandManager.register({
@@ -113,6 +108,7 @@ CollectionPane.prototype.reload = function () {
             var node = Dom.newDOMElement({
                 _name: "vbox",
                 "class": "Item",
+                "tabindex": "0",
                 _children: [
                     {
                         _name: "div",
@@ -216,6 +212,8 @@ CollectionPane.prototype.openCollection = function (collection) {
         var icon = def.iconPath;
         if (!icon && def.shape) icon = def.shape.iconPath;
 
+        var holder = {};
+
         var node = Dom.newDOMElement({
             _name: "li",
             "type": "ShapeDef",
@@ -231,7 +229,7 @@ CollectionPane.prototype.openCollection = function (collection) {
                             _children: [
                                 {
                                     _name: "img",
-                                    src: def.iconPath
+                                    _id: "iconImage"
                                 }
                             ]
                         },
@@ -242,11 +240,12 @@ CollectionPane.prototype.openCollection = function (collection) {
                     ]
                 }
             ]
-        });
+        }, null, holder);
 
         node._def = def;
 
         this.shapeList.appendChild(node);
+        Util.setupImage(holder.iconImage, def.iconPath, "center-inside");
     }
 };
 

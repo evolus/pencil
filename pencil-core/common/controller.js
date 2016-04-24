@@ -318,7 +318,7 @@ Controller.prototype.loadDocument = function (filePath) {
     var targetDir = this.tempDir.name;
     fs.exists(filePath, function (exists) {
         if (!exists) {
-            dialog.showMessageBox({type: "warning" , message : 'Your file was delete or moved some where else ?',title :"File doesn't exist", buttons : ['ok']});
+            Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
             thiz.removeRecentFile(filePath);
             return;
         }
@@ -424,23 +424,13 @@ Controller.prototype.loadDocument = function (filePath) {
     checkOldFileType(zipcallback);
 };
 Controller.prototype.confirmAndSaveDocument = function (onSaved) {
-    dialog.showMessageBox({
-        title: "Save pencil document",
-        type: "question",
-        buttons: ["Discard changes", "Cancel", "Save"],
-        defaultId: 2,
-        cancelId: 1,
-        message: "Save changes to document before closing?",
-        detail: "If you don't save, changes will be permanently lost."
-    }, function (result) {
-        if (result == 0) {
-            // discard changes
-            if (onSaved) onSaved();
-        } else if (result == 2) {
-            // save changes
-            this.saveDocument(onSaved);
-        }
-    }.bind(this));
+    Dialog.confirm(
+        "Save changes to document before closing?",
+        "If you don't save, changes will be permanently lost.",
+        "Save", function () { this.saveDocument(onSaved); }.bind(this),
+        "Cancel", function () { },
+        "Discard changes", function () { if (onSaved) onSaved(); }
+        );
 };
 
 Controller.prototype.saveAsDocument = function (onSaved) {
