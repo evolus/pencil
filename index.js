@@ -45,6 +45,7 @@ app.on('ready', function() {
     console.log("MainURL: " + mainUrl);
     mainWindow.loadURL(mainUrl);
     mainWindow.show();
+    //mainWindow.setMenu(null);
 
     global.mainWindow = mainWindow;
 

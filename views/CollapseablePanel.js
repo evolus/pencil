@@ -16,6 +16,7 @@ function CollapseablePanel() {
             var active = closing ? "false" : (thiz.children[i] == title._child ? "true" : "false");
             thiz.children[i].setAttribute("active", active);
             thiz.children[i]["p:title"].setAttribute("active", active);
+            if (thiz.children[i].onSizeChanged) thiz.children[i].onSizeChanged();
         }
 
         thiz.setAttribute("closed", closing);
@@ -88,6 +89,7 @@ CollapseablePanel.prototype.onAttached = function () {
         var active = this.children[i]._anonId == activeId ? "true" : "false";
         this.children[i].setAttribute("active", active);
         this.children[i]["p:title"].setAttribute("active", active);
+        if (this.children[i].onSizeChanged) this.children[i].onSizeChanged();
 
         if (active == "true") found = true;
     }

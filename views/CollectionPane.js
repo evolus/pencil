@@ -64,7 +64,6 @@ function CollectionPane() {
     Pencil.collectionPane = this;
     CollectionManager.loadStencils();
     this.reload();
-
 }
 __extend(BaseTemplatedWidget, CollectionPane);
 
@@ -94,7 +93,13 @@ CollectionPane.prototype.getIconName = function() {
 CollectionPane.prototype.getCollectionIcon = function (collection) {
     return collection.icon || CollectionPane.ICON_MAP[collection.id] || "border_all";
 };
+CollectionPane.prototype.onSizeChanged = function () {
+    if (!this.loaded) {
+        setTimeout(this.reload.bind(this), 300);
+    }
+};
 CollectionPane.prototype.reload = function () {
+    if (this.node().offsetWidth <= 0) return;
     Dom.empty(this.selectorPane);
 
     this.last = null;
@@ -140,13 +145,14 @@ CollectionPane.prototype.reload = function () {
             var item = thiz.selectorPane.childNodes[i];
             var inner = item.firstChild.firstChild;
 
-            var w = inner.offsetWidth + 4 * Util.em();
+            var w = inner.clientWidth + 4 * Util.em();
 
             item.style.height = w + "px";
             item.firstChild.style.width = w + "px";
             item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)"
         }
-    }, 100);
+        thiz.collectionScrollView.invalidate();
+    }, 10);
 
     if (lastNode) {
         Dom.doOnAllChildren(this.selectorPane, function (n) {
@@ -156,6 +162,8 @@ CollectionPane.prototype.reload = function () {
         this.last = lastNode._collection;
         this.openCollection(this.last);
     }
+
+    this.loaded = true;
 };
 CollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;

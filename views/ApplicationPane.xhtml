@@ -145,8 +145,8 @@
                 </ui:ScrollableView>
             </vbox>
         </hbox>
-        <hbox flex="1" style="overflow: hidden;">
-            <ui:CollapseablePanel orient="horizontal" name="left_pane">
+        <hbox flex="1" style="overflow: hidden; position: relative; ">
+            <ui:CollapseablePanel orient="horizontal" name="left_pane" mode="float">
                 <ui:CollectionPane anon-id="collectionPane"/>
                 <ui:MyCollectionPane anon-id="MyCollectionPane"/>
             </ui:CollapseablePanel>
