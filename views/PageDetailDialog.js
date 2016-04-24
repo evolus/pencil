@@ -283,8 +283,12 @@ PageDetailDialog.prototype.updatePage = function() {
     var oldPage = page.parentPage;
 
     page.name = this.pageTitle.value;
+
+    var canvas = page.canvas;
+    canvas.setSize(parseInt(this.widthInput.value, 10), parseInt(this.heightInput.value, 10));
     page.width = parseInt(this.widthInput.value, 10);
     page.height = parseInt(this.heightInput.value, 10);
+    Config.set("lastSize", [page.width, page.height].join("x"));
 
     var thiz = this;
     var background = thiz.backgroundCombo.getSelectedItem();
