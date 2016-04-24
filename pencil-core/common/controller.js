@@ -313,6 +313,10 @@ Controller.prototype.removeRecentFile = function (filePath) {
 
 
 Controller.prototype.loadDocument = function (filePath) {
+    ApplicationPane._instance.busy();
+    var onLoadFileDone = function () {
+        ApplicationPane._instance.unbusy();
+    };
     this.resetDocument();
     var thiz = this;
     var targetDir = this.tempDir.name;
@@ -320,6 +324,7 @@ Controller.prototype.loadDocument = function (filePath) {
         if (!exists) {
             Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
             thiz.removeRecentFile(filePath);
+            onLoadFileDone(false);
             return;
         }
     });
@@ -407,9 +412,11 @@ Controller.prototype.loadDocument = function (filePath) {
                     thiz.modified = false;
                     //new file was loaded, update recent file list
                     thiz.setRecentFile(filePath);
+                    onLoadFileDone(true);
                 } catch (e) {
                     console.log("error:", e);
                     thiz.newDocument();
+                    onLoadFileDone(false);
                 }
 
             }).on("error", function () {
@@ -419,6 +426,7 @@ Controller.prototype.loadDocument = function (filePath) {
         } else {
             thiz.parseOldFormatDocument(filePath);
             thiz.setRecentFile(filePath);
+            onLoadFileDone(true);
         }
     }
     checkOldFileType(zipcallback);
