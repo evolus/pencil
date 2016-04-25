@@ -909,46 +909,25 @@ Controller.prototype._findPageIndex = function (pages, id) {
     }
     return -1;
 };
-Controller.prototype.movePageWithSteps = function (pageId, steps) {
-    if (steps == 0) return;
+Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
+    if (pageId == targetPageId) return;
     var page = this.findPageById(pageId);
     if (!page) return;
-    if (page.parentPage) {
-        var pages = page.parentPage.children;
-        var index = this._findPageIndex(pages, page.id);
-        if (index == 0 && steps < 0 || index == pages.length - 1 && steps > 0) return;
 
-        var insertedIndex = index + steps;
-        if (insertedIndex < 0 || insertedIndex >= pages.length) return;
-        pages.splice(index, 1);
-        pages.splice(insertedIndex, 0, page);
-    } else {
-        var docIndex = this._findPageIndex(this.doc.pages, page.id);
-        var count = 0;
-        var insertedIndex = 0;
-        if (steps > 0) {
-            for (var i = docIndex + 1; i < this.doc.pages.length; i ++) {
-                if (this.doc.pages[i].parentPage) continue;
-                count ++;
-                if (count == steps) {
-                    insertedIndex = i;
-                    break;
-                }
-            }
-        } else {
-            for (var i = docIndex - 1; i >= 0; i --) {
-                if (this.doc.pages[i].parentPage) continue;
-                count ++;
-                if (count == Math.abs(steps)) {
-                    insertedIndex = i;
-                    break;
-                }
-            }
-        }
+    var targetPage = this.findPageById(targetPageId);
+    if (!targetPage) return;
 
-        if (insertedIndex < 0 || insertedIndex >= this.doc.pages.length) return;
-        this.doc.pages.splice(docIndex, 1);
-        this.doc.pages.splice(insertedIndex, 0, page);
-    }
+    var list = page.parentPage ? page.parentPage.children : this.doc.pages;
+    var index = list.indexOf(page);
+    var targetIndex = list.indexOf(targetPage);
+
+    if (index < 0 || targetIndex < 0) return;
+
+    list.splice(index, 1);
+    targetIndex = list.indexOf(targetPage);
+
+    if (!left) targetIndex ++;
+    list.splice(targetIndex, 0, page);
+
     this.sayDocumentChanged();
 };

@@ -8,6 +8,7 @@ function ApplicationPane() {
     this.rasterizer = new Rasterizer(this.controller);
 
     Pencil.controller = this.controller;
+    Pencil.rasterizer = this.rasterizer;
 
     this.sharedFontEditor.applicationPane = this;
 
