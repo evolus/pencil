@@ -36,10 +36,13 @@ Dialog.prototype.buildDOMNode = function () {
 
     //load also the sub-class template into the dialog body
     //please note that the binding will be done for both templates
-    var contentNode = widget.Util.loadTemplateAsNodeSync(this.getTemplatePath(), this);
+    var contentNode = this.buildContentNode();
     this.dialogBody.appendChild(contentNode);
 
     return node;
+};
+Dialog.prototype.buildContentNode = function () {
+    return widget.Util.loadTemplateAsNodeSync(this.getTemplatePath(), this);
 };
 Dialog.prototype.open = function (options) {
     if (this.setup) this.setup(options);
@@ -84,6 +87,8 @@ Dialog.prototype.invalidateElements = function () {
     Dom.empty(this.dialogFooterEndPane);
 
     actions.forEach(function (a) {
+        if (a.isApplicable && !a.isApplicable()) return;
+
         var button = this.createButton(a);
         if (a.order < 0) {
             this.dialogFooterStartPane.appendChild(button);
@@ -232,4 +237,298 @@ Dialog.prototype.handleHeaderMouseDown = function (event) {
     Dialog.heldInstance = this;
     Dialog._lastScreenX = event.screenX;
     Dialog._lastScreenY = event.screenY;
+};
+
+
+function BuilderBasedDialog(builder) {
+    this.builder = builder;
+    this.builder._dialog = this;
+    Dialog.call(this);
+
+    this.title = typeof(builder.title) == "function" ? builder.title.bind(this.builder) : builder.title;
+};
+
+__extend(Dialog, BuilderBasedDialog);
+
+const DIALOG_SIZE_SPECS = {
+        tiny: 120,
+        mini: 200,
+        smaller: 280,
+        small: 350,
+        normal: 450,
+        large: 600,
+        "slightly-larger": 700,
+        larger: 800,
+        huge: 1010
+};
+
+BuilderBasedDialog.prototype.buildContentNode = function () {
+    var div = document.createElement("div");
+    if (this.builder.size) {
+        var size = (DIALOG_SIZE_SPECS[this.builder.size] / 12) * Util.em();
+        div.style.width = size + "px";
+    }
+    this.builder.buildContent.call(this.builder, div);
+
+    return div;
+}
+BuilderBasedDialog.prototype._newLegacyAction = function (action) {
+    return {
+        title: typeof(action.title) == "function" ? action.title.bind(this.builder) : action.title,
+        type: action.isCloseHandler ? "cancel" : (action.primary ? "accept" : "extra1"),
+        isApplicable: action.isApplicable ? action.isApplicable.bind(this.builder) : null,
+        run: action.run.bind(this.builder)
+    };
+};
+BuilderBasedDialog.prototype.getDialogActions = function () {
+    var thiz = this;
+    return this.builder.actions.map(function (action) { return thiz._newLegacyAction(action); });
+}
+BuilderBasedDialog.prototype.quit = function () {
+    this.close();
+};
+
+Dialog.alert = function (message, extra, onClose) {
+    var builder = {
+        title: "Information",
+        size: message.size || "small",
+        buildContent: function (container) {
+            container.appendChild(Dom.newDOMElement({
+                _name: "hbox", "class": "MessageDialog",
+                _children: [
+                    { _name: "i", "class": "DialogIcon", _text: "info" },
+                    {
+                        _name: "vbox", flex: 1, "class": "Messages",
+                        _children: [
+                            { _name: "strong", _text: message },
+                            { _name: "p", _text: extra || ""}
+                        ]
+                    }
+                ]
+            }));
+        },
+        actions: [{
+            title: "Close",
+            primary: true,
+            isCloseHandler: true,
+            run: function () {
+                this._dialog.quit();
+                if (onClose) onClose();
+                return true;
+            }
+        }]
+    };
+    new BuilderBasedDialog(builder).open();
+}
+Dialog.error = function (message, extra, onClose) {
+    var builder = {
+        title: "Error",
+        size: "small",
+        buildContent: function (container) {
+            container.appendChild(Dom.newDOMElement({
+                _name: "hbox", "class": "MessageDialog",
+                _children: [
+                    { _name: "i", "class": "DialogIcon", _text: "error" },
+                    {
+                        _name: "vbox", flex: 1, "class": "Messages",
+                        _children: [
+                            { _name: "strong", _text: message },
+                            { _name: "p", _text: extra || ""}
+                        ]
+                    }
+                ]
+            }));
+        },
+        actions: [{
+            title: "Close",
+            primary: true,
+            isCloseHandler: true,
+            run: function () {
+                this._dialog.quit();
+                if (onClose) onClose();
+                return true;
+            }
+        }]
+    };
+    new BuilderBasedDialog(builder).open();
+}
+Dialog.prompt = function (message, initialValue, acceptMessage, onInput, cancelMessage, onCancel) {
+    var builder = {
+        title: "Prompt",
+        size: "small",
+        buildContent: function (container) {
+            var i = document.createElement("p");
+            Dom.addClass(i, "fa fa-question-circle");
+            i.setAttribute("style", "float: left; font-size: 2em; color: #428BCA;");
+            container.appendChild(i);
+
+            var div = document.createElement("div");
+            container.appendChild(div);
+            var p = document.createElement("p");
+            p.appendChild(document.createTextNode(message));
+            div.appendChild(p);
+
+            this.input = Dom.newDOMElement({
+                _name: "input",
+                style: "width: 20em;",
+                "class": "Focusable"
+            });
+
+            div.appendChild(this.input);
+            this.input.value = initialValue || "";
+
+            div.setAttribute("style", "margin-left: 3em;");
+        },
+        actions: [
+                  {
+                      title: acceptMessage ? acceptMessage : "OK",
+                      primary: true,
+                      run: function () {
+                          this._dialog.quit();
+                          if (onInput) onInput(this.input.value);
+                          return true;
+                      }
+                  },
+                  {
+                      title: cancelMessage ? cancelMessage : "Cancel",
+                      isCloseHandler: true,
+                      run: function () {
+                          this._dialog.quit();
+                          if (onCancel) onCancel();
+                          return true;
+                      }
+                  }
+              ]
+    };
+    new BuilderBasedDialog(builder).open();
+}
+Dialog.confirm = function (question, extra, positiveActionTitle, onPositiveAnswer, negativeActionTitle, onNegativeAnswer, extraActionTitle, onExtraActionAnswer) {
+    var builder = {
+        title: "Confirm",
+        size: "normal",
+        buildContent: function (container) {
+            container.appendChild(Dom.newDOMElement({
+                _name: "hbox", "class": "MessageDialog",
+                _children: [
+                    { _name: "i", "class": "DialogIcon", _text: "help" },
+                    {
+                        _name: "vbox", flex: 1, "class": "Messages",
+                        _children: [
+                            { _name: "strong", _text: question },
+                            { _name: "p", _text: extra || ""}
+                        ]
+                    }
+                ]
+            }));
+        },
+        actions: [
+            {
+                title: positiveActionTitle ? positiveActionTitle : "Yes",
+                primary: true,
+                run: function () {
+                    this._dialog.quit();
+                    if (onPositiveAnswer) onPositiveAnswer();
+                    return true;
+                }
+            },
+            {
+                title: negativeActionTitle ? negativeActionTitle : "No",
+                isCloseHandler: true,
+                run: function () {
+                    this._dialog.quit();
+                    if (onNegativeAnswer) onNegativeAnswer();
+                    return true;
+                }
+            },
+            {
+                title: extraActionTitle ? extraActionTitle : "Extra",
+                isApplicable: function () {
+                    return extraActionTitle;
+                },
+                run: function () {
+                    this._dialog.quit();
+                    if (onExtraActionAnswer) onExtraActionAnswer();
+                    return true;
+                }
+            }
+        ]
+    };
+    new BuilderBasedDialog(builder).open();
+};
+Dialog.select = function (items, callback, selectedItems, options) {
+    if (!options) options = {};
+    if (!selectedItems) selectedItems = [];
+    var same = options.same || sameRelax;
+    var formatter = options.formatter || function (x) {return "" + x};
+    var columns = options.columns || 1;
+    var builder = {
+        title: options.title || "Select",
+        size: options.size || "normal",
+        buildContent: function (container) {
+            if (options.message) {
+                var i = document.createElement("p");
+                Dom.addClass(i, "fa fa-question-circle");
+                i.setAttribute("style", "float: left; font-size: 2em; color: #428BCA;");
+                container.appendChild(i);
+
+                var p = document.createElement("p");
+                container.appendChild(p);
+                p.appendChild(document.createTextNode(options.message));
+                p.setAttribute("style", "margin-left: 3em; min-height: 2em;");
+            }
+
+            var div = document.createElement("div");
+            div.style.textAlign = "center";
+            this.inputs = [];
+            for (var i = 0; i < items.length; i ++) {
+                var id = "cb_" + widget.random();
+                var holder = {};
+                var span = Dom.newDOMElement({
+                    _name: "span",
+                    style: "display: inline-block",
+                    _children: [
+                                {_name: "input", type: "checkbox", _id: "checkbox", id: id, style: "vertical-align: middle;"},
+                                {_name: "label", "for": id, _html: Dom.htmlEncode(formatter(items[i])), style: "padding-left: 1ex; vertical-align: middle;"},
+                                ]
+                }, document, holder);
+
+                this.inputs.push(holder.checkbox);
+                holder.checkbox._item = items[i];
+                holder.checkbox.checked = contains(selectedItems, items[i], same);
+                div.appendChild(span);
+                if (options.columnWidth) span.style.width = options.columnWidth;
+
+                if ((i + 1) % columns == 0) {
+                    div.appendChild(document.createElement("br"));
+                }
+                if (i % columns > 0) {
+                    span.style.marginLeft = "2em";
+                }
+            }
+            container.appendChild(div);
+        },
+        actions: [
+            {
+                title: options.selectActionTitle || "Select",
+                primary: true,
+                run: function () {
+                    var selected = [];
+                    for (var i = 0; i < this.inputs.length; i ++) {
+                        if (this.inputs[i].checked) selected.push(this.inputs[i]._item);
+                    }
+
+                    callback(selected);
+                    return true;
+                }
+            },
+            {
+                title: "Cancel",
+                isCloseHandler: true,
+                run: function () {
+                    return true;
+                }
+            }
+        ]
+    };
+    new BuilderBasedDialog(builder).open();
 };

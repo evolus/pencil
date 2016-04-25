@@ -2,16 +2,12 @@ function CollectionPane() {
     BaseTemplatedWidget.call(this);
     var thiz = this;
 
-    this.bind("click",function (event) {
-        var selectCollection = function (collection) {
-            thiz.openCollection(collection);
-        }
-        var menu = new ShowAllCollectionMenu(selectCollection);
-        menu.showMenuAt(event.clientX, event.clientY);
-    },this.showAllCollections);
+    this.selectorPane.addEventListener("contextmenu", function(event) {
+        var collectionNode = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (!collectionNode) return;
 
-    this.selectorPane.addEventListener("contextmenu",function(event) {
-        var collection = Dom.findUpwardForData(event.target, "_collection");
+        collectionNode.focus();
+        var collection = collectionNode._collection;
         var menu = new CollectionMenu(collection, thiz);
         menu.showMenuAt(event.clientX, event.clientY);
     },false);
@@ -52,9 +48,8 @@ function CollectionPane() {
         thiz.filterCollections();
     }, false);
 
-    this.showHiddenCollections.addEventListener("click",function(event) {
-        var hiddenCollectionDialog = new ShowHiddenCollectionDialog(thiz);
-        hiddenCollectionDialog.open();
+    this.collectionManagementButton.addEventListener("click", function (event) {
+        new CollectionManagementDialog(thiz).open();
     });
 
     UICommandManager.register({
@@ -69,7 +64,6 @@ function CollectionPane() {
     Pencil.collectionPane = this;
     CollectionManager.loadStencils();
     this.reload();
-
 }
 __extend(BaseTemplatedWidget, CollectionPane);
 
@@ -99,7 +93,13 @@ CollectionPane.prototype.getIconName = function() {
 CollectionPane.prototype.getCollectionIcon = function (collection) {
     return collection.icon || CollectionPane.ICON_MAP[collection.id] || "border_all";
 };
+CollectionPane.prototype.onSizeChanged = function () {
+    if (!this.loaded) {
+        setTimeout(this.reload.bind(this), 300);
+    }
+};
 CollectionPane.prototype.reload = function () {
+    if (this.node().offsetWidth <= 0) return;
     Dom.empty(this.selectorPane);
 
     this.last = null;
@@ -113,6 +113,7 @@ CollectionPane.prototype.reload = function () {
             var node = Dom.newDOMElement({
                 _name: "vbox",
                 "class": "Item",
+                "tabindex": "0",
                 _children: [
                     {
                         _name: "div",
@@ -144,13 +145,14 @@ CollectionPane.prototype.reload = function () {
             var item = thiz.selectorPane.childNodes[i];
             var inner = item.firstChild.firstChild;
 
-            var w = inner.offsetWidth + 4 * Util.em();
+            var w = inner.clientWidth + 4 * Util.em();
 
             item.style.height = w + "px";
             item.firstChild.style.width = w + "px";
             item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)"
         }
-    }, 100);
+        thiz.collectionScrollView.invalidate();
+    }, 10);
 
     if (lastNode) {
         Dom.doOnAllChildren(this.selectorPane, function (n) {
@@ -160,6 +162,8 @@ CollectionPane.prototype.reload = function () {
         this.last = lastNode._collection;
         this.openCollection(this.last);
     }
+
+    this.loaded = true;
 };
 CollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
@@ -173,7 +177,7 @@ CollectionPane.prototype.filterCollections = function () {
         collection._filteredShapes = [];
         for (var j in collection.shapeDefs) {
             var def = collection.shapeDefs[j];
-            if (!def) continue;
+            if (!def || def.system) continue;
             if (def.displayName.toLowerCase().indexOf(filter.toLowerCase()) == -1) continue;
             collection._shapeCount++;
             collection._filteredShapes.push(def);
@@ -213,8 +217,11 @@ CollectionPane.prototype.openCollection = function (collection) {
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
     for (var i = 0; i < shapeDefs.length; i ++) {
         var def = shapeDefs[i];
+        if (def.system) continue;
         var icon = def.iconPath;
         if (!icon && def.shape) icon = def.shape.iconPath;
+
+        var holder = {};
 
         var node = Dom.newDOMElement({
             _name: "li",
@@ -231,7 +238,7 @@ CollectionPane.prototype.openCollection = function (collection) {
                             _children: [
                                 {
                                     _name: "img",
-                                    src: def.iconPath
+                                    _id: "iconImage"
                                 }
                             ]
                         },
@@ -242,11 +249,12 @@ CollectionPane.prototype.openCollection = function (collection) {
                     ]
                 }
             ]
-        });
+        }, null, holder);
 
         node._def = def;
 
         this.shapeList.appendChild(node);
+        Util.setupImage(holder.iconImage, def.iconPath, "center-inside");
     }
 };
 

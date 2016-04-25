@@ -14,11 +14,11 @@ Pencil uses [Atom Electron](http://electron.atom.io/) as the runtime, follow the
 * Rebuilding native modules for Electron:
 
     ```bash
-    $ ./node_modules/.bin/electron-rebuild
+    $ npm rebuild
     ```
 
 * Start Pencil using the prebuilt version of Electron
 
     ```bash
-    $ ./node_modules/.bin/electron .
+    $ npm start
     ```
