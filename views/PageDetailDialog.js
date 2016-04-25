@@ -190,11 +190,12 @@ PageDetailDialog.prototype.setup = function (options) {
     this.widthInput.disabled = pageSize.value;
     this.heightInput.disabled = pageSize.value;
 
-    var background = this.backgroundCombo.getSelectedItem();
-    this.colorButton.style.display = background.value ? "none" : "block";
+
 
     if(options.defaultPage) {
         this.setPageItem(options.defaultPage);
+        var background = this.backgroundCombo.getSelectedItem();
+        this.colorButton.style.display = background.value ? "none" : "block";
     }
     this.oldBody = this.dialogBody;
 };
@@ -233,10 +234,10 @@ PageDetailDialog.prototype.setPageItem = function (page) {
     }
 
     if(page.backgroundColor) {
-        this.backgroundCombo.selectItem([{
+        this.backgroundCombo.selectItem({
              displayName: "Background Color"
-        }])
-        this.colorButton.style.backgroundColor = page.backgroundColor;
+        });
+
     }
 }
 
@@ -292,12 +293,23 @@ PageDetailDialog.prototype.updatePage = function() {
 
     var thiz = this;
     var background = thiz.backgroundCombo.getSelectedItem();
+
     if (background.value != "transparent") {
         if (typeof(background.value) == "undefined") {
             page.backgroundColor = thiz.colorButton.bgColor ? this.colorButton.bgColor.toRGBString() : "#FFFFFF";
+            canvas.setBackgroundColor(page.backgroundColor);
         } else {
             page.backgroundPageId = background.value;
+            page.backgroundPage = Pencil.controller.findPageById(background.value);
+            canvas.setBackgroundColor(page.backgroundPage.backgroundColor);
         }
+    } else if (background.value == "transparent") {
+        if (page.backgroundPageId) {
+            page.backgroundPage = null;
+            page.backgroundPageId = null;
+        }
+            page.backgroundColor = null;
+            canvas.setBackgroundColor(page.backgroundColor);
     }
 
     var parentPageId = this.pageCombo.getSelectedItem().id;

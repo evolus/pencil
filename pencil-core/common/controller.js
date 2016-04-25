@@ -596,6 +596,13 @@ Controller.prototype.activatePage = function (page) {
     this.retrievePageCanvas(page);
 
     this.canvasPool.show(page.canvas);
+
+    if (page.backgroundPage) {
+        var backgroundPage = page.backgroundPage;
+        page.canvas.setBackgroundColor(backgroundPage.backgroundColor);
+    } else {
+        page.canvas.setBackgroundColor(page.backgroundColor);
+    }
     page.lastUsed = new Date();
     this.activePage = page;
     // this.sayDocumentChanged();
