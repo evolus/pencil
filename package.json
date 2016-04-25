@@ -20,7 +20,7 @@
   },
   "scripts": {
     "rebuild": "./node_modules/.bin/electron-rebuild",
-    "start": "./node_modules/.bin/electron ./index.js"
+    "start": "./node_modules/.bin/electron ."
   },
   "private": true
 }
