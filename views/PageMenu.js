@@ -35,7 +35,7 @@ PageMenu.prototype.setup = function () {
     UICommandManager.getCommand("PageDelete").isEnabled = function () { return thiz.page };
     UICommandManager.getCommand("PageDelete").run = function () {
         console.log("dialog:", dialog);
-        var dialogResult = dialog.showMessageBox({type: 'warning' , message : 'You realy want to delete this page ?',title :'Confirm', buttons : ['ok', 'cancel']});
+        var dialogResult = dialog.showMessageBox({type: 'warning' , message : 'You really want to delete this page?',title :'Confirm', buttons : ['ok', 'cancel']});
         if(dialogResult == 0 ) {
             Pencil.controller.deletePage(thiz.page);
             thiz.pageListView.renderPages();

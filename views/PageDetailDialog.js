@@ -341,10 +341,10 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {   type: "cancel", title: "Cancel",
             run: function () {
                 if(this.modified) {
-                    var dialogResult = dialog.showMessageBox({type: 'warning', message: "If you don't save changes will be permanently lost.", title :'Saving you change before closing', buttons : ['ok', 'cancel']});
+                    var dialogResult = dialog.showMessageBox({type: "warning", message: "Do you want to save the changes before closing?", title :"Saving you change before closing", buttons : ["Save", "Cancel"]});
                     if(dialogResult == 0 ) {
                         if(this.pageTitle.value == "" ) {
-                            dialog.showMessageBox({type: 'warning', message: "The name Page is not allow to empty", title :'Page name is not declared', buttons : ['ok']});
+                            dialog.showMessageBox({type: 'warning', message: "The page name is not allow to empty", title :"Page name is not declared", buttons : ["OK"]});
                             return;
                         }
                         if (thiz.onDone) {
@@ -363,7 +363,7 @@ PageDetailDialog.prototype.getDialogActions = function () {
             type: "accept", title: "APPLY",
             run: function () {
                 if(this.pageTitle.value == "" ) {
-                    dialog.showMessageBox({type: 'warning', message: "The name Page is not allow empty value", title :'Page name is not declared', buttons : ['ok']});
+                    dialog.showMessageBox({type: 'warning', message: "The page name is not allow empty value", title :'Page name is not declared', buttons : ['ok']});
                     return;
                 }
                 if(this.modified) {
