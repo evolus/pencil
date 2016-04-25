@@ -241,9 +241,10 @@ function Canvas(element) {
     this.element.appendChild(this.dragOverlay);
     Dom.addClass(this.dragOverlay, "DragOverlay");
 
-    this.focusableBox.addEventListener("focus", function () {
+    this.focusableBox.addEventListener("focus", function (event) {
         Canvas.activeCanvas = thiz;
-    }, false);
+        Dom.cancelEvent(event);
+    }, true);
 
     this.setupEventHandlers();
 }

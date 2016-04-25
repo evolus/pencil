@@ -87,13 +87,13 @@ ApplicationPane.prototype.createCanvas = function () {
 
     var wrapper = doc.createElement("div");
     Dom.addClass(wrapper, "CanvasWrapper");
+    wrapper.setAttribute("tabindex", 0);
 
     var container = doc.createElement("div");
     wrapper.appendChild(container);
     container.style.width = w + "px";
     container.style.height = h + "px";
     Dom.addClass(container, "Canvas");
-    container.setAttribute("tabindex", 0);
 
     var canvas = new Canvas(container);
 
