@@ -177,7 +177,7 @@ CollectionPane.prototype.filterCollections = function () {
         collection._filteredShapes = [];
         for (var j in collection.shapeDefs) {
             var def = collection.shapeDefs[j];
-            if (!def) continue;
+            if (!def || def.system) continue;
             if (def.displayName.toLowerCase().indexOf(filter.toLowerCase()) == -1) continue;
             collection._shapeCount++;
             collection._filteredShapes.push(def);
@@ -217,6 +217,7 @@ CollectionPane.prototype.openCollection = function (collection) {
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
     for (var i = 0; i < shapeDefs.length; i ++) {
         var def = shapeDefs[i];
+        if (def.system) continue;
         var icon = def.iconPath;
         if (!icon && def.shape) icon = def.shape.iconPath;
 
