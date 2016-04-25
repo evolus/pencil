@@ -33,10 +33,10 @@ button {
 button[disabled] {
     background: rgba(255, 255, 255, 0.2);
     cursor: default;
-    opacity: 0.5;
+    opacity: 0.6;
 }
 button[disabled] * {
-    opacity: 0.2;
+    opacity: 0.4;
 }
 button > i {
     display: inline-block;
@@ -53,6 +53,9 @@ button > i {
     -webkit-font-feature-settings: 'liga';
     -webkit-font-smoothing: subpixel-antialiased;
     opacity: 0.7;
+}
+button > i[rotated="true"] {
+    transform: rotate(90deg);
 }
 button > * {
     vertical-align: middle;
@@ -76,19 +79,33 @@ hbox.ButtonGroup > button + button {
     border-bottom-right-radius: 0px;
     border-right-width: 0px;
 }
+hbox.ButtonGroup > button:first-child > i,
+hbox.ButtonGroup > button + button > i {
+    padding-right: 1px;
+}
 hbox.ButtonGroup > button + button {
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     border-left-width: 0px;
+}
+hbox.ButtonGroup > button + button > i {
+    padding-left: 1px;
 }
 hbox.ButtonGroup > button:last-child {
     border-top-right-radius: 0.3ex;
     border-bottom-right-radius: 0.3ex;
     border-right-width: 1px;
 }
+hbox.ButtonGroup > button:last-child > i {
+    padding-right: 0px;
+}
 hbox.ButtonGroup > button[disabled] + button:not([disabled]),
 hbox.ButtonGroup > button:not([disabled]) + button[disabled] {
     border-left-width: 1px;
+}
+hbox.ButtonGroup > button[disabled] + button:not([disabled]) > i,
+hbox.ButtonGroup > button:not([disabled]) + button[disabled] > i {
+    padding-left: 0px;
 }
 hbox.ButtonGroup {
     display: inline-flex;

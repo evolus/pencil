@@ -116,8 +116,7 @@ Menu.prototype.registerCommand = function() {
         run: function () {
             var dialog = new AboutDialog();
             dialog.open();
-        },
-        shortcut: "Ctrl+A"
+        }
     });
 
     UICommandManager.register({

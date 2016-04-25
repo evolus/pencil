@@ -11,12 +11,6 @@ function ApplicationPane() {
 
     this.sharedFontEditor.applicationPane = this;
 
-    this.pageCombo.renderer = function (canvas) {
-        return canvas.name;
-    };
-    this.pageCombo.decorator = function (node, canvas) {
-    };
-
     var thiz = this;
 
     this.bind("click", function (event) {
@@ -25,44 +19,10 @@ function ApplicationPane() {
     }, this.menuIcon)
 
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
-    this.bind("click", function () {
-        var currentPage = this.pageCombo.getSelectedItem();
-        var page = this.controller.newPage("Page " + new Date().getTime(), 800, 600, null, "#FF0000", "");
-        // page.backgroundPage = currentPage;
-
-        // this.controller.activatePage(page);
-        this.pageListView.activatePage(page);
-
-    }, this.addButton);
-
-    this.bind("p:ItemSelected", function () {
-        var page = this.pageCombo.getSelectedItem();
-        // this.controller.activatePage(page);
-        this.pageListView.activatePage(page);
-    }, this.pageCombo.node());
 
     this.bind("p:PageInfoChanged", function (event) {
         this.pageListView.handlePageInfoChangedEvent(event);
     });
-
-    this.bind("click", function (event) {
-        // var thiz = this;
-        // var dialog = new PageDetailDialog();
-        // dialog.open({
-        //     onDone: function (page) {
-        //         if (!page) return;
-        //         // thiz.controller.activatePage(page);
-        //         thiz.pageListView.activatePage(page);
-        //     }
-        // });
-        this.controller.loadOldDocument();
-    }, this.testButton);
-    this.bind("click", function (event) {
-        var currentPage = this.pageCombo.getSelectedItem();
-        this.rasterizer.rasterizePageToFile(currentPage, null, function (path, error) {
-            console.log(path);
-        }, 0.5);
-    }, this.rasterizeButton);
 
     var lastOverflowX = null;
     var lastOverflowY = null;
@@ -133,6 +93,7 @@ ApplicationPane.prototype.createCanvas = function () {
     container.style.width = w + "px";
     container.style.height = h + "px";
     Dom.addClass(container, "Canvas");
+    container.setAttribute("tabindex", 0);
 
     var canvas = new Canvas(container);
 
@@ -153,10 +114,7 @@ ApplicationPane.prototype.createCanvas = function () {
     return canvas;
 };
 ApplicationPane.prototype.onDocumentChanged = function () {
-    this.pageCombo.setItems(this.controller.doc.pages);
-    if (this.controller.activePage) this.pageCombo.selectItem(this.controller.activePage);
     this.pageListView.currentPage = this.controller.activePage;
-
     this.pageListView.renderPages();
 };
 ApplicationPane.prototype.testSave = function () {

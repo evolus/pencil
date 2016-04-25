@@ -115,3 +115,5 @@ app.on("activate", function() {
 process.on('uncaughtException', function (error) {
     logger.error(error);
 });
+
+console.log("Platform: " + process.platform.trim());

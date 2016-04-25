@@ -7,6 +7,7 @@ FileToolbar.prototype.registerCommands = function () {
     UICommandManager.register({
         key: "newDocumentCommand",
         label: "New Document",
+        icon: "note_add",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.newDocument();
@@ -15,7 +16,8 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "openDocumentCommand",
-        label: "Open Document...",
+        label: "Open...",
+        icon: "open_in_browser",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.openDocument();
@@ -24,7 +26,8 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "saveDocumentCommand",
-        label: "Save Document",
+        label: "Save",
+        icon: "save",
         isValid: function () { return true; },
         run: function () {
             Pencil.controller.saveDocument();
@@ -33,8 +36,8 @@ FileToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "saveAsDocumentCommand",
-        label: "Save As Document...",
-        isValid: function () { return true; },
+        label: "Save As...",
+        isValid: function () { return Pencil.controller.documentPath; },
         run: function () {
             Pencil.controller.saveAsDocument();
         },
