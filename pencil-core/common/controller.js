@@ -334,6 +334,7 @@ Controller.prototype.loadDocument = function (filePath) {
             Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
             thiz.removeRecentFile(filePath);
             onLoadFileDone(false);
+            thiz.newDocument();
             return;
         }
     });
@@ -606,6 +607,7 @@ Controller.prototype.activatePage = function (page) {
 
     this.ensurePageCanvasBackground(page);
 
+    page.canvas.setSize(page.width, page.height);
     page.lastUsed = new Date();
     this.activePage = page;
     // this.sayDocumentChanged();
