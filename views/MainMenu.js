@@ -13,18 +13,19 @@ MainMenu.prototype.getTemplatePath = function () {
 MainMenu.prototype.setup = function () {
     UICommandManager.register({
         key: "aboutDialogCommand",
-        label: "About...",
+        label: "About Pencil",
+        icon: "info",
         isValid: function () { return true; },
         run: function () {
             var dialog = new AboutDialog();
             dialog.open();
-        },
-        shortcut: "Ctrl+A"
+        }
     });
 
     UICommandManager.register({
         key: "settingAllCommand",
-        label: "Setting",
+        label: "Setting...",
+        icon: "settings",
         isValid: function () { return true; },
         run: function () {
         }
@@ -71,13 +72,13 @@ MainMenu.prototype.setup = function () {
     ui.type = "SubMenu";
     ui.subItems = thiz.itemRecentFile;
     // Register button
+    this.register(UICommandManager.getCommand("newDocumentCommand"));
     this.register(UICommandManager.getCommand("openDocumentCommand"));
     this.register(UICommandManager.getCommand("saveDocumentCommand"));
     this.register(UICommandManager.getCommand("saveAsDocumentCommand"));
-    this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
-    this.register(UICommandManager.getCommand("exportSelectionAsPNGButton"));
+    this.separator();
     this.register(UICommandManager.getCommand("RecentFileCommand"));
+    this.separator();
     this.register(UICommandManager.getCommand("settingAllCommand"));
     this.register(UICommandManager.getCommand("aboutDialogCommand"));
-
 }

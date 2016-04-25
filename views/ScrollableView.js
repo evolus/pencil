@@ -42,6 +42,13 @@ function logSizing(name, node) {
     })
 }
 ScrollableView.prototype.invalidate = function () {
+    if (this.orient == "vertical") {
+        this.invalidateVertical();
+    } else {
+        this.invalidateHorizontal();
+    }
+};
+ScrollableView.prototype.invalidateHorizontal = function () {
     var contentSize = this.content.scrollWidth;
 
     var size = this.node().clientWidth;
@@ -68,4 +75,34 @@ ScrollableView.prototype.invalidate = function () {
 
         this.content.style.left = (this.offset - borderWidth) + "px";
     }
+
+};
+ScrollableView.prototype.invalidateVertical = function () {
+    var contentSize = this.content.scrollHeight;
+
+    var size = this.node().clientHeight;
+    var borderHeight = Math.round((this.node().offsetHeight - size) / 2);
+    var buttonSize = this.previousButton.offsetHeight;
+
+    this.node().style.width = (this.content.offsetWidth) + "px";
+
+    if (contentSize <= size) {
+        this.offset = 0;
+        this.previousButton.style.visibility = "hidden";
+        this.nextButton.style.visibility = "hidden";
+
+        this.content.style.left = "0px";
+    } else {
+        this.previousButton.style.visibility = "inherit";
+        this.nextButton.style.visibility = "inherit";
+
+        var min = size - contentSize;
+        this.offset = Math.min(Math.max(this.offset, min), 0);
+
+        this.previousButton.disabled = (this.offset >= 0);
+        this.nextButton.disabled = (this.offset <= min);
+
+        this.content.style.top = (this.offset - borderHeight) + "px";
+    }
+
 };

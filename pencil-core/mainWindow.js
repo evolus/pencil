@@ -107,7 +107,7 @@ function czGetScreenColor(x, y) {
 	return col;
 }
 Pencil._getCanvasPadding = function () {
-    return window.fullScreen ? 10 : 60;
+    return window.fullScreen ? 10 : 30;
 };
 Pencil.toggleShowHeavyElements = function () {
     var show = Config.get("view.showHeavyElements", false);

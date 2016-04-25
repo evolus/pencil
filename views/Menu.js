@@ -116,8 +116,7 @@ Menu.prototype.registerCommand = function() {
         run: function () {
             var dialog = new AboutDialog();
             dialog.open();
-        },
-        shortcut: "Ctrl+A"
+        }
     });
 
     UICommandManager.register({
@@ -235,7 +234,7 @@ Menu.prototype.renderItem = function (item) {
 
     }
 
-    var disabled = (item.isEnabled && !item.isEnabled() || item.isValid && !item.isValid || item.disabled) ? true : false;
+    var disabled = ((item.isEnabled && !item.isEnabled()) || (item.isValid && !item.isValid()) || item.disabled) ? true : false;
     var hbox = Dom.newDOMElement({
         _name: "hbox",
         "class": "MenuItem",
@@ -347,6 +346,7 @@ Menu.prototype.hideMenu = function () {
 };
 Menu.prototype.onHide = function () {
     if (this._parent) this._parent.currentItemNodeWithSubMenu = null;
+    if (this.currentShowMenuTimeout) window.clearTimeout(this.currentShowMenuTimeout);
 };
 Menu.prototype.close = function (onBlur, event) {
     this.hide();

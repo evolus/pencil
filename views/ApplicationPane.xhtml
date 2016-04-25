@@ -42,6 +42,9 @@
             outline: none;
             overflow: hidden;
         }
+        .Canvas:focus {
+            border: solid 1px fadeout(@selected_bg, 30%);
+        }
         .Canvas svg {
             line-height: 1.428;
         }
@@ -78,7 +81,6 @@
             @iconify();
             opacity: 1;
             font-size: 2.5em;
-            color: #fff;
             padding: 0.3em;
             border-radius: 1em;
             cursor: pointer;
@@ -107,46 +109,40 @@
             min-width: 0px;
             flex: 1 1 auto;
         }
+        @toolbarContainer {
+            flex-wrap: wrap;
+            margin-top: -0.4ex;
+        }
+        @toolbarContainer > * + * {
+            margin-left: 0.4ex;
+            margin-top: 0.4ex;
+        }
     </style>
 
     <vbox flex="1" anon-id="mainArea">
-        <hbox anon-id="contentHeader">
+        <hbox anon-id="contentHeader" style="align-items: center;">
             <hbox anon-id="logoBox">
                 <i anon-id="menuIcon">menu</i>
                 <div anon-id="appName">
-                    <i>mode_edit</i>
                     <strong>PENCIL</strong>
                 </div>
             </hbox>
             <vbox flex="1">
-                <ui:ScrollableView>
-                    <ui:ComboManager anon-id="pageCombo" />
-                    <hbox class="ButtonGroup">
-                        <button anon-id="addButton" mode="icon"><i>add</i></button>
-                        <button anon-id="deleteButton" mode="icon"><i>remove</i></button>
-                    </hbox>
-                    <button anon-id="testButton" mode="icon"><i>pets</i></button>
-                    <button anon-id="rasterizeButton" mode="icon"><i>image</i></button>
-
+                <hbox anon-id="toolbarContainer">
                     <ui:FileToolbar />
                     <ui:EditToolbar />
                     <ui:ZoomToolbar />
                     <ui:AlignmentToolbar />
                     <ui:SizeToolbar />
-                    <div flex="1"></div>
-                </ui:ScrollableView>
-                <ui:ScrollableView>
                     <ui:SharedFontEditor anon-id="sharedFontEditor" />
                     <ui:ColorEditor />
-
-
                     <ui:SharedBorderStyleEditor />
                     <ui:SharedGeomtryEditor />
-                </ui:ScrollableView>
+                </hbox>
             </vbox>
         </hbox>
-        <hbox flex="1" style="overflow: hidden;">
-            <ui:CollapseablePanel orient="horizontal" name="left_pane">
+        <hbox flex="1" style="overflow: hidden; position: relative; ">
+            <ui:CollapseablePanel orient="horizontal" name="left_pane" mode="float">
                 <ui:CollectionPane anon-id="collectionPane"/>
                 <ui:MyCollectionPane anon-id="MyCollectionPane"/>
             </ui:CollapseablePanel>

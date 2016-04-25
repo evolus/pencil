@@ -58,6 +58,7 @@
             padding: 0em;
             color: rgba(0, 0, 0, 0.3);
             line-height: @selector_item_width;
+            white-space: nowrap;
         }
         @selectorPane .Item > .ItemInner {
             text-align: center;
@@ -65,7 +66,9 @@
             transform-origin: 0px 0px;
 
         }
-        @selectorPane:hover .Item {
+        @selectorPane .Item:focus {
+            outline: dashed 1px rgba(255, 255, 255, 0.5);
+            outline-offset: -2px;
         }
         @selectorPane .Item i {
             @iconify();
@@ -103,7 +106,7 @@
         }
         .ShapeList {
             list-style: none;
-            padding: 0.5em;
+            padding: 0em 0.5em;
             margin: 0px;
             display: flex;
             flex-wrap: wrap;
@@ -138,7 +141,7 @@
         .ShapeList li .Shape img {
             width: 90%;
             max-height: 100%;
-            -webkit-filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.2));
+            -webkit-filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4));
         }
 
         .ShapeList li .Shape span {
@@ -149,28 +152,38 @@
             overflow: hidden;
             height: 1.2em;
             line-height: 1.2em;
-            font-size: 0.8em;
+            font-size: 0.9em;
             text-align: center;
             opacity: 0.5;
-            font-weight: bold;
             text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
         }
         @collectionInfoPane {
             padding: 1em;
-            color: @selected_bg;
+            padding-bottom: 0.5em;
+            color: #000;
         }
         @collectionIcon {
             @iconify();
-            opacity: 1;
+            color: rgba(0, 0, 0, 0.8);
             font-size: 3em;
             margin-right: 0.3em;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.9);
         }
         @collectionTitle,
         @collectionDescription {
             display: block;
         }
         @collectionDescription {
-            opacity: 0.7;
+            opacity: 0.5;
+            font-size: 0.9em;
+        }
+        @collectionTitle {
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.9);
+        }
+
+        @collectionManagementButton:not(:hover) {
+            border-color: transparent;
+            background: none;
         }
 
     </style>
@@ -182,14 +195,12 @@
             <i class="fa fa-search"></i>
         </hbox>
     </hbox>
-    <hbox flex="1" anon-id="form">
-    </hbox>
     <hbox flex="1" anon-id="contentPane">
-
         <vbox anon-id="selectorPaneContainer">
-            <button anon-id="showHiddenCollections" mode="icon"><i>pets</i></button>
-            <button anon-id="showAllCollections"><i>all_inclusive</i></button>
-            <div anon-id="selectorPane"></div>
+            <ui:ScrollableView anon-id="collectionScrollView" flex="1" orient="vertical">
+                <div anon-id="selectorPane"></div>
+            </ui:ScrollableView>
+            <button anon-id="collectionManagementButton" title="Manage collections..."><i>view_module</i></button>
         </vbox>
         <vbox anon-id="shapePane" flex="1">
             <hbox anon-id="collectionInfoPane">

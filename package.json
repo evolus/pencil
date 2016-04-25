@@ -17,5 +17,10 @@
     "unzip2": "^0.2.5",
     "electron-prebuilt": "0.37.5",
     "electron-rebuild": "^1.0.2"
-  }
+  },
+  "scripts": {
+    "rebuild": "./node_modules/.bin/electron-rebuild",
+    "start": "./node_modules/.bin/electron ."
+  },
+  "private": true
 }

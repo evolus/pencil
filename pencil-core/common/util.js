@@ -739,7 +739,7 @@ Dom.show = function (node) {
     node.style.display = node._old_display || "block";
 };
 
-Dom.newDOMElement = function (spec, doc) {
+Dom.newDOMElement = function (spec, doc, holder) {
     var ownerDocument = doc ? doc : document;
     var e = spec._uri ? ownerDocument.createElementNS(spec._uri, spec._name) : ownerDocument.createElement(spec._name);
 
@@ -753,6 +753,9 @@ Dom.newDOMElement = function (spec, doc) {
             e.setAttributeNS(uri, name, spec[name]);
         } else {
             e.setAttribute(name, spec[name]);
+            if (name == "class") {
+                Dom.addClass(e, spec[name]);
+            }
         }
     }
 
@@ -766,17 +769,21 @@ Dom.newDOMElement = function (spec, doc) {
         e.innerHTML = spec._html;
     }
     if (spec._children && spec._children.length > 0) {
-        e.appendChild(Dom.newDOMFragment(spec._children, e.ownerDocument));
+        e.appendChild(Dom.newDOMFragment(spec._children, e.ownerDocument, holder || null));
+    }
+
+    if (holder && spec._id) {
+        holder[spec._id] = e;
     }
 
     return e;
 };
-Dom.newDOMFragment = function (specs, doc) {
+Dom.newDOMFragment = function (specs, doc, holder) {
     var ownerDocument = doc ? doc : document;
     var f = ownerDocument.createDocumentFragment();
 
     for (var i in specs) {
-        f.appendChild(Dom.newDOMElement(specs[i], ownerDocument));
+        f.appendChild(Dom.newDOMElement(specs[i], ownerDocument, holder || null));
     }
     return f;
 };
@@ -1989,6 +1996,41 @@ Util.getCustomNumberProperty = function (node, name, defaultValue) {
 };
 Util.setCustomProperty = function (node, name, value) {
 	node.setAttributeNS(PencilNamespaces.p, "p:" + name, value);
+};
+Util.imageOnloadListener = function (event) {
+    var image = event.target;
+    var W = image.parentNode.offsetWidth - 2;
+    var H = image.parentNode.offsetHeight - 2;
+    var w = image.naturalWidth;
+    var h = image.naturalHeight;
+
+    var r = (image._mode == "center-crop" ? Math.min(w/W, h/H) : Math.max(w/W, h/H));
+    r = Math.max(r, 1);
+
+    w /= r;
+    h /= r;
+
+    image.parentNode.style.position = "relative";
+    if (image._mode == "center-crop") {
+        image.parentNode.style.overflow = "hidden";
+
+    }
+    image.style.position = "absolute";
+
+    image.style.width = w + "px";
+    image.style.height = h + "px";
+
+    image.style.left = (W - w) / 2 + "px";
+    image.style.top = (H - h) / 2 + "px";
+
+    image.style.visibility = "inherit";
+
+};
+Util.setupImage = function (image, src, mode) {
+    image.onload = Util.imageOnloadListener;
+    image.style.visibility = "hidden";
+    image._mode = mode;
+    image.src = src;
 };
 
 function stencilDebug(x) {

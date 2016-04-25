@@ -12,9 +12,6 @@
   "disallowSpaceAfterPrefixUnaryOperators": ["++", "--", "+", "-", "~", "!"],
   "disallowSpaceBeforeBinaryOperators": [","],
   "disallowSpaceBeforePostfixUnaryOperators": ["++", "--"],
-  "disallowSpacesInAnonymousFunctionExpression": {
-    "beforeOpeningRoundBrace": true
-  },
   "disallowSpacesInFunctionDeclaration": {
     "beforeOpeningRoundBrace": true
   },
@@ -40,6 +37,6 @@
   "requireSpacesInFunction": {
     "beforeOpeningCurlyBrace": true
   },
-  "validateLineBreaks": "LF",
+  "validateLineBreaks": false,
   "validateParameterSeparator": ", "
 }

@@ -313,13 +313,18 @@ Controller.prototype.removeRecentFile = function (filePath) {
 
 
 Controller.prototype.loadDocument = function (filePath) {
+    ApplicationPane._instance.busy();
+    var onLoadFileDone = function () {
+        ApplicationPane._instance.unbusy();
+    };
     this.resetDocument();
     var thiz = this;
     var targetDir = this.tempDir.name;
     fs.exists(filePath, function (exists) {
         if (!exists) {
-            dialog.showMessageBox({type: "warning" , message : 'Your file was delete or moved some where else ?',title :"File doesn't exist", buttons : ['ok']});
+            Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
             thiz.removeRecentFile(filePath);
+            onLoadFileDone(false);
             return;
         }
     });
@@ -407,9 +412,11 @@ Controller.prototype.loadDocument = function (filePath) {
                     thiz.modified = false;
                     //new file was loaded, update recent file list
                     thiz.setRecentFile(filePath);
+                    onLoadFileDone(true);
                 } catch (e) {
                     console.log("error:", e);
                     thiz.newDocument();
+                    onLoadFileDone(false);
                 }
 
             }).on("error", function () {
@@ -419,28 +426,19 @@ Controller.prototype.loadDocument = function (filePath) {
         } else {
             thiz.parseOldFormatDocument(filePath);
             thiz.setRecentFile(filePath);
+            onLoadFileDone(true);
         }
     }
     checkOldFileType(zipcallback);
 };
 Controller.prototype.confirmAndSaveDocument = function (onSaved) {
-    dialog.showMessageBox({
-        title: "Save pencil document",
-        type: "question",
-        buttons: ["Discard changes", "Cancel", "Save"],
-        defaultId: 2,
-        cancelId: 1,
-        message: "Save changes to document before closing?",
-        detail: "If you don't save, changes will be permanently lost."
-    }, function (result) {
-        if (result == 0) {
-            // discard changes
-            if (onSaved) onSaved();
-        } else if (result == 2) {
-            // save changes
-            this.saveDocument(onSaved);
-        }
-    }.bind(this));
+    Dialog.confirm(
+        "Save changes to document before closing?",
+        "If you don't save, changes will be permanently lost.",
+        "Save", function () { this.saveDocument(onSaved); }.bind(this),
+        "Cancel", function () { },
+        "Discard changes", function () { if (onSaved) onSaved(); }
+        );
 };
 
 Controller.prototype.saveAsDocument = function (onSaved) {

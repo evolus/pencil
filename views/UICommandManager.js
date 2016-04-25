@@ -132,8 +132,18 @@ UICommandManager.mapKey("QUOTE", 222, "'");
 window.addEventListener("load", function () {
     document.addEventListener("keydown", UICommandManager.handleKeyEvent, false);
 }, false);
+window.document.addEventListener("focus", function (event) {
+    UICommandManager.currentFocusedElement = event.target;
+}, true);
+
 
 UICommandManager.register = function (command) {
+    command._run = command.run;
+    command.run = UICommandManager.checkAndRunFunction;
+
+    command._isValid = command.isValid;
+    command.isValid = UICommandManager.isValidFunction;
+
     UICommandManager.parseShortcut(command);
     UICommandManager.commands.push(command);
     UICommandManager.map[command.key] = command;
@@ -208,7 +218,16 @@ UICommandManager.parseShortcut = function (command) {
 
     command.parsedShortcut = shortcut;
 };
+UICommandManager.checkAndRunFunction = function (event) {
+    if (UICommandManager.isApplicable(this, UICommandManager.currentFocusedElement)) {
+        this._run(event);
+    }
+};
+UICommandManager.isValidFunction = function (event) {
+    return UICommandManager.isApplicable(this, UICommandManager.currentFocusedElement) && (!this._isValid || this._isValid());
+};
 UICommandManager.handleKeyEvent = function (event) {
+    console.log("Current focused element", UICommandManager.currentFocusedElement);
 
     for (var i = 0; i < UICommandManager.commands.length; i ++) {
         var command = UICommandManager.commands[i];
@@ -223,8 +242,28 @@ UICommandManager.handleKeyEvent = function (event) {
             && event.altKey == command.parsedShortcut.alt
             && event.shiftKey == command.parsedShortcut.shift
             && event.keyCode == command.parsedShortcut.key.keyCode) {
+
                 command.run(event);
                 return;
             }
     }
+};
+UICommandManager.isApplicable = function (command, node) {
+    if (command.applyWhenType) {
+        var widget = Dom.findUpwardForData(node, "__widget");
+        if (!widget) return false;
+        return widget.constructor.name == command.applyWhenType;
+    }
+    if (command.applyWhenAttributeName) {
+        var n = Dom.findUpward(node, function (x) {
+            return x.getAttribute(command.applyWhenAttributeName) == command.applyWhenAttributeValue;
+        });
+        return n ? true : false;
+    }
+    if (command.applyWhenClass) {
+        var n = Dom.findParentWithClass(node, command.applyWhenClass);
+        return n ? true : false;
+    }
+
+    return true;
 };
