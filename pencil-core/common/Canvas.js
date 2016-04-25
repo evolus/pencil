@@ -1993,7 +1993,12 @@ Canvas.prototype.run = function (job, targetObject, actionName, args) {
 
 };
 Canvas.prototype.setBackgroundColor = function (color) {
-    this.focusableBox.style.backgroundColor = color;
+    if(color) {
+        this.focusableBox.style.backgroundColor = color;
+    } else {
+        this.focusableBox.style.backgroundColor = "";
+    }
+
 
 };
 Canvas.prototype.setSize = function (width, height) {

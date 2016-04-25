@@ -78,15 +78,18 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     page.name = name;
     page.width = width;
     page.height = height;
-    page.backgroundColor = backgroundColor;
+    if (backgroundColor) {
+        page.backgroundColor = backgroundColor;
+    }
     page.note = note;
-
     page.id = id;
     page.pageFileName = pageFileName;
     page.parentPageId = parentPageId;
-    page.backgroundPageId = backgroundPageId;
+    if (backgroundPageId) {
+        page.backgroundPageId = backgroundPageId;
+        page.backgroundPage = this.findPageById(backgroundPageId);
+    }
 
-    page.backgroundPage = this.findPageById(backgroundPageId);
     page.canvas = null;
     page.tempFilePath = path.join(this.tempDir.name, pageFileName);
     page.invalidatedAfterLoad = true;
@@ -113,8 +116,14 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     var name = page.name;
     var width = page.width;
     var height = page.height;
-    var backgroundPageId = page.backgroundPage;
-    var backgroundColor = page.backgroundColor;
+    var backgroundPageId;
+    if(page.backgroundPage) {
+        backgroundPageId = page.backgroundPage.id;
+    }
+    var backgroundColor;
+    if (page.backgroundColor) {
+         backgroundColor = page.backgroundColor;
+    }
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
