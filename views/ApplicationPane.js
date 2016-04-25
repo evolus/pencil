@@ -8,6 +8,7 @@ function ApplicationPane() {
     this.rasterizer = new Rasterizer(this.controller);
 
     Pencil.controller = this.controller;
+    Pencil.rasterizer = this.rasterizer;
 
     this.sharedFontEditor.applicationPane = this;
 
@@ -16,7 +17,7 @@ function ApplicationPane() {
     this.bind("click", function (event) {
         var mainMenu = new MainMenu();
         mainMenu.showMenu(this.menuIcon, "left-inside", "bottom", 0, 0);
-    }, this.menuIcon)
+    }, this.menuIcon);
 
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
 

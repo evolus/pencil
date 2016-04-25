@@ -143,7 +143,6 @@ Rasterizer.prototype.getBackend = function () {
     //TODO: options or condition?
     return Rasterizer.outProcessCanvasBasedBackend;
 };
-
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
     var svg = this.controller.getPageSVG(page);
     var thiz = this;
@@ -153,13 +152,13 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
     };
 
     if (page.backgroundPage) {
-        thiz.rasterizePageToUrl(page.backgroundPage, function (dataURL) {
+        thiz.getPageBitmapFile(page.backgroundPage, function (filePath) {
             var image = svg.ownerDocument.createElementNS(PencilNamespaces.svg, "image");
             image.setAttribute("x", "0");
             image.setAttribute("y", "0");
             image.setAttribute("width", page.backgroundPage.width);
             image.setAttribute("height", page.backgroundPage.height);
-            image.setAttributeNS(PencilNamespaces.xlink, "xlink:href", dataURL);
+            image.setAttributeNS(PencilNamespaces.xlink, "xlink:href", ImageData.filePathToURL(filePath));
 
             if (svg.firstChild) {
                 svg.insertBefore(image, svg.firstChild);
@@ -168,9 +167,35 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
             }
 
             f();
-        }, s);
+        });
     } else {
+        if (page.backgroundColor) {
+            var rect = svg.ownerDocument.createElementNS(PencilNamespaces.svg, "rect");
+            rect.setAttribute("x", "0");
+            rect.setAttribute("y", "0");
+            rect.setAttribute("width", page.width);
+            rect.setAttribute("height", page.height);
+            rect.setAttribute("style", "stroke: none; fill: " + page.backgroundColor + ";");
+
+            if (svg.firstChild) {
+                svg.insertBefore(rect, svg.firstChild);
+            } else {
+                svg.appendChild(rect);
+            }
+        }
+
         f();
+    }
+};
+Rasterizer.prototype.getPageBitmapFile = function (page, callback) {
+    if (page.bitmapFilePath) {
+        callback(page.bitmapFilePath);
+    } else {
+        var filePath = tmp.fileSync({ postfix: ".png" }).name;
+        this.rasterizePageToFile(page, filePath, function (filePath) {
+            page.bitmapFilePath = filePath;
+            callback(filePath);
+        }, 1);
     }
 };
 Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, scale) {

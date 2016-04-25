@@ -78,15 +78,18 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     page.name = name;
     page.width = width;
     page.height = height;
-    page.backgroundColor = backgroundColor;
+    if (backgroundColor) {
+        page.backgroundColor = backgroundColor;
+    }
     page.note = note;
-
     page.id = id;
     page.pageFileName = pageFileName;
     page.parentPageId = parentPageId;
-    page.backgroundPageId = backgroundPageId;
+    if (backgroundPageId) {
+        page.backgroundPageId = backgroundPageId;
+        page.backgroundPage = this.findPageById(backgroundPageId);
+    }
 
-    page.backgroundPage = this.findPageById(backgroundPageId);
     page.canvas = null;
     page.tempFilePath = path.join(this.tempDir.name, pageFileName);
     page.invalidatedAfterLoad = true;
@@ -113,8 +116,14 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     var name = page.name;
     var width = page.width;
     var height = page.height;
-    var backgroundPageId = page.backgroundPage;
-    var backgroundColor = page.backgroundColor;
+    var backgroundPageId;
+    if(page.backgroundPage) {
+        backgroundPageId = page.backgroundPage.id;
+    }
+    var backgroundColor;
+    if (page.backgroundColor) {
+         backgroundColor = page.backgroundColor;
+    }
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
@@ -325,6 +334,7 @@ Controller.prototype.loadDocument = function (filePath) {
             Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
             thiz.removeRecentFile(filePath);
             onLoadFileDone(false);
+            thiz.newDocument();
             return;
         }
     });
@@ -594,9 +604,32 @@ Controller.prototype.activatePage = function (page) {
     this.retrievePageCanvas(page);
 
     this.canvasPool.show(page.canvas);
+
+    this.ensurePageCanvasBackground(page);
+
+    page.canvas.setSize(page.width, page.height);
     page.lastUsed = new Date();
     this.activePage = page;
     // this.sayDocumentChanged();
+};
+Controller.prototype.ensurePageCanvasBackground = function (page) {
+    if (!page.canvas) return;
+
+    if (page.backgroundPage) {
+        var backgroundPage = page.backgroundPage;
+        Pencil.rasterizer.getPageBitmapFile(backgroundPage, function (filePath) {
+            page.canvas.setBackgroundImageData({
+                url: ImageData.filePathToURL(filePath),
+                width: backgroundPage.width,
+                height: backgroundPage.height
+            }, false);
+        });
+    } else if (page.backgroundColor) {
+        page.canvas.setBackgroundColor(page.backgroundColor);
+    } else {
+        page.canvas.setBackgroundColor(null);
+        page.canvas.setBackgroundImageData(null, false);
+    }
 };
 Controller.prototype.invalidatePageContent = function (page) {
     if (!page || !page.canvas) return;
@@ -802,6 +835,8 @@ Controller.prototype.handleCanvasModified = function (canvas) {
     console.log("Canvas modified: " + canvas.page.name);
     this.modified = true;
 
+    this.invalidateBitmapFilePath(canvas.page);
+
     canvas.page.lastModified = new Date();
     if (!this.pendingThumbnailerMap) this.pendingThumbnailerMap = {};
     var pending = this.pendingThumbnailerMap[canvas.page.id];
@@ -892,46 +927,62 @@ Controller.prototype._findPageIndex = function (pages, id) {
     }
     return -1;
 };
-Controller.prototype.movePageWithSteps = function (pageId, steps) {
-    if (steps == 0) return;
+Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
+    if (pageId == targetPageId) return;
     var page = this.findPageById(pageId);
     if (!page) return;
-    if (page.parentPage) {
-        var pages = page.parentPage.children;
-        var index = this._findPageIndex(pages, page.id);
-        if (index == 0 && steps < 0 || index == pages.length - 1 && steps > 0) return;
 
-        var insertedIndex = index + steps;
-        if (insertedIndex < 0 || insertedIndex >= pages.length) return;
-        pages.splice(index, 1);
-        pages.splice(insertedIndex, 0, page);
-    } else {
-        var docIndex = this._findPageIndex(this.doc.pages, page.id);
-        var count = 0;
-        var insertedIndex = 0;
-        if (steps > 0) {
-            for (var i = docIndex + 1; i < this.doc.pages.length; i ++) {
-                if (this.doc.pages[i].parentPage) continue;
-                count ++;
-                if (count == steps) {
-                    insertedIndex = i;
-                    break;
-                }
-            }
-        } else {
-            for (var i = docIndex - 1; i >= 0; i --) {
-                if (this.doc.pages[i].parentPage) continue;
-                count ++;
-                if (count == Math.abs(steps)) {
-                    insertedIndex = i;
-                    break;
-                }
-            }
-        }
+    var targetPage = this.findPageById(targetPageId);
+    if (!targetPage) return;
 
-        if (insertedIndex < 0 || insertedIndex >= this.doc.pages.length) return;
-        this.doc.pages.splice(docIndex, 1);
-        this.doc.pages.splice(insertedIndex, 0, page);
-    }
+    var list = page.parentPage ? page.parentPage.children : this.doc.pages;
+    var index = list.indexOf(page);
+    var targetIndex = list.indexOf(targetPage);
+
+    if (index < 0 || targetIndex < 0) return;
+
+    list.splice(index, 1);
+    targetIndex = list.indexOf(targetPage);
+
+    if (!left) targetIndex ++;
+    list.splice(targetIndex, 0, page);
+
     this.sayDocumentChanged();
+};
+Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) {
+    if (!invalidatedIds) invalidatedIds = [];
+    if (invalidatedIds.indexOf(page.id) >= 0) return;
+
+    if (page.bitmapFilePath) {
+        fs.unlinkSync(page.bitmapFilePath);
+        page.bitmapFilePath = null;
+    }
+
+    invalidatedIds.push(page.id);
+
+    this.doc.pages.forEach(function (p) {
+        if (p.backgroundPageId == page.id) this.invalidateBitmapFilePath(p, invalidatedIds);
+    }.bind(this));
+};
+Controller.prototype.updatePageProperties = function (page, name, backgroundColor, backgroundPageId, parentPageId, width, height) {
+    page.name = name;
+    page.backgroundColor = backgroundColor;
+    page.backgroundPageId = backgroundPageId;
+    page.backgroundPage = backgroundPageId ? this.findPageById(backgroundPageId) : null;
+
+    //TODO: fix parent page id reference
+    page.width = width;
+    page.height = height;
+
+    this.invalidateBitmapFilePath(page);
+    var p = this.activePage;
+    while (p) {
+        if (p.id == page.id) {
+            this.ensurePageCanvasBackground(this.activePage);
+            break;
+        }
+        p = p.backgroundPage;
+    }
+
+    Pencil.controller.sayDocumentChanged();
 };

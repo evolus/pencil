@@ -60,7 +60,7 @@ PageMenu.prototype.setup = function () {
         dialog.open({
             defaultPage : thiz.page,
             onDone: function(page) {
-                thiz.pageListView.activatePage(page);
+                // thiz.pageListView.activatePage(page);
             }
         });
     };

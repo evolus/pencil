@@ -77,11 +77,14 @@ ComboManager.prototype.setItems = function (items) {
         } else {
             var spec = {
                 _name: "div",
-                "class": "Item"
+                "class": "Item",
             };
             spec[this.useHtml ? "_html" : "_text"] = element;
 
             node = Dom.newDOMElement(spec);
+            if(item.padding) {
+                node.style.paddingLeft = item.padding + "em";
+            }
         }
         if (this.decorator) this.decorator(node, item);
 
