@@ -18,11 +18,6 @@ function PageDetailDialog() {
     };
 
     var thiz = this;
-
-
-
-
-
     this.pageCombo.addEventListener("p:ItemSelected", function (event) {
         thiz.modified = true;
     }, false);
@@ -40,12 +35,12 @@ function PageDetailDialog() {
 
     this.backgroundCombo.addEventListener("p:ItemSelected", function (event) {
         var background = thiz.backgroundCombo.getSelectedItem();
-        thiz.colorButton.style.display = background.value ? "none" : "block";
+        thiz.colorButton.disabled = background.value ? true : false;
         thiz.modified = true;
     }, false);
 
     this.colorButton.addEventListener("click", function (event) {
-        var color = thiz.colorButton.bgColor ? thiz.colorButton.bgColor : Color.fromString("#FFFFFF");
+        var color = thiz.colorButton.style.color ? Color.fromString(thiz.colorButton.style.color) : Color.fromString("#FFFFFF");
         thiz.selector.setColor(color);
         thiz.selectorContainer.show(thiz.colorButton, "left-inside", "bottom", 0, 5);
         event.cancelBubble = true;
@@ -53,8 +48,8 @@ function PageDetailDialog() {
 
     this.selector.addEventListener("ValueChange", function (event) {
         var color = thiz.selector.getColor();
-        thiz.colorButton.bgColor = color;
-        thiz.colorButton.style.backgroundColor = color.toRGBString();
+        //thiz.colorButton.bgColor = color;
+        thiz.colorButton.style.color = color.toRGBString();
         thiz.modified = true;
     }, false);
 
@@ -174,29 +169,53 @@ PageDetailDialog.prototype.setup = function (options) {
     ];
 
     var pages = Pencil.controller.doc.pages;
-    if (pages) {
-        for (var i in pages) {
-            var page = pages[i];
-            backgroundItems.push({
-                displayName: page.name,
-                value: page.id
-            });
-        }
-    };
 
+
+    var createItem = function (pages, backgroundItems, padding) {
+        var padding_tmp = padding;
+        padding_tmp ++;
+        for(var i = 0; i < pages.length; i++) {
+            if(pages[i] != thiz.defaultPage) {
+                backgroundItems.push({
+                    displayName: pages[i].name,
+                    value: pages[i].id,
+                    padding:padding
+                });
+            }
+            if (pages[i].children) {
+                createItem(pages[i].children, backgroundItems,padding_tmp);
+            }
+        }
+    }
+    for(var i in pages) {
+        var thiz =this;
+
+        if (!pages[i].parentPage ) {
+            if(pages[i] != thiz.defaultPage) {
+                backgroundItems.push({
+                    displayName: pages[i].name,
+                    value: pages[i].id,
+                });
+            }
+            if (pages[i].children) {
+                var padding = 1;
+                createItem(pages[i].children,backgroundItems,padding);
+            }
+
+        }
+    }
     this.backgroundCombo.setItems(backgroundItems);
 
     var pageSize = this.pageSizeCombo.getSelectedItem();
     this.widthInput.disabled = pageSize.value;
     this.heightInput.disabled = pageSize.value;
 
-
-
     if(options.defaultPage) {
         this.setPageItem(options.defaultPage);
-        var background = this.backgroundCombo.getSelectedItem();
-        this.colorButton.style.display = background.value ? "none" : "block";
     }
+    var background = thiz.backgroundCombo.getSelectedItem();
+    thiz.colorButton.disabled = background.value ? true : false;
+
     this.oldBody = this.dialogBody;
 };
 
@@ -232,16 +251,27 @@ PageDetailDialog.prototype.setPageItem = function (page) {
             thiz.modified = true;
         }, false);
     }
+
     if(page.backgroundColor) {
         this.backgroundCombo.selectItem({
              displayName: "Background Color"
         });
+        this.colorButton.style.color = page.backgroundColor;
     }
     if (page.backgroundPage) {
         this.backgroundCombo.selectItem({
              displayName: page.backgroundPage.name,
              value: page.backgroundPage.id
         });
+        this.colorButton.style.color = page.backgroundPage.backgroundColor;
+    }
+
+    if (!page.backgroundPageId && !page.backgroundColor) {
+        this.backgroundCombo.selectItem({
+            displayName: "Transparent Background",
+            value: "transparent"
+        });
+        this.colorButton.disabled = true;
     }
 }
 
@@ -270,7 +300,7 @@ PageDetailDialog.prototype.createPage = function () {
     var background = this.backgroundCombo.getSelectedItem();
     if (background.value != "transparent") {
         if (typeof(background.value) == "undefined") {
-            backgroundColor = this.colorButton.bgColor ? this.colorButton.bgColor.toRGBString() : "#FFFFFF";
+            backgroundColor = this.colorButton.style.color ? this.colorButton.style.color : "#FFFFFF";
         } else {
             backgroundPageId = background.value;
         }
@@ -290,6 +320,10 @@ PageDetailDialog.prototype.updatePage = function() {
     page.name = this.pageTitle.value;
 
     var canvas = page.canvas;
+    if (!canvas) {
+        Pencil.controller.retrievePageCanvas(page);
+        canvas = page.canvas;
+    }
     canvas.setSize(parseInt(this.widthInput.value, 10), parseInt(this.heightInput.value, 10));
     page.width = parseInt(this.widthInput.value, 10);
     page.height = parseInt(this.heightInput.value, 10);
@@ -300,9 +334,12 @@ PageDetailDialog.prototype.updatePage = function() {
 
     if (background.value != "transparent") {
         if (typeof(background.value) == "undefined") {
-            page.backgroundColor = thiz.colorButton.bgColor ? this.colorButton.bgColor.toRGBString() : "#FFFFFF";
+            page.backgroundPageId = null;
+            page.backgroundPage = null;
+            page.backgroundColor = this.colorButton.style.color ? this.colorButton.style.color : "#FFFFFF";
             canvas.setBackgroundColor(page.backgroundColor);
         } else {
+            page.backgroundColor = null;
             page.backgroundPageId = background.value;
             page.backgroundPage = Pencil.controller.findPageById(background.value);
             canvas.setBackgroundColor(page.backgroundPage.backgroundColor);
@@ -357,20 +394,23 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {   type: "cancel", title: "Cancel",
             run: function () {
                 if(this.modified) {
-                    var dialogResult = dialog.showMessageBox({type: 'warning', message: "If you don't save changes will be permanently lost.", title :'Saving you change before closing', buttons : ['ok', 'cancel']});
-                    if(dialogResult == 0 ) {
-                        if(this.pageTitle.value == "" ) {
-                            dialog.showMessageBox({type: 'warning', message: "The name Page is not allow to empty", title :'Page name is not declared', buttons : ['ok']});
-                            return;
-                        }
-                        if (thiz.onDone) {
-                          if (thiz.defaultPage) {
-                              thiz.onDone(thiz.updatePage());
-                          } else {
-                              thiz.onDone(thiz.createPage());
-                          }
-                        }
+                    if(this.pageTitle.value == "" ) {
+                        Dialog.alert("Page name is not declared","The name Page is not allow to empty");
+                        return;
                     }
+                    Dialog.confirm(
+                        "If you don't save changes will be permanently lost", null,
+                        "Save", function () {
+                            if (thiz.onDone) {
+                                if (thiz.defaultPage) {
+                                    thiz.onDone(thiz.updatePage());
+                                } else {
+                                    thiz.onDone(thiz.createPage());
+                                }
+                            }
+                        },
+                        "Cancel"
+                    );
                 }
                 return true;
             }
@@ -378,11 +418,11 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {
             type: "accept", title: "APPLY",
             run: function () {
-                if(this.pageTitle.value == "" ) {
-                    dialog.showMessageBox({type: 'warning', message: "The name Page is not allow empty value", title :'Page name is not declared', buttons : ['ok']});
-                    return;
-                }
                 if(this.modified) {
+                    if(this.pageTitle.value == "" ) {
+                        Dialog.alert("Page name is not declared","The name Page is not allow to empty");
+                        return;
+                    }
                     if (thiz.onDone) {
                       if (thiz.defaultPage) {
                           thiz.onDone(thiz.updatePage());

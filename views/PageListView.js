@@ -120,30 +120,69 @@ function PageListView() {
         Config.set("pageListViewExpanded.enabled", this.expanded);
     }, this.toggleButton);
 
+    this.pageListContainer._isDropZone = true;
+    this.childPageContainer._isDropZone = true;
+
+    function findPageIdFromUINode(n) {
+        var page = n._page ? n._page : (n.__widget ? n.__widget.page : null);
+        return page ? page.id : null;
+    }
+
     this.bind("dragstart", function (event) {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_index");
-        var page = n._page ? n._page : (n.__widget ? n.__widget.page : null);
-        if (!page) return;
-        // if (page.thumbPath) {
-        //     this.dndImage.src = page.thumbPath;
-        // }
+        if (!n) return;
+
         event.dataTransfer.setDragImage(this.dndImage, 8, 8);
-        event.dataTransfer.setData("pageId", page.id);
-        event.dataTransfer.setData("pageIndex", n._index);
+
+        if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
+        this.currentDraggedObject = n;
+        this.currentDraggedObject.setAttribute("dragged", "true");
     }, this.node());
 
     this.bind("drop", function (event) {
-        var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_index");
-        if (!n) return;
-        var pageId = event.dataTransfer.getData("pageId");
-        var index = event.dataTransfer.getData("pageIndex");
-        var moveToIndex = parseInt(n._index, 10);
+        if (!this.lastDropCandidateObject || !this.currentDraggedObject) return;
 
-        var steps = moveToIndex - index;
-        if (steps == 0) return;
-        Pencil.controller.movePageWithSteps(pageId, steps);
+        var pageId = findPageIdFromUINode(this.currentDraggedObject);
+        var targetPageId = findPageIdFromUINode(this.lastDropCandidateObject);
+
+        Pencil.controller.movePageTo(pageId, targetPageId, this.lastDropCandidateObject._dropLeft);
         this.renderPages();
     }, this.node());
+
+    this.bind("dragover", function (event) {
+        var container = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_isDropZone");
+        if (!container) return;
+
+        var index = 0;
+        var left = true;
+
+        var distance = Number.MAX_VALUE;
+
+        for (var i = 0; i < container.childNodes.length; i ++) {
+            var node = container.childNodes[i];
+            var rect = node.getBoundingClientRect();
+            var center = rect.left + rect.width / 2;
+            var d = Math.abs(center - event.clientX);
+            if (d < distance) {
+                index = i;
+                distance = d;
+                left = event.clientX < center;
+
+                if (this.lastDropCandidateObject) this.lastDropCandidateObject.removeAttribute("will-drop");
+                this.lastDropCandidateObject = node;
+                this.lastDropCandidateObject.setAttribute("will-drop", left ? "left" : "right");
+                this.lastDropCandidateObject._dropLeft = left;
+            }
+        }
+    }, this.node());
+
+    this.bind("dragend", function (event) {
+        if (this.lastDropCandidateObject) this.lastDropCandidateObject.removeAttribute("will-drop");
+        this.lastDropCandidateObject = null;
+
+        if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
+        this.currentDraggedObject = null;
+    });
 
     this.dndImage = new Image();
     this.dndImage.src = "css/bullet.png";
@@ -276,6 +315,8 @@ PageListView.prototype.renderPages = function() {
         });
         pageThumbnailView.setPage(page, childrenListMenu);
         this.pageListContainer.appendChild(pageThumbnailView.node());
+        pageThumbnailView.setAttribute("draggable", "true");
+
         pageThumbnailView.selectPage(selected);
         this.views.push(pageThumbnailView);
         var childNode;
@@ -283,6 +324,7 @@ PageListView.prototype.renderPages = function() {
             childNode = Dom.newDOMElement({
                 _name: "hbox",
                 "selected": selected,
+                draggable: "true",
                 _children: [
                     {
                         _name: "span",
@@ -294,6 +336,7 @@ PageListView.prototype.renderPages = function() {
             childNode = Dom.newDOMElement({
                 _name: "hbox",
                 "selected": selected,
+                draggable: "true",
                 class: "nodeHasChild",
                 _children: [
                     {
