@@ -611,6 +611,7 @@ Controller.prototype.activatePage = function (page) {
     } else {
         page.canvas.setBackgroundColor(page.backgroundColor);
     }
+    page.canvas.setSize(page.width, page.height);
     page.lastUsed = new Date();
     this.activePage = page;
     // this.sayDocumentChanged();

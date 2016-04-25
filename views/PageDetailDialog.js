@@ -40,7 +40,7 @@ function PageDetailDialog() {
     }, false);
 
     this.colorButton.addEventListener("click", function (event) {
-        var color = thiz.colorButton.color ? thiz.colorButton.style.color : Color.fromString("#FFFFFF");
+        var color = thiz.colorButton.style.color ? Color.fromString(thiz.colorButton.style.color) : Color.fromString("#FFFFFF");
         thiz.selector.setColor(color);
         thiz.selectorContainer.show(thiz.colorButton, "left-inside", "bottom", 0, 5);
         event.cancelBubble = true;
@@ -320,6 +320,10 @@ PageDetailDialog.prototype.updatePage = function() {
     page.name = this.pageTitle.value;
 
     var canvas = page.canvas;
+    if (!canvas) {
+        Pencil.controller.retrievePageCanvas(page);
+        canvas = page.canvas;
+    }
     canvas.setSize(parseInt(this.widthInput.value, 10), parseInt(this.heightInput.value, 10));
     page.width = parseInt(this.widthInput.value, 10);
     page.height = parseInt(this.heightInput.value, 10);
@@ -330,9 +334,12 @@ PageDetailDialog.prototype.updatePage = function() {
 
     if (background.value != "transparent") {
         if (typeof(background.value) == "undefined") {
+            page.backgroundPageId = null;
+            page.backgroundPage = null;
             page.backgroundColor = this.colorButton.style.color ? this.colorButton.style.color : "#FFFFFF";
             canvas.setBackgroundColor(page.backgroundColor);
         } else {
+            page.backgroundColor = null;
             page.backgroundPageId = background.value;
             page.backgroundPage = Pencil.controller.findPageById(background.value);
             canvas.setBackgroundColor(page.backgroundPage.backgroundColor);
