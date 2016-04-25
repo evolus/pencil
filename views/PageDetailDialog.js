@@ -325,38 +325,30 @@ PageDetailDialog.prototype.createPage = function () {
 
 PageDetailDialog.prototype.updatePage = function() {
     var page = this.defaultPage;
-    var pageIndex = Pencil.controller.doc.pages.indexOf(page);
-    var oldPage = page.parentPage;
 
-    page.name = this.pageTitle.value;
+    var name = this.pageTitle.value;
 
-    var canvas = page.canvas;
-    canvas.setSize(parseInt(this.widthInput.value, 10), parseInt(this.heightInput.value, 10));
-    page.width = parseInt(this.widthInput.value, 10);
-    page.height = parseInt(this.heightInput.value, 10);
+    var width = parseInt(this.widthInput.value, 10);
+    var height = parseInt(this.heightInput.value, 10);
     Config.set("lastSize", [page.width, page.height].join("x"));
 
     var thiz = this;
     var background = thiz.backgroundCombo.getSelectedItem();
+    var backgroundColor = null;
+    var backgroundPageId = null;
 
     if (background.value != "transparent") {
         if (typeof(background.value) == "undefined") {
-            page.backgroundColor = this.colorButton.style.color ? this.colorButton.style.color : "#FFFFFF";
-            canvas.setBackgroundColor(page.backgroundColor);
+            backgroundColor = this.colorButton.style.color ? this.colorButton.style.color : "#FFFFFF";
         } else {
-            page.backgroundPageId = background.value;
-            page.backgroundPage = Pencil.controller.findPageById(background.value);
-            canvas.setBackgroundColor(page.backgroundPage.backgroundColor);
+            backgroundPageId = background.value;
         }
     } else if (background.value == "transparent") {
-        if (page.backgroundPageId) {
-            page.backgroundPage = null;
-            page.backgroundPageId = null;
-        }
-            page.backgroundColor = null;
-            canvas.setBackgroundColor(page.backgroundColor);
+        backgroundPageId = null;
+        backgroundColor = null;
     }
-
+    var parentPageId = null;
+/*
     var parentPageId = this.pageCombo.getSelectedItem().id;
     if (parentPageId) {
         var sameParent = false;
@@ -388,7 +380,9 @@ PageDetailDialog.prototype.updatePage = function() {
         Pencil.controller.doc.pages.splice(pageIndex,1);
         Pencil.controller.doc.pages.push(page);
     }
-    Pencil.controller.sayDocumentChanged();
+*/
+
+    Pencil.controller.updatePageProperties(page, name, backgroundColor, backgroundPageId, parentPageId, width, height);
     return page;
 }
 PageDetailDialog.prototype.getDialogActions = function () {

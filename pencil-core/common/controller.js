@@ -604,15 +604,30 @@ Controller.prototype.activatePage = function (page) {
 
     this.canvasPool.show(page.canvas);
 
-    if (page.backgroundPage) {
-        var backgroundPage = page.backgroundPage;
-        page.canvas.setBackgroundColor(backgroundPage.backgroundColor);
-    } else {
-        page.canvas.setBackgroundColor(page.backgroundColor);
-    }
+    this.ensurePageCanvasBackground(page);
+
     page.lastUsed = new Date();
     this.activePage = page;
     // this.sayDocumentChanged();
+};
+Controller.prototype.ensurePageCanvasBackground = function (page) {
+    if (!page.canvas) return;
+
+    if (page.backgroundPage) {
+        var backgroundPage = page.backgroundPage;
+        Pencil.rasterizer.getPageBitmapFile(backgroundPage, function (filePath) {
+            page.canvas.setBackgroundImageData({
+                url: ImageData.filePathToURL(filePath),
+                width: backgroundPage.width,
+                height: backgroundPage.height
+            }, false);
+        });
+    } else if (page.backgroundColor) {
+        page.canvas.setBackgroundColor(page.backgroundColor);
+    } else {
+        page.canvas.setBackgroundColor(null);
+        page.canvas.setBackgroundImageData(null, false);
+    }
 };
 Controller.prototype.invalidatePageContent = function (page) {
     if (!page || !page.canvas) return;
@@ -818,6 +833,8 @@ Controller.prototype.handleCanvasModified = function (canvas) {
     console.log("Canvas modified: " + canvas.page.name);
     this.modified = true;
 
+    this.invalidateBitmapFilePath(canvas.page);
+
     canvas.page.lastModified = new Date();
     if (!this.pendingThumbnailerMap) this.pendingThumbnailerMap = {};
     var pending = this.pendingThumbnailerMap[canvas.page.id];
@@ -929,4 +946,41 @@ Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
     list.splice(targetIndex, 0, page);
 
     this.sayDocumentChanged();
+};
+Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) {
+    if (!invalidatedIds) invalidatedIds = [];
+    if (invalidatedIds.indexOf(page.id) >= 0) return;
+
+    if (page.bitmapFilePath) {
+        fs.unlinkSync(page.bitmapFilePath);
+        page.bitmapFilePath = null;
+    }
+
+    invalidatedIds.push(page.id);
+
+    this.doc.pages.forEach(function (p) {
+        if (p.backgroundPageId == page.id) this.invalidateBitmapFilePath(p, invalidatedIds);
+    }.bind(this));
+};
+Controller.prototype.updatePageProperties = function (page, name, backgroundColor, backgroundPageId, parentPageId, width, height) {
+    page.name = name;
+    page.backgroundColor = backgroundColor;
+    page.backgroundPageId = backgroundPageId;
+    page.backgroundPage = backgroundPageId ? this.findPageById(backgroundPageId) : null;
+
+    //TODO: fix parent page id reference
+    page.width = width;
+    page.height = height;
+
+    this.invalidateBitmapFilePath(page);
+    var p = this.activePage;
+    while (p) {
+        if (p.id == page.id) {
+            this.ensurePageCanvasBackground(this.activePage);
+            break;
+        }
+        p = p.backgroundPage;
+    }
+
+    Pencil.controller.sayDocumentChanged();
 };
