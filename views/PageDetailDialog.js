@@ -18,11 +18,6 @@ function PageDetailDialog() {
     };
 
     var thiz = this;
-
-
-
-
-
     this.pageCombo.addEventListener("p:ItemSelected", function (event) {
         thiz.modified = true;
     }, false);
@@ -40,12 +35,7 @@ function PageDetailDialog() {
 
     this.backgroundCombo.addEventListener("p:ItemSelected", function (event) {
         var background = thiz.backgroundCombo.getSelectedItem();
-        //thiz.colorButton.style.display = background.value ? "none" : "block";
-        if (background.value == null) {
-            thiz.colorButton.disabled = false;
-        } else {
-            thiz.colorButton.disabled = true;
-        }
+        thiz.colorButton.disabled = background.value ? true : false;
         thiz.modified = true;
     }, false);
 
@@ -222,10 +212,10 @@ PageDetailDialog.prototype.setup = function (options) {
 
     if(options.defaultPage) {
         this.setPageItem(options.defaultPage);
-        // var background = this.backgroundCombo.getSelectedItem();
-        //this.colorButton.style.display = background.value ? "none" : "block";
-
     }
+    var background = thiz.backgroundCombo.getSelectedItem();
+    thiz.colorButton.disabled = background.value ? true : false;
+
     this.oldBody = this.dialogBody;
 };
 
@@ -281,7 +271,6 @@ PageDetailDialog.prototype.setPageItem = function (page) {
             displayName: "Transparent Background",
             value: "transparent"
         });
-        this.colorButton.style.color = "#000";
         this.colorButton.disabled = true;
     }
 }

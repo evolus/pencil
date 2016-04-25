@@ -334,6 +334,7 @@ Controller.prototype.loadDocument = function (filePath) {
             Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
             thiz.removeRecentFile(filePath);
             onLoadFileDone(false);
+            thiz.newDocument();
             return;
         }
     });
