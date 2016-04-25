@@ -114,10 +114,13 @@ Page.prototype.equals = function (page) {
     return page.constructor == Page && page.id == this.id;
 };
 Page.prototype.getBackgroundPage = function () {
-    var bgPageId = this.properties.background;
-    if (!bgPageId) return null;
+    // var bgPageId = this.properties.background;
+    // if (!bgPageId) return null;
+    // return this.doc.getPageById(bgPageId);
 
-    return this.doc.getPageById(bgPageId);
+    if (this.backgroundPage) return this.backgroundPage;
+    if (this.backgroundPageId) return Pencil.controller.getPageById(this.backgroundPageId);
+    return null;
 };
 
 Page._validateBackgroundInternal = function (list, page) {
@@ -161,14 +164,14 @@ Page.prototype.ensureBackground = function (callback) { // callback: function() 
         Config.set("object.snapping.background", true);
     }
 
-    this._view.canvas.snappingHelper.updateSnappingDataFromBackground(this.getBackgroundPage(), Config.get("object.snapping.background") == false);
-    this._view.canvas.setDimBackground(this.properties.dimBackground);
+    this.canvas.snappingHelper.updateSnappingDataFromBackground(this.getBackgroundPage(), Config.get("object.snapping.background") == false);
+    // this._view.canvas.setDimBackground(this.properties.dimBackground);
     this.rasterizeDataCache = null;
 
     var page = this.getBackgroundPage();
     if (!page) {
         this.bgToken = null;
-        this._view.canvas.setBackgroundImageData(null);
+        this.canvas.setBackgroundImageData(null);
 
         if (callback) callback();
         return;
@@ -179,7 +182,7 @@ Page.prototype.ensureBackground = function (callback) { // callback: function() 
         thiz.bgToken = rasterizeData.token;
         //alert([page.properties.name, rasterizeData.image.width, rasterizeData.image.height]);
         try {
-            thiz._view.canvas.setBackgroundImageData(rasterizeData.image, thiz.properties.dimBackground);
+            thiz.canvas.setBackgroundImageData(rasterizeData.image, false);
         } catch (e) {
             Console.dumpError(e);
         }
@@ -209,10 +212,10 @@ Page.prototype.isRasterizeDataCacheValid = function () {
     return this.rasterizeDataCache && this.isBackgroundValid();
 };
 Page.prototype._generateToken = function () {
-    return this.properties.id + "@" + (new Date().getTime()) + "_" + Math.round(Math.random() * 1000);
+    return this.id + "@" + (new Date().getTime()) + "_" + Math.round(Math.random() * 1000);
 };
 Page.prototype.generateFriendlyId = function (usedFriendlyIds) {
-    var baseName = this.properties.name.replace(/[^a-z0-9 ]+/gi, "").replace(/[ ]+/g, "_").toLowerCase();
+    var baseName = this.name.replace(/[^a-z0-9 ]+/gi, "").replace(/[ ]+/g, "_").toLowerCase();
     var name = baseName;
     var seed = 1;
 

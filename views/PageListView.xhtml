@@ -48,6 +48,23 @@
             margin-left: 1em;
         }
 
+        @pageListContainer > .widget_PageThumbnailView[dragged] {
+            opacity: 0.1 !important;
+        }
+
+        @pageListContainer > .widget_PageThumbnailView[will-drop='left'] {
+            margin-left: 0.4em;
+            padding-left: 0.4em;
+            border-left: solid 0.2em @selected_bg;
+        }
+        @pageListContainer > .widget_PageThumbnailView[will-drop='right'] {
+            padding-right: 0.4em;
+            border-right: solid 0.2em @selected_bg;
+        }
+        @pageListContainer > .widget_PageThumbnailView[will-drop='right'] + .widget_PageThumbnailView {
+            margin-left: 0.4em;
+        }
+
         @pageBreadcrumb {
             white-space: nowrap;
         }
