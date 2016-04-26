@@ -44,6 +44,7 @@ OnScreenRichTextEditor.prototype.install = function (canvas) {
     }, false);
 
     this.popup.addEventListener("p:PopupHidden", function (event) {
+        console.log("saasdasdasd");
         thiz.commitChange(event);
     }, false);
 
@@ -156,28 +157,20 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
 
     this.popup.showAt(x, y);
 
-    this.textToolOverlay = new TextToolOverlay();
     this.textToolOverlay._richTextEditor = this;
-    this.textToolOverlay.showToolBar(this.currentTarget, this.textEditor, this.popup,"left-inside", "top", 0, 10);
+    this.textToolOverlay.node().style.visibility = "hidden";
 
     OnScreenRichTextEditor._activeEditor = this;
 
     var thiz = this;
     window.setTimeout(function () {
         thiz.textEditor.focus();
+        thiz.textToolOverlay.runEditorCommand("selectAll");
+        thiz.textToolOverlay.node().style.top = "-" + (thiz.textToolOverlay.node().offsetHeight + 3) + "px";
+        thiz.textToolOverlay.node().style.visibility = "visible";
     }, 10);
 };
-OnScreenRichTextEditor.prototype.handleTextBlur = function (event) {
-    this._focused = false;
-    var that = this;
-    setTimeout(function() {
-        if (!that._focused) {
-            that.commitChange(event);
-        }
-    }, 100);
-};
 OnScreenRichTextEditor.prototype.handleKeyPress = function (event) {
-    console.log("event.keyCode == DOM_VK_ESCAPE", event.keyCode, DOM_VK_ESCAPE);
     if (event.keyCode == DOM_VK_RETURN && !event.shiftKey && !event.accelKey && !event.ctrlKey) {
         this.commitChange(event);
     } else if (event.keyCode == DOM_VK_ESCAPE) {
@@ -194,17 +187,19 @@ OnScreenRichTextEditor.prototype.commitChange = function (event) {
         this.canvas.invalidateEditors(this);
     } finally {
         this.popup.hide("silent");
-        if (this.textToolOverlay) this.textToolOverlay.hide();
         this.textEditingInfo = null;
-        this.canvas.focus();
+        window.setTimeout(function () {
+            Pencil.activeCanvas.focus();
+        }, 10);
     }
 };
 OnScreenRichTextEditor.prototype.cancelChange = function () {
     if (!this.textEditingInfo) return;
     this.popup.hide("silent");
-    if (this.textToolOverlay) this.textToolOverlay.hide();
     this.textEditingInfo = null;
-    this.canvas.focus();
+    window.setTimeout(function () {
+        Pencil.activeCanvas.focus();
+    }, 10);
 };
 OnScreenRichTextEditor.prototype.getRichtextValue = function () {
     return this.textEditor.innerHTML;

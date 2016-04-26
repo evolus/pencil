@@ -1,6 +1,6 @@
 <hbox>
     <style>
-        body @popupContainer[mode='OnScreenTextEditor'] {
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] {
             border: none;
             border-radius: 0px;
             background: @popup_bg;
@@ -9,15 +9,23 @@
             transition: opacity 0.4s;
             box-sizing: border-box;
         }
-        body @popupContainer[mode='OnScreenTextEditor'] @textEditor {
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] @textEditor {
             width: 100%;
             height: 100%;
             background: #FFF;
             overflow: auto;
         }
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] @container {
+            position: relative;
+        }
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] @container > .widget_TextToolOverlay {
+            position: absolute;
+            left: 0px;
+        }
     </style>
     <ui:Popup anon-id="popup" mode="OnScreenTextEditor">
         <div anon-id="container">
+            <ui:TextToolOverlay anon-id="textToolOverlay" />
             <div anon-id="textEditor" contenteditable="true"></div>
         </div>
     </ui:Popup>

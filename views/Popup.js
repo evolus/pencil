@@ -248,6 +248,7 @@ Popup.prototype.hidePopupContainer = function () {
 }
 Popup.prototype.hide = function (silent) {
     this.hidePopupContainer();
+    console.trace("calling hide(), silent = " + silent);
     if (!silent) Dom.emitEvent("p:PopupHidden", this.node());
     if (this.onHide) this.onHide();
 
