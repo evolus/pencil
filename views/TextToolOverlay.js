@@ -1,5 +1,5 @@
 function TextToolOverlay() {
-    Popup.call(this);
+    BaseTemplatedWidget.call(this);
     var thiz = this;
     this.selectorContainer.onHide = function () {
         thiz.selector._commandName = "";
@@ -112,7 +112,7 @@ function TextToolOverlay() {
         thiz.updateButtonColor(control, color.toRGBAString());
     }, false);
 }
-__extend(Popup, TextToolOverlay);
+__extend(BaseTemplatedWidget, TextToolOverlay);
 
 TextToolOverlay.prototype.updateListByCommandValue = function (commandName, control) {
     var value = null;
