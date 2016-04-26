@@ -182,7 +182,7 @@ Dialog.prototype.moveBy = function (dx, dy) {
     this.moveTo(this.dialogX + dx, this.dialogY + dy);
 };
 Dialog.prototype.close = function () {
-    this.overlay.parentNode.removeChild(this.overlay);
+    if (this.overlay.parentNode) this.overlay.parentNode.removeChild(this.overlay);
     this.dialogFrame.style.transition = "opacity 0.1s";
     this.dialogFrame.style.opacity = "0";
     var thiz = this;

@@ -231,7 +231,6 @@ PageListView.prototype.renderPages = function() {
         while (p.parentPage) {
             parentPages.unshift(p.parentPage);
             p = p.parentPage;
-
         }
     }
 
@@ -325,6 +324,7 @@ PageListView.prototype.renderPages = function() {
                 _name: "hbox",
                 "selected": selected,
                 draggable: "true",
+                "tabindex": "0",
                 _children: [
                     {
                         _name: "span",
@@ -338,6 +338,7 @@ PageListView.prototype.renderPages = function() {
                 "selected": selected,
                 draggable: "true",
                 class: "nodeHasChild",
+                "tabindex": "0",
                 _children: [
                     {
                         _name: "span",

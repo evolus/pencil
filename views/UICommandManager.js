@@ -227,8 +227,6 @@ UICommandManager.isValidFunction = function (event) {
     return UICommandManager.isApplicable(this, UICommandManager.currentFocusedElement) && (!this._isValid || this._isValid());
 };
 UICommandManager.handleKeyEvent = function (event) {
-    console.log("Current focused element", UICommandManager.currentFocusedElement);
-
     for (var i = 0; i < UICommandManager.commands.length; i ++) {
         var command = UICommandManager.commands[i];
         if (!command.parsedShortcut) continue;
