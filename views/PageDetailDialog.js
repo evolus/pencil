@@ -168,40 +168,58 @@ PageDetailDialog.prototype.setup = function (options) {
         }
     ];
 
-    var pages = Pencil.controller.doc.pages;
-
-
-    var createItem = function (pages, backgroundItems, padding) {
-        var padding_tmp = padding;
-        padding_tmp ++;
+    var thiz = this;
+    var createItem = function (pages, padding) {
+        padding += 1;
         for(var i = 0; i < pages.length; i++) {
-            if(pages[i] != thiz.defaultPage) {
-                backgroundItems.push({
-                    displayName: pages[i].name,
-                    value: pages[i].id,
-                    padding:padding
-                });
+            if (pages[i] != thiz.defaultPage) {
+                var check = false;
+                if (pages[i].backgroundPageId) {
+                    var index = backgroundPageItem.indexOf(pages[i].backgroundPageId);
+                    if(index >= 0 ) {
+                        backgroundPageItem.push(pages[i].id);
+                        check =true;
+                    }
+                }
+                if (!check) {
+                    backgroundItems.push({
+                        displayName: pages[i].name,
+                        value: pages[i].id,
+                        padding: padding
+                    });
+                }
             }
             if (pages[i].children) {
-                createItem(pages[i].children, backgroundItems,padding_tmp);
+                createItem(pages[i].children, padding)
             }
         }
     }
+    var pages = Pencil.controller.doc.pages;
+    var backgroundPageItem =[];
+    if (this.defaultPage) {
+        backgroundPageItem.push(this.defaultPage.id);
+    }
     for(var i in pages) {
-        var thiz =this;
-
         if (!pages[i].parentPage ) {
             if(pages[i] != thiz.defaultPage) {
-                backgroundItems.push({
-                    displayName: pages[i].name,
-                    value: pages[i].id,
-                });
+                var check = false;
+                if (pages[i].backgroundPageId) {
+                    var index = backgroundPageItem.indexOf(pages[i].backgroundPageId);
+                    if(index >= 0 ) {
+                        backgroundPageItem.push(pages[i].id);
+                        check = true;
+                    }
+                }
+                if (!check) {
+                    backgroundItems.push({
+                        displayName: pages[i].name,
+                        value: pages[i].id,
+                    });
+                }
             }
             if (pages[i].children) {
-                var padding = 1;
-                createItem(pages[i].children,backgroundItems,padding);
+                createItem(pages[i].children,0);
             }
-
         }
     }
     this.backgroundCombo.setItems(backgroundItems);
@@ -216,7 +234,7 @@ PageDetailDialog.prototype.setup = function (options) {
     var background = thiz.backgroundCombo.getSelectedItem();
     thiz.colorButton.disabled = background.value ? true : false;
 
-    this.oldBody = this.dialogBody;
+    //this.oldBody = this.dialogBody;
 };
 
 PageDetailDialog.prototype.setPageItem = function (page) {
@@ -256,14 +274,14 @@ PageDetailDialog.prototype.setPageItem = function (page) {
         this.backgroundCombo.selectItem({
              displayName: "Background Color"
         });
-        this.colorButton.style.color = page.backgroundColor;
+        this.colorButton.style.color = page.backgroundColor ? page.backgroundColor.toRGBString() : "#000" ;
     }
     if (page.backgroundPage) {
         this.backgroundCombo.selectItem({
              displayName: page.backgroundPage.name,
              value: page.backgroundPage.id
         });
-        this.colorButton.style.color = page.backgroundPage.backgroundColor;
+        this.colorButton.style.color = page.backgroundPage.backgroundColor ? page.backgroundPage.backgroundColor.toRGBString() : "#000";
     }
 
     if (!page.backgroundPageId && !page.backgroundColor) {
@@ -300,7 +318,7 @@ PageDetailDialog.prototype.createPage = function () {
     var background = this.backgroundCombo.getSelectedItem();
     if (background.value != "transparent") {
         if (typeof(background.value) == "undefined") {
-            backgroundColor = this.colorButton.style.color ? this.colorButton.style.color : "#FFFFFF";
+            backgroundColor = this.colorButton.style.color ? Color.fromString(this.colorButton.style.color) : Color.fromString("#FFFFFF");
         } else {
             backgroundPageId = background.value;
         }
@@ -328,7 +346,7 @@ PageDetailDialog.prototype.updatePage = function() {
 
     if (background.value != "transparent") {
         if (typeof(background.value) == "undefined") {
-            backgroundColor = this.colorButton.style.color ? this.colorButton.style.color : "#FFFFFF";
+            backgroundColor = this.colorButton.style.color ? Color.fromString(this.colorButton.style.color) : Color.fromString("#FFFFFF");
         } else {
             backgroundPageId = background.value;
         }
@@ -372,6 +390,7 @@ PageDetailDialog.prototype.updatePage = function() {
 */
 
     Pencil.controller.updatePageProperties(page, name, backgroundColor, backgroundPageId, parentPageId, width, height);
+
     return page;
 }
 PageDetailDialog.prototype.getDialogActions = function () {
