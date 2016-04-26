@@ -211,7 +211,6 @@ PageListView.prototype.renderPages = function() {
     this.pageBreadcrumb.innerHTML = "";
     this.pageListContainer.innerHTML = "";
     this.childPageContainer.innerHTML = "";
-    this.currentParentPage = this.currentPage ? this.currentPage.parentPage : null;
 
     this.views = [];
     if (!this.controller || !this.controller.doc) return;
