@@ -146,6 +146,21 @@
             border-color: @selected_fg;
         }
 
+        @childPageContainer > hbox[dragged] {
+            opacity: 0.5 !important;
+        }
+
+        @childPageContainer > hbox[will-drop='left'] {
+            border-left: solid 1px @selected_bg;
+        }
+        @childPageContainer > hbox[will-drop='right'] {
+            border-right: solid 1px @selected_bg;
+        }
+
+        @childPageContainer > hbox:focus {
+            outline: dashed 1px fadeout(@selected_bg, 40%);
+            outline-offset: 0px;
+        }
         @childPageContainer .button_Down {
             padding: 0em 0.3em;
             border: none;

@@ -211,6 +211,7 @@ PageListView.prototype.renderPages = function() {
     this.pageBreadcrumb.innerHTML = "";
     this.pageListContainer.innerHTML = "";
     this.childPageContainer.innerHTML = "";
+    this.currentParentPage = this.currentPage ? this.currentPage.parentPage : null;
 
     this.views = [];
     if (!this.controller || !this.controller.doc) return;
@@ -231,7 +232,6 @@ PageListView.prototype.renderPages = function() {
         while (p.parentPage) {
             parentPages.unshift(p.parentPage);
             p = p.parentPage;
-
         }
     }
 
@@ -325,6 +325,7 @@ PageListView.prototype.renderPages = function() {
                 _name: "hbox",
                 "selected": selected,
                 draggable: "true",
+                "tabindex": "0",
                 _children: [
                     {
                         _name: "span",
@@ -338,6 +339,7 @@ PageListView.prototype.renderPages = function() {
                 "selected": selected,
                 draggable: "true",
                 class: "nodeHasChild",
+                "tabindex": "0",
                 _children: [
                     {
                         _name: "span",

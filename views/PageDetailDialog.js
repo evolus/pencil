@@ -113,7 +113,10 @@ var createComboitems = function (pages, onDone, padding){
 PageDetailDialog.prototype.setup = function (options) {
     var thiz = this;
     this.options = options;
-    this.defaultPage = options.defaultPage;
+    this.originalPage = options.page;
+    this.isCreatePage = !this.originalPage;
+    this.modified = false;
+
     if (this.options && this.options.onDone) this.onDone = this.options.onDone;
     var pagesComboItems = [];
     pagesComboItems.push({
@@ -123,11 +126,11 @@ PageDetailDialog.prototype.setup = function (options) {
 
     // Create combobox item for parent of Page
     var hideParentPageItem = [];
-    if(this.defaultPage) {
-        hideParentPageItem.push(this.defaultPage);
+    if(this.originalPage) {
+        hideParentPageItem.push(this.originalPage);
     }
     var conditionChildOf = function(page, padding) {
-        if(page != thiz.defaultPage) {
+        if(page != thiz.originalPage) {
             var check = false;
             if (page.parentPage) {
                 var index = hideParentPageItem.indexOf(page.parentPage);
@@ -194,11 +197,11 @@ PageDetailDialog.prototype.setup = function (options) {
 
     //Create combobox item for background Page
     var backgroundPageItem =[];
-    if (this.defaultPage) {
-        backgroundPageItem.push(this.defaultPage.id);
+    if (this.originalPage) {
+        backgroundPageItem.push(this.originalPage.id);
     }
     var conditionBackground = function(page, padding) {
-        if(page != thiz.defaultPage) {
+        if(page != thiz.originalPage) {
             var check = false;
             if (page.backgroundPageId) {
                 var index = backgroundPageItem.indexOf(page.backgroundPageId);
@@ -218,7 +221,7 @@ PageDetailDialog.prototype.setup = function (options) {
     }
     for(var i in pages) {
         if (!pages[i].parentPage ) {
-            if(pages[i] != thiz.defaultPage) {
+            if(pages[i] != thiz.originalPage) {
                  conditionBackground(pages[i], null);
             }
             if (pages[i].children) {
@@ -233,13 +236,11 @@ PageDetailDialog.prototype.setup = function (options) {
     this.widthInput.disabled = pageSize.value;
     this.heightInput.disabled = pageSize.value;
 
-    if(options.defaultPage) {
-        this.setPageItem(options.defaultPage);
+    if(options.page) {
+        this.setPageItem(options.page);
     }
     var background = thiz.backgroundCombo.getSelectedItem();
     thiz.colorButton.disabled = background.value ? true : false;
-
-    //this.oldBody = this.dialogBody;
 };
 
 PageDetailDialog.prototype.setPageItem = function (page) {
@@ -336,7 +337,7 @@ PageDetailDialog.prototype.createPage = function () {
 };
 
 PageDetailDialog.prototype.updatePage = function() {
-    var page = this.defaultPage;
+    var page = this.originalPage;
 
     var name = this.pageTitle.value;
 
@@ -359,43 +360,8 @@ PageDetailDialog.prototype.updatePage = function() {
         backgroundPageId = null;
         backgroundColor = null;
     }
-    var parentPageId = null;
-/*
     var parentPageId = this.pageCombo.getSelectedItem().id;
-    if (parentPageId) {
-        var sameParent = false;
-        if (page.parentPage) {
-            if (page.parentPage.id != parentPageId) {
-                var index = page.parentPage.children.indexOf(page);
-                page.parentPage.children.splice(index, 1);
-            } else {
-                 sameParent = true;
-            }
-        }
-        if (!sameParent) {
-            var parentPage = Pencil.controller.findPageById(parentPageId);
-            if (!parentPage.children) parentPage.children = [];
-            parentPage.children.push(page);
-            page.parentPage = parentPage;
-            page.parentPageId = parentPageId;
-        }
-    } else {
-        if (page.parentPage) {
-            var index = page.parentPage.children.indexOf(page);
-            page.parentPage.children.splice(index, 1);
-            page.parentPage = null;
-            page.parentPageId = null;
-        }
-    }
-
-    if (page.parentPage != oldPage) {
-        Pencil.controller.doc.pages.splice(pageIndex,1);
-        Pencil.controller.doc.pages.push(page);
-    }
-*/
-
     Pencil.controller.updatePageProperties(page, name, backgroundColor, backgroundPageId, parentPageId, width, height);
-
     return page;
 }
 PageDetailDialog.prototype.getDialogActions = function () {
@@ -406,18 +372,18 @@ PageDetailDialog.prototype.getDialogActions = function () {
             run: function () {
                 if(this.modified) {
                     if(this.pageTitle.value == "" ) {
-                        Dialog.alert("Page name is not declared","The name Page is not allow to empty");
+                        Dialog.alert("The page name is invalid. Please enter the valid page name.");
                         return;
                     }
                     Dialog.confirm(
-                        "If you don't save changes will be permanently lost", null,
+                        "Do you want to save your changes before closing?", null,
                         "Save", function () {
-                            if (thiz.onDone) {
-                                if (thiz.defaultPage) {
-                                    thiz.onDone(thiz.updatePage());
-                                } else {
-                                    thiz.onDone(thiz.createPage());
-                                }
+                            if (thiz.isCreatePage) {
+                                var page = thiz.createPage();
+                                if (thiz.onDone) thiz.onDone(page);
+                            } else {
+                                var page = thiz.updatePage();
+                                if (thiz.onDone) thiz.onDone(page);
                             }
                         },
                         "Cancel"
@@ -429,19 +395,20 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {
             type: "accept", title: "APPLY",
             run: function () {
-                if(this.modified) {
-                    if(this.pageTitle.value == "" ) {
-                        Dialog.alert("Page name is not declared","The name Page is not allow to empty");
-                        return;
-                    }
-                    if (thiz.onDone) {
-                      if (thiz.defaultPage) {
-                          thiz.onDone(thiz.updatePage());
-                      } else {
-                          thiz.onDone(thiz.createPage());
-                      }
+                if(this.pageTitle.value == "" ) {
+                    Dialog.alert("The page name is invalid. Please enter the valid page name.");
+                    return;
+                }
+                if (thiz.isCreatePage) {
+                    var page = thiz.createPage();
+                    if (thiz.onDone) thiz.onDone(page);
+                } else {
+                    if (this.modified) {
+                        var page = thiz.updatePage();
+                        if (thiz.onDone) thiz.onDone(page);
                     }
                 }
+
                 return true;
             }
         }

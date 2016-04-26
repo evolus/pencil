@@ -27,19 +27,22 @@ PageMenu.prototype.setup = function () {
     UICommandManager.getCommand("PageDuplicate").run = function () {
         var onDone = function () {
             return function (page) {
-            thiz.pageListView.activatePage(page);
+                thiz.pageListView.activatePage(page);
             }
         }
         Pencil.controller.duplicatePage(thiz.page, onDone());
     };
     UICommandManager.getCommand("PageDelete").isEnabled = function () { return thiz.page };
     UICommandManager.getCommand("PageDelete").run = function () {
-        console.log("dialog:", dialog);
         Dialog.confirm(
             "Are you sure you really want to delete this page?", null,
             "Delete", function () {
-                Pencil.controller.deletePage(thiz.page);
-                thiz.pageListView.renderPages();
+                var page = Pencil.controller.deletePage(thiz.page);
+                if (page) {
+                    thiz.pageListView.activatePage(page);
+                } else {
+                    thiz.pageListView.renderPages();
+                }
             },
             "Cancel"
         );
@@ -56,11 +59,10 @@ PageMenu.prototype.setup = function () {
     UICommandManager.getCommand("PageProperties").run = function () {
         var dialog = new PageDetailDialog();
         dialog.title = "Edit Page Properties";
-
         dialog.open({
-            defaultPage : thiz.page,
-            onDone: function(page) {
-                // thiz.pageListView.activatePage(page);
+            page : thiz.page,
+            onDone: function () {
+                thiz.pageListView.renderPages();
             }
         });
     };

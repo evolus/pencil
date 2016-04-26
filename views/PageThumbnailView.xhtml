@@ -1,8 +1,13 @@
-<vbox>
+<vbox tabindex="0">
     <style>
         body .widget_PageThumbnailView[selected="true"],
         body .widget_PageThumbnailView:hover {
             opacity: 1;
+        }
+
+        body .widget_PageThumbnailView:focus {
+            outline: dashed 1px fadeout(@selected_bg, 40%);
+            outline-offset: 3px;
         }
 
         body .widget_PageThumbnailView {
