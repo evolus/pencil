@@ -1995,7 +1995,7 @@ Canvas.prototype.run = function (job, targetObject, actionName, args) {
 };
 Canvas.prototype.setBackgroundColor = function (color) {
     if(color) {
-        this.focusableBox.style.backgroundColor = color;
+        this.focusableBox.style.backgroundColor = color.toRGBString();
     } else {
         this.focusableBox.style.backgroundColor = "";
     }
