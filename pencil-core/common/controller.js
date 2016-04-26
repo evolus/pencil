@@ -106,6 +106,8 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
             page.parentPage = parentPage;
         }
     }
+
+    this.invalidateBitmapFilePath(page);
     this.sayDocumentChanged();
 
     return page;
@@ -624,8 +626,10 @@ Controller.prototype.ensurePageCanvasBackground = function (page) {
                 height: backgroundPage.height
             }, false);
         });
+        page.canvas.setBackgroundColor(null);
     } else if (page.backgroundColor) {
         page.canvas.setBackgroundColor(page.backgroundColor);
+        page.canvas.setBackgroundImageData(null, false);
     } else {
         page.canvas.setBackgroundColor(null);
         page.canvas.setBackgroundImageData(null, false);
@@ -791,8 +795,10 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
         if (newSize) {
             page.width = newSize.width;
             page.height = newSize.height;
+
+            this.invalidateBitmapFilePath(page);
         }
-    };
+    }.bind(this);
 
     if (askForPadding) {
         var paddingDialog = new PromptDialog();
@@ -824,6 +830,7 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
         page.width = newSize.width;
         page.height = newSize.height;
         Config.set("lastSize", [newSize.width, newSize.height].join("x"));
+        this.invalidateBitmapFilePath(page);
     }
 };
 Controller.prototype.getBestFitSize = function () {
@@ -834,21 +841,7 @@ Controller.prototype.handleCanvasModified = function (canvas) {
     if (!canvas || !canvas.page) return;
     console.log("Canvas modified: " + canvas.page.name);
     this.modified = true;
-
     this.invalidateBitmapFilePath(canvas.page);
-
-    canvas.page.lastModified = new Date();
-    if (!this.pendingThumbnailerMap) this.pendingThumbnailerMap = {};
-    var pending = this.pendingThumbnailerMap[canvas.page.id];
-    if (pending) {
-        window.clearTimeout(pending);
-    }
-
-    var thiz = this;
-    this.pendingThumbnailerMap[canvas.page.id] = window.setTimeout(function () {
-        thiz.pendingThumbnailerMap[canvas.page.id] = null;
-        thiz.updatePageThumbnail(canvas.page);
-    }, 3000);
 };
 Controller.prototype.updatePageThumbnail = function (page, done) {
     var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
@@ -958,6 +951,21 @@ Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) 
         page.bitmapFilePath = null;
     }
 
+    //update page thumbnail
+    page.lastModified = new Date();
+    if (!this.pendingThumbnailerMap) this.pendingThumbnailerMap = {};
+    var pending = this.pendingThumbnailerMap[page.id];
+    if (pending) {
+        window.clearTimeout(pending);
+    }
+
+    var thiz = this;
+    this.pendingThumbnailerMap[page.id] = window.setTimeout(function () {
+        thiz.pendingThumbnailerMap[page.id] = null;
+        thiz.updatePageThumbnail(page);
+    }, 3000);
+
+
     invalidatedIds.push(page.id);
 
     this.doc.pages.forEach(function (p) {
@@ -970,9 +978,35 @@ Controller.prototype.updatePageProperties = function (page, name, backgroundColo
     page.backgroundPageId = backgroundPageId;
     page.backgroundPage = backgroundPageId ? this.findPageById(backgroundPageId) : null;
 
-    //TODO: fix parent page id reference
+    if (parentPageId) {
+        if (page.parentPageId != parentPageId) {
+            if (page.parentPageId) {
+                var p = this.findPageById(page.parentPageId);
+                var index = p.children.indexOf(page);
+                if (index >= 0) p.children.splice(index, 1);
+            }
+            var parentPage = this.findPageById(parentPageId);
+            parentPage.children.push(page);
+            page.parentPage = parentPage;
+            page.parentPageId = parentPageId;
+        }
+    } else {
+        if (page.parentPageId) {
+            var p = this.findPageById(page.parentPageId);
+            var index = p.children.indexOf(page);
+            if (index >= 0) p.children.splice(index, 1);
+            this.doc.pages.push(page);
+
+            page.parentPage = null;
+            page.parentPageId = null;
+        }
+    }
+
     page.width = width;
     page.height = height;
+    if (page.id == this.activePage.id) {
+        page.canvas.setSize(page.width, page.height);
+    }
 
     this.invalidateBitmapFilePath(page);
     var p = this.activePage;
