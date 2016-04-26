@@ -410,13 +410,16 @@ Controller.prototype.loadDocument = function (filePath) {
                     }, thiz);
 
                     thiz.doc.pages.forEach(function (page) {
-                        if (page.backgroundPageId) page.backgroundPage = this.findPageById(page.backgroundPageId);
+                        if (page.backgroundPageId) {
+                            page.backgroundPage = this.findPageById(page.backgroundPageId);
+                            this.invalidateBitmapFilePath(page);
+                        }
+
                         if (page.parentPageId) {
                             var parentPage = this.findPageById(page.parentPageId);
                             page.parentPage = parentPage;
                             parentPage.children.push(page);
                         }
-
                     }, thiz);
 
                     thiz.documentPath = filePath;
@@ -424,6 +427,7 @@ Controller.prototype.loadDocument = function (filePath) {
                     thiz.modified = false;
                     //new file was loaded, update recent file list
                     thiz.setRecentFile(filePath);
+
                     onLoadFileDone(true);
                 } catch (e) {
                     console.log("error:", e);
@@ -699,11 +703,74 @@ Controller.prototype.deletePage = function (page) {
     fs.unlinkSync(page.tempFilePath);
     if (page.thumbPath && fs.existsSync(page.thumbPath)) fs.unlinkSync(page.thumbPath);
 
+    var refPages = [];
+    for (var i in this.doc.pages) {
+        if (this.doc.pages[i].backgroundPageId == page.id) {
+            refPages.push(this.doc.pages[i]);
+        }
+    }
+
+    if (refPages.length > 0) {
+        var thiz = this;
+        function updateBackgroundPage(pages, backgroundPage) {
+            console.log("updateBackgroundPage");
+            pages.forEach(function (page) {
+                if (backgroundPage) {
+                    page.backgroundPage = backgroundPage;
+                    page.backgroundPageId = backgroundPage.id;
+                } else {
+                    page.backgroundPage = null;
+                    page.backgroundPageId = null;
+                }
+                thiz.invalidateBitmapFilePath(page);
+            });
+
+            var p = thiz.activePage;
+            while (p) {
+                if (pages.indexOf(p) >= 0) {
+                    console.log("ensurePageCanvasBackground");
+                    thiz.ensurePageCanvasBackground(thiz.activePage);
+                    break;
+                }
+                p = p.backgroundPage;
+            }
+        }
+
+        if (page.backgroundPage) {
+            var bgPage = page.backgroundPage;
+            Dialog.confirm(
+                "This page is the background page of some pages. And the background page of this page is " + bgPage.name
+                + ". Do you want to change background of the pages is " + bgPage.name + "?", null,
+                "Change background page to " + bgPage.name, function () {
+                    updateBackgroundPage(refPages, bgPage);
+                },
+                "Set no background page", function () {
+                    updateBackgroundPage(refPages);
+                }
+            );
+        } else {
+            updateBackgroundPage(refPages);
+        }
+    }
+
     this.sayDocumentChanged();
 
-    if (this.activePage && this.activePage.id == page.id && parentPage) {
-        this.activatePage(parentPage)
-    }
+    if (this.activePage && this.activePage.id == page.id) {
+        if (parentPage) {
+            if (parentPage.children.length > 0) {
+                this.activatePage(parentPage.children[0]);
+            } else {
+                this.activatePage(parentPage);
+            }
+        } else {
+            for (var i in this.doc.pages) {
+                if (!this.doc.pages[i].parentPage) {
+                    this.activatePage(this.doc.pages[i]);
+                    break;
+                }
+            }
+        }
+    };
 };
 Controller.prototype.sayDocumentChanged = function () {
     this.modified = true;
