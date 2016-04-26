@@ -668,7 +668,7 @@ Controller.prototype.retrievePageCanvas = function (page, newPage) {
             for (var i = 0; i < this.doc.pages.length; i ++) {
                 var p = this.doc.pages[i];
                 if (!p.canvas || p == newPage ) continue;
-                if (p.lastUsed.getTime() < lru) {
+                if (p.lastUsed && p.lastUsed.getTime() < lru) {
                     lruPage = p;
                     lru = p.lastUsed.getTime();
                 }
@@ -758,15 +758,14 @@ Controller.prototype.deletePage = function (page) {
     if (this.activePage && this.activePage.id == page.id) {
         if (parentPage) {
             if (parentPage.children.length > 0) {
-                this.activatePage(parentPage.children[0]);
+                return parentPage.children[0];
             } else {
-                this.activatePage(parentPage);
+                return parentPage;
             }
         } else {
             for (var i in this.doc.pages) {
                 if (!this.doc.pages[i].parentPage) {
-                    this.activatePage(this.doc.pages[i]);
-                    break;
+                    return this.doc.pages[i];
                 }
             }
         }
@@ -1062,7 +1061,12 @@ Controller.prototype.updatePageProperties = function (page, name, backgroundColo
             var p = this.findPageById(page.parentPageId);
             var index = p.children.indexOf(page);
             if (index >= 0) p.children.splice(index, 1);
-            this.doc.pages.push(page);
+
+            var docIndex = this.doc.pages.indexOf(page);
+            if (docIndex >= 0) {
+                this.doc.pages.splice(docIndex, 1);
+                this.doc.pages.push(page);                
+            }
 
             page.parentPage = null;
             page.parentPageId = null;
