@@ -100,34 +100,57 @@ PageDetailDialog.prototype.setPageSizeValue = function (value) {
     }
 }
 
+var createComboitems = function (pages, onDone, padding){
+    padding += 1;
+    for(var i = 0; i < pages.length; i++) {
+        onDone(pages[i], padding);
+        if (pages[i].children) {
+            createComboitems(pages[i].children, onDone, padding);
+        }
+    }
+}
+
 PageDetailDialog.prototype.setup = function (options) {
+    var thiz = this;
     this.options = options;
     this.defaultPage = options.defaultPage;
     if (this.options && this.options.onDone) this.onDone = this.options.onDone;
-    var pages = [];
-    pages.push({
+    var pagesComboItems = [];
+    pagesComboItems.push({
         name: "(None)"
     });
-    pages = pages.concat(Pencil.controller.doc.pages);
+    var pages = Pencil.controller.doc.pages;
 
-    if (this.options && this.options.defaultPage) {
-        var hideChildren = function (page, pagesIn) {
-            for( var i = 0; i < page.children.length; i++) {
-                if (page.children[i].children) {
-                  hideChildren(page.children[i], pagesIn);
+    // Create combobox item for parent of Page
+    var hideParentPageItem = [];
+    if(this.defaultPage) {
+        hideParentPageItem.push(this.defaultPage);
+    }
+    var conditionChildOf = function(page, padding) {
+        if(page != thiz.defaultPage) {
+            var check = false;
+            if (page.parentPage) {
+                var index = hideParentPageItem.indexOf(page.parentPage);
+                if(index >= 0 ) {
+                    hideParentPageItem.push(page);
+                    check =true;
                 }
-                var index = pagesIn.indexOf(page.children[i]);
-                pagesIn.splice(index, 1);
+            }
+            if (!check) {
+                page.padding = padding
+                pagesComboItems.push(page);
             }
         }
-        var editPage = this.options.defaultPage;
-        var index = pages.indexOf(editPage);
-        pages.splice(index, 1);
-        if (editPage.children) {
-            hideChildren(editPage, pages);
+    }
+    for(var i in pages) {
+        if (!pages[i].parentPage ) {
+            conditionChildOf(pages[i], null);
+            if (pages[i].children) {
+                createComboitems(pages[i].children, conditionChildOf, 0);
+            }
         }
     }
-    this.pageCombo.setItems(pages);
+    this.pageCombo.setItems(pagesComboItems);
 
     if (this.options && this.options.defaultParentPage) {
         this.pageCombo.selectItem(this.options.defaultParentPage);
@@ -168,60 +191,42 @@ PageDetailDialog.prototype.setup = function (options) {
         }
     ];
 
-    var thiz = this;
-    var createItem = function (pages, padding) {
-        padding += 1;
-        for(var i = 0; i < pages.length; i++) {
-            if (pages[i] != thiz.defaultPage) {
-                var check = false;
-                if (pages[i].backgroundPageId) {
-                    var index = backgroundPageItem.indexOf(pages[i].backgroundPageId);
-                    if(index >= 0 ) {
-                        backgroundPageItem.push(pages[i].id);
-                        check =true;
-                    }
-                }
-                if (!check) {
-                    backgroundItems.push({
-                        displayName: pages[i].name,
-                        value: pages[i].id,
-                        padding: padding
-                    });
-                }
-            }
-            if (pages[i].children) {
-                createItem(pages[i].children, padding)
-            }
-        }
-    }
-    var pages = Pencil.controller.doc.pages;
+
+    //Create combobox item for background Page
     var backgroundPageItem =[];
     if (this.defaultPage) {
         backgroundPageItem.push(this.defaultPage.id);
     }
-    for(var i in pages) {
-        if (!pages[i].parentPage ) {
-            if(pages[i] != thiz.defaultPage) {
-                var check = false;
-                if (pages[i].backgroundPageId) {
-                    var index = backgroundPageItem.indexOf(pages[i].backgroundPageId);
-                    if(index >= 0 ) {
-                        backgroundPageItem.push(pages[i].id);
-                        check = true;
-                    }
-                }
-                if (!check) {
-                    backgroundItems.push({
-                        displayName: pages[i].name,
-                        value: pages[i].id,
-                    });
+    var conditionBackground = function(page, padding) {
+        if(page != thiz.defaultPage) {
+            var check = false;
+            if (page.backgroundPageId) {
+                var index = backgroundPageItem.indexOf(page.backgroundPageId);
+                if(index >= 0 ) {
+                    backgroundPageItem.push(page.id);
+                    check =true;
                 }
             }
-            if (pages[i].children) {
-                createItem(pages[i].children,0);
+            if (!check) {
+                backgroundItems.push({
+                    displayName: page.name,
+                    value: page.id,
+                    padding: padding
+                });
             }
         }
     }
+    for(var i in pages) {
+        if (!pages[i].parentPage ) {
+            if(pages[i] != thiz.defaultPage) {
+                 conditionBackground(pages[i], null);
+            }
+            if (pages[i].children) {
+                createComboitems(pages[i].children, conditionBackground, 0);
+            }
+        }
+    }
+
     this.backgroundCombo.setItems(backgroundItems);
 
     var pageSize = this.pageSizeCombo.getSelectedItem();
