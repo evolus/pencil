@@ -113,7 +113,7 @@ var createComboitems = function (pages, onDone, padding){
 PageDetailDialog.prototype.setup = function (options) {
     var thiz = this;
     this.options = options;
-    this.originalPage = options.page;
+    this.originalPage = options.defaultPage;
     this.isCreatePage = !this.originalPage;
     this.modified = false;
 
@@ -236,8 +236,8 @@ PageDetailDialog.prototype.setup = function (options) {
     this.widthInput.disabled = pageSize.value;
     this.heightInput.disabled = pageSize.value;
 
-    if(options.page) {
-        this.setPageItem(options.page);
+    if(this.originalPage) {
+        this.setPageItem(this.originalPage);
     }
     var background = thiz.backgroundCombo.getSelectedItem();
     thiz.colorButton.disabled = background.value ? true : false;
