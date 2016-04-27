@@ -216,8 +216,6 @@ EditPageNoteDialog.prototype.setup = function (options) {
     var pageChild = function (child, editor) {
         return child;
     }
-
-
 };
 
 EditPageNoteDialog.prototype.updateListByCommandValue = function (commandName, control) {
@@ -278,12 +276,12 @@ EditPageNoteDialog.prototype.getDialogActions = function () {
         {   type: "cancel", title: "Cancel",
             isCloseHandler: true,
             run: function () {
+                var thiz = this;
                 var newEditor = RichText.fromString(this.editor.innerHTML);
-                if ( this.defaultEditor && newEditor.html != this.defaultEditor.html || !this.defaultEditor && this.editor.innerHTML != " ") {
-                    var dialogResult = dialog.showMessageBox({type: 'warning', message: "If you don't save changes will be permanently lost.", title :'Saving you change before closing', buttons : ['ok', 'cancel']});
-                    if(dialogResult == 0 ) {
-                    this.onDone(newEditor);
-                    }
+                if (this.defaultEditor && newEditor.html != this.defaultEditor.html || !this.defaultEditor && this.editor.innerHTML != " ") {
+                    Dialog.confirm("Do you want to save changes before closing?", null, "Save", function () {
+                        thiz.onDone(newEditor);
+                    }, "Close");
                 }
                 return true;
             }
