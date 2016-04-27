@@ -43,6 +43,25 @@ FileToolbar.prototype.registerCommands = function () {
         },
         shortcut: "Ctrl+Shift+S"
     });
-    
+
+    UICommandManager.register({
+        key: "exportPageAsPNGButton",
+        label: "Export page as PNG...",
+        isValid: function () { return true; },
+        run: function () {
+            Pencil.controller.rasterizeCurrentPage();
+        },
+        shortcut: "Ctrl+E"
+    });
+
+    UICommandManager.register({
+        key: "exportSelectionAsPNGButton",
+        label: "Export selection as PNG...",
+        run: function () {
+            Pencil.controller.rasterizeSelection();
+        },
+        shortcut: "Ctrl+Alt+E"
+    });
+
 
 };

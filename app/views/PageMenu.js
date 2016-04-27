@@ -22,6 +22,7 @@ PageMenu.prototype.setup = function () {
         run: function () {
             var dialog = new PageDetailDialog();
             dialog.open({
+                parentpage: thiz.page,
                 onDone: function (page) {
                     if (!page) return;
                     thiz.pageListView.activatePage(page);
@@ -170,17 +171,8 @@ PageMenu.prototype.setup = function () {
             });
         },
     });
-
-    this.register({
-        key: "exportPageAsPNGButton",
-        label: "Export page as PNG...",
-        isEnabled: function () { return thiz.page },
-        isValid: function () { return true; },
-        run: function () {
-            Pencil.controller.rasterizeCurrentPage();
-        },
-        shortcut: "Ctrl+E"
-    });
+    UICommandManager.getCommand("exportPageAsPNGButton").isEnabled = function () {return thiz.page};
+    this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
 
     this.separator();
 
