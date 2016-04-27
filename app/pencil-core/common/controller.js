@@ -195,6 +195,40 @@ Controller.prototype.serializeDocument = function (onDone) {
     };
     next();
 };
+
+Controller.prototype.addRecentFile = function (filePath) {
+        var files = Config.get("recent-documents");
+        if (!files) {
+            files = [filePath];
+        } else {
+            for (var i = 0; i < files.length; i ++) {
+                if (files[i] == filePath) {
+                    //remove it
+                    files.splice(i, 1);
+                    break;
+                }
+            }
+            files.unshift(filePath);
+            if (files.length > 10) {
+                files.splice(files.length - 1, 1);
+            }
+        }
+        Config.set("recent-documents", files);
+};
+
+Controller.prototype.removeRecentFile = function (filePath) {
+        var files = Config.get("recent-documents");
+        if (files) {
+            for (var i = 0; i < files.length; i ++) {
+                if (files[i] == filePath) {
+                    //remove it
+                    files.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        Config.set("recent-documents", files);
+};
 Controller.prototype.openDocument = function () {
     var thiz = this;
     function handler() {
@@ -281,174 +315,126 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
 
         next(function () {
             thiz.sayDocumentChanged();
+            ApplicationPane._instance.unbusy();
         });
 
     } catch (e) {
         console.log("error:", e);
         thiz.newDocument();
+        ApplicationPane._instance.unbusy();
     }
 };
-
-Controller.prototype.setRecentFile = function (filePath) {
-        var files = Config.get("recent-documents");
-        if (!files) {
-            files = [filePath];
-        } else {
-            for (var i = 0; i < files.length; i ++) {
-                if (files[i] == filePath) {
-                    //remove it
-                    files.splice(i, 1);
-                    break;
-                }
-            }
-            files.unshift(filePath);
-            if (files.length > 10) {
-                files.splice(files.length - 1, 1);
-            }
-        }
-        Config.set("recent-documents", files);
-};
-
-Controller.prototype.removeRecentFile = function (filePath) {
-        var files = Config.get("recent-documents");
-        if (files) {
-            for (var i = 0; i < files.length; i ++) {
-                if (files[i] == filePath) {
-                    //remove it
-                    files.splice(i, 1);
-                    break;
-                }
-            }
-        }
-        Config.set("recent-documents", files);
-};
-
 
 Controller.prototype.loadDocument = function (filePath) {
     ApplicationPane._instance.busy();
-    var onLoadFileDone = function () {
-        ApplicationPane._instance.unbusy();
-    };
     this.resetDocument();
     var thiz = this;
-    var targetDir = this.tempDir.name;
-    fs.exists(filePath, function (exists) {
-        if (!exists) {
-            Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
-            thiz.removeRecentFile(filePath);
-            onLoadFileDone(false);
-            thiz.newDocument();
-            return;
-        }
-    });
-    var checkOldFileType = function(callback) {
-        var result;
-        var unzipParse = unzip.Parse();
-        var ob = fs.createReadStream(filePath).pipe(unzipParse);
-        unzipParse.on('close', function() {
-            callback(result);
-        });
-        unzipParse.on('error', function() {
-            result = false;
-            callback(result);
-        });
-        ob.on('entry', function (entry) {
-            var fileName = entry.path;
-            if (fileName === "content.xml") {
-                result = true;
-            }else {
-              entry.autodrain();
-            }
-        });
-    }
-    var zipcallback = function (rs) {
-        if(rs == true) {
-            var extractor = unzip.Extract({ path: targetDir });
-            extractor.on("close", function () {
-                try {
-                    var contentFile = path.join(targetDir, "content.xml");
-                    if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
-                    var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
-                    Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                        var value = propNode.textContent;
-                        if (value == "undefined" || value == "null") return;
-                        thiz.doc.properties[propNode.getAttribute("name")] = value;
-                    });
-                    Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-                        var page = new Page(thiz.doc);
-                        var pageFileName = pageNode.getAttribute("href");
-                        page.pageFileName = pageFileName;
-                        page.tempFilePath = path.join(targetDir, pageFileName);
-                        thiz.doc.pages.push(page);
-                    });
+    if (!fs.existsSync(filePath)) {
+        Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
+        thiz.removeRecentFile(filePath);
+        ApplicationPane._instance.unbusy();
+        thiz.newDocument();
+        return;
+    };
 
-                    thiz.doc.pages.forEach(function (page) {
-                        var pageFile = path.join(targetDir, page.pageFileName);
-                        if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
-                        var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
-                        Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                            var propName = propNode.getAttribute("name");
-                            var value = propNode.textContent;
-                            if(propName == "note") {
-                                value = RichText.fromString(value);
-                            }
-                            if (value == "undefined" || value == "null") return;
-                            page[propNode.getAttribute("name")] = value;
-                        });
-
-                        if (page.width) page.width = parseInt(page.width, 10);
-                        if (page.height) page.height = parseInt(page.height, 10);
-                        if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
-
-
-                        // if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
-
-                        var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
-                        if (fs.existsSync(thumbPath)) {
-                            page.thumbPath = thumbPath;
-                            page.thumbCreated = new Date();
-                        }
-                        page.canvas = null;
-                    }, thiz);
-
-                    thiz.doc.pages.forEach(function (page) {
-                        if (page.backgroundPageId) {
-                            page.backgroundPage = this.findPageById(page.backgroundPageId);
-                            this.invalidateBitmapFilePath(page);
-                        }
-
-                        if (page.parentPageId) {
-                            var parentPage = this.findPageById(page.parentPageId);
-                            page.parentPage = parentPage;
-                            parentPage.children.push(page);
-                        }
-                    }, thiz);
-
-                    thiz.documentPath = filePath;
-                    thiz.applicationPane.onDocumentChanged();
-                    thiz.modified = false;
-                    //new file was loaded, update recent file list
-                    thiz.setRecentFile(filePath);
-
-                    onLoadFileDone(true);
-                } catch (e) {
-                    console.log("error:", e);
-                    thiz.newDocument();
-                    onLoadFileDone(false);
-                }
-
-            }).on("error", function () {
-                // thiz.parseOldFormatDocument(filePath);
-            });
-            fs.createReadStream(filePath).pipe(extractor);
+    var fd = fs.openSync(filePath, "r");
+    var buffer = new Buffer(2);
+    var chunkSize = 2;
+    fs.read(fd, buffer, 0, chunkSize, 0, function (err, bytes, buff) {
+        var content = buff.toString("utf8", 0, chunkSize);
+        if (content.toUpperCase() == "PK") {
+            thiz.parseDocument(filePath);
         } else {
             thiz.parseOldFormatDocument(filePath);
-            thiz.setRecentFile(filePath);
-            onLoadFileDone(true);
         }
-    }
-    checkOldFileType(zipcallback);
+
+        fs.close(fd);
+    });
+
 };
+Controller.prototype.parseDocument = function (filePath) {
+    var targetDir = this.tempDir.name;
+    var thiz = this;
+    var extractor = unzip.Extract({ path: targetDir });
+    extractor.on("close", function () {
+        try {
+            var contentFile = path.join(targetDir, "content.xml");
+            if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
+            var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
+            Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                var value = propNode.textContent;
+                if (value == "undefined" || value == "null") return;
+                thiz.doc.properties[propNode.getAttribute("name")] = value;
+            });
+            Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
+                var page = new Page(thiz.doc);
+                var pageFileName = pageNode.getAttribute("href");
+                page.pageFileName = pageFileName;
+                page.tempFilePath = path.join(targetDir, pageFileName);
+                thiz.doc.pages.push(page);
+            });
+
+            thiz.doc.pages.forEach(function (page) {
+                var pageFile = path.join(targetDir, page.pageFileName);
+                if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
+                var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
+                Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                    var propName = propNode.getAttribute("name");
+                    var value = propNode.textContent;
+                    if(propName == "note") {
+                        value = RichText.fromString(value);
+                    }
+                    if (value == "undefined" || value == "null") return;
+                    page[propNode.getAttribute("name")] = value;
+                });
+
+                if (page.width) page.width = parseInt(page.width, 10);
+                if (page.height) page.height = parseInt(page.height, 10);
+                if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
+
+
+                // if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+
+                var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
+                if (fs.existsSync(thumbPath)) {
+                    page.thumbPath = thumbPath;
+                    page.thumbCreated = new Date();
+                }
+                page.canvas = null;
+            }, thiz);
+
+            thiz.doc.pages.forEach(function (page) {
+                if (page.backgroundPageId) {
+                    page.backgroundPage = this.findPageById(page.backgroundPageId);
+                    this.invalidateBitmapFilePath(page);
+                }
+
+                if (page.parentPageId) {
+                    var parentPage = this.findPageById(page.parentPageId);
+                    page.parentPage = parentPage;
+                    parentPage.children.push(page);
+                }
+            }, thiz);
+
+            thiz.documentPath = filePath;
+            thiz.applicationPane.onDocumentChanged();
+            thiz.modified = false;
+            //new file was loaded, update recent file list
+            thiz.addRecentFile(filePath);
+            ApplicationPane._instance.unbusy();
+
+        } catch (e) {
+            console.log("error:", e);
+            thiz.newDocument();
+            ApplicationPane._instance.unbusy();
+        }
+
+    }).on("error", function () {
+        thiz.parseOldFormatDocument(filePath);
+        ApplicationPane._instance.unbusy();
+    });
+    fs.createReadStream(filePath).pipe(extractor);
+}
 Controller.prototype.confirmAndSaveDocument = function (onSaved) {
     Dialog.confirm(
         "Save changes to document before closing?",
@@ -468,7 +454,7 @@ Controller.prototype.saveAsDocument = function (onSaved) {
         ]
     }, function (filePath) {
         if (!filePath) return;
-        this.setRecentFile(filePath);
+        this.addRecentFile(filePath);
         if (!this.documentPath) this.documentPath = filePath;
         this.saveDocumentImpl(filePath, onSaved);
     }.bind(this));
@@ -484,7 +470,7 @@ Controller.prototype.saveDocument = function (onSaved) {
             ]
         }, function (filePath) {
             if (!filePath) return;
-            thiz.setRecentFile(filePath);
+            thiz.addRecentFile(filePath);
             thiz.documentPath = filePath;
             thiz.saveDocumentImpl(thiz.documentPath, onSaved);
         });

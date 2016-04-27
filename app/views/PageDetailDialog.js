@@ -370,6 +370,7 @@ PageDetailDialog.prototype.getDialogActions = function () {
 
     return [
         {   type: "cancel", title: "Cancel",
+            isCloseHandler: true,
             run: function () {
                 if (this.modified) {
                     Dialog.confirm(
@@ -387,7 +388,7 @@ PageDetailDialog.prototype.getDialogActions = function () {
                                 if (thiz.onDone) thiz.onDone(page);
                             }
                         },
-                        "Cancel"
+                        "No"
                     );
                 }
                 return true;

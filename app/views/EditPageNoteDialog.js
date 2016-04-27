@@ -276,6 +276,7 @@ EditPageNoteDialog.prototype.updateButtonByCommandState = function (commandName,
 EditPageNoteDialog.prototype.getDialogActions = function () {
     return [
         {   type: "cancel", title: "Cancel",
+            isCloseHandler: true,
             run: function () {
                 var newEditor = RichText.fromString(this.editor.innerHTML);
                 if ( this.defaultEditor && newEditor.html != this.defaultEditor.html || !this.defaultEditor && this.editor.innerHTML != " ") {

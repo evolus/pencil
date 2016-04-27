@@ -23,13 +23,9 @@ AboutDialog.prototype.getLicense = function (thiz) {
 AboutDialog.prototype.getDialogActions = function () {
     return [
         {
-            type: "accept", title: "Close",
+            type: "cancel", title: "Close",
+            isCloseHandler: true,
             run: function () { return true; }
         }
     ]
 };
-
-// window.addEventListener("load", function () {
-//     var dialog = new AboutDialog();
-//     dialog.open();
-// },false)
