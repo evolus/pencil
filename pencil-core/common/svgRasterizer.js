@@ -175,7 +175,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
             rect.setAttribute("y", "0");
             rect.setAttribute("width", page.width);
             rect.setAttribute("height", page.height);
-            rect.setAttribute("style", "stroke: none; fill: " + page.backgroundColor + ";");
+            rect.setAttribute("style", "stroke: none; fill: " + page.backgroundColor.toRGBAString() + ";");
 
             if (svg.firstChild) {
                 svg.insertBefore(rect, svg.firstChild);

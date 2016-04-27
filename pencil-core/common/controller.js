@@ -1065,7 +1065,7 @@ Controller.prototype.updatePageProperties = function (page, name, backgroundColo
             var docIndex = this.doc.pages.indexOf(page);
             if (docIndex >= 0) {
                 this.doc.pages.splice(docIndex, 1);
-                this.doc.pages.push(page);                
+                this.doc.pages.push(page);
             }
 
             page.parentPage = null;

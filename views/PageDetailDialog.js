@@ -6,6 +6,9 @@ function PageDetailDialog() {
         return canvas.name;
     };
     this.pageCombo.decorator = function (node, canvas) {
+        if (canvas._level) {
+            node.style.paddingLeft = canvas._level + "em";
+        }
     };
 
     this.pageSizeCombo.renderer = function (pageSize) {
@@ -13,8 +16,14 @@ function PageDetailDialog() {
         return pageSize.displayName + " (" + pageSize.value + ")";
     }
 
-    this.backgroundCombo.renderer = function (background) {
-        return background.displayName;
+    this.backgroundCombo.renderer = function (item) {
+        return item.name;
+    };
+
+    this.backgroundCombo.decorator = function (node, item) {
+        if (item._level) {
+            node.style.paddingLeft = item._level + "em";
+        }
     };
 
     var thiz = this;
@@ -118,46 +127,6 @@ PageDetailDialog.prototype.setup = function (options) {
     this.modified = false;
 
     if (this.options && this.options.onDone) this.onDone = this.options.onDone;
-    var pagesComboItems = [];
-    pagesComboItems.push({
-        name: "(None)"
-    });
-    var pages = Pencil.controller.doc.pages;
-
-    // Create combobox item for parent of Page
-    var hideParentPageItem = [];
-    if(this.originalPage) {
-        hideParentPageItem.push(this.originalPage);
-    }
-    var conditionChildOf = function(page, padding) {
-        if(page != thiz.originalPage) {
-            var check = false;
-            if (page.parentPage) {
-                var index = hideParentPageItem.indexOf(page.parentPage);
-                if(index >= 0 ) {
-                    hideParentPageItem.push(page);
-                    check =true;
-                }
-            }
-            if (!check) {
-                page.padding = padding
-                pagesComboItems.push(page);
-            }
-        }
-    }
-    for(var i in pages) {
-        if (!pages[i].parentPage ) {
-            conditionChildOf(pages[i], null);
-            if (pages[i].children) {
-                createComboitems(pages[i].children, conditionChildOf, 0);
-            }
-        }
-    }
-    this.pageCombo.setItems(pagesComboItems);
-
-    if (this.options && this.options.defaultParentPage) {
-        this.pageCombo.selectItem(this.options.defaultParentPage);
-    }
 
     var pageSizes = [];
 
@@ -184,50 +153,77 @@ PageDetailDialog.prototype.setup = function (options) {
     pageSizes = pageSizes.concat(Page.defaultPageSizes);
     this.pageSizeCombo.setItems(pageSizes);
 
+    var pages = [].concat(Pencil.controller.doc.pages);
+
+    var parentPageItems = [];
+    parentPageItems.push({
+        name: "(None)"
+    });
+
     var backgroundItems = [
         {
-            displayName: "Transparent Background",
+            name: "Transparent Background",
             value: "transparent"
         },
         {
-            displayName: "Background Color"
+            name: "Background Color"
         }
     ];
 
-
-    //Create combobox item for background Page
-    var backgroundPageItem =[];
+    var rejectedBackgroundPageIds = [];
     if (this.originalPage) {
-        backgroundPageItem.push(this.originalPage.id);
+        rejectedBackgroundPageIds.push(this.originalPage.id);
     }
-    var conditionBackground = function(page, padding) {
-        if(page != thiz.originalPage) {
-            var check = false;
-            if (page.backgroundPageId) {
-                var index = backgroundPageItem.indexOf(page.backgroundPageId);
-                if(index >= 0 ) {
-                    backgroundPageItem.push(page.id);
-                    check =true;
+
+    function selectPageItem(page, level, items, isRejected, shouldCheckChildren, transformer) {
+        var rejected = isRejected(page);
+        if (!rejected) {
+            var item = transformer ? transformer(page) : page;
+            item._level = level;
+            items.push(item);
+        }
+
+        if (rejected && !shouldCheckChildren) return;
+
+        if (!page.children || page.children.length <= 0) return;
+        for (var i in page.children) {
+            var child = page.children[i];
+            selectPageItem(child, level + 1, items, isRejected, shouldCheckChildren, transformer);
+        }
+    }
+
+    for (var i in pages) {
+        var checkedPage = pages[i];
+        if (checkedPage.parentPage) continue;
+
+        // build parent page items
+        selectPageItem(checkedPage, 0, parentPageItems, function (page) {
+            return thiz.originalPage && thiz.originalPage.id == page.id;
+        }, false);
+
+        // build background page items
+        selectPageItem(checkedPage, 0, backgroundItems, function (page) {
+            var p = page;
+            while (p) {
+                if (rejectedBackgroundPageIds.indexOf(p.id) >= 0) {
+                    rejectedBackgroundPageIds.push(page.id);
+                    return true;
                 }
+                p = p.backgroundPage;
             }
-            if (!check) {
-                backgroundItems.push({
-                    displayName: page.name,
-                    value: page.id,
-                    padding: padding
-                });
+            return false;
+        }, true, function (page) {
+            return {
+                name: page.name,
+                value: page.id
             }
-        }
+        });
     }
-    for(var i in pages) {
-        if (!pages[i].parentPage ) {
-            if(pages[i] != thiz.originalPage) {
-                 conditionBackground(pages[i], null);
-            }
-            if (pages[i].children) {
-                createComboitems(pages[i].children, conditionBackground, 0);
-            }
-        }
+
+
+    this.pageCombo.setItems(parentPageItems);
+    if (this.options && this.options.defaultParentPage) {
+        this.pageCombo.selectItem(this.options.defaultParentPage);
     }
 
     this.backgroundCombo.setItems(backgroundItems);
@@ -278,21 +274,21 @@ PageDetailDialog.prototype.setPageItem = function (page) {
 
     if(page.backgroundColor) {
         this.backgroundCombo.selectItem({
-             displayName: "Background Color"
+             name: "Background Color"
         });
-        this.colorButton.style.color = page.backgroundColor ? page.backgroundColor.toRGBString() : "#000" ;
+        this.colorButton.style.color = page.backgroundColor ? page.backgroundColor.toRGBAString() : "#FFF" ;
     }
     if (page.backgroundPage) {
         this.backgroundCombo.selectItem({
-             displayName: page.backgroundPage.name,
+             name: page.backgroundPage.name,
              value: page.backgroundPage.id
         });
-        this.colorButton.style.color = page.backgroundPage.backgroundColor ? page.backgroundPage.backgroundColor.toRGBString() : "#000";
+        this.colorButton.style.color = page.backgroundPage.backgroundColor ? page.backgroundPage.backgroundColor.toRGBAString() : "#FFF";
     }
 
     if (!page.backgroundPageId && !page.backgroundColor) {
         this.backgroundCombo.selectItem({
-            displayName: "Transparent Background",
+            name: "Transparent Background",
             value: "transparent"
         });
         this.colorButton.disabled = true;
@@ -360,6 +356,7 @@ PageDetailDialog.prototype.updatePage = function() {
         backgroundPageId = null;
         backgroundColor = null;
     }
+
     var parentPageId = this.pageCombo.getSelectedItem().id;
     Pencil.controller.updatePageProperties(page, name, backgroundColor, backgroundPageId, parentPageId, width, height);
     return page;

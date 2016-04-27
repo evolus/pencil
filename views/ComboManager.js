@@ -82,9 +82,6 @@ ComboManager.prototype.setItems = function (items) {
             spec[this.useHtml ? "_html" : "_text"] = element;
 
             node = Dom.newDOMElement(spec);
-            if(item.padding) {
-                node.style.paddingLeft = item.padding + "em";
-            }
         }
         if (this.decorator) this.decorator(node, item);
 
