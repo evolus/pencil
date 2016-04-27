@@ -1,0 +1,26 @@
+image: mbrainiac/electron-builder:latest
+
+cache:
+  paths:
+  - node_modules
+  - app/node_modules
+  - ~/.electron
+
+before_script:
+
+stages:
+  - build
+
+build_pencil:
+  stage: build
+  script:
+    - sudo npm install
+    - npm run install-app-deps
+    - npm run dist:linux
+    - npm run pack:win32
+    - ls -al ./dist
+  artifacts:
+    paths:
+    - dist/*
+  only:
+    - master@evolus/pencil

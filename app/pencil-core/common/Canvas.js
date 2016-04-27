@@ -151,6 +151,12 @@ function Canvas(element) {
         thiz.focus();
         thiz.handleMouseDown(event);
     }, false);
+
+    this.svg.ownerDocument.addEventListener("mousewheel", function (event) {
+        thiz.focus();
+        thiz.handleMouseWheel(event);
+    }, false);
+
     this.svg.ownerDocument.addEventListener("mouseup", function (event) {
         if (!thiz || !thiz.handleMouseUp) {
             document.removeEventListener("mouseup", arguments.callee, false);
@@ -864,6 +870,17 @@ Canvas.prototype.finishMoving = function (event) {
     }
 
 };
+Canvas.prototype.handleMouseWheel = function(event) {
+    Dom.cancelEvent(event);
+    var thiz = this;
+    if (event.ctrlKey) {
+        if (event.deltaY < 0) {
+            thiz.zoomTo(thiz.zoom * 1.25);
+        } else {
+            thiz.zoomTo(thiz.zoom / 1.25);
+        }
+    }
+}
 Canvas.prototype.handleMouseUp = function (event) {
 
     if (this.reClick && !this.hasMoved) {
@@ -1346,8 +1363,6 @@ Canvas.prototype.handleKeyPress = function (event) {
         event.preventDefault();
         this.selectAll();
         event.preventDefault();
-    } else if (event.keyCode == DOM_VK_ESCAPE) {
-        this.endFormatPainter();
     } else if (event.keyCode == DOM_VK_ESCAPE) {
         this.endFormatPainter();
     }

@@ -37,7 +37,10 @@ function createWindow() {
 
     mainWindow.hide();
     mainWindow.maximize();
-    mainWindow.webContents.openDevTools();
+
+    if (process.env.PENCIL_ENV === "development") {
+      mainWindow.webContents.openDevTools();
+    }
 
     var mainUrl = "file://" + __dirname + "/app.xhtml";
     mainWindow.loadURL(mainUrl);

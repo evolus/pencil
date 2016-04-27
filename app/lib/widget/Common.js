@@ -110,12 +110,13 @@ widget.Util = function() {
                 css = css.replace(/\$([a-z0-9_]+)/g, "@$1");
 
                 //appending less config
-                css = "@import \"css/variables.less\";\n" + css;
+                css = "@import \"variables.less\";\n" + css;
+                var baseDirectory = path.join(__dirname, "css");
 
                 console.log("Rendering less: " + templateName);
 
                 less.render(css, {
-
+                    paths: ['.', './css', baseDirectory]
                 }).then(function (output) {
                     if (templateName == "views_CollectionManagementDialog_xhtml") {
                         console.log("CSS", output);

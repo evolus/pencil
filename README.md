@@ -10,13 +10,6 @@ Pencil uses [Atom Electron](http://electron.atom.io/) as the runtime, follow the
     ```bash
     $ npm install
     ```
-
-* Rebuilding native modules for Electron:
-
-    ```bash
-    $ npm rebuild
-    ```
-
 * Start Pencil using the prebuilt version of Electron
 
     ```bash
