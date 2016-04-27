@@ -252,6 +252,7 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
 
             if (page.width) page.width = parseInt(page.width, 10);
             if (page.height) page.height = parseInt(page.height, 10);
+            if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
             if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
 
@@ -397,6 +398,7 @@ Controller.prototype.loadDocument = function (filePath) {
 
                         if (page.width) page.width = parseInt(page.width, 10);
                         if (page.height) page.height = parseInt(page.height, 10);
+                        if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
 
                         // if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
