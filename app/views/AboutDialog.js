@@ -23,7 +23,7 @@ AboutDialog.prototype.getLicense = function (thiz) {
 AboutDialog.prototype.getDialogActions = function () {
     return [
         {
-            type: "accept", title: "OK",
+            type: "accept", title: "Close",
             run: function () { return true; }
         }
     ]
