@@ -9,6 +9,8 @@
   "build": {
     "app-bundle-id": "vn.evolus.pencil",
     "app-category-type": "public.app-category.graphics-design",
+    "iconUrl": "https://raw.githubusercontent.com/mbrainiac/pencil/master/build/icon.ico",
+    "productName": "Pencil",
     "osx": {
       "contents": [
         {
@@ -23,6 +25,11 @@
           "type": "file"
         }
       ]
+    },
+    "linux": {
+      "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
+      "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
+      "vendor": "Evolus"
     }
   },
   "scripts": {
@@ -38,6 +45,7 @@
     "dist": "build",
     "release": "build",
     "dist:linux": "./node_modules/.bin/build --platform linux --arch x64 && tar -cvf ./dist/Pencil-linux-x64.tar.gz -C ./dist/Pencil-linux-x64 . && rm -Rf ./dist/Pencil-linux-x64",
+    "dist:win32": "./node_modules/.bin/build --platform win32 --arch all",
     "pack:win32": "./node_modules/.bin/build --platform win32 --arch all && cd ./dist/Pencil-win32-ia32 && zip -r ../Pencil-win32-ia32.zip . && cd ../.. && rm -Rf ./dist/Pencil-win32-ia32 && cd ./dist/Pencil-win32-x64 && zip -r ../Pencil-win32-x64.zip . && cd ../.. && rm -Rf ./dist/Pencil-win32-x64",
     "pack:mac": "./node_modules/.bin/build --platform darwin"
   },
