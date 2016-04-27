@@ -1,26 +1,45 @@
 {
   "name": "Pencil",
-  "version": "3.0.0",
-  "main": "index.js",
-  "js-flags": "--expose-gc",
-  "window": {
-    "toolbar": false,
-    "position": "center",
-    "width": 900,
-    "height": 900
+  "devDependencies": {
+    "electron-builder": "^3.10.0",
+    "electron-prebuilt": "^0.37.5",
+    "electron-rebuild": "^1.0.2",
+    "rimraf": "^2.5.2"
   },
-  "dependencies": {
-    "archiver": "^0.21.0",
-    "font-manager": "git+https://github.com/princejwesley/font-manager.git",
-    "less": "~2.5.3",
-    "tmp": "0.0.28",
-    "unzip2": "^0.2.5",
-    "electron-prebuilt": "0.37.5",
-    "electron-rebuild": "^1.0.2"
+  "build": {
+    "app-bundle-id": "vn.evolus.pencil",
+    "app-category-type": "public.app-category.graphics-design",
+    "osx": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    }
   },
   "scripts": {
+    "postinstall": "install-app-deps",
+    "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
     "rebuild": "./node_modules/.bin/electron-rebuild",
-    "start": "./node_modules/.bin/electron ."
+    "start": "./node_modules/.bin/electron ./app",
+    "clean": "rimraf dist",
+    "clean:osx": "rimraf dist/Pencil-darwin*",
+    "clean:win": "rimraf dist/Pencil-win*",
+    "clean:linux": "rimraf dist/Pencil-linux*",
+    "pack": "build",
+    "dist": "build",
+    "release": "build",
+    "dist:linux": "./node_modules/.bin/build --platform linux --arch x64 && tar -cvf ./dist/Pencil-linux-x64.tar.gz -C ./dist/Pencil-linux-x64 . && rm -Rf ./dist/Pencil-linux-x64",
+    "pack:win32": "./node_modules/.bin/build --platform win32 --arch all && cd ./dist/Pencil-win32-ia32 && zip -r ../Pencil-win32-ia32.zip . && cd ../.. && rm -Rf ./dist/Pencil-win32-ia32 && cd ./dist/Pencil-win32-x64 && zip -r ../Pencil-win32-x64.zip . && cd ../.. && rm -Rf ./dist/Pencil-win32-x64",
+    "pack:mac": "./node_modules/.bin/build --platform darwin"
   },
   "private": true
 }
