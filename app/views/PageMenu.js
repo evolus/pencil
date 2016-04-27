@@ -22,6 +22,7 @@ PageMenu.prototype.setup = function () {
         run: function () {
             var dialog = new PageDetailDialog();
             dialog.open({
+                parentpage: thiz.page,
                 onDone: function (page) {
                     if (!page) return;
                     thiz.pageListView.activatePage(page);

@@ -232,6 +232,10 @@ PageDetailDialog.prototype.setup = function (options) {
     this.widthInput.disabled = pageSize.value;
     this.heightInput.disabled = pageSize.value;
 
+    if (options.parentpage) {
+        this.pageCombo.selectItem(options.parentpage);
+    }
+
     if(this.originalPage) {
         this.setPageItem(this.originalPage);
     }
