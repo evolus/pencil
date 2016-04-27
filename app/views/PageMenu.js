@@ -14,101 +14,78 @@ PageMenu.prototype.getTemplatePath = function () {
 PageMenu.prototype.setup = function () {
     var thiz = this;
 
-    UICommandManager.getCommand("PageNewPage").run = function () {
-        var dialog = new PageDetailDialog();
-        dialog.open({
-            onDone: function (page) {
-                if (!page) return;
-                thiz.pageListView.activatePage(page);
-            }
-        });
-    };
-    UICommandManager.getCommand("PageDuplicate").isEnabled = function () { return thiz.page };
-    UICommandManager.getCommand("PageDuplicate").run = function () {
-        var onDone = function () {
-            return function (page) {
-                thiz.pageListView.activatePage(page);
-            }
-        }
-        Pencil.controller.duplicatePage(thiz.page, onDone());
-    };
-    UICommandManager.getCommand("PageDelete").isEnabled = function () { return thiz.page };
-    UICommandManager.getCommand("PageDelete").run = function () {
-        Dialog.confirm(
-            "Are you sure you really want to delete this page?", null,
-            "Delete", function () {
-                var page = Pencil.controller.deletePage(thiz.page);
-                if (page) {
+    this.register({
+        key: "PageNewPage",
+        icon: "add",
+        getLabel: function () { return "New Page " },
+        isValid: function () { return true },
+        run: function () {
+            var dialog = new PageDetailDialog();
+            dialog.open({
+                onDone: function (page) {
+                    if (!page) return;
                     thiz.pageListView.activatePage(page);
-                } else {
-                    thiz.pageListView.renderPages();
                 }
-            },
-            "Cancel"
-        );
-    };
-    UICommandManager.getCommand("PageMoveLeft").isEnabled = function () { return thiz.page && Pencil.controller.checkLeftRight(thiz.page, "left")};
-    UICommandManager.getCommand("PageMoveLeft").run = function () {
-        Pencil.controller.movePage(thiz.page, "left");
-    };
-    UICommandManager.getCommand("PageMoveRight").isEnabled = function () {  return thiz.page && Pencil.controller.checkLeftRight(thiz.page, "right") };
-    UICommandManager.getCommand("PageMoveRight").run = function () {
-        Pencil.controller.movePage(thiz.page, "right");
-    };
-    UICommandManager.getCommand("PageProperties").isEnabled = function () { return thiz.page };
-    UICommandManager.getCommand("PageProperties").run = function () {
-        var dialog = new PageDetailDialog();
-        dialog.title = "Edit Page Properties";
-        dialog.open({
-            page : thiz.page,
-            onDone: function () {
-                thiz.pageListView.renderPages();
-            }
-        });
-    };
-    UICommandManager.getCommand("PageEditPageNode").isEnabled = function () { return thiz.page };
-    UICommandManager.getCommand("PageEditPageNode").run = function () {
-        var dialog = new EditPageNoteDialog();
-        dialog.open({
-            defaultPage : thiz.page,
-            onDone: function (editor) {
-                console.log("Complete note");
-                thiz.page.note = editor;
-            }
-        });
-    };
+            });
+        }
+    });
 
-    this.register(UICommandManager.getCommand("PageNewPage"));
-    this.separator();
-    this.register(UICommandManager.getCommand("PageDuplicate"));
-    this.register(UICommandManager.getCommand("PageDelete"));
-    this.register(UICommandManager.getCommand("PageMoveLeft"));
-    this.register(UICommandManager.getCommand("PageMoveRight"));
-    this.separator();
-    this.register(UICommandManager.getCommand("PageProperties"));
     this.separator();
 
-    // var createGotoSubMenuElement = function(page) {
-    //     var key = page.name.split(" ").join("") + "Page" ;
-    //     var element = UICommandManager.register({
-    //         key: key,
-    //         label: page.name,
-    //         run: function () {
-    //             thiz.pageListView.activatePage(page);
-    //         }
-    //     });
-    //     var setElement = UICommandManager.getCommand(key);
-    //     return setElement;
-    // }
-    //
-    // var createGotoSubMenuItem = function() {
-    //     var elements = [];
-    //     for (var i = 0; i < Pencil.controller.doc.pages.length; i ++) {
-    //         elements.push(createGotoSubMenuElement(Pencil.controller.doc.pages[i]));
-    //     }
-    //     return elements;
-    // }
+    this.register({
+        key: "PageDuplicate",
+        icon: "content_copy",
+        isEnabled: function () { return thiz.page },
+        getLabel: function () { return "Duplicate" },
+        isValid: function () { return true },
+        run: function () {
+            var onDone = function () {
+                return function (page) {
+                thiz.pageListView.activatePage(page);
+                }
+           }
+           Pencil.controller.duplicatePage(thiz.page, onDone());
+       }
+   });
+    this.register({
+        key: "PageDelete",
+        icon : "remove",
+        getLabel: function () { return "Delete" },
+        isValid: function () { return true },
+        isEnabled: function () { return thiz.page },
+        run: function () {
+            console.log("dialog:", dialog);
+            Dialog.confirm(
+                "Are you sure you really want to delete this page?", null,
+                "Delete", function () {
+                    Pencil.controller.deletePage(thiz.page);
+                    thiz.pageListView.renderPages();
+                },
+                "Cancel"
+            )
+        }
+    });
+    this.register({
+        key: "PageMoveLeft",
+        icon: "keyboard_arrow_left",
+        getLabel: function () { return "Move Left" },
+        isValid: function () { return true },
+        isEnabled: function () { return thiz.page && Pencil.controller.checkLeftRight(thiz.page, "left")},
+        run: function () {
+            Pencil.controller.movePage(thiz.page, "left");
+        },
+    });
 
+    this.register({
+        key: "PageMoveRight",
+        icon: "keyboard_arrow_right",
+        getLabel: function () { return "Move Right" },
+        isValid: function () { return true },
+        isEnabled: function () {  return thiz.page && Pencil.controller.checkLeftRight(thiz.page, "right") },
+        run: function () {
+            Pencil.controller.movePage(thiz.page, "right");
+        }
+    });
     function createSubCommand (page) {
         var key = "open" + page.name +"page";
         var items = {"key": key, "item": {
@@ -162,18 +139,62 @@ PageMenu.prototype.setup = function () {
             subItems.push(item["item"]);
         }
     }
+    var check = false;
+    if (subItems.length > 0) check = true;
 
-    var createGotoButton = function() {
-        var check = false;
-        if( subItems.length > 0 ) check = true;
+    this.register({
+        key: "PageGotoNode",
+        getLabel: function () { return "Goto" },
+        isEnabled: function () { return check },
+        type: "SubMenu",
+        subItems: subItems,
+    });
 
-        var ui = UICommandManager.getCommand("GotoNode");
-        ui.isEnabled = function () { return check };
-        ui.type = "SubMenu";
-        ui.subItems = subItems;
-    }
-    createGotoButton();
-    this.register(UICommandManager.getCommand("GotoNode"));
     this.separator();
-    this.register(UICommandManager.getCommand("PageEditPageNode"));
+
+    this.register({
+        key: "PageProperties",
+        isEnabled: function () { return thiz.page },
+        getLabel: function () { return "Properties" },
+        isValid: function () { return true },
+        run: function () {
+            var dialog = new PageDetailDialog();
+            dialog.title = "Edit Page Properties";
+            dialog.open({
+                defaultPage : thiz.page,
+                onDone: function(page) {
+                }
+            });
+        },
+    });
+
+    this.register({
+        key: "exportPageAsPNGButton",
+        label: "Export page as PNG...",
+        isEnabled: function () { return thiz.page },
+        isValid: function () { return true; },
+        run: function () {
+            Pencil.controller.rasterizeCurrentPage();
+        },
+        shortcut: "Ctrl+E"
+    });
+
+    this.separator();
+
+    this.register({
+        key: "PageEditPageNode",
+        getLabel: function () { return "Edit Page Note..." },
+        isEnabled: function () { return thiz.page },
+        isValid: function () { return true },
+        run: function () {
+            var dialog = new EditPageNoteDialog();
+            dialog.open({
+                defaultPage : thiz.page,
+                onDone: function (editor) {
+                    console.log("Complete note");
+                    thiz.page.note = editor;
+                }
+            });
+        },
+    });
 }

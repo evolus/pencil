@@ -11,25 +11,6 @@ MainMenu.prototype.getTemplatePath = function () {
 };
 
 MainMenu.prototype.setup = function () {
-    UICommandManager.register({
-        key: "aboutDialogCommand",
-        label: "About Pencil",
-        icon: "info",
-        isValid: function () { return true; },
-        run: function () {
-            var dialog = new AboutDialog();
-            dialog.open();
-        }
-    });
-
-    UICommandManager.register({
-        key: "settingAllCommand",
-        label: "Setting...",
-        icon: "settings",
-        isValid: function () { return true; },
-        run: function () {
-        }
-    });
 
     var thiz = this;
     var createRecentSubMenuElement = function(fileName) {
@@ -67,18 +48,33 @@ MainMenu.prototype.setup = function () {
         checkRecentButton = true;
     }
 
-    var ui = UICommandManager.getCommand("RecentFileCommand");
-    ui.isEnabled = function () { return checkRecentButton };
-    ui.type = "SubMenu";
-    ui.subItems = thiz.itemRecentFile;
-    // Register button
     this.register(UICommandManager.getCommand("newDocumentCommand"));
     this.register(UICommandManager.getCommand("openDocumentCommand"));
     this.register(UICommandManager.getCommand("saveDocumentCommand"));
     this.register(UICommandManager.getCommand("saveAsDocumentCommand"));
     this.separator();
-    this.register(UICommandManager.getCommand("RecentFileCommand"));
+    this.register({
+        key: "RecentFileCommand",
+        label: "Recent files ",
+        isEnabled: function () { return checkRecentButton },
+        type: "SubMenu",
+        subItems: thiz.itemRecentFile,
+    });
     this.separator();
-    this.register(UICommandManager.getCommand("settingAllCommand"));
-    this.register(UICommandManager.getCommand("aboutDialogCommand"));
+    this.register({
+        key: "settingAllCommand",
+        label: "Setting",
+        isValid: function () { return true; },
+        run: function () {
+        }
+    });
+    this.register({
+        key: "aboutDialogCommand",
+        label: "About...",
+        isValid: function () { return true; },
+        run: function () {
+            var dialog = new AboutDialog();
+            dialog.open();
+        }
+    });
 }

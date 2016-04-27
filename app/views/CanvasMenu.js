@@ -222,6 +222,16 @@ CanvasMenu.prototype.setup = function () {
         }
     });
 
+    UICommandManager.register({
+        key: "exportSelectionAsPNGButton",
+        label: "Export selection as PNG...",
+        isAvailable: function () { return thiz.canvas.currentController},
+        run: function () {
+            Pencil.controller.rasterizeSelection();
+        },
+        shortcut: "Ctrl+Alt+E"
+    });
+
 
     this.register(UICommandManager.getCommand("undoCommand"));
     this.register(UICommandManager.getCommand("redoCommand"));
@@ -266,6 +276,7 @@ CanvasMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("copyCommand"));
     this.register(UICommandManager.getCommand("pasteCommand"));
     this.register(UICommandManager.getCommand("selectAllCommand"));
+    this.register(UICommandManager.getCommand("exportSelectionAsPNGButton"));
 
     this.separator();
 
@@ -279,7 +290,6 @@ CanvasMenu.prototype.setup = function () {
 
     this.separator();
     this.register(UICommandManager.getCommand("sizingPolicyCommand"));
-
     // <menuseparator/>
 
     // this.register({

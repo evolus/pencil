@@ -38,6 +38,7 @@ function CollectionPane() {
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
         event.target.collection = def;
 
+
     });
 
 
