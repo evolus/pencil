@@ -4,14 +4,13 @@
   "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
   "version": "3.0.0",
   "author": {
-    "name" : "Duong Thanh An",
-    "email" : "an.duong@evolus.vn",
-    "url" : "https://twitter.com/dgthanhan"
+    "name": "Duong Thanh An",
+    "email": "an.duong@evolus.vn",
+    "url": "https://twitter.com/dgthanhan"
   },
   "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
   "homepage": "http://pencil.evolus.vn",
   "license": "GPL2",
-
   "main": "index.js",
   "js-flags": "--expose-gc",
   "window": {
@@ -22,6 +21,7 @@
   },
   "dependencies": {
     "archiver": "^0.21.0",
+    "electron-squirrel-startup": "^0.1.4",
     "font-manager": "git+https://github.com/princejwesley/font-manager.git",
     "less": "~2.5.3",
     "tmp": "0.0.28",
