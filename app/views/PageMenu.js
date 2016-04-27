@@ -41,7 +41,7 @@ PageMenu.prototype.setup = function () {
         run: function () {
             var onDone = function () {
                 return function (page) {
-                thiz.pageListView.activatePage(page);
+                    thiz.pageListView.activatePage(page);
                 }
            }
            Pencil.controller.duplicatePage(thiz.page, onDone());
@@ -54,12 +54,15 @@ PageMenu.prototype.setup = function () {
         isValid: function () { return true },
         isEnabled: function () { return thiz.page },
         run: function () {
-            console.log("dialog:", dialog);
             Dialog.confirm(
                 "Are you sure you really want to delete this page?", null,
                 "Delete", function () {
-                    Pencil.controller.deletePage(thiz.page);
-                    thiz.pageListView.renderPages();
+                    var page = Pencil.controller.deletePage(thiz.page);
+                    if (page) {
+                        thiz.pageListView.activatePage(page);
+                    } else {
+                        thiz.pageListView.renderPages();
+                    }
                 },
                 "Cancel"
             )

@@ -175,20 +175,20 @@ PageDetailDialog.prototype.setup = function (options) {
         rejectedBackgroundPageIds.push(this.originalPage.id);
     }
 
-    function selectPageItem(page, level, items, isRejected, shouldCheckChildren, transformer) {
-        var rejected = isRejected(page);
-        if (!rejected) {
+    function selectPageItem(page, level, items, isSelected, shouldCheckChildren, transformer) {
+        var selected = isSelected(page);
+        if (selected) {
             var item = transformer ? transformer(page) : page;
             item._level = level;
             items.push(item);
         }
 
-        if (rejected && !shouldCheckChildren) return;
+        if (!selected && !shouldCheckChildren) return;
 
         if (!page.children || page.children.length <= 0) return;
         for (var i in page.children) {
             var child = page.children[i];
-            selectPageItem(child, level + 1, items, isRejected, shouldCheckChildren, transformer);
+            selectPageItem(child, level + 1, items, isSelected, shouldCheckChildren, transformer);
         }
     }
 
@@ -198,7 +198,7 @@ PageDetailDialog.prototype.setup = function (options) {
 
         // build parent page items
         selectPageItem(checkedPage, 0, parentPageItems, function (page) {
-            return thiz.originalPage && thiz.originalPage.id == page.id;
+            return !thiz.originalPage || thiz.originalPage.id != page.id;
         }, false);
 
         // build background page items
@@ -207,11 +207,11 @@ PageDetailDialog.prototype.setup = function (options) {
             while (p) {
                 if (rejectedBackgroundPageIds.indexOf(p.id) >= 0) {
                     rejectedBackgroundPageIds.push(page.id);
-                    return true;
+                    return false;
                 }
                 p = p.backgroundPage;
             }
-            return false;
+            return true;
         }, true, function (page) {
             return {
                 name: page.name,
@@ -367,14 +367,14 @@ PageDetailDialog.prototype.getDialogActions = function () {
     return [
         {   type: "cancel", title: "Cancel",
             run: function () {
-                if(this.modified) {
-                    if(this.pageTitle.value == "" ) {
-                        Dialog.alert("The page name is invalid. Please enter the valid page name.");
-                        return;
-                    }
+                if (this.modified) {
                     Dialog.confirm(
                         "Do you want to save your changes before closing?", null,
                         "Save", function () {
+                            if (thiz.pageTitle.value == "" ) {
+                                Dialog.alert("The page name is invalid. Please enter the valid page name.");
+                                return;
+                            }
                             if (thiz.isCreatePage) {
                                 var page = thiz.createPage();
                                 if (thiz.onDone) thiz.onDone(page);
