@@ -2,9 +2,6 @@ function Controller(canvasPool, applicationPane) {
     this.canvasPool = canvasPool;
     this.applicationPane = applicationPane;
 
-    document.body.onscroll = function (event) {
-        document.body.scrollTop = 0;
-    };
     var thiz = this;
     this.canvasPool.canvasContentModifiedListener = function (canvas) {
         thiz.handleCanvasModified(canvas);
