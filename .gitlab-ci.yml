@@ -17,6 +17,8 @@ prepare_job:
   script:
     - sudo npm install
     - npm run install-app-deps
+  only:
+    - master@evolus/pencil
 
 build_linux:
   stage: build
