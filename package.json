@@ -32,6 +32,10 @@
       "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
       "vendor": "Evolus"
     },
+    "win": {
+      "authors": "Evolus",
+      "copyright": "Copyright © 2008-2016 Evolus. All rights reserved."
+    },
     "download": {
       "cache": ".electron-cache"
     }
@@ -41,6 +45,7 @@
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
     "rebuild": "./node_modules/.bin/electron-rebuild",
     "start": "./node_modules/.bin/electron ./app",
+    "start:debug":  "./node_modules/.bin/electron ./app --enable-logging",
     "clean": "rimraf dist",
     "clean:osx": "rimraf dist/Pencil-darwin*",
     "clean:win": "rimraf dist/Pencil-win*",
