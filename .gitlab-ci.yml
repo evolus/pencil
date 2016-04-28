@@ -9,48 +9,23 @@ cache:
 before_script:
 
 stages:
-  - prepare
   - build
 
-prepare_job:
-  stage: prepare
+build_job:
+  stage: build
   script:
     - sudo npm install
     - npm run install-app-deps
-  only:
-    - master@evolus/pencil
-
-build_linux:
-  stage: build
-  script:
     - npm run dist:linux
     - mkdir -p ./dist/linux
     - tar -czvf ./dist/Pencil-linux-x64.tar.gz -C ./dist/Pencil-linux-x64 .
     - cp -rf ./dist/*.gz ./dist/linux
     - cp -rf ./dist/*.deb ./dist/linux
-  artifacts:
-    paths:
-    - dist/linux
-  only:
-    - master@evolus/pencil
-
-build_win32:
-  stage: build
-  script:
     - npm run dist:win32
   artifacts:
     paths:
+    - dist/linux
     - dist/win
     - dist/win-x64
   only:
     - master@evolus/pencil
-
-# build_darwin:
-#   stage: build
-#   script:
-#     - npm run dist:darwin
-#     - mkdir -p ./dist/darwin
-#     - cp -rf ./dist/*.zip ./dist/darwin
-#   artifacts:
-#     paths:
-#     - dist/darwin
