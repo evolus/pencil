@@ -65,6 +65,14 @@ function PageDetailDialog() {
     this.pageTitle.addEventListener("change", function (event) {
         thiz.modified = true;
     }, false);
+
+    this.widthInput.addEventListener("change", function () {
+        thiz.modified = true;
+    }, false);
+    this.heightInput.addEventListener("change", function () {
+        thiz.modified = true;
+    }, false);
+
 }
 
 __extend(Dialog, PageDetailDialog);
@@ -268,12 +276,6 @@ PageDetailDialog.prototype.setPageItem = function (page) {
         this.heightInput.disabled = false;
         this.widthInput.value = page.width;
         this.heightInput.value = page.height;
-        this.widthInput.addEventListener("change", function () {
-            thiz.modified = true;
-        }, false);
-        this.heightInput.addEventListener("change", function () {
-            thiz.modified = true;
-        }, false);
     }
 
     if(page.backgroundColor) {

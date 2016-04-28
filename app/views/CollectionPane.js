@@ -80,8 +80,7 @@ CollectionPane.ICON_MAP = {
 // Function hide collection --
 CollectionPane.prototype.setVisibleCollection = function (collection, value) { // function Hide collection
     CollectionManager.setCollectionVisible(collection, value);
-    this.last = collection;
-    this.reload(collection);
+    this.reload(collection.id);
 };
 
 CollectionPane.prototype.getTitle = function() {
@@ -100,9 +99,11 @@ CollectionPane.prototype.onSizeChanged = function () {
         setTimeout(this.reload.bind(this), 300);
     }
 };
-CollectionPane.prototype.reload = function (selectedCollection) {
+CollectionPane.prototype.reload = function (selectedCollectionId) {
     if (this.node().offsetWidth <= 0) return;
     Dom.empty(this.selectorPane);
+
+    if (!selectedCollectionId) selectedCollectionId = CollectionManager.getLastUsedCollection();
 
     this.last = null;
     var lastNode = null;
@@ -134,8 +135,8 @@ CollectionPane.prototype.reload = function (selectedCollection) {
                 ]
             });
             node._collection = collection;
-            if (selectedCollection) {
-                if (collection.id == selectedCollection.id) {
+            if (selectedCollectionId) {
+                if (collection.id == selectedCollectionId) {
                     lastNode = node;
                 }
             } else {
@@ -264,6 +265,8 @@ CollectionPane.prototype.openCollection = function (collection) {
         this.shapeList.appendChild(node);
         Util.setupImage(holder.iconImage, def.iconPath, "center-inside");
     }
+
+    CollectionManager.setLastUsedCollection(collection);
 
     var thiz = this;
     window.setTimeout(function () {

@@ -1,9 +1,9 @@
 <vbox class="Form">
     <style>
-    body @aboutTabContent{
+    body @aboutTabContent {
         position: relative;
     }
-    body @aboutTabContent vbox{
+    body @aboutTabContent vbox {
         position: absolute;
         top: 0px;
         left: 0px;
@@ -11,10 +11,12 @@
     }
     body @creditsTab ul {
         margin: 0em;
-        margin-bottom: 0.8em;
+        margin-bottom: 1em;
+        padding-left: 0.5em;
     }
-    body @creditsTab ul li{
-        margin-top: 0.5em;
+    body @creditsTab ul li {
+        margin-top: 0.2em;
+        list-style: none;
     }
     body @creditsTab h4 {
         margin: 0em;
@@ -35,7 +37,7 @@
     }
     .aboutBanner {
         height:5em;
-        background-color: #66ccff;
+        background-color: @selected_bg;
         margin-bottom: 1em;
         position: relative;
         border-radius: 0.3em;
@@ -78,7 +80,7 @@
         <ui:TabPane anon-id="tabHeader"/>
     </vbox>
     <vbox flex="1" anon-id="aboutTabContent">
-        <vbox anon-id="creditsTab">
+        <vbox anon-id="creditsTab" flex="1">
             <h4> Authors </h4>
             <ul>
                 <li>Dương Thành An</li>
@@ -96,12 +98,12 @@
                 <li>Nguyễn Hồng Thái</li>
             </ul>
             <div class="donate">
-                <p> Pencil is Free Software(GPL), but if you find it useful, you can support its development: ) </p>
-                <img style="cursor:pointer;" src="css/images/paypal.png"></img>
+                <p> Pencil is Free Software(GPL), but if you find it useful, you can support its development :) </p>
+                <img style="cursor:pointer;" src="css/images/paypal.png" onclick="Util.openDonate();" tooltiptext="You can help me make Pencil ever better. Consider making a small donation!"></img>
             </div>
         </vbox>
-        <hbox anon-id="LicenseTab" style="height:100%; padding:0px;">
-            <textarea name="name" cols="60" style="border:none; height:100%; padding: 1em;" anon-id="licenseText" readonly="true">
+        <hbox anon-id="LicenseTab" style="height:100%; padding:0px;" flex="1">
+            <textarea name="name" cols="80" style="border:none; height:100%; padding:1em;" anon-id="licenseText" readonly="true" flex="1">
             </textarea>
         </hbox>
     </vbox>

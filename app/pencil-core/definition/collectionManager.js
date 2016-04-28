@@ -479,6 +479,12 @@ CollectionManager.getCollectionUsage = function (collection) {
     if (value) return parseInt(value, 10);
     return 0;
 };
+CollectionManager.setLastUsedCollection = function (collection) {
+    Config.set("Collection.lastUsedCollection.id", collection.id);
+};
+CollectionManager.getLastUsedCollection = function () {
+    return Config.get("Collection.lastUsedCollection.id");
+};
 
 CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
     var deleteFolderRecursive = function(path) {
