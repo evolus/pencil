@@ -1392,7 +1392,7 @@ Canvas.prototype.handleContextMenuShow = function (event) {
     } else {
         var top = Dom.findTop(event.originalTarget, function (node) {
             return node.hasAttributeNS
-                    && node.hasAttributeNS(PencilNamespaces.p, "type");
+                    && node.hasAttributeNS(PencilNamespaces.p, "type"); wo
                 });
         this.currentController = top;
         if (top && this.isShapeLocked(top)) {
@@ -1401,6 +1401,8 @@ Canvas.prototype.handleContextMenuShow = function (event) {
             };
         }
     }
+
+
 
     this.menu.showMenuAt(event.clientX, event.clientY);
 };
@@ -2023,7 +2025,6 @@ Canvas.prototype.setSize = function (width, height) {
     this.height = height;
 
     var thiz = this;
-
     this.svg.setAttribute("width", 10);
     this.svg.setAttribute("height", 10);
 
