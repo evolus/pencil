@@ -98,12 +98,18 @@ module.exports = function () {
                 }
             }
         },
-        /*window: function(callback) {
-            var Key = require('windows-registry').Key,
-	        var windef = require('windows-registry').windef;
-            var key = new Key(windef.HKEY.HKEY_CLASSES_ROOT, '.txt', windef.KEY_ACCESS.KEY_ALL_ACCESS);
-            var value = key.getValue('font');
-        },*/
+        win32: function(callback) {
+            callback({
+                family: "Microsoft Sans Serif",
+                weight: "400",
+                style: "normal",
+                size: "10pt"
+            });
+            // var Key = require('windows-registry').Key,
+	        // var windef = require('windows-registry').windef;
+            // var key = new Key(windef.HKEY.HKEY_CLASSES_ROOT, '.txt', windef.KEY_ACCESS.KEY_ALL_ACCESS);
+            // var value = key.getValue('font');
+        },
         darwin: function (callback) {
             callback({
                 family: "Helvetica Neue",
