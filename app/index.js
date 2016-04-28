@@ -61,21 +61,6 @@ function createWindow() {
     global.mainWindow = mainWindow;
 }
 
-var shouldQuit = app.makeSingleInstance(function(/*commandLine, workingDirectory*/) {
-    // Someone tried to run a second instance, we should focus our window.
-    if (mainWindow) {
-        if (mainWindow.isMinimized()) {
-            mainWindow.restore();
-        }
-        mainWindow.focus();
-    }
-    return true;
-});
-
-if (shouldQuit) {
-    return app.quit();
-}
-
 // Quit when all windows are closed.
 app.on("window-all-closed", function() {
     if (process.platform !== "darwin") {
