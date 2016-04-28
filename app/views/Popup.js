@@ -119,7 +119,7 @@ Popup.prototype.showAt = function (x, y, skipEvent, autoFlip) {
     if (y + h > screenH) {
         y = y - h;
         if (y < 0) {
-            y += h /2;
+            y += h/2;
         }
     }
 
