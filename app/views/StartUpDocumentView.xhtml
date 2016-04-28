@@ -1,0 +1,86 @@
+<vbox>
+    <style>
+        body .widget_StartUpDocumentView {
+            text-align: left;
+        }
+
+        @recentDocumentPane {
+            margin-bottom: 1em;
+        }
+        @otherOptionPane > button {
+            font-size: 1.1em;
+        }
+        @otherOptionPane > button + button {
+            margin-left: 1em;
+        }
+        @otherOptionPane > button i {
+            padding-right: 0.4em;
+        }
+
+        @recentDocumentRepeater > strong {
+            color: #888;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
+        }
+        @recentDocumentRepeater > .ContentWrapper {
+            margin-left: -2ex;
+            width: 84ex;
+            flex-wrap: wrap;
+        }
+        @recentDocumentRepeater vbox[role="item"] {
+            box-shadow: 0px 0px 0.5ex rgba(0, 0, 0, 0.4);
+            margin-left: 2ex;
+            margin-top: 2ex;
+            width: 18ex;
+            border: solid 0.5ex @app_bg;
+            background: @app_bg;
+            cursor: pointer;
+        }
+        @recentDocumentRepeater vbox[role="item"]:hover {
+            box-shadow: 0px 0px 1ex @selected_bg;
+        }
+        @recentDocumentRepeater vbox[role="item"] .ImageContainer {
+            width: 18ex;
+            height: 20ex;
+            background: #FFF;
+        }
+        @recentDocumentRepeater vbox[role="item"] .InfoPane {
+            padding: 1ex;
+        }
+        @recentDocumentRepeater vbox[role="item"] .InfoPane > * {
+            width: 16ex;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        @recentDocumentRepeater vbox[role="item"] .InfoPane span {
+            opacity: 0.5;
+            font-size: 0.9em;
+        }
+        hr {
+            width: 100%;
+            border: none;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin-top: 1em;
+        }
+    </style>
+    <vbox anon-id="recentDocumentPane">
+        <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" anon-id="recentDocumentRepeater" flex="1">
+            <strong role="header">Recent Documents</strong>
+            <vbox role="item">
+                <div class="ImageContainer">
+                    <img anon-id="thumbnailImage"/>
+                </div>
+                <vbox class="InfoPane">
+                    <strong anon-id="name"></strong>
+                    <span anon-id="info"></span>
+                </vbox>
+            </vbox>
+            <hr role="footer"></hr>
+        </ui:RepeaterView>
+    </vbox>
+    <hbox anon-id="otherOptionPane">
+        <button command="openDocumentCommand"><i>open_in_browser</i>Open a Document...</button>
+        <button command="newDocumentCommand"><i>note_add</i>Create a New Document</button>
+    </hbox>
+</vbox>

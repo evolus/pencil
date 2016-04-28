@@ -150,7 +150,9 @@
                 <ui:MyCollectionPane anon-id="MyCollectionPane"/>
             </ui:CollapseablePanel>
             <vbox flex="1" anon-id="documentContainer">
-                <hbox anon-id="contentBody" flex="1" style="position: relative;"></hbox>
+                <hbox anon-id="contentBody" flex="1" style="position: relative;">
+                    <ui:StartUpDocumentView anon-id="startupDocumentView" />
+                </hbox>
                 <ui:PageListView anon-id="pageListView" />
             </vbox>
             <ui:CollapseablePanel orient="horizontal" name="right_pane">

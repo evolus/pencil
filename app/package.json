@@ -24,6 +24,7 @@
     "electron-squirrel-startup": "^0.1.4",
     "font-manager": "git+https://github.com/princejwesley/font-manager.git",
     "less": "~2.5.3",
+    "moment": "^2.13.0",
     "tmp": "0.0.28",
     "unzip2": "^0.2.5"
   },

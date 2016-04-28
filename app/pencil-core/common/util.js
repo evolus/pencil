@@ -2000,13 +2000,14 @@ Util.setCustomProperty = function (node, name, value) {
 };
 Util.imageOnloadListener = function (event) {
     var image = event.target;
-    var W = image.parentNode.offsetWidth - 2;
-    var H = image.parentNode.offsetHeight - 2;
+    var W = image.parentNode.clientWidth - 2;
+    var H = image.parentNode.clientHeight - 2;
     var w = image.naturalWidth;
     var h = image.naturalHeight;
 
     var r = (image._mode == "center-crop" ? Math.min(w/W, h/H) : Math.max(w/W, h/H));
-    r = Math.max(r, 1);
+
+    if (!image._allowUpscale) r = Math.max(r, 1);
 
     w /= r;
     h /= r;
@@ -2027,10 +2028,13 @@ Util.imageOnloadListener = function (event) {
     image.style.visibility = "inherit";
 
 };
-Util.setupImage = function (image, src, mode) {
+Util.setupImage = function (image, src, mode, allowUpscale) {
     image.onload = Util.imageOnloadListener;
     image.style.visibility = "hidden";
+    image.style.width = "0px";
+    image.style.height = "0px";
     image._mode = mode;
+    image._allowUpscale = allowUpscale;
     image.src = src;
 };
 

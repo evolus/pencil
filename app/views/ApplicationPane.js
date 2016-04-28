@@ -73,9 +73,10 @@ function ApplicationPane() {
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {
     var thiz = this;
-    window.setTimeout(function () {
-        thiz.controller.newDocument();
-    }, 100);
+    this.showStartupPane();
+    // window.setTimeout(function () {
+    //     thiz.controller.newDocument();
+    // }, 100);
 };
 ApplicationPane.prototype.getCanvasContainer = function () {
     return this.contentBody;
@@ -129,11 +130,17 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     for (var i = 0; i < this.getCanvasContainer().childNodes.length; i ++) {
         var wrapper = this.getCanvasContainer().childNodes[i];
         if (!wrapper.getAttribute) continue;
-        wrapper.style.display = (canvas._wrapper == wrapper) ? "inline-block" : "none";
+        wrapper.style.display = (canvas != null && canvas._wrapper == wrapper) ? "inline-block" : "none";
     }
 
     Pencil.activeCanvas = canvas;
     this.activeCanvas = canvas;
+
+    if (canvas != null) this.startupDocumentView.node().style.display = "none";
+};
+ApplicationPane.prototype.showStartupPane = function () {
+    this.setActiveCanvas(null);
+    this.startupDocumentView.node().style.display = "inline-block";
 };
 ApplicationPane.prototype.getPreferredCanvasSize = function () {
     return {

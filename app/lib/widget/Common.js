@@ -165,7 +165,7 @@ widget.Util = function() {
                 if (!f) {
                     console.log("No implementation found for: " + clazz);
                 }
-                var wg = new f();
+                var wg = new f(n);
 
                 for (var i = 0; i < n.attributes.length; i ++) {
                     var name = n.attributes[i].name;
@@ -624,8 +624,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 }, false);
 
-function BaseWidget() {
-    var node = this.buildDOMNode();
+function BaseWidget(definitionNode) {
+    var node = this.buildDOMNode(definitionNode);
 
     Dom.addClass(node, "widget_" + this.constructor.name);
     this.__node = node;
@@ -786,8 +786,8 @@ BaseWidget.tryRegisterCloseHandlers = function () {
 };
 
 
-function BaseTemplatedWidget() {
-    BaseWidget.call(this);
+function BaseTemplatedWidget(definitionNode) {
+    BaseWidget.call(this, definitionNode);
 }
 __extend(BaseWidget, BaseTemplatedWidget);
 

@@ -196,39 +196,6 @@ Controller.prototype.serializeDocument = function (onDone) {
     next();
 };
 
-Controller.prototype.addRecentFile = function (filePath) {
-        var files = Config.get("recent-documents");
-        if (!files) {
-            files = [filePath];
-        } else {
-            for (var i = 0; i < files.length; i ++) {
-                if (files[i] == filePath) {
-                    //remove it
-                    files.splice(i, 1);
-                    break;
-                }
-            }
-            files.unshift(filePath);
-            if (files.length > 10) {
-                files.splice(files.length - 1, 1);
-            }
-        }
-        Config.set("recent-documents", files);
-};
-
-Controller.prototype.removeRecentFile = function (filePath) {
-        var files = Config.get("recent-documents");
-        if (files) {
-            for (var i = 0; i < files.length; i ++) {
-                if (files[i] == filePath) {
-                    //remove it
-                    files.splice(i, 1);
-                    break;
-                }
-            }
-        }
-        Config.set("recent-documents", files);
-};
 Controller.prototype.openDocument = function () {
     var thiz = this;
     function handler() {
@@ -325,6 +292,108 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
     }
 };
 
+Controller.THUMB_CACHE_DIR = "thumbs";
+Controller.getThumbCacheDir = function () {
+    return Config.getDataFilePath(Controller.THUMB_CACHE_DIR);
+};
+
+try {
+    fs.mkdirSync(Controller.getThumbCacheDir());
+} catch(e) {
+    if ( e.code != 'EEXIST' ) throw e;
+}
+
+Controller.prototype.getCurrentDocumentThumbnail = function () {
+    if (!this.doc || !this.doc.pages) return null;
+    var firstThumbnailPath = null;
+
+    for (var i = 0; i < this.doc.pages.length; i ++) {
+        var page = this.doc.pages[i];
+        if (page.thumbPath) {
+            try {
+                fs.accessSync(page.thumbPath, fs.F_OK);
+                firstThumbnailPath = page.thumbPath;
+                break;
+            } catch (e) {
+            }
+        }
+    }
+
+    if (!firstThumbnailPath) return null;
+
+    var thumbPath = path.join(Controller.getThumbCacheDir(), Util.newUUID() + ".png");
+    fs.createReadStream(firstThumbnailPath).pipe(fs.createWriteStream(thumbPath));
+
+    return thumbPath;
+};
+
+
+Controller.prototype.addRecentFile = function (filePath, thumbPath) {
+    var files = Config.get("recent-documents");
+    if (!files) {
+        files = [filePath];
+    } else {
+        for (var i = 0; i < files.length; i ++) {
+            if (files[i] == filePath) {
+                //remove it
+                files.splice(i, 1);
+                break;
+            }
+        }
+        files.unshift(filePath);
+        if (files.length > 10) {
+            files.splice(files.length - 1, 1);
+        }
+    }
+
+    var thumbs = Config.get("recent-documents-thumb-map");
+    if (!thumbs) thumbs = {};
+
+    var newThumbs = {};
+    var usedPaths = [];
+    files.forEach(function (file) {
+        if (file == filePath) {
+            newThumbs[file] = thumbPath;
+        } else {
+            newThumbs[file] = thumbs[file] || null;
+        }
+
+        var p = newThumbs[file];
+        if (p) usedPaths.push(p);
+    });
+
+    //cleanup unused thumb cache
+    var cacheDir = Controller.getThumbCacheDir();
+    var names = fs.readdirSync(cacheDir);
+    names.forEach(function (name) {
+        var p = path.join(cacheDir, name);
+        if (usedPaths.indexOf(p) < 0) {
+            try {
+                fs.unlinkSync(p);
+            } catch (e) {
+            }
+        }
+    });
+
+    Config.set("recent-documents", files);
+    Config.set("recent-documents-thumb-map", newThumbs);
+};
+
+Controller.prototype.removeRecentFile = function (filePath) {
+    var files = Config.get("recent-documents");
+    if (files) {
+        for (var i = 0; i < files.length; i ++) {
+            if (files[i] == filePath) {
+                //remove it
+                files.splice(i, 1);
+                break;
+            }
+        }
+    }
+    Config.set("recent-documents", files);
+};
+
+
 Controller.prototype.loadDocument = function (filePath) {
     ApplicationPane._instance.busy();
     this.resetDocument();
@@ -420,7 +489,7 @@ Controller.prototype.parseDocument = function (filePath) {
             thiz.applicationPane.onDocumentChanged();
             thiz.modified = false;
             //new file was loaded, update recent file list
-            thiz.addRecentFile(filePath);
+            thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
             ApplicationPane._instance.unbusy();
 
         } catch (e) {
@@ -444,6 +513,43 @@ Controller.prototype.confirmAndSaveDocument = function (onSaved) {
         "Discard changes", function () { if (onSaved) onSaved(); }
         );
 };
+Controller.prototype.parseDocumentThumbnail = function (filePath, callback) {
+    var extractPath = null;
+    var found = false;
+    fs.createReadStream(filePath)
+        .pipe(unzip.Parse())
+        .on("entry", function (entry) {
+            var fileName = entry.path;
+            var type = entry.type; // 'Directory' or 'File'
+            var size = entry.size;
+            if (fileName === "content.xml") {
+                var xmlFile = tmp.fileSync({postfix: ".xml", keep: false});
+                entry.pipe(fs.createWriteStream(xmlFile.name))
+                    .on("close", function () {
+                        var dom = Controller.parser.parseFromString(fs.readFileSync(xmlFile.name, "utf8"), "text/xml");
+                        xmlFile.removeCallback();
+
+                        Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
+                            var pageFileName = pageNode.getAttribute("href");
+                            if (!extractPath) {
+                                extractPath = "thumbnails/" + pageFileName.replace(/^page_/, "").replace(/\.xml$/, "") + ".png";
+                            }
+                        });
+                    });
+            } else if (fileName && fileName == extractPath) {
+                var pngFile = tmp.fileSync({postfix: ".png", keep: false});
+                entry.pipe(fs.createWriteStream(pngFile.name))
+                    .on("close", function () {
+                        callback(null, pngFile.name);
+                    });
+            } else {
+                entry.autodrain();
+            }
+        })
+        .on("end", function () {
+            if (!found) callback("PARSE ERROR", null);
+        });
+};
 
 Controller.prototype.saveAsDocument = function (onSaved) {
     dialog.showSaveDialog({
@@ -454,7 +560,7 @@ Controller.prototype.saveAsDocument = function (onSaved) {
         ]
     }, function (filePath) {
         if (!filePath) return;
-        this.addRecentFile(filePath);
+        this.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
         if (!this.documentPath) this.documentPath = filePath;
         this.saveDocumentImpl(filePath, onSaved);
     }.bind(this));
@@ -470,7 +576,7 @@ Controller.prototype.saveDocument = function (onSaved) {
             ]
         }, function (filePath) {
             if (!filePath) return;
-            thiz.addRecentFile(filePath);
+            thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
             thiz.documentPath = filePath;
             thiz.saveDocumentImpl(thiz.documentPath, onSaved);
         });
