@@ -169,3 +169,8 @@ ApplicationPane.prototype.unbusy = function () {
     if (this.busyCount > 0) this.busyCount --;
     if (this.busyCount == 0) this.hideBusyIndicator();
 };
+ApplicationPane.prototype.invalidatePropertyEditor = function () {
+    if (!Pencil.activeCanvas.currentController) {
+        this.sharedPropertyEditor.detach();
+    }
+};

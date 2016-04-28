@@ -129,6 +129,7 @@ CanvasMenu.prototype.setup = function () {
         applyWhenClass: "Canvas",
         run: function () {
             thiz.canvas.deleteSelected();
+            ApplicationPane._instance.invalidatePropertyEditor();
         }
     });
     UICommandManager.register({
