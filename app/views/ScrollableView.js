@@ -104,5 +104,9 @@ ScrollableView.prototype.invalidateVertical = function () {
 
         this.content.style.top = (this.offset - borderHeight) + "px";
     }
+};
 
+ScrollableView.prototype.moveTo = function (position) {
+    this.offset = -position + 3 * Util.em();
+    this.invalidate();
 };

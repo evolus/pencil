@@ -1392,7 +1392,7 @@ Canvas.prototype.handleContextMenuShow = function (event) {
     } else {
         var top = Dom.findTop(event.originalTarget, function (node) {
             return node.hasAttributeNS
-                    && node.hasAttributeNS(PencilNamespaces.p, "type"); wo
+                    && node.hasAttributeNS(PencilNamespaces.p, "type");
                 });
         this.currentController = top;
         if (top && this.isShapeLocked(top)) {

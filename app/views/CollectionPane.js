@@ -79,8 +79,9 @@ CollectionPane.ICON_MAP = {
 
 // Function hide collection --
 CollectionPane.prototype.setVisibleCollection = function (collection, value) { // function Hide collection
-    CollectionManager.setCollectionVisible(collection,value);
-    this.reload();
+    CollectionManager.setCollectionVisible(collection, value);
+    this.last = collection;
+    this.reload(collection);
 };
 
 CollectionPane.prototype.getTitle = function() {
@@ -99,7 +100,7 @@ CollectionPane.prototype.onSizeChanged = function () {
         setTimeout(this.reload.bind(this), 300);
     }
 };
-CollectionPane.prototype.reload = function () {
+CollectionPane.prototype.reload = function (selectedCollection) {
     if (this.node().offsetWidth <= 0) return;
     Dom.empty(this.selectorPane);
 
@@ -133,13 +134,19 @@ CollectionPane.prototype.reload = function () {
                 ]
             });
             node._collection = collection;
-            if (!lastNode) {
-                lastNode = node;
+            if (selectedCollection) {
+                if (collection.id == selectedCollection.id) {
+                    lastNode = node;
+                }
+            } else {
+                if (!lastNode) {
+                    lastNode = node;
+                }
             }
             this.selectorPane.appendChild(node);
         }
-
     }
+
     var thiz = this;
     window.setTimeout(function () {
         for (var i = 0; i < thiz.selectorPane.childNodes.length; i ++) {
@@ -150,7 +157,7 @@ CollectionPane.prototype.reload = function () {
 
             item.style.height = w + "px";
             item.firstChild.style.width = w + "px";
-            item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)"
+            item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
         }
         thiz.collectionScrollView.invalidate();
     }, 10);
@@ -257,6 +264,26 @@ CollectionPane.prototype.openCollection = function (collection) {
         this.shapeList.appendChild(node);
         Util.setupImage(holder.iconImage, def.iconPath, "center-inside");
     }
+
+    var thiz = this;
+    window.setTimeout(function () {
+        thiz.ensureSelectedCollectionVisible(collection);
+    }, 10);
+};
+
+CollectionPane.prototype.ensureSelectedCollectionVisible = function (collection) {
+    if (!collection) return;
+    var position = 0;
+    for (var i = 0; i < this.selectorPane.childNodes.length; i ++) {
+        var item = this.selectorPane.childNodes[i];
+        if (item._collection.id == collection.id) {
+            break;
+        } else {
+            position += item.clientHeight;
+        }
+    }
+
+    this.collectionScrollView.moveTo(position);
 };
 
 Object.defineProperty(CollectionPane.prototype, "foo", {
