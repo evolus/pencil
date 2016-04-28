@@ -31,6 +31,9 @@
       "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
       "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
       "vendor": "Evolus"
+    },
+    "download": {
+      "cache": ".electron-cache"
     }
   },
   "scripts": {
