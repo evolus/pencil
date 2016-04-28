@@ -389,11 +389,15 @@ PageDetailDialog.prototype.getDialogActions = function () {
                                 var page = thiz.updatePage();
                                 if (thiz.onDone) thiz.onDone(page);
                             }
+                            thiz.close();
                         },
-                        "No"
+                        "No", function () {
+                            thiz.close();
+                        }
                     );
+                } else {
+                    return true;
                 }
-                return true;
             }
         },
         {
