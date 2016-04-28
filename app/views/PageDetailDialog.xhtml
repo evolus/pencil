@@ -17,6 +17,15 @@
             max-width: 4em;
             text-align: center;
         }
+        @sizeInputContainer {
+            align-items: center;
+        }
+        @sizeInputContainer > label {
+            margin-right: 0.1em;
+        }
+        @sizeInputContainer > input + * {
+            margin-left: 0.4em;
+        }
     </style>
     <div class="Description">
         Please enter the page properties:
@@ -32,7 +41,7 @@
     <hbox class="InputRow">
         <label for="pageSizeCombo">Page Size:</label>
         <ui:ComboManager flex="1" anon-id="pageSizeCombo"/>
-        <hbox>
+        <hbox anon-id="sizeInputContainer">
             <label for="widthInput">W:</label><input type="number" anon-id="widthInput" min="0"/>
             <label for="heightInput">H:</label><input type="number" anon-id="heightInput" min="0"/>
         </hbox>

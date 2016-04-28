@@ -37,10 +37,7 @@ function CollectionPane() {
         event.dataTransfer.setData("collectionId", def.collection.id);
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
         event.target.collection = def;
-
-
     });
-
 
     this.dndImage = new Image();
     this.dndImage.src = "css/bullet.png";
@@ -107,6 +104,7 @@ CollectionPane.prototype.reload = function (selectedCollectionId) {
 
     this.last = null;
     var lastNode = null;
+    var foundNode = null;
     var collections = CollectionManager.shapeDefinition.collections;
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
@@ -137,16 +135,17 @@ CollectionPane.prototype.reload = function (selectedCollectionId) {
             node._collection = collection;
             if (selectedCollectionId) {
                 if (collection.id == selectedCollectionId) {
-                    lastNode = node;
+                    foundNode = node;
                 }
-            } else {
-                if (!lastNode) {
-                    lastNode = node;
-                }
+            }
+            if (!lastNode) {
+                lastNode = node;
             }
             this.selectorPane.appendChild(node);
         }
     }
+
+    if (foundNode) lastNode = foundNode;
 
     var thiz = this;
     window.setTimeout(function () {

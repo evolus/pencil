@@ -282,14 +282,14 @@ PageDetailDialog.prototype.setPageItem = function (page) {
         this.backgroundCombo.selectItem({
              name: "Background Color"
         });
-        this.colorButton.style.color = page.backgroundColor ? page.backgroundColor.toRGBString() : "#FFF" ;
+        this.colorButton.style.color = page.backgroundColor ? page.backgroundColor.toRGBString() : "#000" ;
     }
     if (page.backgroundPage) {
         this.backgroundCombo.selectItem({
              name: page.backgroundPage.name,
              value: page.backgroundPage.id
         });
-        this.colorButton.style.color = page.backgroundPage.backgroundColor ? page.backgroundPage.backgroundColor.toRGBString() : "#FFF";
+        this.colorButton.style.color = page.backgroundPage.backgroundColor ? page.backgroundPage.backgroundColor.toRGBString() : "#000";
     }
 
     if (!page.backgroundPageId && !page.backgroundColor) {
