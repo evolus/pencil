@@ -69,8 +69,10 @@ CollectionMenu.prototype.setup = function () {
                 var collection = collections[i];
                 items.push({
                         label: collection.displayName,
+                        collection: collection,
                         run: function () {
-                            thiz.collectionPane.setVisibleCollection(collection, true);
+                            console.log("goto:", collection);
+                            thiz.collectionPane.setVisibleCollection(this.collection, true);
                             thiz.hideMenu();
                         }
                 });
