@@ -52,6 +52,7 @@ MainMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("openDocumentCommand"));
     this.register(UICommandManager.getCommand("saveDocumentCommand"));
     this.register(UICommandManager.getCommand("saveAsDocumentCommand"));
+    this.register(UICommandManager.getCommand("closeDocumentCommand"));
     this.separator();
     this.register({
         key: "RecentFileCommand",

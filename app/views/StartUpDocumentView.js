@@ -49,7 +49,7 @@ function StartUpDocumentView() {
 
 __extend(BaseTemplatedWidget, StartUpDocumentView);
 
-StartUpDocumentView.prototype.onAttached = function () {
+StartUpDocumentView.prototype.reload = function () {
     var files = Config.get("recent-documents");
     var map = Config.get("recent-documents-thumb-map") || {};
     var docs = [];
