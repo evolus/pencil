@@ -242,6 +242,7 @@ UICommandManager.handleKeyEvent = function (event) {
             && event.keyCode == command.parsedShortcut.key.keyCode) {
 
                 command.run(event);
+                event.preventDefault();
                 return;
             }
     }

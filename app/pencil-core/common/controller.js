@@ -6,6 +6,8 @@ function Controller(canvasPool, applicationPane) {
     this.canvasPool.canvasContentModifiedListener = function (canvas) {
         thiz.handleCanvasModified(canvas);
     };
+
+    Controller._instance = this;
 }
 
 Controller.parser = new DOMParser();
@@ -49,6 +51,22 @@ Controller.prototype.newDocument = function () {
 
     create();
 };
+Controller.prototype.confirmAndclose = function (onClose) {
+    var handler = function () {
+        if (this.tempDir) this.tempDir.removeCallback();
+        this.tempDir = null;
+        this.doc = null;
+        this.modified = false;
+
+        if (onClose) onClose();
+    }.bind(this);
+
+    if (!this.doc || !this.modified) {
+        handler();
+    } else {
+        this.confirmAndSaveDocument(handler);
+    }
+}
 Controller.prototype.resetDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
@@ -329,6 +347,7 @@ Controller.prototype.getCurrentDocumentThumbnail = function () {
 
 
 Controller.prototype.addRecentFile = function (filePath, thumbPath) {
+    console.log(" >> addRecentFile: ", [filePath, thumbPath]);
     var files = Config.get("recent-documents");
     if (!files) {
         files = [filePath];
@@ -576,7 +595,6 @@ Controller.prototype.saveDocument = function (onSaved) {
             ]
         }, function (filePath) {
             if (!filePath) return;
-            thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
             thiz.documentPath = filePath;
             thiz.saveDocumentImpl(thiz.documentPath, onSaved);
         });
@@ -590,6 +608,10 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
 
     var thiz = this;
     ApplicationPane._instance.busy();
+
+    console.log("Calling addRecentFile from saveDocumentImpl");
+    this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
+
     this.serializeDocument(function () {
         var archiver = require("archiver");
         var archive = archiver("zip");
@@ -1184,4 +1206,25 @@ Controller.prototype.updatePageProperties = function (page, name, backgroundColo
     }
 
     Pencil.controller.sayDocumentChanged();
+};
+
+window.onbeforeunload = function (event) {
+    if (Controller.ignoreNextClose) {
+        Controller.ignoreNextClose = false;
+        return true;
+    }
+
+    if (Controller._instance.doc) {
+        setTimeout(function () {
+            Controller._instance.confirmAndclose(function () {
+                Controller.ignoreNextClose = true;
+                var remote = require("electron").remote;
+                var currentWindow = remote.getCurrentWindow();
+                currentWindow.close();
+            });
+        }, 10);
+        return false;
+    }
+
+    return true;
 };

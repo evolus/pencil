@@ -28,16 +28,28 @@ FileToolbar.prototype.registerCommands = function () {
         key: "saveDocumentCommand",
         label: "Save",
         icon: "save",
-        isValid: function () { return true; },
+        isValid: function () { return Pencil.controller.doc; },
         run: function () {
             Pencil.controller.saveDocument();
         },
         shortcut: "Ctrl+S"
     });
     UICommandManager.register({
+        key: "closeDocumentCommand",
+        label: "Close",
+        icon: "close",
+        isValid: function () { return Pencil.controller.doc; },
+        run: function () {
+            Pencil.controller.confirmAndclose(function () {
+                ApplicationPane._instance.showStartupPane();
+            });
+        },
+        shortcut: "Ctrl+W"
+    });
+    UICommandManager.register({
         key: "saveAsDocumentCommand",
         label: "Save As...",
-        isValid: function () { return Pencil.controller.documentPath; },
+        isValid: function () { return Pencil.controller.doc && Pencil.controller.documentPath; },
         run: function () {
             Pencil.controller.saveAsDocument();
         },

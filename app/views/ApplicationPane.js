@@ -140,6 +140,7 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
 };
 ApplicationPane.prototype.showStartupPane = function () {
     this.setActiveCanvas(null);
+    this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "inline-block";
 };
 ApplicationPane.prototype.getPreferredCanvasSize = function () {
