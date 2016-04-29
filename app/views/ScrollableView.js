@@ -106,10 +106,21 @@ ScrollableView.prototype.invalidateVertical = function () {
     }
 };
 ScrollableView.prototype.moveTo = function (position) {
-    this.offset = -position + 3 * Util.em();
+    this.offset = - position + 3 * Util.em();
     this.invalidate();
 };
+ScrollableView.prototype.getSize = function () {
+    return this.orient == "vertical" ? this.node().clientHeight : this.node().clientWidth;
+};
+ScrollableView.prototype.getButtonSize = function () {
+    return this.orient == "vertical" ? this.previousButton.offsetHeight : this.previousButton.offsetWidth;
+};
+ScrollableView.prototype.getBorderSize = function () {
+    return this.orient == "vertical" ? Math.round((this.node().offsetHeight - this.getSize()) / 2) : Math.round((this.node().offsetWidth - this.getSize()) / 2);
+};
 ScrollableView.prototype.ensuareVisible = function (from, to) {
-    if (Math.abs(this.offset) < from && to < Math.abs(this.offset) + this.node().clientHeight) return;
+    var max = Math.abs(this.offset) + this.getSize() - this.getBorderSize() - this.getButtonSize();
+    var min = Math.abs(this.offset) + this.getBorderSize() + this.getButtonSize();
+    if (min < from && to < max) return;
     this.moveTo(from);
 };
