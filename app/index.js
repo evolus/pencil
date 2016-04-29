@@ -39,11 +39,22 @@ function createWindow() {
 
     mainWindow = new BrowserWindow(mainWindowProperties);
 
+    var devEnable = false;
+    if (process.argv.indexOf("--enable-dev") >= 0) {
+        devEnable = true;
+    } else if (process.env.PENCIL_ENV === "development") {
+        devEnable = true;
+    }
+
+    app.devEnable = devEnable;
+
     mainWindow.hide();
     mainWindow.maximize();
 
-    if (process.env.PENCIL_ENV === "development") {
-      mainWindow.webContents.openDevTools();
+    if (devEnable) {
+        mainWindow.webContents.openDevTools();
+    } else {
+        mainWindow.setMenu(null);
     }
 
     var mainUrl = "file://" + __dirname + "/app.xhtml";
