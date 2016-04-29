@@ -152,7 +152,7 @@ function Canvas(element) {
         thiz.handleMouseDown(event);
     }, false);
 
-    this.svg.ownerDocument.addEventListener("mousewheel", function (event) {
+    this.element.addEventListener("mousewheel", function (event) {
         thiz.focus();
         thiz.handleMouseWheel(event);
     }, false);
@@ -385,7 +385,11 @@ Canvas.prototype.selectSibling = function (next) {
 
 };
 Canvas.prototype.invalidateAll = function () {
-    console.log("Canvas.invalidateAll");
+    if (this.element.clientWidth <= 0) {
+        setTimeout(this.invalidateAll.bind(this), 10);
+        return;
+    }
+
     Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
         try {
             var controller = this.createControllerFor(node);
@@ -871,9 +875,9 @@ Canvas.prototype.finishMoving = function (event) {
 
 };
 Canvas.prototype.handleMouseWheel = function(event) {
-    Dom.cancelEvent(event);
     var thiz = this;
     if (event.ctrlKey) {
+        Dom.cancelEvent(event);
         if (event.deltaY < 0) {
             thiz.zoomTo(thiz.zoom * 1.25);
         } else {

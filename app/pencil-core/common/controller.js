@@ -344,8 +344,6 @@ Controller.prototype.getCurrentDocumentThumbnail = function () {
 
     return thumbPath;
 };
-
-
 Controller.prototype.addRecentFile = function (filePath, thumbPath) {
     console.log(" >> addRecentFile: ", [filePath, thumbPath]);
     var files = Config.get("recent-documents");
@@ -360,7 +358,7 @@ Controller.prototype.addRecentFile = function (filePath, thumbPath) {
             }
         }
         files.unshift(filePath);
-        if (files.length > 10) {
+        if (files.length > 8) {
             files.splice(files.length - 1, 1);
         }
     }
@@ -397,7 +395,6 @@ Controller.prototype.addRecentFile = function (filePath, thumbPath) {
     Config.set("recent-documents", files);
     Config.set("recent-documents-thumb-map", newThumbs);
 };
-
 Controller.prototype.removeRecentFile = function (filePath) {
     var files = Config.get("recent-documents");
     if (files) {
@@ -411,8 +408,6 @@ Controller.prototype.removeRecentFile = function (filePath) {
     }
     Config.set("recent-documents", files);
 };
-
-
 Controller.prototype.loadDocument = function (filePath) {
     ApplicationPane._instance.busy();
     this.resetDocument();
@@ -569,7 +564,6 @@ Controller.prototype.parseDocumentThumbnail = function (filePath, callback) {
             if (!found) callback("PARSE ERROR", null);
         });
 };
-
 Controller.prototype.saveAsDocument = function (onSaved) {
     dialog.showSaveDialog({
         title: "Save as",
@@ -626,7 +620,6 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
         archive.finalize();
     }.bind(this));
 };
-
 Controller.prototype.serializePage = function (page, outputPath) {
     var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
     var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
@@ -686,7 +679,6 @@ Controller.prototype.getPageSVG = function (page) {
     }
     return svg;
 };
-
 Controller.prototype.swapOut = function (page) {
     if (!page.canvas) throw "Invalid page state. Unable to swap out un-attached page";
     console.log("Swapping out page: " + page.name + " -> " + page.tempFilePath);
@@ -1217,8 +1209,10 @@ window.onbeforeunload = function (event) {
     if (Controller._instance.doc) {
         setTimeout(function () {
             Controller._instance.confirmAndclose(function () {
-                Controller.ignoreNextClose = true;
                 var remote = require("electron").remote;
+                if (remote.app.devEnable) return;
+                
+                Controller.ignoreNextClose = true;
                 var currentWindow = remote.getCurrentWindow();
                 currentWindow.close();
             });

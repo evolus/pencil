@@ -276,16 +276,17 @@ CollectionPane.prototype.openCollection = function (collection) {
 CollectionPane.prototype.ensureSelectedCollectionVisible = function (collection) {
     if (!collection) return;
     var position = 0;
+    var height = 0;
     for (var i = 0; i < this.selectorPane.childNodes.length; i ++) {
         var item = this.selectorPane.childNodes[i];
         if (item._collection.id == collection.id) {
+            height = item.clientHeight;
             break;
         } else {
             position += item.clientHeight;
         }
     }
-
-    this.collectionScrollView.moveTo(position);
+    this.collectionScrollView.ensuareVisible(position, position + height);
 };
 
 Object.defineProperty(CollectionPane.prototype, "foo", {

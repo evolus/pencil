@@ -62,6 +62,7 @@ StartUpDocumentView.prototype.reload = function () {
         }
     }
 
+    console.log("docs:", docs);
     var thiz = this;
     this.recentDocumentRepeater.node().style.visibility = "hidden";
     setTimeout(function () {
