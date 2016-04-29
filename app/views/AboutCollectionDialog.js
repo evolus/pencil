@@ -47,14 +47,14 @@ function AboutCollectionDialog(collection) {
             }
         ]
     });
-    this.dialogBody.appendChild(node);
+    this.aboutContent.appendChild(node);
 }
 __extend(Dialog, AboutCollectionDialog);
 
 AboutCollectionDialog.prototype.getDialogActions = function () {
     return [
         {
-            type: "accept", title: "OK",
+            type: "accept", title: "Close",
             run: function () { return true; }
         }
     ]
