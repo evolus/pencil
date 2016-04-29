@@ -1209,8 +1209,10 @@ window.onbeforeunload = function (event) {
     if (Controller._instance.doc) {
         setTimeout(function () {
             Controller._instance.confirmAndclose(function () {
-                Controller.ignoreNextClose = true;
                 var remote = require("electron").remote;
+                if (remote.app.devEnable) return;
+                
+                Controller.ignoreNextClose = true;
                 var currentWindow = remote.getCurrentWindow();
                 currentWindow.close();
             });
