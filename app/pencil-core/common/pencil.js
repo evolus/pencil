@@ -119,22 +119,20 @@ Pencil.boot = function (event) {
                     Pencil.hideCollectionPane();
                 }
             }
-            document.body.onscroll = function (event) {
-                if (document.body.scrollTop != 0) {
-                    document.body.scrollTop = 0;
-                }
-            };
+
         }, true);
 
-        window.addEventListener("DOMMouseScroll", function (event) {
-            if (event.VERTICAL_AXIS == event.axis && event.ctrlKey && Pencil.activeCanvas != null) {
-                if (event.detail > 0) {
-                    Pencil.activeCanvas.zoomTo(Pencil.activeCanvas.zoom / 1.25);
-                } else {
-                    Pencil.activeCanvas.zoomTo(Pencil.activeCanvas.zoom * 1.25);
-                }
+        // document.body.onscroll = function (event) {
+        //     if (document.body.scrollTop != 0) {
+        //         document.body.scrollTop = 0;
+        //     }
+        // };
+
+        document.addEventListener("scroll", function (event) {
+            if (document.body.scrollTop != 0 && event.target === document) {
+                document.body.scrollTop = 0;
             }
-        }, true);
+        }, false);
 
         //booting shared editors
         for (var i in Pencil.sharedEditors) {
