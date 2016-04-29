@@ -44,7 +44,7 @@
     "postinstall": "install-app-deps",
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
     "rebuild": "./node_modules/.bin/electron-rebuild",
-    "start": "./node_modules/.bin/electron ./app",
+    "start": "./node_modules/.bin/electron ./app --disable-gpu",
     "start:debug":  "./node_modules/.bin/electron ./app --enable-logging",
     "clean": "rimraf dist",
     "clean:osx": "rimraf dist/Pencil-darwin*",

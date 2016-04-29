@@ -105,8 +105,11 @@ ScrollableView.prototype.invalidateVertical = function () {
         this.content.style.top = (this.offset - borderHeight) + "px";
     }
 };
-
 ScrollableView.prototype.moveTo = function (position) {
     this.offset = -position + 3 * Util.em();
     this.invalidate();
+};
+ScrollableView.prototype.ensuareVisible = function (from, to) {
+    if (Math.abs(this.offset) < from && to < Math.abs(this.offset) + this.node().clientHeight) return;
+    this.moveTo(from);
 };

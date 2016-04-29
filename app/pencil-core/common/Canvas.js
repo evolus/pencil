@@ -385,7 +385,11 @@ Canvas.prototype.selectSibling = function (next) {
 
 };
 Canvas.prototype.invalidateAll = function () {
-    console.log("Canvas.invalidateAll");
+    if (this.element.clientWidth <= 0) {
+        setTimeout(this.invalidateAll.bind(this), 10);
+        return;
+    }
+
     Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
         try {
             var controller = this.createControllerFor(node);

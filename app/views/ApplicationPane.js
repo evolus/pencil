@@ -137,6 +137,7 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     this.activeCanvas = canvas;
 
     if (canvas != null) this.startupDocumentView.node().style.display = "none";
+    this.pageListView.node().style.display = canvas != null ? "inline-block" : "none";
 };
 ApplicationPane.prototype.showStartupPane = function () {
     this.setActiveCanvas(null);

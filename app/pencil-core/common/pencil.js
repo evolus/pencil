@@ -119,7 +119,6 @@ Pencil.boot = function (event) {
                     Pencil.hideCollectionPane();
                 }
             }
-
         }, true);
 
         // document.body.onscroll = function (event) {
