@@ -14,7 +14,7 @@ AboutDialog.prototype.setup = function (options) {
 }
 
 AboutDialog.prototype.getLicense = function (thiz) {
-    fs.readFile("app/license.txt", (err, data) => {
+    fs.readFile(__dirname + "/license.txt", (err, data) => {
         if (err) throw err;
         this.licenseText.value = data;
     });

@@ -1,7 +1,7 @@
 {
   "name": "Pencil",
   "devDependencies": {
-    "electron-builder": "^3.10.0",
+    "electron-builder": "git+https://github.com/mbrainiac/electron-builder-pb.git",
     "electron-prebuilt": "^0.37.5",
     "electron-rebuild": "^1.0.2",
     "rimraf": "^2.5.2"
