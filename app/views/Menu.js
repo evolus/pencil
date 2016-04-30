@@ -10,6 +10,7 @@ function Menu() {
         if (item.type == "Toggle" || item.type == "Selection") {
             var checkbox = itemNode._checkbox;
             if (item.handleAction) {
+                console.log("checkbox.checked: " + checkbox.checked);
                 item.handleAction(checkbox.checked);
             } else if (item.run) {
                 item.run();

@@ -87,7 +87,6 @@ Pencil.boot = function (event) {
         CollectionManager.loadStencils();
         ExportTemplateManager.loadTemplates();
 
-        Pencil.setTitle(Util.getMessage("no.document"));
         Pencil.activeCanvas = null;
         Pencil.setupCommands();
 

@@ -35,6 +35,7 @@ Controller.prototype.newDocument = function () {
 
     function create() {
         thiz.resetDocument();
+        thiz.sayControllerStatusChanged();
 
         // thiz.sayDocumentChanged();
         setTimeout(function () {
@@ -82,7 +83,6 @@ Controller.prototype.resetDocument = function () {
     this.documentPath = null;
 
     this.applicationPane.pageListView.currentParentPage = null;
-    this.sayControllerStatusChanged();
 };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
@@ -303,6 +303,7 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
 
         next(function () {
             thiz.sayDocumentChanged();
+            thiz.sayControllerStatusChanged();
             ApplicationPane._instance.unbusy();
         });
 
@@ -507,6 +508,7 @@ Controller.prototype.parseDocument = function (filePath) {
             thiz.modified = false;
             //new file was loaded, update recent file list
             thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
+            thiz.sayControllerStatusChanged();
             ApplicationPane._instance.unbusy();
 
         } catch (e) {
@@ -607,9 +609,10 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     ApplicationPane._instance.busy();
 
     console.log("Calling addRecentFile from saveDocumentImpl");
-    this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
 
     this.serializeDocument(function () {
+        this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
+
         var archiver = require("archiver");
         var archive = archiver("zip");
         var output = fs.createWriteStream(documentPath);

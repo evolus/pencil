@@ -25,8 +25,7 @@ function ApplicationPane() {
         this.pageListView.handlePageInfoChangedEvent(event);
     });
     this.bind("p:ControllerStatusChanged", function (event) {
-        this.pageListView.node().style.display = this.controller.doc ? "inline-block" : "none";
-        this.pageListView.renderPages()
+        this.invalidateUIForControllerStatus();
     });
 
     var lastOverflowX = null;
@@ -81,6 +80,17 @@ ApplicationPane.prototype.onAttached = function () {
     // window.setTimeout(function () {
     //     thiz.controller.newDocument();
     // }, 100);
+};
+ApplicationPane.prototype.invalidateUIForControllerStatus = function () {
+    if (this.controller.doc) {
+        document.title = this.controller.getDocumentName() + " - Pencil";
+        this.pageListView.node().style.display = "inline-block";
+        this.pageListView.renderPages()
+    } else {
+        this.pageListView.node().style.display = "none";
+        document.title = "Pencil";
+    }
+
 };
 ApplicationPane.prototype.getCanvasContainer = function () {
     return this.contentBody;
@@ -146,7 +156,8 @@ ApplicationPane.prototype.showStartupPane = function () {
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "inline-block";
-    this.pageListView.node().style.display = "none";
+
+    this.invalidateUIForControllerStatus();
 };
 ApplicationPane.prototype.getPreferredCanvasSize = function () {
     return {
