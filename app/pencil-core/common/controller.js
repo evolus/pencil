@@ -37,11 +37,13 @@ Controller.prototype.newDocument = function () {
         thiz.resetDocument();
 
         // thiz.sayDocumentChanged();
-        var size = thiz.applicationPane.getPreferredCanvasSize();
-        var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "");
+        setTimeout(function () {
+            var size = thiz.applicationPane.getPreferredCanvasSize();
+            var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "");
 
-        thiz.activatePage(page);
-        thiz.modified = false;
+            thiz.activatePage(page);
+            thiz.modified = false;
+        }, 50);
     };
 
     if (this.modified) {
@@ -57,6 +59,8 @@ Controller.prototype.confirmAndclose = function (onClose) {
         this.tempDir = null;
         this.doc = null;
         this.modified = false;
+
+        this.sayControllerStatusChanged();
 
         if (onClose) onClose();
     }.bind(this);
@@ -78,8 +82,7 @@ Controller.prototype.resetDocument = function () {
     this.documentPath = null;
 
     this.applicationPane.pageListView.currentParentPage = null;
-
-
+    this.sayControllerStatusChanged();
 };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
@@ -885,6 +888,11 @@ Controller.prototype.sayDocumentChanged = function () {
         controller : this
     });
 };
+Controller.prototype.sayControllerStatusChanged = function () {
+    Dom.emitEvent("p:ControllerStatusChanged", this.applicationPane.node(), {
+        controller : this
+    });
+};
 Controller.prototype.sayDocumentSaved = function () {
     this.modified = false;
 };
@@ -1211,7 +1219,7 @@ window.onbeforeunload = function (event) {
             Controller._instance.confirmAndclose(function () {
                 var remote = require("electron").remote;
                 if (remote.app.devEnable) return;
-                
+
                 Controller.ignoreNextClose = true;
                 var currentWindow = remote.getCurrentWindow();
                 currentWindow.close();

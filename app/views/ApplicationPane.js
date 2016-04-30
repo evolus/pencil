@@ -24,6 +24,10 @@ function ApplicationPane() {
     this.bind("p:PageInfoChanged", function (event) {
         this.pageListView.handlePageInfoChangedEvent(event);
     });
+    this.bind("p:ControllerStatusChanged", function (event) {
+        this.pageListView.node().style.display = this.controller.doc ? "inline-block" : "none";
+        this.pageListView.renderPages()
+    });
 
     var lastOverflowX = null;
     var lastOverflowY = null;
@@ -137,12 +141,12 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     this.activeCanvas = canvas;
 
     if (canvas != null) this.startupDocumentView.node().style.display = "none";
-    this.pageListView.node().style.display = canvas != null ? "inline-block" : "none";
 };
 ApplicationPane.prototype.showStartupPane = function () {
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "inline-block";
+    this.pageListView.node().style.display = "none";
 };
 ApplicationPane.prototype.getPreferredCanvasSize = function () {
     return {
