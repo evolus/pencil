@@ -1,5 +1,7 @@
 module.exports = function () {
-    var spawn = require("child_process").spawn;
+    var child_process = require('child_process');
+    var spawn = child_process.spawn;
+    var execFile = child_process.execFile;
     var fontCommandRegistry = {
                                 "xfce": [{command: "xfconf-query", params: ["-c", "xsettings",  "-p", "/Gtk/FontName"]}],
                                 "mate": [{command: "dconf", params: ["read", "/org/mate/desktop/interface/font-name"]}],
@@ -99,16 +101,49 @@ module.exports = function () {
             }
         },
         win32: function(callback) {
-            callback({
-                family: "Microsoft Sans Serif",
-                weight: "400",
-                style: "normal",
-                size: "10pt"
+            var family = "Microsoft Sans Serif",
+                size = "9",
+                style = "normal",
+                weight = "400";
+
+            function returnDefault() {
+                callback({
+                   family: family,
+                   weight: weight,
+                   style: style,
+                   size: size + "pt"
+                });
+            }
+
+            //var child = execFile(__dirname + '/lib/fontconfig/fontconfig.exe');
+            var child = execFile(__dirname + '/lib/fontconfig/fontconfig.exe', [], (error, stdout, stderr) => {
+                if (error) {
+                    return returnDefault();
+                }
+
+                var data = stdout.trim();
+                console.log('Systen Font:', data);
+
+                if (/FontName:\s?(.*)/i.exec(data)) {
+                    family = RegExp.$1;
+                }
+                if (/FontSize:\s?(.*)/i.exec(data)) {
+                    size = RegExp.$1;
+                }
+                if (/FontWeight:\s?(.*)/i.exec(data)) {
+                    weight = RegExp.$1;
+                }
+                if (/FontStyle:\s?(.*)/i.exec(data)) {
+                    style = RegExp.$1;
+                }
+
+                callback({
+                   family: family,
+                   weight: weight,
+                   style: style,
+                   size: (parseInt(size) - 2) + "pt"
+                });
             });
-            // var Key = require('windows-registry').Key,
-	        // var windef = require('windows-registry').windef;
-            // var key = new Key(windef.HKEY.HKEY_CLASSES_ROOT, '.txt', windef.KEY_ACCESS.KEY_ALL_ACCESS);
-            // var value = key.getValue('font');
         },
         darwin: function (callback) {
             callback({
