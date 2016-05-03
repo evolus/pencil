@@ -1825,24 +1825,99 @@ Canvas.prototype.doCopy = function () {
 
     clipboard.writeText(textualData);
 };
+Canvas.domParser = new DOMParser();
 Canvas.prototype.doPaste = function () {
-    var text = clipboard.readText();
-    if (!text) return;
+    var formats = clipboard.availableFormats();
+    if (!formats) return;
 
-    var node = Dom.parseToNode(text);
-    if (!node) return;
-    if (node.localName != "g" || node.namespaceURI != PencilNamespaces.svg) return;
+    var contents = [];
 
-    var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
-    var type = (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE;
+    //the following implementation is electron-specific
+    if (formats.indexOf(PlainTextXferHelper.MIME_TYPE) >= 0) {
+        //in some cases, XML-based clipboard contents are transfered using plain text
+        //we need to try parsing it first instead of directly assuming that the content is just plain text
 
-    for (i in this.xferHelpers) {
-        var helper = this.xferHelpers[i];
+        var text = clipboard.readText();
+        if (text) {
+            var parsed = false;
 
-        if (helper.type == type) {
-            helper.handleData(text, text.length);
-            break;
+            var dom = Canvas.domParser.parseFromString(text, "text/xml");
+            if (dom) {
+                console.log("Parsed text", text);
+                console.log("Result dom", dom);
+                var node = dom.documentElement;
+                console.log("Root: " + dom.documentElement.localName);
+                if (node.namespaceURI == PencilNamespaces.svg) {
+                    if (node.localName == "g") {
+                        var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
+                        contents.push({
+                            type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
+                            data: dom
+                        });
+                        parsed = true;
+                    } else if (node.localName == "svg") {
+                        contents.push({
+                            type: SVGXferHelper.MIME_TYPE,
+                            data: dom
+                        })
+                        parsed = true;
+                    }
+                }
+            }
+
+            if (!parsed) {
+                contents.push({
+                    type: PlainTextXferHelper.MIME_TYPE,
+                    data: text
+                });
+            }
         }
+    }
+
+    if (formats.indexOf(RichTextXferHelper.MIME_TYPE) >= 0) {
+        var html = clipboard.readHtml();
+        if (html) {
+            contents.push({
+                type: RichTextXferHelper.MIME_TYPE,
+                data: html
+            });
+        }
+    }
+
+    if (formats.indexOf(PNGImageXferHelper.MIME_TYPE) >= 0) {
+        var image = clipboard.readImage();
+        if (image) {
+            var id = Pencil.controller.nativeImageToRefSync(image);
+            var size = image.getSize();
+
+            contents.push({
+                type: PNGImageXferHelper.MIME_TYPE,
+                data: new ImageData(size.width, size.height, ImageData.idToRefString(id))
+            });
+        }
+    }
+
+    //initial impl: use first win approach
+    for (var j = 0; j < contents.length; j ++) {
+        var content = contents[j];
+        var handled = false;
+
+        for (var i in this.xferHelpers) {
+            var helper = this.xferHelpers[i];
+
+            if (helper.type == content.type) {
+                console.log("Handling data by", helper);
+                try {
+                    helper.handleData(content.data);
+                    handled = true;
+                    break;
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+
+        if (handled) break;
     }
 
 };

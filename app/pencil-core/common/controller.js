@@ -1092,6 +1092,13 @@ Controller.prototype.copyAsRef = function (sourcePath, callback) {
 
     rd.pipe(wr);
 };
+Controller.prototype.nativeImageToRefSync = function (nativeImage) {
+    var id = Util.newUUID() + ".png";
+    var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+    fs.writeFileSync(filePath, nativeImage.toPng());
+
+    return id;
+};
 Controller.prototype.refIdToUrl = function (id) {
     var fullPath = path.join(this.tempDir.name, Controller.SUB_REFERENCE);
     fullPath = path.join(fullPath, id);
