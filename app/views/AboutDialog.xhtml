@@ -1,61 +1,55 @@
 <vbox class="Form">
     <style>
-    body @aboutTabContent {
+    @creditsTab > .Wrapper {
+        padding: 1em;
+    }
+    @aboutTabContent {
         position: relative;
     }
-    body @aboutTabContent vbox {
+    @aboutTabContent vbox {
         position: absolute;
         top: 0px;
         left: 0px;
         margin-top: 1em;
     }
-    body @creditsTab ul {
+    @creditsTab ul {
         margin: 0em;
-        margin-bottom: 1em;
-        padding-left: 0.5em;
+        margin-bottom: 2em;
+        padding: 0px;
+        padding-left: 1em;
     }
-    body @creditsTab ul li {
+    @creditsTab ul li {
         margin-top: 0.2em;
         list-style: none;
     }
-    body @creditsTab h4 {
+    @creditsTab h4 {
         margin: 0em;
+        font-size: 1em;
+        font-weight: bold;
     }
-    .donate {
-        position: relative;
-        line-height: 1.5em;
-    }
-    .donate p{
-        width: 80%;
-    }
-    .donate img{
-        width: 20%;
-        right: 0;
-        height: 4em;
-        position: absolute;
-        top: 0em;
+    .donate img {
+        width: 8em;
+        height: 3.167em;
+        margin-left: 2em;
     }
     .aboutBanner {
-        height:5em;
         background-color: @selected_bg;
         margin-bottom: 1em;
-        position: relative;
-        border-radius: 0.3em;
+        margin-left: -1.5em;
+        margin-right: -1.5em;
+        align-items: flex-start;
+
+        color:#fff;
+        padding: 1em;
     }
     .aboutBanner img {
-        position: absolute;
-        left: 0.3em;
-        top: 1em;
         width: 3em;
+        margin-right: 1em;
     }
-    .aboutBanner div {
-        margin-left: 3.5em;
-    }
-    .aboutBanner div * {
-        margin: 0em;
-        margin-top: 0.3em;
-        padding: 0em;
-        color:#fff;
+    .aboutBanner h1 {
+        margin: 0px;
+        padding: 0px;
+        font-size: 1.4em;
     }
     .Tab[selected='true'] {
         border: none;
@@ -66,45 +60,59 @@
     }
     </style>
     <vbox>
-        <div class="aboutBanner">
+        <hbox class="aboutBanner">
             <img src="css/images/logo-shadow.png"/>
-            <div>
+            <vbox flex="1">
                 <h1>Evolus Pencil</h1>
-                <p style="position:relative;">
-                    Copyright (c) 2012 Evolus Co., Ltd <span style="position: absolute; right: 0.3em; top: 0em; margin:0em">Version: 3.0.0 </span>
-                </p>
-            </div>
-        </div>
+                <hbox>
+                    <div flex="1">Copyright (c) Evolus Co., Ltd. All rights reserved.</div>
+                    <span>Version: 3.0.0-b1</span>
+                </hbox>
+            </vbox>
+        </hbox>
     </vbox>
     <vbox flex="1" anon-id="aboutTabSelector">
-        <ui:TabPane anon-id="tabHeader"/>
-    </vbox>
-    <vbox flex="1" anon-id="aboutTabContent">
-        <vbox anon-id="creditsTab" flex="1">
-            <h4> Authors </h4>
-            <ul>
-                <li>Dương Thành An</li>
-                <li>Nguyễn Tiến Dũng</li>
-                <li>Nguyễn Nữ Hải Anh</li>
-            </ul>
-            <h4>Contributors</h4>
-            <ul>
-                <li>Maxime Delorme</li>
-                <li>Frederic Vandaele</li>
-                <li>Brainiac Kalel</li>
-                <li>Trương Xuân Tính</li>
-                <li>Trương Anh Tuấn</li>
-                <li>Phạm Thế Vinh</li>
-                <li>Nguyễn Hồng Thái</li>
-            </ul>
-            <div class="donate">
-                <p> Pencil is Free Software(GPL), but if you find it useful, you can support its development :) </p>
-                <img style="cursor:pointer;" src="css/images/paypal.png" onclick="Util.openDonate();" tooltiptext="You can help me make Pencil ever better. Consider making a small donation!"></img>
-            </div>
-        </vbox>
-        <hbox anon-id="LicenseTab" style="height:100%; padding:0px;" flex="1">
-            <textarea name="name" cols="80" style="border:none; height:100%; padding:1em;" anon-id="licenseText" readonly="true" flex="1">
-            </textarea>
-        </hbox>
+        <ui:TabPane anon-id="tabHeader">
+            <vbox anon-id="creditsTab" flex="1" tab-title="Credits">
+                <vbox class="Wrapper" flex="1">
+                    <vbox flex="1">
+                        <h4>Authors</h4>
+                        <ul>
+                            <li>Dương Thành An</li>
+                            <li>Nguyễn Tiến Dũng</li>
+                            <li>Nguyễn Nữ Hải Anh</li>
+                            <li>Phạm Ngọc Vân Anh</li>
+                        </ul>
+                        <h4>Contributors</h4>
+                        <hbox>
+                            <ul flex="1">
+                                <li>Ngô Chí Cường</li>
+                                <li>Lê Hồ Bá Phước</li>
+                                <li>Lê Quang Thanh</li>
+                                <li>Trần Đình Chương</li>
+                                <li>Nguyễn Phạm Hải Châu</li>
+                                <li>Phạm Thế Vinh</li>
+                            </ul>
+                            <ul flex="1">
+                                <li>Maxime Delorme</li>
+                                <li>Frederic Vandaele</li>
+                                <li>Brainiac Kalel</li>
+                                <li>Trương Xuân Tính</li>
+                                <li>Trương Anh Tuấn</li>
+                                <li>Nguyễn Hồng Thái</li>
+                            </ul>
+                        </hbox>
+                    </vbox>
+                    <hbox class="donate" style="align-items: center;">
+                        <div flex="1">Pencil is Free Software and licensed under the GPL, but if you find it useful, you can support its development :)</div>
+                        <img style="cursor:pointer;" src="css/images/paypal.png" onclick="Util.openDonate();" tooltiptext="You can help me make Pencil even better. Consider making a small donation!"></img>
+                    </hbox>
+                </vbox>
+            </vbox>
+            <hbox anon-id="LicenseTab" flex="1" tab-title="License">
+                <textarea name="name" cols="80" style="border:none; height:100%; padding:1em;" anon-id="licenseText" readonly="true" flex="1">
+                </textarea>
+            </hbox>
+        </ui:TabPane>
     </vbox>
 </vbox>

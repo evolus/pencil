@@ -17,7 +17,7 @@ PageMenu.prototype.setup = function () {
     this.register({
         key: "PageNewPage",
         icon: "add",
-        getLabel: function () { return "New Page " },
+        getLabel: function () { return "New Page..." },
         isValid: function () { return true },
         run: function () {
             var dialog = new PageDetailDialog();
@@ -159,7 +159,7 @@ PageMenu.prototype.setup = function () {
     this.register({
         key: "PageProperties",
         isEnabled: function () { return thiz.page },
-        getLabel: function () { return "Properties" },
+        getLabel: function () { return "Properties..." },
         isValid: function () { return true },
         run: function () {
             var dialog = new PageDetailDialog();

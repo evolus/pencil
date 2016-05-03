@@ -1219,6 +1219,9 @@ Controller.prototype.updatePageProperties = function (page, name, backgroundColo
 };
 
 window.onbeforeunload = function (event) {
+    var remote = require("electron").remote;
+    if (remote.app.devEnable) return true;
+
     if (Controller.ignoreNextClose) {
         Controller.ignoreNextClose = false;
         return true;
@@ -1227,9 +1230,6 @@ window.onbeforeunload = function (event) {
     if (Controller._instance.doc) {
         setTimeout(function () {
             Controller._instance.confirmAndclose(function () {
-                var remote = require("electron").remote;
-                if (remote.app.devEnable) return;
-
                 Controller.ignoreNextClose = true;
                 var currentWindow = remote.getCurrentWindow();
                 currentWindow.close();

@@ -1,7 +1,7 @@
 function PageDetailDialog() {
     Dialog.call(this);
     this.modified = false;
-    this.title = "CREATE NEW PAGE";
+    this.title = "Add Page";
     this.pageCombo.renderer = function (canvas) {
         return canvas.name;
     };
@@ -401,7 +401,7 @@ PageDetailDialog.prototype.getDialogActions = function () {
             }
         },
         {
-            type: "accept", title: "APPLY",
+            type: "accept", title: this.originalPage ? "Update" : "Create",
             run: function () {
                 if(this.pageTitle.value == "" ) {
                     Dialog.alert("The page name is invalid. Please enter the valid page name.");
