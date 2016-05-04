@@ -20,6 +20,9 @@ module.exports = function () {
         });
     };
     var fontProcessor = function(fontName, callback) {
+        if (fontName) {
+            fontName = fontName.trim();
+        }
         console.log("Process font name ", fontName);
         var family = "sans-serif";
         var weight = 400;
@@ -122,7 +125,7 @@ module.exports = function () {
                 }
 
                 var data = stdout.trim();
-                console.log('Systen Font:', data);
+                console.log('System Font:', data);
 
                 if (/FontName:\s?(.*)/i.exec(data)) {
                     family = RegExp.$1;
