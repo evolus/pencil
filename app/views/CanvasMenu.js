@@ -267,7 +267,12 @@ CanvasMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("pasteCommand"));
     this.register(UICommandManager.getCommand("selectAllCommand"));
 
-    UICommandManager.getCommand("exportSelectionAsPNGButton").isAvailable = function () { return thiz.canvas.currentController};
+    UICommandManager.getCommand("exportSelectionAsPNGButton").isAvailable = function () {
+        var target = thiz.canvas.currentController;
+        if (!target || !target.getGeometry) return false;
+        return true;
+
+    };
     this.register(UICommandManager.getCommand("exportSelectionAsPNGButton"));
 
     this.separator();
