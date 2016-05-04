@@ -90,12 +90,17 @@ function PageListView() {
         var childOfListPage = Dom.isChildOf(this.pageListContainer, event.target);
         var childOfChildPage = Dom.isChildOf(this.childPageContainer, event.target);
         var page;
+        var pageNode;
         if (childOfChildPage) {
-            page = Dom.findUpwardForData(event.target, "_page");
+            pageNode = Dom.findUpwardForNodeWithData(event.target, "_page");
+            pageNode.focus();
+            page = pageNode["_page"];
         } else if (childOfListPage) {
-            var view = Dom.findUpwardForData(event.target, "__widget");
+            var pageNode = Dom.findUpwardForNodeWithData(event.target, "__widget");
+            var view = pageNode["__widget"];
             if (!view) return;
-              page = view.page;
+            pageNode.focus();
+            page = view.page;
         }
         var pageMenu = new PageMenu(thiz, page);
         pageMenu.showMenuAt(event.clientX, event.clientY);
