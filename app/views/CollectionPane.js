@@ -33,6 +33,7 @@ function CollectionPane() {
         } else {
             event.dataTransfer.setData("pencil/def", def.id);
         }
+
         event.dataTransfer.setData("pencil/def", def.id);
         event.dataTransfer.setData("collectionId", def.collection.id);
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);

@@ -35,13 +35,16 @@ Controller.prototype.newDocument = function () {
 
     function create() {
         thiz.resetDocument();
+        thiz.sayControllerStatusChanged();
 
         // thiz.sayDocumentChanged();
-        var size = thiz.applicationPane.getPreferredCanvasSize();
-        var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "");
+        setTimeout(function () {
+            var size = thiz.applicationPane.getPreferredCanvasSize();
+            var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "");
 
-        thiz.activatePage(page);
-        thiz.modified = false;
+            thiz.activatePage(page);
+            thiz.modified = false;
+        }, 50);
     };
 
     if (this.modified) {
@@ -57,6 +60,8 @@ Controller.prototype.confirmAndclose = function (onClose) {
         this.tempDir = null;
         this.doc = null;
         this.modified = false;
+
+        this.sayControllerStatusChanged();
 
         if (onClose) onClose();
     }.bind(this);
@@ -78,8 +83,6 @@ Controller.prototype.resetDocument = function () {
     this.documentPath = null;
 
     this.applicationPane.pageListView.currentParentPage = null;
-
-
 };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
@@ -300,6 +303,7 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
 
         next(function () {
             thiz.sayDocumentChanged();
+            thiz.sayControllerStatusChanged();
             ApplicationPane._instance.unbusy();
         });
 
@@ -504,6 +508,7 @@ Controller.prototype.parseDocument = function (filePath) {
             thiz.modified = false;
             //new file was loaded, update recent file list
             thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
+            thiz.sayControllerStatusChanged();
             ApplicationPane._instance.unbusy();
 
         } catch (e) {
@@ -604,9 +609,10 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     ApplicationPane._instance.busy();
 
     console.log("Calling addRecentFile from saveDocumentImpl");
-    this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
 
     this.serializeDocument(function () {
+        this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
+
         var archiver = require("archiver");
         var archive = archiver("zip");
         var output = fs.createWriteStream(documentPath);
@@ -885,6 +891,11 @@ Controller.prototype.sayDocumentChanged = function () {
         controller : this
     });
 };
+Controller.prototype.sayControllerStatusChanged = function () {
+    Dom.emitEvent("p:ControllerStatusChanged", this.applicationPane.node(), {
+        controller : this
+    });
+};
 Controller.prototype.sayDocumentSaved = function () {
     this.modified = false;
 };
@@ -1081,6 +1092,13 @@ Controller.prototype.copyAsRef = function (sourcePath, callback) {
 
     rd.pipe(wr);
 };
+Controller.prototype.nativeImageToRefSync = function (nativeImage) {
+    var id = Util.newUUID() + ".png";
+    var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+    fs.writeFileSync(filePath, nativeImage.toPng());
+
+    return id;
+};
 Controller.prototype.refIdToUrl = function (id) {
     var fullPath = path.join(this.tempDir.name, Controller.SUB_REFERENCE);
     fullPath = path.join(fullPath, id);
@@ -1201,6 +1219,9 @@ Controller.prototype.updatePageProperties = function (page, name, backgroundColo
 };
 
 window.onbeforeunload = function (event) {
+    var remote = require("electron").remote;
+    if (remote.app.devEnable) return true;
+
     if (Controller.ignoreNextClose) {
         Controller.ignoreNextClose = false;
         return true;
@@ -1209,9 +1230,6 @@ window.onbeforeunload = function (event) {
     if (Controller._instance.doc) {
         setTimeout(function () {
             Controller._instance.confirmAndclose(function () {
-                var remote = require("electron").remote;
-                if (remote.app.devEnable) return;
-                
                 Controller.ignoreNextClose = true;
                 var currentWindow = remote.getCurrentWindow();
                 currentWindow.close();

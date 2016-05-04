@@ -14,6 +14,7 @@ function StartUpDocumentView() {
                     }, 10);
                 }
                 binding._node._filePath = filePath;
+                binding._node.setAttribute("title", filePath);
             }
         };
 
@@ -54,7 +55,7 @@ StartUpDocumentView.prototype.reload = function () {
     var map = Config.get("recent-documents-thumb-map") || {};
     var docs = [];
     if (files) {
-        for (var i = 0; i < files.length; i++) {
+        for (var i = 0; i < Math.min(files.length, 8); i++) {
             docs.push({
                 filePath: files[i],
                 thumbPath: map[files[i]] || null

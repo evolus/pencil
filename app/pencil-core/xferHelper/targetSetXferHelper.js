@@ -8,12 +8,7 @@ TargetSetXferHelper.MIME_TYPE = "pencil/target-set";
 TargetSetXferHelper.prototype.toString = function () {
     return "ShapeXferHelper: " + TargetSetXferHelper.MIME_TYPE;
 };
-TargetSetXferHelper.prototype.handleData = function (data, length) {
-    var xml = data.substring(0, length);
-
-    var parser = new DOMParser();
-    var dom = parser.parseFromString(xml, "text/xml");
-
+TargetSetXferHelper.prototype.handleData = function (dom) {
     //validate
     var shapes = Dom.getList("/svg:*/svg:g[@p:type]", dom);
 

@@ -358,65 +358,95 @@ Pencil.registerDragObserver(FileDragObserver);
 function handleSVGData(svg, canvas, loc) {
     try {
         var domParser = new DOMParser();
-
         var dom = domParser.parseFromString(svg, "text/xml");
-        var fromOC = dom.documentElement.getAttributeNS(PencilNamespaces.p, "ImageSource");
-        var width = Svg.getWidth(dom);
-        var height = Svg.getHeight(dom);
-
-        var g = dom.createElementNS(PencilNamespaces.svg, "g");
-        while (dom.documentElement.childNodes.length > 0) {
-            var firstChild = dom.documentElement.firstChild;
-            dom.documentElement.removeChild(firstChild);
-            g.appendChild(firstChild);
-        }
-
-        if (fromOC) {
-            g.setAttributeNS(PencilNamespaces.p, "p:ImageSource", fromOC);
-            if (fromOC == "OpenClipart.org") {
-                Dom.renewId(g, /([a-zA-Z0-9]+)/i);
-            }
-        }
-        dom.replaceChild(g, dom.documentElement);
-
-        var def = CollectionManager.shapeDefinition.locateDefinition(FileDragObserver.SVG_SHAPE_DEF_ID);
-        if (!def) return;
-
-        canvas.insertShape(def, new Bound(loc.x, loc.y, null, null));
-        if (canvas.currentController) {
-            var controller = canvas.currentController;
-            var w = width;
-            var h = height;
-
-            var maxWidth = Config.get("clipartbrowser.scale.width");
-            var maxHeight = Config.get("clipartbrowser.scale.height");
-            if (!maxWidth) {
-                maxWidth = 200;
-                Config.set("clipartbrowser.scale.width", 200);
-            }
-            if (!maxHeight) {
-                maxHeight = 200;
-                Config.set("clipartbrowser.scale.height", 200);
-            }
-
-            if (Config.get("clipartbrowser.scale") == true && (w > maxWidth || h > maxHeight)) {
-                if (w > h) {
-                    h = h / (w / maxWidth);
-                    w = maxWidth;
-                } else {
-                    w = w / (h / maxHeight);
-                    h = maxHeight;
-                }
-            }
-
-            var dim = new Dimension(w, h);
-            controller.setProperty("svgXML", new PlainText(Dom.serializeNode(dom.documentElement)));
-            controller.setProperty("box", dim);
-            controller.setProperty("originalDim", new Dimension(width, height));
-        }
-
+        handleSVGDOM(dom, canvas, loc);
     } catch (e) {
         Console.dumpError(e);
+    }
+}
+
+var svgMeasuringNode = null;
+
+function handleSVGDOM(dom, canvas, loc) {
+    console.log("handleSVGDOM", dom);
+    var fromOC = dom.documentElement.getAttributeNS(PencilNamespaces.p, "ImageSource");
+    var width = Svg.getWidth(dom);
+    var height = Svg.getHeight(dom);
+
+    var g = dom.createElementNS(PencilNamespaces.svg, "g");
+    while (dom.documentElement.childNodes.length > 0) {
+        var firstChild = dom.documentElement.firstChild;
+        dom.documentElement.removeChild(firstChild);
+        g.appendChild(firstChild);
+    }
+
+    if (fromOC) {
+        g.setAttributeNS(PencilNamespaces.p, "p:ImageSource", fromOC);
+        if (fromOC == "OpenClipart.org") {
+            Dom.renewId(g, /([a-zA-Z0-9]+)/i);
+        }
+    }
+
+    if (!svgMeasuringNode) {
+        var div = document.createElement("div");
+        div.style.cssText = "position: absolute; left: 0px; top: 0px; width: 5px; height: 5px; overflow: hidden; visibility: hidden;";
+        document.body.appendChild(div);
+        var svg = document.createElementNS(PencilNamespaces.svg, "svg:svg");
+        svg.setAttribute("version", "1.0");
+        svg.setAttribute("width", 10);
+        svg.setAttribute("height", 10);
+
+        div.appendChild(svg);
+        svgMeasuringNode = svg;
+    }
+
+    Dom.empty(svgMeasuringNode);
+    svgMeasuringNode.appendChild(g);
+    var bbox = g.getBBox();
+    console.log("bbox", bbox);
+    console.log("client rect", g.getBoundingClientRect());
+    console.log(" > root client rect", svgMeasuringNode.getBoundingClientRect());
+    svgMeasuringNode.removeChild(g);
+    g.setAttribute("transform", "translate(" + (0 - bbox.x) + "," + (0 - bbox.y) + ")");
+    var g0 = dom.createElementNS(PencilNamespaces.svg, "g");
+    g0.appendChild(g);
+
+    dom.replaceChild(g0, dom.documentElement);
+
+    var def = CollectionManager.shapeDefinition.locateDefinition(FileDragObserver.SVG_SHAPE_DEF_ID);
+    if (!def) return;
+
+    canvas.insertShape(def, new Bound(loc.x, loc.y, null, null));
+    if (canvas.currentController) {
+        var controller = canvas.currentController;
+        var w = width;
+        var h = height;
+
+        var maxWidth = Config.get("clipartbrowser.scale.width");
+        var maxHeight = Config.get("clipartbrowser.scale.height");
+        if (!maxWidth) {
+            maxWidth = 200;
+            Config.set("clipartbrowser.scale.width", 200);
+        }
+        if (!maxHeight) {
+            maxHeight = 200;
+            Config.set("clipartbrowser.scale.height", 200);
+        }
+
+        if (Config.get("clipartbrowser.scale") == true && (w > maxWidth || h > maxHeight)) {
+            if (w > h) {
+                h = h / (w / maxWidth);
+                w = maxWidth;
+            } else {
+                w = w / (h / maxHeight);
+                h = maxHeight;
+            }
+        }
+
+        var dim = new Dimension(w, h);
+        controller.setProperty("svgXML", new PlainText(Dom.serializeNode(dom.documentElement)));
+        controller.setProperty("box", dim);
+        controller.setProperty("originalDim", new Dimension(width, height));
     }
 }
 

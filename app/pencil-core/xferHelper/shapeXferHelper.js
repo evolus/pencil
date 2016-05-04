@@ -8,12 +8,7 @@ ShapeXferHelper.MIME_TYPE = "pencil/shape";
 ShapeXferHelper.prototype.toString = function () {
     return "ShapeXferHelper: " + ShapeXferHelper.MIME_TYPE;
 };
-ShapeXferHelper.prototype.handleData = function (data, length) {
-    var xml = data.substring(0, length);
-
-    var parser = new DOMParser();
-    var dom = parser.parseFromString(xml, "text/xml");
-
+ShapeXferHelper.prototype.handleData = function (dom) {
     //validate
     var shape = Dom.getSingle("/svg:g[@p:type='Shape' or @p:type='Group']", dom);
 

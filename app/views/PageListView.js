@@ -133,6 +133,7 @@ function PageListView() {
         if (!n) return;
 
         event.dataTransfer.setDragImage(this.dndImage, 8, 8);
+        event.dataTransfer.setData("dragType", "page");
 
         if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
         this.currentDraggedObject = n;
@@ -140,6 +141,7 @@ function PageListView() {
     }, this.node());
 
     this.bind("drop", function (event) {
+        if (event.dataTransfer.getData("dragType") != "page") return;
         if (!this.lastDropCandidateObject || !this.currentDraggedObject) return;
 
         var pageId = findPageIdFromUINode(this.currentDraggedObject);
@@ -150,6 +152,7 @@ function PageListView() {
     }, this.node());
 
     this.bind("dragover", function (event) {
+        if (event.dataTransfer.getData("dragType") != "page") return;
         var container = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_isDropZone");
         if (!container) return;
 

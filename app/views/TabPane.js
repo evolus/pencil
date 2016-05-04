@@ -92,6 +92,6 @@ TabPane.prototype.onAttached = function () {
     this.ensureSizing();
     var thiz = this;
     window.setTimeout(function () {
-        //thiz.ensureSizing();
+        thiz.ensureSizing();
     }, 100);
 };
