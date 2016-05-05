@@ -2042,6 +2042,7 @@ Canvas.prototype.deleteSelectedImpl_ = function () {
     this.currentController = null;
     this._detachEditors();
     this.clearSelection();
+    this._sayTargetChanged();
 
 };
 Canvas.prototype._sayContentModified = function () {

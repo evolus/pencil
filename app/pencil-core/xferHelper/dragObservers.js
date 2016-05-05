@@ -47,13 +47,30 @@ ShapeDefDragObserver.prototype = {
         this.hasDrag = true;
     },
     exit: function (event) {
+        //console.log("Event ", event);
         this.aboutToDelete = false;
         if (this.deleteDiscarded) {
             return;
         }
 
         if (!this.commited && this.hasDrag) {
-            this.onDrop(event);
+            var loc = this.canvas.getEventLocation(event);
+            var cRect = this.canvas.svg.parentNode.getBoundingClientRect();
+            var rec = {
+                x: Math.round(0 - cRect.left),
+                y: Math.round(0 - cRect.top),
+                w: cRect.width,
+                h: cRect.height
+            }
+            //console.log("loc: ", loc);
+            //console.log("rect: ", rec);
+            if (loc.x >= loc.x && loc.x <= rec.x + rec.w
+                && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
+                this.commited = true;
+                this.canvas.finishMoving(event);
+            } else {
+                this.canvas.deleteSelected();
+            }
         }
 
         this.hasDrag = false;
@@ -212,7 +229,7 @@ ShapeShortcutDragObserver.prototype = {
         }
 
         if (!this.commited && this.hasDrag) {
-            this.onDrop(event);
+            this.canvas.deleteSelected();
         }
         this.hasDrag = false;
     },
