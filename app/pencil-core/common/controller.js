@@ -570,6 +570,7 @@ Controller.prototype.parseDocumentThumbnail = function (filePath, callback) {
         });
 };
 Controller.prototype.saveAsDocument = function (onSaved) {
+    var thiz = this;
     dialog.showSaveDialog({
         title: "Save as",
         defaultPath: path.join(os.homedir(), "Untitled.epz"),
