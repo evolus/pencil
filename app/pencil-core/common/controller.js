@@ -306,6 +306,8 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
             thiz.sayControllerStatusChanged();
             ApplicationPane._instance.unbusy();
         });
+        this.documentPath = filePath;
+        thiz.sayControllerStatusChanged();
 
     } catch (e) {
         console.log("error:", e);
@@ -627,7 +629,6 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
         archive.finalize();
     }.bind(this));
 
-    thiz.applicationPane.onDocumentChanged();
     thiz.sayControllerStatusChanged();
 };
 Controller.prototype.serializePage = function (page, outputPath) {
