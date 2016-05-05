@@ -580,7 +580,7 @@ Controller.prototype.saveAsDocument = function (onSaved) {
     }, function (filePath) {
         if (!filePath) return;
         this.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
-        if (!this.documentPath) this.documentPath = filePath;
+        this.documentPath = filePath;
         this.saveDocumentImpl(filePath, onSaved);
     }.bind(this));
 };
@@ -626,6 +626,9 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
         archive.directory(this.tempDir.name, "/", {});
         archive.finalize();
     }.bind(this));
+
+    thiz.applicationPane.onDocumentChanged();
+    thiz.sayControllerStatusChanged();
 };
 Controller.prototype.serializePage = function (page, outputPath) {
     var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
