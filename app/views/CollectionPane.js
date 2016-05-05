@@ -281,10 +281,10 @@ CollectionPane.prototype.ensureSelectedCollectionVisible = function (collection)
     for (var i = 0; i < this.selectorPane.childNodes.length; i ++) {
         var item = this.selectorPane.childNodes[i];
         if (item._collection.id == collection.id) {
-            height = item.clientHeight;
+            height = item.offsetHeight;
             break;
         } else {
-            position += item.clientHeight;
+            position += item.offsetHeight;
         }
     }
     this.collectionScrollView.ensuareVisible(position, position + height);

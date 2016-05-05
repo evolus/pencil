@@ -84,6 +84,7 @@ function ScrollableView () {
     }, false)
 
     this.bind("wheel", function (event) {
+        console.log("event.deltaY:", event.deltaY);
         this.offset -= event.deltaY;
         this.invalidate();
     }, this.node());
@@ -176,7 +177,7 @@ ScrollableView.prototype.invalidateVertical = function () {
     }
 };
 ScrollableView.prototype.moveTo = function (position) {
-    this.offset = - position + 3 * Util.em();
+    this.offset = - position + this.getButtonSize() + this.getBorderSize();
     this.invalidate();
 };
 ScrollableView.prototype.getSize = function () {
