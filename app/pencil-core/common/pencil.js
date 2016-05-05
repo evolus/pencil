@@ -190,9 +190,7 @@ Pencil.invalidateSharedEditor = function() {
     }
 };
 Pencil.setPainterCommandChecked = function (v) {
-    console.log("setPainterCommandChecked", v);
     var painterButton = Pencil.formatPainterButton;
-    console.log("painterButton", painterButton);
     if (painterButton) {
         // painterCommand.checked = v;
 
