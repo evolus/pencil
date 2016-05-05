@@ -34,9 +34,8 @@ ShapeDefDragObserver.prototype = {
 
         this.dragStart = false;
 
-        //debug("onDragEnter, defId: " + defId);
+        debug("onDragEnter, defId: " + defId);
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-
         var loc = this.canvas.getEventLocation(event);
 
         this.canvas.insertShapeImpl_(def, new Bound(loc.x, loc.y, null, null));
@@ -47,14 +46,14 @@ ShapeDefDragObserver.prototype = {
         this.commited = false;
         this.hasDrag = true;
     },
-    exit: function () {
+    exit: function (event) {
         this.aboutToDelete = false;
         if (this.deleteDiscarded) {
             return;
         }
 
         if (!this.commited && this.hasDrag) {
-            this.canvas.deleteSelected();
+            this.onDrop(event);
         }
 
         this.hasDrag = false;
@@ -63,7 +62,7 @@ ShapeDefDragObserver.prototype = {
         this.dragStart = true;
     },
     onDragExit: function (event, session) {
-        this.exit();
+        this.exit(event);
     },
     onDragOver: function (event, flavour, session) {
         if (!this.commited && this.hasDrag) {
@@ -201,25 +200,24 @@ ShapeShortcutDragObserver.prototype = {
         this.canvas.insertShapeImpl_(def, new Bound(loc.x, loc.y, null, null), overridingValueMap);
 
         //fake move marking:
-        this.canvas.startFakeMove(event);
-
         this.commited = false;
         this.hasDrag = true;
+        this.canvas.startFakeMove(event);
+
     },
-    exit: function () {
+    exit: function (event) {
         this.aboutToDelete = false;
         if (this.deleteDiscarded) {
             return;
         }
 
         if (!this.commited && this.hasDrag) {
-            this.canvas.deleteSelected();
+            this.onDrop(event);
         }
-
         this.hasDrag = false;
     },
     onDragExit: function (event, session) {
-        this.exit();
+        this.exit(event);
     },
     onDragOver: function (event, flavour, session) {
         if (!this.commited && this.hasDrag) {
