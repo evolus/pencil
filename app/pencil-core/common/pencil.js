@@ -145,6 +145,12 @@ Pencil.boot = function (event) {
         document.documentElement.addEventListener("p:TargetChanged", Pencil.handleTargetChange, false);
 
         document.documentElement.addEventListener("p:ContentModified", Pencil._setupUndoRedoCommand, false);
+
+        document.body.onscroll = function (event) {
+            if (document.body.scrollTop != 0) {
+                document.body.scrollTop = 0;
+            }
+        };
     } catch (e) {
         Console.dumpError(e, "stdout");
     }

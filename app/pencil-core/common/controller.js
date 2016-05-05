@@ -798,19 +798,29 @@ Controller.prototype.retrievePageCanvas = function (page, newPage) {
 };
 Controller.prototype.deletePage = function (page) {
     if (page.canvas) this.canvasPool.return(page.canvas);
+
+    //Delete page from parent
     var parentPage = page.parentPage;
-    if (page.children) {
-        for( var i = 0; i < page.children.length; i++) {
-            page.children[i].parentPage = parentPage;
-            if (parentPage) {
-                parentPage.children.push(page.children[i]);
-            }
-        }
-    }
-    if (page.parentPage) {
+    if (parentPage) {
         var index = parentPage.children.indexOf(page);
         parentPage.children.splice(index, 1);
     }
+
+    //Delete page from children
+    if (page.children) {
+        for( var i in page.children) {
+            if (parentPage) {
+                page.children[i].parentPage = parentPage;
+                page.children[i].parentPageId = parentPage.id;
+                parentPage.children.push(page.children[i]);
+            } else {
+                page.children[i].parentPage = null;
+                page.children[i].parentPageId = null;
+            }
+        }
+    }
+
+    //Delete page from List pages
     var i = this.doc.pages.indexOf(page);
     this.doc.pages.splice(i, 1);
 

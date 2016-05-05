@@ -4,14 +4,84 @@ function ScrollableView () {
 
     this.invalidate();
 
-    this.bind("click", function () {
-        this.offset += this.getStep();
-        this.invalidate();
+    // this.bind("click", function () {
+    //     this.offset += this.getStep();
+    //     this.invalidate();
+    // }, this.previousButton);
+
+    // this.bind("click", function () {
+    //     this.offset -= this.getStep();
+    //     this.invalidate();
+    // }, this.nextButton);
+
+    var thiz = this;
+    var clickFunc;
+    var quitLoop = function () {
+        if(clickFunc) {
+            clearInterval(clickFunc);
+            clickFunc = null;
+        }
+    }
+
+    this.bind("mousedown", function() {
+        thiz.offset += thiz.getStep();
+        thiz.invalidate();
+        if(clickFunc) quitLoop();
+        clickFunc = setInterval(function() {
+            thiz.offset += thiz.getStep();
+            thiz.invalidate();
+        } , 65);
     }, this.previousButton);
-    this.bind("click", function () {
-        this.offset -= this.getStep();
-        this.invalidate();
+
+    this.bind("focusin", function() {
+        thiz.offset += thiz.getStep();
+        thiz.invalidate();
+        if(clickFunc) quitLoop();
+        clickFunc = setInterval(function() {
+            thiz.offset += thiz.getStep();
+            thiz.invalidate();
+        } , 65);
+    }, this.previousButton);
+
+    this.previousButton.addEventListener("mouseup", function() {
+        thiz.previousButton.blur();
+    }, false);
+    this.previousButton.addEventListener("mouseout", function() {
+        thiz.previousButton.blur();
+    }, false);
+    this.previousButton.addEventListener("focusout", function() {
+        quitLoop();
+    }, false)
+
+    this.bind("focusin", function() {
+        thiz.offset -= thiz.getStep();
+        thiz.invalidate();
+        if(clickFunc) quitLoop();
+        clickFunc = setInterval(function() {
+            thiz.offset -= thiz.getStep();
+            thiz.invalidate();
+        } , 65);
     }, this.nextButton);
+
+    this.bind("mousedown", function() {
+        thiz.offset -= thiz.getStep();
+        thiz.invalidate();
+        if(clickFunc) quitLoop();
+        clickFunc = setInterval(function() {
+            thiz.offset -= thiz.getStep();
+            thiz.invalidate();
+        } , 65);
+    }, this.nextButton);
+
+    this.nextButton.addEventListener("mouseup", function() {
+        thiz.nextButton.blur();
+    }, false)
+    this.nextButton.addEventListener("mouseout", function() {
+        thiz.nextButton.blur();
+    }, false);
+    this.nextButton.addEventListener("focusout", function() {
+        quitLoop();
+    }, false)
 
     this.bind("wheel", function (event) {
         this.offset -= event.deltaY;
