@@ -22,9 +22,21 @@ function ScrollableView () {
             clickFunc = null;
         }
     }
+
     this.bind("mousedown", function() {
         thiz.offset += thiz.getStep();
         thiz.invalidate();
+        if(clickFunc) quitLoop();
+        clickFunc = setInterval(function() {
+            thiz.offset += thiz.getStep();
+            thiz.invalidate();
+        } , 65);
+    }, this.previousButton);
+
+    this.bind("focusin", function() {
+        thiz.offset += thiz.getStep();
+        thiz.invalidate();
+        if(clickFunc) quitLoop();
         clickFunc = setInterval(function() {
             thiz.offset += thiz.getStep();
             thiz.invalidate();
@@ -32,18 +44,29 @@ function ScrollableView () {
     }, this.previousButton);
 
     this.previousButton.addEventListener("mouseup", function() {
-        quitLoop();
+        thiz.previousButton.blur();
     }, false);
     this.previousButton.addEventListener("mouseout", function() {
-        quitLoop();
+        thiz.previousButton.blur();
     }, false);
     this.previousButton.addEventListener("focusout", function() {
         quitLoop();
     }, false)
 
+    this.bind("focusin", function() {
+        thiz.offset -= thiz.getStep();
+        thiz.invalidate();
+        if(clickFunc) quitLoop();
+        clickFunc = setInterval(function() {
+            thiz.offset -= thiz.getStep();
+            thiz.invalidate();
+        } , 65);
+    }, this.nextButton);
+
     this.bind("mousedown", function() {
         thiz.offset -= thiz.getStep();
         thiz.invalidate();
+        if(clickFunc) quitLoop();
         clickFunc = setInterval(function() {
             thiz.offset -= thiz.getStep();
             thiz.invalidate();
@@ -51,10 +74,10 @@ function ScrollableView () {
     }, this.nextButton);
 
     this.nextButton.addEventListener("mouseup", function() {
-        quitLoop();
+        thiz.nextButton.blur();
     }, false)
     this.nextButton.addEventListener("mouseout", function() {
-        quitLoop();
+        thiz.nextButton.blur();
     }, false);
     this.nextButton.addEventListener("focusout", function() {
         quitLoop();
