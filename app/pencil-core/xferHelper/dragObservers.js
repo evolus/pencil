@@ -34,9 +34,8 @@ ShapeDefDragObserver.prototype = {
 
         this.dragStart = false;
 
-        //debug("onDragEnter, defId: " + defId);
+        debug("onDragEnter, defId: " + defId);
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-
         var loc = this.canvas.getEventLocation(event);
 
         this.canvas.insertShapeImpl_(def, new Bound(loc.x, loc.y, null, null));
@@ -47,14 +46,31 @@ ShapeDefDragObserver.prototype = {
         this.commited = false;
         this.hasDrag = true;
     },
-    exit: function () {
+    exit: function (event) {
+        //console.log("Event ", event);
         this.aboutToDelete = false;
         if (this.deleteDiscarded) {
             return;
         }
 
         if (!this.commited && this.hasDrag) {
-            this.canvas.deleteSelected();
+            var loc = this.canvas.getEventLocation(event);
+            var cRect = this.canvas.svg.parentNode.getBoundingClientRect();
+            var rec = {
+                x: Math.round(0 - cRect.left),
+                y: Math.round(0 - cRect.top),
+                w: cRect.width,
+                h: cRect.height
+            }
+            //console.log("loc: ", loc);
+            //console.log("rect: ", rec);
+            if (loc.x >= loc.x && loc.x <= rec.x + rec.w
+                && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
+                this.commited = true;
+                this.canvas.finishMoving(event);
+            } else {
+                this.canvas.deleteSelected();
+            }
         }
 
         this.hasDrag = false;
@@ -63,7 +79,7 @@ ShapeDefDragObserver.prototype = {
         this.dragStart = true;
     },
     onDragExit: function (event, session) {
-        this.exit();
+        this.exit(event);
     },
     onDragOver: function (event, flavour, session) {
         if (!this.commited && this.hasDrag) {
@@ -201,12 +217,12 @@ ShapeShortcutDragObserver.prototype = {
         this.canvas.insertShapeImpl_(def, new Bound(loc.x, loc.y, null, null), overridingValueMap);
 
         //fake move marking:
-        this.canvas.startFakeMove(event);
-
         this.commited = false;
         this.hasDrag = true;
+        this.canvas.startFakeMove(event);
+
     },
-    exit: function () {
+    exit: function (event) {
         this.aboutToDelete = false;
         if (this.deleteDiscarded) {
             return;
@@ -215,11 +231,10 @@ ShapeShortcutDragObserver.prototype = {
         if (!this.commited && this.hasDrag) {
             this.canvas.deleteSelected();
         }
-
         this.hasDrag = false;
     },
     onDragExit: function (event, session) {
-        this.exit();
+        this.exit(event);
     },
     onDragOver: function (event, flavour, session) {
         if (!this.commited && this.hasDrag) {

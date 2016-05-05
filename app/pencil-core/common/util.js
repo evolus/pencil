@@ -1633,7 +1633,8 @@ if (typeof(console) == "undefined") {
 
 function debug(value) {
 	//DEBUG_BEGIN
-    console.info(value);
+
+    console.info(value ? value : "NULL VALUE");
     //DEBUG_END
 }
 function stackTrace() {

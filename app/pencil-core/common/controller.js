@@ -306,6 +306,8 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
             thiz.sayControllerStatusChanged();
             ApplicationPane._instance.unbusy();
         });
+        this.documentPath = filePath;
+        thiz.sayControllerStatusChanged();
 
     } catch (e) {
         console.log("error:", e);
@@ -570,6 +572,7 @@ Controller.prototype.parseDocumentThumbnail = function (filePath, callback) {
         });
 };
 Controller.prototype.saveAsDocument = function (onSaved) {
+    var thiz = this;
     dialog.showSaveDialog({
         title: "Save as",
         defaultPath: path.join(os.homedir(), "Untitled.epz"),
@@ -579,7 +582,7 @@ Controller.prototype.saveAsDocument = function (onSaved) {
     }, function (filePath) {
         if (!filePath) return;
         this.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
-        if (!this.documentPath) this.documentPath = filePath;
+        this.documentPath = filePath;
         this.saveDocumentImpl(filePath, onSaved);
     }.bind(this));
 };
@@ -625,6 +628,9 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
         archive.directory(this.tempDir.name, "/", {});
         archive.finalize();
     }.bind(this));
+
+    thiz.applicationPane.onDocumentChanged();
+    thiz.sayControllerStatusChanged();
 };
 Controller.prototype.serializePage = function (page, outputPath) {
     var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");

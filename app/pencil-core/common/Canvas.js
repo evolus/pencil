@@ -344,9 +344,9 @@ Canvas.prototype.getSelectedTargets = function () {
 
 };
 Canvas.prototype.clearSelection = function () {
-
     while (this.selectionContainer.hasChildNodes()) {
-        this.selectionContainer.removeChild(this.selectionContainer.firstChild);
+        var child = this.selectionContainer.firstChild;
+        this.selectionContainer.removeChild(child);
     }
 
 };
@@ -601,15 +601,17 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
     this.snappingHelper.updateSnappingGuide(this.currentController);
     DockingManager.enableDocking(this.currentController);
 
+
 };
 Canvas.prototype.selectShape = function (shape) {
 
-    if (this.isShapeLocked(shape))
-        return;
+    if (this.isShapeLocked(shape)) return;
     var controller = this.createControllerFor(shape);
 
     this.currentController = controller;
+
     this.clearSelection();
+
     this.addToSelection(this.currentController);
     this.setAttributeNS(PencilNamespaces.p, "p:selection", 1);
 
@@ -2040,6 +2042,7 @@ Canvas.prototype.deleteSelectedImpl_ = function () {
     this.currentController = null;
     this._detachEditors();
     this.clearSelection();
+    this._sayTargetChanged();
 
 };
 Canvas.prototype._sayContentModified = function () {
@@ -2528,12 +2531,14 @@ Canvas.prototype.__drop = function (event) {
     }
     this.element.removeAttribute("is-dragover");
     console.log('drop excute');
-    if(this.canvasContentModifiedListener) {
+    if (this.canvasContentModifiedListener) {
         this.canvasContentModifiedListener(thiz);
         this.canvasContentModifiedListener = null;
     }
-    if (!this.currentDragObserver)
+    if (!this.currentDragObserver) {
+        console.log('currentDragObserver is null');
         return;
+    }
 
     try {
         nsDragAndDrop.drop(event, this.currentDragObserver);
