@@ -30,7 +30,7 @@ function ScrollableView () {
         clickFunc = setInterval(function() {
             thiz.offset += thiz.getStep();
             thiz.invalidate();
-        } , 65);
+        } , 100);
     }, this.previousButton);
 
     this.bind("focusin", function() {
@@ -40,7 +40,7 @@ function ScrollableView () {
         clickFunc = setInterval(function() {
             thiz.offset += thiz.getStep();
             thiz.invalidate();
-        } , 65);
+        } , 100);
     }, this.previousButton);
 
     this.previousButton.addEventListener("mouseup", function() {
@@ -60,7 +60,7 @@ function ScrollableView () {
         clickFunc = setInterval(function() {
             thiz.offset -= thiz.getStep();
             thiz.invalidate();
-        } , 65);
+        } , 100);
     }, this.nextButton);
 
     this.bind("mousedown", function() {
@@ -70,7 +70,7 @@ function ScrollableView () {
         clickFunc = setInterval(function() {
             thiz.offset -= thiz.getStep();
             thiz.invalidate();
-        } , 65);
+        } , 100);
     }, this.nextButton);
 
     this.nextButton.addEventListener("mouseup", function() {
