@@ -226,7 +226,7 @@ CollectionManager.loadStencils = function() {
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/CommonShapes_Flowchart/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/ExtJSKitchenSink_Neptune/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/iOS7/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Windows7/Definition.xml"));
+    // CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Windows7/Definition.xml"));
 
     /*
     if (navigator.userAgent.indexOf("Firefox") < 0) {
