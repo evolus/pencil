@@ -141,10 +141,10 @@ CanvasMenu.prototype.setup = function () {
         },
         isValid: function () { return thiz.canvas.currentController; },
         run: function () {
-            var myCollectionDialog = new PrivateCollectionDialog();
-            myCollectionDialog.open();
-
-            thiz.canvas.addSelectedToMyCollection();
+            // var myCollectionDialog = new PrivateCollectionDialog();
+            // myCollectionDialog.open();
+            //
+            // thiz.canvas.addSelectedToMyCollection();
         }
     });
     UICommandManager.register({
