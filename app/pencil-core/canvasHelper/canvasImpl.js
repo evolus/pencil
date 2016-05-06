@@ -11,7 +11,7 @@ CanvasImpl.setupGrid = function () {
     }
 
     if (Config.get("grid.enabled") == null) {
-        Config.set("grid.enabled", true);
+        Config.set("grid.enabled", false);
     }
     if (Config.get("grid.enabled")) {
         var grid = Pencil.getGridSize();

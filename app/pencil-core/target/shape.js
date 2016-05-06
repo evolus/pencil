@@ -128,7 +128,7 @@ Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedPr
         Console.dumpError(e, "--to-console");
     }
 };
-Shape.prototype.validateAll = function () {
+Shape.prototype.validateAll = function (offScreen) {
     this.prepareExpressionEvaluation();
 
     for (var b = 0; b < this.def.behaviors.length; b ++) {
@@ -144,6 +144,9 @@ Shape.prototype.validateAll = function () {
 
         for (var i in behavior.items) {
             var item = behavior.items[i];
+            if (offScreen && !item.handler._offScreenSupport) {
+                continue;
+            }
             var args = [];
             for (var j in item.args) {
                 var arg = item.args[j];
