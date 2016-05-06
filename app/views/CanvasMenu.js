@@ -141,10 +141,12 @@ CanvasMenu.prototype.setup = function () {
         },
         isValid: function () { return thiz.canvas.currentController; },
         run: function () {
+            if (!thiz.canvas.currentController) { return;}
             var myCollectionDialog = new PrivateCollectionDialog();
-            myCollectionDialog.open();
-
-            thiz.canvas.addSelectedToMyCollection();
+            myCollectionDialog.open({
+                collection:CollectionManager.shapeDefinition.collections[0]
+            });
+            // thiz.canvas.addSelectedToMyCollection();
         }
     });
     UICommandManager.register({

@@ -29,6 +29,7 @@ PrivateCollectionManager.loadPrivateCollections = function () {
         Console.dumpError(ex);
     }
 };
+
 PrivateCollectionManager.savePrivateCollections = function () {
     try {
         debug("saving private collections...");

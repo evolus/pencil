@@ -13,9 +13,17 @@
         margin: 0;
         height: 100%;
     }
+    @collectionList {
+        overflow-y:scroll;
+    }
 
     @collectionList li:hover {
         background-color: #99ceff;
+        color:white;
+    }
+
+    @collectionList li[active="true"] {
+        background-color: #1aa3ff;
         color:white;
     }
 
@@ -34,6 +42,12 @@
         list-style-type: none;
         padding: 0.5em;
     }
+    @collectionAuthor {
+        display: none;
+    }
+    @collectionWebsite {
+        display: none;
+    }
     </style>
     <vbox>
         <h3 anon-id="stepTitle"></h3>
@@ -45,16 +59,22 @@
         </vbox>
         <vbox anon-id="Definition">
 
-            <vbox class="collectionDefinition">
+            <vbox anon-id="collectionDefinition">
                 <hbox class="InputRow">
                     <label for="collectionName">Collection name:  </label> <input type="text" anon-id="collectionName" flex="1"/>
                 </hbox>
                 <hbox class="InputRow">
                     <label for="collectionDescription">Collection Description: </label> <textarea rows="10" anon-id="collectionDescription" flex="1"> </textarea>
                 </hbox>
+                <hbox class="InputRow" anon-id="collectionAuthor">
+                    <label for="authorInput">Author: </label> <input type="text" anon-id="authorInput" flex="1"/>
+                </hbox>
+                <hbox class="InputRow" anon-id="collectionWebsite">
+                    <label for="websiteInput">Wedsite: </label> <input type="text" anon-id="websiteInput" flex="1"/>
+                </hbox>
             </vbox>
 
-            <vbox class="shapeDefinition InputRow">
+            <vbox class="InputRow" anon-id="shapeDefinition">
                 <hbox class="InputRow">
                     <label for="shapeName">Shape name:  </label> <input type="text" anon-id="shapeName" />
                 </hbox>
