@@ -1,0 +1,67 @@
+<vbox class="Form">
+    <style>
+    body .Form .InputRow {
+        margin-top: 1em;
+    }
+    body .InputRow > label {
+        max-width: 6em;
+    }
+
+    @collectionList  {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        height: 100%;
+    }
+
+    @collectionList li:hover {
+        background-color: #99ceff;
+        color:white;
+    }
+
+    @Definition {
+        display: none;
+    }
+
+    @collectionSelector {
+        border: solid 0.5px #8D9FB3;
+        border-radius: 0.3em;
+        width: 30em;
+        height: 30em;
+    }
+
+    @collectionSelector li {
+        list-style-type: none;
+        padding: 0.5em;
+    }
+    </style>
+    <vbox>
+        <h3 anon-id="stepTitle"></h3>
+        <p anon-id="stepInfo"></p>
+    </vbox>
+    <vbox anon-id="container">
+        <vbox anon-id="collectionSelector">
+            <ul anon-id="collectionList"></ul>
+        </vbox>
+        <vbox anon-id="Definition">
+
+            <vbox class="collectionDefinition">
+                <hbox class="InputRow">
+                    <label for="collectionName">Collection name:  </label> <input type="text" anon-id="collectionName" flex="1"/>
+                </hbox>
+                <hbox class="InputRow">
+                    <label for="collectionDescription">Collection Description: </label> <textarea rows="10" anon-id="collectionDescription" flex="1"> </textarea>
+                </hbox>
+            </vbox>
+
+            <vbox class="shapeDefinition InputRow">
+                <hbox class="InputRow">
+                    <label for="shapeName">Shape name:  </label> <input type="text" anon-id="shapeName" />
+                </hbox>
+                <hbox class="InputRow">
+                    <label for="shapeIcon">Icon: </label> <input type="text" anon-id="shapeIcon" /> <button anon-id="Brower">Brower...</button>
+                </hbox>
+            </vbox>
+        </vbox>
+    </vbox>
+</vbox>
