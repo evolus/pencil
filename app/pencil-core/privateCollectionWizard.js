@@ -113,4 +113,3 @@ window.onload = function () {
 window.onerror = function (msg, url, lineNumber) {
     error([msg, url, lineNumber]);
 };
-
