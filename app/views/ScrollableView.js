@@ -33,16 +33,6 @@ function ScrollableView () {
         } , 100);
     }, this.previousButton);
 
-    this.bind("focusin", function() {
-        thiz.offset += thiz.getStep();
-        thiz.invalidate();
-        if(clickFunc) quitLoop();
-        clickFunc = setInterval(function() {
-            thiz.offset += thiz.getStep();
-            thiz.invalidate();
-        } , 100);
-    }, this.previousButton);
-
     this.previousButton.addEventListener("mouseup", function() {
         thiz.previousButton.blur();
     }, false);
@@ -52,16 +42,6 @@ function ScrollableView () {
     this.previousButton.addEventListener("focusout", function() {
         quitLoop();
     }, false)
-
-    this.bind("focusin", function() {
-        thiz.offset -= thiz.getStep();
-        thiz.invalidate();
-        if(clickFunc) quitLoop();
-        clickFunc = setInterval(function() {
-            thiz.offset -= thiz.getStep();
-            thiz.invalidate();
-        } , 100);
-    }, this.nextButton);
 
     this.bind("mousedown", function() {
         thiz.offset -= thiz.getStep();
@@ -176,7 +156,7 @@ ScrollableView.prototype.invalidateVertical = function () {
     }
 };
 ScrollableView.prototype.moveTo = function (position) {
-    this.offset = - position + 3 * Util.em();
+    this.offset = - position + this.getButtonSize() + this.getBorderSize() + 2 * Util.em();
     this.invalidate();
 };
 ScrollableView.prototype.getSize = function () {

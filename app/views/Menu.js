@@ -9,11 +9,14 @@ function Menu() {
         if (itemNode.getAttribute && itemNode.getAttribute("disabled") == "true") return;
         if (item.type == "Toggle" || item.type == "Selection") {
             var checkbox = itemNode._checkbox;
+            if (event.target != checkbox) {
+                checkbox.checked = !checkbox.checked;
+            }
             if (item.handleAction) {
                 console.log("checkbox.checked: " + checkbox.checked);
                 item.handleAction(checkbox.checked);
             } else if (item.run) {
-                item.run();
+                item.run(checkbox.checked);
             }
             thiz.closeUpward();
         } else if (item.type == "SubMenu") {
@@ -51,7 +54,6 @@ Menu.prototype.hideCurrentSubMenu = function () {
         Dom.removeClass(this.currentItemNodeWithSubMenu, "Active");
         this.currentItemNodeWithSubMenu._subMenu.hideMenu();
         this.currentItemNodeWithSubMenu = null;
-
     }
 };
 Menu.prototype.openSubMenu = function (itemNode) {
@@ -187,7 +189,7 @@ Menu.prototype.renderItem = function (item) {
         _text: item.label || item.getLabel(),
         flex: "1"
     });
-    if (checkboxId) label.setAttribute("for", checkboxId);
+    // if (checkboxId) label.setAttribute("for", checkboxId);
 
     hbox.appendChild(label);
 

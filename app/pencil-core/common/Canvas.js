@@ -682,7 +682,6 @@ Canvas.prototype.createControllerFor = function (top) {
 
 };
 Canvas.prototype._detachEditors = function () {
-
     for ( var editor in this.onScreenEditors)
         this.onScreenEditors[editor].dettach();
     if (this.propertyPageEditor && this.propertyPageEditor.dettach)
@@ -702,13 +701,12 @@ Canvas.prototype.passivateEditors = function () {
 
 };
 Canvas.prototype._attachEditors = function (controller) {
-
     for (editor in this.onScreenEditors)
         this.onScreenEditors[editor].attach(controller);
     if (this.propertyPageEditor && this.propertyPageEditor.attach)
         this.propertyPageEditor.attach(controller);
     // if (this.contextMenuEditor && this.contextMenuEditor.attach)
-    // this.contextMenuEditor.attach(controller);
+    //     this.contextMenuEditor.attach(controller);
 
 };
 Canvas.prototype.handleMouseDown = function (event) {
@@ -1406,9 +1404,11 @@ Canvas.prototype.handleContextMenuShow = function (event) {
                 node : top
             };
         }
+
+        if (this.contextMenuEditor) {
+            this.contextMenuEditor.dettach();
+        }
     }
-
-
 
     this.menu.showMenuAt(event.clientX, event.clientY);
 };

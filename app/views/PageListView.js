@@ -372,26 +372,38 @@ PageListView.prototype.renderPages = function() {
         this.childPageContainer.appendChild(childNode);
     }
     this.invalidateExpandedState();
+    this.childPageSrollView.invalidate();
+    this.pageListSrollView.invalidate();
 
     var thiz = this;
     window.setTimeout(function () {
-        var childListPosition = 0;
-        var thumbnailPosition = 0;
+        var childListFrom = 0;
+        var childListTo = 0;
+
+        var thumbnailFrom = 0;
+        var thumbnailTo = 0;
 
         for (var i = 0; i < thiz.childPageContainer.childNodes.length; i++) {
             var item = thiz.childPageContainer.childNodes[i];
-            if (item._page.id == thiz.currentPage.id) break;
-            childListPosition += item.clientWidth;
+            if (item._page.id == thiz.currentPage.id) {
+                childListTo = childListFrom + item.offsetWidth;
+                break;
+            }
+
+            childListFrom += item.offsetWidth;
         }
 
         for (var i = 0; i < thiz.pageListContainer.childNodes.length; i++) {
             var item = thiz.pageListContainer.childNodes[i];
-            if (item.__widget.page.id == thiz.currentPage.id) break;
-            thumbnailPosition += item.clientWidth;
+            if (item.__widget.page.id == thiz.currentPage.id) {
+                thumbnailTo = thumbnailFrom + item.offsetWidth;
+                break;
+            }
+            thumbnailFrom += item.offsetWidth;
         }
-        thiz.childPageSrollView.moveTo(childListPosition);
-        thiz.pageListSrollView.moveTo(thumbnailPosition);
-    }, 10);
+        thiz.childPageSrollView.ensuareVisible(childListFrom, childListTo);
+        thiz.pageListSrollView.ensuareVisible(thumbnailFrom, thumbnailTo);
+    }, 0);
 
     this.controller.activatePage(this.currentPage);
 };
