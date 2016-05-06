@@ -396,10 +396,10 @@ PageListView.prototype.renderPages = function() {
         for (var i = 0; i < thiz.pageListContainer.childNodes.length; i++) {
             var item = thiz.pageListContainer.childNodes[i];
             if (item.__widget.page.id == thiz.currentPage.id) {
-                thumbnailTo = thumbnailFrom + item.offsetWidth;
+                thumbnailTo = thumbnailFrom + item.offsetWidth + Util.em();
                 break;
             }
-            thumbnailFrom += item.offsetWidth;
+            thumbnailFrom += item.offsetWidth + Util.em();
         }
         thiz.childPageSrollView.ensuareVisible(childListFrom, childListTo);
         thiz.pageListSrollView.ensuareVisible(thumbnailFrom, thumbnailTo);
