@@ -254,7 +254,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         node._def = def;
 
         this.shapeList.appendChild(node);
-        Util.setupImage(holder.iconImage, def.iconPath, "center-inside");
+        Util.setupImage(holder.iconImage, def.iconPath || def.iconData, "center-inside");
     }
 
     this.setLastUsedCollection(collection);
