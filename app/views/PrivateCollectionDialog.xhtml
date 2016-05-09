@@ -27,10 +27,6 @@
         color:white;
     }
 
-    @Definition {
-        display: none;
-    }
-
     @collectionSelector {
         border: solid 0.5px #8D9FB3;
         border-radius: 0.3em;
@@ -76,10 +72,12 @@
 
             <vbox class="InputRow" anon-id="shapeDefinition">
                 <hbox class="InputRow">
-                    <label for="shapeName">Shape name:  </label> <input type="text" anon-id="shapeName" />
+                    <label for="shapeName">Shape name:  </label> <input type="text" anon-id="shapeName" flex="1"/>
                 </hbox>
                 <hbox class="InputRow">
-                    <label for="shapeIcon">Icon: </label> <input type="text" anon-id="shapeIcon" /> <button anon-id="Brower">Brower...</button>
+                    <label for="shapeIcon">Icon: </label>
+                    <input type="text" anon-id="shapeIcon" flex="1" />
+                    <button anon-id="browse">Browse...</button>
                 </hbox>
             </vbox>
         </vbox>

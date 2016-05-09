@@ -73,7 +73,10 @@ WizardDialog.prototype.onNext = function (onDone) {
     this.invalidateElements();
     this.onSelectionChanged(this.activePane);
 };
-WizardDialog.prototype.onFinish = function () {
+WizardDialog.prototype.onFinish = function (onDone) {
+    if(onDone) {
+        onDone();
+    }
 };
 WizardDialog.prototype.onSelectionChanged = function (activePane) {
 };
