@@ -16,7 +16,10 @@ WizardDialog.prototype.setup = function (options) {
 };
 WizardDialog.prototype.invalidateWizardPane = function () {
     this.activeWizardPane(this.wizardPanes[0]);
-    this.nextable = true;
+    this.nextable = false;
+    if(this.wizardPanes.length > 1) {
+        this.nextable = true;
+    }
     this.invalidateElements();
     var thiz = this;
     window.setTimeout(function () {
@@ -39,23 +42,34 @@ WizardDialog.prototype.activeWizardPane = function (pane) {
     }
     Dom.emitEvent("e:WizardPaneChange", this.node());
 };
-WizardDialog.prototype.onBack = function () {
+WizardDialog.prototype.onBack = function (onDone) {
     var index = this.wizardPanes.indexOf(this.activePane);
     index --;
     index = Math.max(index, 0);
     this.activeWizardPane(this.wizardPanes[index]);
+    if(onDone) {
+        onDone();
+    }
     this.nextable = true;
+
     this.invalidateElements();
     this.onSelectionChanged(this.activePane);
 };
-WizardDialog.prototype.onNext = function () {
+WizardDialog.prototype.onNext = function (onDone) {
+    if(onDone) {
+        if(!onDone()) {
+            return;
+        };
+    }
     var index = this.wizardPanes.indexOf(this.activePane);
     index ++;
     index = Math.min(index, this.wizardPanes.length - 1);
     this.activeWizardPane(this.wizardPanes[index]);
+
     if (index == this.wizardPanes.length - 1) {
         this.nextable = false;
     }
+
     this.invalidateElements();
     this.onSelectionChanged(this.activePane);
 };
@@ -64,22 +78,23 @@ WizardDialog.prototype.onFinish = function () {
 WizardDialog.prototype.onSelectionChanged = function (activePane) {
 };
 WizardDialog.prototype.getDialogActions = function () {
+    var thiz = this;
     return [
         Dialog.ACTION_CANCEL,
         {   type: "accept",
             title: this.nextable ? "Next" : "Finish",
             run: function () {
                 if (this.nextable) {
-                    this.onNext();
+                    this.onNext(thiz.onNextClick);
                     return false;
                 }
-                this.onFinish();
+                this.onFinish(thiz.onFinishClick);
                 return true;
             }.bind(this)
         },
         {   type: "extra1", title: "Back", order: 5,
             run: function () {
-                this.onBack();
+                this.onBack(thiz.onBackClick);
                 return false;
             }.bind(this),
             isApplicable: function () {

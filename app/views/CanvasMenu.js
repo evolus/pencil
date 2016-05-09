@@ -141,10 +141,13 @@ CanvasMenu.prototype.setup = function () {
         },
         isValid: function () { return thiz.canvas.currentController; },
         run: function () {
-            // var myCollectionDialog = new PrivateCollectionDialog();
-            // myCollectionDialog.open();
-            //
-            // thiz.canvas.addSelectedToMyCollection();
+           if (!thiz.canvas.currentController) { return;}
+           var myCollectionDialog = new PrivateCollectionDialog();
+        //    myCollectionDialog.open({
+        //        collection:CollectionManager.shapeDefinition.collections[0]
+        //    });
+            myCollectionDialog.open();
+           thiz.canvas.addSelectedToMyCollection();
         }
     });
     UICommandManager.register({
