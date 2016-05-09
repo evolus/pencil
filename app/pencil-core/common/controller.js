@@ -674,6 +674,11 @@ Controller.prototype.getPageSVG = function (page) {
     svg.setAttribute("height", "" + page.height  + "px");
 
     if (page.canvas) {
+        if (!page.invalidatedAfterLoad) {
+            this.invalidatePageContent(page);
+            page.invalidatedAfterLoad = true;
+        }
+
         var node = page.canvas.drawingLayer.cloneNode(true);
         while (node.hasChildNodes()) {
             var c = node.firstChild;
@@ -688,6 +693,9 @@ Controller.prototype.getPageSVG = function (page) {
             content.removeChild(c);
             svg.appendChild(c);
         }
+
+        var offScreenCanvas = new OffScreenCanvas(svg);
+        offScreenCanvas.invalidateAll();
     }
     return svg;
 };

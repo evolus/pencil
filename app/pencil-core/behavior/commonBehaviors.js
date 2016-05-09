@@ -414,6 +414,8 @@ Pencil.behaviors.Image = function (imageData) {
     Svg.setWidth(this, imageData.w);
     Svg.setHeight(this, imageData.h);
 };
+Pencil.behaviors.Image._offScreenSupport = true;
+
 Pencil.behaviors.EllipseFit = function (box) {
     this.setAttribute("cx", box.w / 2);
     this.setAttribute("cy", box.h / 2);

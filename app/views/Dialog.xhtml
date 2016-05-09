@@ -93,6 +93,28 @@
             margin-top: 0.5em;
         }
 
+        body @dialogFrame .WizardContent {
+            position: relative;
+            border: solid 1px #DDDDDD;
+            border-top: none;
+            background: #FAFAFA;
+            box-sizing: content-box;
+        }
+        body @dialogFrame .WizardContent > .WizardPane {
+            position: absolute;
+            visibility: hidden;
+            padding: 0.7em;
+            left: 0px;
+            top: 0px;
+        }
+        body @dialogFrame .WizardContent > .WizardPane.Measured {
+            right: 0px;
+            bottom: 0px;
+        }
+        body @dialogFrame .WizardContent > .ActiveWizardPane {
+            visibility: inherit;
+        }
+
     </style>
     <vbox anon-id="dialogFrame" class="DialogFrame">
         <hbox anon-id="dialogHeaderPane">
