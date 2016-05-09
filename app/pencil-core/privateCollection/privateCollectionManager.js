@@ -101,7 +101,7 @@ PrivateCollectionManager.addShapeToCollection = function (collection, shapeDef, 
     }
 };
 PrivateCollectionManager.reloadCollectionPane = function () {
-    // Pencil.privateCollectionPane.reloadCollections();
+    Pencil.privateCollectionPane.reloadCollections();
 };
 PrivateCollectionManager.deleteShape = function (collection, shapeDef) {
     if (!Util.confirm(Util.getMessage("delete.private.shape.confirm", shapeDef.displayName),
@@ -173,17 +173,29 @@ PrivateCollectionManager.exportCollection = function (collection) {
         }, function (filePath) {
             if (!filePath) return;
             ApplicationPane._instance.busy();
-            var archiver = require("archiver");
-            var archive = archiver("zip");
-            var output = xml;
-            output.on("close", function () {
-                thiz.sayDocumentSaved();
-                ApplicationPane._instance.unbusy();
-                if (onSaved) onSaved();
+
+            function archiveFile (dirName, onSaved) {
+                var archiver = require("archiver");
+                var archive = archiver("zip");
+                var output = fs.createWriteStream(filePath);
+                output.on("close", function () {
+                    thiz.sayDocumentSaved();
+                    ApplicationPane._instance.unbusy();
+                    if (onSaved) onSaved();
+                });
+                archive.pipe(output);
+                archive.directory(dirName, "/", {});
+                archive.finalize();
+            }
+
+            var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
+            var ws = fs.createWriteStream(path.join(tempDir, "Definition.xml"));
+            ws.write(xml);
+            ws.on("finish", function () {
+                archiveFile(tempDir, function () {
+                    tempDir.removeCallback();
+                });
             });
-            archive.pipe(output);
-            archive.directory(this.tempDir.name, "/", {});
-            archive.finalize();
         });
     } catch (e) {
         Console.dumpError(e);
@@ -206,7 +218,8 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
     var filePath = file.path;
     var fileName = file.name.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime());
 
-    var targetDir = path.join(PrivateCollectionManager.getPrivateCollectionDirectory(), fileName);
+    var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
+    var targetDir = path.join(tempDir, fileName);
     console.log("targetPath:", targetDir);
 
     var extractor = unzip.Extract({ path: targetDir });
@@ -249,9 +262,15 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
         } catch (e) {
             Util.error(Util.getMessage("error.installing.collection"), e.message, Util.getMessage("button.close.label"));
         } finally {
-            CollectionManager.removeCollectionDir(targetDir);
+            tempDir.removeCallback();
         }
     });
 
     fs.createReadStream(filePath).pipe(extractor);
+};
+PrivateCollectionManager.setLastUsedCollection = function (collection) {
+    Config.set("PrivateCollection.lastUsedCollection.id", collection.id);
+};
+PrivateCollectionManager.getLastUsedCollection = function () {
+    return Config.get("PrivateCollection.lastUsedCollection.id");
 };
