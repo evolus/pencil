@@ -4,6 +4,7 @@ var Config = {
 Config.data = {};
 Config.DATA_DIR_NAME = ".pencil";
 Config.STENCILS_DIR_NAME = "stencils";
+Config.PRIVATE_STENCILS_DIR_NAME = "privateCollection";
 Config.CONFIG_FILE_NAME = "config.json";
 
 Config.getDataPath = function () {
