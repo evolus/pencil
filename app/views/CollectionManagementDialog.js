@@ -21,7 +21,7 @@ function CollectionManagementDialog (collectionPanel) {
 __extend(Dialog, CollectionManagementDialog);
 
 CollectionManagementDialog.prototype.getCollectionIcon = function (collection) {
-    return collection.icon || CollectionPane.ICON_MAP[collection.id] || "border_all";
+    return collection.icon || BaseCollectionPane.ICON_MAP[collection.id] || "border_all";
 };
 
 CollectionManagementDialog.prototype.handleItemClick = function (event) {
