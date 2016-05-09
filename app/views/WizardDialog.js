@@ -85,7 +85,7 @@ WizardDialog.prototype.getDialogActions = function () {
                     this.onNext();
                     return false;
                 }
-                this.onFinish(thiz.onFinishClick);
+                this.onFinish();
                 return true;
             }.bind(this)
         },
