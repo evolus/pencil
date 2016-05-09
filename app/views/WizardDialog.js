@@ -42,25 +42,19 @@ WizardDialog.prototype.activeWizardPane = function (pane) {
     }
     Dom.emitEvent("e:WizardPaneChange", this.node());
 };
-WizardDialog.prototype.onBack = function (onDone) {
+WizardDialog.prototype.onBack = function () {
+    if(!this.invalidateSelection()) return;
     var index = this.wizardPanes.indexOf(this.activePane);
     index --;
     index = Math.max(index, 0);
     this.activeWizardPane(this.wizardPanes[index]);
-    if(onDone) {
-        onDone();
-    }
     this.nextable = true;
 
     this.invalidateElements();
     this.onSelectionChanged(this.activePane);
 };
-WizardDialog.prototype.onNext = function (onDone) {
-    if(onDone) {
-        if(!onDone()) {
-            return;
-        };
-    }
+WizardDialog.prototype.onNext = function () {
+    if(!this.invalidateSelection()) return;
     var index = this.wizardPanes.indexOf(this.activePane);
     index ++;
     index = Math.min(index, this.wizardPanes.length - 1);
@@ -74,9 +68,9 @@ WizardDialog.prototype.onNext = function (onDone) {
     this.onSelectionChanged(this.activePane);
 };
 WizardDialog.prototype.onFinish = function (onDone) {
-    if(onDone) {
-        onDone();
-    }
+};
+WizardDialog.prototype.invalidateSelection = function () {
+
 };
 WizardDialog.prototype.onSelectionChanged = function (activePane) {
 };
@@ -88,7 +82,7 @@ WizardDialog.prototype.getDialogActions = function () {
             title: this.nextable ? "Next" : "Finish",
             run: function () {
                 if (this.nextable) {
-                    this.onNext(thiz.onNextClick);
+                    this.onNext();
                     return false;
                 }
                 this.onFinish(thiz.onFinishClick);
@@ -97,7 +91,7 @@ WizardDialog.prototype.getDialogActions = function () {
         },
         {   type: "extra1", title: "Back", order: 5,
             run: function () {
-                this.onBack(thiz.onBackClick);
+                this.onBack();
                 return false;
             }.bind(this),
             isApplicable: function () {
