@@ -13,7 +13,6 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
             this.shape = options.shape;
         }
         if(options.collection) {
-            this.collection = options.collection;
             this.title="Edit My Collection";
             this.stepTitle.innerHTML ="Collection definition";
             this.stepInfo.style.display ="none";
@@ -67,35 +66,46 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
                 Dialog.error("Please choose item in list", "error", null);
                 return false;
             } else {
-                thiz.collectionSelector.style.display = "none";
+
                 thiz.Definition.style.display="block";
                 thiz.stepTitle.innerHTML ="Completing the create private collection wizard";
                 thiz.stepInfo.innerHTML ="Please enter collection or shape information";
                 if(thiz.activeCollectionNode.collectionId) {
                     thiz.collectionDefinition.style.display = "none";
+                    thiz.mycollection = thiz.activeCollectionNode.collections;
                 } else {
                     thiz.collectionDefinition.style.display = "block";
                 }
             }
         }
-        if (thiz.activeCollectionNode.id) {
-            this.mycollection = thiz.activeCollectionNode.collections;
-        }
         return true;
     };
 
     this.onBackClick = function () {
-        if(!thiz.nextable) {
-            if(thiz.activeCollectionNode) {
-                thiz.collectionSelector.style.display = "block";
-                thiz.Definition.style.display="none";
-                thiz.stepTitle.innerHTML ="Wellcome to create collection wizard";
-                thiz.stepInfo.innerHTML ="Select an existing private collection or create new private collection";
-                finalNext = false;
-            }
-        }
+        thiz.stepTitle.innerHTML ="Wellcome to create collection wizard";
+        thiz.stepInfo.innerHTML ="Select an existing private collection or create new private collection";
     }
+
     this.onFinishClick = function() {
         // apply change to this.mycollection
-    }
+    };
+
+    this.browse.addEventListener("click", function(event) {
+        thiz.browseIconFile();
+    }, false);
+
+}
+
+PrivateCollectionDialog.prototype.browseIconFile = function() {
+    dialog.showOpenDialog({
+        title: "Open Icon File",
+        defaultPath: os.homedir(),
+        filters: [
+            { name: "Icon File", extensions: ["icon", "png"] }
+        ]
+
+    }, function (filenames) {
+        if (!filenames || filenames.length <= 0) return;
+        this.shape.iconPath = filenames;
+    });
 }
