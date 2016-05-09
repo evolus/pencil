@@ -143,10 +143,10 @@ CanvasMenu.prototype.setup = function () {
         run: function () {
            if (!thiz.canvas.currentController) { return;}
            var myCollectionDialog = new PrivateCollectionDialog();
-        //    myCollectionDialog.open({
-        //        collection:CollectionManager.shapeDefinition.collections[0]
-        //    });
-            myCollectionDialog.open();
+           myCollectionDialog.open({
+               collection:CollectionManager.shapeDefinition.collections[0]
+           });
+            // myCollectionDialog.open();
            thiz.canvas.addSelectedToMyCollection();
         }
     });
