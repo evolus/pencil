@@ -91,6 +91,12 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     var lastNode = null;
     var foundNode = null;
     var collections = this.getCollections();
+
+    if (!collections || collections.length <= 0) {
+        Dom.empty(this.shapeList);
+        return;
+    };
+    
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
         if(this.isShowCollection(collection)) {

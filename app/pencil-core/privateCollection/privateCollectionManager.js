@@ -67,6 +67,7 @@ PrivateCollectionManager.addShapeCollection = function (collection, dontUpdate) 
     PrivateCollectionManager.privateShapeDef.collections.push(collection);
     for (var item in collection.shapeDefs) {
         var shapeDef = collection.shapeDefs[item];
+        shapeDef.collection = collection;
         PrivateCollectionManager.privateShapeDef.shapeDefMap[shapeDef.id] = shapeDef;
     }
     if (!dontUpdate) {
@@ -93,6 +94,7 @@ PrivateCollectionManager.locateShapeDefinition = function (defId) {
     return PrivateCollectionManager.privateShapeDef.shapeDefMap[defId];
 };
 PrivateCollectionManager.addShapeToCollection = function (collection, shapeDef, dontUpdate) {
+    shapeDef.collection = collection;
     collection.shapeDefs.push(shapeDef);
     PrivateCollectionManager.privateShapeDef.shapeDefMap[shapeDef.id] = shapeDef;
     if (!dontUpdate) {
@@ -101,40 +103,46 @@ PrivateCollectionManager.addShapeToCollection = function (collection, shapeDef, 
     }
 };
 PrivateCollectionManager.reloadCollectionPane = function () {
-    Pencil.privateCollectionPane.reloadCollections();
+    Pencil.privateCollectionPane.reload();
 };
 PrivateCollectionManager.deleteShape = function (collection, shapeDef) {
-    if (!Util.confirm(Util.getMessage("delete.private.shape.confirm", shapeDef.displayName),
-                      Util.getMessage("delete.private.shape.discription"))) return;
-
-    for (var i = 0; i < PrivateCollectionManager.privateShapeDef.collections.length; i++) {
-        if (PrivateCollectionManager.privateShapeDef.collections[i].id == collection.id) {
-            PrivateCollectionManager.privateShapeDef.collections[i].deleteShape(shapeDef);
-            PrivateCollectionManager.savePrivateCollections();
-            PrivateCollectionManager.reloadCollectionPane();
-            return;
+    Dialog.confirm("Are you sure you want to delete '" + shapeDef.displayName + "'?",
+    "Warning: deleting a shape makes shapes created by that shape uneditable.",
+    "OK", function () {
+        for (var i = 0; i < PrivateCollectionManager.privateShapeDef.collections.length; i++) {
+            if (PrivateCollectionManager.privateShapeDef.collections[i].id == collection.id) {
+                PrivateCollectionManager.privateShapeDef.collections[i].deleteShape(shapeDef);
+                PrivateCollectionManager.savePrivateCollections();
+                PrivateCollectionManager.reloadCollectionPane();
+                return;
+            }
         }
-    }
+    }, "Cancel", function () {});
+
 };
 PrivateCollectionManager.deleteCollection = function (collection) {
-    if (!Util.confirm(Util.getMessage("delete.private.collection.confirm", collection.displayName),
-                      Util.getMessage("delete.private.collection.discription"))) return;
-    for (var i = 0; i < PrivateCollectionManager.privateShapeDef.collections.length; i++) {
-        if (PrivateCollectionManager.privateShapeDef.collections[i].id == collection.id) {
-            PrivateCollectionManager.privateShapeDef.collections.splice(i, 1);
-            PrivateCollectionManager.savePrivateCollections();
-            PrivateCollectionManager.reloadCollectionPane();
-            return;
+    Dialog.confirm("Are you sure you want to delete '" + collection.displayName + "'?",
+    "Warning: deleting a collection makes shapes created by that collection uneditable.",
+    "OK", function () {
+        for (var i = 0; i < PrivateCollectionManager.privateShapeDef.collections.length; i++) {
+            if (PrivateCollectionManager.privateShapeDef.collections[i].id == collection.id) {
+                PrivateCollectionManager.privateShapeDef.collections.splice(i, 1);
+                PrivateCollectionManager.savePrivateCollections();
+                PrivateCollectionManager.reloadCollectionPane();
+                return;
+            }
         }
-    }
+    }, "Cancel", function () {});
+
 };
 PrivateCollectionManager.deleteAllCollection = function () {
-    if (!Util.confirm(Util.getMessage("delete.all.private.collections.confirm"),
-                      Util.getMessage("delete.all.private.collections.discription"))) return;
-
-    PrivateCollectionManager.privateShapeDef.collections = [];
-    PrivateCollectionManager.savePrivateCollections();
-    PrivateCollectionManager.reloadCollectionPane();
+    Dialog.confirm("Are you sure you want to delete all private collections?",
+    "Warning: deleting a collection makes shapes created by that collection uneditable.",
+    "OK", function () {
+        PrivateCollectionManager.privateShapeDef.collections = [];
+        PrivateCollectionManager.savePrivateCollections();
+        PrivateCollectionManager.reloadCollectionPane();
+    }, "Cancel", function () {});
 };
 PrivateCollectionManager.exportCollection = function (collection) {
     try {
