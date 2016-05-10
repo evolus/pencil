@@ -124,13 +124,15 @@ PrivateShapeDefDragObserver.prototype = {
 
 //        if (delta < 200) return;
 
-        var transferData = nsTransferable.get(this.getSupportedFlavours(), nsDragAndDrop.getDragData, true);
-        var defId = null;
-        try {
-            defId = transferData.first.first.data;
-        } catch (e) {
-            return;
-        }
+        // var transferData = nsTransferable.get(this.getSupportedFlavours(), nsDragAndDrop.getDragData, true);
+        // var defId = null;
+        // try {
+        //     defId = transferData.first.first.data;
+        // } catch (e) {
+        //     return;
+        // }
+
+        var defId = event.dataTransfer.getData("pencil/privatedef");
 
         var def = PrivateCollectionManager.locateShapeDefinition(defId);
 

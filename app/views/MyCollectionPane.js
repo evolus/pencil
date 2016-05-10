@@ -17,13 +17,7 @@ MyCollectionPane.prototype.initialize = function () {
 MyCollectionPane.prototype.handleCollectionContextMenu = function (collection, event) {
 
 };
-CollectionPane.prototype.handleDragStart = function (def, event) {
-    // if (def.shape) {
-    //     event.dataTransfer.setData("pencil/shortcut", def.id);
-    // } else {
-    //     event.dataTransfer.setData("pencil/def", def.id);
-    // }
-    console.log("def:", def);
+MyCollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
     event.dataTransfer.setData("pencil/privatedef", def.id);
 };
 MyCollectionPane.prototype.getCollections = function () {
