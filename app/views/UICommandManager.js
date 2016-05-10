@@ -227,6 +227,13 @@ UICommandManager.isValidFunction = function (event) {
     return UICommandManager.isApplicable(this, UICommandManager.currentFocusedElement) && (!this._isValid || this._isValid());
 };
 UICommandManager.handleKeyEvent = function (event) {
+    var eventCtrlKey = IS_MAC ? event.metaKey : event.ctrlKey;
+
+    if (eventCtrlKey && event.altKey && event.shiftKey && event.keyCode == 80) {
+        var app = require('electron').remote.app;
+        app.mainWindow.openDevTools();
+    }
+
     for (var i = 0; i < UICommandManager.commands.length; i ++) {
         var command = UICommandManager.commands[i];
         if (!command.parsedShortcut) continue;
@@ -234,7 +241,6 @@ UICommandManager.handleKeyEvent = function (event) {
         if (command.isValid && !command.isValid()) {
             continue;
         }
-        var eventCtrlKey = IS_MAC ? event.metaKey : event.ctrlKey;
 
         if (eventCtrlKey == command.parsedShortcut.ctrl
             && event.altKey == command.parsedShortcut.alt
