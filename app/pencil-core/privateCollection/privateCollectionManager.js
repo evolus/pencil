@@ -101,7 +101,7 @@ PrivateCollectionManager.addShapeToCollection = function (collection, shapeDef, 
     }
 };
 PrivateCollectionManager.reloadCollectionPane = function () {
-    Pencil.privateCollectionPane.reloadCollections();
+    Pencil.privateCollectionPane.reload();
 };
 PrivateCollectionManager.deleteShape = function (collection, shapeDef) {
     if (!Util.confirm(Util.getMessage("delete.private.shape.confirm", shapeDef.displayName),
