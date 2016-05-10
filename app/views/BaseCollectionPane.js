@@ -12,7 +12,6 @@ function BaseCollectionPane() {
     }, this.selectorPane);
 
     this.selectorPane.addEventListener("click", function(event) {
-        console.log("click collection");
         var item = Dom.findUpward(Dom.getTarget(event), function (n) {
             return n._collection;
         });
@@ -78,13 +77,11 @@ BaseCollectionPane.prototype.getCollectionIcon = function (collection) {
     return collection.icon || BaseCollectionPane.ICON_MAP[collection.id] || "border_all";
 };
 BaseCollectionPane.prototype.onSizeChanged = function () {
-    console.log("onSizeChanged");
     if (!this.loaded) {
         setTimeout(this.reload.bind(this), 300);
     }
 };
 BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
-    console.log("reload collection");
     if (this.node().offsetWidth <= 0) return;
     Dom.empty(this.selectorPane);
 
@@ -147,7 +144,7 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
             item.firstChild.style.width = w + "px";
             item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
         }
-        // thiz.collectionScrollView.invalidate();
+        thiz.collectionScrollView.invalidate();
     }, 10);
 
     if (lastNode) {
@@ -204,7 +201,6 @@ BaseCollectionPane.prototype.filterCollections = function () {
     }
 };
 BaseCollectionPane.prototype.openCollection = function (collection) {
-    console.log("openCollection");
     Dom.empty(this.shapeList);
     this.collectionIcon.innerHTML = this.getCollectionIcon(collection);
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);

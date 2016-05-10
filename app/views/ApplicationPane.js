@@ -19,14 +19,6 @@ function ApplicationPane() {
         mainMenu.showMenu(this.menuIcon, "left-inside", "bottom", 0, 0);
     }, this.menuIcon);
 
-    this.bind("click", function (event) {
-        this.collectionPane.reload();
-    }, this.collectionPane.node());
-
-    this.bind("click", function (event) {
-        this.myCollectionPane.reload();
-    }, this.myCollectionPane.node());
-
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
 
     this.bind("p:PageInfoChanged", function (event) {
