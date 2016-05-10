@@ -2224,107 +2224,118 @@ Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
 
 };
 Canvas.prototype.addSelectedToMyCollection = function () {
+    if (!this.currentController) return;
+
+    var data = {
+        collections : PrivateCollectionManager.privateShapeDef.collections,
+        valueHolder : {}
+    };
+
     var myCollectionDialog = new PrivateCollectionDialog();
-    // myCollectionDialog.open({
-    //     collection:CollectionManager.shapeDefinition.collections[0]
-    // });
-    myCollectionDialog.open();
-
-    if (!this.currentController)
-        return;
-    try {
-        var target = Pencil.getCurrentTarget();
-        // debug("adding selected shapes to my collection... ");
-
-        // generating text/xml+svg
-        var svg = target.svg.cloneNode(true);
-
-        var data = {
-            collections : PrivateCollectionManager.privateShapeDef.collections,
-            valueHolder : {}
-        };
-        var d = window.openDialog(
-                'chrome://pencil/content/privateCollectionWizard.xul',
-                'CreatePrivateCollectionWizard', 'chrome,centerscreen,modal',
-                data);
-
-        var valueHolder = data.valueHolder;
-        if (!valueHolder.shapeName)
-            return;
-
-        // debug("creating shape");
-
-        var shapeDef = new PrivateShapeDef();
-        shapeDef.displayName = valueHolder.shapeName;
-        shapeDef.content = svg;
-        shapeDef.id = shapeDef.displayName.replace(/\s+/g, "_").toLowerCase()
-                + "_" + (new Date()).getTime();
-
-        // debug("shape name: " + shapeDef.displayName + ", id: " +
-        // shapeDef.id);
-
-        var collection = valueHolder.collection;
-        var isNewCollection = (collection == null || collection == -1);
-
-        if (isNewCollection) {
-            // debug("creating new collection...");
-            collection = new PrivateCollection();
-            collection.displayName = valueHolder.collectionName;
-            collection.description = valueHolder.collectionDescription;
-            collection.id = collection.displayName.replace(/\s+/g, "_")
-                    .toLowerCase()
-                    + "_" + (new Date()).getTime();
-            // debug("collection name: " + collection.displayName + ", id: " +
-            // collection.id);
-
-            collection.shapeDefs.push(shapeDef);
+    myCollectionDialog.open({
+        valueHolder: data.valueHolder,
+        onDone: function (data) {
+            data.valueHolder = data;
+            run(data);
         }
+        //collection: CollectionManager.shapeDefinition.collections[0]
+    });
 
-        debug("generating icon... ");
-        if (valueHolder.autoGenerateIcon) {
-            Util.generateIcon(target, 64, 64, 2, null, function (data) {
-                debug("\tdone generating icon.");
-                shapeDef.iconData = data;
+    var run = function (data) {
+        try {
+            var target = Pencil.getCurrentTarget();
+            // debug("adding selected shapes to my collection... ");
+
+            // generating text/xml+svg
+            var svg = target.svg.cloneNode(true);
+
+            // var data = {
+            //     collections : PrivateCollectionManager.privateShapeDef.collections,
+            //     valueHolder : {}
+            // };
+            // var d = window.openDialog(
+            //         'chrome://pencil/content/privateCollectionWizard.xul',
+            //         'CreatePrivateCollectionWizard', 'chrome,centerscreen,modal',
+            //         data);
+
+            var valueHolder = data.valueHolder;
+            if (!valueHolder.shapeName)
+                return;
+
+            //myCollectionDialog.open();
+            // debug("creating shape");
+
+            var shapeDef = new PrivateShapeDef();
+            shapeDef.displayName = valueHolder.shapeName;
+            shapeDef.content = svg;
+            shapeDef.id = shapeDef.displayName.replace(/\s+/g, "_").toLowerCase()
+                    + "_" + (new Date()).getTime();
+
+            // debug("shape name: " + shapeDef.displayName + ", id: " +
+            // shapeDef.id);
+
+            var collection = valueHolder.collection;
+            var isNewCollection = (collection == null || collection == -1);
+
+            if (isNewCollection) {
+                // debug("creating new collection...");
+                collection = new PrivateCollection();
+                collection.displayName = valueHolder.collectionName;
+                collection.description = valueHolder.collectionDescription;
+                collection.id = collection.displayName.replace(/\s+/g, "_")
+                        .toLowerCase()
+                        + "_" + (new Date()).getTime();
+                // debug("collection name: " + collection.displayName + ", id: " +
+                // collection.id);
+
+                collection.shapeDefs.push(shapeDef);
+            }
+
+            debug("generating icon... ");
+            if (valueHolder.autoGenerateIcon) {
+                Util.generateIcon(target, 64, 64, 2, null, function (icondata) {
+                    debug("\t done generating icon.");
+                    shapeDef.iconData = icondata;
+                    if (isNewCollection) {
+                        PrivateCollectionManager.addShapeCollection(collection);
+                    } else {
+                        PrivateCollectionManager.addShapeToCollection(collection,
+                                shapeDef);
+                    }
+                    return;
+                });
+            } else {
+                var file = Components.classes["@mozilla.org/file/local;1"]
+                        .createInstance(Components.interfaces.nsILocalFile);
+                file.initWithPath(valueHolder.shapeIcon);
+
+                var ios = Components.classes["@mozilla.org/network/io-service;1"]
+                        .getService(Components.interfaces.nsIIOService);
+                var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]
+                        .createInstance(Components.interfaces.nsIFileInputStream);
+                istream.init(file, -1, -1, false);
+
+                var bstream = Components.classes["@mozilla.org/binaryinputstream;1"]
+                        .createInstance(Components.interfaces.nsIBinaryInputStream);
+                bstream.setInputStream(istream);
+                var bytes = bstream.readBytes(bstream.available());
+                istream.close();
+                bstream.close();
+
+                var base64 = Base64.encode(bytes, true);
+                shapeDef.iconData = "data:image/png;base64," + base64;
+
                 if (isNewCollection) {
                     PrivateCollectionManager.addShapeCollection(collection);
                 } else {
                     PrivateCollectionManager.addShapeToCollection(collection,
                             shapeDef);
                 }
-                return;
-            });
-        } else {
-            var file = Components.classes["@mozilla.org/file/local;1"]
-                    .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(valueHolder.shapeIcon);
-
-            var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                    .getService(Components.interfaces.nsIIOService);
-            var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-                    .createInstance(Components.interfaces.nsIFileInputStream);
-            istream.init(file, -1, -1, false);
-
-            var bstream = Components.classes["@mozilla.org/binaryinputstream;1"]
-                    .createInstance(Components.interfaces.nsIBinaryInputStream);
-            bstream.setInputStream(istream);
-            var bytes = bstream.readBytes(bstream.available());
-            istream.close();
-            bstream.close();
-
-            var base64 = Base64.encode(bytes, true);
-            shapeDef.iconData = "data:image/png;base64," + base64;
-
-            if (isNewCollection) {
-                PrivateCollectionManager.addShapeCollection(collection);
-            } else {
-                PrivateCollectionManager.addShapeToCollection(collection,
-                        shapeDef);
             }
+        } catch (e) {
+            Console.dumpError(e);
         }
-    } catch (e) {
-        Console.dumpError(e);
     }
-
 };
 Canvas.prototype.insertPrivateShape = function (shapeDef, bound) {
 
