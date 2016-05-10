@@ -20,7 +20,7 @@ CollectionPane.prototype.handleCollectionContextMenu = function (collection, eve
     var menu = new CollectionMenu(collection, this);
     menu.showMenuAt(event.clientX, event.clientY);
 };
-CollectionPane.prototype.handleDragStart = function (def, event) {
+CollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
     if (def.shape) {
         event.dataTransfer.setData("pencil/shortcut", def.id);
     } else {
