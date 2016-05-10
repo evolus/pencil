@@ -2224,6 +2224,11 @@ Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
 
 };
 Canvas.prototype.addSelectedToMyCollection = function () {
+    var myCollectionDialog = new PrivateCollectionDialog();
+    // myCollectionDialog.open({
+    //     collection:CollectionManager.shapeDefinition.collections[0]
+    // });
+    myCollectionDialog.open();
 
     if (!this.currentController)
         return;
