@@ -1,7 +1,9 @@
 function EditPrivateShapeDialog() {
     Dialog.call(this);
     this.title="Edit Private Shape Infomation";
+    this.modified = false;
     this.bind("change", function() {
+        this.modified = true;
         var value = this.changeIconCheck.checked;
         if (!value) {
             this.shapeIcon.disabled = "true";
@@ -11,6 +13,8 @@ function EditPrivateShapeDialog() {
             this.browse.disabled = false;
         }
     }, this.changeIconCheck)
+
+    this.bind("change",function () {this.modified = true;}, this.shapeName)
 }
 __extend(Dialog, EditPrivateShapeDialog);
 
@@ -54,9 +58,27 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
             }
         },
         {
-            type: "cancel", title: "Close",
+            type: "cancel", title: "Cancel",
             isCloseHandler: true,
-            run: function () { return true; }
+            run: function () {
+                if (this.modified) {
+                    // if(!thiz.invalidate()) return false;
+
+                    Dialog.confirm(
+                        "Do you want to save your changes before closing?", null,
+                        "Save", function () {
+                            if(!thiz.invalidate()) return false;
+                            thiz.shape.displayName = thiz.shapeName.value;
+                            if (thiz.changeIconCheck.checked) {
+                                thiz.shape.shapeIcon = thiz.shapeIcon.value;
+                            }
+                            if(thiz.onDone) thiz.onDone(thiz.collection);
+                        },
+                        "Cancel"
+                    )
+                }
+                return true;
+            }
         }
     ]
 };
