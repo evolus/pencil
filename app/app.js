@@ -6,6 +6,7 @@ const fs          = require("fs");
 const os          = require("os");
 const unzip       = require("unzip2");
 const dialog      = require("electron").remote.dialog;
+const nativeImage = require('electron').nativeImage;
 
 let platform = process.platform;
 let arch = process.arch;

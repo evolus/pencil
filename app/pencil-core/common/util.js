@@ -1428,6 +1428,7 @@ Util.getNodeMetadata = function (node, name) {
     return node.getAttributeNS(PencilNamespaces.p, name);
 };
 Util.generateIcon = function (target, maxWidth, maxHeight, padding, iconPath, callback, rasterizer) {
+    console.log("generateIcon");
     try {
         if (!target || !target.svg) {
             return;
@@ -1474,8 +1475,8 @@ Util.generateIcon = function (target, maxWidth, maxHeight, padding, iconPath, ca
         if (!rasterizer && Pencil) {
             rasterizer = Pencil.rasterizer;
         }
-
-
+        console.log("iconPath:", iconPath);
+        console.log("rasterizer:", rasterizer);
         if (iconPath) {
             rasterizer.rasterizeDOM(svg, iconPath, function () {});
         } else {

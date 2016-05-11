@@ -143,6 +143,11 @@ Rasterizer.prototype.getBackend = function () {
     //TODO: options or condition?
     return Rasterizer.outProcessCanvasBasedBackend;
 };
+Rasterizer.prototype.rasterizeSVGNodeToUrl = function (svg, callback, scale) {
+    var s = (typeof (scale) == "undefined") ? 1 : scale;
+    this.getBackend().rasterize(svg, parseFloat(svg.getAttribute("width")), parseFloat(svg.getAttribute("height")), s, callback);
+};
+
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
     var svg = this.controller.getPageSVG(page);
     var thiz = this;
@@ -345,34 +350,52 @@ Rasterizer.prototype.rasterizeWindowToUrl = function (callback) {
 };
 Rasterizer.prototype.cleanup = function () {
     if (this.lastTempFile) {
-        debug("deleting: " + this.lastTempFile.path);
+        // debug("deleting: " + this.lastTempFile.path);
         try {
-            this.lastTempFile.remove(true);
+            // this.lastTempFile.remove(true);
+            this.lastTempFile.removeCallback();
         } catch (e) {
             Console.dumpError(e);
         }
     }
 };
 Rasterizer.prototype._saveNodeToTempFileAndLoad = function (svgNode, loadCallback) {
-    this.cleanup();
+    // this.cleanup();
+    //
+    // this.lastTempFile = Local.newTempFile("raster", "svg");
+    // Dom.serializeNodeToFile(svgNode, this.lastTempFile,
+    //     "<?xml-stylesheet href=\"chrome://global/skin/\" type=\"text/css\"?>\n" +
+    //     "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObject.css\" type=\"text/css\"?>\n" +
+    //     "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObjectXUL.css\" type=\"text/css\"?>");
+    //
+    // var url = ios.newFileURI(this.lastTempFile).spec;
+    //
+    // debug("Rasterize SVG: " + url);
+    //
+    // if (loadCallback) {
+    //     this.nextHandler = loadCallback;
+    // }
+    //
+    // this.win.location.href = url;
 
-    this.lastTempFile = Local.newTempFile("raster", "svg");
-    Dom.serializeNodeToFile(svgNode, this.lastTempFile,
-        "<?xml-stylesheet href=\"chrome://global/skin/\" type=\"text/css\"?>\n" +
-        "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObject.css\" type=\"text/css\"?>\n" +
-        "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObjectXUL.css\" type=\"text/css\"?>");
+    var xml = "<?xml version=\"1.0\"?>\n";
+    xml += "<?xml-stylesheet href=\"chrome://global/skin/\" type=\"text/css\"?>\n" +
+    "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObject.css\" type=\"text/css\"?>\n" +
+    "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObjectXUL.css\" type=\"text/css\"?>\n";
+    xml += Controller.serializer.serializeToString(svgNode);
 
-    var url = ios.newFileURI(this.lastTempFile).spec;
+    this.lastTempFile = tmp.fileSync({postfix: ".svg" });
+    console.log("fileName:", this.lastTempFile.name);
+    fs.writeFileSync(this.lastTempFile.name, xml, XMLDocumentPersister.CHARSET);
 
-    debug("Rasterize SVG: " + url);
-
-    if (loadCallback) {
-        this.nextHandler = loadCallback;
-    }
-
-    this.win.location.href = url;
+    if (loadCallback) loadCallback();
 };
 Rasterizer.prototype.rasterizeDOMToUrl = function (svgNode, callback) {
+    this.rasterizeSVGNodeToUrl(svgNode, function (url) {
+        callback({url: url});
+    });
+};
+Rasterizer.prototype.rasterizeDOMToUrl_old = function (svgNode, callback) {
     debug("Rasterizing DOM to URL");
     try {
         this._width = svgNode.width.baseVal.value;
