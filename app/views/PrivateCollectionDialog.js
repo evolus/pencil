@@ -11,6 +11,9 @@ function PrivateCollectionDialog () {
         }
         top.setAttribute("active", "true");
         this.activeCollectionNode = top;
+        if(top.collection.id) {
+            this.valueHolder.collection = top.collection;
+        }
      }, this.collectionList)
 
      this.browse.addEventListener("click", function(event) {
@@ -30,9 +33,8 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
             displayName: "Create new private collection...",
         }
     ];
-    collectionItems = collectionItems.concat(CollectionManager.shapeDefinition.collections);
+    collectionItems = collectionItems.concat(PrivateCollectionManager.privateShapeDef.collections);
     var thiz = this;
-    collectionItems = collectionItems.concat(CollectionManager.shapeDefinition.collections);
     var setItem = function(collection) {
         var item = Dom.newDOMElement({
             _name: "li",
@@ -48,6 +50,12 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
     }
 
     if(options) {
+        if (options.onDone) {
+            this.onDone = options.onDone;
+        }
+        if (options.valueHolder) {
+            this.valueHolder = options.valueHolder;
+        }
         if (options.shape) {
             this.shape = options.shape;
         }
@@ -66,8 +74,28 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
             this.invalidateSelection = function () {return true;}
 
             this.wizardPanes.splice(0, 1);
-            // add Finish here
+            // add Finish when edit collection here
         }
+    }
+}
+
+PrivateCollectionDialog.prototype.onFinish = function () {
+    //add Shape
+    this.valueHolder.shapeName = this.shapeName.value;
+    if (this.shapeIcon.value == "") {
+        this.valueHolder.autoGenerateIcon = true;
+    } else {
+        this.valueHolder.shapeIcon = this.shapeIcon.value;
+        this.valueHolder.autoGenerateIcon = false;
+    }
+    //add new collection
+    if(!this.valueHolder.collection) {
+        this.valueHolder.collectionName = this.collectionName.value;
+        this.valueHolder.collectionDescription = this.collectionDescription.value;
+    }
+
+    if(this.onDone) {
+        this.onDone(this.valueHolder);
     }
 }
 
