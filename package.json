@@ -54,7 +54,7 @@
     "dist": "build",
     "release": "build",
     "dist:linux": "./node_modules/.bin/build --platform linux --arch x64",
-    "dist:win32": "./node_modules/.bin/build --platform win32 --arch all",
+    "dist:win32": "./node_modules/.bin/build --platform win32 --arch x64",
     "dist:darwin": "./node_modules/.bin/build --platform darwin",
     "pack:win32": "./node_modules/.bin/build --platform win32 --arch all"
   },
