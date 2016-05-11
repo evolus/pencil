@@ -143,6 +143,11 @@ Rasterizer.prototype.getBackend = function () {
     //TODO: options or condition?
     return Rasterizer.outProcessCanvasBasedBackend;
 };
+Rasterizer.prototype.rasterizeSVGNodeToUrl = function (svg, callback, scale) {
+    var s = (typeof (scale) == "undefined") ? 1 : scale;
+    this.getBackend().rasterize(svg, parseFloat(svg.getAttribute("width")), parseFloat(svg.getAttribute("height")), s, callback);
+};
+
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
     var svg = this.controller.getPageSVG(page);
     var thiz = this;
@@ -308,15 +313,15 @@ Rasterizer.prototype._prepareWindowForRasterization = function(backgroundColor) 
     ctx.scale(1, 1);
 
     var bgr = Color.fromString("#ffffff00");
-    // if (this._backgroundColor) {
-    //     bgr = Color.fromString(this._backgroundColor);
-    //     ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
-    // } else if (backgroundColor) {
-    //     bgr = Color.fromString(backgroundColor);
-    //     ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
-    // } else {
-    //     ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBAString());
-    // }
+    if (this._backgroundColor) {
+        bgr = Color.fromString(this._backgroundColor);
+        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
+    } else if (backgroundColor) {
+        bgr = Color.fromString(backgroundColor);
+        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
+    } else {
+        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBAString());
+    }
 
     ctx.restore();
 
@@ -386,26 +391,9 @@ Rasterizer.prototype._saveNodeToTempFileAndLoad = function (svgNode, loadCallbac
     if (loadCallback) loadCallback();
 };
 Rasterizer.prototype.rasterizeDOMToUrl = function (svgNode, callback) {
-    var w = svgNode.width.baseVal.value;
-    var h = svgNode.height.baseVal.value;
-    var s = 1;
-    var canvas = document.createElement("canvas");
-    canvas.setAttribute("width", w * s);
-    canvas.setAttribute("height", h * s);
-    var ctx = canvas.getContext("2d");
-
-    var img = new Image();
-    var url = "data:image/svg+xml;charset=utf-8," + Controller.serializer.serializeToString(svgNode);
-    img.onload = function () {
-        ctx.scale(s, s);
-        ctx.drawImage(img, 0, 0);
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        window.URL.revokeObjectURL(url);
-        callback({
-            url: canvas.toDataURL()
-        });
-    };
-    img.src = url;
+    this.rasterizeSVGNodeToUrl(svgNode, function (url) {
+        callback({url: url});
+    });
 };
 Rasterizer.prototype.rasterizeDOMToUrl_old = function (svgNode, callback) {
     debug("Rasterizing DOM to URL");
