@@ -4,22 +4,25 @@
         margin-top: 1em;
     }
     body .InputRow > label {
-        max-width: 6em;
+        min-width: 6em;
+    }
+    @collectionDefinition {
+        min-width: 40em;
     }
     </style>
     <vbox anon-id="collectionDefinition">
         <h3>Collection definition</h3>
         <hbox class="InputRow">
-            <label for="collectionName">Collection Name:  </label> <input type="text" anon-id="collectionName" flex="1"/>
+            <label for="collectionName">Name:  </label> <input type="text" anon-id="collectionName" flex="1"/>
         </hbox>
         <hbox class="InputRow">
-            <label for="collectionDescription">Collection Description: </label> <textarea rows="10" anon-id="collectionDescription" flex="1"> </textarea>
+            <label for="collectionDescription">Description: </label> <textarea rows="10" anon-id="collectionDescription" flex="1"> </textarea>
         </hbox>
         <hbox class="InputRow">
-            <label for="collectionAuthor">Collection Author : </label> <input type="text" anon-id="collectionAuthor" flex="1" />
+            <label for="collectionAuthor">Author : </label> <input type="text" anon-id="collectionAuthor" flex="1" />
         </hbox>
         <hbox class="InputRow">
-            <label for="collectionWeb">Collection Website: </label> <input type="text" anon-id="collectionWeb" flex="1" />
+            <label for="collectionWeb">Website: </label> <input type="text" anon-id="collectionWeb" flex="1" />
         </hbox>
     </vbox>
 </vbox>

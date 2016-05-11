@@ -1,6 +1,12 @@
 function EditPrivateCollectionDialog() {
     Dialog.call(this);
     this.title="Edit Private Collection Infomation";
+    this.modified = false;
+
+    this.bind("change",function(event) {this.modified = true;}, this.collectionName);
+    this.bind("change",function(event) {this.modified = true;}, this.collectionDescription);
+    this.bind("change",function(event) {this.modified = true;}, this.collectionAuthor);
+    this.bind("change",function(event) {this.modified = true;}, this.collectionWeb);
 
 }
 __extend(Dialog, EditPrivateCollectionDialog);
@@ -47,9 +53,25 @@ EditPrivateCollectionDialog.prototype.getDialogActions = function () {
             }
         },
         {
-            type: "cancel", title: "Close",
+            type: "cancel", title: "Cancel",
             isCloseHandler: true,
-            run: function () { return true; }
+            run: function () {
+                if(thiz.modified) {
+                    Dialog.confirm(
+                        "Do you want to save your changes before closing?", null,
+                        "Save", function () {
+                            if(!thiz.invalidate()) return false;
+                            thiz.collection.displayName = thiz.collectionName.value;
+                            thiz.collection.description = this.collectionDescription.value;
+                            thiz.collection.author = thiz.collectionAuthor.value;
+                            thiz.collection.infoUrl = thiz.collectionWeb.value;
+                            if(thiz.onDone) thiz.onDone(thiz.collection);
+                        },
+                        "Cancel"
+                    )
+                }
+                return true;
+            }
         }
     ]
 };
