@@ -10,13 +10,9 @@ MyCollectionPane.prototype.getTitle = function() {
 MyCollectionPane.prototype.initialize = function () {
     this.bind("contextmenu", function (event) {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
-        if (n) {
-            var def = n._def;
-            console.log("def:", def);
-            (new PrivateCollectionMenu(this, def.collection, def)).showMenuAt(event.clientX, event.clientY);
-        } else if (this.last) {
-            (new PrivateCollectionMenu(this, this.last)).showMenuAt(event.clientX, event.clientY);
-        }
+        var def = n ? n._def : null;
+        var collection = this.last;
+        (new PrivateCollectionMenu(this, collection, def)).showMenuAt(event.clientX, event.clientY);
     }, this.shapePane);
     this.collectionManagementButton.style.display = "none";
     Pencil.privateCollectionPane = this;

@@ -12,7 +12,6 @@ PrivateCollectionManager.loadPrivateCollections = function () {
 
         // privateCollectionXmlLocation.append("PrivateCollection.xml");
         var stat = fs.statSync(privateCollectionXmlLocation);
-        console.log("stat:", stat);
         if (!stat) return;
 
         // var fileContents = FileIO.read(privateCollectionXmlLocation, ShapeDefCollectionParser.CHARSET);
@@ -35,6 +34,7 @@ PrivateCollectionManager.loadPrivateCollections = function () {
 };
 
 PrivateCollectionManager.savePrivateCollections = function () {
+    console.log("savePrivateCollections");
     try {
         debug("saving private collections...");
         var xml = '<?xml version="1.0"?>\n' +
@@ -56,7 +56,9 @@ PrivateCollectionManager.savePrivateCollections = function () {
         // FileIO.create(f);
         // FileIO.write(f, xml);
         var privateCollectionFile = PrivateCollectionManager.getPrivateCollectionFile();
-        fs.writeFileSync(privateCollectionFile, xml, ShapeDefCollectionParser.CHARSET);
+        var ws = fs.createWriteStream(privateCollectionFile);
+        ws.write(xml, ShapeDefCollectionParser.CHARSET);
+        // fs.writeFileSync(privateCollectionFile, xml, ShapeDefCollectionParser.CHARSET);
     } catch (ex) {
         Console.dumpError(ex);
     }
@@ -76,6 +78,12 @@ PrivateCollectionManager.addShapeCollection = function (collection, dontUpdate) 
     }
 };
 PrivateCollectionManager.getPrivateCollectionFile = function () {
+    var privateDir = PrivateCollectionManager.getPrivateCollectionDirectory();
+    try {
+        fs.statSync(privateDir);
+    } catch (e) {
+        fs.mkdirSync(privateDir);
+    }
     return path.join(PrivateCollectionManager.getPrivateCollectionDirectory(), "PrivateCollection.xml");
 };
 PrivateCollectionManager.getPrivateCollectionDirectory = function () {
@@ -181,13 +189,14 @@ PrivateCollectionManager.exportCollection = function (collection) {
         }, function (filePath) {
             if (!filePath) return;
             ApplicationPane._instance.busy();
-
+            console.log("filePath:", filePath);
             function archiveFile (dirName, onSaved) {
+                console.log("archiveFile");
                 var archiver = require("archiver");
                 var archive = archiver("zip");
                 var output = fs.createWriteStream(filePath);
                 output.on("close", function () {
-                    thiz.sayDocumentSaved();
+                    console.log("on close");
                     ApplicationPane._instance.unbusy();
                     if (onSaved) onSaved();
                 });
@@ -197,13 +206,22 @@ PrivateCollectionManager.exportCollection = function (collection) {
             }
 
             var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
-            var ws = fs.createWriteStream(path.join(tempDir, "Definition.xml"));
-            ws.write(xml);
-            ws.on("finish", function () {
-                archiveFile(tempDir, function () {
-                    tempDir.removeCallback();
+            try {
+                var tempFilePath = path.join(tempDir.name, "Definition.xml");
+                console.log("tempFilePath:", tempFilePath);
+                var ws = fs.createWriteStream(tempFilePath);
+
+                ws.write(xml);
+                ws.end();
+                ws.on("finish", function () {
+                    console.log("onfinish");
+                    archiveFile(tempDir.name, function () {
+                        tempDir.removeCallback();
+                    });
                 });
-            });
+            } catch (e) {
+                tempDir.removeCallback();
+            }
         });
     } catch (e) {
         Console.dumpError(e);
@@ -219,30 +237,38 @@ PrivateCollectionManager.importNewCollection = function () {
 
     }, function (filenames) {
         if (!filenames || filenames.length <= 0) return;
-        PrivateCollectionManager.installCollectionFromFile(filenames[0]);
+        var file = {
+            path: filenames[0],
+            name: path.basename(filenames[0])
+        };
+        PrivateCollectionManager.installCollectionFromFile(file);
     });
 };
 PrivateCollectionManager.installCollectionFromFile = function (file) {
+    console.log("installCollectionFromFile:", file);
     var filePath = file.path;
     var fileName = file.name.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime());
 
     var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
-    var targetDir = path.join(tempDir, fileName);
+    var targetDir = path.join(tempDir.name, fileName);
     console.log("targetPath:", targetDir);
 
     var extractor = unzip.Extract({ path: targetDir });
     extractor.on("close", function () {
 
+        console.log("onClose");
         //try loading the collection
         try {
             var definitionFile = path.join(targetDir, "Definition.xml");
             if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
 
             var fileContents = fs.readFileSync(definitionFile, ShapeDefCollectionParser.CHARSET);
+            console.log("fileContents:", fileContents);
             var domParser = new DOMParser();
 
             var collection = null;
             var dom = domParser.parseFromString(fileContents, "text/xml");
+            console.log("dom:", dom);
             if (dom != null) {
                 var dom = dom.documentElement;
                 var parser = new PrivateShapeDefParser();
@@ -250,6 +276,8 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
                     collection = parser.parseNode(node);
                 });
             };
+
+            console.log("collection:", collection);
 
             if (collection && collection.id) {
                 //check for duplicate of name
@@ -259,19 +287,35 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
                         throw Util.getMessage("collection.named.already.installed", collection.id);
                     }
                 }
-                if (Util.confirmWithWarning(Util.getMessage("install.the.unsigned.collection.confirm", collection.displayName),
-                                             new RichText(Util.getMessage("install.the.unsigned.collection.discription")), Util.getMessage("button.install.label"))) {
-                    CollectionManager.setCollectionCollapsed(collection, false);
-                    PrivateCollectionManager.addShapeCollection(collection);
-                }
+
+                Dialog.confirm("Are you sure you want to install the unsigned collection: " + collection.displayName + "?",
+                    "Since a collection may contain execution code that could harm your machine. It is hightly recommanded that you should only install collections from authors whom you trust.",
+                    "Install", function () {
+                        CollectionManager.setCollectionCollapsed(collection, false);
+                        PrivateCollectionManager.addShapeCollection(collection);
+                        tempDir.removeCallback();
+                    }, "Cancel", function () {
+                        tempDir.removeCallback();
+                    }
+                );
+
+                // if (Util.confirmWithWarning(Util.getMessage("install.the.unsigned.collection.confirm", collection.displayName),
+                //                              new RichText(Util.getMessage("install.the.unsigned.collection.discription")), Util.getMessage("button.install.label"))) {
+                    // CollectionManager.setCollectionCollapsed(collection, false);
+                    // PrivateCollectionManager.addShapeCollection(collection);
+                // }
             } else {
                 throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
             }
         } catch (e) {
-            Util.error(Util.getMessage("error.installing.collection"), e.message, Util.getMessage("button.close.label"));
+            console.log("error:", e.message);
+            Dialog.error(e.message);
+            // Util.error(Util.getMessage("error.installing.collection"), e.message, Util.getMessage("button.close.label"));
         } finally {
             tempDir.removeCallback();
         }
+    }).on("error", function (error) {
+        console.log("error:", error);
     });
 
     fs.createReadStream(filePath).pipe(extractor);
