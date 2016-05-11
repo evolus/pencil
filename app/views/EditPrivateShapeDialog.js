@@ -13,8 +13,12 @@ function EditPrivateShapeDialog() {
         }
     }, this.changeIconCheck)
 
-    this.bind("change",function () {this.modified = true;}, this.shapeName)
-    this.bind("change",function () {this.modified = true;}, this.shapeIcon)
+    this.bind("change",function () {this.modified = true;}, this.shapeName);
+    this.bind("change",function () {this.modified = true;}, this.shapeIcon);
+    var thiz = this;
+    this.browse.addEventListener("click", function(event) {
+        thiz.browseIconFile();
+    }, false);
 }
 __extend(Dialog, EditPrivateShapeDialog);
 
@@ -28,6 +32,20 @@ EditPrivateShapeDialog.prototype.setup = function (options) {
     this.shapeName.value = this.shape.displayName;
 }
 
+EditPrivateShapeDialog.prototype.browseIconFile = function() {
+    var thiz = this;
+    dialog.showOpenDialog({
+        title: "Open Icon File",
+        defaultPath: os.homedir(),
+        filters: [
+            { name: "Icon File", extensions: ["icon", "png"] }
+        ]
+    }, function (filenames) {
+        if (!filenames || filenames.length <= 0) return;
+        thiz.shapeIcon.value = filenames;
+        thiz.shape.iconPath = filenames;
+    });
+}
 
 EditPrivateShapeDialog.prototype.invalidate = function () {
     if (this.shapeName.value == "" || this.changeIconCheck.checked && this.shapeIcon.value == "")
