@@ -255,6 +255,10 @@ CollectionManager.loadStencils = function() {
     	return a.displayName > b.displayName ? 1 : (a.displayName < b.displayName ? -1 : 0);
     });
     CollectionManager._loadDeveloperStencil();
+    CollectionManager.reloadCollectionPane();
+};
+CollectionManager.reloadCollectionPane = function () {
+    Pencil.collectionPane.loaded = false;
     Pencil.collectionPane.reload();
 };
 CollectionManager.installNewCollection = function () {
@@ -316,15 +320,13 @@ CollectionManager.installCollectionFromFile = function (file) {
             }
         } catch (e) {
             console.log("error:", e);
+            Dialog.error("Error installing collection.");
             CollectionManager.removeCollectionDir(targetDir);
         }
-
     });
 
     fs.createReadStream(filePath).pipe(extractor);
-
 };
-
 CollectionManager.installCollectionFromFile_old = function (file) {
     var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
                    .createInstance(Components.interfaces.nsIZipReader);
