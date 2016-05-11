@@ -3,7 +3,6 @@ function EditPrivateShapeDialog() {
     this.title="Edit Private Shape Infomation";
     this.modified = false;
     this.bind("change", function() {
-        this.modified = true;
         var value = this.changeIconCheck.checked;
         if (!value) {
             this.shapeIcon.disabled = "true";
@@ -15,6 +14,7 @@ function EditPrivateShapeDialog() {
     }, this.changeIconCheck)
 
     this.bind("change",function () {this.modified = true;}, this.shapeName)
+    this.bind("change",function () {this.modified = true;}, this.shapeIcon)
 }
 __extend(Dialog, EditPrivateShapeDialog);
 
@@ -62,8 +62,6 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
             isCloseHandler: true,
             run: function () {
                 if (this.modified) {
-                    // if(!thiz.invalidate()) return false;
-
                     Dialog.confirm(
                         "Do you want to save your changes before closing?", null,
                         "Save", function () {
@@ -72,7 +70,7 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
                             if (thiz.changeIconCheck.checked) {
                                 thiz.shape.shapeIcon = thiz.shapeIcon.value;
                             }
-                            if(thiz.onDone) thiz.onDone(thiz.collection);
+                            if(thiz.onDone) thiz.onDone(thiz.shape);
                         },
                         "Cancel"
                     )

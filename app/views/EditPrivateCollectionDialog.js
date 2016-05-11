@@ -62,7 +62,7 @@ EditPrivateCollectionDialog.prototype.getDialogActions = function () {
                         "Save", function () {
                             if(!thiz.invalidate()) return false;
                             thiz.collection.displayName = thiz.collectionName.value;
-                            thiz.collection.description = this.collectionDescription.value;
+                            thiz.collection.description = thiz.collectionDescription.value;
                             thiz.collection.author = thiz.collectionAuthor.value;
                             thiz.collection.infoUrl = thiz.collectionWeb.value;
                             if(thiz.onDone) thiz.onDone(thiz.collection);
