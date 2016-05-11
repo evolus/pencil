@@ -2292,52 +2292,54 @@ Canvas.prototype.addSelectedToMyCollection = function () {
             }
 
             debug("generating icon... ");
-            // if (valueHolder.autoGenerateIcon) {
-            //     Util.generateIcon(target, 64, 64, 2, null, function (icondata) {
-            //         debug("\t done generating icon.");
-            //         shapeDef.iconData = icondata;or
-            //         if (isNewCollection) {
-            //             PrivateCollectionManager.addShapeCollection(collection);
-            //         } else {
-            //             PrivateCollectionManager.addShapeToCollection(collection,
-            //                     shapeDef);
-            //         }
-            //         return;
-            //     });
-            // } else {
-            //     var file = Components.classes["@mozilla.org/file/local;1"]
-            //             .createInstance(Components.interfaces.nsILocalFile);
-            //     file.initWithPath(valueHolder.shapeIcon);
-            //
-            //     var ios = Components.classes["@mozilla.org/network/io-service;1"]
-            //             .getService(Components.interfaces.nsIIOService);
-            //     var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-            //             .createInstance(Components.interfaces.nsIFileInputStream);
-            //     istream.init(file, -1, -1, false);
-            //
-            //     var bstream = Components.classes["@mozilla.org/binaryinputstream;1"]
-            //             .createInstance(Components.interfaces.nsIBinaryInputStream);
-            //     bstream.setInputStream(istream);
-            //     var bytes = bstream.readBytes(bstream.available());
-            //     istream.close();
-            //     bstream.close();
-            //
-            //     var base64 = Base64.encode(bytes, true);
-            //     shapeDef.iconData = "data:image/png;base64," + base64;
-            //
-            //     if (isNewCollection) {
-            //         PrivateCollectionManager.addShapeCollection(collection);
-            //     } else {
-            //         PrivateCollectionManager.addShapeToCollection(collection,
-            //                 shapeDef);
-            //     }
-            // }
-            if (isNewCollection) {
-                PrivateCollectionManager.addShapeCollection(collection);
+            if (valueHolder.autoGenerateIcon) {
+                Util.generateIcon(target, 64, 64, 2, null, function (icondata) {
+                    debug("\t done generating icon.");
+                    shapeDef.iconData = icondata;
+                    if (isNewCollection) {
+                        PrivateCollectionManager.addShapeCollection(collection);
+                    } else {
+                        PrivateCollectionManager.addShapeToCollection(collection,
+                                shapeDef);
+                    }
+                    return;
+                });
             } else {
-                PrivateCollectionManager.addShapeToCollection(collection, shapeDef);
+                // var file = Components.classes["@mozilla.org/file/local;1"]
+                //         .createInstance(Components.interfaces.nsILocalFile);
+                // file.initWithPath(valueHolder.shapeIcon);
+                //
+                // var ios = Components.classes["@mozilla.org/network/io-service;1"]
+                //         .getService(Components.interfaces.nsIIOService);
+                // var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]
+                //         .createInstance(Components.interfaces.nsIFileInputStream);
+                // istream.init(file, -1, -1, false);
+                //
+                // var bstream = Components.classes["@mozilla.org/binaryinputstream;1"]
+                //         .createInstance(Components.interfaces.nsIBinaryInputStream);
+                // bstream.setInputStream(istream);
+                // var bytes = bstream.readBytes(bstream.available());
+                // istream.close();
+                // bstream.close();
+                var filePath = valueHolder.shapeIcon;
+                console.log("filePath:", filePath);
+                var fileContents = fs.readFileSync(filePath, ShapeDefCollectionParser.CHARSET);
+                var base64 = Base64.encode(fileContents, true);
+                shapeDef.iconData = "data:image/png;base64," + base64;
+
+                if (isNewCollection) {
+                    PrivateCollectionManager.addShapeCollection(collection);
+                } else {
+                    PrivateCollectionManager.addShapeToCollection(collection,
+                            shapeDef);
+                }
             }
-            PrivateCollectionManager.savePrivateCollections();
+            // if (isNewCollection) {
+            //     PrivateCollectionManager.addShapeCollection(collection);
+            // } else {
+            //     PrivateCollectionManager.addShapeToCollection(collection, shapeDef);
+            // }
+            // PrivateCollectionManager.savePrivateCollections();
         } catch (e) {
             Console.dumpError(e);
         }

@@ -308,15 +308,15 @@ Rasterizer.prototype._prepareWindowForRasterization = function(backgroundColor) 
     ctx.scale(1, 1);
 
     var bgr = Color.fromString("#ffffff00");
-    if (this._backgroundColor) {
-        bgr = Color.fromString(this._backgroundColor);
-        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
-    } else if (backgroundColor) {
-        bgr = Color.fromString(backgroundColor);
-        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
-    } else {
-        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBAString());
-    }
+    // if (this._backgroundColor) {
+    //     bgr = Color.fromString(this._backgroundColor);
+    //     ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
+    // } else if (backgroundColor) {
+    //     bgr = Color.fromString(backgroundColor);
+    //     ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
+    // } else {
+    //     ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBAString());
+    // }
 
     ctx.restore();
 
@@ -345,34 +345,69 @@ Rasterizer.prototype.rasterizeWindowToUrl = function (callback) {
 };
 Rasterizer.prototype.cleanup = function () {
     if (this.lastTempFile) {
-        debug("deleting: " + this.lastTempFile.path);
+        // debug("deleting: " + this.lastTempFile.path);
         try {
-            this.lastTempFile.remove(true);
+            // this.lastTempFile.remove(true);
+            this.lastTempFile.removeCallback();
         } catch (e) {
             Console.dumpError(e);
         }
     }
 };
 Rasterizer.prototype._saveNodeToTempFileAndLoad = function (svgNode, loadCallback) {
-    this.cleanup();
+    // this.cleanup();
+    //
+    // this.lastTempFile = Local.newTempFile("raster", "svg");
+    // Dom.serializeNodeToFile(svgNode, this.lastTempFile,
+    //     "<?xml-stylesheet href=\"chrome://global/skin/\" type=\"text/css\"?>\n" +
+    //     "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObject.css\" type=\"text/css\"?>\n" +
+    //     "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObjectXUL.css\" type=\"text/css\"?>");
+    //
+    // var url = ios.newFileURI(this.lastTempFile).spec;
+    //
+    // debug("Rasterize SVG: " + url);
+    //
+    // if (loadCallback) {
+    //     this.nextHandler = loadCallback;
+    // }
+    //
+    // this.win.location.href = url;
 
-    this.lastTempFile = Local.newTempFile("raster", "svg");
-    Dom.serializeNodeToFile(svgNode, this.lastTempFile,
-        "<?xml-stylesheet href=\"chrome://global/skin/\" type=\"text/css\"?>\n" +
-        "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObject.css\" type=\"text/css\"?>\n" +
-        "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObjectXUL.css\" type=\"text/css\"?>");
+    var xml = "<?xml version=\"1.0\"?>\n";
+    xml += "<?xml-stylesheet href=\"chrome://global/skin/\" type=\"text/css\"?>\n" +
+    "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObject.css\" type=\"text/css\"?>\n" +
+    "<?xml-stylesheet href=\"chrome://pencil/skin/htmlForeignObjectXUL.css\" type=\"text/css\"?>\n";
+    xml += Controller.serializer.serializeToString(svgNode);
 
-    var url = ios.newFileURI(this.lastTempFile).spec;
+    this.lastTempFile = tmp.fileSync({postfix: ".svg" });
+    console.log("fileName:", this.lastTempFile.name);
+    fs.writeFileSync(this.lastTempFile.name, xml, XMLDocumentPersister.CHARSET);
 
-    debug("Rasterize SVG: " + url);
-
-    if (loadCallback) {
-        this.nextHandler = loadCallback;
-    }
-
-    this.win.location.href = url;
+    if (loadCallback) loadCallback();
 };
 Rasterizer.prototype.rasterizeDOMToUrl = function (svgNode, callback) {
+    var w = svgNode.width.baseVal.value;
+    var h = svgNode.height.baseVal.value;
+    var s = 1;
+    var canvas = document.createElement("canvas");
+    canvas.setAttribute("width", w * s);
+    canvas.setAttribute("height", h * s);
+    var ctx = canvas.getContext("2d");
+
+    var img = new Image();
+    var url = "data:image/svg+xml;charset=utf-8," + Controller.serializer.serializeToString(svgNode);
+    img.onload = function () {
+        ctx.scale(s, s);
+        ctx.drawImage(img, 0, 0);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        window.URL.revokeObjectURL(url);
+        callback({
+            url: canvas.toDataURL()
+        });
+    };
+    img.src = url;
+};
+Rasterizer.prototype.rasterizeDOMToUrl_old = function (svgNode, callback) {
     debug("Rasterizing DOM to URL");
     try {
         this._width = svgNode.width.baseVal.value;
