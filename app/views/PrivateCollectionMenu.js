@@ -16,7 +16,19 @@ PrivateCollectionMenu.prototype.setup = function () {
         label: "Edit this shape...",
         isEnabled: function () { return thiz.shapeDef },
         handleAction: function () {
+            var index = thiz.collection.shapeDefs.indexOf(thiz.shapeDef);
 
+            var applyNewShape = function (shape) {
+                console.log(shape);
+                thiz.collection.shapeDefs[index] = shape;
+                PrivateCollectionManager.savePrivateCollections();
+                PrivateCollectionManager.reloadCollectionPane();
+            }
+            var editShapeDialog = new EditPrivateShapeDialog() ;
+            editShapeDialog.open({
+                shape: thiz.shapeDef,
+                onDone: applyNewShape
+            });
         }
     });
     this.register({
@@ -46,7 +58,17 @@ PrivateCollectionMenu.prototype.setup = function () {
         label: "Edit this collection...",
         isEnabled: function () { return thiz.collection },
         handleAction: function () {
-
+            var index = PrivateCollectionManager.privateShapeDef.collections.indexOf(thiz.collection);
+            var applyNewCollection = function (collection) {
+                PrivateCollectionManager.privateShapeDef.collections[index] = collection;
+                PrivateCollectionManager.savePrivateCollections();
+                PrivateCollectionManager.reloadCollectionPane();
+            }
+            var editDialog = new EditPrivateCollectionDialog() ;
+            editDialog.open({
+                collection: thiz.collection,
+                onDone: applyNewCollection
+            });
         }
     });
 

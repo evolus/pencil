@@ -16,6 +16,17 @@ function PrivateCollectionDialog () {
         }
      }, this.collectionList)
 
+     this.bind("change", function() {
+         var value = this.generateIconCheck.checked;
+         if (value) {
+             this.shapeIcon.disabled = "true";
+             this.browse.disabled = "true";
+         } else {
+             this.shapeIcon.disabled = false;
+             this.browse.disabled = false;
+         }
+     }, this.generateIconCheck)
+
      this.browse.addEventListener("click", function(event) {
          thiz.browseIconFile();
      }, false);
@@ -23,6 +34,17 @@ function PrivateCollectionDialog () {
 __extend(WizardDialog, PrivateCollectionDialog);
 
 PrivateCollectionDialog.prototype.setupUI = function (options) {
+    if(options) {
+        if (options.onDone) {
+            this.onDone = options.onDone;
+        }
+        if (options.valueHolder) {
+            this.valueHolder = options.valueHolder;
+        }
+        if (options.shape) {
+            this.shape = options.shape;
+        }
+    }
     this.collectionsListPane = this.wizardPanes[0];
     this.collectionsDefinePane = this.wizardPanes[1];
 
@@ -44,45 +66,26 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
         item.collectionId = collection.id;
         thiz.collectionList.appendChild(item);
     }
-
     for (i in collectionItems) {
        setItem(collectionItems[i]);
     }
 
-    if(options) {
-        if (options.onDone) {
-            this.onDone = options.onDone;
-        }
-        if (options.valueHolder) {
-            this.valueHolder = options.valueHolder;
-        }
-        if (options.shape) {
-            this.shape = options.shape;
-        }
-        if(options.collection) {
-            this.title = "Edit My Collection";
-            this.stepTitle.innerHTML = "Collection definition";
-            this.stepInfo.style.display = "none";
-            this.shapeDefinition.style.display = "none";
-
-            this.collectionAuthor.style.display = "flex";
-            this.collectionWebsite.style.display = " flex";
-
-            this.mycollection = options.collection;
-
-            this.onSelectionChanged = function () {return true};
-            this.invalidateSelection = function () {return true;}
-
-            this.wizardPanes.splice(0, 1);
-            // add Finish when edit collection here
-        }
-    }
 }
 
+PrivateCollectionDialog.prototype.invalidateFinish = function () {
+    if (!this.generateIconCheck.checked && this.shapeIcon.value == "" || this.shapeName.value == "" ||
+    !this.activeCollectionNode.collection.id && this.collectionName.value == "")
+    {
+        Dialog.alert("Empty text box","Please enter all require text box",null);
+        return false;
+    }
+    return true;
+}
 PrivateCollectionDialog.prototype.onFinish = function () {
+
     //add Shape
     this.valueHolder.shapeName = this.shapeName.value;
-    if (this.shapeIcon.value == "") {
+    if (this.generateIconCheck.checked) {
         this.valueHolder.autoGenerateIcon = true;
     } else {
         this.valueHolder.shapeIcon = this.shapeIcon.value;
@@ -113,7 +116,6 @@ PrivateCollectionDialog.prototype.invalidateSelection = function () {
 PrivateCollectionDialog.prototype.onSelectionChanged = function (activePane) {
     var thiz = this;
     if(activePane == this.collectionsDefinePane) {
-        thiz.definition.style.display = "block";
         thiz.stepTitle.innerHTML = "Completing the create private collection wizard";
         thiz.stepInfo.innerHTML = "Please enter collection or shape information";
         if(thiz.activeCollectionNode.collectionId) {
@@ -125,12 +127,11 @@ PrivateCollectionDialog.prototype.onSelectionChanged = function (activePane) {
     } else if (activePane == this.collectionsListPane) {
         thiz.stepTitle.innerHTML = "Wellcome to create collection wizard";
         thiz.stepInfo.innerHTML = "Select an existing private collection or create new private collection";
-        // add Finish here
     }
 }
 
 PrivateCollectionDialog.prototype.browseIconFile = function() {
-     var thiz = this;
+    var thiz = this;
     dialog.showOpenDialog({
         title: "Open Icon File",
         defaultPath: os.homedir(),

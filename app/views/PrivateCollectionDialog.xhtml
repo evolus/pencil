@@ -53,8 +53,8 @@
         <vbox anon-id="collectionSelector">
             <ul anon-id="collectionList"></ul>
         </vbox>
-        <vbox anon-id="definition">
 
+        <vbox anon-id="definition">
             <vbox anon-id="collectionDefinition">
                 <hbox class="InputRow">
                     <label for="collectionName">Collection name:  </label> <input type="text" anon-id="collectionName" flex="1"/>
@@ -62,15 +62,9 @@
                 <hbox class="InputRow">
                     <label for="collectionDescription">Collection Description: </label> <textarea rows="10" anon-id="collectionDescription" flex="1"> </textarea>
                 </hbox>
-                <hbox class="InputRow" anon-id="collectionAuthor">
-                    <label for="authorInput">Author: </label> <input type="text" anon-id="authorInput" flex="1"/>
-                </hbox>
-                <hbox class="InputRow" anon-id="collectionWebsite">
-                    <label for="websiteInput">Wedsite: </label> <input type="text" anon-id="websiteInput" flex="1"/>
-                </hbox>
             </vbox>
 
-            <vbox class="InputRow" anon-id="shapeDefinition">
+            <vbox anon-id="shapeDefinition">
                 <hbox class="InputRow">
                     <label for="shapeName">Shape name:  </label> <input type="text" anon-id="shapeName" flex="1"/>
                 </hbox>
@@ -78,6 +72,9 @@
                     <label for="shapeIcon">Icon: </label>
                     <input type="text" anon-id="shapeIcon" flex="1" />
                     <button anon-id="browse">Browse...</button>
+                </hbox>
+                <hbox class="InputRow">
+                    <input type="checkbox" anon-id="generateIconCheck" style="margin-left: 6em;" /><label for="generateIconCheck" style="min-width:10em"> Auto generate icon </label>
                 </hbox>
             </vbox>
         </vbox>
