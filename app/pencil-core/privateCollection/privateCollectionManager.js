@@ -310,7 +310,7 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
         } catch (e) {
             console.log("error:", e.message);
             Dialog.error(e.message);
-            Util.error(Util.getMessage("error.installing.collection"), e.message, Util.getMessage("button.close.label"));
+            // Util.error(Util.getMessage("error.installing.collection"), e.message, Util.getMessage("button.close.label"));
         } finally {
             tempDir.removeCallback();
         }
