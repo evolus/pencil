@@ -38,11 +38,10 @@
         list-style-type: none;
         padding: 0.5em;
     }
-    @collectionAuthor {
-        display: none;
-    }
-    @collectionWebsite {
-        display: none;
+
+    @definition h3 {
+        margin-bottom: 0em;
+        margin-top: 1em;
     }
     </style>
     <vbox>
@@ -56,25 +55,24 @@
 
         <vbox anon-id="definition">
             <vbox anon-id="collectionDefinition">
+                <h3>Collection definition </h3>
                 <hbox class="InputRow">
-                    <label for="collectionName">Collection name:  </label> <input type="text" anon-id="collectionName" flex="1"/>
+                    <label for="collectionName">Name:  </label> <input type="text" anon-id="collectionName" flex="1"/>
                 </hbox>
                 <hbox class="InputRow">
-                    <label for="collectionDescription">Collection Description: </label> <textarea rows="10" anon-id="collectionDescription" flex="1"> </textarea>
+                    <label for="collectionDescription">Description: </label> <textarea rows="10" anon-id="collectionDescription" flex="1"> </textarea>
                 </hbox>
             </vbox>
-
             <vbox anon-id="shapeDefinition">
+                <h3>Shape definition </h3>
                 <hbox class="InputRow">
-                    <label for="shapeName">Shape name:  </label> <input type="text" anon-id="shapeName" flex="1"/>
+                    <label for="shapeName">Name:  </label> <input type="text" anon-id="shapeName" flex="1"/>
+                    <input type="checkbox" checked="true" anon-id="generateIconCheck" /> <label style="max-width: 10em;"> Auto generate icon </label>
                 </hbox>
                 <hbox class="InputRow">
                     <label for="shapeIcon">Icon: </label>
-                    <input type="text" anon-id="shapeIcon" flex="1" />
-                    <button anon-id="browse">Browse...</button>
-                </hbox>
-                <hbox class="InputRow">
-                    <input type="checkbox" anon-id="generateIconCheck" style="margin-left: 6em;" /><label for="generateIconCheck" style="min-width:10em"> Auto generate icon </label>
+                    <input type="text" disabled="true" anon-id="shapeIcon" flex="1" />
+                    <button anon-id="browse" disabled="true">Browse...</button>
                 </hbox>
             </vbox>
         </vbox>

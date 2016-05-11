@@ -3,22 +3,25 @@
     body .Form .InputRow {
         margin-top: 1em;
     }
-    body .InputRow > label {
-        max-width: 6em;
+    @shapeDefinition .InputRow > label {
+        min-width: 4em;
+    }
+    @shapeDefinition {
+        min-width: 40em;
     }
     </style>
     <vbox anon-id="shapeDefinition">
         <h3>Shape definition</h3>
         <hbox class="InputRow">
-            <label for="shapeName">Shape name:  </label> <input type="text" anon-id="shapeName" flex="1"/>
+            <label for="shapeName">Name: </label> <input type="text" anon-id="shapeName" flex="1"/>
         </hbox>
         <hbox class="InputRow">
             <label for="shapeIcon">Icon: </label>
             <input type="text" anon-id="shapeIcon" flex="1" disabled="true"/>
             <button anon-id="browse" disabled="true">Browse...</button>
         </hbox>
-        <hbox class="InputRow">
-            <input type="checkbox" anon-id="changeIconCheck" style="margin-left: 6em;" /><label for="changeIconCheck" style="min-width:10em"> Change icon </label>
+        <hbox class="InputRow" style="padding-left: 4em;">
+            <input type="checkbox" anon-id="changeIconCheck" /><label for="changeIconCheck" style="min-width:10em"> Change icon </label>
         </hbox>
     </vbox>
 </vbox>

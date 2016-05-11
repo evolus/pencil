@@ -97,6 +97,7 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     console.log("collections:", collections);
 
     if (!collections || collections.length <= 0) {
+        console.log("clear myCollection pane");
         Dom.empty(this.shapeList);
         Dom.empty(this.collectionIcon);
         Dom.empty(this.collectionTitle);
