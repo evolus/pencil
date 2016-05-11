@@ -77,11 +77,13 @@ BaseCollectionPane.prototype.getCollectionIcon = function (collection) {
     return collection.icon || BaseCollectionPane.ICON_MAP[collection.id] || "border_all";
 };
 BaseCollectionPane.prototype.onSizeChanged = function () {
+    console.log("onSizeChanged:", this.loaded);
     if (!this.loaded) {
         setTimeout(this.reload.bind(this), 300);
     }
 };
 BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
+    console.log("BaseCollectionPane.prototype.reload:", this.node().offsetWidth);
     if (this.node().offsetWidth <= 0) return;
     Dom.empty(this.selectorPane);
 
@@ -92,11 +94,16 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     var foundNode = null;
     var collections = this.getCollections();
 
+    console.log("collections:", collections);
+
     if (!collections || collections.length <= 0) {
         Dom.empty(this.shapeList);
+        Dom.empty(this.collectionIcon);
+        Dom.empty(this.collectionTitle);
+        Dom.empty(this.collectionDescription);
         return;
     };
-    
+
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
         if(this.isShowCollection(collection)) {
