@@ -68,6 +68,7 @@ PrivateCollectionManager.addShapeCollection = function (collection, dontUpdate) 
     }
     if (!dontUpdate) {
         PrivateCollectionManager.savePrivateCollections();
+        PrivateCollectionManager.openCollectionPane(collection);
         PrivateCollectionManager.reloadCollectionPane();
     }
 };
