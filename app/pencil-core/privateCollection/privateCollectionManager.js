@@ -93,6 +93,7 @@ PrivateCollectionManager.addShapeToCollection = function (collection, shapeDef, 
     PrivateCollectionManager.privateShapeDef.shapeDefMap[shapeDef.id] = shapeDef;
     if (!dontUpdate) {
         PrivateCollectionManager.savePrivateCollections();
+        PrivateCollectionManager.openCollectionPane(collection);
         PrivateCollectionManager.reloadCollectionPane();
     }
 };
@@ -100,6 +101,14 @@ PrivateCollectionManager.reloadCollectionPane = function () {
     Pencil.privateCollectionPane.loaded = false;
     Pencil.privateCollectionPane.reload();
 };
+
+PrivateCollectionManager.openCollectionPane = function (collection) {
+    Dom.doOnAllChildren(Pencil.privateCollectionPane.selectorPane, function (n) {
+        if (n.setAttribute) n.setAttribute("active", n._collection == collection);
+    });
+    Pencil.privateCollectionPane.openCollection(collection);
+};
+
 PrivateCollectionManager.deleteShape = function (collection, shapeDef) {
     Dialog.confirm("Are you sure you want to delete '" + shapeDef.displayName + "'?",
     "Warning: deleting a shape makes shapes created by that shape uneditable.",

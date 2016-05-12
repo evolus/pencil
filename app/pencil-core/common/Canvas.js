@@ -2296,6 +2296,7 @@ Canvas.prototype.addSelectedToMyCollection = function () {
                     PrivateCollectionManager.addShapeToCollection(collection,
                             shapeDef);
                 }
+
             }
         } catch (e) {
             Console.dumpError(e);
