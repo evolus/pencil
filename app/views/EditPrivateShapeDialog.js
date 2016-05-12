@@ -42,8 +42,8 @@ EditPrivateShapeDialog.prototype.browseIconFile = function() {
         ]
     }, function (filenames) {
         if (!filenames || filenames.length <= 0) return;
+        thiz.modified = true;
         thiz.shapeIcon.value = filenames;
-        thiz.shape.iconPath = filenames;
     });
 }
 
@@ -56,6 +56,17 @@ EditPrivateShapeDialog.prototype.invalidate = function () {
     return true;
 }
 
+EditPrivateShapeDialog.prototype.onFinish = function () {
+    var thiz = this;
+    thiz.shape.displayName = thiz.shapeName.value;
+    if (thiz.changeIconCheck.checked) {
+        thiz.shape.shapeIcon = thiz.shapeIcon.value;
+        var image = nativeImage.createFromPath(thiz.shape.shapeIcon);
+        thiz.shape.iconData = image.toDataURL();
+    }
+    // console.log(thiz.shape);
+    if(thiz.onDone) thiz.onDone(thiz.shape);
+}
 
 EditPrivateShapeDialog.prototype.getDialogActions = function () {
     var thiz = this;
@@ -65,13 +76,7 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
             isCloseHandler: true,
             run: function () {
                 if(!thiz.invalidate()) return false;
-
-                thiz.shape.displayName = thiz.shapeName.value;
-                if (thiz.changeIconCheck.checked) {
-                    thiz.shape.shapeIcon = thiz.shapeIcon.value;
-                }
-                // console.log(thiz.shape);
-                if(thiz.onDone) thiz.onDone(thiz.shape);
+                thiz.onFinish();
                 return true;
             }
         },
@@ -84,11 +89,8 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
                         "Do you want to save your changes before closing?", null,
                         "Save", function () {
                             if(!thiz.invalidate()) return false;
-                            thiz.shape.displayName = thiz.shapeName.value;
-                            if (thiz.changeIconCheck.checked) {
-                                thiz.shape.shapeIcon = thiz.shapeIcon.value;
-                            }
-                            if(thiz.onDone) thiz.onDone(thiz.shape);
+                            thiz.onFinish();
+                            return true;
                         },
                         "Cancel"
                     )

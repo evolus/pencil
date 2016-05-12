@@ -1,4 +1,4 @@
-version: 3.0.0-b{build}
+version: 3.0.0-beta.1
 
 platform:
   - x64
@@ -29,3 +29,7 @@ build_script:
   - npm run dist:win32
 
 test: off
+
+artifacts:
+  - path: dist\win
+  - path: dist\win-x64
