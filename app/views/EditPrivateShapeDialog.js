@@ -13,9 +13,9 @@ function EditPrivateShapeDialog() {
         }
     }, this.changeIconCheck)
 
-    this.bind("change",function () {this.modified = true;}, this.shapeName);
-    this.bind("change",function () {this.modified = true;}, this.shapeIcon);
     var thiz = this;
+
+    this.bind("change",function () {thiz.modified = true;}, this.shapeName);
     this.browse.addEventListener("click", function(event) {
         thiz.browseIconFile();
     }, false);
@@ -41,9 +41,10 @@ EditPrivateShapeDialog.prototype.browseIconFile = function() {
             { name: "Icon File", extensions: ["icon", "png"] }
         ]
     }, function (filenames) {
+        console.log(filenames);
         if (!filenames || filenames.length <= 0) return;
         thiz.shapeIcon.value = filenames;
-        thiz.shape.iconPath = filenames;
+        // // thiz.shape.iconPath = filenames;
     });
 }
 
@@ -68,7 +69,7 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
 
                 thiz.shape.displayName = thiz.shapeName.value;
                 if (thiz.changeIconCheck.checked) {
-                    thiz.shape.shapeIcon = thiz.shapeIcon.value;
+                    thiz.shape.iconPath = thiz.shapeIcon.value;
                 }
                 // console.log(thiz.shape);
                 if(thiz.onDone) thiz.onDone(thiz.shape);
@@ -79,14 +80,16 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
             type: "cancel", title: "Cancel",
             isCloseHandler: true,
             run: function () {
-                if (this.modified) {
+                console.log(thiz.modified);
+                if (thiz.modified) {
+
                     Dialog.confirm(
                         "Do you want to save your changes before closing?", null,
                         "Save", function () {
                             if(!thiz.invalidate()) return false;
                             thiz.shape.displayName = thiz.shapeName.value;
                             if (thiz.changeIconCheck.checked) {
-                                thiz.shape.shapeIcon = thiz.shapeIcon.value;
+                                thiz.shape.iconPath = thiz.shapeIcon.value;
                             }
                             if(thiz.onDone) thiz.onDone(thiz.shape);
                         },
