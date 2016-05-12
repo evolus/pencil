@@ -42,6 +42,7 @@ EditPrivateShapeDialog.prototype.browseIconFile = function() {
         ]
     }, function (filenames) {
         if (!filenames || filenames.length <= 0) return;
+        thiz.modified = true;
         thiz.shapeIcon.value = filenames;
     });
 }
