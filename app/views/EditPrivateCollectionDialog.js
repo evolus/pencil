@@ -35,7 +35,14 @@ EditPrivateCollectionDialog.prototype.invalidate = function () {
     return true;
 }
 
-
+EditPrivateCollectionDialog.prototype.onFinish = function () {
+    var thiz = this;
+    thiz.collection.displayName = thiz.collectionName.value;
+    thiz.collection.description = this.collectionDescription.value;
+    thiz.collection.author = thiz.collectionAuthor.value;
+    thiz.collection.infoUrl = thiz.collectionWeb.value;
+    if(thiz.onDone) thiz.onDone(thiz.collection);
+}
 EditPrivateCollectionDialog.prototype.getDialogActions = function () {
     var thiz = this;
     return [
@@ -44,11 +51,7 @@ EditPrivateCollectionDialog.prototype.getDialogActions = function () {
             isCloseHandler: true,
             run: function () {
                 if(!thiz.invalidate()) return false;
-                thiz.collection.displayName = thiz.collectionName.value;
-                thiz.collection.description = this.collectionDescription.value;
-                thiz.collection.author = thiz.collectionAuthor.value;
-                thiz.collection.infoUrl = thiz.collectionWeb.value;
-                if(thiz.onDone) thiz.onDone(thiz.collection);
+                thiz.onFinish();
                 return true;
             }
         },
@@ -61,11 +64,8 @@ EditPrivateCollectionDialog.prototype.getDialogActions = function () {
                         "Do you want to save your changes before closing?", null,
                         "Save", function () {
                             if(!thiz.invalidate()) return false;
-                            thiz.collection.displayName = thiz.collectionName.value;
-                            thiz.collection.description = thiz.collectionDescription.value;
-                            thiz.collection.author = thiz.collectionAuthor.value;
-                            thiz.collection.infoUrl = thiz.collectionWeb.value;
-                            if(thiz.onDone) thiz.onDone(thiz.collection);
+                            thiz.onFinish();
+                            return true;
                         },
                         "Cancel"
                     )
