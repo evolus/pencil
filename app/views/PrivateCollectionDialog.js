@@ -57,7 +57,7 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
     ];
     collectionItems = collectionItems.concat(PrivateCollectionManager.privateShapeDef.collections);
     var thiz = this;
-    var setItem = function(collection) {
+    var addItem = function(collection) {
         var item = Dom.newDOMElement({
             _name: "li",
             _text: collection.displayName
@@ -67,7 +67,7 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
         thiz.collectionList.appendChild(item);
     }
     for (i in collectionItems) {
-       setItem(collectionItems[i]);
+       addItem(collectionItems[i]);
     }
 
 }

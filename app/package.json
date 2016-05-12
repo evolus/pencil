@@ -2,7 +2,7 @@
   "name": "Pencil",
   "productName": "Pencil",
   "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.1",
   "author": {
     "name": "Duong Thanh An",
     "email": "an.duong@evolus.vn",
@@ -19,10 +19,19 @@
     "width": 900,
     "height": 900
   },
+  "keywords": [
+    "electron",
+    "pencil",
+    "ui",
+    "prototyping",
+    "mockup",
+    "design",
+    "evolus",
+    "drawing"
+  ],
   "dependencies": {
     "archiver": "^0.21.0",
     "electron-squirrel-startup": "^0.1.4",
-    "font-manager": "git+https://github.com/princejwesley/font-manager.git",
     "less": "~2.5.3",
     "moment": "^2.13.0",
     "tmp": "0.0.28",

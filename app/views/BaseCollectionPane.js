@@ -77,13 +77,11 @@ BaseCollectionPane.prototype.getCollectionIcon = function (collection) {
     return collection.icon || BaseCollectionPane.ICON_MAP[collection.id] || "border_all";
 };
 BaseCollectionPane.prototype.onSizeChanged = function () {
-    console.log("onSizeChanged:", this.loaded);
     if (!this.loaded) {
         setTimeout(this.reload.bind(this), 300);
     }
 };
 BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
-    console.log("BaseCollectionPane.prototype.reload:", this.node().offsetWidth);
     if (this.node().offsetWidth <= 0) return;
     Dom.empty(this.selectorPane);
 
@@ -93,8 +91,6 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     var lastNode = null;
     var foundNode = null;
     var collections = this.getCollections();
-
-    console.log("collections:", collections);
 
     if (!collections || collections.length <= 0) {
         console.log("clear myCollection pane");

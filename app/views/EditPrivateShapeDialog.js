@@ -3,7 +3,6 @@ function EditPrivateShapeDialog() {
     this.title="Edit Private Shape Infomation";
     this.modified = false;
     this.bind("change", function() {
-        this.modified = true;
         var value = this.changeIconCheck.checked;
         if (!value) {
             this.shapeIcon.disabled = "true";
@@ -14,7 +13,12 @@ function EditPrivateShapeDialog() {
         }
     }, this.changeIconCheck)
 
-    this.bind("change",function () {this.modified = true;}, this.shapeName)
+    this.bind("change",function () {this.modified = true;}, this.shapeName);
+    this.bind("change",function () {this.modified = true;}, this.shapeIcon);
+    var thiz = this;
+    this.browse.addEventListener("click", function(event) {
+        thiz.browseIconFile();
+    }, false);
 }
 __extend(Dialog, EditPrivateShapeDialog);
 
@@ -28,6 +32,20 @@ EditPrivateShapeDialog.prototype.setup = function (options) {
     this.shapeName.value = this.shape.displayName;
 }
 
+EditPrivateShapeDialog.prototype.browseIconFile = function() {
+    var thiz = this;
+    dialog.showOpenDialog({
+        title: "Open Icon File",
+        defaultPath: os.homedir(),
+        filters: [
+            { name: "Icon File", extensions: ["icon", "png"] }
+        ]
+    }, function (filenames) {
+        if (!filenames || filenames.length <= 0) return;
+        thiz.modified = true;
+        thiz.shapeIcon.value = filenames;
+    });
+}
 
 EditPrivateShapeDialog.prototype.invalidate = function () {
     if (this.shapeName.value == "" || this.changeIconCheck.checked && this.shapeIcon.value == "")
@@ -38,6 +56,17 @@ EditPrivateShapeDialog.prototype.invalidate = function () {
     return true;
 }
 
+EditPrivateShapeDialog.prototype.onFinish = function () {
+    var thiz = this;
+    thiz.shape.displayName = thiz.shapeName.value;
+    if (thiz.changeIconCheck.checked) {
+        thiz.shape.shapeIcon = thiz.shapeIcon.value;
+        var image = nativeImage.createFromPath(thiz.shape.shapeIcon);
+        thiz.shape.iconData = image.toDataURL();
+    }
+    // console.log(thiz.shape);
+    if(thiz.onDone) thiz.onDone(thiz.shape);
+}
 
 EditPrivateShapeDialog.prototype.getDialogActions = function () {
     var thiz = this;
@@ -47,13 +76,7 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
             isCloseHandler: true,
             run: function () {
                 if(!thiz.invalidate()) return false;
-
-                thiz.shape.displayName = thiz.shapeName.value;
-                if (thiz.changeIconCheck.checked) {
-                    thiz.shape.shapeIcon = thiz.shapeIcon.value;
-                }
-                // console.log(thiz.shape);
-                if(thiz.onDone) thiz.onDone(thiz.shape);
+                thiz.onFinish();
                 return true;
             }
         },
@@ -62,17 +85,12 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
             isCloseHandler: true,
             run: function () {
                 if (this.modified) {
-                    // if(!thiz.invalidate()) return false;
-
                     Dialog.confirm(
                         "Do you want to save your changes before closing?", null,
                         "Save", function () {
                             if(!thiz.invalidate()) return false;
-                            thiz.shape.displayName = thiz.shapeName.value;
-                            if (thiz.changeIconCheck.checked) {
-                                thiz.shape.shapeIcon = thiz.shapeIcon.value;
-                            }
-                            if(thiz.onDone) thiz.onDone(thiz.collection);
+                            thiz.onFinish();
+                            return true;
                         },
                         "Cancel"
                     )
