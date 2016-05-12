@@ -69,6 +69,8 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
                 thiz.shape.displayName = thiz.shapeName.value;
                 if (thiz.changeIconCheck.checked) {
                     thiz.shape.shapeIcon = thiz.shapeIcon.value;
+                    var image = nativeImage.createFromPath(thiz.shape.shapeIcon);
+                    thiz.shape.iconData = image.toDataURL();
                 }
                 // console.log(thiz.shape);
                 if(thiz.onDone) thiz.onDone(thiz.shape);
@@ -87,6 +89,8 @@ EditPrivateShapeDialog.prototype.getDialogActions = function () {
                             thiz.shape.displayName = thiz.shapeName.value;
                             if (thiz.changeIconCheck.checked) {
                                 thiz.shape.shapeIcon = thiz.shapeIcon.value;
+                                var image = nativeImage.createFromPath(thiz.shape.shapeIcon);
+                                thiz.shape.iconData = image.toDataURL();
                             }
                             if(thiz.onDone) thiz.onDone(thiz.shape);
                         },
