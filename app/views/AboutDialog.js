@@ -2,6 +2,7 @@ function AboutDialog () {
     Dialog.call(this);
     this.tabCurrentActive;
     this.title = "About Pencil";
+    this.version.innerText = pkgInfo.version;
 }
 
 __extend(Dialog, AboutDialog);
