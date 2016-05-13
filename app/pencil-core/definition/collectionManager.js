@@ -525,7 +525,7 @@ CollectionManager.uninstallCollection = function (collection) {
     CollectionManager.loadStencils();
     */
 };
-Pencil.selectDeveloperStencilDir = function () {
+CollectionManager.selectDeveloperStencilDir = function () {
 	//alert("Please select the directory that contains the 'Definition.xml' file of your stencil");
     dialog.showOpenDialog({
         title: "Select Developer Stetcil 'Defination.xml' file",
@@ -541,8 +541,9 @@ Pencil.selectDeveloperStencilDir = function () {
         CollectionManager.loadStencils();
     }.bind(this));
 };
-Pencil.unselectDeveloperStencilDir = function () {
+CollectionManager.unselectDeveloperStencilDir = function () {
     Config.set("dev.stencil.path", "none");
     CollectionManager.loadStencils();
-	alert("Developer stencil is unloaded.");
+    Dialog.alert("Developer stencil is unloaded.");
+	// alert("Developer stencil is unloaded.");
 };

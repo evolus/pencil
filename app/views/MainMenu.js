@@ -69,6 +69,69 @@ MainMenu.prototype.setup = function () {
         run: function () {
         }
     });
+
+    var developerToolSubItems = [];
+    developerToolSubItems.push({
+        key: "manageExportTemplate",
+        label: "Manage Export Template...",
+        run: function () {
+
+        }
+    });
+    developerToolSubItems.push(Menu.SEPARATOR);
+    developerToolSubItems.push({
+        key: "stencilGenerator",
+        label: "Stencil Generator...",
+        run: function () {
+
+        }
+    });
+    developerToolSubItems.push({
+        key: "nPatchGenerator",
+        label: "N-Patch Script Generator...",
+        run: function () {
+
+        }
+    });
+    developerToolSubItems.push({
+        key: "exportAsLayout",
+        label: "Export as Layout...",
+        run: function () {
+
+        }
+    });
+    developerToolSubItems.push(Menu.SEPARATOR);
+
+    developerToolSubItems.push({
+        key: "loadDeveloperStencilDirectory",
+        label: "Load Developer Stencil Directory...",
+        run: function () {
+            CollectionManager.selectDeveloperStencilDir();
+        }
+    });
+    developerToolSubItems.push({
+        key: "unloadDeveloperStencil",
+        label: "Unload Developer Stencil...",
+        run: function () {
+            CollectionManager.unselectDeveloperStencilDir();
+        }
+    });
+    developerToolSubItems.push(Menu.SEPARATOR);
+    developerToolSubItems.push({
+        key: "showErrorConsole",
+        label: "Show Error Console",
+        run: function () {
+
+        }
+    });
+
+    this.register({
+        key: "toolCommand",
+        label: "Tools",
+        type: "SubMenu",
+        subItems: developerToolSubItems
+    });
+    this.separator();
     this.register({
         key: "aboutDialogCommand",
         label: "About...",
