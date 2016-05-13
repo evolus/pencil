@@ -7,11 +7,6 @@
     @wizardContent .space {
         margin-left: 2ex;
     }
-    @wizardContent h3 {
-        margin: 0em;
-        padding: 0em;
-        margin-top: 1ex;
-    }
 
     @collectionImage {
         border: solid 1px black;
@@ -20,20 +15,20 @@
 
     </style>
     <vbox>
-        <h3 anon-id="stepTitle">Wellcome to the Stencil Generator</h3>
+        <strong anon-id="stepTitle">Wellcome to the Stencil Generator</strong>
         <p anon-id="stepInfo">Enter collection information and click Next to continue</p>
     </vbox>
     <div anon-id="wizardContent">
         <hbox>
             <vbox class="space">
-                <p>Select images</p>
+                Select images
                 <hbox class="InputRow">
                     <div anon-id="collectionImage" flex="1"> </div>
                 </hbox>
-                <p>Drag images into the listbox above.</p>
+                Drag images into the listbox above.
             </vbox>
             <vbox class="space">
-                <h3>Collection definition </h3>
+                <strong>Collection definition </strong>
                 <hbox class="InputRow">
                     <label for="collectionName">Name:</label> <input type="text" anon-id="collectionName" flex="1"/>
                 </hbox>
@@ -48,20 +43,20 @@
                     <label for="collectionAuthor">Author:</label> <input type="text" anon-id="collectionAuthor" flex="1"/>
                 </hbox>
                 <hbox class="InputRow">
-                    <label for="collectionInfoUrl">Website:</label> <input type="text" anon-id="collectionInfoUrl" flex="1"/>
+                    <label for="collectionInfoUrl">Website:</label> <input type="text" anon-id="collectionInfoUrl" value="http://www.evolus.vn/Pencil" flex="1"/>
                 </hbox>
-                <h3>Option</h3>
+                <strong>Option</strong>
                 <hbox class="InputRow">
-                    <input type="checkbox" anon-id="optionCheck" /><label for="optionCheck" style="min-width:20em"> Detect inkscape groups </label>
+                    <input type="checkbox" checked="true" anon-id="optionCheck" /><label for="optionCheck" style="min-width:20em"> Detect inkscape groups </label>
                 </hbox>
             </vbox>
         </hbox>
         <vbox>
-            <vbox anon-id="stencilSelector">
-                <p>Stencil selected: </p>
+            <vbox anon-id="stencilSelector" flex="1">
+                Stencil selected:
             </vbox>
             <vbox>
-                <h3>Stencil information </h3>
+                <strong>Stencil information </strong>
                 <hbox class="InputRow">
                     <label for="stencilName">Name:</label> <input type="text" anon-id="stencilName" flex="1"/>
                 </hbox>

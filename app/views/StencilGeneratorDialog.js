@@ -1,5 +1,6 @@
 function StencilGeneratorDialog() {
     WizardDialog.call(this);
+    this.title="Stencil Generator";
     this.collectionDefinition = this.wizardPanes[0];
     this.stencilDefinition = this.wizardPanes[1];
 }
