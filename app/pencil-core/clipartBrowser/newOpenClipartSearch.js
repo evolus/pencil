@@ -327,14 +327,18 @@ OpenClipartSearch2.prototype.parseSearchResult  = function (response) {
     if (!response) return r;
     try {
         var dom = Dom.parseDocument(response);
-        var items = Dom.getList("//*/item", dom);
-        r.resultCount = items.length;
-        var gParser = new SAXParser();
-        var handler = new OpenClipartHandler();
-        gParser.setDocumentHandler(handler);
-        gParser.parse(response);
 
-        r.result = handler.items;
+        Dom.workOn("//*/item", dom, function (itemNode) {
+            var item = {
+                name: Dom.getSingleValue("./title/text()", itemNode),
+                des: Dom.getSingleValue("./description/text()", itemNode),
+                src: Dom.getSingleValue("./enclosure/@url", itemNode),
+                type: Dom.getSingleValue("./enclosure/@type", itemNode),
+                length: Dom.getSingleValue("./enclosure/@length", itemNode),
+                thumb: Dom.getSingleValue("./media:thumbnail/@url", itemNode)
+            };
+            r.result.push(item);
+        });
     } catch (e) {
         error("error: " + e);
     }
@@ -424,4 +428,4 @@ OpenClipartHandler.STATE_AUTHOR = 23;
 OpenClipartHandler.STATE_URL = 24;
 OpenClipartHandler.STATE_THUMBNAIL = 25;
 
-SearchManager.registerSearchEngine(OpenClipartSearch2, true);
+// SearchManager.registerSearchEngine(OpenClipartSearch2, true);
