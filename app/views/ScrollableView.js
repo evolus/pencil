@@ -15,22 +15,20 @@ function ScrollableView () {
     // }, this.nextButton);
 
     var thiz = this;
-    var clickFunc;
-    var quitLoop = function () {
-        if(clickFunc) {
-            clearInterval(clickFunc);
-            clickFunc = null;
+    var startScroll = null;
+    var stopScroll = function () {
+        if(startScroll) {
+            console.log("stopScroll");
+            clearInterval(startScroll);
+            startScroll = null;
         }
-    }
-
+    };
     this.bind("mousedown", function() {
-        thiz.offset += thiz.getStep();
-        thiz.invalidate();
-        if(clickFunc) quitLoop();
-        clickFunc = setInterval(function() {
+        if(startScroll) stopScroll();
+        startScroll = setInterval(function() {
             thiz.offset += thiz.getStep();
             thiz.invalidate();
-        } , 100);
+        } , 50);
     }, this.previousButton);
 
     this.previousButton.addEventListener("mouseup", function() {
@@ -40,17 +38,15 @@ function ScrollableView () {
         thiz.previousButton.blur();
     }, false);
     this.previousButton.addEventListener("focusout", function() {
-        quitLoop();
+        stopScroll();
     }, false)
 
     this.bind("mousedown", function() {
-        thiz.offset -= thiz.getStep();
-        thiz.invalidate();
-        if(clickFunc) quitLoop();
-        clickFunc = setInterval(function() {
+        if(startScroll) stopScroll();
+        startScroll = setInterval(function() {
             thiz.offset -= thiz.getStep();
             thiz.invalidate();
-        } , 100);
+        } , 50);
     }, this.nextButton);
 
     this.nextButton.addEventListener("mouseup", function() {
@@ -60,8 +56,9 @@ function ScrollableView () {
         thiz.nextButton.blur();
     }, false);
     this.nextButton.addEventListener("focusout", function() {
-        quitLoop();
+        stopScroll();
     }, false)
+
 
     this.bind("wheel", function (event) {
         this.offset -= event.deltaY;
@@ -70,6 +67,8 @@ function ScrollableView () {
 }
 
 __extend(BaseTemplatedWidget, ScrollableView);
+
+
 
 ScrollableView.prototype.getStep = function () {
     return 80;

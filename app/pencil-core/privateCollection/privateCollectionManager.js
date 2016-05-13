@@ -68,8 +68,8 @@ PrivateCollectionManager.addShapeCollection = function (collection, dontUpdate) 
     }
     if (!dontUpdate) {
         PrivateCollectionManager.savePrivateCollections();
-        PrivateCollectionManager.openCollectionPane(collection);
-        PrivateCollectionManager.reloadCollectionPane();
+        PrivateCollectionManager.reloadCollectionPane(collection.id);
+        //PrivateCollectionManager.openCollectionPane(collection);
     }
 };
 PrivateCollectionManager.getPrivateCollectionFile = function () {
@@ -94,20 +94,16 @@ PrivateCollectionManager.addShapeToCollection = function (collection, shapeDef, 
     PrivateCollectionManager.privateShapeDef.shapeDefMap[shapeDef.id] = shapeDef;
     if (!dontUpdate) {
         PrivateCollectionManager.savePrivateCollections();
-        PrivateCollectionManager.openCollectionPane(collection);
-        PrivateCollectionManager.reloadCollectionPane();
+        PrivateCollectionManager.reloadCollectionPane(collection.id);
     }
 };
-PrivateCollectionManager.reloadCollectionPane = function () {
+PrivateCollectionManager.reloadCollectionPane = function (collectionId) {
     Pencil.privateCollectionPane.loaded = false;
-    Pencil.privateCollectionPane.reload();
-};
-
-PrivateCollectionManager.openCollectionPane = function (collection) {
-    Dom.doOnAllChildren(Pencil.privateCollectionPane.selectorPane, function (n) {
-        if (n.setAttribute) n.setAttribute("active", n._collection == collection);
-    });
-    Pencil.privateCollectionPane.openCollection(collection);
+    if (collectionId) {
+        Pencil.privateCollectionPane.openCollectionPane(collectionId);
+    } else {
+        Pencil.privateCollectionPane.reload();
+    }
 };
 
 PrivateCollectionManager.deleteShape = function (collection, shapeDef) {
