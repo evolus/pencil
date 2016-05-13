@@ -390,6 +390,22 @@ FileDragObserver.handleSVGDOM = function (dom, canvas, loc) {
     var width = Svg.getWidth(dom);
     var height = Svg.getHeight(dom);
 
+    console.log("WxH", [width, height]);
+    var dx = 0;
+    var dy = 0;
+
+    //parse the provided svg viewBox
+    if (dom.documentElement.viewBox) {
+        var viewBox = dom.documentElement.viewBox.baseVal;
+        if (viewBox.width > 0 && viewBox.height > 0) {
+            width = viewBox.width;
+            height = viewBox.height;
+
+            dx = viewBox.x;
+            dy = viewBox.y;
+        }
+    }
+
     var g = dom.createElementNS(PencilNamespaces.svg, "g");
     while (dom.documentElement.childNodes.length > 0) {
         var firstChild = dom.documentElement.firstChild;
@@ -404,27 +420,24 @@ FileDragObserver.handleSVGDOM = function (dom, canvas, loc) {
         }
     }
 
-    if (!FileDragObserver.svgMeasuringNode) {
-        var div = document.createElement("div");
-        div.style.cssText = "position: absolute; left: 0px; top: 0px; width: 5px; height: 5px; overflow: hidden; visibility: hidden;";
-        document.body.appendChild(div);
-        var svg = document.createElementNS(PencilNamespaces.svg, "svg:svg");
-        svg.setAttribute("version", "1.0");
-        svg.setAttribute("width", 10);
-        svg.setAttribute("height", 10);
+    // if (!FileDragObserver.svgMeasuringNode) {
+    //     var div = document.createElement("div");
+    //     div.style.cssText = "position: absolute; left: 0px; top: 0px; width: 5px; height: 5px; overflow: hidden; visibility: hidden;";
+    //     document.body.appendChild(div);
+    //     var svg = document.createElementNS(PencilNamespaces.svg, "svg:svg");
+    //     svg.setAttribute("version", "1.0");
+    //     svg.setAttribute("width", 10);
+    //     svg.setAttribute("height", 10);
+    //
+    //     div.appendChild(svg);
+    //     FileDragObserver.svgMeasuringNode = svg;
+    // }
+    //
+    // Dom.empty(FileDragObserver.svgMeasuringNode);
+    // FileDragObserver.svgMeasuringNode.appendChild(g);
+    // FileDragObserver.svgMeasuringNode.removeChild(g);
 
-        div.appendChild(svg);
-        FileDragObserver.svgMeasuringNode = svg;
-    }
-
-    Dom.empty(FileDragObserver.svgMeasuringNode);
-    FileDragObserver.svgMeasuringNode.appendChild(g);
-    var bbox = g.getBBox();
-    console.log("bbox", bbox);
-    console.log("client rect", g.getBoundingClientRect());
-    console.log(" > root client rect", FileDragObserver.svgMeasuringNode.getBoundingClientRect());
-    FileDragObserver.svgMeasuringNode.removeChild(g);
-    // g.setAttribute("transform", "translate(" + (0 - bbox.x) + "," + (0 - bbox.y) + ")");
+    //g.setAttribute("transform", "translate(" + (0 - dx) + "," + (0 - dy) + ")");
 
     var g0 = dom.createElementNS(PencilNamespaces.svg, "g");
     g0.appendChild(g);

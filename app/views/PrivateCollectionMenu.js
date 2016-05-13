@@ -105,4 +105,27 @@ PrivateCollectionMenu.prototype.setup = function () {
             (new AboutCollectionDialog(thiz.collection)).open();
         }
     });
+
+    this.register({
+        label: "Go to",
+        isEnabled: function () { return PrivateCollectionManager.privateShapeDef.collections[0]; },
+        type: "SubMenu",
+        getSubItems:  function () {
+            var items = [];
+            var collections = PrivateCollectionManager.privateShapeDef.collections;
+            for (var i = 0; i < collections.length; i ++) {
+                var collection = collections[i];
+                items.push({
+                        label: collection.displayName,
+                        collection: collection,
+                        run: function () {
+                            console.log("goto:", collection);
+                            PrivateCollectionManager.reloadCollectionPane(this.collection.id);
+                            thiz.hideMenu();
+                        }
+                });
+            }
+            return items;
+        }
+    });
 };
