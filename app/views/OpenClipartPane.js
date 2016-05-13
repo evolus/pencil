@@ -4,7 +4,6 @@ function OpenClipartPane() {
     this.backend = new OpenClipartSearch2();
 
     function injectSvgInfo (svg) {
-        // return svg;
         try {
             var g = Dom.parseToNode(svg);
             g.setAttributeNS(PencilNamespaces.p, "p:ImageSource", "OpenClipart.org");
@@ -161,7 +160,6 @@ OpenClipartPane.prototype.renderResult = function (result) {
 };
 
 OpenClipartPane.prototype.getSVG = function (item) {
-    return;
     var loaded = 1;
     var thiz = this;
     WebUtil.get(item.src, function(svg) {

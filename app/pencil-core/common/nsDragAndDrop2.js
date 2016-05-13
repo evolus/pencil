@@ -15,7 +15,8 @@ var nsDragAndDrop = {
 
         //gives the observer the ability to actively tell that it accepts the drag, bybass type-based checking below
         if (observer.acceptsDataTransfer && observer.acceptsDataTransfer(event.dataTransfer)) return true;
-
+        if (!observer.getSupportedFlavours) return false;
+        
         var flavours = observer.getSupportedFlavours().flavours;
         for (var i = 0; i < flavours.length; i ++) {
             var f = flavours[i];
