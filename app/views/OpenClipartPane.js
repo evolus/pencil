@@ -114,6 +114,7 @@ OpenClipartPane.prototype.renderResult = function (result) {
         var node = Dom.newDOMElement({
             _name: "li",
             "type": "ShapeDef",
+            "title": def.name,
             _children: [
                 {
                     _name: "div",
