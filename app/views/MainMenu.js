@@ -78,4 +78,14 @@ MainMenu.prototype.setup = function () {
             dialog.open();
         }
     });
+
+    this.register({
+        //key: "aboutDialogCommand",
+        label: "Stencil Generator",
+        isValid: function () { return true; },
+        run: function () {
+            var dialog = new StencilGeneratorDialog();
+            dialog.open();
+        }
+    });
 }

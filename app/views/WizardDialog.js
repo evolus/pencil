@@ -70,7 +70,11 @@ WizardDialog.prototype.onNext = function () {
 WizardDialog.prototype.onFinish = function () {
 };
 WizardDialog.prototype.invalidateSelection = function () {
+    return true;
+};
 
+WizardDialog.prototype.invalidateFinish = function () {
+    return true;
 };
 WizardDialog.prototype.onSelectionChanged = function (activePane) {
 };
