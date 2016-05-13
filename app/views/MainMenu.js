@@ -83,7 +83,8 @@ MainMenu.prototype.setup = function () {
         key: "stencilGenerator",
         label: "Stencil Generator...",
         run: function () {
-
+            var dialog = new StencilGeneratorDialog();
+            dialog.open();
         }
     });
     developerToolSubItems.push({
@@ -138,16 +139,6 @@ MainMenu.prototype.setup = function () {
         isValid: function () { return true; },
         run: function () {
             var dialog = new AboutDialog();
-            dialog.open();
-        }
-    });
-
-    this.register({
-        //key: "aboutDialogCommand",
-        label: "Stencil Generator",
-        isValid: function () { return true; },
-        run: function () {
-            var dialog = new StencilGeneratorDialog();
             dialog.open();
         }
     });
