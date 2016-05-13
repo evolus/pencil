@@ -229,6 +229,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         var node = Dom.newDOMElement({
             _name: "li",
             "type": "ShapeDef",
+            "title": def.displayName,
             _children: [
                 {
                     _name: "div",
