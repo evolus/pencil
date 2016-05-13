@@ -54,12 +54,23 @@ StartUpDocumentView.prototype.reload = function () {
     var files = Config.get("recent-documents");
     var map = Config.get("recent-documents-thumb-map") || {};
     var docs = [];
+    var deletedFiles = [];
     if (files) {
         for (var i = 0; i < Math.min(files.length, 8); i++) {
-            docs.push({
-                filePath: files[i],
-                thumbPath: map[files[i]] || null
-            });
+            console.log("file begin"+files[i]);
+            var checkExist = fs.existsSync(files[i]);
+            console.log(checkExist);
+            if(!checkExist) {
+                deletedFiles.push(files[i]);
+            } else {
+                docs.push({
+                    filePath: files[i],
+                    thumbPath: map[files[i]] || null
+                });
+            }
+        }
+        for(i in deletedFiles) {
+            Pencil.controller.removeRecentFile(deletedFiles[i]);
         }
     }
 
