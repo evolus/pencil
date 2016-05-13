@@ -72,7 +72,8 @@ CollectionMenu.prototype.setup = function () {
                         collection: collection,
                         run: function () {
                             console.log("goto:", collection);
-                            thiz.collectionPane.setVisibleCollection(this.collection, true);
+                            // thiz.collectionPane.setVisibleCollection(this.collection, true);
+                            PrivateCollectionManager.reloadCollectionPane(collection.id);
                             thiz.hideMenu();
                         }
                 });
