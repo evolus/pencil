@@ -295,6 +295,13 @@ Object.defineProperty(Event.prototype, "originalTarget", {
     var xpathResult = doc.evaluate(xpath, node, PencilNamespaces.resolve, XPathResult.ANY_TYPE, null);
     return xpathResult.iterateNext();
 };
+/* static Node */ Dom.getSingleValue = function (xpath, node) {
+    var doc = node.ownerDocument ? node.ownerDocument : node;
+    var xpathResult = doc.evaluate(xpath, node, PencilNamespaces.resolve, XPathResult.ANY_TYPE, null);
+    var node = xpathResult.iterateNext();
+
+    return node ? node.nodeValue : null;
+};
 /* static Node[] */ Dom.getList = function (xpath, node) {
     var doc = node.ownerDocument ? node.ownerDocument : node;
     var xpathResult = doc.evaluate(xpath, node, PencilNamespaces.resolve, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);

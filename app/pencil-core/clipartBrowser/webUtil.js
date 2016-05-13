@@ -1,8 +1,7 @@
 var WebUtil = {
     get : function(url, onComplete, rq) {
         try {
-            var req = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                    .createInstance(Components.interfaces.nsIXMLHttpRequest);
+            var req = new XMLHttpRequest();
 
             req.onreadystatechange = function(aEvt) {
                 if (req.readyState == 4) {
@@ -26,9 +25,7 @@ var WebUtil = {
 
     getMetadata : function(url, onComplete, rq) {
         try {
-            var req = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                    .createInstance(Components.interfaces.nsIXMLHttpRequest);
-
+            var req = new XMLHttpRequest();
             req.onreadystatechange = function(aEvt) {
                 if (req.readyState == 4) {
                     var size = req.getResponseHeader('Content-Length');

@@ -599,7 +599,9 @@ Pencil.updateUndoRedoMenu = function (currentAction, prevAction) {
 //    Pencil.redoMenuItem.setAttribute("label", Util.getMessage("menu.redo.label") + prevAction);
     Pencil.activeCanvas.updateContextMenu(currentAction, prevAction);
 };
-
+Pencil._getCanvasPadding = function () {
+    return 10;
+};
 Object.defineProperty(Pencil, "activeCanvas", {
     set: function (canvas) {
         Canvas.activeCanvas = canvas;

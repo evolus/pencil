@@ -14,7 +14,7 @@ PNGImageXferHelper.prototype.handleData = function (imageData) {
         var bitmapDef = CollectionManager.shapeDefinition.locateDefinition(PNGImageXferHelper.SHAPE_DEF_ID);
         if (!bitmapDef) return;
 
-        this.canvas.insertShape(bitmapDef, null);
+        this.canvas.insertShape(bitmapDef, this.canvas.lastMouse || {x: 10, y: 10});
 
         if (this.canvas.currentController) {
             var dim = new Dimension(imageData.w, imageData.h);

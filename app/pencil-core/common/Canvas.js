@@ -172,6 +172,10 @@ function Canvas(element) {
 
         thiz.handleMouseMove(event);
     }, false);
+
+    this.svg.addEventListener("mousemove", function (event) {
+        thiz.lastMouse = {x: event.offsetX / thiz.zoom, y: event.offsetY / thiz.zoom};
+    }, false);
     this.focusableBox.addEventListener("keydown", function (event) {
         thiz.handleKeyPress(event);
     }, false);
@@ -1061,7 +1065,6 @@ Canvas.prototype.handleClick = function (event) {
 
 };
 Canvas.prototype.handleMouseMove = function (event, fake) {
-
     try {
         this._currentPX = event.clientX / this.zoom;
         this._currentPY = event.clientY / this.zoom;

@@ -1,17 +1,16 @@
-version: 3.0.0-b{build}
+version: 3.0.0-beta2+{build}
 
 platform:
   - x64
 
 cache:
   - node_modules
-  - app\node_modules
   - '%APPDATA%\npm-cache'
   - '%USERPROFILE%\.electron'
 
 environment:
   GH_TOKEN:
-    secure: xNXUtcKbgpBofB5VAo3pTuMulWTDloLimR5FYsqwAJtf112/Gmi7PGIoEixuDctk
+    secure: mYjFV31UpA9DJblj4EH37NbPJ03Oci3yQAu210QeJMrlNdM/ayc8XJXnSr7wUKiR
 
 init:
   - git config --global core.autocrlf input
@@ -20,6 +19,7 @@ install:
   - ps: Install-Product node 5.10.0 x64
   - git reset --hard HEAD
   - npm install npm -g
+  - npm install electron-builder@next
   - npm prune
   - npm install
 
@@ -29,3 +29,5 @@ build_script:
   - npm run dist:win32
 
 test: off
+
+skip_non_tags: true
