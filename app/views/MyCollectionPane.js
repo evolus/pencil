@@ -1,4 +1,5 @@
 function MyCollectionPane() {
+    console.log("MyCollectionPane");
     BaseCollectionPane.call(this);
 }
 __extend(BaseCollectionPane, MyCollectionPane);
@@ -34,4 +35,7 @@ MyCollectionPane.prototype.getLastUsedCollection = function () {
 };
 MyCollectionPane.prototype.setLastUsedCollection = function (collection) {
     PrivateCollectionManager.setLastUsedCollection(collection);
+};
+MyCollectionPane.prototype.openCollectionPane = function (collectionId) {
+    this.reload(collectionId);
 };

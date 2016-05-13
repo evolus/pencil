@@ -295,6 +295,13 @@ Object.defineProperty(Event.prototype, "originalTarget", {
     var xpathResult = doc.evaluate(xpath, node, PencilNamespaces.resolve, XPathResult.ANY_TYPE, null);
     return xpathResult.iterateNext();
 };
+/* static Node */ Dom.getSingleValue = function (xpath, node) {
+    var doc = node.ownerDocument ? node.ownerDocument : node;
+    var xpathResult = doc.evaluate(xpath, node, PencilNamespaces.resolve, XPathResult.ANY_TYPE, null);
+    var node = xpathResult.iterateNext();
+
+    return node ? node.nodeValue : null;
+};
 /* static Node[] */ Dom.getList = function (xpath, node) {
     var doc = node.ownerDocument ? node.ownerDocument : node;
     var xpathResult = doc.evaluate(xpath, node, PencilNamespaces.resolve, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
@@ -948,7 +955,7 @@ Svg.getWidth = function (dom) {
                 width = width.substring(0, width.length - Svg.UNIT[i].length);
             }
         }
-        return parseInt(width, 10);
+        return parseFloat(width);
     } catch (e) {
         debug(new XMLSerializer().serializeToString(dom));
         Console.dumpError(e);
@@ -963,7 +970,7 @@ Svg.getHeight = function (dom) {
                 height = height.substring(0, height.length - Svg.UNIT[i].length);
             }
         }
-        return parseInt(height, 10);
+        return parseFloat(height);
     } catch (e) {
         Console.dumpError(e);
     }

@@ -1,9 +1,8 @@
 {
   "name": "Pencil",
   "devDependencies": {
-    "electron-builder": "^3.19.0",
+    "electron-builder": "^3.21.0",
     "electron-prebuilt": "^0.37.5",
-    "electron-rebuild": "^1.0.2",
     "rimraf": "^2.5.2"
   },
   "build": {
@@ -24,8 +23,7 @@
           "y": 150,
           "type": "file"
         }
-      ],
-      "target": "zip"
+      ]
     },
     "linux": {
       "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
@@ -43,20 +41,15 @@
   "scripts": {
     "postinstall": "install-app-deps",
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
-    "rebuild": "./node_modules/.bin/electron-rebuild",
     "start": "./node_modules/.bin/electron ./app",
     "start:dev":  "./node_modules/.bin/electron ./app --enable-dev --disable-gpu",
     "clean": "rimraf dist",
-    "clean:osx": "rimraf dist/Pencil-darwin*",
-    "clean:win": "rimraf dist/Pencil-win*",
-    "clean:linux": "rimraf dist/Pencil-linux*",
     "pack": "build",
     "dist": "build",
     "release": "build",
     "dist:linux": "./node_modules/.bin/build --platform linux --arch x64",
     "dist:win32": "./node_modules/.bin/build --platform win32 --arch x64",
-    "dist:darwin": "./node_modules/.bin/build --platform darwin",
-    "pack:win32": "./node_modules/.bin/build --platform win32 --arch all"
+    "dist:darwin": "./node_modules/.bin/build --platform darwin"
   },
   "private": true
 }

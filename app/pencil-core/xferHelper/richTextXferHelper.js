@@ -17,7 +17,7 @@ RichTextXferHelper.prototype.handleData = function (html) {
         var textPaneDef = CollectionManager.shapeDefinition.locateDefinition(RichTextXferHelper.SHAPE_DEF_ID);
         if (!textPaneDef) return;
 
-        this.canvas.insertShape(textPaneDef, null);
+        this.canvas.insertShape(textPaneDef, this.canvas.lastMouse || {x: 10, y: 10});
         if (this.canvas.currentController) {
             this.canvas.currentController.setProperty(RichTextXferHelper.SHAPE_CONTENT_PROP_NAME, new RichText(xhtml));
         }
@@ -45,7 +45,7 @@ PlainTextXferHelper.prototype.handleData = function (text) {
         var textPaneDef = CollectionManager.shapeDefinition.locateDefinition(PlainTextXferHelper.SHAPE_DEF_ID);
         if (!textPaneDef) return;
 
-        this.canvas.insertShape(textPaneDef, null);
+        this.canvas.insertShape(textPaneDef, this.canvas.lastMouse || {x: 10, y: 10});
         if (this.canvas.currentController) {
             this.canvas.currentController.setProperty(PlainTextXferHelper.SHAPE_CONTENT_PROP_NAME, new PlainText(text));
         }

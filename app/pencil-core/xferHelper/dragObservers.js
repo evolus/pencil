@@ -363,32 +363,48 @@ FileDragObserver.fileTypeHandler = {
     svg: function (canvas, url, loc) {
         var file = fileHandler.getFileFromURLSpec(url).QueryInterface(Components.interfaces.nsILocalFile);
         var fileContents = FileIO.read(file, XMLDocumentPersister.CHARSET);
-        handleSVGData(fileContents, canvas, loc);
+        FileDragObserver.handleSVGData(fileContents, canvas, loc);
     },
     ep: function (canvas, url) {
         Pencil.controller.loadDocument(url);
     }
 };
 
-Pencil.registerDragObserver(FileDragObserver);
-
-function handleSVGData(svg, canvas, loc) {
+FileDragObserver.handleSVGData = function (svg, canvas, loc) {
     try {
         var domParser = new DOMParser();
         var dom = domParser.parseFromString(svg, "text/xml");
-        handleSVGDOM(dom, canvas, loc);
+        FileDragObserver.handleSVGDOM(dom, canvas, loc);
     } catch (e) {
         Console.dumpError(e);
     }
 }
 
-var svgMeasuringNode = null;
+FileDragObserver.svgMeasuringNode = null;
 
-function handleSVGDOM(dom, canvas, loc) {
-    console.log("handleSVGDOM", dom);
+FileDragObserver.handleSVGDOM = function (dom, canvas, loc) {
+    if (!loc) {
+        loc = canvas.lastMouse || {x: 10, y: 10};
+    }
     var fromOC = dom.documentElement.getAttributeNS(PencilNamespaces.p, "ImageSource");
     var width = Svg.getWidth(dom);
     var height = Svg.getHeight(dom);
+
+    console.log("WxH", [width, height]);
+    var dx = 0;
+    var dy = 0;
+
+    //parse the provided svg viewBox
+    if (dom.documentElement.viewBox) {
+        var viewBox = dom.documentElement.viewBox.baseVal;
+        if (viewBox.width > 0 && viewBox.height > 0) {
+            width = viewBox.width;
+            height = viewBox.height;
+
+            dx = viewBox.x;
+            dy = viewBox.y;
+        }
+    }
 
     var g = dom.createElementNS(PencilNamespaces.svg, "g");
     while (dom.documentElement.childNodes.length > 0) {
@@ -404,27 +420,25 @@ function handleSVGDOM(dom, canvas, loc) {
         }
     }
 
-    if (!svgMeasuringNode) {
-        var div = document.createElement("div");
-        div.style.cssText = "position: absolute; left: 0px; top: 0px; width: 5px; height: 5px; overflow: hidden; visibility: hidden;";
-        document.body.appendChild(div);
-        var svg = document.createElementNS(PencilNamespaces.svg, "svg:svg");
-        svg.setAttribute("version", "1.0");
-        svg.setAttribute("width", 10);
-        svg.setAttribute("height", 10);
+    // if (!FileDragObserver.svgMeasuringNode) {
+    //     var div = document.createElement("div");
+    //     div.style.cssText = "position: absolute; left: 0px; top: 0px; width: 5px; height: 5px; overflow: hidden; visibility: hidden;";
+    //     document.body.appendChild(div);
+    //     var svg = document.createElementNS(PencilNamespaces.svg, "svg:svg");
+    //     svg.setAttribute("version", "1.0");
+    //     svg.setAttribute("width", 10);
+    //     svg.setAttribute("height", 10);
+    //
+    //     div.appendChild(svg);
+    //     FileDragObserver.svgMeasuringNode = svg;
+    // }
+    //
+    // Dom.empty(FileDragObserver.svgMeasuringNode);
+    // FileDragObserver.svgMeasuringNode.appendChild(g);
+    // FileDragObserver.svgMeasuringNode.removeChild(g);
 
-        div.appendChild(svg);
-        svgMeasuringNode = svg;
-    }
+    //g.setAttribute("transform", "translate(" + (0 - dx) + "," + (0 - dy) + ")");
 
-    Dom.empty(svgMeasuringNode);
-    svgMeasuringNode.appendChild(g);
-    var bbox = g.getBBox();
-    console.log("bbox", bbox);
-    console.log("client rect", g.getBoundingClientRect());
-    console.log(" > root client rect", svgMeasuringNode.getBoundingClientRect());
-    svgMeasuringNode.removeChild(g);
-    g.setAttribute("transform", "translate(" + (0 - bbox.x) + "," + (0 - bbox.y) + ")");
     var g0 = dom.createElementNS(PencilNamespaces.svg, "g");
     g0.appendChild(g);
 
@@ -433,7 +447,7 @@ function handleSVGDOM(dom, canvas, loc) {
     var def = CollectionManager.shapeDefinition.locateDefinition(FileDragObserver.SVG_SHAPE_DEF_ID);
     if (!def) return;
 
-    canvas.insertShape(def, new Bound(loc.x, loc.y, null, null));
+    canvas.insertShape(def, new Bound(loc.x - width / 2, loc.y - height / 2, null, null));
     if (canvas.currentController) {
         var controller = canvas.currentController;
         var w = width;
@@ -467,6 +481,7 @@ function handleSVGDOM(dom, canvas, loc) {
     }
 }
 
+Pencil.registerDragObserver(FileDragObserver);
 
 function SVGDragObserver(canvas) {
     this.canvas = canvas;
@@ -484,7 +499,7 @@ SVGDragObserver.prototype = {
 
         var svg = transferData.data;
         var loc = this.canvas.getEventLocation(evt);
-        handleSVGData(svg, this.canvas, loc);
+        FileDragObserver.handleSVGData(svg, this.canvas, loc);
     }
 };
 

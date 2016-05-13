@@ -9,7 +9,7 @@ SVGXferHelper.prototype.toString = function () {
     return "SVGXferHelper: " + SVGXferHelper.MIME_TYPE;
 };
 SVGXferHelper.prototype.handleData = function (dom) {
-    handleSVGDOM(dom, this.canvas, {x: 10, y: 10});
+    FileDragObserver.handleSVGDOM(dom, this.canvas);
 };
 
 Pencil.registerXferHelper(SVGXferHelper);

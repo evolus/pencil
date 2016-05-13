@@ -1,14 +1,14 @@
-os:
-  - linux
-  - osx
-
 osx_image: xcode7.3
 
 sudo: required
 dist: trusty
 
+
 env:
-  - NODE_VERSION=5.10.0
+  global:
+    - NODE_VERSION=5.10.0
+    - USE_SYSTEM_FPM=true
+    - secure: E0ghqUHn8cFewr+wYJgnLSpn/e+3RPhnoLNAYMuhpGhPtpVgmlTqb7oqHHLVOjQtfDEp495tMolYeaJZaqGAC4RnEPtn664wrgoEI+FLegNV3SJx+oFF53LmT3zZnwVhbF6J3ZwF8QLYPKad5PcCqVo8SMvMMyWD5m6TzJFJ+1caNi6wJrKkQBqHtCkKOkazp0ZXwpl1SVQl24bofCZfGn7zbmRJ0+VXvfeg1GqkF1GFqkDKc2SkGQn9VUH1d2ejahWxV3dH+VPuyqUuTlPIrv7TjUU4OH9hr3mjQPtWMOnvK0BzOQKu2B9tpAUHbuT5z74TSc7TYQjDA0zQG02h1ALll0Fm+9UOYJQZMidNNiawCDXx1a0Fu+SLWNK9KX/R3FD2ip4wVKKjl/DyTy5Nnw/BsWX4UkYijW3IuegV7a0UokISD6OJqLeo+gmmNon2ngxum+Av1veB/z9c/zZanQwx+CumeqAD7eHCbxZv+bwMAFfsoC6Bv6CtTlU+uBeu7wSUyMxVzaW8qF+MbeMboG3ht12+K6Xxdp+C26eGbkQr7YlITumy5glhd4jlCAxI+DT1uZAWPnIfdOtRWUPd78ABy9G3y98ppnlqCNPbxShI3Tgtp8mTDEpM0znVnZOXcQFzrEX7r2IsGmnIuoUf77lmdpuDTYPq6KAbAOtkjCE=
 
 language: c
 
@@ -24,37 +24,40 @@ cache:
   bundler: true
   directories:
     - node_modules
-    - app/node_modules
+    - .electron-cache
     - $HOME/.electron
-    - $HOME/.cache/fpm
 
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
       - llvm-toolchain-precise-3.7
-      - mono
     packages:
       - libgnome-keyring-dev
       - icnsutils
       - clang-3.7
-      - icnsutils
       - graphicsmagick
-      - mono-devel
+      - xz-utils
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gnu-tar dpkg libicns graphicsmagick git-lfs; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gnu-tar git-lfs; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then git lfs pull; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl -L https://github.com/github/git-lfs/releases/download/v1.2.0/git-lfs-linux-amd64-1.2.0.tar.gz | tar -xz; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git-lfs-1.2.0/git-lfs pull; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y ruby-dev gcc make; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then gem install --no-ri --no-rdoc fpm; fi
 
 install:
   - nvm install $NODE_VERSION
   - npm install npm -g
+  - npm install electron-builder@next
   - npm install
   - npm prune
 
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run dist:darwin ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run dist:linux ; fi
+  - npm run dist
+
+branches:
+  only:
+    - "/^v\\d+\\.\\d+\\.\\d+(\\-.*)?$/"

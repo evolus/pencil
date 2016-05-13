@@ -14,6 +14,7 @@ PrivateCollectionMenu.prototype.setup = function () {
     var thiz = this;
     this.register({
         label: "Edit this shape...",
+        icon: "mode_edit",
         isEnabled: function () { return thiz.shapeDef },
         handleAction: function () {
             var index = thiz.collection.shapeDefs.indexOf(thiz.shapeDef);
@@ -33,6 +34,7 @@ PrivateCollectionMenu.prototype.setup = function () {
     });
     this.register({
         label: "Delete this shape",
+        icon: "delete",
         isEnabled: function () { return thiz.shapeDef },
         handleAction: function () {
             PrivateCollectionManager.deleteShape(thiz.collection, thiz.shapeDef);
@@ -43,12 +45,14 @@ PrivateCollectionMenu.prototype.setup = function () {
 
     this.register({
         label: "Import new private collection...",
+        icon: "file_download",
         handleAction: function () {
             PrivateCollectionManager.importNewCollection();
         }
     });
     this.register({
         label: "Export this collection...",
+        icon: "file_upload",
         isEnabled: function () { return thiz.collection },
         handleAction: function () {
             PrivateCollectionManager.exportCollection(thiz.collection);
@@ -56,6 +60,7 @@ PrivateCollectionMenu.prototype.setup = function () {
     });
     this.register({
         label: "Edit this collection...",
+        icon: "mode_edit",
         isEnabled: function () { return thiz.collection },
         handleAction: function () {
             var index = PrivateCollectionManager.privateShapeDef.collections.indexOf(thiz.collection);
@@ -76,6 +81,7 @@ PrivateCollectionMenu.prototype.setup = function () {
 
     this.register({
         label: "Delete this collection",
+        icon: "delete",
         isEnabled: function () { return thiz.collection },
         handleAction: function () {
             PrivateCollectionManager.deleteCollection(thiz.collection);
@@ -83,7 +89,7 @@ PrivateCollectionMenu.prototype.setup = function () {
     });
     this.register({
         label: "Delete all collections",
-        isEnabled: function () { return thiz.collection },
+        icon: "delete",
         handleAction: function () {
             PrivateCollectionManager.deleteAllCollection();
         }
@@ -97,6 +103,29 @@ PrivateCollectionMenu.prototype.setup = function () {
         isEnabled: function () { return thiz.collection },
         handleAction: function () {
             (new AboutCollectionDialog(thiz.collection)).open();
+        }
+    });
+
+    this.register({
+        label: "Go to",
+        isEnabled: function () { return PrivateCollectionManager.privateShapeDef.collections[0]; },
+        type: "SubMenu",
+        getSubItems:  function () {
+            var items = [];
+            var collections = PrivateCollectionManager.privateShapeDef.collections;
+            for (var i = 0; i < collections.length; i ++) {
+                var collection = collections[i];
+                items.push({
+                        label: collection.displayName,
+                        collection: collection,
+                        run: function () {
+                            console.log("goto:", collection);
+                            PrivateCollectionManager.reloadCollectionPane(this.collection.id);
+                            thiz.hideMenu();
+                        }
+                });
+            }
+            return items;
         }
     });
 };
