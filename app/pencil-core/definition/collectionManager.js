@@ -524,4 +524,26 @@ CollectionManager.uninstallCollection = function (collection) {
     dir.remove(true);
     CollectionManager.loadStencils();
     */
-}
+};
+CollectionManager.selectDeveloperStencilDir = function () {
+	//alert("Please select the directory that contains the 'Definition.xml' file of your stencil");
+    dialog.showOpenDialog({
+        title: "Select Developer Stetcil 'Defination.xml' file",
+        defaultPath: Config.set("dev.stencil.path") || os.homedir(),
+        filters: [
+            { name: "Defination.xml", extensions: ["xml"] }
+        ]
+
+    }, function (filenames) {
+        ApplicationPane._instance.unbusy();
+        if (!filenames || filenames.length <= 0) return;
+        Config.set("dev.stencil.path", filenames[0]);
+        CollectionManager.loadStencils();
+    }.bind(this));
+};
+CollectionManager.unselectDeveloperStencilDir = function () {
+    Config.set("dev.stencil.path", "none");
+    CollectionManager.loadStencils();
+    Dialog.alert("Developer stencil is unloaded.");
+	// alert("Developer stencil is unloaded.");
+};
