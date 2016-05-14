@@ -84,6 +84,9 @@
             opacity: 0.5;
             text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
         }
+        @navigation {
+            padding-top: 0.5em;
+        }
         @navigation > * + * {
             margin-top: 0.3em;
         }
@@ -95,10 +98,12 @@
             cursor: pointer;
             font-weight: bold;
         }
-        @navigation > hbox > a:first-child {
-            margin-left: 1.5em;
+        @navigation > hbox > button:not(:hover),
+        @navigation > hbox > button[disabled] {
+            border-color: transparent;
+            background: transparent;
         }
-        @navigation > hbox > a + a {
+        @navigation > hbox > button + button {
             margin-left: 1em;
         }
         @goPrevious.Disabled,
@@ -112,7 +117,7 @@
         <hbox anon-id="logo">
         </hbox>
         <hbox flex="1" anon-id="form">
-            <input type="text" flex="1" class="form-control" placeholder="Search for shapes" anon-id="searchInput"/>
+            <input type="text" flex="1" class="form-control" placeholder="Search OpenClipart.org" anon-id="searchInput"/>
             <i class="fa fa-search"></i>
         </hbox>
     </hbox>
@@ -122,17 +127,11 @@
             </ul>
         </vbox>
         <vbox anon-id="navigation">
-            <hbox>
-                <a href="javascript:;" class="Previous Disabled" anon-id="goPrevious">
-                    <span class="Previous">&lt;&lt; Previous Result</span>
-                </a>
-                <a href="javascript:;" class="Next Disabled" anon-id="goNext">
-                    <span class="Next">More Result &gt;&gt;</span>
-                </a>
+            <hbox style="align-items: center;">
+                <input type="checkbox" anon-id="scaleImageCheckbox" value="1" checked="checked" /><label for="scaleImageCheckbox" flex="1">&#160;Scale to fit</label>
+                <button anon-id="goPrevious"><i>chevron_left</i> Previous</button>
+                <button anon-id="goNext">Next <i>chevron_right</i></button>
             </hbox>
-            <div anon-id="scaleImageContainer">
-                <label for="scaleImageCheckbox"><input type="checkbox" anon-id="scaleImageCheckbox" value="1" checked="checked" />Scale image to smaller size before inserting</label>
-            </div>
         </vbox>
     </vbox>
 </vbox>
