@@ -108,7 +108,9 @@ Page.defaultPageSizes = [
     }
 ];
 
-
+PageDetailDialog.prototype.onShown = function () {
+    this.pageTitle.focus();
+};
 PageDetailDialog.prototype.setPageSizeValue = function (value) {
     var index = value.indexOf("x");
     if (index > -1) {

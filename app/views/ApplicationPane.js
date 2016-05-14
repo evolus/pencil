@@ -164,18 +164,18 @@ ApplicationPane.prototype.showStartupPane = function () {
 };
 ApplicationPane.prototype.getPreferredCanvasSize = function () {
     return {
-        w: Math.round(this.contentBody.offsetWidth - Pencil._getCanvasPadding()),
-        h: Math.round(this.contentBody.offsetHeight - Pencil._getCanvasPadding())
+        w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - 2,
+        h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - 2
     }
 };
 
 ApplicationPane.prototype.getBestFitSize = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
-    return [zoom * (this.contentBody.offsetWidth - Pencil._getCanvasPadding()), zoom * (this.contentBody.offsetHeight - Pencil._getCanvasPadding())].join("x");
+    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - 2), zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - 2)].join("x");
 };
 ApplicationPane.prototype.getBestFitSizeObject = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
-    return {width: zoom * (this.contentBody.offsetWidth - Pencil._getCanvasPadding()), height: zoom * (this.contentBody.offsetHeight - Pencil._getCanvasPadding())};
+    return {width: zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - 2), height: zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - 2)};
 };
 ApplicationPane.prototype.showBusyIndicator = function () {
     this.currentBusyOverlay = document.createElement("div");
