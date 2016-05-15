@@ -8,10 +8,7 @@ WebPageExporter.HTML_FILE = "index.html";
 WebPageExporter.prototype = new BaseRasterizedExporter();
 
 WebPageExporter.prototype.getRasterizedPageDestination = function (baseDir) {
-    var dir = baseDir.clone();
-    dir.append(WebPageExporter.RASTERIZED_SUBDIR);
-
-    return dir;
+    return path.join(baseDir, WebPageExporter.RASTERIZED_SUBDIR);
 };
 WebPageExporter.prototype.supportTemplating = function () {
     return true;
@@ -28,7 +25,7 @@ WebPageExporter.prototype.getWarnings = function () {
 
 
 WebPageExporter.prototype.export = function (doc, options, destDir, xmlFile, callback) {
-    debug("destDir: " + destDir.path);
+    debug("destDir: " + destDir);
 
     var templateId = options.templateId;
     if (!templateId) return;
@@ -36,20 +33,22 @@ WebPageExporter.prototype.export = function (doc, options, destDir, xmlFile, cal
     var template = ExportTemplateManager.getTemplateById(templateId);
 
     //copying support files
-    var items = template.dir.directoryEntries;
-    while (items.hasMoreElements()) {
-        var file = items.getNext().QueryInterface(Components.interfaces.nsIFile);
+    var items = fs.readdirSync(template.dir);
+    items.forEach(function (item) {
+        if (item == "Template.xml" || item == template.styleSheet) return;
 
-        if (file.leafName == "Template.xml"
-            || file.leafName == template.styleSheet) continue;
+        var file = path.join(template.dir, item);
+        var destFile = path.join(destDir, item);
+        if (fsExistSync(destFile)) {
+            deleteFileOrFolder(destFile);
+        }
 
-        var destFile = destDir.clone();
-        destFile.append(file.leafName);
-
-        if (destFile.exists()) destFile.remove(true);
-
-        file.copyTo(destDir, "");
-    }
+        if (fsExistAsDirectorySync(file)) {
+            copyFolderRecursiveSync(file, destDir);
+        } else {
+            copyFileSync(file, destDir);
+        }
+    });
 
     //transform the xml to HTML
     var sourceDOM = Dom.parseFile(xmlFile);
@@ -64,8 +63,7 @@ WebPageExporter.prototype.export = function (doc, options, destDir, xmlFile, cal
 
     var result = xsltProcessor.transformToDocument(sourceDOM);
 
-    var htmlFile = destDir.clone();
-    htmlFile.append(WebPageExporter.HTML_FILE);
+    var htmlFile = path.join(destDir, WebPageExporter.HTML_FILE);
 
     Dom.serializeNodeToFile(result, htmlFile);
 

@@ -1,0 +1,30 @@
+<hbox>
+    <style>
+        vbox > * + label {
+            margin-top: 1em;
+        }
+        vbox > label + * {
+            margin-top: 0.3em;
+        }
+
+        @pageTree {
+            width: 20em;
+            height: 25em;
+            margin-right: 2em;
+        }
+
+        @optionPane .widget_ComboManager @buttonDisplay {
+            width: 18em;
+        }
+    </style>
+    <vbox>
+        <label>Select pages:</label>
+        <ui:Tree anon-id="pageTree" />
+    </vbox>
+    <vbox anon-id="optionPane">
+        <label>Output type:</label>
+        <ui:ComboManager anon-id="exporterCombo" />
+        <label>Template:</label>
+        <ui:ComboManager anon-id="templateCombo" />
+    </vbox>
+</hbox>

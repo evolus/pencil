@@ -86,6 +86,7 @@ Pencil.boot = function (event) {
 
         CollectionManager.loadStencils();
         ExportTemplateManager.loadTemplates();
+        Pencil.documentExportManager = new DocumentExportManager();
 
         Pencil.activeCanvas = null;
         Pencil.setupCommands();

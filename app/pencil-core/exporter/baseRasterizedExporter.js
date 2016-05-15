@@ -8,7 +8,7 @@ BaseRasterizedExporter.prototype.requireRasterizedData = function () {
     return true;
 };
 BaseRasterizedExporter.prototype.getRasterizedPageDestination = function (baseDir) {
-    return baseDir.clone();
+    return baseDir;
 };
 
 BaseRasterizedExporter.prototype.export = function (doc, options, destFile, xmlFile, callback) {
@@ -19,7 +19,7 @@ BaseRasterizedExporter.prototype.getWarnings = function () {
 };
 BaseRasterizedExporter.prototype.fixAbsoluteRasterizedPaths = function (sourceDOM, destDir) {
     //changing rasterized path to relative
-    var pathPrefix = destDir.path + DirIO.sep;
+    var pathPrefix = destDir + path.sep;
     Dom.workOn("//p:Page/@rasterized", sourceDOM, function (attr) {
         var path = attr.nodeValue;
         if (path.indexOf(pathPrefix) == 0) {

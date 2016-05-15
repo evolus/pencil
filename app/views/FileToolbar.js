@@ -57,6 +57,17 @@ FileToolbar.prototype.registerCommands = function () {
     });
 
     UICommandManager.register({
+        key: "exportDocumentCommand",
+        label: "Export Document...",
+        isValid: function () { return Pencil.controller.doc; },
+        run: function () {
+            Pencil.controller.exportCurrentDocument();
+        },
+        shortcut: "Ctrl+Shift+E"
+    });
+
+
+    UICommandManager.register({
         key: "exportPageAsPNGButton",
         label: "Export page as PNG...",
         isValid: function () { return true; },
