@@ -8,9 +8,63 @@
         margin-left: 2ex;
     }
 
-    @collectionImage {
+    @imageSelector {
         border: solid 1px black;
         height: 15em;
+        width: 15em;
+        overflow-y:scroll;
+        overflow-x:hidden;
+        margin-bottom: 1ex;
+    }
+
+    @imageList  {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        height: 100%;
+    }
+
+    @imageList li {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    @imageList li:hover {
+        background-color: #99ceff;
+        color:white;
+    }
+
+    @imageList li[active="true"] {
+        background-color: #1aa3ff;
+        color:white;
+    }
+    @stencilSelected {
+        width: 100%;
+        background-color: #fff;
+        height: 19em;
+        overflow-y: scroll;
+    }
+
+    @stencilSelected .imageItem{
+        width: 7em;
+        height: 10em;
+        display: inline-block;
+        margin-left: 5ex;
+    }
+
+    @stencilSelected .imageItem img{
+        width: 100%;
+        height: 80%;
+    }
+
+    @stencilSelected span{
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+        overflow: hidden;
+    }
+    @stencilSelected input{
+        width:100%;
     }
 
     </style>
@@ -23,9 +77,11 @@
             <vbox class="space">
                 Select images
                 <hbox class="InputRow">
-                    <div anon-id="collectionImage" flex="1"> </div>
+                    <vbox anon-id="imageSelector">
+                        <ul anon-id="imageList"></ul>
+                    </vbox>
                 </hbox>
-                Drag images into the listbox above.
+                <span anon-id="imageCount">Drag images into the listbox above.</span>
             </vbox>
             <vbox class="space">
                 <strong>Collection definition </strong>
@@ -37,7 +93,7 @@
                 </hbox>
                 <hbox class="InputRow">
                     <label for="collectionIcon">Icon:</label> <input type="text" anon-id="collectionIcon" flex="1"/>
-                    <button anon-id="collctionBrowse">Browse...</button>
+                    <button anon-id="collectionBrowse" disabled="true">Browse...</button>
                 </hbox>
                 <hbox class="InputRow">
                     <label for="collectionAuthor">Author:</label> <input type="text" anon-id="collectionAuthor" flex="1"/>
@@ -54,6 +110,9 @@
         <vbox>
             <vbox anon-id="stencilSelector" flex="1">
                 Stencil selected:
+                <div anon-id="stencilSelected">
+
+                </div>
             </vbox>
             <vbox>
                 <strong>Stencil information </strong>
