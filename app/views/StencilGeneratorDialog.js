@@ -13,7 +13,6 @@ function StencilGeneratorDialog() {
             _name: "li",
             _text: file.name,
         });
-        item.checked = true;
         item._path = file.path;
         thiz.imageList.appendChild(item);
         thiz.imagePaths.push(file);
@@ -60,6 +59,13 @@ function StencilGeneratorDialog() {
             console.log(item);
         }
     }, this.stencilSelected);
+
+    this.bind("click", function(event){
+        var top = Dom.findUpwardForNodeWithData(event.target, "_item");
+        var item = top._item;
+        var Name = item.name.substring(0,item.name.indexOf("."));
+        thiz.stencilName.value = Name;
+    }, this.stencilSelected);
 }
 
 __extend(WizardDialog, StencilGeneratorDialog);
@@ -73,13 +79,26 @@ StencilGeneratorDialog.prototype.onSelectionChanged = function () {
         this.stepInfo.innerHTML = "Stencil information";
         if(this.imagePaths.length > 0) {
             for (i in this.imagePaths) {
+                if (this.imagePaths[i].checked != null) {
+                    continue;
+                }
+                this.imagePaths[i].checked = true;
+
+                var holder={};
+
                 var item = Dom.newDOMElement({
                     _name: "div",
                     class: "imageItem",
                     _children: [
                         {
-                            _name:"img",
-                            src: this.imagePaths[i].path,
+                            _name:"div",
+                            class:"iconContainer",
+                            _children:[
+                                {
+                                    _name:"img",
+                                    _id:"iconImage"
+                                }
+                            ]
                         },
                         {
                             _name:"span",
@@ -91,14 +110,14 @@ StencilGeneratorDialog.prototype.onSelectionChanged = function () {
                             checked:"true",
                         }
                     ]
-                });
+                },null, holder);
                 item._item = this.imagePaths[i];
                 this.stencilSelected.appendChild(item);
+                Util.setupImage(holder.iconImage, this.imagePaths[i].path, "center-inside");
             }
         }
     }
 };
-
 
 
 StencilGeneratorDialog.prototype.invalidateSelection = function () {
