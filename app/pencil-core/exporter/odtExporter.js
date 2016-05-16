@@ -8,11 +8,8 @@ ODTExporter.RASTERIZED_SUBDIR = "Pages";
 ODTExporter.prototype = new BaseRasterizedExporter();
 
 ODTExporter.prototype.getRasterizedPageDestination = function (baseDir) {
-    this.tmpDir = Local.createTempDir("pencilodt");
-    var dir = this.tmpDir.clone();
-    dir.append(ODTExporter.RASTERIZED_SUBDIR);
-
-    return dir;
+    this.tmpDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
+    return path.join(this.tmpDir.name, ODTExporter.RASTERIZED_SUBDIR);
 };
 ODTExporter.prototype.supportTemplating = function () {
     return true;
@@ -54,7 +51,7 @@ ODTExporter.prototype.export = function (doc, options, destFile, xmlFile, callba
 
     //copying support files to a temp dir
     if (!this.tmpDir) {
-        this.tmpDir = Util.createTempDir("pencilodt");
+        this.tmpDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
     }
 
     var items = template.dir.directoryEntries;

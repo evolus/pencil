@@ -27,10 +27,8 @@ ExportTemplateManager.loadTemplatesIn = function (templateDir) {
     try {
         for (var i in ExportTemplateManager.SUPPORTED_TYPES) {
             var type = ExportTemplateManager.SUPPORTED_TYPES[i];
-            var dir = templateDir.clone();
-            dir.append(type);
 
-            ExportTemplateManager._loadUserDefinedTemplatesIn(dir, type);
+            ExportTemplateManager._loadUserDefinedTemplatesIn(path.join(templateDir, type), type);
         }
     } catch (e) {
         Console.dumpError(e);
@@ -47,15 +45,7 @@ ExportTemplateManager.loadUserDefinedTemplates = function () {
 };
 
 ExportTemplateManager.getUserTemplateDirectory = function () {
-    var properties = Components.classes["@mozilla.org/file/directory_service;1"]
-                     .getService(Components.interfaces.nsIProperties);
-
-    var templateDir = properties.get("ProfD", Components.interfaces.nsIFile);
-
-    templateDir.append("Pencil");
-    templateDir.append("Templates");
-
-    return templateDir;
+    return Config.getDataFilePath("exportTemplates");
 };
 ExportTemplateManager.loadSystemWideDefinedTemplates = function () {
     try {
@@ -99,32 +89,27 @@ ExportTemplateManager.getDefaultTemplateDirectory = function () {
 };
 ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type) {
     //loading all templates
-    debug("Loading template in " + templateDir.path);
+    debug("Loading template in " + templateDir);
     try {
-        if (!templateDir.exists() || !templateDir.isDirectory()) return;
+        var stat = fs.statSync(templateDir);
+        if (!stat.isDirectory()) return;
 
-        var entries = templateDir.directoryEntries;
-        while(entries.hasMoreElements()) {
-            var dir = entries.getNext();
+        var entries = fs.readdirSync(templateDir);
+        entries.forEach(function(dir) {
+            var dirPath = path.join(templateDir, dir);
+            stat = fs.statSync(dirPath);
+            if (!stat.isDirectory()) return;
 
-            dir = dir.QueryInterface(Components.interfaces.nsIFile);
-
-            if (!dir.isDirectory()) continue;
-            var template = ExportTemplate.parse(dir);
+            var template = ExportTemplate.parse(dirPath);
 
             if (!template) {
-                if (dir.leafName.match(/^\./)) {
-                    warn("Ignoring template in: " + dir.path);
-                } else {
-                    //Util.error("Template loading failed", "Unrecognized template at: " + dir.path);
-                }
-                continue;
+                return;
             }
 
-            debug("Found template: " + template.name + ", at: " + dir.path);
+            debug("Found template: " + template.name + ", at: " + dir);
 
             ExportTemplateManager.addTemplate(template, type);
-        }
+        })
     } catch (e) {
         Console.dumpError(e);
     }
@@ -141,8 +126,8 @@ ExportTemplateManager.loadTemplates = function() {
 /*
     ExportTemplateManager.loadDefaultTemplates();
     ExportTemplateManager.loadSystemWideDefinedTemplates();
-    ExportTemplateManager.loadUserDefinedTemplates();
 */
+    ExportTemplateManager.loadUserDefinedTemplates();
 };
 ExportTemplateManager.installNewTemplate = function (type) {
     var nsIFilePicker = Components.interfaces.nsIFilePicker;

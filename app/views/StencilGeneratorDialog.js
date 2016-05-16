@@ -1,7 +1,15 @@
 function StencilGeneratorDialog() {
     WizardDialog.call(this);
+    this.title="Stencil Generator";
     this.collectionDefinition = this.wizardPanes[0];
     this.stencilDefinition = this.wizardPanes[1];
+
+    this.bind("drop", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        console.log("event.dataTransfer:", event.dataTransfer);
+        console.log("event.dataTransfer:", event.dataTransfer.files);
+    }, this.collectionImage);
 }
 
 __extend(WizardDialog, StencilGeneratorDialog);

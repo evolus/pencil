@@ -25,23 +25,36 @@ function init() {
         next();
     }
 
+    function getList(xpath, node) {
+        var doc = node.ownerDocument ? node.ownerDocument : node;
+        var xpathResult = doc.evaluate(xpath, node, PencilNamespaces.resolve, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+        var nodes = [];
+        var next = xpathResult.iterateNext();
+        while (next) {
+            nodes.push(next);
+            next = xpathResult.iterateNext();
+        }
+
+        return nodes;
+    }
+
     var queueHandler = new QueueHandler();
     var parser = new DOMParser();
     var serializer = new XMLSerializer();
 
-    function rasterize(svgNode, width, height, s, callback) {
+    function rasterize(svgNode, width, height, s, processLinks, callback) {
         var images = svgNode.querySelectorAll("image");
         var totalImageLength = 0;
+        var objectsWithLinking = [];
 
         var tasks = [];
-
 
         for (var i = 0; i < images.length; i ++) {
             var image = images[i];
             var href = image.getAttributeNS(xlink, "href");
             if (href && href.match("^file://(.+)$")) {
                 var sourcePath = decodeURI(RegExp.$1);
-                
+
                 if (process.platform === "win32") {
                     if (sourcePath.startsWith("/")) sourcePath = sourcePath.substring(1);
                     sourcePath = sourcePath.replace(/\//g, "\\");
@@ -90,6 +103,46 @@ function init() {
             });
         }
 
+        function postProcess() {
+            //parse for linking location on this page
+            if (processLinks) {
+                document.body.appendChild(svgNode.documentElement);
+                var objects = getList(".//svg:g[@p:RelatedPage]", document);
+                objects.reverse();
+
+                for (var i = 0; i < objects.length; i ++) {
+                    var g = objects[i];
+
+                    var dx = 0; //rect.left;
+                    var dy = 0; //rect.top;
+
+                    var owner = g.ownerSVGElement;
+
+                    if (owner.parentNode && owner.parentNode.getBoundingClientRect) {
+                        var rect = owner.parentNode.getBoundingClientRect();
+                        dx = rect.left;
+                        dy = rect.top;
+                    }
+
+                    rect = g.getBoundingClientRect();
+                    var linkingInfo = {
+                        pageId: g.getAttributeNS(PencilNamespaces.p, "RelatedPage"),
+                        geo: {
+                            x: rect.left - dx,
+                            y: rect.top - dy,
+                            w: rect.width,
+                            h: rect.height
+                        }
+                    };
+                    if (!linkingInfo.pageId) continue;
+
+                    debug("Linking info: " + linkingInfo.toSource());
+                    objectsWithLinking.push(linkingInfo);
+                }
+            }
+
+        }
+
         function onConversionDone() {
             // it looks like that the bigger images embedded, the longer time we need to wait for the image to be fully painted into the canvas
             var delay = Math.max(500, totalImageLength / 30000);
@@ -109,6 +162,7 @@ function init() {
                 ctx.setTransform(1, 0, 0, 1, 0, 0);
 
                 setTimeout(function () {
+                    postProcess();
                     callback(canvas.toDataURL());
                     ctx.restore();
                     img.onload = null;
@@ -130,9 +184,9 @@ function init() {
         return function(__callback) {
             //parse the SVG back into DOM
             var svgNode = parser.parseFromString(data.svg, "text/xml");
-            rasterize(svgNode, data.width, data.height, data.scale, function (dataURL) {
+            rasterize(svgNode, data.width, data.height, data.scale, data.processLinks, function (dataURL) {
                 console.log("RASTER: Returning render result for " + data.id);
-                ipcRenderer.send("canvas-render-response", {url: dataURL, id: data.id});
+                ipcRenderer.send("canvas-render-response", {url: dataURL, id: data.id, objectsWithLinking: data.objectsWithLinking});
                 __callback();
             });
         };
