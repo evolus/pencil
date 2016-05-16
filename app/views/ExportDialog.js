@@ -9,20 +9,20 @@ function ExportDialog () {
     this.exporterCombo.setItems(Pencil.documentExporters);
 
     this.exporterCombo.addEventListener("p:ItemSelected", function () {
-        this.invalidateTemplates();
+        this.invalidateUIByExporter();
     }.bind(this), false);
 
     this.templateCombo.renderer = function (template) {
         return template.name;
     };
 
-    this.invalidateTemplates();
+    this.invalidateUIByExporter();
 
 }
 __extend(Dialog, ExportDialog);
 
 
-ExportDialog.prototype.invalidateTemplates = function () {
+ExportDialog.prototype.invalidateUIByExporter = function () {
     var exporter = this.exporterCombo.getSelectedItem();
     console.log("Exporter " + exporter.name, exporter);
     if (exporter.supportTemplating()) {
@@ -31,6 +31,13 @@ ExportDialog.prototype.invalidateTemplates = function () {
     } else {
         this.templateCombo.setItems([]);
         this.templateCombo.setDisabled(true);
+    }
+
+    if (exporter.getWarnings && exporter.getWarnings()) {
+        this.warningContent.innerHTML = Dom.htmlEncode(exporter.getWarnings());
+        this.warningBox.removeAttribute("disabled");
+    } else {
+        this.warningBox.setAttribute("disabled", "true");
     }
 };
 ExportDialog.prototype.setup = function (options) {

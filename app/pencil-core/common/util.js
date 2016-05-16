@@ -1438,13 +1438,16 @@ Util.generateIcon = function (target, maxWidth, maxHeight, padding, iconPath, ca
         Console.dumpError(ex);
     }
 };
-Util.compress = function (dir, zipFile) {
-    var writer = Components.classes["@mozilla.org/zipwriter;1"]
-                        .createInstance(Components.interfaces.nsIZipWriter);
-    writer.open(zipFile, PR_RDWR | PR_CREATE_FILE | PR_TRUNCATE);
-
-    Util.writeDirToZip(dir, writer, "");
-    writer.close();
+Util.compress = function (dir, zipFile, callback) {
+    var archiver = require("archiver");
+    var archive = archiver("zip");
+    var output = fs.createWriteStream(zipFile);
+    output.on("close", function () {
+        if (callback) callback();
+    });
+    archive.pipe(output);
+    archive.directory(dir, "/", {});
+    archive.finalize();
 };
 Util.writeDirToZip = function (dir, writer, prefix) {
     var items = dir.directoryEntries;

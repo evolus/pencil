@@ -31,7 +31,7 @@ SVGExporter.prototype.export = function (doc, options, destFile, xmlFile, callba
     callback();
 };
 SVGExporter.prototype.getWarnings = function () {
-    return "Document will be exported as a multi-page SVG file that can used in Inkscape.";
+    return "Document will be exported as a multi-layer SVG file that can used in Inkscape.";
 };
 SVGExporter.prototype.getOutputType = function () {
     return BaseExporter.OUTPUT_TYPE_FILE;
