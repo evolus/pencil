@@ -1126,28 +1126,10 @@ Local.openExtenstionManager = function() {
     window.openDialog(EMURL, "", EMFEATURES);
 };
 Local.newTempFile = function (prefix, ext) {
-
-    var file = Components.classes["@mozilla.org/file/directory_service;1"].
-                        getService(Components.interfaces.nsIProperties).
-                        get("TmpD", Components.interfaces.nsIFile);
-    var seed = Math.round(Math.random() * 1000000);
-
-    file.append(prefix + "-" + seed + "." + ext);
-
-    return file;
+    return tmp.fileSync({prefix: prefix + "-", postfix: "." + ext, keep: false});
 };
 Local.createTempDir = function (prefix) {
-
-    var dir = Components.classes["@mozilla.org/file/directory_service;1"].
-                        getService(Components.interfaces.nsIProperties).
-                        get("TmpD", Components.interfaces.nsIFile);
-    var seed = Math.round(Math.random() * 1000000);
-
-    dir.append(prefix + "-" + seed);
-
-    dir.create(dir.DIRECTORY_TYPE, 0777);
-
-    return dir;
+    return tmp.dirSync({prefix: prefix + "-", keep: false});
 };
 
 var Console = {};

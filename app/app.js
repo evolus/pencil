@@ -9,6 +9,7 @@ const dialog      = require("electron").remote.dialog;
 const nativeImage = require('electron').nativeImage;
 const pkgInfo     = require("./package.json");
 const fontManager = require("./lib/loader").fontManager;
+const ipcRenderer = require('electron').ipcRenderer;
 
 tmp.setGracefulCleanup();
 

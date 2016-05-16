@@ -10,30 +10,11 @@ module.exports = function () {
     const electron = require('electron');
     const app = electron.app;
     const BrowserWindow = electron.BrowserWindow;
+    var QueueHandler = require("./QueueHandler");
 
     var rendererWindow = null;
     var currentRenderHandler = null;
 
-
-    function QueueHandler() {
-        this.tasks = [];
-    }
-    QueueHandler.prototype.submit = function (task) {
-        this.tasks.push(task);
-
-        if (this.tasks.length == 1) this.start();
-    }
-
-    QueueHandler.prototype.start = function (task) {
-
-        var next = function() {
-            if (this.tasks.length <= 0) return;
-            var task = this.tasks.pop();
-            task(next);
-        }.bind(this);
-
-        next();
-    }
 
     var queueHandler = new QueueHandler();
 

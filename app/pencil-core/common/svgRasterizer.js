@@ -1,6 +1,3 @@
-const ipcRenderer = require('electron').ipcRenderer;
-
-
 function Rasterizer(controller) {
     this.controller = controller;
     this.getBackend().init();

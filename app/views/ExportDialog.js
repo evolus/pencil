@@ -70,21 +70,33 @@ ExportDialog.prototype.getDialogActions = function () {
         },
         {   type: "accept", title: "Export",
             run: function () {
-                dialog.showOpenDialog({
-                    title: "Select output directory",
-                    defaultPath: os.homedir(),
-                    properties: ["openDirectory"]
+                var exporter = this.exporterCombo.getSelectedItem();
+                var template = this.templateCombo.getSelectedItem();
 
-                }, function (filenames) {
-                    if (!filenames || filenames.length <= 0) return;
-                    this.close({
-                        pages: this.pageTree.getCheckedItemsSync(),
-                        exporterId: this.exporterCombo.getSelectedItem().id,
-                        templateId: this.templateCombo.getSelectedItem().id,
-                        options: {},
-                        targetPath: filenames[0]
-                    })
-                }.bind(this));
+                var result = {
+                    pages: this.pageTree.getCheckedItemsSync(),
+                    exporterId: exporter.id,
+                    templateId: template ? template.id : null,
+                    options: {}
+                };
+
+                if (exporter.getOutputType() != BaseExporter.OUTPUT_TYPE_NONE) {
+                    var isFile = (exporter.getOutputType() == BaseExporter.OUTPUT_TYPE_FILE);
+                    dialog.showOpenDialog({
+                        title: "Select output " + (isFile ? "file" : "folder"),
+                        defaultPath: os.homedir(),
+                        properties: [isFile ? "openFile" : "openDirectory"]
+                    }, function (filenames) {
+                        if (!filenames || filenames.length <= 0) return;
+                        result.targetPath = filenames[0];
+
+                        this.close(result);
+
+                    }.bind(this));
+                } else {
+                    this.close(result);
+                }
+
 
 
                 return false;
