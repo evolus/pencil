@@ -21,6 +21,7 @@ function OpenClipartPane() {
         } else {
             event.dataTransfer.setData("pencil/png", def.src);
         }
+
         event.dataTransfer.setData("text/html", "");
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
         event.target.collection = def;
@@ -65,6 +66,9 @@ function OpenClipartPane() {
         limit: 60
     };
     this.rq = [];
+
+    this.goPrevious.disabled = true;
+    this.goNext.disabled = true;
 }
 __extend(BaseTemplatedWidget, OpenClipartPane);
 
@@ -73,22 +77,14 @@ OpenClipartPane.prototype.getTitle = function() {
 };
 
 OpenClipartPane.prototype.getIconName = function() {
-	return "layers";
-};
-OpenClipartPane.prototype.invalidateButton = function (button, disabled) {
-    if (disabled) {
-        Dom.addClass(this.goPrevious, "Disabled");
-        Dom.addClass(this.goNext, "Disabled");
-    } else {
-        Dom.removeClass(this.goPrevious, "Disabled");
-        Dom.removeClass(this.goNext, "Disabled");
-    }
+	return "photo";
 };
 OpenClipartPane.prototype.search = function () {
     if (this.node().offsetWidth <= 0) return;
     Dom.empty(this.shapeList);
-    Dom.addClass(this.goPrevious, "Disabled");
-    Dom.addClass(this.goNext, "Disabled");
+
+    this.goPrevious.disabled = true;
+    this.goNext.disabled = true;
 
     for (var i = 0; i < this.rq.length; i++) {
         if (this.rq[i]) {
@@ -151,13 +147,8 @@ OpenClipartPane.prototype.renderResult = function (result) {
         this.getSVG(node._def);
     }
 
-    if (this.searchOptions.page > 1) {
-        Dom.removeClass(this.goPrevious, "Disabled");
-    }
-
-    if (result.length > 0) {
-        Dom.removeClass(this.goNext, "Disabled");
-    }
+    this.goPrevious.disabled = (this.searchOptions.page <= 1);
+    this.goNext.disabled = (result.length <= 0);
 };
 
 OpenClipartPane.prototype.getSVG = function (item) {

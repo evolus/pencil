@@ -555,26 +555,8 @@ Dom.serializeNode = function (node) {
     return Dom.serializer.serializeToString(node);
 };
 Dom.serializeNodeToFile = function (node, file, additionalContentPrefixes) {
-    var fos = Components.classes["@mozilla.org/network/file-output-stream;1"]
-                            .createInstance(Components.interfaces.nsIFileOutputStream);
-    fos.init(file, 0x02 | 0x08 | 0x20, 0666, 0);
-
-    var os = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
-                        .createInstance(Components.interfaces.nsIConverterOutputStream);
-
-    // This assumes that fos is the nsIOutputStream you want to write to
-    os.init(fos, XMLDocumentPersister.CHARSET, 0, 0x0000);
-
-    if (node.nodeType != Node.DOCUMENT_NODE) {
-        os.writeString("<?xml version=\"1.0\"?>\n");
-    }
-    if (additionalContentPrefixes) {
-        os.writeString(additionalContentPrefixes + "\n");
-    }
-
-    Dom.serializer.serializeToStream(node, fos, XMLDocumentPersister.CHARSET);
-
-    fos.close();
+    var xml = Controller.serializer.serializeToString(node);
+    fs.writeFileSync(file, xml, "utf8");
 };
 Dom._buildHiddenFrame = function () {
     if (Dom._hiddenFrame) return;
@@ -730,10 +712,8 @@ Dom.swapNode = function (node1, node2) {
     parentNode.insertBefore(node1, ref);
 };
 Dom.parseFile = function (file) {
-
-    var fileContents = FileIO.read(file, "UTF-8");
+    var fileContents = fs.readFileSync(file, "utf8");
     var dom = Dom.parser.parseFromString(fileContents, "text/xml");
-
     return dom;
 };
 
@@ -1339,34 +1319,13 @@ Util.dialog = function(title, description, buttonLabel) {
     var dialog = window.openDialog("chrome://pencil/content/messageDialog.xul", "pencilMessageDialog" + Util.getInstanceToken(), "modal,centerscreen", message, returnValueHolder);
 };
 Util.info = function(title, description, buttonLabel) {
-    Util.showStatusBarInfo(description, true);
-    var message = {type: "info",
-                    title: title,
-                    description: description ? description : null,
-                    acceptLabel: buttonLabel ? buttonLabel : null };
-
-    var returnValueHolder = {};
-    var dialog = window.openDialog("chrome://pencil/content/messageDialog.xul", "pencilMessageDialog" + Util.getInstanceToken(), "modal,centerscreen", message, returnValueHolder);
+    Dialog.alert(title + "\n" + description);
 };
 Util.warn = function(title, description, buttonLabel) {
-    Util.showStatusBarInfo(description, true);
-    var message = {type: "warn",
-                    title: title,
-                    description: description ? description : null,
-                    acceptLabel: buttonLabel ? buttonLabel : null };
-
-    var returnValueHolder = {};
-    var dialog = window.openDialog("chrome://pencil/content/messageDialog.xul", "pencilMessageDialog" + Util.getInstanceToken(), "modal,centerscreen", message, returnValueHolder);
+    Dialog.error(title + "\n" + description);
 };
 Util.error = function(title, description, buttonLabel) {
-    Util.showStatusBarError(description, true);
-    var message = {type: "error",
-                    title: title,
-                    description: description ? description : null,
-                    cancelLabel: buttonLabel ? buttonLabel : null };
-
-    var returnValueHolder = {};
-    var dialog = window.openDialog("chrome://pencil/content/messageDialog.xul", "pencilMessageDialog" + Util.getInstanceToken(), "modal,centerscreen", message, returnValueHolder);
+    Dialog.error(title + "\n" + description);
 }
 Util.confirm = function(title, description, acceptLabel, cancelLabel) {
     var message = {type: "confirm",
@@ -1564,7 +1523,11 @@ Util.openDonate = function () {
     require("shell").openExternal("http://pencil.evolus.vn/Donation.aspx");
 };
 Util.getMessage = function (msg, args) {
-    return msg;
+    var text = MESSAGES[msg];
+    if (!text) return msg;
+
+    if (typeof(args) == "undefined") return text;
+    return text.replace(/%S/g, "" + args);
 };
 Util.showNotification = function (title, ms) {
     Components.classes['@mozilla.org/alerts-service;1'].
@@ -2234,5 +2197,77 @@ function geo_buildSmoothCurve (points) {
 
     return spec;
 };
+
+function fsExistSync(p) {
+    try {
+        var stat = fs.statSync(p);
+        return stat;
+    } catch (e) {
+        if (e.code == "ENOENT") return null;
+        throw e;
+    }
+};
+function fsExistAsDirectorySync(p) {
+    try {
+        var stat = fs.statSync(p);
+        return stat.isDirectory();
+    } catch (e) {
+        if (e.code == "ENOENT") return false;
+        throw e;
+    }
+}
+
+function deleteFileOrFolder(p) {
+    try {
+        var stat = fs.stat(p);
+        if (stat.isDirectory()) {
+            var children = fs.readdirSync(p);
+            children.forEach(function (child) {
+                deleteFileOrFolder(path.join(p, child));
+            });
+
+            fs.rmdirSync(p);
+        } else {
+            fs.unlinkSync(p);
+        }
+    } catch (e) {}
+}
+
+
+/* credit: http://stackoverflow.com/a/26038979/5746831 */
+function copyFileSync(source, target) {
+    var targetFile = target;
+
+    if (fsExistSync(target)) {
+        if (fs.lstatSync(target).isDirectory()) {
+            targetFile = path.join(target, path.basename(source));
+        }
+    }
+
+    fs.writeFileSync(targetFile, fs.readFileSync(source));
+}
+
+function copyFolderRecursiveSync( source, target ) {
+    var files = [];
+
+    //check if folder needs to be created or integrated
+    var targetFolder = path.join(target, path.basename(source));
+    if (!fsExistSync(targetFolder)) {
+        fs.mkdirSync(targetFolder);
+    }
+
+    //copy
+    if (fs.lstatSync(source).isDirectory()) {
+        files = fs.readdirSync(source);
+        files.forEach(function (file) {
+            var curSource = path.join(source, file);
+            if (fs.lstatSync(curSource).isDirectory()) {
+                copyFolderRecursiveSync(curSource, targetFolder);
+            } else {
+                copyFileSync(curSource, targetFolder);
+            }
+        });
+    }
+}
 
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);

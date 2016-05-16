@@ -39,16 +39,16 @@ Rasterizer.outProcessCanvasBasedBackend = {
     init: function () {
         ipcRenderer.send("canvas-render-init", {});
     },
-    rasterize: function (svgNode, width, height, scale, callback) {
+    rasterize: function (svgNode, width, height, scale, callback, parseLinks) {
         var id = Util.newUUID();
         console.log("RASTER: Rasterize request sent for " + id);
         ipcRenderer.once(id, function (event, data) {
             console.log("RASTER: Rasterize result received for " + id);
-            callback(data);
+            callback(parseLinks ? data : data.url);
         });
 
         var xml = Controller.serializer.serializeToString(svgNode);
-        ipcRenderer.send("canvas-render-request", {svg: xml, width: width, height: height, scale: scale, id: id});
+        ipcRenderer.send("canvas-render-request", {svg: xml, width: width, height: height, scale: scale, id: id, processLinks: parseLinks});
     }
 };
 Rasterizer.inProcessCanvasBasedBackend = {
@@ -148,12 +148,12 @@ Rasterizer.prototype.rasterizeSVGNodeToUrl = function (svg, callback, scale) {
     this.getBackend().rasterize(svg, parseFloat(svg.getAttribute("width")), parseFloat(svg.getAttribute("height")), s, callback);
 };
 
-Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale) {
+Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parseLinks) {
     var svg = this.controller.getPageSVG(page);
     var thiz = this;
     var s = (typeof (scale) == "undefined") ? 1 : scale;
     var f = function () {
-        thiz.getBackend().rasterize(svg, page.width, page.height, s, callback);
+        thiz.getBackend().rasterize(svg, page.width, page.height, s, callback, parseLinks);
     };
 
     if (page.backgroundPage) {
@@ -203,8 +203,10 @@ Rasterizer.prototype.getPageBitmapFile = function (page, callback) {
         }, 1);
     }
 };
-Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, scale) {
-    this.rasterizePageToUrl(page, function (dataURI) {
+Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, scale, parseLinks) {
+    this.rasterizePageToUrl(page, function (data) {
+        var dataURI = parseLinks ? data.url : data;
+
         var actualPath = filePath ? filePath : tmp.fileSync().name;
         const prefix = "data:image/png;base64,";
         var base64Data = dataURI;
@@ -212,9 +214,9 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, s
 
         var buffer = new Buffer(base64Data, "base64");
         fs.writeFile(actualPath, buffer, 0, buffer.length, function (err) {
-            callback(actualPath, err);
+            callback(parseLinks ? {actualPath: actualPath, objectsWithLinking: data.objectsWithLinking} : actualPath, err);
         });
-    }, scale);
+    }, scale, parseLinks);
 };
 
 Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, callback, scale) {
