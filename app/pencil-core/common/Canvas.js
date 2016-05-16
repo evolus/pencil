@@ -2516,6 +2516,7 @@ Canvas.prototype.__drop = function (event) {
     }
     this.element.removeAttribute("is-dragover");
     console.log('drop excute');
+    console.log("currentDragObserver:", this.currentDragObserver);
     if (this.canvasContentModifiedListener) {
         this.canvasContentModifiedListener(thiz);
         this.canvasContentModifiedListener = null;

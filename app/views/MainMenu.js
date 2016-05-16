@@ -70,6 +70,7 @@ MainMenu.prototype.setup = function () {
         label: "Setting",
         isValid: function () { return true; },
         run: function () {
+            (new SettingDialog()).open();
         }
     });
 
