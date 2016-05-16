@@ -81,6 +81,7 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
     var data = {
         fileURL: ImageData.filePathToURL(htmlFile),
         targetFilePath: targetFile,
+        pdf: this.pdfOutput,
         id: id
     };
 

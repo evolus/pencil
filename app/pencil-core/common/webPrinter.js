@@ -25,42 +25,49 @@ module.exports = function () {
                     printBackground: true
                 };
 
-                const OPTION_NAMES = ["marginsType", "pageSize", "printBackground", "printSelectionOnly", "landscape"];
+                if (data.pdf) {
+                    const OPTION_NAMES = ["marginsType", "pageSize", "printBackground", "printSelectionOnly", "landscape"];
 
-                OPTION_NAMES.forEach(function (name) {
-                    var value = data["print." + name];
-                    if (typeof(value) != "undefined") {
-                        if (value == "true" || value == "false") {
-                            options[name] = (value == "true");
-                        } else {
-                            options[name] = value;
+                    OPTION_NAMES.forEach(function (name) {
+                        var value = data["print." + name];
+                        if (typeof(value) != "undefined") {
+                            if (value == "true" || value == "false") {
+                                options[name] = (value == "true");
+                            } else {
+                                options[name] = value;
+                            }
                         }
-                    }
-                });
-                browserWindow.webContents.printToPDF(options, function(error, pdfBuffer) {
-                    if (error) {
-                        try {
-                            global.mainWindow.webContents.send(data.id, {success: false, message: error.message});
-                        } finally {
-                            __callback();
-                        }
-
-                        return;
-                    }
-
-                    fs.writeFile(data.targetFilePath, pdfBuffer, function(error) {
-                        try {
-                            if (error) {
+                    });
+                    browserWindow.webContents.printToPDF(options, function(error, pdfBuffer) {
+                        if (error) {
+                            try {
                                 global.mainWindow.webContents.send(data.id, {success: false, message: error.message});
-                                return;
+                            } finally {
+                                __callback();
                             }
 
-                            global.mainWindow.webContents.send(data.id, {success: true});
-                        } finally {
-                            __callback();
+                            return;
                         }
-                    })
-                });
+
+                        fs.writeFile(data.targetFilePath, pdfBuffer, function(error) {
+                            try {
+                                if (error) {
+                                    global.mainWindow.webContents.send(data.id, {success: false, message: error.message});
+                                    return;
+                                }
+
+                                global.mainWindow.webContents.send(data.id, {success: true});
+                            } finally {
+                                __callback();
+                            }
+                        })
+                    });
+                } else {
+                    browserWindow.webContents.print(options, function () {
+                        console.log("Print callback");
+                    });
+                }
+
             }
         };
     }
