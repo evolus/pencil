@@ -90,7 +90,7 @@ ComboManager.prototype.setItems = function (items) {
 
         if (!first) first = item;
     }
-    this.selectItem(first);
+    if (items.length > 0) this.selectItem(first);
 };
 
 ComboManager.prototype.selectItem = function (item, fromUserAction) {

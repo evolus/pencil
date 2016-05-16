@@ -7,7 +7,9 @@ __extend(BaseCollectionPane, MyCollectionPane);
 MyCollectionPane.prototype.getTitle = function() {
 	return "My Shapes";
 };
-
+MyCollectionPane.prototype.getIconName = function() {
+	return "business_center";
+};
 MyCollectionPane.prototype.initialize = function () {
     this.bind("contextmenu", function (event) {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");

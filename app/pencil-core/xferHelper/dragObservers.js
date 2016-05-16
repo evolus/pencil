@@ -453,25 +453,13 @@ FileDragObserver.handleSVGDOM = function (dom, canvas, loc) {
         var w = width;
         var h = height;
 
-        var maxWidth = Config.get("clipartbrowser.scale.width");
-        var maxHeight = Config.get("clipartbrowser.scale.height");
-        if (!maxWidth) {
-            maxWidth = 200;
-            Config.set("clipartbrowser.scale.width", 200);
-        }
-        if (!maxHeight) {
-            maxHeight = 200;
-            Config.set("clipartbrowser.scale.height", 200);
-        }
+        var maxWidth = canvas.width * 0.9;
+        var maxHeight = canvas.height * 0.9;
 
         if (Config.get("clipartbrowser.scale") == true && (w > maxWidth || h > maxHeight)) {
-            if (w > h) {
-                h = h / (w / maxWidth);
-                w = maxWidth;
-            } else {
-                w = w / (h / maxHeight);
-                h = maxHeight;
-            }
+            var r = Math.max(w / maxWidth, h / maxHeight);
+            w /= r;
+            h /= r;
         }
 
         var dim = new Dimension(w, h);
@@ -496,7 +484,6 @@ SVGDragObserver.prototype = {
     },
     onDragOver: function (evt, flavour, session){},
     onDrop: function (evt, transferData, session) {
-
         var svg = transferData.data;
         var loc = this.canvas.getEventLocation(evt);
         FileDragObserver.handleSVGData(svg, this.canvas, loc);

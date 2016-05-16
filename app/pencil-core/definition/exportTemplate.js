@@ -1,16 +1,15 @@
 function ExportTemplate() {
 }
+ExportTemplate.domParser = new DOMParser();
 
 ExportTemplate.parse = function (dir) {
-    var metaFile = dir.clone();
-    metaFile.append("Template.xml");
+    var filePath = path.join(dir, "Template.xml");
+    var stat = fs.statSync(filePath);
 
-    if (!metaFile.exists()) return null;
+    if (!stat.isFile()) return null;
 
-    var fileContents = FileIO.read(metaFile, ShapeDefCollectionParser.CHARSET);
-    var domParser = new DOMParser();
-
-    var dom = domParser.parseFromString(fileContents, "text/xml");
+    var fileContents = fs.readFileSync(filePath, "utf8");
+    var dom = ExportTemplate.domParser.parseFromString(fileContents, "text/xml");
 
     var template = new ExportTemplate();
     Dom.workOn("/*/p:Property", dom, function (node) {
@@ -23,10 +22,9 @@ ExportTemplate.parse = function (dir) {
     if (!template.id) return null;
     if (!template.name) return null;
     if (template.styleSheet) {
-        template.styleSheetFile = dir.clone();
-        template.styleSheetFile.append(template.styleSheet);
+        template.styleSheetFile = path.join(dir, template.styleSheet);
     }
-    template.dir = dir.clone();
+    template.dir = dir;
 
     return template;
 };

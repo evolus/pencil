@@ -1,0 +1,161 @@
+<vbox>
+    <style>
+
+    body .widget_Tree {
+        background: #FFF;
+        overflow: auto;
+    }
+    label {
+        margin-bottom: 0px;
+        font-weight: normal;
+        padding:3px;
+    }
+    .SelectableItem label {
+        border-radius: 2px;
+        line-height: 1em;
+    }
+    .ItemText.Selected {
+        padding-bottom: 3px;
+        padding-top: 3px;
+    }
+    .ItemText.Selected label {
+        background: #41B3ED;
+    }
+    .SelectableItem * {
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .SelectableItem:hover label {
+        background: #DEF2FF;
+    }
+    .ItemText.Selected:hover label {
+        background: #44BBF7;
+    }
+
+    .ItemText.Selected label {
+        color: #fff;
+    }
+
+    .ItemText.Disabled label {
+        color: gray;
+    }
+
+    .Title .ItemText {
+        display: inline;
+    }
+    .Title {
+        white-space: nowrap;
+        align-items: center;
+    }
+    .IconicLabel * {
+        vertical-align: middle;
+    }
+    .IconicLabel img {
+        width: 1em;
+        height: 1em;
+    }
+
+    .Title * {
+        vertical-align: middle;
+    }
+    .Title .Checkbox {
+        margin: 0px;
+        padding: 0px;
+        margin-right: 0.2em;
+        width: 0.8em;
+        height: 0.8em;
+    }
+    .Title .Checkbox:after {
+        font-size: 0.8em;
+        line-height: 1em;
+        margin-left: -0.1em;
+        width: 1em;
+        height: 1em;
+    }
+    .Chevron .Down,
+    .Chevron .Right {
+        @iconify();
+        display: inline-block;
+    }
+    .NoChild .Chevron .Down,
+    .NoChild .Chevron .Right {
+        visibility: hidden;
+    }
+
+    .Chevron .Right {
+    }
+    .CollapsedTitle .Down,
+    .ExpandedTitle .Right {
+        display: none;
+    }
+    .ExpandedTitle .Down,
+    .CollapsedTitle .Right {
+        display: inline-block;
+    }
+    .Title .Chevron {
+        padding: 0em 0.3em 0em 0.65em;
+        cursor: pointer;
+        color: #777;
+        font-size: 0.9em;
+    }
+    .Children {
+        padding-left: 15px;
+    }
+    .RootChildren {
+        padding-left: 0px;
+    }
+    .CollapsedChildren {
+        display: none;
+    }
+    .Checkbox {
+        display: none;
+    }
+    .Children .Children {
+        position: relative;
+    }
+    .Children .Children:before {
+        content: "";
+        position: absolute;
+        top: -0.1em;
+        bottom: 0.7em;
+        left: 1.05em;
+        width: 1px;
+        border-left: dotted 1px #CCC;
+    }
+    .Children .Children .Title {
+        position: relative;
+    }
+    .Children .Children .Title:before {
+        content: "";
+        position: absolute;
+        top: 0.6em;
+        height: 1px;
+        left: 0.15em;
+        width: 0.8em;
+        border-top: dotted 1px #CCC;
+    }
+    .Children .Children .NoChild:before {
+        width: 1.6em;
+    }
+    .Children .Children .LastChild {
+        position: relative;
+    }
+    .Children .Children .LastChild:before {
+        content: "";
+        position: absolute;
+        top: 0.7em;
+        bottom: 0px;
+        left: -0.2em;
+        width: 0.4em;
+        background: #fff;
+    }
+
+    body .CheckableTree .Checkbox {
+        display: inline-block;
+        margin-top: 0.2em;
+    }
+    body .CheckableTree .Checkbox[disabled] {
+        opacity: 0.4;
+    }
+    </style>
+</vbox>

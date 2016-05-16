@@ -77,6 +77,7 @@ Controller.prototype.resetDocument = function () {
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
 
     this.doc = new PencilDocument();
+    this.doc.name = "";
     this.documentPath = null;
     this.canvasPool.reset();
     this.activePage = null;
@@ -87,6 +88,20 @@ Controller.prototype.resetDocument = function () {
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
         if (this.doc.pages[i].id == id) return this.doc.pages[i];
+    }
+
+    return null;
+};
+Controller.prototype.findPageByFid = function (fid) {
+    for (var i in this.doc.pages) {
+        if (this.doc.pages[i].fid == fid) return this.doc.pages[i];
+    }
+
+    return null;
+};
+Controller.prototype.findPageByName = function (name) {
+    for (var i in this.doc.pages) {
+        if (this.doc.pages[i].name == name) return this.doc.pages[i];
     }
 
     return null;
@@ -307,6 +322,7 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
             ApplicationPane._instance.unbusy();
         });
         this.documentPath = filePath;
+        this.doc.name = this.getDocumentName();
         thiz.sayControllerStatusChanged();
 
     } catch (e) {
@@ -506,6 +522,7 @@ Controller.prototype.parseDocument = function (filePath) {
             }, thiz);
 
             thiz.documentPath = filePath;
+            thiz.doc.name = thiz.getDocumentName();
             thiz.applicationPane.onDocumentChanged();
             thiz.modified = false;
             //new file was loaded, update recent file list
@@ -583,6 +600,7 @@ Controller.prototype.saveAsDocument = function (onSaved) {
         if (!filePath) return;
         this.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
         this.documentPath = filePath;
+        this.doc.name = this.getDocumentName();
         this.saveDocumentImpl(filePath, onSaved);
     }.bind(this));
 };
@@ -598,6 +616,7 @@ Controller.prototype.saveDocument = function (onSaved) {
         }, function (filePath) {
             if (!filePath) return;
             thiz.documentPath = filePath;
+            thiz.doc.name = thiz.getDocumentName();
             thiz.saveDocumentImpl(thiz.documentPath, onSaved);
         });
         return;
@@ -632,7 +651,7 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     thiz.applicationPane.onDocumentChanged();
     thiz.sayControllerStatusChanged();
 };
-Controller.prototype.serializePage = function (page, outputPath) {
+Controller.serializePageToDom = function (page, noContent) {
     var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
     var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
     dom.documentElement.appendChild(propertyContainerNode);
@@ -647,21 +666,28 @@ Controller.prototype.serializePage = function (page, outputPath) {
         propertyNode.appendChild(dom.createTextNode(page[name] && page[name].toString() || page[name]));
     }
 
-    if (page._contentNode) {
-        dom.documentElement.appendChild(page._contentNode);
-    } else {
-        var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
-        dom.documentElement.appendChild(content);
+    if (!noContent) {
+        if (page._contentNode) {
+            dom.documentElement.appendChild(page._contentNode);
+        } else {
+            var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
+            dom.documentElement.appendChild(content);
 
-        if (page.canvas) {
-            var node = dom.importNode(page.canvas.drawingLayer, true);
-            while (node.hasChildNodes()) {
-                var c = node.firstChild;
-                node.removeChild(c);
-                content.appendChild(c);
+            if (page.canvas) {
+                var node = dom.importNode(page.canvas.drawingLayer, true);
+                while (node.hasChildNodes()) {
+                    var c = node.firstChild;
+                    node.removeChild(c);
+                    content.appendChild(c);
+                }
             }
         }
     }
+
+    return dom;
+};
+Controller.prototype.serializePage = function (page, outputPath) {
+    var dom = Controller.serializePageToDom(page);
 
     var xml = Controller.serializer.serializeToString(dom);
     fs.writeFileSync(outputPath, xml, "utf8");
@@ -1240,6 +1266,18 @@ Controller.prototype.updatePageProperties = function (page, name, backgroundColo
     }
 
     Pencil.controller.sayDocumentChanged();
+};
+Controller.prototype.getRootPages = function () {
+    if (!this.doc) throw "No document available";
+    var rootPages = [];
+    this.doc.pages.forEach(function (page) {
+        if (!page.parentPage) rootPages.push(page);
+    });
+
+    return rootPages;
+};
+Controller.prototype.exportCurrentDocument = function () {
+    Pencil.documentExportManager.exportDocument(this.doc);
 };
 
 window.onbeforeunload = function (event) {

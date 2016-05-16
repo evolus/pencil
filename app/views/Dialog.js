@@ -162,12 +162,12 @@ Dialog.prototype.show = function () {
         var x = (screenW - w) / 2;
         var y = (screenH - h) / 2;
 
-        console.log("Dialog size 0: ", thiz.dialogFrame.offsetWidth, thiz.dialogFrame.offsetHeight);
-
         thiz.moveTo(x, y);
 
         thiz.dialogFrame.style.visibility = "visible";
         thiz.dialogFrame.style.opacity = "1";
+
+        if (thiz.onShown) thiz.onShown();
     }, 100);
 
     BaseWidget.registerClosable(this);
