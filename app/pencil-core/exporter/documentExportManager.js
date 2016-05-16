@@ -319,10 +319,8 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
     var exporter = Pencil.getDocumentExporterById(exportSelection.exporterId);
 
     try {
-        console.log("XML file: ", xmlFile.name);
         exporter.export(this.doc, exportSelection, destFile, xmlFile.name, function () {
-            debug("Finish exporting, DOC XML = " + xmlFile.name);
-            //xmlFile.removeCallback();
+            xmlFile.removeCallback();
             callback();
         });
     } catch (e) {

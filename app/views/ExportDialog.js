@@ -82,11 +82,26 @@ ExportDialog.prototype.getDialogActions = function () {
 
                 if (exporter.getOutputType() != BaseExporter.OUTPUT_TYPE_NONE) {
                     var isFile = (exporter.getOutputType() == BaseExporter.OUTPUT_TYPE_FILE);
-                    dialog.showOpenDialog({
+
+                    var dialogOptions = {
                         title: "Select output " + (isFile ? "file" : "folder"),
                         defaultPath: os.homedir(),
                         properties: [isFile ? "openFile" : "openDirectory"]
-                    }, function (filenames) {
+                    };
+
+                    if (isFile) {
+                        var filters = [];
+                        exporter.getOutputFileExtensions().forEach(function (filter) {
+                            filters.push({
+                                name: filter.title || filter.ext,
+                                extensions: [filter.ext]
+                            });
+                        });
+
+                        dialogOptions.filters = filters;
+                    }
+
+                    dialog.showOpenDialog(dialogOptions, function (filenames) {
                         if (!filenames || filenames.length <= 0) return;
                         result.targetPath = filenames[0];
 

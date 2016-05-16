@@ -93,7 +93,7 @@ ODTExporter.prototype.getOutputFileExtensions = function () {
     return [
         {
             title: Util.getMessage("filepicker.openoffice.org.document.odt"),
-            ext: "*.odt"
+            ext: "odt"
         }
     ];
 };

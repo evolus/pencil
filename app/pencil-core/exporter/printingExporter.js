@@ -92,15 +92,17 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
     }
 
     ipcRenderer.once(id, function (event, data) {
-        console.log("RASTER: Printing result received for " + id);
         if (data.success) {
-            Dialog.alert("Exported to " + targetFile);
+            if (this.pdfOutput) {
+                Dialog.alert("Exported to " + targetFile);
+            }
         } else {
             Dialog.error("Error: " + data.message);
         }
+
         if (this.tempDir) this.tempDir.removeCallback();
         callback();
-    });
+    }.bind(this));
 
     ipcRenderer.send("printer-request", data);
     console.log("RASTER: Printing request sent for ", data);
@@ -115,7 +117,7 @@ PrintingExporter.prototype.getOutputFileExtensions = function () {
     return [
         {
             title: "Portable Document Format (*.pdf)",
-            ext: "*.pdf"
+            ext: "pdf"
         }
     ];
 };

@@ -19,7 +19,7 @@ SVGExporter.prototype.export = function (doc, options, destFile, xmlFile, callba
         this.xsltDOM.async = false;
         this.xsltDOM.load("exporter/Pencil2SVG.xslt");
     }
-    
+
     this.xsltProcessor.reset();
     this.xsltProcessor.importStylesheet(this.xsltDOM);
 
@@ -40,7 +40,7 @@ SVGExporter.prototype.getOutputFileExtensions = function () {
     return [
         {
             title: "Scalable Vector Graphic (*.svg)",
-            ext: "*.svg"
+            ext: "svg"
         }
     ];
 };

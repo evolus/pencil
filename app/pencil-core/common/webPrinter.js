@@ -63,9 +63,8 @@ module.exports = function () {
                         })
                     });
                 } else {
-                    browserWindow.webContents.print(options, function () {
-                        console.log("Print callback");
-                    });
+                    global.mainWindow.webContents.send(data.id, {success: true});
+                    browserWindow.webContents.print(options);
                 }
 
             }
