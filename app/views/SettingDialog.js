@@ -141,21 +141,18 @@ SettingDialog.prototype.setup = function () {
 
 SettingDialog.prototype.initializePreferenceTable = function () {
     console.log("initializePreferenceTable");
-    // this.preferenceTable.column(new DataTable.PlainTextColumn("Preference Name", function (data) {
-    //     return data.name;
-    // }).width("1*"));
-    // this.preferenceTable.column(new DataTable.PlainTextColumn("Status", function (data) {
-    //     return data.status;
-    // }).width("100"));
-    // this.preferenceTable.column(new DataTable.PlainTextColumn("Type", function (data) {
-    //     return data.type;
-    // }).width("100"));
-    // this.preferenceTable.column(new DataTable.PlainTextColumn("Value", function (data) {
-    //     return data.value;
-    // }).width("150"));
     this.preferenceTable.column(new DataTable.PlainTextColumn("Preference Name", function (data) {
-        return (data.name ? data.name || "" : "");
-    }).width("200px"));
+        return data.name;
+    }).width("1*"));
+    this.preferenceTable.column(new DataTable.PlainTextColumn("Status", function (data) {
+        return data.status;
+    }).width("100px"));
+    this.preferenceTable.column(new DataTable.PlainTextColumn("Type", function (data) {
+        return data.type;
+    }).width("100px"));
+    this.preferenceTable.column(new DataTable.PlainTextColumn("Value", function (data) {
+        return data.value;
+    }).width("150px"));
     this.preferenceTable.selector(false);
     console.log("this.preferenceTable: ", this.preferenceTable);
     var thiz = this;
