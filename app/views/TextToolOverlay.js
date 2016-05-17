@@ -79,7 +79,7 @@ function TextToolOverlay() {
     }, this.malignContainer);
 
     FontEditor._setupFontCombo(this.fontCombo, function () {
-        thiz.runEditorCommand("fontname", thiz.fontCombo.getSelectedItem());
+        thiz.runEditorCommand("fontname", thiz.fontCombo.getSelectedItem().family);
     }, true);
 
     this.fontSizeCombo.setItems([1, 2, 3, 4, 5, 6, 7]);
@@ -122,7 +122,7 @@ TextToolOverlay.prototype.updateListByCommandValue = function (commandName, cont
         Console.dumpError(e, "stdout");
     }
 
-    if (value && control == this.fontCombo) value = value.replace(/[']/g,'');
+    if (value && control == this.fontCombo) value = {family: value.replace(/[']/g,'')};
     control.selectItem(value);
 };
 

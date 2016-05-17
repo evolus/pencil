@@ -457,6 +457,12 @@ Dom.doUpward = function (node, evaluator, worker) {
     }
     return Dom.doUpward(node.parentNode, evaluator, worker);
 };
+function DomTagNameEvaluator(tagName) {
+    this.tagName = tagName.toUpperCase();
+}
+DomTagNameEvaluator.prototype.eval = function (node) {
+    return node && node.tagName && node.tagName.toUpperCase && (node.tagName.toUpperCase() == this.tagName);
+};
 Dom.findParentWithClass = function (node, className) {
     return Dom.findUpward(node, function (node) {
             var index = (" " + node.className + " ").indexOf(" " + className + " ") >= 0
@@ -986,62 +992,49 @@ Svg.getHeight = function (dom) {
 
 var Local = {};
 Local.getInstalledFonts = function () {
+    var installedFaces = [];
     var localFonts = [];
+    document.fonts.forEach(function (face) {
+        console.log("***** Got face", face);
+        if (!face._type || installedFaces.indexOf(face.family) >= 0) return;
+        installedFaces.push(face.family);
+        localFonts.push({family: face.family, type: face._type});
+    });
+
+    Local.sortFont(localFonts);
+
+    console.log("**** Installed fonts", localFonts);
 
     var fonts = fontManager.getAvailableFontsSync();
+
+    var systemFonts = [];
     for (var i in fonts) {
         console.log(fonts[i]);
         var contained = false;
-        for (var j in localFonts) {
-            if (localFonts[j] == fonts[i].family) {
+        for (var j in systemFonts) {
+            if (systemFonts[j].family == fonts[i].family) {
                 contained = true;
                 break;
             }
         }
         if (contained) continue;
-        localFonts.push(fonts[i].family);
+
+        systemFonts.push({
+            family: fonts[i].family
+        });
     }
-    // var enumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
-    //                         .getService(Components.interfaces.nsIFontEnumerator);
-    // var localFontCount = { value: 0 }
-    // localFonts = enumerator.EnumerateAllFonts(localFontCount);
 
-    /*/ google webfonts
-    localFonts.push("Cantarell");
-    localFonts.push("Cardo");
-    localFonts.push("Crimson Text");
-    localFonts.push("Droid Sans");
-    localFonts.push("Droid Sans Mono");
-    localFonts.push("Droid Serif");
-    localFonts.push("Inconsolata");
-    localFonts.push("Josefin Sans Std Light");
-    localFonts.push("Lobster");
-    localFonts.push("Molengo");
-    localFonts.push("Nobile");
-    localFonts.push("OFL Sorts Mill Goudy TT");
-    localFonts.push("Old Standard TT");
-    localFonts.push("Reenie Beanie");
-    localFonts.push("Tangerine");
-    localFonts.push("Vollkorn");
-    localFonts.push("Yanone Kaffeesatz");
-    localFonts.push("IM Fell English");*/
+    Local.sortFont(systemFonts);
 
-
+    localFonts = localFonts.concat(systemFonts)
     Local.cachedLocalFonts = localFonts;
-    Local.sortFont();
 
     return localFonts;
 };
-Local.sortFont = function() {
-    for (var i = 0; i < Local.cachedLocalFonts.length - 1; i++) {
-        for (var j = i + 1; j < Local.cachedLocalFonts.length; j++) {
-            if (Local.cachedLocalFonts[j] < Local.cachedLocalFonts[i]) {
-                var k = Local.cachedLocalFonts[j];
-                Local.cachedLocalFonts[j] = Local.cachedLocalFonts[i];
-                Local.cachedLocalFonts[i] = k;
-            }
-        }
-    }
+Local.sortFont = function(fonts) {
+    fonts.sort(function (a, b) {
+        return a.family.localeCompare(b.family);
+    });
 };
 Local.chromeToPath = function(aPath) {
     if (!aPath || !(/^chrome:/.test(aPath))) {
@@ -1135,7 +1128,7 @@ Local.isFontExisting = function (font) {
         Local.getInstalledFonts();
     }
     for (var i in Local.cachedLocalFonts) {
-        if (Local.cachedLocalFonts[i] == font) return true;
+        if (Local.cachedLocalFonts[i].family == font) return true;
     }
 
     return false;

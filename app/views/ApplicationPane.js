@@ -72,6 +72,8 @@ function ApplicationPane() {
     });
 
     ApplicationPane._instance = this;
+
+    FontLoader.loadFonts();
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {
