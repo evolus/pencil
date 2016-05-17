@@ -123,10 +123,12 @@ MainMenu.prototype.setup = function () {
     });
     developerToolSubItems.push(Menu.SEPARATOR);
     developerToolSubItems.push({
-        key: "showErrorConsole",
-        label: "Show Error Console",
+        key: "openDeveloperTools",
+        label: "Open Developer Tools",
+        shortcut: "Ctrl+Alt+Shift+P",
         run: function () {
-
+            var app = require('electron').remote.app;
+            app.mainWindow.openDevTools();
         }
     });
 

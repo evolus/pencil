@@ -172,6 +172,20 @@ var Tree = function() {
                 thiz.walk(function(item, node) {
                     thiz.ensureNodeExpanded(node);
                     return true;
+                }, null, function () {
+                    var rootNodes = thiz.rootChildrenContainer.childNodes;
+                    var hasChild = false;
+                    for ( var i = 0; i < rootNodes.length; i++) {
+                        var node = rootNodes[i].firstChild;
+                        if (node && !Dom.hasClass(node, "NoChild")) {
+                            hasChild = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasChild) {
+                        Dom.addClass(thiz.node(), "Flat");
+                    }
                 });
             }
             if (thiz.onInitializing) {
@@ -261,14 +275,16 @@ var Tree = function() {
         for ( var i = 0; i < source.length; i++)
             dest.push(source[i]);
     }
-    Tree.prototype.walk = function(visitor, tryRemaining) {
+    Tree.prototype.walk = function(visitor, tryRemaining, doneCallback) {
         var queue = [];
         appendArray(this.rootChildrenContainer.childNodes, queue);
 
         var thiz = this;
         var next = function() {
-            if (queue.length <= 0) return;
-
+            if (queue.length <= 0) {
+                if (doneCallback) doneCallback();
+                return;
+            }
             var node = queue.shift();
             var item = node._item;
             if (!visitor(item, node)) {
@@ -458,7 +474,7 @@ var Tree = function() {
                 checkbox.setAttribute("disabled", "true");
             }
         }
-        
+
         if (this.options.isItemInitiallyChecked && this.options.isItemInitiallyChecked(item)) {
             checkbox.setAttribute("checked", "true");
         }

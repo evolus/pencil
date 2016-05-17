@@ -329,6 +329,15 @@ var domParser = new DOMParser();
     return dom;
 };
 
+Dom.isElementExistedInDocument = function(element) {
+    while (element) {
+        if (element == document) {
+            return true;
+        }
+        element = element.parentNode;
+    }
+    return false;
+}
 Dom.registerEvent = function (target, event, handler, capture) {
     var useCapture = false;
     if (capture) {
@@ -607,6 +616,23 @@ Dom.htmlEncode = function (text) {
     Dom.htmlEncodeDiv.innerHTML = "";
     Dom.htmlEncodeDiv.appendChild(document.createTextNode(text));
     return Dom.htmlEncodeDiv.innerHTML;
+};
+Dom.attrEncode = function (s, preserveCR) {
+    preserveCR = preserveCR ? '&#13;' : '\n';
+    return ('' + s) /* Forces the conversion to string. */
+        .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
+        .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        /*
+        You may add other replacements here for HTML only
+        (but it's not necessary).
+        Or for XML, only if the named entities are defined in its DTD.
+        */
+        .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
+        .replace(/[\r\n]/g, preserveCR);
+        ;
 };
 Dom.htmlStrip = function (s) {
     if (!Dom.htmlEncodePlaceHolder) {
@@ -1126,28 +1152,10 @@ Local.openExtenstionManager = function() {
     window.openDialog(EMURL, "", EMFEATURES);
 };
 Local.newTempFile = function (prefix, ext) {
-
-    var file = Components.classes["@mozilla.org/file/directory_service;1"].
-                        getService(Components.interfaces.nsIProperties).
-                        get("TmpD", Components.interfaces.nsIFile);
-    var seed = Math.round(Math.random() * 1000000);
-
-    file.append(prefix + "-" + seed + "." + ext);
-
-    return file;
+    return tmp.fileSync({prefix: prefix + "-", postfix: "." + ext, keep: false});
 };
 Local.createTempDir = function (prefix) {
-
-    var dir = Components.classes["@mozilla.org/file/directory_service;1"].
-                        getService(Components.interfaces.nsIProperties).
-                        get("TmpD", Components.interfaces.nsIFile);
-    var seed = Math.round(Math.random() * 1000000);
-
-    dir.append(prefix + "-" + seed);
-
-    dir.create(dir.DIRECTORY_TYPE, 0777);
-
-    return dir;
+    return tmp.dirSync({prefix: prefix + "-", keep: false});
 };
 
 var Console = {};
@@ -1368,23 +1376,9 @@ Util.confirmExtra = function(title, description, acceptLabel, extraLabel, cancel
     return result;
 }
 Util.beginProgressJob = function(jobName, jobStarter) {
-    var dialog = window.openDialog("chrome://pencil/content/progressDialog.xul", "pencilProgressDialog" + Util.getInstanceToken(), "alwaysRaised,centerscreen", jobName, jobStarter, function (message, p) {
-        if (!Util.statusbarDisplay) return;
-        if (message) {
-            Util.showStatusBarInfo(message);
-        } else {
-            Util.hideStatusbarMessage();
-        }
-        var p1 = document.getElementById("pencil-statusbar-progresspanel");
-        var p2 = document.getElementById("pencil-statusbar-progress");
-        if (p1 && p2) {
-            if (p) {
-                p1.collapsed = false;
-                p2.value = p;
-            } else {
-                p1.collapsed = true;
-            }
-        }
+    new ProgressiveJobDialog().open({
+        title: jobName,
+        starter: jobStarter
     });
 };
 Util.setNodeMetadata = function (node, name, value) {
@@ -1456,13 +1450,16 @@ Util.generateIcon = function (target, maxWidth, maxHeight, padding, iconPath, ca
         Console.dumpError(ex);
     }
 };
-Util.compress = function (dir, zipFile) {
-    var writer = Components.classes["@mozilla.org/zipwriter;1"]
-                        .createInstance(Components.interfaces.nsIZipWriter);
-    writer.open(zipFile, PR_RDWR | PR_CREATE_FILE | PR_TRUNCATE);
-
-    Util.writeDirToZip(dir, writer, "");
-    writer.close();
+Util.compress = function (dir, zipFile, callback) {
+    var archiver = require("archiver");
+    var archive = archiver("zip");
+    var output = fs.createWriteStream(zipFile);
+    output.on("close", function () {
+        if (callback) callback();
+    });
+    archive.pipe(output);
+    archive.directory(dir, "/", {});
+    archive.finalize();
 };
 Util.writeDirToZip = function (dir, writer, prefix) {
     var items = dir.directoryEntries;

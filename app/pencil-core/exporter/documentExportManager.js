@@ -134,15 +134,15 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
         };
     }
 
-    var fakeListener = {
-        onTaskDone: function () { console.log("DONE");},
-        onProgressUpdated: function (status, complete, total) { console.log(" >> Progress: " + status + " " + complete + "/" + total);}
-    };
-
-    starter(fakeListener);
+    // var fakeListener = {
+    //     onTaskDone: function () { console.log("DONE");},
+    //     onProgressUpdated: function (status, complete, total) { console.log(" >> Progress: " + status + " " + complete + "/" + total);}
+    // };
+    //
+    // starter(fakeListener);
 
     //take a shower, doit together!!!
-    //Util.beginProgressJob(Util.getMessage("export.documents"), starter);
+    Util.beginProgressJob(Util.getMessage("export.documents"), starter);
 };
 DocumentExportManager.prototype._getPageLinks = function (page, pageExtraInfos, includeBackground) {
     var bgLinks = [];
@@ -243,27 +243,25 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
         pageNode = dom.importNode(pageNode, true);
         pageNode.setAttribute("id", page.id);
 
-/*
         if (!requireRasterizedData) {
             var bgPageNode = dom.createElementNS(PencilNamespaces.p, "BackgroundPages");
-            var bgId = page.properties.background;
-            while (bgId) {
-                var bgPage = this.doc.getPageById(bgId);
-                if (!bgPage) break;
+            var bgPage = page.backgroundPage;
+            while (bgPage) {
+                var node = Controller.serializePageToDom(bgPage).documentElement;
                 if (bgPageNode.firstChild) {
-                    bgPageNode.insertBefore(bgPage.toNode(dom, false), bgPageNode.firstChild);
+                    bgPageNode.insertBefore(node, bgPageNode.firstChild);
                 } else {
-                    bgPageNode.appendChild(bgPage.toNode(dom, false));
+                    bgPageNode.appendChild(node);
                 }
 
-                bgId = bgPage.properties.background;
+                bgPage = bgPage.backgroundPage;
             }
 
             if (bgPageNode.firstChild) {
                 pageNode.appendChild(bgPageNode);
             }
         }
-*/
+
         //ugly walkarround for Gecko d-o-e bug (https://bugzilla.mozilla.org/show_bug.cgi?id=98168)
         //we have to reparse the provided notes as XHTML and append it directly to the dom
         if (page.note) {
@@ -322,7 +320,6 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
 
     try {
         exporter.export(this.doc, exportSelection, destFile, xmlFile.name, function () {
-            debug("Finish exporting, DOC XML = " + xmlFile.name);
             xmlFile.removeCallback();
             callback();
         });

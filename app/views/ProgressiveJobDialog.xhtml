@@ -1,0 +1,22 @@
+<vbox>
+    <style>
+        @progressBar {
+            background: darken(@app_bg, 30%);
+            height: 1em;
+        }
+        @progressBar,
+        @statusLabel {
+            width: 15em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        @progressBarInner {
+            height: 100%;
+            background: @selected_bg;
+        }
+    </style>
+    <label anon-id="statusLabel"></label>
+    <div anon-id="progressBar">
+        <div anon-id="progressBarInner"></div>
+    </div>
+</vbox>

@@ -1,9 +1,7 @@
 function PrintingExporter(pdfOutput) {
     this.pdfOutput = pdfOutput;
-    this.name = pdfOutput ? "Export to PDF" : "Send to printer";
+    this.name = pdfOutput ? "Portable Document Format (PDF)" : "Send to printer";
     this.id = pdfOutput ? "PDFExporter" : "PrintingExporter";
-    this.xsltProcessor = new XSLTProcessor();
-    this.xsltDOM = null;
 }
 PrintingExporter.HTML_FILE = "index.html";
 PrintingExporter.prototype = new BaseExporter();
@@ -19,7 +17,7 @@ PrintingExporter.prototype.requireRasterizedData = function (options) {
 };
 PrintingExporter.prototype.getRasterizedPageDestination = function (baseDir) {
     this.tempDir = Local.createTempDir("printing");
-    return this.tempDir;
+    return this.tempDir.name;
 };
 PrintingExporter.prototype.supportTemplating = function () {
     return true;
@@ -31,7 +29,7 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
     if (!this.tempDir) this.tempDir = Local.createTempDir("printing");
     var destDir = this.tempDir;
 
-    debug("destDir: " + destDir.path);
+    debug("destDir: " + destDir.name);
 
     var templateId = options.templateId;
     if (!templateId) return;
@@ -39,20 +37,23 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
     var template = ExportTemplateManager.getTemplateById(templateId);
 
     //copying support files
-    var items = template.dir.directoryEntries;
-    while (items.hasMoreElements()) {
-        var file = items.getNext().QueryInterface(Components.interfaces.nsIFile);
+    var items = fs.readdirSync(template.dir);
+    items.forEach(function (item) {
+        if (item == "Template.xml" || item == template.styleSheet) return;
 
-        if (file.leafName == "Template.xml"
-            || file.leafName == template.styleSheet) continue;
+        var file = path.join(template.dir, item);
+        var destFile = path.join(destDir.name, item);
+        if (fsExistSync(destFile)) {
+            deleteFileOrFolder(destFile);
+        }
 
-        var destFile = destDir.clone();
-        destFile.append(file.leafName);
+        if (fsExistAsDirectorySync(file)) {
+            copyFolderRecursiveSync(file, destDir.name);
+        } else {
+            copyFileSync(file, destDir.name);
+        }
+    });
 
-        if (destFile.exists()) destFile.remove(true);
-
-        file.copyTo(destDir, "");
-    }
 
     //transform the xml to HTML
     var sourceDOM = Dom.parseFile(xmlFile);
@@ -65,30 +66,46 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
     xsltProcessor.importStylesheet(xsltDOM);
     var result = xsltProcessor.transformToDocument(sourceDOM);
 
-    var htmlFile = destDir.clone();
-    htmlFile.append(PrintingExporter.HTML_FILE);
+    var htmlFile = path.join(destDir.name, PrintingExporter.HTML_FILE);
 
     Dom.serializeNodeToFile(result, htmlFile);
 
-    var ios = Components.classes["@mozilla.org/network/io-service;1"].
-              getService(Components.interfaces.nsIIOService);
-    var url = ios.newFileURI(htmlFile);
-
-    debug(url.spec);
-
     if (this.pdfOutput) {
-        if (targetFile && targetFile.exists()) {
-            targetFile.remove(true);
-        }
-    }
-    var settings = {filePath: (targetFile && this.pdfOutput) ? targetFile.path : null};
-    for (var propName in template) {
-        if (("" + propName).match(/^print\./)) {
-            settings[propName] = template[propName];
+        if (fsExistSync(targetFile)) {
+            deleteFileOrFolder(targetFile);
         }
     }
 
-    Pencil.printer.printUrl(url.spec, settings, callback);
+    //print via ipc
+    var id = Util.newUUID();
+    var data = {
+        fileURL: ImageData.filePathToURL(htmlFile),
+        targetFilePath: targetFile,
+        pdf: this.pdfOutput,
+        id: id
+    };
+
+    for (var propName in template) {
+        if (("" + propName).match(/^print\.(.+)$/)) {
+            data[propName] = template[propName];
+        }
+    }
+
+    ipcRenderer.once(id, function (event, data) {
+        if (data.success) {
+            if (this.pdfOutput) {
+                Dialog.alert("Exported to " + targetFile);
+            }
+        } else {
+            Dialog.error("Error: " + data.message);
+        }
+
+        if (this.tempDir) this.tempDir.removeCallback();
+        callback();
+    }.bind(this));
+
+    ipcRenderer.send("printer-request", data);
+    console.log("RASTER: Printing request sent for ", data);
 };
 PrintingExporter.prototype.getWarnings = function () {
     return null;
@@ -100,7 +117,7 @@ PrintingExporter.prototype.getOutputFileExtensions = function () {
     return [
         {
             title: "Portable Document Format (*.pdf)",
-            ext: "*.pdf"
+            ext: "pdf"
         }
     ];
 };

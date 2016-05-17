@@ -667,12 +667,10 @@ Controller.serializePageToDom = function (page, noContent) {
     }
 
     if (!noContent) {
-        if (page._contentNode) {
-            dom.documentElement.appendChild(page._contentNode);
-        } else {
-            var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
-            dom.documentElement.appendChild(content);
+        var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
+        dom.documentElement.appendChild(content);
 
+        if (page.canvas) {
             if (page.canvas) {
                 var node = dom.importNode(page.canvas.drawingLayer, true);
                 while (node.hasChildNodes()) {
@@ -680,6 +678,27 @@ Controller.serializePageToDom = function (page, noContent) {
                     node.removeChild(c);
                     content.appendChild(c);
                 }
+            }
+        } else {
+            var svg = document.createElementNS(PencilNamespaces.svg, "svg");
+            svg.setAttribute("width", "" + page.width  + "px");
+            svg.setAttribute("height", "" + page.height  + "px");
+
+            var dom2 = Controller.parser.parseFromString(fs.readFileSync(page.tempFilePath, "utf8"), "text/xml");
+            var content2 = Dom.getSingle("/p:Page/p:Content", dom2);
+            while (content2.hasChildNodes()) {
+                var c = content2.firstChild;
+                content2.removeChild(c);
+                svg.appendChild(c);
+            }
+
+            var offScreenCanvas = new OffScreenCanvas(svg);
+            offScreenCanvas.invalidateAll();
+
+            while (svg.hasChildNodes()) {
+                var c = svg.firstChild;
+                svg.removeChild(c);
+                content.appendChild(c);
             }
         }
     }

@@ -10,30 +10,11 @@ module.exports = function () {
     const electron = require('electron');
     const app = electron.app;
     const BrowserWindow = electron.BrowserWindow;
+    var QueueHandler = require("./QueueHandler");
 
     var rendererWindow = null;
     var currentRenderHandler = null;
 
-
-    function QueueHandler() {
-        this.tasks = [];
-    }
-    QueueHandler.prototype.submit = function (task) {
-        this.tasks.push(task);
-
-        if (this.tasks.length == 1) this.start();
-    }
-
-    QueueHandler.prototype.start = function (task) {
-
-        var next = function() {
-            if (this.tasks.length <= 0) return;
-            var task = this.tasks.pop();
-            task(next);
-        }.bind(this);
-
-        next();
-    }
 
     var queueHandler = new QueueHandler();
 
@@ -153,7 +134,7 @@ module.exports = function () {
         var canvasWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         var url = "file://" + app.getAppPath() + "/renderer.xhtml";
         canvasWindow.loadURL(url);
-        canvasWindow.webContents.openDevTools();
+        // canvasWindow.webContents.openDevTools();
 
         ipcMain.on("canvas-render-request", function (event, data) {
             console.log("RASTER: Forwarding render request for " + data.id);

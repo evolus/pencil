@@ -49,9 +49,6 @@
         <meta:generator>Evolus Pencil</meta:generator>
         <dc:description>Document generated from a Pencil drawing</dc:description>
         <dc:title><xsl:value-of select="/p:Document/p:Properties/p:Property[@name='fileName']/text()"/></dc:title>
-        <meta:document-statistic meta:table-count="0"
-            meta:image-count="1" meta:object-count="0" meta:page-count="3"
-            meta:paragraph-count="4" meta:word-count="154" meta:character-count="1138" />
     </office:meta>
 </office:document-meta>
 

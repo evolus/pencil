@@ -74,18 +74,7 @@ ExportTemplateManager.loadDefaultTemplates = function () {
     }
 };
 ExportTemplateManager.getDefaultTemplateDirectory = function () {
-    var properties = Components.classes["@mozilla.org/file/directory_service;1"]
-                     .getService(Components.interfaces.nsIProperties);
-
-    var templateDir = properties.get("CurProcD", Components.interfaces.nsIFile);
-
-    templateDir.append("content");
-    templateDir.append("pencil");
-    templateDir.append("templates");
-
-    debug("default templateDir: " + templateDir.path);
-
-    return templateDir;
+    return path.join(path.join(__dirname, "pencil-core"), "templates");
 };
 ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type) {
     //loading all templates
@@ -123,10 +112,7 @@ ExportTemplateManager.loadTemplates = function() {
         var type = ExportTemplateManager.SUPPORTED_TYPES[i];
         ExportTemplateManager.templates[type] = [];
     }
-/*
     ExportTemplateManager.loadDefaultTemplates();
-    ExportTemplateManager.loadSystemWideDefinedTemplates();
-*/
     ExportTemplateManager.loadUserDefinedTemplates();
 };
 ExportTemplateManager.installNewTemplate = function (type) {
