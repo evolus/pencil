@@ -223,9 +223,9 @@ var MESSAGES = {
 "menu.nothing.label": "Nothing",
 
 //exporter
-"rasterized.graphics.png.files": "Rasterized graphics (PNG files)",
-"openoffice.org.document.odt.file": "OpenOffice.org document (ODT file)",
-"microsoft.word.document.doc.file": "Microsoft Word Document (DOC file)",
+"rasterized.graphics.png.files": "Rasterized graphics (PNGs)",
+"openoffice.org.document.odt.file": "OpenOffice.org document (ODT)",
+"microsoft.word.document.doc.file": "Microsoft Word Document (DOC)",
 "pdf.document": "PDF Document",
 "single.web.page": "Single web page",
 

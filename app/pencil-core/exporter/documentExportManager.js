@@ -134,15 +134,15 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
         };
     }
 
-    var fakeListener = {
-        onTaskDone: function () { console.log("DONE");},
-        onProgressUpdated: function (status, complete, total) { console.log(" >> Progress: " + status + " " + complete + "/" + total);}
-    };
-
-    starter(fakeListener);
+    // var fakeListener = {
+    //     onTaskDone: function () { console.log("DONE");},
+    //     onProgressUpdated: function (status, complete, total) { console.log(" >> Progress: " + status + " " + complete + "/" + total);}
+    // };
+    //
+    // starter(fakeListener);
 
     //take a shower, doit together!!!
-    //Util.beginProgressJob(Util.getMessage("export.documents"), starter);
+    Util.beginProgressJob(Util.getMessage("export.documents"), starter);
 };
 DocumentExportManager.prototype._getPageLinks = function (page, pageExtraInfos, includeBackground) {
     var bgLinks = [];

@@ -1369,23 +1369,9 @@ Util.confirmExtra = function(title, description, acceptLabel, extraLabel, cancel
     return result;
 }
 Util.beginProgressJob = function(jobName, jobStarter) {
-    var dialog = window.openDialog("chrome://pencil/content/progressDialog.xul", "pencilProgressDialog" + Util.getInstanceToken(), "alwaysRaised,centerscreen", jobName, jobStarter, function (message, p) {
-        if (!Util.statusbarDisplay) return;
-        if (message) {
-            Util.showStatusBarInfo(message);
-        } else {
-            Util.hideStatusbarMessage();
-        }
-        var p1 = document.getElementById("pencil-statusbar-progresspanel");
-        var p2 = document.getElementById("pencil-statusbar-progress");
-        if (p1 && p2) {
-            if (p) {
-                p1.collapsed = false;
-                p2.value = p;
-            } else {
-                p1.collapsed = true;
-            }
-        }
+    new ProgressiveJobDialog().open({
+        title: jobName,
+        starter: jobStarter
     });
 };
 Util.setNodeMetadata = function (node, name, value) {

@@ -1,5 +1,5 @@
 function SVGExporter() {
-    this.name = "Multi-page SVG file";
+    this.name = "Multi-layer vector graphics (SVG)";
     this.id = "SVGExporter";
     this.xsltProcessor = new XSLTProcessor();
     this.xsltDOM = null;
