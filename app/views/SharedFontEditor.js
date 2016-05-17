@@ -87,7 +87,9 @@ SharedFontEditor.prototype.setup = function () {
 
     Pencil.formatPainterButton = this.formatPainterButton;
 };
-
+SharedFontEditor.prototype.reloadFontItems = function () {
+    FontEditor._loadFontItems(this.fontCombo);    
+};
 SharedFontEditor.prototype.beginFormatPainter = function () {
     var activeCanvas = Pencil.activeCanvas;
 

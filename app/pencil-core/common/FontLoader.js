@@ -5,7 +5,9 @@ function FontLoader() {
 FontLoader.loadFonts = function () {
     var pencilFontDir = Config.getDataFilePath("fonts");
     FontLoader.parseRegistryFontFromDir(pencilFontDir, "user");
-}
+
+    Dom.emitEvent("p:UserFontLoaded", document.documentElement, {});
+};
 
 FontLoader.parseRegistryFontFromDir = function (dirPath, type) {
     var registryFilePath = path.join(dirPath, "registry.xml");
@@ -47,4 +49,4 @@ FontLoader.parseRegistryFontFromDir = function (dirPath, type) {
     } catch (e) {
 
     }
-}
+};

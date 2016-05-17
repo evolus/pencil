@@ -22,14 +22,21 @@ FontEditor._setupFontCombo = function (fontCombo, changeEvent, withNullValue) {
         }
     };
 
-    var localFonts = Local.getInstalledFonts();
-    var items = localFonts;
-    if (withNullValue) items.unshift("");
-    fontCombo.setItems(items);
+    FontEditor._loadFontItems(fontCombo, withNullValue);
+    // var localFonts = Local.getInstalledFonts();
+    // var items = localFonts;
+    // if (withNullValue) items.unshift("");
+    // fontCombo.setItems(items);
     fontCombo.addEventListener("p:ItemSelected", function(event) {
         // if (OnScreenTextEditor.isEditing) return;
         changeEvent();
     }, false);
+};
+FontEditor._loadFontItems = function (fontCombo, withNullValue) {
+    var localFonts = Local.getInstalledFonts();
+    var items = localFonts;
+    if (withNullValue) items.unshift("");
+    fontCombo.setItems(items);
 };
 FontEditor.prototype.setup = function () {
     //grab control references
