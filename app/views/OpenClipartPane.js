@@ -32,6 +32,7 @@ function OpenClipartPane() {
 
     this.searchInput.addEventListener("keyup", function (event) {
         if (event.keyCode == DOM_VK_RETURN) {
+            thiz.searchOptions.page = 1;
             thiz.search();
         }
     }, false);

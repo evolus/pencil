@@ -9,6 +9,8 @@ function SettingDialog() {
         if (!node) return;
         var configName = node.getAttribute("configName");
 
+        console.log("configName:", configName);
+
         if (node.type == "checkbox") {
             Config.set(configName, node.checked);
         }
@@ -66,25 +68,29 @@ function SettingDialog() {
             Dom.addClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
         }
     }, this.checkboxScaleImage);
+
+    this.bind("input", function (event) {
+        this.setPreferenceItems();
+    }, this.preferenceNameInput);
 }
 __extend(Dialog, SettingDialog);
 
 SettingDialog.prototype.setup = function () {
-    this.checkboxEnableGrid.checked = Config.get("pencil.config.grid.enabled");
-    this.snapToGrid.checked = Config.get("pencil.config.edit.snap.grid");
-    this.enableSnapping.checked = Config.get("pencil.config.object.snapping.enabled");
-    this.enableSnappingBackground.checked = Config.get("pencil.config.object.snapping.background");
-    this.embedImages.checked = Config.get("pencil.config.document.EmbedImages");
-    this.quickEditting.checked = Config.get("pencil.config.quick.editting");
-    this.cutAndPasteAtTheSamePlace.checked = Config.get("pencil.config.edit.cutAndPasteAtTheSamePlace");
-    this.undoEnabled.checked = Config.get("pencil.config.view.undo.enabled");
-    this.checkboxScaleImage.checked = Config.get("pencil.config.clipartbrowser.scale");
+    this.checkboxEnableGrid.checked = Config.get("grid.enabled");
+    this.snapToGrid.checked = Config.get("edit.snap.grid");
+    this.enableSnapping.checked = Config.get("object.snapping.enabled");
+    this.enableSnappingBackground.checked = Config.get("object.snapping.background");
+    this.embedImages.checked = Config.get("document.EmbedImages");
+    this.quickEditting.checked = Config.get("quick.editting");
+    this.cutAndPasteAtTheSamePlace.checked = Config.get("edit.cutAndPasteAtTheSamePlace");
+    this.undoEnabled.checked = Config.get("view.undo.enabled");
+    this.checkboxScaleImage.checked = Config.get("clipartbrowser.scale");
 
-    var gridSize = Config.get("pencil.config.edit.gridSize");
+    var gridSize = Config.get("edit.gridSize");
     if (gridSize == null) {
-        Config.set("pencil.config.edit.gridSize", 8);
+        Config.set("edit.gridSize", 8);
     }
-    this.textboxGridSize.value = Config.get("pencil.config.edit.gridSize");
+    this.textboxGridSize.value = Config.get("edit.gridSize");
 
     var w = Config.get("clipartbrowser.scale.width");
     var h = Config.get("clipartbrowser.scale.height");
@@ -98,11 +104,11 @@ SettingDialog.prototype.setup = function () {
     this.textboxClipartBrowserScaleWidth.value  = Config.get("clipartbrowser.scale.width");
     this.textboxClipartBrowserScaleHeight.value = Config.get("clipartbrowser.scale.height");
 
-    var level = Config.get("pencil.config.view.undoLevel");
+    var level = Config.get("view.undoLevel");
     if (level == null) {
-        Config.set("pencil.config.view.undoLevel", 20);
+        Config.set("view.undoLevel", 20);
     }
-    this.textboxUndoLevel.value = Config.get("pencil.config.view.undoLevel");
+    this.textboxUndoLevel.value = Config.get("view.undoLevel");
 
     var svgurl = Config.get("external.editor.vector.path", "/usr/bin/inkscape");
     var bitmapurl = Config.get("external.editor.bitmap.path", "/usr/bin/gimp");
@@ -146,18 +152,30 @@ SettingDialog.prototype.initializePreferenceTable = function () {
     }).width("1*"));
     this.preferenceTable.column(new DataTable.PlainTextColumn("Status", function (data) {
         return data.status;
-    }).width("100px"));
+    }).width("8em"));
     this.preferenceTable.column(new DataTable.PlainTextColumn("Type", function (data) {
         return data.type;
-    }).width("100px"));
+    }).width("8em"));
     this.preferenceTable.column(new DataTable.PlainTextColumn("Value", function (data) {
         return data.value;
-    }).width("150px"));
+    }).width("15em"));
     this.preferenceTable.selector(false);
-    console.log("this.preferenceTable: ", this.preferenceTable);
     var thiz = this;
     window.setTimeout(function () {
         thiz.preferenceTable.setup();
+        thiz.preferenceTable.setDefaultSelectionHandler({
+            run: function (data) {
+                if (data.type == "boolean") {
+                    data.value = !data.value;
+                    Config.set(data.configName, !data.value);
+                } else {
+                    Dialog.prompt(data.configName, data.value, "OK", function (value) {
+                        data.value = value;
+                        Config.set(data.configName, value);
+                    }, "Cancel");
+                }
+            }
+        });
         thiz.setPreferenceItems();
     }, 200);
     // this.setPreferenceItems();
@@ -165,15 +183,18 @@ SettingDialog.prototype.initializePreferenceTable = function () {
 
 SettingDialog.prototype.setPreferenceItems = function () {
     var items = [];
-    for (var i = 0 ; i < 10; i++) {
+    Config._load();
+    var query = this.preferenceNameInput.value;
+    for (var configName in Config.data) {
+        if (configName.indexOf(query) < 0) continue;
+        var value = Config.data[configName];
         items.push({
-            name: "config" + i,
+            name: configName,
             status: "user set",
-            type: "string",
-            value: "test"
+            value: value,
+            type: typeof(value)
         });
-    }
-
+    };
     this.preferenceTable.setItems(items);
 };
 

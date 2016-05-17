@@ -5,11 +5,20 @@ __extend(PropertyEditor, FontEditor);
 
 FontEditor._setupFontCombo = function (fontCombo, changeEvent, withNullValue) {
     fontCombo.renderer = function (font) {
-        return font ? font : "Font";
+        return font ? font.family : "Font";
     };
+    fontCombo.comparer = function (a, b) {
+        if (!a) return !b;
+        if (!b) return false;
+        return a.family == b.family;
+    };
+
     fontCombo.decorator = function (node, font) {
         if (font) {
-            node.style.fontFamily = "'" + font + "'";
+            node.style.fontFamily = "'" + font.family + "'";
+            if (font._type) {
+                node.style.color = "red";
+            }
         }
     };
 
@@ -106,13 +115,13 @@ FontEditor.prototype.setValue = function (font) {
     if (!font) return;
     this.font = font;
     if (Local.isFontExisting(this.font.family)) {
-        this.fontCombo.selectItem(this.font.family);
+        this.fontCombo.selectItem(font);
     } else {
         var families = this.font.getFamilies();
         for (var i = 0; i < families.length; i ++) {
             var f = families[i];
             if (Local.isFontExisting(f)) {
-                this.fontCombo.selectItem(f);
+                this.fontCombo.selectItem({family: f});
                 break;
             }
         }
@@ -137,7 +146,7 @@ FontEditor.prototype.setValue = function (font) {
 
 FontEditor.prototype.getValue = function () {
     var font = new Font();
-    font.family = this.fontCombo.getSelectedItem();
+    font.family = this.fontCombo.getSelectedItem().family;
     font.size = this.pixelFontSize.value + "px";
     font.weight = (this.boldButton.getAttribute("checked") == "true") ? "bold" : "normal";
     font.style = (this.italicButton.getAttribute("checked") == "true") ? "italic" : "normal";

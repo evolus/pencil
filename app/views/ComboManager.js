@@ -94,6 +94,15 @@ ComboManager.prototype.setItems = function (items) {
 };
 
 ComboManager.prototype.selectItem = function (item, fromUserAction) {
+    var comparer = this.comparer || function (a, b) { return a == b};
+    if (this.items) {
+        for (var i = 0; i < this.items.length; i ++) {
+            if (comparer(this.items[i], item)) {
+                item = this.items[i];
+                break;
+            }
+        }
+    }
     var element = this.renderer(item);
     if (!element) return;
 
