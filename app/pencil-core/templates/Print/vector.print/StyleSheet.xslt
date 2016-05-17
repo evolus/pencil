@@ -28,12 +28,16 @@
             <h2>
                 <xsl:value-of select="p:Properties/p:Property[@name='name']/text()"/>
             </h2>
-            <div class="ImageContainer">
-                <img src="{@rasterized}"
-                    width="{p:Properties/p:Property[@name='width']/text()}"
-                    height="{p:Properties/p:Property[@name='height']/text()}"
-                    usemap="#map_{p:Properties/p:Property[@name='fid']/text()}"/>
-            </div>      
+            
+            <div class="SVGContainer">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="{p:Properties/p:Property[@name='width']/text()}" height="{p:Properties/p:Property[@name='height']/text()}">
+                    <xsl:apply-templates select="p:BackgroundPages/p:Page" mode="copyBackground"/>
+                    <g inkscape:label="{p:Properties/p:Property[@name='name']/text()}"
+                       inkscape:groupmode="layer" id="layer_{p:Properties/p:Property[@name='fid']/text()}">
+                        <xsl:apply-templates select="p:Content/*" mode="copy" />
+                    </g>
+                </svg>
+            </div>            
             <xsl:if test="p:Note">
                 <p class="Notes">
                     <xsl:apply-templates select="p:Note/node()" mode="processing-notes"/>
