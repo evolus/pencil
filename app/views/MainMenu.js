@@ -52,9 +52,8 @@ MainMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("openDocumentCommand"));
     this.register(UICommandManager.getCommand("saveDocumentCommand"));
     this.register(UICommandManager.getCommand("saveAsDocumentCommand"));
-    this.separator();
     this.register(UICommandManager.getCommand("exportDocumentCommand"));
-    this.separator();
+    this.register(UICommandManager.getCommand("printDocumentCommand"));
     this.register(UICommandManager.getCommand("closeDocumentCommand"));
     this.separator();
     this.register({
@@ -67,7 +66,8 @@ MainMenu.prototype.setup = function () {
     this.separator();
     this.register({
         key: "settingAllCommand",
-        label: "Setting",
+        label: "Setting...",
+        icon: "settings",
         isValid: function () { return true; },
         run: function () {
             (new SettingDialog()).open();

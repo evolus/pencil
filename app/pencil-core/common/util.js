@@ -990,6 +990,7 @@ Local.getInstalledFonts = function () {
 
     var fonts = fontManager.getAvailableFontsSync();
     for (var i in fonts) {
+        console.log(fonts[i]);
         var contained = false;
         for (var j in localFonts) {
             if (localFonts[j] == fonts[i].family) {
