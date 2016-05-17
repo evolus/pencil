@@ -329,6 +329,15 @@ var domParser = new DOMParser();
     return dom;
 };
 
+Dom.isElementExistedInDocument = function(element) {
+    while (element) {
+        if (element == document) {
+            return true;
+        }
+        element = element.parentNode;
+    }
+    return false;
+}
 Dom.registerEvent = function (target, event, handler, capture) {
     var useCapture = false;
     if (capture) {
@@ -607,6 +616,23 @@ Dom.htmlEncode = function (text) {
     Dom.htmlEncodeDiv.innerHTML = "";
     Dom.htmlEncodeDiv.appendChild(document.createTextNode(text));
     return Dom.htmlEncodeDiv.innerHTML;
+};
+Dom.attrEncode = function (s, preserveCR) {
+    preserveCR = preserveCR ? '&#13;' : '\n';
+    return ('' + s) /* Forces the conversion to string. */
+        .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
+        .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        /*
+        You may add other replacements here for HTML only
+        (but it's not necessary).
+        Or for XML, only if the named entities are defined in its DTD.
+        */
+        .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
+        .replace(/[\r\n]/g, preserveCR);
+        ;
 };
 Dom.htmlStrip = function (s) {
     if (!Dom.htmlEncodePlaceHolder) {

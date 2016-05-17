@@ -110,21 +110,73 @@ SettingDialog.prototype.setup = function () {
     this.svgEditorUrl.value = svgurl;
     this.bitmapEditorUrl.value = bitmapurl;
 
-    if (!this.checkboxEnableGrid.checked) {
+    if (this.checkboxEnableGrid.checked) {
+        Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
+    } else {
         Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
     }
-    if (!this.undoEnabled.checked) {
+
+    if (this.undoEnabled.checked) {
+        Dom.removeClass(this.textboxUndoLevel.parentNode, "Disabled");
+    } else {
         Dom.addClass(this.textboxUndoLevel.parentNode, "Disabled");
     }
-    if (!this.enableSnapping.checked) {
-        this.enableSnappingBackground.disabled = false;
+
+    this.enableSnappingBackground.disabled = !this.enableSnapping.checked;
+    if (this.enableSnapping.checked) {
+        Dom.removeClass(this.enableSnappingBackground.parentNode, "Disabled");
+    } else {
         Dom.addClass(this.enableSnappingBackground.parentNode, "Disabled");
     }
-    if (!this.checkboxScaleImage.checked) {
+
+    if (this.checkboxScaleImage.checked) {
+        Dom.removeClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
+        Dom.removeClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
+    } else {
         Dom.addClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
         Dom.addClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
     }
+    this.initializePreferenceTable();
 };
+
+SettingDialog.prototype.initializePreferenceTable = function () {
+    console.log("initializePreferenceTable");
+    this.preferenceTable.column(new DataTable.PlainTextColumn("Preference Name", function (data) {
+        return data.name;
+    }).width("1*"));
+    this.preferenceTable.column(new DataTable.PlainTextColumn("Status", function (data) {
+        return data.status;
+    }).width("100px"));
+    this.preferenceTable.column(new DataTable.PlainTextColumn("Type", function (data) {
+        return data.type;
+    }).width("100px"));
+    this.preferenceTable.column(new DataTable.PlainTextColumn("Value", function (data) {
+        return data.value;
+    }).width("150px"));
+    this.preferenceTable.selector(false);
+    console.log("this.preferenceTable: ", this.preferenceTable);
+    var thiz = this;
+    window.setTimeout(function () {
+        thiz.preferenceTable.setup();
+        thiz.setPreferenceItems();
+    }, 200);
+    // this.setPreferenceItems();
+};
+
+SettingDialog.prototype.setPreferenceItems = function () {
+    var items = [];
+    for (var i = 0 ; i < 10; i++) {
+        items.push({
+            name: "config" + i,
+            status: "user set",
+            type: "string",
+            value: "test"
+        });
+    }
+
+    this.preferenceTable.setItems(items);
+};
+
 SettingDialog.prototype.getDialogActions = function () {
     return [
         Dialog.ACTION_CLOSE

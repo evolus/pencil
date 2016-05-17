@@ -24,12 +24,7 @@
         }
         body @settingTabPane hbox.Entry label {
             padding-left: 0.3em;
-        }
-        body @settingTabPane hbox.Entry > * + * {
-            padding-left: 0.3em;
-        }
-        body @settingTabPane hbox.Entry input {
-            padding-left: 0.3em;
+            padding-right: 0.3em;
         }
     </style>
     <hbox flex="1">
@@ -116,6 +111,7 @@
                 </hbox>
             </vbox>
             <vbox anon-id="advanceTab" flex="1" tab-title="Advance">
+                <ui:DataTable anon-id="preferenceTable" flex="1" />
             </vbox>
         </ui:TabPane>
     </hbox>
