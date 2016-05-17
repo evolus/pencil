@@ -187,7 +187,7 @@ Dialog.prototype.close = function () {
     this.dialogFrame.style.opacity = "0";
     var thiz = this;
     window.setTimeout(function () {
-        thiz.dialogFrame.parentNode.removeChild(thiz.dialogFrame);
+        if (thiz.dialogFrame.parentNode) thiz.dialogFrame.parentNode.removeChild(thiz.dialogFrame);
         thiz.dialogFrame.style.display = "none";
     }, 100);
     this.overlay.style.display = "none";

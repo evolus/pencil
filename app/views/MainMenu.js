@@ -70,6 +70,7 @@ MainMenu.prototype.setup = function () {
         label: "Setting",
         isValid: function () { return true; },
         run: function () {
+            (new SettingDialog()).open();
         }
     });
 
@@ -122,10 +123,12 @@ MainMenu.prototype.setup = function () {
     });
     developerToolSubItems.push(Menu.SEPARATOR);
     developerToolSubItems.push({
-        key: "showErrorConsole",
-        label: "Show Error Console",
+        key: "openDeveloperTools",
+        label: "Open Developer Tools",
+        shortcut: "Ctrl+Alt+Shift+P",
         run: function () {
-
+            var app = require('electron').remote.app;
+            app.mainWindow.openDevTools();
         }
     });
 

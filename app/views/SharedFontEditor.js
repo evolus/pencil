@@ -16,23 +16,13 @@ SharedFontEditor.prototype.setup = function () {
     this.formatPainterButton.disabled = true;
     this.disabledEditor = true;
 
-    this.fontCombo.renderer = function (font) {
-        return font;
-    };
-    this.fontCombo.decorator = function (node, font) {
-        node.style.fontFamily = "'" + font + "'";
-    };
-
-    var localFonts = Local.getInstalledFonts();
-    var items = localFonts;
-    this.fontCombo.setItems(items);
-
     var thiz = this;
-    this.fontCombo.addEventListener("p:ItemSelected", function(event) {
+
+    FontEditor._setupFontCombo(this.fontCombo, function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
-        thiz.font.family = thiz.fontCombo.getSelectedItem();
+        thiz.font.family = thiz.fontCombo.getSelectedItem().family;
         thiz._applyValue();
-    }, false);
+    });
 
     this.pixelFontSize.addEventListener("click", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
@@ -97,7 +87,9 @@ SharedFontEditor.prototype.setup = function () {
 
     Pencil.formatPainterButton = this.formatPainterButton;
 };
-
+SharedFontEditor.prototype.reloadFontItems = function () {
+    FontEditor._loadFontItems(this.fontCombo);    
+};
 SharedFontEditor.prototype.beginFormatPainter = function () {
     var activeCanvas = Pencil.activeCanvas;
 
@@ -150,13 +142,13 @@ SharedFontEditor.prototype.attach = function (target) {
     //
     // //set the value
     if (Local.isFontExisting(this.font.family)) {
-        this.fontCombo.selectItem(this.font.family);
+        this.fontCombo.selectItem(this.font);
     } else {
         var families = this.font.getFamilies();
         for (var i = 0; i < families.length; i ++) {
             var f = families[i];
             if (Local.isFontExisting(f)) {
-                this.fontCombo.selectItem(f);
+                this.fontCombo.selectItem({family: f});
                 break;
             }
         }
