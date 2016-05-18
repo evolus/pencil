@@ -7,7 +7,6 @@ function StencilGeneratorDialog() {
     this.bind("click", thiz.browseIconFile, this.collectionBrowse);
     this.bind("click", thiz.browseIconFile, this.stencilBrowse);
     this.imagePaths = [];
-    this._lastImageCount;
     this.activeImageNode = null;
     var addItem = function(file) {
         var item = Dom.newDOMElement({
@@ -120,9 +119,10 @@ StencilGeneratorDialog.prototype.onSelectionChanged = function () {
 };
 
 StencilGeneratorDialog.prototype.initStencils = function () {
-    this.preloadStencils();
+    var checkPreload = true;
     for (i in this.imagePaths) {
         if (this.imagePaths[i].checked != null) {
+            checkPreload = false;
             continue;
         }
         this.imagePaths[i].checked = true;
@@ -157,24 +157,22 @@ StencilGeneratorDialog.prototype.initStencils = function () {
         item._item = this.imagePaths[i];
         this.stencilSelected.appendChild(item);
         Util.setupImage(holder.iconImage, this.imagePaths[i].path, "center-inside");
+        this.imagePaths[i].img = holder.iconImage;
     }
-    console.log(this.stencils);
+    if (checkPreload == false) this.preloadStencils();
 };
 
-StencilGeneratorDialog.prototype.preloadStencils = function (onDone) {
+StencilGeneratorDialog.prototype.preloadStencils = function () {
     var thiz = this;
     var result = [];
     var stencils = [];
-    var imageCount = this.imagePaths.length;
-    console.log("reloading stencils..." + imageCount);
 
-    if (imageCount != this._lastImageCount) {
-        this._lastImageCount = imageCount;
-        for (var i = 0; i < imageCount; i++) {
-            stencils.push(this.imagePaths[i]);
-        }
-        thiz.loadStencil(result, stencils, 0, onDone);
+    for (var i = 0; i < this.imagePaths.length; i++) {
+        var image = this.imagePaths[i];
+        if (image.checked == true) stencils.push(image);
     }
+    thiz.loadStencil(result, stencils, 0);
+
 };
 
 StencilGeneratorDialog.prototype.getImageFileData = function (path,onDone) {
@@ -190,66 +188,44 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
     try {
         if (index < stencils.length) {
             if ("png|jpg|gif|bmp".indexOf(stencils[index]._ext) != -1) {
-                var img = new Image();
-
-                img._stencils = stencils;
-                img._result = result;
-                img._index = index;
-
-                img.onerror = function () {
-                    var _index = img._index;
-                    var _stencils = img._stencils;
-                    var _result = img._result;
-                    if (_index + 1 >= _stencils.length) {
-                        return callback(_result, listener);
-                    } else {
-                        StencilGenerator.loadStencil(_result, _stencils, _index + 1, callback, listener);
-                    }
-                };
-                img.onload = function () {
-                    var _index = img._index;
-                    var _stencils = img._stencils;
-                    var _result = img._result;
+                try {
                     var box = {
                         width: img.naturalWidth,
                         height: img.naturalHeight
                     };
-                    try {
-                        var onDone = function (filedata) {
-                            var data = Base64.encode(filedata, true);
-                            var st = {
-                                id: "img_" + _index,
-                                label: _stencils[_index]._label,
-                                type: _stencils[_index]._ext.toUpperCase(),
-                                img: _stencils[_index],
-                                iconData: "data:image/png;base64," + data,
-                                data: data,
-                                box: box
-                            };
-                            result = result.concat(st);
-                            if (index + 1 >= stencils.length) {
-                                thiz.stencils = result;
-                                console.log(thiz.Stencils);
-                            } else {
-                                this.loadStencil(result, stencils, index + 1);
-                            }
+                    var onDone = function (filedata) {
+                        var data = Base64.encode(filedata, true);
+                        var st = {
+                            id: "img_" + index,
+                            label: stencils[index]._label,
+                            type: stencils[index]._ext.toUpperCase(),
+                            img: stencils[index].img,
+                            iconData: "data:image/png;base64," + data,
+                            data: data,
+                            box: box
+                        };
+                        result = result.concat(st);
+                        if (index + 1 >= stencils.length) {
+                            thiz.stencils = result;
+                            console.log(thiz.Stencils);
+                        } else {
+                            this.loadStencil(result, stencils, index + 1);
                         }
-                        this.getImageFileData(stencils[index].path, onDone);
-                    } catch(e) {
-                        Console.dumpError(e);
                     }
-                };
-                img.src = stencils[index]._uri.spec;
-            }}
-            //Svg
+                    this.getImageFileData(stencils[index].path, onDone);
+                } catch(e) {
+                    Console.dumpError(e);
+                }
+            }
+        }
     } catch(e) {
          Console.dumpError(e);
     }
 };
 
-
 StencilGeneratorDialog.prototype.createCollection = function () {
-    var f = StencilGenerator.pickFile(StencilGenerator.collectionName.value + ".zip");
+    //var f = StencilGenerator.pickFile(StencilGenerator.collectionName.value + ".zip");
+
     if (f) {
         var starter = function (listener) {
             try {
@@ -257,11 +233,11 @@ StencilGeneratorDialog.prototype.createCollection = function () {
                         "		xmlns:p=\"http://www.evolus.vn/Namespace/Pencil\" \n" +
                         "		xmlns:svg=\"http://www.w3.org/2000/svg\" \n" +
                         "		xmlns:xlink=\"http://www.w3.org/1999/xlink\" \n" +
-                        "		id=\"" + StencilGenerator.generateId(StencilGenerator.collectionName.value) + ".Icons\" \n" +
-                        "		displayName=\"" + StencilGenerator.collectionName.value + "\" \n" +
-                        "		description=\"" + StencilGenerator.collectionDescription.value + "\" \n" +
-                        "		author=\"" + StencilGenerator.collectionAuthor.value + "\" \n" +
-                        "		url=\"" + StencilGenerator.collectionUrl.value + "\">\n\n";
+                        "		id=\"" + this.generateId(this.collectionName.value) + ".Icons\" \n" +
+                        "		displayName=\"" + this.collectionName.value + "\" \n" +
+                        "		description=\"" + this.collectionDescription.value + "\" \n" +
+                        "		author=\"" + this.collectionAuthor.value + "\" \n" +
+                        "		url=\"" + this.collectionInfoUrl.value + "\">\n\n";
 
                 debug("creating collection...");
 
@@ -351,7 +327,7 @@ StencilGeneratorDialog.prototype.createCollection = function () {
                 Console.dumpError(e3, "stdout");
             }
         }
-        Util.beginProgressJob(Util.getMessage("sg.creating.collection"), starter);
+        //Util.beginProgressJob(Util.getMessage("sg.creating.collection"), starter);
     }
 };
 

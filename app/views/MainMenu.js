@@ -79,7 +79,8 @@ MainMenu.prototype.setup = function () {
         key: "manageExportTemplate",
         label: "Manage Export Template...",
         run: function () {
-
+            var templateDialog = new TemplateManagermentDialog();
+            templateDialog.open();
         }
     });
     developerToolSubItems.push(Menu.SEPARATOR);
