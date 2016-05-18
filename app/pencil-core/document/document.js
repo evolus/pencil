@@ -69,9 +69,10 @@ function Page(doc) {
     // this.rasterizeCache = null;
     this.children = [];
 }
-Page.PROPERTIES = ["id", "name", "width", "height", "backgroundPageId", "backgroundColor", "note", "pageFileName", "parentPageId"];
+Page.PROPERTIES = ["id", "fid", "name", "width", "height", "backgroundPageId", "backgroundColor", "note", "pageFileName", "parentPageId"];
 Page.PROPERTY_MAP = {
     "id": "id",
+    "fid": "fid",
     "name": "name",
     "width": "width",
     "height": "height",

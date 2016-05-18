@@ -26,11 +26,9 @@ ProgressiveJobDialog.prototype.getDialogActions = function () {
 };
 
 ProgressiveJobDialog.prototype.onTaskDone = function () {
-    console.log("onTaskDone called");
     this.close();
 };
 ProgressiveJobDialog.prototype.onProgressUpdated = function (status, completed, total) {
-    console.log("onProgressUpdated called", [status, completed, total]);
     this.statusLabel.innerHTML = Dom.htmlEncode(status || "Please wait...");
     this.progressBarInner.style.width = Math.round(100 * completed / total) + "%";
 };

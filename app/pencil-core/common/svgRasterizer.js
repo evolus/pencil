@@ -38,9 +38,7 @@ Rasterizer.outProcessCanvasBasedBackend = {
     },
     rasterize: function (svgNode, width, height, scale, callback, parseLinks) {
         var id = Util.newUUID();
-        console.log("RASTER: Rasterize request sent for " + id);
         ipcRenderer.once(id, function (event, data) {
-            console.log("RASTER: Rasterize result received for " + id);
             callback(parseLinks ? data : data.url);
         });
 
@@ -384,7 +382,6 @@ Rasterizer.prototype._saveNodeToTempFileAndLoad = function (svgNode, loadCallbac
     xml += Controller.serializer.serializeToString(svgNode);
 
     this.lastTempFile = tmp.fileSync({postfix: ".svg" });
-    console.log("fileName:", this.lastTempFile.name);
     fs.writeFileSync(this.lastTempFile.name, xml, XMLDocumentPersister.CHARSET);
 
     if (loadCallback) loadCallback();

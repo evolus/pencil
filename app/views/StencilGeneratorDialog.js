@@ -7,7 +7,6 @@ function StencilGeneratorDialog() {
     this.bind("click", thiz.browseIconFile, this.collectionBrowse);
     this.bind("click", thiz.browseIconFile, this.stencilBrowse);
     this.imagePaths = [];
-    this._lastImageCount;
     this.activeImageNode = null;
     var addItem = function(file) {
         var item = Dom.newDOMElement({
@@ -120,9 +119,10 @@ StencilGeneratorDialog.prototype.onSelectionChanged = function () {
 };
 
 StencilGeneratorDialog.prototype.initStencils = function () {
-    this.preloadStencils();
+    var checkPreload = true;
     for (i in this.imagePaths) {
         if (this.imagePaths[i].checked != null) {
+            checkPreload = false;
             continue;
         }
         this.imagePaths[i].checked = true;
@@ -157,24 +157,22 @@ StencilGeneratorDialog.prototype.initStencils = function () {
         item._item = this.imagePaths[i];
         this.stencilSelected.appendChild(item);
         Util.setupImage(holder.iconImage, this.imagePaths[i].path, "center-inside");
+        this.imagePaths[i].img = holder.iconImage;
     }
-    console.log(this.stencils);
+    if (checkPreload == false) this.preloadStencils();
 };
 
-StencilGeneratorDialog.prototype.preloadStencils = function (onDone) {
+StencilGeneratorDialog.prototype.preloadStencils = function () {
     var thiz = this;
     var result = [];
     var stencils = [];
-    var imageCount = this.imagePaths.length;
-    console.log("reloading stencils..." + imageCount);
 
-    if (imageCount != this._lastImageCount) {
-        this._lastImageCount = imageCount;
-        for (var i = 0; i < imageCount; i++) {
-            stencils.push(this.imagePaths[i]);
-        }
-        thiz.loadStencil(result, stencils, 0, onDone);
+    for (var i = 0; i < this.imagePaths.length; i++) {
+        var image = this.imagePaths[i];
+        if (image.checked == true) stencils.push(image);
     }
+    thiz.loadStencil(result, stencils, 0);
+
 };
 
 StencilGeneratorDialog.prototype.getImageFileData = function (path,onDone) {
@@ -190,66 +188,44 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
     try {
         if (index < stencils.length) {
             if ("png|jpg|gif|bmp".indexOf(stencils[index]._ext) != -1) {
-                var img = new Image();
-
-                img._stencils = stencils;
-                img._result = result;
-                img._index = index;
-
-                img.onerror = function () {
-                    var _index = img._index;
-                    var _stencils = img._stencils;
-                    var _result = img._result;
-                    if (_index + 1 >= _stencils.length) {
-                        return callback(_result, listener);
-                    } else {
-                        StencilGenerator.loadStencil(_result, _stencils, _index + 1, callback, listener);
-                    }
-                };
-                img.onload = function () {
-                    var _index = img._index;
-                    var _stencils = img._stencils;
-                    var _result = img._result;
+                try {
                     var box = {
                         width: img.naturalWidth,
                         height: img.naturalHeight
                     };
-                    try {
-                        var onDone = function (filedata) {
-                            var data = Base64.encode(filedata, true);
-                            var st = {
-                                id: "img_" + _index,
-                                label: _stencils[_index]._label,
-                                type: _stencils[_index]._ext.toUpperCase(),
-                                img: _stencils[_index],
-                                iconData: "data:image/png;base64," + data,
-                                data: data,
-                                box: box
-                            };
-                            result = result.concat(st);
-                            if (index + 1 >= stencils.length) {
-                                thiz.stencils = result;
-                                console.log(thiz.Stencils);
-                            } else {
-                                this.loadStencil(result, stencils, index + 1);
-                            }
+                    var onDone = function (filedata) {
+                        var data = Base64.encode(filedata, true);
+                        var st = {
+                            id: "img_" + index,
+                            label: stencils[index]._label,
+                            type: stencils[index]._ext.toUpperCase(),
+                            img: stencils[index].img,
+                            iconData: "data:image/png;base64," + data,
+                            data: data,
+                            box: box
+                        };
+                        result = result.concat(st);
+                        if (index + 1 >= stencils.length) {
+                            thiz.stencils = result;
+                            console.log(thiz.Stencils);
+                        } else {
+                            this.loadStencil(result, stencils, index + 1);
                         }
-                        this.getImageFileData(stencils[index].path, onDone);
-                    } catch(e) {
-                        Console.dumpError(e);
                     }
-                };
-                img.src = stencils[index]._uri.spec;
-            }}
-            //Svg
+                    this.getImageFileData(stencils[index].path, onDone);
+                } catch(e) {
+                    Console.dumpError(e);
+                }
+            }
+        }
     } catch(e) {
          Console.dumpError(e);
     }
 };
 
-
 StencilGeneratorDialog.prototype.createCollection = function () {
-    var f = StencilGenerator.pickFile(StencilGenerator.collectionName.value + ".zip");
+    //var f = StencilGenerator.pickFile(StencilGenerator.collectionName.value + ".zip");
+
     if (f) {
         var starter = function (listener) {
             try {
@@ -257,11 +233,11 @@ StencilGeneratorDialog.prototype.createCollection = function () {
                         "		xmlns:p=\"http://www.evolus.vn/Namespace/Pencil\" \n" +
                         "		xmlns:svg=\"http://www.w3.org/2000/svg\" \n" +
                         "		xmlns:xlink=\"http://www.w3.org/1999/xlink\" \n" +
-                        "		id=\"" + StencilGenerator.generateId(StencilGenerator.collectionName.value) + ".Icons\" \n" +
-                        "		displayName=\"" + StencilGenerator.collectionName.value + "\" \n" +
-                        "		description=\"" + StencilGenerator.collectionDescription.value + "\" \n" +
-                        "		author=\"" + StencilGenerator.collectionAuthor.value + "\" \n" +
-                        "		url=\"" + StencilGenerator.collectionUrl.value + "\">\n\n";
+                        "		id=\"" + this.generateId(this.collectionName.value) + ".Icons\" \n" +
+                        "		displayName=\"" + this.collectionName.value + "\" \n" +
+                        "		description=\"" + this.collectionDescription.value + "\" \n" +
+                        "		author=\"" + this.collectionAuthor.value + "\" \n" +
+                        "		url=\"" + this.collectionInfoUrl.value + "\">\n\n";
 
                 debug("creating collection...");
 
@@ -351,7 +327,7 @@ StencilGeneratorDialog.prototype.createCollection = function () {
                 Console.dumpError(e3, "stdout");
             }
         }
-        Util.beginProgressJob(Util.getMessage("sg.creating.collection"), starter);
+        //Util.beginProgressJob(Util.getMessage("sg.creating.collection"), starter);
     }
 };
 
@@ -363,209 +339,4 @@ StencilGeneratorDialog.prototype.toInputStream = function(s, b) {
     }
     var stream = converter.convertToInputStream(s);
     return stream;
-};
-
-StencilGeneratorDialog.prototype.buildShape = function(shapeDef) {
-    if (shapeDef.type != "SVG") {
-        return (
-            "<Shape id=\"" + shapeDef.id + "\" displayName=\"" + shapeDef.label + "\" icon=\"" + shapeDef.iconData + "\">\n" +
-            "        <Properties>\n" +
-            "            <PropertyGroup>\n" +
-            "                <Property name=\"box\" type=\"Dimension\" p:lockRatio=\"true\">" + shapeDef.box.width + "," + shapeDef.box.height + "</Property>\n" +
-            "                <Property name=\"imageData\" type=\"ImageData\"><![CDATA[" + shapeDef.box.width + "," + shapeDef.box.height + ",data:image/png;base64," + shapeDef.data + "]]></Property>\n" +
-            "                <Property name=\"withBlur\" type=\"Bool\" displayName=\"With Shadow\">false</Property>\n" +
-            "            </PropertyGroup>\n" +
-            "            <PropertyGroup name=\"Background\">\n" +
-            "                <Property name=\"fillColor\" displayName=\"Background Color\" type=\"Color\">#ffffff00</Property>\n" +
-            "                <Property name=\"strokeColor\" displayName=\"Border Color\" type=\"Color\">#000000ff</Property>\n" +
-            "                <Property name=\"strokeStyle\" displayName=\"Border Style\" type=\"StrokeStyle\">0|</Property>\n" +
-            "            </PropertyGroup>\n" +
-            "        </Properties>\n" +
-            "        <Behaviors>\n" +
-            "            <For ref=\"imageContainer\">\n" +
-            "                <Scale>\n" +
-            "                    <Arg>$box.w / $imageData.w</Arg>\n" +
-            "                    <Arg>$box.h / $imageData.h</Arg>\n" +
-            "                </Scale>\n" +
-            "            </For>\n" +
-            "            <For ref=\"bgRect\">\n" +
-            "                <Box>$box.narrowed(0 - $strokeStyle.w)</Box>\n" +
-            "                <StrokeColor>$strokeColor</StrokeColor>\n" +
-            "                <StrokeStyle>$strokeStyle</StrokeStyle>\n" +
-            "                <Fill>$fillColor</Fill>\n" +
-            "                <Transform>\"translate(\" + [0 - $strokeStyle.w / 2, 0 - $strokeStyle.w / 2] + \")\"</Transform>\n" +
-            "            </For>\n" +
-            "            <For ref=\"image\">\n" +
-            "                <Image>$imageData</Image>\n" +
-            "            </For>\n" +
-            "            <For ref=\"bgCopy\">\n" +
-            "                <ApplyFilter>$withBlur</ApplyFilter>\n" +
-            "                <Visibility>$withBlur</Visibility>\n" +
-            "            </For>\n" +
-            "        </Behaviors>\n" +
-            "        <Actions>\n" +
-            "            <Action id=\"toOriginalSize\" displayName=\"To Original Size\">\n" +
-            "                <Impl>\n" +
-            "                    <![CDATA[\n" +
-            "                        var data = this.getProperty(\"imageData\");\n" +
-            "                        this.setProperty(\"box\", new Dimension(data.w, data.h));\n" +
-            "                    ]]>\n" +
-            "                    </Impl>\n" +
-            "            </Action>\n" +
-            "            <Action id=\"fixRatioW\" displayName=\"Correct Ratio by Width\">\n" +
-            "                <Impl>\n" +
-            "                    <![CDATA[\n" +
-            "                        var data = this.getProperty(\"imageData\");\n" +
-            "                        var box = this.getProperty(\"box\");\n" +
-            "                        var h = Math.round(box.w * data.h / data.w);\n" +
-            "                        this.setProperty(\"box\", new Dimension(box.w, h));\n" +
-            "                    ]]>\n" +
-            "                    </Impl>\n" +
-            "            </Action>\n" +
-            "            <Action id=\"fixRatioH\" displayName=\"Correct Ratio by Height\">\n" +
-            "                <Impl>\n" +
-            "                    <![CDATA[\n" +
-            "                        var data = this.getProperty(\"imageData\");\n" +
-            "                        var box = this.getProperty(\"box\");\n" +
-            "                        var w = Math.round(box.h * data.w / data.h);\n" +
-            "                        this.setProperty(\"box\", new Dimension(w, box.h));\n" +
-            "                    ]]>\n" +
-            "                    </Impl>\n" +
-            "            </Action>\n" +
-            "            <Action id=\"selectExternalFile\" displayName=\"Load Linked Image...\">\n" +
-            "                <Impl>\n" +
-            "                    <![CDATA[\n" +
-            "                        var thiz = this;\n" +
-            "                        ImageData.prompt(function(data) {\n" +
-            "                            if (!data) return;\n" +
-            "                            thiz.setProperty(\"imageData\", data);\n" +
-            "                            thiz.setProperty(\"box\", new Dimension(data.w, data.h));\n" +
-            "                            if (data.data.match(/\\.png$/)) {\n" +
-            "                                thiz.setProperty(\"fillColor\", Color.fromString(\"#ffffff00\"));\n" +
-            "                            }\n" +
-            "                        });\n" +
-            "                    ]]>\n" +
-            "                    </Impl>\n" +
-            "            </Action>\n" +
-            "            <Action id=\"selectExternalFileEmbedded\" displayName=\"Load Embedded Image...\">\n" +
-            "                <Impl>\n" +
-            "                    <![CDATA[\n" +
-            "                        var thiz = this;\n" +
-            "                        ImageData.prompt(function(data) {\n" +
-            "                            if (!data) return;\n" +
-            "                            thiz.setProperty(\"imageData\", data);\n" +
-            "                            thiz.setProperty(\"box\", new Dimension(data.w, data.h));\n" +
-            "                            if (data.data.match(/\\.png$/)) {\n" +
-            "                                thiz.setProperty(\"fillColor\", Color.fromString(\"#ffffff00\"));\n" +
-            "                            }\n" +
-            "                        }, \"embedded\");\n" +
-            "                    ]]>\n" +
-            "                    </Impl>\n" +
-            "            </Action>\n" +
-            "        </Actions>\n" +
-            "        <p:Content xmlns:p=\"http://www.evolus.vn/Namespace/Pencil\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
-            "            <defs>\n" +
-            "                <filter id=\"imageShading\" height=\"1.2558399\" y=\"-0.12792\" width=\"1.06396\" x=\"-0.03198\">\n" +
-            "                    <feGaussianBlur stdDeviation=\"1.3325\" in=\"SourceAlpha\"/>\n" +
-            "                </filter>\n" +
-            "                <g id=\"container\">\n" +
-            "                    <rect id=\"bgRect\" style=\"fill: none; stroke: none;\"/>\n" +
-            "                    <g id=\"imageContainer\">\n" +
-            "                        <image id=\"image\" x=\"0\" y=\"0\" rx=\"" + shapeDef.box.width + "\" ry=\"" + shapeDef.box.height + "\"/>\n" +
-            "                    </g>\n" +
-            "                </g>\n" +
-            "            </defs>\n" +
-            "            <use xlink:href=\"#container\" id=\"bgCopy\" transform=\"translate(1, 1)\" p:filter=\"url(#imageShading)\" style=\" opacity:0.6;\"/>\n" +
-            "            <use xlink:href=\"#container\"/>\n" +
-            "        </p:Content>\n" +
-            "    </Shape>");
-    } else {
-        /*
-        var shortcut = Dom.newDOMElement({
-            _name: "Shortcut",
-            _uri: "http://www.evolus.vn/Namespace/Pencil",
-            displayName: shapeDef.label,
-            to: "Evolus.Common:SVGImage",
-            icon: shapeDef.iconData,
-            _children: [
-                {
-                    _name: "PropertyValue",
-                    _uri: "http://www.evolus.vn/Namespace/Pencil",
-                    name: "originalDim",
-                    _text: (shapeDef.box.width + "," + shapeDef.box.height)
-                },
-                {
-                    _name: "PropertyValue",
-                    _uri: "http://www.evolus.vn/Namespace/Pencil",
-                    name: "box",
-                    _text: (shapeDef.box.width + "," + shapeDef.box.height)
-                },
-                {
-                    _name: "PropertyValue",
-                    _uri: "http://www.evolus.vn/Namespace/Pencil",
-                    name: "svgXML",
-                    _cdata: shapeDef.data
-                }
-            ]
-        }, document);
-
-        return Dom.serializeNode(shortcut);
-        */
-
-        return (
-            "<Shape id=\"" + shapeDef.id + "\" displayName=\"" + shapeDef.label + "\" icon=\"" + shapeDef.iconData + "\" xmlns=\"http://www.evolus.vn/Namespace/Pencil\" xmlns:p=\"http://www.evolus.vn/Namespace/Pencil\" xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:sodipodi=\"http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:cc=\"http://web.resource.org/cc/\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\r\n" +
-            "        <Properties>\r\n" +
-            "            <PropertyGroup>\r\n" +
-            "                <Property name=\"box\" type=\"Dimension\">" + shapeDef.box.width + "," + shapeDef.box.height + "</Property>\r\n" +
-            "                <Property name=\"originalDim\" type=\"Dimension\">" + shapeDef.box.width + "," + shapeDef.box.height + "</Property>\r\n" +
-            "            </PropertyGroup>\r\n" +
-            "            <PropertyGroup>\r\n" +
-            "                <Property name=\"svgXML\" displayName=\"SVG XML\" type=\"PlainText\"><![CDATA[" + shapeDef.data + "]]></Property>\r\n" +
-            "            </PropertyGroup>\r\n" +
-            "        </Properties>\r\n" +
-            "        <Behaviors>\r\n" +
-            "            <For ref=\"container\">\r\n" +
-            "                <Scale>\r\n" +
-            "                    <Arg>$box.w / $originalDim.w</Arg>\r\n" +
-            "                    <Arg>$box.h / $originalDim.h</Arg>\r\n" +
-            "                </Scale>\r\n" +
-            "                <DomContent>$svgXML</DomContent>\r\n" +
-            "            </For>\r\n" +
-            "        </Behaviors>\r\n" +
-            "        <Actions>\r\n" +
-            "            <Action id=\"toOriginalSize\" displayName=\"To Original Size\">\r\n" +
-            "                <Impl>\r\n" +
-            "                    <![CDATA[\r\n" +
-            "                        var originalDim = this.getProperty(\"originalDim\");\r\n" +
-            "                        this.setProperty(\"box\", originalDim);\r\n" +
-            "                    ]]>\r\n" +
-            "                    </Impl>\r\n" +
-            "            </Action>\r\n" +
-            "            <Action id=\"fixRatioW\" displayName=\"Correct Ratio by Width\">\r\n" +
-            "                <Impl>\r\n" +
-            "                    <![CDATA[\r\n" +
-            "                        var originalDim = this.getProperty(\"originalDim\");\r\n" +
-            "                        var box = this.getProperty(\"box\");\r\n" +
-            "                        var h = Math.round(box.w * originalDim.h / originalDim.w);\r\n" +
-            "                        this.setProperty(\"box\", new Dimension(box.w, h));\r\n" +
-            "                    ]]>\r\n" +
-            "                    </Impl>\r\n" +
-            "            </Action>\r\n" +
-            "            <Action id=\"fixRatioH\" displayName=\"Correct Ratio by Height\">\r\n" +
-            "                <Impl>\r\n" +
-            "                    <![CDATA[\r\n" +
-            "                        var originalDim = this.getProperty(\"originalDim\");\r\n" +
-            "                        var box = this.getProperty(\"box\");\r\n" +
-            "                        var w = Math.round(box.h * originalDim.w / originalDim.h);\r\n" +
-            "                        this.setProperty(\"box\", new Dimension(w, box.h));\r\n" +
-            "                    ]]>\r\n" +
-            "                    </Impl>\r\n" +
-            "            </Action>\r\n" +
-            "        </Actions>\r\n" +
-            "        <p:Content xmlns=\"http://www.w3.org/2000/svg\">\r\n" +
-            "            <rect id=\"bgRect\" style=\"fill: #000000; fill-opacity: 0; stroke: none;\" x=\"0\" y=\"0\" rx=\"" + shapeDef.box.width + "\" ry=\"" + shapeDef.box.height + "\"/>" +
-            "            <g id=\"container\"></g>\r\n" +
-            "        </p:Content>\r\n" +
-            "    </Shape>");
-    }
 };

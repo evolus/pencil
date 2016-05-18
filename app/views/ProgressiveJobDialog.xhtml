@@ -3,10 +3,11 @@
         @progressBar {
             background: darken(@app_bg, 30%);
             height: 1em;
+            margin-top: 0.5em;
         }
         @progressBar,
         @statusLabel {
-            width: 15em;
+            width: 18em;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -14,9 +15,14 @@
             height: 100%;
             background: @selected_bg;
         }
+        @container {
+            padding: 1em;
+        }
     </style>
-    <label anon-id="statusLabel"></label>
-    <div anon-id="progressBar">
-        <div anon-id="progressBarInner"></div>
-    </div>
+    <vbox anon-id="container">
+        <label anon-id="statusLabel"></label>
+        <div anon-id="progressBar">
+            <div anon-id="progressBarInner"></div>
+        </div>
+    </vbox>
 </vbox>

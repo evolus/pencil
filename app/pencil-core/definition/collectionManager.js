@@ -23,13 +23,6 @@ CollectionManager.addShapeDefCollection = function (collection) {
 };
 CollectionManager.shapeDefinition.locateDefinition = function (shapeDefId) {
     var def = CollectionManager.shapeDefinition.shapeDefMap[shapeDefId];
-    if (!def) {
-        var sc = CollectionManager.shapeDefinition.shortcutMap[shapeDefId];
-        if (sc) {
-            def = sc.shape;
-            //console.log("Find ", shapeDefId, "in shortcut");
-        }
-    }
     return def;
 };
 CollectionManager.shapeDefinition.locateShortcut = function (shortcutId) {
@@ -137,9 +130,7 @@ CollectionManager._loadStencil = function (dir, parser, isSystem) {
     if (!fs.existsSync(definitionFile)) return;
 
     try {
-        console.log("definitionFile:", definitionFile);
         var collection = parser.parseURL(definitionFile);
-        console.log(collection);
         if (!collection) return;
         collection.userDefined = isSystem ? false : true;
         collection.installDirPath = dir;

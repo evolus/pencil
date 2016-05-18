@@ -104,7 +104,6 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
         if(this.isShowCollection(collection)) {
-            console.log("\"" + collection.id + "\": \"\",");
             var icon = this.getCollectionIcon(collection);
             var node = Dom.newDOMElement({
                 _name: "vbox",

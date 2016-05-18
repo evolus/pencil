@@ -25,7 +25,6 @@ RepeaterView.prototype.setContentFragment = function (fragment) {
             this.emptyTemplate = node;
         } else {
             this.itemTemplate = node;
-            console.log("Item template", node);
         }
     }
 };

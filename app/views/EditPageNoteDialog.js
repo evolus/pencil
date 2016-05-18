@@ -2,10 +2,10 @@ function EditPageNoteDialog () {
     Dialog.call(this);
     this.title = "Edit Page Note";
     //this.initialize();
-
     this.bind("p:PopupHidden", function () {
         this.selectorContainer.removePopup();
     }, this.selectorContainer);
+
 
     this.bind("click", function (event) {
         var node = Dom.findUpward(event.target, function (n) {
@@ -100,8 +100,12 @@ function EditPageNoteDialog () {
 }
 __extend(Dialog, EditPageNoteDialog);
 
+EditPageNoteDialog.prototype.onShown = function () {
+    this.editor.focus();
+}
 
 EditPageNoteDialog.prototype.setup = function (options) {
+
     if (options) {
         if (options.onDone) {
             this.onDone = options.onDone;
@@ -116,8 +120,8 @@ EditPageNoteDialog.prototype.setup = function (options) {
 
         }
     }
-    var thiz = this;
 
+    var thiz = this;
     var localFonts = Local.getInstalledFonts();
     this.fontCombo.setItems(localFonts);
 
@@ -216,6 +220,8 @@ EditPageNoteDialog.prototype.setup = function (options) {
     var pageChild = function (child, editor) {
         return child;
     }
+
+
 };
 
 EditPageNoteDialog.prototype.updateListByCommandValue = function (commandName, control) {

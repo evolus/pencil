@@ -5,7 +5,6 @@ function OffScreenCanvas(svg) {
 OffScreenCanvas.prototype = Object.create(Canvas.prototype);
 
 OffScreenCanvas.prototype.invalidateAll = function () {
-    console.log("Invalidation all using offscreen canvas.");
     Dom.workOn(".//svg:g[@p:type='Shape']", this.svg, function (node) {
         try {
             var controller = this.createControllerFor(node);
