@@ -109,8 +109,6 @@ OnMenuEditor.prototype.generateMenuItems = function () {
         var linkSubItem = [];
         for(var i = 0; i < Pencil.controller.doc.pages.length; i++) {
             var page = Pencil.controller.doc.pages[i];
-            var itemCheck = false;
-
             var item = {
                 label: page.name,
                 type: "Selection",
