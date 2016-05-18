@@ -136,7 +136,7 @@ function init() {
                     };
                     if (!linkingInfo.pageId) continue;
 
-                    debug("Linking info: " + linkingInfo.toSource());
+                    console.log("Linking info: ", linkingInfo);
                     objectsWithLinking.push(linkingInfo);
                 }
             }
