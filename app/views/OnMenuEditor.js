@@ -93,7 +93,54 @@ OnMenuEditor.prototype.generateMenuItems = function () {
     if (actionItem) {
         items.push(actionItem);
     }
+
+
+    //Linking
+    var linkItem = null;
+    if(Pencil.controller.doc && Pencil.controller.doc.pages.length > 1 && this.targetObject.getMetadata && this.targetObject.setMetadata) {
+        console.log("Create link item");
+        linkItem = {
+            label: "Link To",
+            type: "SubMenu",
+            subItems: []
+        }
+        var targetPageId = this.targetObject.getMetadata("RelatedPage");
+        console.log(targetPageId);
+        var linkSubItem = [];
+        for(var i = 0; i < Pencil.controller.doc.pages.length; i++) {
+            var page = Pencil.controller.doc.pages[i];
+            var itemCheck = false;
+
+            var item = {
+                label: page.name,
+                type: "Selection",
+                pageId: page.id,
+                isChecked:  function () {
+                    if (this.pageId == targetPageId) return true;
+                    return false;
+                },
+                isEnabled: function () {
+                    if (this.pageId == Pencil.controller.activePage.id) return false;
+                    return true;
+                },
+                handleAction: function () {
+                    console.log("link to " + this.pageId);
+                    thiz.targetObject.setMetadata("RelatedPage", this.pageId ? this.pageId : "");
+                }
+            };
+            linkItem.subItems.push(item);
+        }
+        linkItem.subItems.push({
+            label: "Notthing",
+            handleAction: function () {
+                thiz.targetObject.setMetadata("RelatedPage", "");
+            }
+        })
+        items.push(linkItem);
+        console.log("end link items");
+    }
     return items;
+
 };
 
 Pencil.registerEditor(OnMenuEditor);
