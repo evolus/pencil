@@ -27,7 +27,6 @@ PrivateCollectionManager.loadPrivateCollections = function () {
                 PrivateCollectionManager.addShapeCollection(parser.parseNode(node), true);
             });
         }
-        console.log("loadPrivateCollections:", PrivateCollectionManager.privateShapeDef.collections);
     } catch (ex) {
         Console.dumpError(ex);
     }

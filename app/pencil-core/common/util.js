@@ -995,7 +995,6 @@ Local.getInstalledFonts = function () {
     var installedFaces = [];
     var localFonts = [];
     document.fonts.forEach(function (face) {
-        console.log("***** Got face", face);
         if (!face._type || installedFaces.indexOf(face.family) >= 0) return;
         installedFaces.push(face.family);
         localFonts.push({family: face.family, type: face._type});
@@ -1003,13 +1002,10 @@ Local.getInstalledFonts = function () {
 
     Local.sortFont(localFonts);
 
-    console.log("**** Installed fonts", localFonts);
-
     var fonts = fontManager.getAvailableFontsSync();
 
     var systemFonts = [];
     for (var i in fonts) {
-        console.log(fonts[i]);
         var contained = false;
         for (var j in systemFonts) {
             if (systemFonts[j].family == fonts[i].family) {
@@ -1596,7 +1592,7 @@ if (typeof(console) == "undefined") {
 function debug(value) {
 	//DEBUG_BEGIN
 
-    console.info(value ? value : "NULL VALUE");
+    //console.info(value ? value : "NULL VALUE");
     //DEBUG_END
 }
 function stackTrace() {

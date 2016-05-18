@@ -1,5 +1,4 @@
 function MyCollectionPane() {
-    console.log("MyCollectionPane");
     BaseCollectionPane.call(this);
 }
 __extend(BaseCollectionPane, MyCollectionPane);

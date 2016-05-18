@@ -57,9 +57,7 @@ StartUpDocumentView.prototype.reload = function () {
     var deletedFiles = [];
     if (files) {
         for (var i = 0; i < Math.min(files.length, 8); i++) {
-            console.log("file begin"+files[i]);
             var checkExist = fs.existsSync(files[i]);
-            console.log(checkExist);
             if(!checkExist) {
                 deletedFiles.push(files[i]);
             } else {
@@ -74,7 +72,6 @@ StartUpDocumentView.prototype.reload = function () {
         }
     }
 
-    console.log("docs:", docs);
     var thiz = this;
     this.recentDocumentRepeater.node().style.visibility = "hidden";
     setTimeout(function () {

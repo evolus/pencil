@@ -137,9 +137,7 @@ CollectionManager._loadStencil = function (dir, parser, isSystem) {
     if (!fs.existsSync(definitionFile)) return;
 
     try {
-        console.log("definitionFile:", definitionFile);
         var collection = parser.parseURL(definitionFile);
-        console.log(collection);
         if (!collection) return;
         collection.userDefined = isSystem ? false : true;
         collection.installDirPath = dir;

@@ -23,7 +23,6 @@ module.exports = function () {
         if (fontName) {
             fontName = fontName.trim();
         }
-        console.log("Process font name ", fontName);
         var family = "sans-serif";
         var weight = 400;
         var style = "normal";
@@ -94,7 +93,6 @@ module.exports = function () {
                 for (var i = 0; i < fontRegistry.length; i++) {
                     var registry = fontRegistry[i];
                     fontNameReader(registry, function(fontName, index) {
-                        console.log("fontName " + fontName);
                         if (fontName != null && fontName.length > 0) {
                             fontNames.push(fontName);
                         }

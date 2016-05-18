@@ -113,15 +113,9 @@ widget.Util = function() {
                 css = "@import \"variables.less\";\n" + css;
                 var baseDirectory = path.join(__dirname, "css");
 
-                console.log("Rendering less: " + templateName);
-
                 less.render(css, {
                     paths: ['.', './css', baseDirectory]
                 }).then(function (output) {
-                    if (templateName == "views_CollectionManagementDialog_xhtml") {
-                        console.log("CSS", output);
-                    }
-
                     var head = document.head || document.getElementsByTagName("head")[0];
                     var style = document.createElement("style");
                     style.type = "text/css";
