@@ -41,7 +41,6 @@ Controller.prototype.newDocument = function () {
         setTimeout(function () {
             var size = thiz.applicationPane.getPreferredCanvasSize();
             var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "");
-
             thiz.activatePage(page);
             thiz.modified = false;
         }, 50);
@@ -683,13 +682,17 @@ Controller.serializePageToDom = function (page, noContent) {
             var svg = document.createElementNS(PencilNamespaces.svg, "svg");
             svg.setAttribute("width", "" + page.width  + "px");
             svg.setAttribute("height", "" + page.height  + "px");
+            try {
+                var dom2 = Controller.parser.parseFromString(fs.readFileSync(page.tempFilePath, "utf8"), "text/xml");
+                var content2 = Dom.getSingle("/p:Page/p:Content", dom2);
+                while (content2.hasChildNodes()) {
+                    var c = content2.firstChild;
+                    content2.removeChild(c);
+                    svg.appendChild(c);
+                }
 
-            var dom2 = Controller.parser.parseFromString(fs.readFileSync(page.tempFilePath, "utf8"), "text/xml");
-            var content2 = Dom.getSingle("/p:Page/p:Content", dom2);
-            while (content2.hasChildNodes()) {
-                var c = content2.firstChild;
-                content2.removeChild(c);
-                svg.appendChild(c);
+            } catch (e) {
+
             }
 
             var offScreenCanvas = new OffScreenCanvas(svg);
@@ -778,7 +781,7 @@ Controller.prototype.swapIn = function (page, canvas) {
     }
 } ;
 Controller.prototype.activatePage = function (page) {
-    if (this.activePage && page.id == this.activePage.id) return;
+    if (this.activePage && page.id == this.activePage.id || page == null) return;
 
     this.retrievePageCanvas(page);
 
