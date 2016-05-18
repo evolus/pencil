@@ -58,12 +58,23 @@ FileToolbar.prototype.registerCommands = function () {
 
     UICommandManager.register({
         key: "exportDocumentCommand",
-        label: "Export Document...",
+        label: "Export...",
+        icon: "file_download",
         isValid: function () { return Pencil.controller.doc; },
         run: function () {
             Pencil.controller.exportCurrentDocument();
         },
         shortcut: "Ctrl+Shift+E"
+    });
+    UICommandManager.register({
+        key: "printDocumentCommand",
+        label: "Print...",
+        icon: "print",
+        isValid: function () { return Pencil.controller.doc; },
+        run: function () {
+            Pencil.controller.printCurrentDocument();
+        },
+        shortcut: "Ctrl+P"
     });
 
 
