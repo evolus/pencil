@@ -105,6 +105,7 @@ function init() {
 
         function postProcess() {
             //parse for linking location on this page
+            console.log("processLinks", processLinks);
             if (processLinks) {
                 document.body.appendChild(svgNode.documentElement);
                 var objects = getList(".//svg:g[@p:RelatedPage]", document);
@@ -163,7 +164,7 @@ function init() {
 
                 setTimeout(function () {
                     postProcess();
-                    callback(canvas.toDataURL());
+                    callback(canvas.toDataURL(), objectsWithLinking);
                     ctx.restore();
                     img.onload = null;
                     img.src = "";
@@ -184,9 +185,9 @@ function init() {
         return function(__callback) {
             //parse the SVG back into DOM
             var svgNode = parser.parseFromString(data.svg, "text/xml");
-            rasterize(svgNode, data.width, data.height, data.scale, data.processLinks, function (dataURL) {
+            rasterize(svgNode, data.width, data.height, data.scale, data.processLinks, function (dataURL, objectsWithLinking) {
                 console.log("RASTER: Returning render result for " + data.id);
-                ipcRenderer.send("canvas-render-response", {url: dataURL, id: data.id, objectsWithLinking: data.objectsWithLinking});
+                ipcRenderer.send("canvas-render-response", {url: dataURL, id: data.id, objectsWithLinking: objectsWithLinking});
                 __callback();
             });
         };

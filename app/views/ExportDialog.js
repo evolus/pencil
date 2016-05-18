@@ -24,7 +24,6 @@ __extend(Dialog, ExportDialog);
 
 ExportDialog.prototype.invalidateUIByExporter = function () {
     var exporter = this.exporterCombo.getSelectedItem();
-    console.log("Exporter " + exporter.name, exporter);
     if (exporter.supportTemplating()) {
         this.templateCombo.setItems(exporter.getTemplates());
         this.templateCombo.setDisabled(false);
@@ -62,7 +61,6 @@ ExportDialog.prototype.setup = function (options) {
     });
 
     this.pageTree.setCheckedItems(Pencil.controller.doc.pages);
-    console.log("Tree setup done");
 };
 
 

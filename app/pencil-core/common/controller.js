@@ -366,7 +366,6 @@ Controller.prototype.getCurrentDocumentThumbnail = function () {
     return thumbPath;
 };
 Controller.prototype.addRecentFile = function (filePath, thumbPath) {
-    console.log(" >> addRecentFile: ", [filePath, thumbPath]);
     var files = Config.get("recent-documents");
     if (!files) {
         files = [filePath];
@@ -629,7 +628,6 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     var thiz = this;
     ApplicationPane._instance.busy();
 
-    console.log("Calling addRecentFile from saveDocumentImpl");
 
     this.serializeDocument(function () {
         this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
@@ -713,7 +711,6 @@ Controller.prototype.serializePage = function (page, outputPath) {
 
     var xml = Controller.serializer.serializeToString(dom);
     fs.writeFileSync(outputPath, xml, "utf8");
-    console.log("write to: " + outputPath);
 };
 
 Controller.prototype.getPageSVG = function (page) {
@@ -749,7 +746,6 @@ Controller.prototype.getPageSVG = function (page) {
 };
 Controller.prototype.swapOut = function (page) {
     if (!page.canvas) throw "Invalid page state. Unable to swap out un-attached page";
-    console.log("Swapping out page: " + page.name + " -> " + page.tempFilePath);
     this.serializePage(page, page.tempFilePath);
     this.canvasPool.return(page.canvas);
     page.canvas = null;
@@ -773,7 +769,6 @@ Controller.prototype.swapIn = function (page, canvas) {
     canvas.page = page;
     canvas.setSize(page.width, page.height);
 
-    console.log("Swapped in page invalidate state: " + page.invalidatedAfterLoad);
 
     if (!page.invalidatedAfterLoad) {
         this.invalidatePageContent(page);
@@ -836,9 +831,7 @@ Controller.prototype.invalidatePageContent = function (page) {
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {
-        console.log("Page is not in memory, swapping in now");
         if (!this.canvasPool.available()) {
-            console.log("No available canvas for swapping in, swapping a LRU page now.");
             var lruPage = null;
             var lru = new Date().getTime();
             for (var i = 0; i < this.doc.pages.length; i ++) {
@@ -850,7 +843,6 @@ Controller.prototype.retrievePageCanvas = function (page, newPage) {
                 }
             }
             if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
-            console.log("Found LRU page: " + lruPage.name);
             this.swapOut(lruPage);
         }
 
@@ -899,7 +891,6 @@ Controller.prototype.deletePage = function (page) {
     if (refPages.length > 0) {
         var thiz = this;
         function updateBackgroundPage(pages, backgroundPage) {
-            console.log("updateBackgroundPage");
             pages.forEach(function (page) {
                 if (backgroundPage) {
                     page.backgroundPage = backgroundPage;
@@ -914,7 +905,6 @@ Controller.prototype.deletePage = function (page) {
             var p = thiz.activePage;
             while (p) {
                 if (pages.indexOf(p) >= 0) {
-                    console.log("ensurePageCanvasBackground");
                     thiz.ensurePageCanvasBackground(thiz.activePage);
                     break;
                 }
@@ -1096,7 +1086,6 @@ Controller.prototype.getBestFitSize = function () {
 
 Controller.prototype.handleCanvasModified = function (canvas) {
     if (!canvas || !canvas.page) return;
-    console.log("Canvas modified: " + canvas.page.name);
     this.modified = true;
     this.invalidateBitmapFilePath(canvas.page);
 };
