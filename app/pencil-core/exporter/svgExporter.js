@@ -15,9 +15,7 @@ SVGExporter.prototype.getRasterizedPageDestination = function (baseDir) {
 
 SVGExporter.prototype.export = function (doc, options, destFile, xmlFile, callback) {
     if (!this.xsltDOM) {
-        this.xsltDOM = document.implementation.createDocument("", "", null);
-        this.xsltDOM.async = false;
-        this.xsltDOM.load("exporter/Pencil2SVG.xslt");
+        this.xsltDOM = Dom.parseFile(getStaticFilePath("pencil-core/exporter/Pencil2SVG.xslt"));
     }
 
     this.xsltProcessor.reset();

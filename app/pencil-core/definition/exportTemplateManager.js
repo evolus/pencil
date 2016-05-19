@@ -75,7 +75,7 @@ ExportTemplateManager.loadDefaultTemplates = function () {
     }
 };
 ExportTemplateManager.getDefaultTemplateDirectory = function () {
-    return path.join(path.join(__dirname, "pencil-core"), "templates");
+    return getStaticFilePath("pencil-core/templates");
 };
 ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type) {
     //loading all templates

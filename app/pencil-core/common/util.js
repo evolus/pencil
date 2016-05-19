@@ -2268,4 +2268,16 @@ function copyFolderRecursiveSync( source, target ) {
     }
 }
 
+function getStaticFilePath(subPath) {
+    var filePath = __dirname;
+    if (!subPath) return filePath;
+
+    var parts = subPath.split("/");
+    for (var i = 0; i < parts.length; i ++) {
+        filePath = path.join(filePath, parts[i]);
+    }
+
+    return filePath;
+}
+
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);
