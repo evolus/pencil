@@ -66,7 +66,7 @@ function ApplicationPane() {
 
     ApplicationPane._instance = this;
 
-    FontLoader.loadFonts();
+    FontLoader.instance.loadFonts();
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {

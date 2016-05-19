@@ -57,8 +57,7 @@ RepeaterView.prototype.setItems = function (items) {
     Dom.empty(this.node());
     if (!items || items.length <= 0) {
         if (this.emptyTemplate) {
-            this.generate(this.node(), this.emptyTemplate);
-            this.node().appendChild();
+            this.node().appendChild(this.generate(this.node(), this.emptyTemplate));
         }
 
         return;

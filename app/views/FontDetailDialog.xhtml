@@ -1,0 +1,43 @@
+<vbox anon-id="container">
+    <style>
+        body .DynamicTemplateviews_FontDetailDialog_xhtml > * + * {
+            margin-top: 0.5em;
+        }
+        hbox,
+        @variantBox > hbox {
+            align-items: center;
+        }
+        hbox > label {
+            width: 8em;
+        }
+        @variantBox {
+            min-width: 30em;
+        }
+        @variantBox > hbox + hbox {
+            margin-top: 0.5em;
+        }
+    </style>
+    <hbox>
+        <label>Font name:</label>
+        <input type="text" anon-id="fontNameInput" flex="1" />
+    </hbox>
+    <strong>Variants:</strong>
+    <vbox anon-id="variantBox">
+        <hbox>
+            <label>Regular:</label>
+            <input type="file" anon-id="regularFileInput" flex="1" />
+        </hbox>
+        <hbox>
+            <label>Bold:</label>
+            <input type="file" anon-id="boldFileInput" flex="1" />
+        </hbox>
+        <hbox>
+            <label>Italic:</label>
+            <input type="file" anon-id="italicFileInput" flex="1" />
+        </hbox>
+        <hbox>
+            <label>Bold &amp; Italic:</label>
+            <input type="file" anon-id="boldItalicFileInput" flex="1" />
+        </hbox>
+    </vbox>
+</vbox>

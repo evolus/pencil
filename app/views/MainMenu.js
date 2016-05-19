@@ -83,6 +83,14 @@ MainMenu.prototype.setup = function () {
             templateDialog.open();
         }
     });
+    developerToolSubItems.push({
+        key: "manageFontCommand",
+        label: "Manage Fonts...",
+        run: function () {
+            (new FontManagementDialog()).open();
+        }
+    });
+
     developerToolSubItems.push(Menu.SEPARATOR);
     developerToolSubItems.push({
         key: "stencilGenerator",
