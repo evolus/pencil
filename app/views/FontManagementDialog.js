@@ -12,6 +12,7 @@ function FontManagementDialog() {
         if (!node) return;
         var font = node._font;
         FontLoader.instance.removeFont(font);
+        FontLoader.instance.loadFonts();
         this.loadFonts();
     }, this.fontRepeater.node());
 
@@ -24,7 +25,6 @@ FontManagementDialog.prototype.setup = function () {
     this.loadFonts();
 };
 FontManagementDialog.prototype.loadFonts = function () {
-    FontLoader.instance.loadFonts();
     var fonts = FontLoader.instance.getUserFonts();
     var thiz = this;
     this.fontRepeater.node().style.visibility = "hidden";
@@ -42,6 +42,7 @@ FontManagementDialog.prototype.getDialogActions = function () {
             type: "extra1", title: "Install new font...",
             run: function () {
                 (new FontDetailDialog()).callback(function () {
+                    FontLoader.instance.loadFonts();
                     thiz.loadFonts();
                 }).open();
 
