@@ -24,11 +24,12 @@ ExportTemplateManager.getTemplateById = function (templateId) {
 };
 
 ExportTemplateManager.loadTemplatesIn = function (templateDir) {
+    console.log("loadTemplatesIn", templateDir);
     try {
         for (var i in ExportTemplateManager.SUPPORTED_TYPES) {
             var type = ExportTemplateManager.SUPPORTED_TYPES[i];
 
-            // ExportTemplateManager._loadUserDefinedTemplatesIn(path.join(templateDir, type), type);
+            ExportTemplateManager._loadUserDefinedTemplatesIn(path.join(templateDir, type), type);
         }
     } catch (e) {
         Console.dumpError(e);
