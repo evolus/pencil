@@ -24,6 +24,7 @@ ExportTemplateManager.getTemplateById = function (templateId) {
 };
 
 ExportTemplateManager.loadTemplatesIn = function (templateDir) {
+    console.log("loadTemplatesIn", templateDir);
     try {
         for (var i in ExportTemplateManager.SUPPORTED_TYPES) {
             var type = ExportTemplateManager.SUPPORTED_TYPES[i];
@@ -74,7 +75,7 @@ ExportTemplateManager.loadDefaultTemplates = function () {
     }
 };
 ExportTemplateManager.getDefaultTemplateDirectory = function () {
-    return path.join(path.join(__dirname, "pencil-core"), "templates");
+    return getStaticFilePath("pencil-core/templates");
 };
 ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type) {
     //loading all templates
@@ -130,6 +131,8 @@ ExportTemplateManager.installTemplateFromFile = function (file, type) {
     var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
                    .createInstance(Components.interfaces.nsIZipReader);
     zipReader.open(file);
+
+
 
     var targetDir = ExportTemplateManager.getUserTemplateDirectory();
     //generate a random number
@@ -200,8 +203,10 @@ ExportTemplateManager.installTemplateFromFile = function (file, type) {
 };
 ExportTemplateManager.uninstallTemplate = function (template) {
     try {
-        debug("About to remove: " + template.dir.path);
-        template.dir.remove(true);
+        debug("About to remove: " + template.dir);
+        // template.dir.remove(true);
+        deleteFileOrFolder(template.dir);
+
     } catch (e) {
         Util.error(Util.getMessage("failed.to.uninstall.the.template"), e.message, Util.getMessage("button.close.label"));
         Console.dumpError(e);

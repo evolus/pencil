@@ -23,13 +23,6 @@ CollectionManager.addShapeDefCollection = function (collection) {
 };
 CollectionManager.shapeDefinition.locateDefinition = function (shapeDefId) {
     var def = CollectionManager.shapeDefinition.shapeDefMap[shapeDefId];
-    if (!def) {
-        var sc = CollectionManager.shapeDefinition.shortcutMap[shapeDefId];
-        if (sc) {
-            def = sc.shape;
-            //console.log("Find ", shapeDefId, "in shortcut");
-        }
-    }
     return def;
 };
 CollectionManager.shapeDefinition.locateShortcut = function (shortcutId) {

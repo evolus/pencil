@@ -275,3 +275,8 @@ var MESSAGES = {
 "action.send.to.back": ": Send to back",
 "action.canvas.zoom": ": Zoom"
 };
+
+var Messages = {
+    "close": "close",
+    "column_selection_removeAll_caption": "column_selection_removeAll_caption"
+}

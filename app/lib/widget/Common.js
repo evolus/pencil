@@ -578,6 +578,18 @@ document.addEventListener("DOMContentLoaded", function () {
             document.body.setAttribute("loaded", "true");
         }, 300);
     }
+    function loadDesktopFont() {
+    		return new Promise(function(resolve) {
+      			require("./desktop").getDesktopFontConfig(function (config) {
+        				document.body.style.fontFamily = config.family;
+        				document.body.style.fontStyle = config.style;
+        				document.body.style.fontWeight = config.weight;
+        				document.body.style.fontSize = config.size;
+
+        				resolve(config);
+      			});
+    		});
+  	}
     function loadNext() {
         index ++;
 
@@ -614,7 +626,7 @@ document.addEventListener("DOMContentLoaded", function () {
         request.send(null);
     }
 
-    loadNext();
+    loadDesktopFont().then(loadNext);
 
 }, false);
 
