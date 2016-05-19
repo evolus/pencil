@@ -36,6 +36,7 @@ Controller.prototype.newDocument = function () {
     function create() {
         thiz.resetDocument();
         thiz.sayControllerStatusChanged();
+        FontLoader.instance.loadFonts();
 
         // thiz.sayDocumentChanged();
         setTimeout(function () {
@@ -83,6 +84,7 @@ Controller.prototype.resetDocument = function () {
     this.documentPath = null;
 
     this.applicationPane.pageListView.currentParentPage = null;
+    FontLoader.instance.setDocumentRepoDir(path.join(this.tempDir.name, "fonts"));
 };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
@@ -203,9 +205,17 @@ Controller.prototype.serializeDocument = function (onDone) {
     var index = -1;
     var thiz = this;
 
+    var embeddableFontFaces = [];
+
+    function embedFonts() {
+        if (embeddableFontFaces.length <= 0) return;
+        FontLoader.instance.embedToDocumentRepo(embeddableFontFaces);
+    }
+
     function next() {
         index ++;
         if (index >= thiz.doc.pages.length) {
+            embedFonts();
             if (onDone) onDone();
             return;
         }
@@ -214,6 +224,13 @@ Controller.prototype.serializeDocument = function (onDone) {
         //serialize the page only when the page is in memory
         if (page.canvas) {
             thiz.serializePage(page, page.tempFilePath);
+        }
+
+        var pageEmbeddableFontFaces = thiz.findEmbeddableFontFaces(page);
+        if (pageEmbeddableFontFaces) {
+            pageEmbeddableFontFaces.forEach(function (face) {
+                if (embeddableFontFaces.indexOf(face) < 0) embeddableFontFaces.push(face);
+            });
         }
 
         if (page.lastModified
@@ -231,7 +248,40 @@ Controller.prototype.serializeDocument = function (onDone) {
     next();
 };
 
-Controller.prototype.openDocument = function () {
+Controller.prototype.findEmbeddableFontFaces = function (page) {
+    var contextNode = null;
+    if (page.canvas) {
+        contextNode = page.canvas.drawingLayer;
+    } else {
+        var dom = Controller.parser.parseFromString(fs.readFileSync(page.tempFilePath, "utf8"), "text/xml");
+        contextNode = Dom.getSingle("/p:Page/p:Content", dom);
+    }
+
+    var faces = [];
+
+    Dom.workOn(".//svg:g[@p:type='Shape']", contextNode, function (node) {
+        var defId = node.getAttributeNS(PencilNamespaces.p, "def");
+        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+        if (!def) return;
+
+        Dom.workOn("./p:metadata/p:property", node, function (propNode) {
+            var name = propNode.getAttribute("name");
+            var propDef = def.getProperty(name);
+            if (!propDef || propDef.type != Font) return;
+            var value = propNode.textContent;
+            var font = Font.fromString(value);
+            if (!font) return;
+
+            if (faces.indexOf(font.family) < 0 && FontLoader.instance.isFontExisting(font.family)) {
+                faces.push(font.family);
+            }
+        });
+    });
+
+    return faces;
+};
+
+Controller.prototype.openDocument = function (callback) {
     var thiz = this;
     function handler() {
         ApplicationPane._instance.busy();
@@ -245,7 +295,7 @@ Controller.prototype.openDocument = function () {
         }, function (filenames) {
             ApplicationPane._instance.unbusy();
             if (!filenames || filenames.length <= 0) return;
-            this.loadDocument(filenames[0]);
+            this.loadDocument(filenames[0], callback);
         }.bind(thiz));
     };
 
@@ -256,7 +306,7 @@ Controller.prototype.openDocument = function () {
 
     handler();
 };
-Controller.prototype.parseOldFormatDocument = function (filePath) {
+Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
     var targetDir = this.tempDir.name;
     var thiz = this;
     try {
@@ -323,7 +373,7 @@ Controller.prototype.parseOldFormatDocument = function (filePath) {
         this.documentPath = filePath;
         this.doc.name = this.getDocumentName();
         thiz.sayControllerStatusChanged();
-
+        if (callback) callback();
     } catch (e) {
         console.log("error:", e);
         thiz.newDocument();
@@ -428,7 +478,7 @@ Controller.prototype.removeRecentFile = function (filePath) {
     }
     Config.set("recent-documents", files);
 };
-Controller.prototype.loadDocument = function (filePath) {
+Controller.prototype.loadDocument = function (filePath, callback) {
     ApplicationPane._instance.busy();
     this.resetDocument();
     var thiz = this;
@@ -437,6 +487,7 @@ Controller.prototype.loadDocument = function (filePath) {
         thiz.removeRecentFile(filePath);
         ApplicationPane._instance.unbusy();
         thiz.newDocument();
+        if (callback) callback();
         return;
     };
 
@@ -446,16 +497,16 @@ Controller.prototype.loadDocument = function (filePath) {
     fs.read(fd, buffer, 0, chunkSize, 0, function (err, bytes, buff) {
         var content = buff.toString("utf8", 0, chunkSize);
         if (content.toUpperCase() == "PK") {
-            thiz.parseDocument(filePath);
+            thiz.parseDocument(filePath, callback);
         } else {
-            thiz.parseOldFormatDocument(filePath);
+            thiz.parseOldFormatDocument(filePath, callback);
         }
 
         fs.close(fd);
     });
 
 };
-Controller.prototype.parseDocument = function (filePath) {
+Controller.prototype.parseDocument = function (filePath, callback) {
     var targetDir = this.tempDir.name;
     var thiz = this;
     var extractor = unzip.Extract({ path: targetDir });
@@ -521,13 +572,17 @@ Controller.prototype.parseDocument = function (filePath) {
 
             thiz.documentPath = filePath;
             thiz.doc.name = thiz.getDocumentName();
-            thiz.applicationPane.onDocumentChanged();
             thiz.modified = false;
             //new file was loaded, update recent file list
             thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
             thiz.sayControllerStatusChanged();
-            ApplicationPane._instance.unbusy();
 
+            FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
+            FontLoader.instance.loadFonts(function () {
+                thiz.applicationPane.onDocumentChanged();
+                if (callback) callback();
+            });
+            ApplicationPane._instance.unbusy();
         } catch (e) {
             console.log("error:", e);
             thiz.newDocument();

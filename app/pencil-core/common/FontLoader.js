@@ -2,7 +2,14 @@ function FontLoader() {
     this.userRepo = new FontRepository(Config.getDataFilePath("fonts"), FontRepository.TYPE_USER);
     this.documentRepo = null;
 }
-FontLoader.prototype.loadFonts = function () {
+FontLoader.prototype.setDocumentRepoDir = function (dirPath) {
+    if (dirPath) {
+        this.documentRepo = new FontRepository(dirPath, FontRepository.TYPE_DOCUMENT);
+    } else {
+        this.documentRepo = null;
+    }
+};
+FontLoader.prototype.loadFonts = function (callback) {
     this.userRepo.load();
     if (this.documentRepo) this.documentRepo.load();
 
@@ -15,17 +22,34 @@ FontLoader.prototype.loadFonts = function () {
     });
 
     removedFaces.forEach(function (f) {
-        document.fonts.remove(f);
+        document.fonts.delete(f);
     });
 
-    allFaces.forEach(function (installedFace) {
+    var index = -1;
+    function next() {
+        index ++;
+        if (index >= allFaces.length) {
+            if (callback) callback();
+            Dom.emitEvent("p:UserFontLoaded", document.documentElement, {});
+
+            return;
+        }
+        var installedFace = allFaces[index];
+
         var url = ImageData.filePathToURL(installedFace.filePath);
         var face = new FontFace(installedFace.name, "url(" + url + ") format('truetype')", {weight: installedFace.weight, style: installedFace.style});
+        face._type = installedFace.type;
 
-        document.fonts.add(face);
-    });
+        var addPromise = document.fonts.add(face);
+        addPromise.ready.then(function () {
+            var fontCSS = installedFace.style + " " + installedFace.weight + " 1em '" + installedFace.name + "'";
+            document.fonts.load(fontCSS).then(function () {
+                next();
+            }, next);
+        }, next);
+    }
 
-    Dom.emitEvent("p:UserFontLoaded", document.documentElement, {});
+    next();
 };
 FontLoader.prototype.isFontExisting = function (fontName) {
     return this.userRepo.getFont(fontName);
@@ -43,6 +67,30 @@ FontLoader.prototype.removeFont = function (font) {
 FontLoader.prototype.getUserFonts = function () {
     return this.userRepo.fonts;
 }
+FontLoader.prototype.embedToDocumentRepo = function (faces) {
+    if (!this.documentRepo) {
+        var documentRepoDir = path.join(Pencil.controller.tempDir.name, "fonts");
+        this.documentRepo = new FontRepository(documentRepoDir, FontRepository.TYPE_DOCUMENT);
+    }
+
+    var shouldSave = false;
+    faces.forEach(function (f) {
+        console.log("Embeding " + f);
+        if (this.documentRepo.getFont(f)) return;
+        var font = this.userRepo.getFont(f);
+        if (!font) return;
+        console.log("user font found", font);
+        var font = JSON.parse(JSON.stringify(font));
+        font.location = null;
+        console.log(" >> cloned", font);
+        // this.documentRepo.addFont(font, "save");
+        this.documentRepo.fonts.push(font);
+        this.documentRepo.faces.concat(font.variants);
+        shouldSave = true;
+    }.bind(this));
+
+    if (shouldSave) this.documentRepo.save();
+};
 Object.defineProperty(FontLoader, "instance", {
     get: function () {
         if (!FontLoader._instance) {
@@ -65,8 +113,8 @@ FontRepository.TYPE_USER = "user";
 FontRepository.TYPE_DOCUMENT = "document";
 
 FontRepository.prototype.getFont = function (fontName) {
-    for(var i in this.font) {
-        if (this.font[i].name == fontName) return this.fonts[i];
+    for(var i in this.fonts) {
+        if (this.fonts[i].name == fontName) return this.fonts[i];
     }
 };
 FontRepository.prototype.load = function () {
@@ -178,7 +226,7 @@ FontRepository.prototype.save = function () {
 
     var thiz = this;
 
-    var registryFilePath = path.join(Config.getDataFilePath("fonts"), "registry.xml");
+    var registryFilePath = path.join(this.dirPath, "registry.xml");
     try {
         var dom = Dom.parser.parseFromString('<FontRegistry xmlns="' + PencilNamespaces.p + '"></FontRegistry>', 'text/xml');
 
@@ -192,7 +240,7 @@ FontRepository.prototype.save = function () {
 
             if (!font.location) {
                 copy = true;
-                var location = font.name.replace(/ +/g, "-").replace(/[^a-z0-9\-]+/g, "");
+                var location = font.name.replace(/ +/g, "-").replace(/[^a-z0-9\-]+/gi, "");
 
                 var index = 0;
                 while (fsExistSync(path.join(thiz.dirPath, location))) {
