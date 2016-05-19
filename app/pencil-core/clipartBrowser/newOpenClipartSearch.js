@@ -321,7 +321,6 @@ OpenClipartSearch2.prototype.searchImpl = function(query, options, callback) {
         }
     }, this.req);
 };
-
 OpenClipartSearch2.prototype.parseSearchResult  = function (response) {
     var r = {result: [], resultCount: 0};
     if (!response) return r;
@@ -335,7 +334,11 @@ OpenClipartSearch2.prototype.parseSearchResult  = function (response) {
                 src: Dom.getSingleValue("./enclosure/@url", itemNode),
                 type: Dom.getSingleValue("./enclosure/@type", itemNode),
                 length: Dom.getSingleValue("./enclosure/@length", itemNode),
-                thumb: Dom.getSingleValue("./media:thumbnail/@url", itemNode)
+                thumb: Dom.getSingleValue("./media:thumbnail/@url", itemNode),
+                creator: Dom.getSingleValue("./dc:creator/text()", itemNode),
+                license: Dom.getSingleValue("./rcc:license/text()", itemNode),
+                pubDate: Dom.getSingleValue("./pubDate/text()", itemNode),
+                link: Dom.getSingleValue("./link/text()", itemNode)
             };
             r.result.push(item);
         });

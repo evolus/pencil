@@ -159,19 +159,23 @@ SettingDialog.prototype.initializePreferenceTable = function () {
     this.preferenceTable.column(new DataTable.PlainTextColumn("Value", function (data) {
         return data.value;
     }).width("15em"));
+
     this.preferenceTable.selector(false);
     var thiz = this;
     window.setTimeout(function () {
         thiz.preferenceTable.setup();
         thiz.preferenceTable.setDefaultSelectionHandler({
             run: function (data) {
+                console.log("handle selection:", data);
                 if (data.type == "boolean") {
                     data.value = !data.value;
                     Config.set(data.configName, !data.value);
+                    thiz.setPreferenceItems();
                 } else {
                     Dialog.prompt(data.configName, data.value, "OK", function (value) {
                         data.value = value;
                         Config.set(data.configName, value);
+                        thiz.setPreferenceItems();
                     }, "Cancel");
                 }
             }
@@ -182,6 +186,7 @@ SettingDialog.prototype.initializePreferenceTable = function () {
 };
 
 SettingDialog.prototype.setPreferenceItems = function () {
+    console.log("setPreferenceItems");
     var items = [];
     Config._load();
     var query = this.preferenceNameInput.value;
