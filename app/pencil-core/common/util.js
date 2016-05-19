@@ -419,11 +419,22 @@ Dom.isChildOf = function (parent, child) {
     }
     return Dom.isChildOf(parent, child.parentNode);
 };
-
+Dom.findUpwardWithEval = function (node, evaluator, limit) {
+    if (node == null || (limit && limit(node))) {
+        return null;
+    }
+    if (evaluator.eval(node)) {
+        return node;
+    }
+    return Dom.findUpward(node.parentNode, evaluator);
+};
 Dom.findUpward = function (node, evaluator) {
     try {
         if (node == null) {
             return null;
+        }
+        if (evaluator.eval) {
+            return Dom.findUpwardWithEval(node, evaluator);
         }
         if (evaluator(node)) {
             return node;
