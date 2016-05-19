@@ -6,7 +6,6 @@ function TemplateManagermentDialog() {
         // if (!pageSize.value) return pageSize.displayName;
         return items.displayName;
     }
-    this.activedType;
     var thiz = this;
     this.templates;
     this.templateTypeSelector.addEventListener("p:ItemSelected", function (event) {
@@ -19,24 +18,23 @@ __extend(Dialog, TemplateManagermentDialog);
 
 TemplateManagermentDialog.prototype.loadTemplates = function (type) {
     console.log(type);
-    if(type != this.activedType) {
-        this.activedType = type;
-        this.templates = ExportTemplateManager.getTemplatesForType(type);
-        console.log(this.templates);
-        var items = [];
-        for(var i = 0; i < this.templates.length; i++) {
-            var template = this.templates[i];
-            var item = {
-                templateName: template.name,
-                description: template.description,
-                author: template.author,
-                template: template
-            };
-            console.log(item);
-            items.push(item);
-        }
-        this.templateTable.setItems(items);
+    this.activedType = type;
+    this.templates = ExportTemplateManager.getTemplatesForType(type);
+    console.log("templates is:" + this.templates);
+    var items = [];
+    for(var i = 0; i < this.templates.length; i++) {
+        var template = this.templates[i];
+        var item = {
+            templateName: template.name,
+            description: template.description,
+            author: template.author,
+            template: template
+        };
+        console.log(item);
+        items.push(item);
     }
+    this.templateTable.setItems(items);
+
 }
 
 TemplateManagermentDialog.prototype.initializePreferenceTable = function () {
@@ -57,8 +55,14 @@ TemplateManagermentDialog.prototype.initializePreferenceTable = function () {
              },
              handler: function (item) {
                 console.log(item.template);
-                ExportTemplateManager.uninstallTemplate(item.template);
-
+                Dialog.confirm(
+                    "Are you sure you really want to delete this template ?", null,
+                    "Delete", function () {
+                        ExportTemplateManager.uninstallTemplate(item.template);
+                        thiz.loadTemplates(thiz.templateTypeSelector.getSelectedItem().value);
+                    },
+                    "Cancel"
+                )
              }
      }];
     this.templateTable.column(new DataTable.ActionColumn(actions).width("6em"));
@@ -101,28 +105,15 @@ TemplateManagermentDialog.prototype.getDialogActions = function () {
     var thiz = this
     return [
         {
-            type: "cancel", title: "Install new template",
+            type: "extra", title: "Install new template...",
             isCloseHandler: true,
             run: function () {
-                ApplicationPane._instance.busy();
-                dialog.showOpenDialog({
-                    title: "Open template document",
-                    defaultPath: os.homedir(),
-                    filters: [
-                        { name: "Template files", extensions: ["epxt", "zip"] }
-                    ]
-
-                }, function (filenames) {
-                    ApplicationPane._instance.unbusy();
-                    if (!filenames || filenames.length <= 0) return;
-                    //ExportTemplateManager.installTemplateFromFile(filenames);
-                }.bind(thiz));
-
-                return true;
+                ExportTemplateManager.installNewTemplate(thiz.templateTypeSelector.getSelectedItem().value);
+                return false;
             }
         },
         {
-            type: "cancel", title: "Cancel",
+            type: "cancel", title: "Close",
             isCloseHandler: true,
             run: function () { return true; }
         }
