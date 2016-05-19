@@ -253,8 +253,9 @@ var DataTable = function () {
         for (var i = 0; i < this.actions.length; i ++) {
             var action = this.actions[i];
             if (action.isApplicable && !action.isApplicable(data)) continue;
+            html += "<span action-id=\"" + action.id + "\" class=\"fa " + action.type + " Action"  + action.id +  " " + (action.isApplicable && action.isApplicable(data) ? "" : "disabled")  + "\" title=\"" + Dom.htmlEncode(action.title) + "\"><i>" + action.icon + "</i></span>"
 
-            html += "<span action-id=\"" + action.id + "\" class=\"fa " + action.type + " Action"  + action.id +  " " + (action.isApplicable && action.isApplicable(data) ? "" : "disabled")  + "\" title=\"" + Dom.htmlEncode(action.title) + "\"></span>"
+            // html += "<span action-id=\"" + action.id + "\" class=\"fa " + action.type + " Action"  + action.id +  " " + (action.isApplicable && action.isApplicable(data) ? "" : "disabled")  + "\" title=\"" + Dom.htmlEncode(action.title) + "\"></span>"
         }
         return html;
     };
