@@ -57,7 +57,7 @@ TemplateManagermentDialog.prototype.initializePreferenceTable = function () {
              },
              handler: function (item) {
                 console.log(item.template);
-                // ExportTemplateManager.uninstallTemplate(item.template);
+                ExportTemplateManager.uninstallTemplate(item.template);
 
              }
      }];

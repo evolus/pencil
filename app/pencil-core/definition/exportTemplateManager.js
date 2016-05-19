@@ -28,7 +28,7 @@ ExportTemplateManager.loadTemplatesIn = function (templateDir) {
         for (var i in ExportTemplateManager.SUPPORTED_TYPES) {
             var type = ExportTemplateManager.SUPPORTED_TYPES[i];
 
-            ExportTemplateManager._loadUserDefinedTemplatesIn(path.join(templateDir, type), type);
+            // ExportTemplateManager._loadUserDefinedTemplatesIn(path.join(templateDir, type), type);
         }
     } catch (e) {
         Console.dumpError(e);
@@ -131,6 +131,8 @@ ExportTemplateManager.installTemplateFromFile = function (file, type) {
                    .createInstance(Components.interfaces.nsIZipReader);
     zipReader.open(file);
 
+
+
     var targetDir = ExportTemplateManager.getUserTemplateDirectory();
     //generate a random number
     targetDir.append(type);
@@ -200,8 +202,10 @@ ExportTemplateManager.installTemplateFromFile = function (file, type) {
 };
 ExportTemplateManager.uninstallTemplate = function (template) {
     try {
-        debug("About to remove: " + template.dir.path);
-        template.dir.remove(true);
+        debug("About to remove: " + template.dir);
+        // template.dir.remove(true);
+        deleteFileOrFolder(template.dir);
+
     } catch (e) {
         Util.error(Util.getMessage("failed.to.uninstall.the.template"), e.message, Util.getMessage("button.close.label"));
         Console.dumpError(e);
