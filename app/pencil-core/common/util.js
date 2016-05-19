@@ -2217,7 +2217,7 @@ function fsExistAsDirectorySync(p) {
 
 function deleteFileOrFolder(p) {
     try {
-        var stat = fs.stat(p);
+        var stat = fs.statSync(p);
         if (stat.isDirectory()) {
             var children = fs.readdirSync(p);
             children.forEach(function (child) {

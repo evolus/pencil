@@ -111,19 +111,37 @@ ExportTemplateManager.loadTemplates = function() {
         var type = ExportTemplateManager.SUPPORTED_TYPES[i];
         ExportTemplateManager.templates[type] = [];
     }
+    ExportTemplateManager.loadUserDefinedTemplates();
+    for (var j = 0 ; j < ExportTemplateManager.SUPPORTED_TYPES.length; j++) {
+        var type = ExportTemplateManager.SUPPORTED_TYPES[j];
+        var templates = ExportTemplateManager.templates[type];
+        for (var i = 0; i < templates.length; i++) {
+            templates[i].userDefine = true;
+        }
+    }
     ExportTemplateManager.loadDefaultTemplates();
     ExportTemplateManager.loadUserDefinedTemplates();
 };
 ExportTemplateManager.installNewTemplate = function (type) {
-    var nsIFilePicker = Components.interfaces.nsIFilePicker;
-    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    fp.init(window, Util.getMessage("filepicker.open.document"), nsIFilePicker.modeOpen);
-    fp.appendFilter(Util.getMessage("pencil.export.template.type", type), "*.epxt; *.zip");
-    fp.appendFilter(Util.getMessage("filepicker.all.files"), "*");
-
-    if (fp.show() != nsIFilePicker.returnOK) return;
-
-    ExportTemplateManager.installTemplateFromFile(fp.file, type);
+    // var nsIFilePicker = Components.interfaces.nsIFilePicker;
+    // var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    // fp.init(window, Util.getMessage("filepicker.open.document"), nsIFilePicker.modeOpen);
+    // fp.appendFilter(Util.getMessage("pencil.export.template.type", type), "*.epxt; *.zip");
+    // fp.appendFilter(Util.getMessage("filepicker.all.files"), "*");
+    //
+    // if (fp.show() != nsIFilePicker.returnOK) return;
+    //
+    // ExportTemplateManager.installTemplateFromFile(fp.file, type);
+    dialog.showOpenDialog({
+        title: "Open template document",
+        defaultPath: os.homedir(),
+        filters: [
+            { name: "Template files", extensions: ["epxt", "zip"] }
+        ]
+    }, function (filenames) {
+        if (!filenames || filenames.length <= 0) return;
+        ExportTemplateManager.installTemplateFromFile(filenames, type);
+    });
 }
 ExportTemplateManager.installTemplateFromFile = function (file, type) {
     var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
@@ -203,6 +221,10 @@ ExportTemplateManager.uninstallTemplate = function (template) {
     try {
         debug("About to remove: " + template.dir);
         // template.dir.remove(true);
+        if(!template.userDefine || template.userDefine == false) {
+            Dialog.alert("Uninstall invalid template ! ","Can't uninstall default template");
+            return;
+        }
         deleteFileOrFolder(template.dir);
 
     } catch (e) {
