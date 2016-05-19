@@ -64,16 +64,9 @@ function ApplicationPane() {
         return false;
     }, false);
 
-    require("./desktop").getDesktopFontConfig(function (config) {
-        document.body.style.fontFamily = config.family;
-        document.body.style.fontStyle = config.style;
-        document.body.style.fontWeight = config.weight;
-        document.body.style.fontSize = config.size;
-    });
-
     ApplicationPane._instance = this;
 
-    FontLoader.loadFonts();
+    FontLoader.instance.loadFonts();
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {

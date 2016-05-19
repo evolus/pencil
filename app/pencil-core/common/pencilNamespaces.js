@@ -14,6 +14,8 @@ PencilNamespaces["xbl"] = "http://www.mozilla.org/xbl";
 PencilNamespaces["inkscape"] = "http://www.inkscape.org/namespaces/inkscape";
 PencilNamespaces["dc"] = "http://purl.org/dc/elements/1.1/";
 PencilNamespaces["cc"] = "http://creativecommons.org/ns#";
+PencilNamespaces["rcc"] = "http://web.resource.org/cc/";
+
 PencilNamespaces["rdf"] = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 PencilNamespaces["sodipodi"] = "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd";
 

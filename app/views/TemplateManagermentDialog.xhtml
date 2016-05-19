@@ -1,20 +1,18 @@
 <vbox class="Form">
     <style>
-
+        @templateFrame {
+            height: 25em;
+            overflow: auto;
+            overflow-x: hidden;
+        }
     </style>
-    <vbox>
+    <vbox anon-id="templateFrame">
         <hbox class="InputRow">
-            <label for="templateTypeSelector">Template for:  </label> <ui:ComboManager anon-id="templateTypeSelector" flex="1" ></ui:ComboManager>
+            <label for="templateTypeSelector">Template for:  </label>
+             <ui:ComboManager anon-id="templateTypeSelector" flex="1" ></ui:ComboManager>
         </hbox>
-        <hbox class="InputRow">
-            <table style="width:100%" flex="1" anon-id="templateInfo">
-                 <tr>
-                   <th>Template</th>
-                   <th>Information</th>
-                   <th>Author</th>
-                   <th></th>
-                 </tr>
-            </table>
+        <hbox class="InputRow" >
+            <ui:DataTable flex="1" anon-id="templateTable"> </ui:DataTable>
         </hbox>
     </vbox>
 </vbox>

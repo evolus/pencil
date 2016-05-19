@@ -419,11 +419,22 @@ Dom.isChildOf = function (parent, child) {
     }
     return Dom.isChildOf(parent, child.parentNode);
 };
-
+Dom.findUpwardWithEval = function (node, evaluator, limit) {
+    if (node == null || (limit && limit(node))) {
+        return null;
+    }
+    if (evaluator.eval(node)) {
+        return node;
+    }
+    return Dom.findUpward(node.parentNode, evaluator);
+};
 Dom.findUpward = function (node, evaluator) {
     try {
         if (node == null) {
             return null;
+        }
+        if (evaluator.eval) {
+            return Dom.findUpwardWithEval(node, evaluator);
         }
         if (evaluator(node)) {
             return node;
@@ -2206,7 +2217,7 @@ function fsExistAsDirectorySync(p) {
 
 function deleteFileOrFolder(p) {
     try {
-        var stat = fs.stat(p);
+        var stat = fs.statSync(p);
         if (stat.isDirectory()) {
             var children = fs.readdirSync(p);
             children.forEach(function (child) {
@@ -2255,6 +2266,18 @@ function copyFolderRecursiveSync( source, target ) {
             }
         });
     }
+}
+
+function getStaticFilePath(subPath) {
+    var filePath = __dirname;
+    if (!subPath) return filePath;
+
+    var parts = subPath.split("/");
+    for (var i = 0; i < parts.length; i ++) {
+        filePath = path.join(filePath, parts[i]);
+    }
+
+    return filePath;
 }
 
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);
