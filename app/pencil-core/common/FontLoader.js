@@ -214,7 +214,7 @@ FontRepository.prototype.removeFont = function (font) {
     }
     this.faces = newFaces;
 
-    var locationPath = path.join(thiz.dirPath, font.location);
+    var locationPath = path.join(this.dirPath, font.location);
     deleteFileOrFolder(locationPath);
 
     this.save();

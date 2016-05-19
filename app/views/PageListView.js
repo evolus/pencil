@@ -211,8 +211,7 @@ PageListView.prototype.setController = function (controller) {
     this.renderPages();
 };
 PageListView.prototype.activatePage = function (page) {
-    this.currentPage = page;
-    this.currentParentPage = page.parentPage;
+    this.controller.activatePage(page);
     this.renderPages();
 };
 PageListView.prototype.renderPages = function() {
@@ -220,8 +219,14 @@ PageListView.prototype.renderPages = function() {
     this.pageListContainer.innerHTML = "";
     this.childPageContainer.innerHTML = "";
 
+    this.currentPage = null;
+    this.currentParentPage = null;
+
     this.views = [];
     if (!this.controller || !this.controller.doc) return;
+
+    this.currentPage = this.controller.activePage;
+    this.currentParentPage = this.currentPage.parentPage;
 
     var pages = [];
     var parentPages = [];
@@ -404,8 +409,6 @@ PageListView.prototype.renderPages = function() {
         thiz.childPageSrollView.ensuareVisible(childListFrom, childListTo);
         thiz.pageListSrollView.ensuareVisible(thumbnailFrom, thumbnailTo);
     }, 0);
-
-    this.controller.activatePage(this.currentPage);
 };
 
 PageListView.prototype.invalidateExpandedState = function() {

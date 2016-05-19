@@ -41,8 +41,7 @@ Controller.prototype.newDocument = function () {
         // thiz.sayDocumentChanged();
         setTimeout(function () {
             var size = thiz.applicationPane.getPreferredCanvasSize();
-            var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "");
-            thiz.activatePage(page);
+            var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "", null, "activatePage");
             thiz.modified = false;
         }, 50);
     };
@@ -107,7 +106,7 @@ Controller.prototype.findPageByName = function (name) {
 
     return null;
 };
-Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId) {
+Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId, activateAfterCreate) {
     var id = Util.newUUID();
     var pageFileName = "page_" + id + ".xml";
 
@@ -145,6 +144,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     }
 
     this.invalidateBitmapFilePath(page);
+    if (activateAfterCreate) this.activatePage(page);
     this.sayDocumentChanged();
 
     return page;
@@ -368,12 +368,12 @@ Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
         next(function () {
             thiz.sayDocumentChanged();
             thiz.sayControllerStatusChanged();
+            if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
+            if (callback) callback();
             ApplicationPane._instance.unbusy();
         });
         this.documentPath = filePath;
         this.doc.name = this.getDocumentName();
-        thiz.sayControllerStatusChanged();
-        if (callback) callback();
     } catch (e) {
         console.log("error:", e);
         thiz.newDocument();
@@ -575,14 +575,15 @@ Controller.prototype.parseDocument = function (filePath, callback) {
             thiz.modified = false;
             //new file was loaded, update recent file list
             thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
-            thiz.sayControllerStatusChanged();
 
             FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
             FontLoader.instance.loadFonts(function () {
+                thiz.sayControllerStatusChanged();
+                if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
                 thiz.applicationPane.onDocumentChanged();
                 if (callback) callback();
+                ApplicationPane._instance.unbusy();
             });
-            ApplicationPane._instance.unbusy();
         } catch (e) {
             console.log("error:", e);
             thiz.newDocument();

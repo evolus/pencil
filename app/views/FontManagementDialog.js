@@ -21,10 +21,10 @@ function FontManagementDialog() {
 __extend(Dialog, FontManagementDialog);
 
 FontManagementDialog.prototype.setup = function () {
-    FontLoader.instance.loadFonts();
     this.loadFonts();
 };
 FontManagementDialog.prototype.loadFonts = function () {
+    FontLoader.instance.loadFonts();
     var fonts = FontLoader.instance.getUserFonts();
     var thiz = this;
     this.fontRepeater.node().style.visibility = "hidden";
