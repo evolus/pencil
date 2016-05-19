@@ -24,7 +24,6 @@ ExportTemplateManager.getTemplateById = function (templateId) {
 };
 
 ExportTemplateManager.loadTemplatesIn = function (templateDir) {
-    console.log("loadTemplatesIn", templateDir);
     try {
         for (var i in ExportTemplateManager.SUPPORTED_TYPES) {
             var type = ExportTemplateManager.SUPPORTED_TYPES[i];
@@ -79,7 +78,6 @@ ExportTemplateManager.getDefaultTemplateDirectory = function () {
 };
 ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type) {
     //loading all templates
-    debug("Loading template in " + templateDir);
     try {
         var stat = fs.statSync(templateDir);
         if (!stat.isDirectory()) return;
