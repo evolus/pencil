@@ -4,10 +4,19 @@
   "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
   "version": "3.0.0-beta.2",
   "author": {
-    "name": "Duong Thanh An",
-    "email": "an.duong@evolus.vn",
-    "url": "https://twitter.com/dgthanhan"
+    "name": "Evolus",
+    "url": "http://evolus.vn"
   },
+  "maintainers": [
+    {
+      "email": "an.duong@evolus.vn",
+      "name": "dgthanhan"
+    },
+    {
+      "email": "ngtdungnt@gmail.com",
+      "name": "Nguyen Tien Dzung"
+    }
+  ],
   "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
   "homepage": "http://pencil.evolus.vn",
   "license": "GPL2",

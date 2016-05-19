@@ -32,6 +32,8 @@
     },
     "win": {
       "authors": "Evolus",
+      "owners": "Evolus",
+      "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
       "copyright": "Copyright © 2008-2016 Evolus. All rights reserved."
     },
     "download": {

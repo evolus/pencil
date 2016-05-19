@@ -24,9 +24,11 @@ ExportTemplateManager.getTemplateById = function (templateId) {
 };
 
 ExportTemplateManager.loadTemplatesIn = function (templateDir) {
+    console.log("loadTemplatesIn", templateDir);
     try {
         for (var i in ExportTemplateManager.SUPPORTED_TYPES) {
             var type = ExportTemplateManager.SUPPORTED_TYPES[i];
+
             ExportTemplateManager._loadUserDefinedTemplatesIn(path.join(templateDir, type), type);
         }
     } catch (e) {
@@ -73,7 +75,7 @@ ExportTemplateManager.loadDefaultTemplates = function () {
     }
 };
 ExportTemplateManager.getDefaultTemplateDirectory = function () {
-    return path.join(path.join(__dirname, "pencil-core"), "templates");
+    return getStaticFilePath("pencil-core/templates");
 };
 ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type) {
     //loading all templates
@@ -104,7 +106,6 @@ ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type)
 };
 
 ExportTemplateManager.loadTemplates = function() {
-    console.log("begin load template");
     ExportTemplateManager.templates = {};
     ExportTemplateManager.templateMap = {};
 
@@ -121,7 +122,7 @@ ExportTemplateManager.loadTemplates = function() {
         }
     }
     ExportTemplateManager.loadDefaultTemplates();
-    console.log(ExportTemplateManager.templates);
+    ExportTemplateManager.loadUserDefinedTemplates();
 };
 ExportTemplateManager.installNewTemplate = function (type) {
     // var nsIFilePicker = Components.interfaces.nsIFilePicker;
@@ -220,16 +221,18 @@ ExportTemplateManager.installTemplateFromFile = function (file, type) {
 };
 ExportTemplateManager.uninstallTemplate = function (template) {
     try {
-        //debug("About to remove: " + template.dir);
+        debug("About to remove: " + template.dir);
         // template.dir.remove(true);
         if(!template.userDefine || template.userDefine == false) {
             Dialog.alert("Uninstall invalid template ! ","Can't uninstall default template");
             return;
         }
         deleteFileOrFolder(template.dir);
+
     } catch (e) {
         Util.error(Util.getMessage("failed.to.uninstall.the.template"), e.message, Util.getMessage("button.close.label"));
         Console.dumpError(e);
     }
+
     ExportTemplateManager.loadTemplates();
 }
