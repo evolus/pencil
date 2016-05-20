@@ -28,7 +28,19 @@ FontLoader.prototype.loadFonts = function (callback) {
     if (this.documentRepo) allFaces = allFaces.concat(this.documentRepo.faces);
 
     console.log("All faces to load", allFaces);
-    FontLoaderUtil.loadFontFaces(allFaces, callback);
+    FontLoaderUtil.loadFontFaces(allFaces, function () {
+        var data = {
+            id: Util.newUUID(),
+            faces: allFaces
+        }
+        ipcRenderer.once(data.id, function (event, data) {
+            Dom.emitEvent("p:UserFontLoaded", document.documentElement, {});
+            if (callback) callback();
+        });
+
+        ipcRenderer.send("font-loading-request", data);
+
+    });
 };
 FontLoader.prototype.isFontExisting = function (fontName) {
     return this.userRepo.getFont(fontName);
