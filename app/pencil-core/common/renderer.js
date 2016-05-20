@@ -134,7 +134,8 @@ module.exports = function () {
         var canvasWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         var url = "file://" + app.getAppPath() + "/renderer.xhtml";
         canvasWindow.loadURL(url);
-        // canvasWindow.webContents.openDevTools();
+        canvasWindow.webContents.openDevTools();
+        canvasWindow.show();
 
         ipcMain.on("canvas-render-request", function (event, data) {
             console.log("RASTER: Forwarding render request for " + data.id);
@@ -143,6 +144,13 @@ module.exports = function () {
         ipcMain.on("canvas-render-response", function (event, data) {
             console.log("RASTER: Forwarding render result for " + data.id);
             global.mainWindow.webContents.send(data.id, {url: data.url, objectsWithLinking: data.objectsWithLinking});
+        });
+
+        ipcMain.on("font-loading-request", function (event, data) {
+            canvasWindow.webContents.send("font-loading-request", data);
+        });
+        ipcMain.on("font-loading-response", function (event, data) {
+            global.mainWindow.webContents.send(data.id, data);
         });
 
         console.log("OUT-PROCESS CANVAS RENDERER started.");
