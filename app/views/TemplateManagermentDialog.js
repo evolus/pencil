@@ -108,7 +108,10 @@ TemplateManagermentDialog.prototype.getDialogActions = function () {
             type: "extra", title: "Install new template...",
             isCloseHandler: true,
             run: function () {
-                ExportTemplateManager.installNewTemplate(thiz.templateTypeSelector.getSelectedItem().value);
+                var onDone = function () {
+                    thiz.loadTemplates(thiz.templateTypeSelector.getSelectedItem().value);
+                }
+                ExportTemplateManager.installNewTemplate(thiz.templateTypeSelector.getSelectedItem().value, onDone);
                 return false;
             }
         },
