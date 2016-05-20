@@ -95,10 +95,13 @@ ComboManager.prototype.setItems = function (items) {
 
 ComboManager.prototype.selectItem = function (item, fromUserAction) {
     var comparer = this.comparer || function (a, b) { return a == b};
+
+    var matched = false;
     if (this.items) {
         for (var i = 0; i < this.items.length; i ++) {
             if (comparer(this.items[i], item)) {
                 item = this.items[i];
+                matched = true;
                 break;
             }
         }
@@ -128,6 +131,8 @@ ComboManager.prototype.selectItem = function (item, fromUserAction) {
             node.setAttribute("selected", node._data == item);
         }
     }
+
+    return matched;
 };
 
 

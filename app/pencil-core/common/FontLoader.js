@@ -1,6 +1,17 @@
 function FontLoader() {
     this.userRepo = new FontRepository(Config.getDataFilePath("fonts"), FontRepository.TYPE_USER);
     this.documentRepo = null;
+
+
+    //TODO: remove this test
+    var face = new FontFace(null, "url(file:///home/dgthanhan/.fonts/Signika-Bold.ttf) format('truetype')");
+    var addPromise = document.fonts.add(face);
+    addPromise.ready.then(function () {
+        document.fonts.forEach(function (fontFace) {
+            console.log(fontFace);
+        });
+        face.load();
+    });
 }
 FontLoader.prototype.setDocumentRepoDir = function (dirPath) {
     if (dirPath) {
@@ -16,40 +27,8 @@ FontLoader.prototype.loadFonts = function (callback) {
     var allFaces = [].concat(this.userRepo.faces);
     if (this.documentRepo) allFaces = allFaces.concat(this.documentRepo.faces);
 
-    var removedFaces = [];
-    document.fonts.forEach(function (face) {
-        if (face._type) removedFaces.push(face);
-    });
-
-    removedFaces.forEach(function (f) {
-        document.fonts.delete(f);
-    });
-
-    var index = -1;
-    function next() {
-        index ++;
-        if (index >= allFaces.length) {
-            if (callback) callback();
-            Dom.emitEvent("p:UserFontLoaded", document.documentElement, {});
-
-            return;
-        }
-        var installedFace = allFaces[index];
-
-        var url = ImageData.filePathToURL(installedFace.filePath);
-        var face = new FontFace(installedFace.name, "url(" + url + ") format('truetype')", {weight: installedFace.weight, style: installedFace.style});
-        face._type = installedFace.type;
-
-        var addPromise = document.fonts.add(face);
-        addPromise.ready.then(function () {
-            var fontCSS = installedFace.style + " " + installedFace.weight + " 1em '" + installedFace.name + "'";
-            document.fonts.load(fontCSS).then(function () {
-                next();
-            }, next);
-        }, next);
-    }
-
-    next();
+    console.log("All faces to load", allFaces);
+    FontLoaderUtil.loadFontFaces(allFaces, callback);
 };
 FontLoader.prototype.isFontExisting = function (fontName) {
     return this.userRepo.getFont(fontName);
