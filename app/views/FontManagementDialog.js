@@ -2,6 +2,7 @@ function FontManagementDialog() {
     Dialog.call(this);
     this.fontRepeater.populator = function (font, binding) {
         binding.fontName.innerHTML = font.name;
+        binding.fontName.title = font.name;
         binding.fontName.style.fontFamily = font.name;
         binding.styleNumber.innerHTML = font.variants.length + " styles";
         binding.deleteButton._font = font;
@@ -11,9 +12,9 @@ function FontManagementDialog() {
         var node = Dom.findUpwardForNodeWithData(event.target, "_font");
         if (!node) return;
         var font = node._font;
-        FontLoader.instance.removeFont(font);
-        FontLoader.instance.loadFonts();
-        this.loadFonts();
+        FontLoader.instance.removeFont(font, function () {
+            this.load();
+        }.bind(this));
     }, this.fontRepeater.node());
 
     this.title = "User Font Management";
@@ -22,9 +23,9 @@ function FontManagementDialog() {
 __extend(Dialog, FontManagementDialog);
 
 FontManagementDialog.prototype.setup = function () {
-    this.loadFonts();
+    this.load();
 };
-FontManagementDialog.prototype.loadFonts = function () {
+FontManagementDialog.prototype.load = function () {
     var fonts = FontLoader.instance.getUserFonts();
     var thiz = this;
     this.fontRepeater.node().style.visibility = "hidden";
@@ -42,8 +43,11 @@ FontManagementDialog.prototype.getDialogActions = function () {
             type: "extra1", title: "Install new font...",
             run: function () {
                 (new FontDetailDialog()).callback(function () {
-                    FontLoader.instance.loadFonts();
-                    thiz.loadFonts();
+                    ApplicationPane._instance.busy();
+                    FontLoader.instance.loadFonts(function () {
+                        thiz.load();
+                        ApplicationPane._instance.unbusy();
+                    });
                 }).open();
 
                 return false;

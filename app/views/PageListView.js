@@ -61,27 +61,26 @@ function PageListView() {
         if (!node) return;
         var page = node._page;
         if ((page == null && this.currentParentPage == null) || (page && this.currentParentPage && page.id == this.currentParentPage.id)) return;
-        this.currentPage = null;
-        if (this.currentParentPage) {
-            if (page == null && this.currentParentPage) {
+
+        var newActivePage = null;
+        if (this.currentParentPage
+            && (!page && !this.currentParentPage.parentPage
+                    || (page && this.currentParentPage.parentPage && page.id == this.currentParentPage.parentPage.id))) {
+            newActivePage = this.currentParentPage;
+        } else {
+            if (page) {
+                newActivePage = page.children[0];
+            } else {
                 for (var i in this.controller.doc.pages) {
-                    var p = this.controller.doc.pages[i];
-                    if (!p.parentPage && p.id == this.currentParentPage.id) {
-                        this.currentPage = p;
-                        break;
-                    }
-                }
-            } else if (page) {
-                for (var i in page.children) {
-                    if (page.children[i].id == this.currentParentPage.id) {
-                        this.currentPage = this.currentParentPage;
+                    if (!this.controller.doc.pages[i].parentPage) {
+                        newActivePage = this.controller.doc.pages[i];
                         break;
                     }
                 }
             }
         }
-        this.currentParentPage = page;
-        this.renderPages();
+
+        this.activatePage(newActivePage);
     }, this.pageBreadcrumb);
 
     var thiz = this;
@@ -226,7 +225,7 @@ PageListView.prototype.renderPages = function() {
     if (!this.controller || !this.controller.doc) return;
 
     this.currentPage = this.controller.activePage;
-    this.currentParentPage = this.currentPage.parentPage;
+    this.currentParentPage = this.currentPage && this.currentPage.parentPage || null;
 
     var pages = [];
     var parentPages = [];
@@ -446,8 +445,6 @@ PageListView.prototype.handleDoubleClick = function (page) {
     if (!page.children || page.children.length == 0) {
         this.handleSelectPage(page);
     } else {
-        this.currentParentPage = page;
-        this.currentPage = null;
-        this.renderPages();
+        this.activatePage(page.children[0]);
     }
 };

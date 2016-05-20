@@ -12,17 +12,17 @@ FontDetailDialog.prototype.getDialogActions = function () {
     var thiz = this;
     return [
         {
-            type: "accept", title: "Save",
+            type: "accept", title: "Install",
             run: function () {
 
                 var fontName = this.fontNameInput.value;
                 if (!fontName) {
-                    Dialog.error("Font Name is invalid.", "Please enter a font name.");
+                    Dialog.error("Font name is invalid.", "Please enter a font name.");
                     return;
                 }
 
                 if (FontLoader.instance.isFontExisting(fontName)) {
-                    Dialog.error("Font Name has existed.", "Please enter a new font name.");
+                    Dialog.error("Font name '" + fontName + "' has existed.", "Please enter a new font name.");
                     return;
                 }
 
@@ -36,7 +36,7 @@ FontDetailDialog.prototype.getDialogActions = function () {
                 var boldItalicFilePath = getFilePath(thiz.boldItalicFileInput);
 
                 if (!regularFilePath && !boldFilePath && !italicFilePath && !boldItalicFilePath) {
-                    Dialog.error("No variant file path is valid", "Please select at least variant file path.");
+                    Dialog.error("No variant file is valid.", "Please select at least valid variant file.");
                     return;
                 }
 
@@ -49,7 +49,7 @@ FontDetailDialog.prototype.getDialogActions = function () {
                 };
 
                 FontLoader.instance.installNewFont(font);
-                thiz.close();
+                thiz.close(font);
 
                 return false;
             }
