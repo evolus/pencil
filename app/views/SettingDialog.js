@@ -168,13 +168,12 @@ SettingDialog.prototype.initializePreferenceTable = function () {
             run: function (data) {
                 console.log("handle selection:", data);
                 if (data.type == "boolean") {
-                    data.value = !data.value;
-                    Config.set(data.configName, !data.value);
+                    Config.set(data.name, !data.value);
                     thiz.setPreferenceItems();
                 } else {
-                    Dialog.prompt(data.configName, data.value, "OK", function (value) {
+                    Dialog.prompt(data.name, data.value, "OK", function (value) {
                         data.value = value;
-                        Config.set(data.configName, value);
+                        Config.set(data.name, value);
                         thiz.setPreferenceItems();
                     }, "Cancel");
                 }
