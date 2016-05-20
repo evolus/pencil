@@ -832,7 +832,7 @@ Controller.prototype.swapIn = function (page, canvas) {
     }
 } ;
 Controller.prototype.activatePage = function (page) {
-    if (this.activePage && page.id == this.activePage.id || page == null) return;
+    if (page == null || this.activePage && page.id == this.activePage.id) return;
 
     this.retrievePageCanvas(page);
 
