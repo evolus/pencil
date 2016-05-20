@@ -59,7 +59,7 @@ FontLoader.prototype.installNewFont = function (data) {
     this.loadFonts();
 };
 FontLoader.prototype.removeFont = function (font, callback) {
-    Dialog.confirm("Are you sure you want to uninstall this font?", null, "Uninstall", function () {
+    Dialog.confirm("Are you sure you want to uninstall '" + font.name + "'?", null, "Uninstall", function () {
         ApplicationPane._instance.busy();
         this.userRepo.removeFont(font);
         this.loadFonts(function () {

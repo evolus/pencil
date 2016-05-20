@@ -2,6 +2,7 @@ function FontManagementDialog() {
     Dialog.call(this);
     this.fontRepeater.populator = function (font, binding) {
         binding.fontName.innerHTML = font.name;
+        binding.fontName.title = font.name;
         binding.fontName.style.fontFamily = font.name;
         binding.styleNumber.innerHTML = font.variants.length + " styles";
         binding.deleteButton._font = font;
