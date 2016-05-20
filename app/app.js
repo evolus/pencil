@@ -10,6 +10,7 @@ const nativeImage = require('electron').nativeImage;
 const pkgInfo     = require("./package.json");
 const fontManager = require("./lib/loader").fontManager;
 const ipcRenderer = require('electron').ipcRenderer;
+const QueueHandler = require("./pencil-core/common/QueueHandler");
 
 tmp.setGracefulCleanup();
 
