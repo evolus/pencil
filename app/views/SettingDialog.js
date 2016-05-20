@@ -172,7 +172,11 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                 } else {
                     Dialog.prompt(data.name, data.value, "OK", function (value) {
                         data.value = value;
-                        Config.set(data.name, value);
+                        if (data.type == "string") {
+                            Config.set(data.name, value);
+                        } else {
+                            Config.set(data.name, parseInt(value));
+                        }
                         thiz.setPreferenceItems();
                     }, "Cancel");
                 }
@@ -189,6 +193,7 @@ SettingDialog.prototype.setPreferenceItems = function () {
     for (var configName in Config.data) {
         if (configName.indexOf(query) < 0) continue;
         var value = Config.data[configName];
+        if (typeof(value)=="object") continue;
         items.push({
             name: configName,
             status: "user set",
