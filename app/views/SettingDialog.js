@@ -152,13 +152,13 @@ SettingDialog.prototype.initializePreferenceTable = function () {
     }).width("1*"));
     this.preferenceTable.column(new DataTable.PlainTextColumn("Status", function (data) {
         return data.status;
-    }).width("8em"));
+    }).width("7em"));
     this.preferenceTable.column(new DataTable.PlainTextColumn("Type", function (data) {
         return data.type;
-    }).width("8em"));
+    }).width("7em"));
     this.preferenceTable.column(new DataTable.PlainTextColumn("Value", function (data) {
         return data.value;
-    }).width("15em"));
+    }).width("18em"));
 
     this.preferenceTable.selector(false);
     var thiz = this;
@@ -166,15 +166,17 @@ SettingDialog.prototype.initializePreferenceTable = function () {
         thiz.preferenceTable.setup();
         thiz.preferenceTable.setDefaultSelectionHandler({
             run: function (data) {
-                console.log("handle selection:", data);
                 if (data.type == "boolean") {
-                    data.value = !data.value;
-                    Config.set(data.configName, !data.value);
+                    Config.set(data.name, !data.value);
                     thiz.setPreferenceItems();
                 } else {
-                    Dialog.prompt(data.configName, data.value, "OK", function (value) {
+                    Dialog.prompt(data.name, data.value, "OK", function (value) {
                         data.value = value;
-                        Config.set(data.configName, value);
+                        if (data.type == "string") {
+                            Config.set(data.name, value);
+                        } else {
+                            Config.set(data.name, parseInt(value));
+                        }
                         thiz.setPreferenceItems();
                     }, "Cancel");
                 }
@@ -182,17 +184,16 @@ SettingDialog.prototype.initializePreferenceTable = function () {
         });
         thiz.setPreferenceItems();
     }, 200);
-    // this.setPreferenceItems();
 };
 
 SettingDialog.prototype.setPreferenceItems = function () {
-    console.log("setPreferenceItems");
     var items = [];
     Config._load();
     var query = this.preferenceNameInput.value;
     for (var configName in Config.data) {
         if (configName.indexOf(query) < 0) continue;
         var value = Config.data[configName];
+        if (typeof(value)=="object") continue;
         items.push({
             name: configName,
             status: "user set",

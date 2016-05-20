@@ -1,6 +1,17 @@
 function FontLoader() {
     this.userRepo = new FontRepository(Config.getDataFilePath("fonts"), FontRepository.TYPE_USER);
     this.documentRepo = null;
+
+
+    //TODO: remove this test
+    var face = new FontFace(null, "url(file:///home/dgthanhan/.fonts/Signika-Bold.ttf) format('truetype')");
+    var addPromise = document.fonts.add(face);
+    addPromise.ready.then(function () {
+        document.fonts.forEach(function (fontFace) {
+            console.log(fontFace);
+        });
+        face.load();
+    });
 }
 FontLoader.prototype.setDocumentRepoDir = function (dirPath) {
     if (dirPath) {
@@ -16,40 +27,20 @@ FontLoader.prototype.loadFonts = function (callback) {
     var allFaces = [].concat(this.userRepo.faces);
     if (this.documentRepo) allFaces = allFaces.concat(this.documentRepo.faces);
 
-    var removedFaces = [];
-    document.fonts.forEach(function (face) {
-        if (face._type) removedFaces.push(face);
-    });
-
-    removedFaces.forEach(function (f) {
-        document.fonts.delete(f);
-    });
-
-    var index = -1;
-    function next() {
-        index ++;
-        if (index >= allFaces.length) {
-            if (callback) callback();
-            Dom.emitEvent("p:UserFontLoaded", document.documentElement, {});
-
-            return;
+    console.log("All faces to load", allFaces);
+    FontLoaderUtil.loadFontFaces(allFaces, function () {
+        var data = {
+            id: Util.newUUID(),
+            faces: allFaces
         }
-        var installedFace = allFaces[index];
+        ipcRenderer.once(data.id, function (event, data) {
+            Dom.emitEvent("p:UserFontLoaded", document.documentElement, {});
+            if (callback) callback();
+        });
 
-        var url = ImageData.filePathToURL(installedFace.filePath);
-        var face = new FontFace(installedFace.name, "url(" + url + ") format('truetype')", {weight: installedFace.weight, style: installedFace.style});
-        face._type = installedFace.type;
+        ipcRenderer.send("font-loading-request", data);
 
-        var addPromise = document.fonts.add(face);
-        addPromise.ready.then(function () {
-            var fontCSS = installedFace.style + " " + installedFace.weight + " 1em '" + installedFace.name + "'";
-            document.fonts.load(fontCSS).then(function () {
-                next();
-            }, next);
-        }, next);
-    }
-
-    next();
+    });
 };
 FontLoader.prototype.isFontExisting = function (fontName) {
     return this.userRepo.getFont(fontName);
@@ -58,10 +49,14 @@ FontLoader.prototype.installNewFont = function (data) {
     this.userRepo.addFont(data);
     this.loadFonts();
 };
-FontLoader.prototype.removeFont = function (font) {
-    Dialog.confirm("Are you sure you want to uninstall this font?", null, "Uninstall", function () {
+FontLoader.prototype.removeFont = function (font, callback) {
+    Dialog.confirm("Are you sure you want to uninstall '" + font.name + "'?", null, "Uninstall", function () {
+        ApplicationPane._instance.busy();
         this.userRepo.removeFont(font);
-        this.loadFonts();
+        this.loadFonts(function () {
+            if (callback) callback();
+            ApplicationPane._instance.unbusy();
+        });
     }.bind(this), "Cancel");
 };
 FontLoader.prototype.getUserFonts = function () {
@@ -196,15 +191,17 @@ FontRepository.prototype.addFont = function (data) {
     this.fonts.push(font);
     this.faces = this.faces.concat(font.variants);
     this.save();
+    this.loaded = false;
 };
 FontRepository.prototype.removeFont = function (font) {
-    console.log("removeFont:", font);
     if (!this.loaded) this.load();
+
     var font = this.getFont(font.name);
-    console.log("font:", font);
     if (!font) return;
+
     var index = this.fonts.indexOf(font);
     if (index < 0) return;
+
     this.fonts.splice(index, 1);
 
     var newFaces = [];
@@ -218,6 +215,7 @@ FontRepository.prototype.removeFont = function (font) {
     deleteFileOrFolder(locationPath);
 
     this.save();
+    this.loaded = false;
 };
 FontRepository.prototype.save = function () {
     if (!fsExistSync(this.dirPath)) {

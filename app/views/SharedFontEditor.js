@@ -88,7 +88,7 @@ SharedFontEditor.prototype.setup = function () {
     Pencil.formatPainterButton = this.formatPainterButton;
 };
 SharedFontEditor.prototype.reloadFontItems = function () {
-    FontEditor._loadFontItems(this.fontCombo);    
+    FontEditor._loadFontItems(this.fontCombo);
 };
 SharedFontEditor.prototype.beginFormatPainter = function () {
     var activeCanvas = Pencil.activeCanvas;
@@ -141,9 +141,11 @@ SharedFontEditor.prototype.attach = function (target) {
     // this.strikeButton.disabled = false;*/
     //
     // //set the value
-    if (Local.isFontExisting(this.font.family)) {
-        this.fontCombo.selectItem(this.font);
-    } else {
+    var matched = this.fontCombo.selectItem(this.font);
+
+    console.log("Selecting", this.font);
+    console.log(" >> Matching " + matched);
+    if (!matched) {
         var families = this.font.getFamilies();
         for (var i = 0; i < families.length; i ++) {
             var f = families[i];

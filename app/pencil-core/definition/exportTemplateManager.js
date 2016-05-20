@@ -10,6 +10,7 @@ ExportTemplateManager.SUPPORTED_TYPES_NAMES = {
 };
 
 ExportTemplateManager.addTemplate = function (template, type) {
+    console.log("add template", template, type);
     if (!ExportTemplateManager.templates[type]) {
         ExportTemplateManager.templates[type] = [];
     }
@@ -37,7 +38,9 @@ ExportTemplateManager.loadTemplatesIn = function (templateDir) {
 
 ExportTemplateManager.loadUserDefinedTemplates = function () {
     try {
+
         var templateDir = ExportTemplateManager.getUserTemplateDirectory();
+        console.log("load user define template from: " + templateDir );
         ExportTemplateManager.loadTemplatesIn(templateDir);
     } catch (e) {
         Console.dumpError(e);
@@ -120,9 +123,8 @@ ExportTemplateManager.loadTemplates = function() {
         }
     }
     ExportTemplateManager.loadDefaultTemplates();
-    ExportTemplateManager.loadUserDefinedTemplates();
 };
-ExportTemplateManager.installNewTemplate = function (type) {
+ExportTemplateManager.installNewTemplate = function (type, callback) {
     // var nsIFilePicker = Components.interfaces.nsIFilePicker;
     // var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     // fp.init(window, Util.getMessage("filepicker.open.document"), nsIFilePicker.modeOpen);
@@ -140,82 +142,116 @@ ExportTemplateManager.installNewTemplate = function (type) {
         ]
     }, function (filenames) {
         if (!filenames || filenames.length <= 0) return;
-        ExportTemplateManager.installTemplateFromFile(filenames, type);
+        ExportTemplateManager.installTemplateFromFile(filenames, type, callback);
     });
 }
-ExportTemplateManager.installTemplateFromFile = function (file, type) {
-    var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
-                   .createInstance(Components.interfaces.nsIZipReader);
-    zipReader.open(file);
+ExportTemplateManager.installTemplateFromFile = function (file, type , callback) {
+    console.log("begin install template, from file : " + file);
+    var readStream = fs.createReadStream(file.toString());
+    var targetDir = ExportTemplateManager.getUserTemplateDirectory().toString();
+    targetDir = targetDir.concat("/"+type);
+    var index = readStream.path.lastIndexOf("/");
+    var fileName = readStream.path.substring(index + 1);
+    targetDir = targetDir.concat("/" + fileName.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime()));
+    readStream
+    .pipe(unzip.Extract({path: targetDir}))
+    .on("entry", function (entry) {
+        var stat = fs.statSync(targetDir);
+        if(!stat || !stat.isDirectory()) {
+            fs.mkdirSync(targetDir);
+        }
+    })
+    .on("close", function() {
+        try {
+            var template = ExportTemplate.parse(targetDir);
 
+            if (!template) throw Util.getMessage("template.cannot.be.parsed");
 
-
-    var targetDir = ExportTemplateManager.getUserTemplateDirectory();
-    //generate a random number
-    targetDir.append(type);
-    if (!targetDir.exists()) {
-        targetDir.create(targetDir.DIRECTORY_TYPE, 0777);
-    }
-
-    targetDir.append(file.leafName.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime()));
-
-    var targetPath = targetDir.path;
-
-    var isWindows = true;
-    if (navigator.platform.indexOf("Windows") < 0) {
-        isWindows = false;
-    }
-
-    var entryEnum = zipReader.findEntries(null);
-    while (entryEnum.hasMore()) {
-        var entry = entryEnum.getNext();
-
-        var targetFile = Components.classes["@mozilla.org/file/local;1"]
-                   .createInstance(Components.interfaces.nsILocalFile);
-        targetFile.initWithPath(targetPath);
-
-        debug(entry);
-        if (zipReader.getEntry(entry).isDirectory) continue;
-
-        var parts = entry.split("\\");
-        if (parts.length == 1) {
-            parts = entry.split("/");
-        } else {
-            var testParts = entry.split("/");
-            if (testParts.length > 1) {
-                debug("unregconized entry (bad name): " + entry);
-                continue;
+            console.log("new Template: ", template.name);
+            if (ExportTemplateManager.templateMap[template.id]) throw Util.getMessage("template.has.been.installed", template.name);
+            Util.info(Util.getMessage("template.has.been.installed.successfully", template.name));
+            ExportTemplateManager.loadTemplates();
+            if (callback) {
+                callback();
             }
+        } catch (e) {
+            Util.error(Util.getMessage("error.installing.template"), e.message, Util.getMessage("button.close.label"));
+            deleteFileOrFolder(targetDir);
         }
-        for (var i = 0; i < parts.length; i ++) {
-            targetFile.append(parts[i]);
-        }
+    });
 
-        debug("Extracting '" + entry + "' --> " + targetFile.path + "...");
-
-        var parentDir = targetFile.parent;
-        if (!parentDir.exists()) {
-            parentDir.create(parentDir.DIRECTORY_TYPE, 0777);
-        }
-        zipReader.extract(entry, targetFile);
-        targetFile.permissions = 0600;
-    }
-    var extractedDir = Components.classes["@mozilla.org/file/local;1"]
-                   .createInstance(Components.interfaces.nsILocalFile);
-
-    extractedDir.initWithPath(targetPath);
-
-    try {
-        var template = ExportTemplate.parse(extractedDir);
-        if (!template) throw Util.getMessage("template.cannot.be.parsed");
-        if (ExportTemplateManager.templateMap[template.id]) throw Util.getMessage("template.has.been.installed", template.name);
-
-        Util.info(Util.getMessage("template.has.been.installed.successfully", template.name));
-        ExportTemplateManager.loadTemplates();
-    } catch (e) {
-        Util.error(Util.getMessage("error.installing.template"), e.message, Util.getMessage("button.close.label"));
-        extractedDir.remove(true);
-    }
+    // var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
+    //                .createInstance(Components.interfaces.nsIZipReader);
+    // zipReader.open(file);
+    //
+    //
+    //
+    // var targetDir = ExportTemplateManager.getUserTemplateDirectory();
+    // //generate a random number
+    // targetDir.append(type);
+    // if (!targetDir.exists()) {
+    //     targetDir.create(targetDir.DIRECTORY_TYPE, 0777);
+    // }
+    //
+    // targetDir.append(file.leafName.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime()));
+    //
+    // var targetPath = targetDir.path;
+    //
+    // var isWindows = true;
+    // if (navigator.platform.indexOf("Windows") < 0) {
+    //     isWindows = false;
+    // }
+    //
+    // var entryEnum = zipReader.findEntries(null);
+    // while (entryEnum.hasMore()) {
+    //     var entry = entryEnum.getNext();
+    //
+    //     var targetFile = Components.classes["@mozilla.org/file/local;1"]
+    //                .createInstance(Components.interfaces.nsILocalFile);
+    //     targetFile.initWithPath(targetPath);
+    //
+    //     debug(entry);
+    //     if (zipReader.getEntry(entry).isDirectory) continue;
+    //
+    //     var parts = entry.split("\\");
+    //     if (parts.length == 1) {
+    //         parts = entry.split("/");
+    //     } else {
+    //         var testParts = entry.split("/");
+    //         if (testParts.length > 1) {
+    //             debug("unregconized entry (bad name): " + entry);
+    //             continue;
+    //         }
+    //     }
+    //     for (var i = 0; i < parts.length; i ++) {
+    //         targetFile.append(parts[i]);
+    //     }
+    //
+    //     debug("Extracting '" + entry + "' --> " + targetFile.path + "...");
+    //
+    //     var parentDir = targetFile.parent;
+    //     if (!parentDir.exists()) {
+    //         parentDir.create(parentDir.DIRECTORY_TYPE, 0777);
+    //     }
+    //     zipReader.extract(entry, targetFile);
+    //     targetFile.permissions = 0600;
+    // }
+    // var extractedDir = Components.classes["@mozilla.org/file/local;1"]
+    //                .createInstance(Components.interfaces.nsILocalFile);
+    //
+    // extractedDir.initWithPath(targetPath);
+    //
+    // try {
+    //     var template = ExportTemplate.parse(extractedDir);
+    //     if (!template) throw Util.getMessage("template.cannot.be.parsed");
+    //     if (ExportTemplateManager.templateMap[template.id]) throw Util.getMessage("template.has.been.installed", template.name);
+    //
+    //     Util.info(Util.getMessage("template.has.been.installed.successfully", template.name));
+    //     ExportTemplateManager.loadTemplates();
+    // } catch (e) {
+    //     Util.error(Util.getMessage("error.installing.template"), e.message, Util.getMessage("button.close.label"));
+    //     extractedDir.remove(true);
+    // }
 };
 ExportTemplateManager.uninstallTemplate = function (template) {
     try {

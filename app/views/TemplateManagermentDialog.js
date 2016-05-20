@@ -17,10 +17,8 @@ function TemplateManagermentDialog() {
 __extend(Dialog, TemplateManagermentDialog);
 
 TemplateManagermentDialog.prototype.loadTemplates = function (type) {
-    console.log(type);
     this.activedType = type;
     this.templates = ExportTemplateManager.getTemplatesForType(type);
-    console.log("templates is:" + this.templates);
     var items = [];
     for(var i = 0; i < this.templates.length; i++) {
         var template = this.templates[i];
@@ -30,7 +28,6 @@ TemplateManagermentDialog.prototype.loadTemplates = function (type) {
             author: template.author,
             template: template
         };
-        console.log(item);
         items.push(item);
     }
     this.templateTable.setItems(items);
@@ -38,23 +35,21 @@ TemplateManagermentDialog.prototype.loadTemplates = function (type) {
 }
 
 TemplateManagermentDialog.prototype.initializePreferenceTable = function () {
-    console.log("begin create table");
     this.templateTable.column(new DataTable.PlainTextColumn("Template", function (data) {
         return data.templateName;
-    }).width("1*"));
+    }).width("20em"));
     this.templateTable.column(new DataTable.PlainTextColumn("Information", function (data) {
         return data.description;
-    }).width("8em"));
+    }).width("20em"));
     this.templateTable.column(new DataTable.PlainTextColumn("Author", function (data) {
         return data.author;
-    }).width("8em"));
+    }).width("10em"));
     var actions = [{
              id: "remove", type: "delete", title: "Remove", icon: "delete",
              isApplicable: function(tag) {
                  return true;
              },
              handler: function (item) {
-                console.log(item.template);
                 Dialog.confirm(
                     "Are you sure you really want to delete this template ?", null,
                     "Delete", function () {
@@ -65,7 +60,7 @@ TemplateManagermentDialog.prototype.initializePreferenceTable = function () {
                 )
              }
      }];
-    this.templateTable.column(new DataTable.ActionColumn(actions).width("6em"));
+    this.templateTable.column(new DataTable.ActionColumn(actions).width("5em"));
     this.templateTable.selector(false);
     var thiz = this;
     window.setTimeout(function () {
@@ -82,16 +77,13 @@ TemplateManagermentDialog.prototype.initializePreferenceTable = function () {
 TemplateManagermentDialog.prototype.setup = function () {
     var templateType = ExportTemplateManager.SUPPORTED_TYPES;
     var templateTypeName = ExportTemplateManager.SUPPORTED_TYPES_NAMES;
-    console.log(templateTypeName);
     var templateItems = [];
     for (var i = 0; i <  templateType.length; i++) {
-        console.log(templateType[i]);
         var name = templateTypeName[templateType[i]];
         templateItems.push({
             displayName: name,
             value: templateType[i]
         });
-        console.log(templateItems);
     }
     this.templateTypeSelector.setItems(templateItems);
 
@@ -108,7 +100,10 @@ TemplateManagermentDialog.prototype.getDialogActions = function () {
             type: "extra", title: "Install new template...",
             isCloseHandler: true,
             run: function () {
-                ExportTemplateManager.installNewTemplate(thiz.templateTypeSelector.getSelectedItem().value);
+                var onDone = function () {
+                    thiz.loadTemplates(thiz.templateTypeSelector.getSelectedItem().value);
+                }
+                ExportTemplateManager.installNewTemplate(thiz.templateTypeSelector.getSelectedItem().value, onDone);
                 return false;
             }
         },
