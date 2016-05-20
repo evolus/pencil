@@ -226,7 +226,7 @@ PageListView.prototype.renderPages = function() {
     if (!this.controller || !this.controller.doc) return;
 
     this.currentPage = this.controller.activePage;
-    this.currentParentPage = this.currentPage.parentPage;
+    this.currentParentPage = this.currentPage && this.currentPage.parentPage || null;
 
     var pages = [];
     var parentPages = [];

@@ -58,10 +58,14 @@ FontLoader.prototype.installNewFont = function (data) {
     this.userRepo.addFont(data);
     this.loadFonts();
 };
-FontLoader.prototype.removeFont = function (font) {
+FontLoader.prototype.removeFont = function (font, callback) {
     Dialog.confirm("Are you sure you want to uninstall this font?", null, "Uninstall", function () {
+        ApplicationPane._instance.busy();
         this.userRepo.removeFont(font);
-        this.loadFonts();
+        this.loadFonts(function () {
+            if (callback) callback();
+            ApplicationPane._instance.unbusy();
+        });
     }.bind(this), "Cancel");
 };
 FontLoader.prototype.getUserFonts = function () {
@@ -196,15 +200,17 @@ FontRepository.prototype.addFont = function (data) {
     this.fonts.push(font);
     this.faces = this.faces.concat(font.variants);
     this.save();
+    this.loaded = false;
 };
 FontRepository.prototype.removeFont = function (font) {
-    console.log("removeFont:", font);
     if (!this.loaded) this.load();
+
     var font = this.getFont(font.name);
-    console.log("font:", font);
     if (!font) return;
+
     var index = this.fonts.indexOf(font);
     if (index < 0) return;
+
     this.fonts.splice(index, 1);
 
     var newFaces = [];
@@ -218,6 +224,7 @@ FontRepository.prototype.removeFont = function (font) {
     deleteFileOrFolder(locationPath);
 
     this.save();
+    this.loaded = false;
 };
 FontRepository.prototype.save = function () {
     if (!fsExistSync(this.dirPath)) {

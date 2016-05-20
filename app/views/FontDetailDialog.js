@@ -49,7 +49,7 @@ FontDetailDialog.prototype.getDialogActions = function () {
                 };
 
                 FontLoader.instance.installNewFont(font);
-                thiz.close();
+                thiz.close(font);
 
                 return false;
             }
