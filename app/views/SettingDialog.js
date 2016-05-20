@@ -168,7 +168,6 @@ SettingDialog.prototype.initializePreferenceTable = function () {
             run: function (data) {
                 console.log("handle selection:", data);
                 if (data.type == "boolean") {
-                    data.value = !data.value;
                     Config.set(data.name, !data.value);
                     thiz.setPreferenceItems();
                 } else {
