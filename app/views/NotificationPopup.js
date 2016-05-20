@@ -33,7 +33,7 @@ NotificationPopup.prototype._setPosition = function (x, y) {
             this.popupContainer.style.opacity = "0.85";
             this.popupContainer.style.transition = "opacity 0.2s ease, top 0.2s ease";
         }.bind(this), 10);
-    }.bind(this), 10);
+    }.bind(this), 0);
 
 };
 
