@@ -1170,6 +1170,9 @@ Controller.prototype.rasterizeCurrentPage = function () {
     }, function (filePath) {
         if (!filePath) return;
         this.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
+            if (!error) {
+                NotificationPopup.show("Page exprted as '" + path.basename(filePath) + "'.");
+            }
         });
     }.bind(this));
 };
