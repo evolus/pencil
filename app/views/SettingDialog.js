@@ -146,7 +146,6 @@ SettingDialog.prototype.setup = function () {
 };
 
 SettingDialog.prototype.initializePreferenceTable = function () {
-    console.log("initializePreferenceTable");
     this.preferenceTable.column(new DataTable.PlainTextColumn("Preference Name", function (data) {
         return data.name;
     }).width("1*"));

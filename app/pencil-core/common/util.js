@@ -1005,11 +1005,20 @@ var Local = {};
 Local.getInstalledFonts = function () {
     var installedFaces = [];
     var localFonts = [];
-    document.fonts.forEach(function (face) {
-        if (!face._type || installedFaces.indexOf(face.family) >= 0) return;
-        installedFaces.push(face.family);
-        localFonts.push({family: face.family, type: face._type});
-    });
+    // document.fonts.forEach(function (face) {
+    //     if (!face._type || installedFaces.indexOf(face.family) >= 0) return;
+    //     installedFaces.push(face.family);
+    //     localFonts.push({family: face.family, type: face._type});
+    // });
+
+    var installedFonts = FontLoader.instance.getAllInstalledFonts();
+    if (installedFonts.length > 0) {
+        for (var font of installedFonts) {
+            if (installedFaces.indexOf(font.name) >= 0) continue;
+            installedFaces.push(font.name);
+            localFonts.push({family: font.name, type: font._type});
+        }
+    }
 
     Local.sortFont(localFonts);
 
