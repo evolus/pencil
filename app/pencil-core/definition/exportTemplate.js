@@ -4,9 +4,11 @@ ExportTemplate.domParser = new DOMParser();
 
 ExportTemplate.parse = function (dir) {
     var filePath = path.join(dir, "Template.xml");
-    var stat = fs.statSync(filePath);
+    console.log(filePath);
+    var stat = fs.statSync(filePath.toString());
 
     if (!stat.isFile()) return null;
+
 
     var fileContents = fs.readFileSync(filePath, "utf8");
     var dom = ExportTemplate.domParser.parseFromString(fileContents, "text/xml");
