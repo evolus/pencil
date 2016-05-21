@@ -6,17 +6,21 @@ DocumentExportManager.prototype.printDocument = function (doc) {
 }
 DocumentExportManager.prototype.exportDocument = function (doc, forcedExporterId) {
     new ExportDialog().callback(function (params) {
+        this.lastParamsDoc = doc;
+        this.lastParams = params;
         this.exportDocumentWithParams(doc, forcedExporterId, params);
-    }.bind(this)).open({forcedExporterId: forcedExporterId});
+    }.bind(this)).open({
+        forcedExporterId: forcedExporterId,
+        lastParams: doc == this.lastParamsDoc ? this.lastParams : null
+    });
 };
 DocumentExportManager.prototype.exportDocumentWithParams = function (doc, forcedExporterId, params) {
     if (!params) return;
-    this.lastParams = params;
 
     try {
         this._exportDocumentWithParamsImpl(doc, forcedExporterId, params);
     } catch (e) {
-        Console.dumpError(e, "stdout");
+        console.error(e);
     }
 };
 DocumentExportManager.prototype.generateFriendlyId = function (page, usedFriendlyIds) {
@@ -82,8 +86,9 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                     if (pageIndex >= pages.length) {
                         thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
                             listener.onTaskDone();
-                            Util.showStatusBarInfo(Util.getMessage("document.has.been.exported", destFile), true);
-                            debug("Document has been exported, location: " + destFile);
+                            NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
+                                shell.openItem(destFile);
+                            });
                         });
                         return;
                     }
@@ -122,9 +127,11 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                 thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
                     listener.onTaskDone();
                     if (destFile) {
-                        Util.showStatusBarInfo("Document has been exported, location: " + destFile.path, true);
+                        NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
+                            shell.openItem(destFile.path);
+                        });
                     } else {
-                        Util.showStatusBarInfo("Document has been exported.", true);
+                        NotificationPopup.show("Document has been exported.");
                     }
                 });
             } catch (ex) {

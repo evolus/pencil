@@ -16,7 +16,7 @@
             font-size: 1.5em;
         }
         body .NotificationPopup @footer {
-            margin-top: 0.5em;
+            margin-top: 1em;
             justify-content: flex-end;
         }
         body .NotificationPopup @messagePane {
@@ -24,6 +24,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 20em;
+        }
+        @this:not(.WithAction) @footer {
+            display: none;
         }
     </style>
     <hbox anon-id="popupContainer" class="NotificationPopup">

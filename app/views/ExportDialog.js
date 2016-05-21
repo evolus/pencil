@@ -2,9 +2,16 @@ function ExportDialog () {
     Dialog.call(this);
     this.title = "Export Document";
 
+    function sameIdComparer(a, b) {
+        if (!a) return !b;
+        if (!b) return false;
+        return a.id == b.id;
+    };
+
     this.exporterCombo.renderer = function (exporter) {
         return exporter.name;
     };
+    this.exporterCombo.comparer = sameIdComparer;
 
     this.exporterCombo.setItems(Pencil.documentExporters);
 
@@ -15,6 +22,9 @@ function ExportDialog () {
     this.templateCombo.renderer = function (template) {
         return template.name;
     };
+
+    this.templateCombo.comparer = sameIdComparer;
+
 
     this.invalidateUIByExporter();
 
@@ -60,7 +70,15 @@ ExportDialog.prototype.setup = function (options) {
         isItemInitiallyChecked: function () { return false; }
     });
 
-    this.pageTree.setCheckedItems(Pencil.controller.doc.pages);
+    var options = options || {};
+    if (options.lastParams) {
+        this.pageTree.setCheckedItems(options.lastParams.pages);
+        this.exporterCombo.selectItem({id: options.lastParams.exporterId}, false, true);
+        this.invalidateUIByExporter();
+        this.templateCombo.selectItem({id: options.lastParams.templateId}, false, true);
+    } else {
+        this.pageTree.setCheckedItems(Pencil.controller.doc.pages);
+    }
 };
 
 

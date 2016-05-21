@@ -29,8 +29,6 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
     if (!this.tempDir) this.tempDir = Local.createTempDir("printing");
     var destDir = this.tempDir;
 
-    debug("destDir: " + destDir.name);
-
     var templateId = options.templateId;
     if (!templateId) return;
 
@@ -66,46 +64,68 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
     xsltProcessor.importStylesheet(xsltDOM);
     var result = xsltProcessor.transformToDocument(sourceDOM);
 
-    var htmlFile = path.join(destDir.name, PrintingExporter.HTML_FILE);
+    //this result contains the HTML DOM of the file to print.
+    //in case of using vector only data, we need to embed the font data into the stlye of this HTML DOM
 
-    Dom.serializeNodeToFile(result, htmlFile);
+    var exportJob = function () {
+        var htmlFile = path.join(destDir.name, PrintingExporter.HTML_FILE);
 
-    if (this.pdfOutput) {
-        if (fsExistSync(targetFile)) {
-            deleteFileOrFolder(targetFile);
-        }
-    }
+        Dom.serializeNodeToFile(result, htmlFile);
 
-    //print via ipc
-    var id = Util.newUUID();
-    var data = {
-        fileURL: ImageData.filePathToURL(htmlFile),
-        targetFilePath: targetFile,
-        pdf: this.pdfOutput,
-        id: id
-    };
-
-    for (var propName in template) {
-        if (("" + propName).match(/^print\.(.+)$/)) {
-            data[propName] = template[propName];
-        }
-    }
-
-    ipcRenderer.once(id, function (event, data) {
-        if (data.success) {
-            if (this.pdfOutput) {
-                Dialog.alert("Exported to " + targetFile);
+        if (this.pdfOutput) {
+            if (fsExistSync(targetFile)) {
+                deleteFileOrFolder(targetFile);
             }
-        } else {
-            Dialog.error("Error: " + data.message);
         }
 
-        if (this.tempDir) this.tempDir.removeCallback();
-        callback();
-    }.bind(this));
+        //print via ipc
+        var id = Util.newUUID();
+        var data = {
+            fileURL: ImageData.filePathToURL(htmlFile),
+            targetFilePath: targetFile,
+            pdf: this.pdfOutput,
+            id: id
+        };
 
-    ipcRenderer.send("printer-request", data);
-    console.log("RASTER: Printing request sent for ", data);
+        for (var propName in template) {
+            if (("" + propName).match(/^print\.(.+)$/)) {
+                data[propName] = template[propName];
+            }
+        }
+
+        ipcRenderer.once(id, function (event, data) {
+            if (!data.success) {
+                Dialog.error("Error: " + data.message);
+            }
+
+            if (this.tempDir) {
+                deleteFileOrFolder(this.tempDir.name);
+                this.tempDir = null;
+            }
+            callback();
+        }.bind(this));
+
+        ipcRenderer.send("printer-request", data);
+        console.log("RASTER: Printing request sent for ", data);
+    }.bind(this);
+
+    var fontFaces = FontLoader.instance.allFaces;
+
+    if (fontFaces && fontFaces.length > 0) {
+        sharedUtil.buildEmbeddedFontFaceCSS(fontFaces, function (css) {
+            console.log("Font faces CSS", css.length);
+            var head = Dom.getSingle("/html/head", result);
+            var style = result.createElement("style");
+            style.setAttribute("type", "text/css");
+            style.appendChild(result.createTextNode(css));
+            head.appendChild(style);
+
+            exportJob();
+        });
+    } else {
+        exportJob();
+    }
+
 };
 PrintingExporter.prototype.getWarnings = function () {
     return null;
