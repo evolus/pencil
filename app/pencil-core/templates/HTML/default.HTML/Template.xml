@@ -1,0 +1,8 @@
+<Template xmlns="http://www.evolus.vn/Namespace/Pencil">
+    <Property name="id">Evolus:HTML:Default.Template</Property>
+    <Property name="name">Default HTML Template</Property>
+    <Property name="author">Evolus</Property>
+    <Property name="description">Very simple HTML export template that lists all pages in a single document.</Property>
+
+    <Property name="styleSheet">StyleSheet.xslt</Property>
+</Template>

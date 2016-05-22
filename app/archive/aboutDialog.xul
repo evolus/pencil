@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/dialog.css" type="text/css"?>
+
+<dialog id="pencilAboutDialog" title="&dialog.about.pencil.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        buttons="cancel"
+        buttonlabelcancel="&button.cancel.label.close;"
+        style="min-width:40em;">
+
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/common/io.js"/>
+    <script src="chrome://pencil/content/aboutDialog.js"/>
+
+    <vbox>
+        <hbox flex="1" style="padding: 1ex;">
+            <vbox><image src="chrome://pencil/skin/images/pencil.png"/></vbox>
+            <vbox flex="1">
+                <hbox class="Title"><label value="&label.evolus.pencil.value;"></label></hbox>
+                <hbox>
+                    <vbox flex="1"><label value="&label.copyright.value;"></label></vbox>
+                    <vbox><label value="&label.version.value; @VERSION@.@BUILD@"></label></vbox>
+                </hbox>
+            </vbox>
+        </hbox>
+        <hbox>
+            <vbox flex="1">
+                <tabbox id="aboutBox">
+                    <tabs id="aboutBoxTabs">
+                        <tab label="&tab.credits.label;"/>
+                        <tab label="&tab.license.label;"/>
+                    </tabs>
+                    <tabpanels flex="1" id="aboutBoxTabPanels">
+                        <tabpanel>
+                            <vbox flex="1">
+                                <vbox flex="1">
+                                    <label style="font-weight: bold;">&tab.authors.label;</label>
+                                    <description>
+                                        Dương Thành An
+                                        <html:br/>
+                                        Nguyễn Tiến Dũng
+                                        <html:br/>
+                                        Nguyễn Nữ Hải Anh
+                                    </description>
+
+                                    <label style="font-weight: bold;padding-top: 20px;">&tab.contributors.label;</label>
+                                    <description>
+                                        Maxime Delorme
+                                        <html:br/>
+                                        Frederic Vandaele
+                                        <html:br/>
+                                        Brainiac Kalel
+                                        <html:br/>
+                                        Trương Xuân Tính
+                                        <html:br/>
+                                        Trương Anh Tuấn
+                                        <html:br/>
+                                        Phạm Thế Vinh
+                                        <html:br/>
+                                        Nguyễn Hồng Thái
+                                    </description>
+                                </vbox>
+                                <separator />
+                                <hbox style="padding-top: 20px;">
+                                    <vbox flex="1" >
+                                        <label width="250">&label.you.can.help.us.value;</label>
+                                    </vbox>
+                                    <vbox>
+                                        <image style="cursor:pointer;" src="chrome://pencil/skin/images/paypal.png" alt="&image.click.to.donate.alt;" tooltiptext="&image.you.can.help.us.tooltiptext;" onclick="Util.openDonate();" />
+                                    </vbox>
+                                </hbox>
+                            </vbox>
+                        </tabpanel>
+                        <tabpanel>
+                            <textbox id="licenseText" flex="1" multiline="true" readonly="true" rows="13" class="Readonly"/>
+                        </tabpanel>
+                    </tabpanels>
+                </tabbox>
+            </vbox>
+        </hbox>
+    </vbox>
+
+</dialog>

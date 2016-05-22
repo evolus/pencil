@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<overlay id="textToolOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <toolbar id="primaryToolbar">
+        <separator/>
+        <vbox class="Section" id="colorToolbar">
+            <label value="Color:"/>
+            <hbox>
+                <pcolorbutton id="textColorButton" mode="text" value="ABC" tooltiptext="&colorbutton.change.text.tooltip;"></pcolorbutton>
+                <pcolorbutton id="fillColorButton" mode="full"></pcolorbutton>
+                <pcolorbutton id="strokeColorButton" mode="border"></pcolorbutton>
+            </hbox>
+        </vbox>
+    </toolbar>
+</overlay>
+

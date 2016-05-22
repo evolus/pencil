@@ -1,0 +1,540 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<bindings id="SearchBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:svg="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+
+    <binding id="searchbar">
+    <content>
+        <xul:textbox class="searchbar-textbox" anonid="searchbar-textbox" type="autocomplete" flex="1" autocompletepopup="PopupAutoComplete" autocompletesearch="search-autocomplete" autocompletesearchparam="searchbar-history" timeout="250" maxrows="10" completeselectedindex="true" showcommentcolumn="true" tabscrolling="true" xbl:inherits="disabled,disableautocomplete,searchengine,src,newlines">
+            <xul:button class="searchbar-engine-button" type="menu" anonid="searchbar-engine-button" popup="_child" chromedir="ltr">
+                <xul:image class="searchbar-engine-image" xbl:inherits="src"/>
+                <xul:image class="searchbar-dropmarker-image"/>
+                <xul:menupopup class="searchbar-popup" anonid="searchbar-popup" position="after_start">
+                    <xul:menuseparator/>
+                    <xul:menuitem class="open-engine-manager" anonid="open-engine-manager" label="&menu.manage.search.engines.label;" tooltiptext="" oncommand="openManager(event);"/>
+                </xul:menupopup>
+            </xul:button>
+            <xul:hbox class="search-go-container" chromedir="ltr">
+                <xul:label class="Loading" id="loading-box" style="display:none;"></xul:label>
+                <xul:image id="search-button" class="search-go-button" anonid="search-go-button" chromedir="ltr" onclick="handleSearchCommand(event);" tooltiptext="&image.search.tooltiptext;"/>
+            </xul:hbox>
+        </xul:textbox>
+    </content>
+
+    <implementation implements="nsIObserver">
+
+        <constructor><![CDATA[
+            setTimeout(function (a) { a.init(); }, 0, this);
+        ]]></constructor>
+
+        <method name="init">
+            <body><![CDATA[
+                //debug("initializing searchbar...");
+                this.searchResultPane = document.getElementById("clipartBrowserPane");
+                this.searchButton = document.getElementById("search-button");
+
+                this.goNext = document.getElementById("goNext");
+                this.goPrevious = document.getElementById("goPrevious");
+                this.limit24 = document.getElementById("limit24");
+                this.limit60 = document.getElementById("limit60");
+                this.limit120 = document.getElementById("limit120");
+
+                this.scaleImage = document.getElementById("scaleImage");
+
+                this.loadingEl = document.getElementById("loading-box");
+
+                this.searchOptions = {
+                    page: 1,
+                    limit: 24
+                };
+
+                var thiz = this;
+
+                this.limit24.addEventListener("click", function (e) {
+                    thiz.limit24.className = "BrowseLimitLink Active";
+                    thiz.limit60.className = "BrowseLimitLink";
+                    thiz.limit120.className = "BrowseLimitLink";
+
+                    thiz.searchOptions.page = 1;
+                    thiz.searchOptions.limit = 24;
+                    thiz.doSearch();
+                }, false);
+                this.limit60.addEventListener("click", function (e) {
+                    thiz.limit60.className = "BrowseLimitLink Active";
+                    thiz.limit24.className = "BrowseLimitLink";
+                    thiz.limit120.className = "BrowseLimitLink";
+
+                    thiz.searchOptions.page = 1;
+                    thiz.searchOptions.limit = 60;
+                    thiz.doSearch();
+                }, false);
+                this.limit120.addEventListener("click", function (e) {
+                    thiz.limit120.className = "BrowseLimitLink Active";
+                    thiz.limit60.className = "BrowseLimitLink";
+                    thiz.limit24.className = "BrowseLimitLink";
+
+                    thiz.searchOptions.page = 1;
+                    thiz.searchOptions.limit = 120;
+                    thiz.doSearch();
+                }, false);
+
+                this.goNext.addEventListener("click", function (e) {
+                    if (thiz.goNext.className.indexOf("Disabled") != -1) return;
+                    thiz.searchOptions.page += 1;
+                    thiz.doSearch();
+                }, false);
+
+                this.goPrevious.addEventListener("click", function (e) {
+                    if (thiz.goPrevious.className.indexOf("Disabled") != -1) return;
+                    thiz.searchOptions.page -= 1;
+                    if (thiz.searchOptions.page <= 1) {
+                        thiz.searchOptions.page = 1;
+                    }
+                    thiz.doSearch();
+                }, false);
+                this.scaleImage.addEventListener("change", function (event) {
+                    debug(thiz.scaleImage.checked);
+                    Config.set("clipartbrowser.scale", thiz.scaleImage.checked);
+                }, false);
+
+                if (Config.get("clipartbrowser.scale") == null) {
+                    Config.set("clipartbrowser.scale", true);
+                }
+
+                this.scaleImage.checked = Config.get("clipartbrowser.scale") == true;
+
+                this._needToBuildPopup = true;
+                this.updateDisplay();
+            ]]></body>
+        </method>
+
+        <destructor><![CDATA[
+        ]]></destructor>
+
+        <field name="_textbox">document.getAnonymousElementByAttribute(this, "anonid", "searchbar-textbox");</field>
+        <field name="_popup">document.getAnonymousElementByAttribute(this, "anonid", "searchbar-popup");</field>
+        <field name="_ss">null</field>
+        <field name="_engines">null</field>
+
+        <property name="engines" readonly="true">
+            <getter><![CDATA[
+                if (!this._engines) {
+                    this._engines = this.searchService.getEngines();
+                }
+                return this._engines;
+            ]]></getter>
+        </property>
+
+        <field name="searchButton">document.getAnonymousElementByAttribute(this, "anonid", "searchbar-engine-button");</field>
+
+        <property name="currentEngine" onset="this.searchService.currentEngine = val; return val;">
+            <getter><![CDATA[
+                return this.searchService.currentEngine;
+            ]]></getter>
+        </property>
+
+        <!-- textbox is used by sanitize.js to clear the undo history when clearing form information. -->
+        <property name="textbox" readonly="true" onget="return this._textbox;"/>
+
+        <property name="searchService" readonly="true">
+            <getter><![CDATA[
+                if (!this._ss) {
+                    this._ss = SearchManager.getSearchService();
+                }
+            return this._ss;
+            ]]></getter>
+        </property>
+
+        <property name="value" onget="return this._textbox.value;" onset="return this._textbox.value = val;"/>
+
+        <method name="focus">
+            <body><![CDATA[
+                this._textbox.focus();
+            ]]></body>
+        </method>
+
+        <method name="select">
+            <body><![CDATA[
+                this._textbox.select();
+            ]]></body>
+        </method>
+
+        <method name="updateDisplay">
+            <body><![CDATA[
+                var uri = this.currentEngine.icon;
+                this.setAttribute("src", uri);
+
+                var name = this.currentEngine.name;
+                var text = Util.getMessage("clipartbrowser.search.for", name);
+
+                this._textbox.emptyText = name;
+                this._textbox.label = text;
+                this._textbox.tooltipText = text;
+            ]]></body>
+        </method>
+
+        <method name="rebuildPopupDynamic">
+            <body><![CDATA[
+                if (this._needToBuildPopup) {
+                    this.rebuildPopup();
+                }
+            ]]></body>
+        </method>
+
+        <method name="rebuildPopup">
+            <body><![CDATA[
+                var popup = this._popup;
+
+                while (popup.firstChild && popup.firstChild.localName != "menuseparator") {
+                    popup.removeChild(popup.firstChild);
+                }
+
+                const kXULNS =
+                   "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+                var engines = this.engines;
+                for (var i = engines.length - 1; i >= 0; --i) {
+                    var menuitem = document.createElementNS(kXULNS, "menuitem");
+                    var name = engines[i].name;
+                    menuitem.setAttribute("label", name);
+                    menuitem.setAttribute("id", name);
+                    menuitem.setAttribute("class", "menuitem-iconic searchbar-engine-menuitem");
+                    if (engines[i] == this.currentEngine) {
+                        menuitem.setAttribute("selected", "true");
+                    }
+                    var tooltip = "Search for " + name;
+                    menuitem.setAttribute("tooltiptext", tooltip);
+                    if (engines[i].icon) {
+                        menuitem.setAttribute("src", engines[i].icon);
+                    }
+                    popup.insertBefore(menuitem, popup.firstChild);
+                    menuitem.engine = engines[i];
+                }
+
+                this._needToBuildPopup = false;
+            ]]></body>
+        </method>
+
+        <method name="openManager">
+            <parameter name="aEvent"/>
+            <body><![CDATA[
+                Util.info("Evolus Pencil", Util.getMessage("not.implement.yet"), Util.getMessage("button.ok.label"));
+            ]]></body>
+        </method>
+
+        <method name="selectEngine">
+            <parameter name="aEvent"/>
+            <parameter name="isNextEngine"/>
+            <body><![CDATA[
+                var newIndex = this.engines.indexOf(this.currentEngine);
+                newIndex += (isNextEngine) ? 1 : -1;
+
+                if (newIndex >= 0 && newIndex < this.engines.length) {
+                    this.currentEngine = this.engines[newIndex];
+                    this._needToBuildPopup = true;
+                    this.updateDisplay();
+                }
+
+                aEvent.preventDefault();
+                aEvent.stopPropagation();
+            ]]></body>
+        </method>
+
+        <method name="handleSearchCommand">
+            <parameter name="aEvent"/>
+            <body><![CDATA[
+                var textBox = this._textbox;
+                var textValue = textBox.value;
+                if (textValue) {
+                    textBox._formHistSvc.addEntry(textBox.getAttribute("autocompletesearchparam"), textValue);
+                    this.searchOptions.page = 1;
+                    this.doSearch(textValue);
+                }
+            ]]></body>
+        </method>
+
+        <method name="doSearch">
+            <parameter name="query"/>
+            <body><![CDATA[
+                var thiz = this;
+                if (this.currentEngine != null) {
+                    if (!query) query = this.lastQuery;
+                    if (!query) return;
+
+                    thiz.goNext.className = "Next Disabled";
+                    thiz.goPrevious.className = "Previous Disabled";
+
+                    this.lastQuery = query;
+                    this.searchButton.className = "searching";
+                    this.loadingEl.style.display = "";
+                    this.loadingEl.value = Util.getMessage("clipartbrowser.searching.value", this.currentEngine.name);
+                    this.searchResultPane.clearImages();
+
+                    this.currentEngine.search(query, this.searchOptions, function(res, resultCount) {
+                        try {
+                            if (res.length > 0) {
+                                thiz.goNext.className = "Next";
+                                thiz.searchResultPane.aborted = false;
+                                var images = [];
+                                for (var i = 0; i < res.length; i++) {
+                                    for (var j = 0; j < res[i].images.length; j++) {
+                                        images.push({
+                                            src:res[i].images[j].src,
+                                            displayName: res[i].name,
+                                            type: res[i].images[j].type,
+                                            typeName: res[i].images[j].typeName,
+                                            size: res[i].images[j].size,
+                                            thumbnail: res[i].images[j].thumbnail
+                                        });
+                                    }
+                                }
+                                thiz.loadingEl.value = Util.getMessage("clipartbrowser.loading.message", 1, images.length);
+                                thiz.searchResultPane.addImages(images);
+                                //thiz.searchButton.className = "search-go-button";
+                            } else {
+                                thiz.loadingEl.value = Util.getMessage("clipartbrowser.no.results");
+                                thiz.searchButton.className = "search-go-button";
+                            }
+                            if (thiz.searchOptions.page >= 2) {
+                                thiz.goPrevious.className = "Previous";
+                            } else if (resultCount >= thiz.searchOptions.limit) {
+                                thiz.goNext.className = "Next";
+                            }
+                        } catch (e) {
+                            error(e);
+                        }
+                    });
+                }
+            ]]></body>
+        </method>
+
+    </implementation>
+
+    <handlers>
+        <handler event="command"><![CDATA[
+            const target = event.originalTarget;
+            if (target.engine) {
+                this._needToBuildPopup = this.currentEngine != target.engine;
+                this.currentEngine = target.engine;
+                this.updateDisplay();
+            } else {
+                return;
+            }
+            this.focus();
+            this.select();
+      ]]></handler>
+
+        <handler event="popupshowing" action="this.rebuildPopupDynamic();"/>
+        <handler event="DOMMouseScroll" phase="capturing" action="if (event.ctrlKey) this.selectEngine(event, (event.detail &gt; 0));"/>
+    </handlers>
+    </binding>
+
+    <binding id="searchbar-textbox" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete">
+    <implementation implements="nsIObserver">
+        <constructor><![CDATA[
+            setTimeout(function(a) { a.initialize(); }, 0, this);
+        ]]></constructor>
+
+        <destructor><![CDATA[
+            try {
+                this.controllers.removeController(this.searchbarController);
+            } catch (ex) { }
+        ]]></destructor>
+
+        <field name="_formHistSvc"/>
+        <method name="initialize">
+            <body><![CDATA[
+                if (this.initialized) return;
+                this.initialized = true;
+
+                //debug("initializing textbox...");
+
+                const kXULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+                this._formHistSvc =
+                   Components.classes["@mozilla.org/satchel/form-history;1"]
+                             .getService(Components.interfaces.nsIFormHistory2);
+                // Add items to context menu and attach controller to handle them
+                var textBox = document.getAnonymousElementByAttribute(this,
+                                                "anonid", "textbox-input-box");
+                var cxmenu = document.getAnonymousElementByAttribute(textBox,
+                                            "anonid", "input-box-contextmenu");
+
+                var element = document.createElementNS(kXULNS, "menuseparator");
+                cxmenu.appendChild(element);
+                element = document.createElementNS(kXULNS, "menuitem");
+                var label = Util.getMessage("clipartbrowser.clear.search.history");
+                var akey = Util.getMessage("clipartbrowser.clear.search.history.accesskey");
+                element.setAttribute("label", label);
+                element.setAttribute("accesskey", akey);
+                element.setAttribute("cmd", "cmd_clearhistory");
+
+                cxmenu.appendChild(element);
+
+                element = document.createElementNS(kXULNS, "menuitem");
+                label = Util.getMessage("clipartbrowser.show.suggestions");
+                akey = Util.getMessage("clipartbrowser.show.suggestions.accesskey");
+                element.setAttribute("anonid", "toggle-suggest-item");
+                element.setAttribute("label", label);
+                element.setAttribute("accesskey", akey);
+                element.setAttribute("cmd", "cmd_togglesuggest");
+                element.setAttribute("type", "checkbox");
+                element.setAttribute("checked", true);
+                element.setAttribute("autocheck", "false");
+
+                this._suggestMenuItem = element;
+                cxmenu.appendChild(element);
+
+                this.controllers.appendController(this.searchbarController);
+            ]]></body>
+        </method>
+
+        <method name="openPopup">
+            <body><![CDATA[
+                var popup = this.popup;
+
+                //debug("popup open: " + popup);
+
+                if (!popup.mPopupOpen) {
+                    popup.hidden = false;
+
+                    popup.mInput = this;
+                    popup.view = this.controller.QueryInterface(Components.interfaces.nsITreeView);
+                    popup.invalidate();
+
+                    popup.showCommentColumn = this.showCommentColumn;
+                    popup.showImageColumn = this.showImageColumn;
+
+                    document.popupNode = null;
+
+                    var outerRect = this.getBoundingClientRect();
+                    var innerRect = this.inputField.getBoundingClientRect();
+                    var width = outerRect.right - innerRect.left;
+                    popup.setAttribute("width", width > 100 ? width : 100);
+
+                    // setConsumeRollupEvent() before we call openPopup(),
+                    // see bug #404438 for more details
+                    popup.popupBoxObject.setConsumeRollupEvent(
+                      this.consumeRollupEvent ?
+                        Components.interfaces.nsIPopupBoxObject.ROLLUP_CONSUME :
+                        Components.interfaces.nsIPopupBoxObject.ROLLUP_NO_CONSUME);
+                    popup.openPopup(null, "", innerRect.left, outerRect.bottom, false, false);
+                }
+            ]]></body>
+        </method>
+
+        <method name="observe">
+            <parameter name="aSubject"/>
+            <parameter name="aTopic"/>
+            <parameter name="aData"/>
+            <body><![CDATA[
+                if (aTopic == "nsPref:changed") {
+                }
+            ]]></body>
+        </method>
+
+        <method name="openSearch">
+            <body>
+            <![CDATA[
+                //debug("open search");
+                if (!this.popupOpen) {
+                    //debug("open...");
+                    document.getBindingParent(this).searchButton.open = true;
+                    return false;
+                }
+                this.openPopup();
+                return true;
+            ]]>
+            </body>
+        </method>
+
+        <!-- overload |onTextEntered| in autocomplete.xml -->
+        <method name="onTextEntered">
+            <parameter name="aEvent"/>
+            <body><![CDATA[
+                var evt = aEvent || this.mEnterEvent;
+                document.getBindingParent(this).handleSearchCommand(evt);
+                this.mEnterEvent = null;
+            ]]></body>
+        </method>
+
+        <!-- nsIController -->
+        <field name="searchbarController" readonly="true"><![CDATA[({
+            _self: this,
+            supportsCommand: function(aCommand) {
+                return aCommand == "cmd_clearhistory" || aCommand == "cmd_togglesuggest";
+            },
+
+            isCommandEnabled: function(aCommand) {
+                if (aCommand == "cmd_clearhistory") {
+                    var param = this._self.getAttribute("autocompletesearchparam");
+                    return this._self._formHistSvc.nameExists(param);
+                }
+                return true;
+            },
+
+            doCommand: function (aCommand) {
+                //debug("doCommand: " + aCommand);
+                switch (aCommand) {
+                    case "cmd_clearhistory":
+                        var param = this._self.getAttribute("autocompletesearchparam");
+                        this._self._formHistSvc.removeEntriesForName(param);
+                        this._self.value = "";
+                        break;
+                    case "cmd_togglesuggest":
+                        // The pref observer will update _suggestEnabled and the menu
+                        // checkmark.
+                        //this._self._prefBranch.setBoolPref("browser.search.suggest.enabled",
+                        //                                   !this._self._suggestEnabled);
+                        break;
+                    default:
+                        // do nothing with unrecognized command
+                }
+            }
+        })]]></field>
+
+        <!-- DND Observer -->
+        <field name="searchbarDNDObserver" readonly="true"><![CDATA[({
+            mOuter: this,
+
+            onDrop: function (aEvent, aXferData, aDragSession) {
+                var data = transferUtils.retrieveURLFromData(aXferData.data,
+                         aXferData.flavour.contentType);
+                if (data) {
+                    this.mOuter.value = data;
+                    this.mOuter.onTextEntered(aEvent);
+                }
+            },
+
+            getSupportedFlavours: function () {
+                var flavourSet = new FlavourSet();
+                flavourSet.appendFlavour("text/unicode");
+                flavourSet.appendFlavour("text/x-moz-url");
+                flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
+                return flavourSet;
+            }
+        })]]></field>
+    </implementation>
+
+    <handlers>
+        <handler event="keypress" keycode="VK_UP" modifiers="accel" phase="capturing" action="document.getBindingParent(this).selectEngine(event, false);"/>
+        <handler event="keypress" keycode="VK_DOWN" modifiers="accel" phase="capturing" action="document.getBindingParent(this).selectEngine(event, true);"/>
+        <handler event="keypress" keycode="VK_DOWN" modifiers="alt" phase="capturing" action="return this.openSearch();"/>
+        <handler event="keypress" keycode="VK_UP" modifiers="alt" phase="capturing" action="return this.openSearch();"/>
+        <handler event="keypress" keycode="VK_F4" phase="capturing" action="return this.openSearch();"/>
+        <handler event="drop" phase="capturing">
+            nsDragAndDrop.drop(event, this.searchbarDNDObserver);
+        </handler>
+    </handlers>
+  </binding>
+</bindings>

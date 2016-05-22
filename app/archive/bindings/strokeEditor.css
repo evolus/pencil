@@ -1,0 +1,11 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+pstrokeeditor {
+    -moz-binding: url(chrome://pencil/content/bindings/strokeEditor.xbl#strokeEditor);
+}
+pstrokeeditor textbox {
+    margin-right: 2em;
+}
+pstrokeeditor > hbox {
+    -moz-box-align: center;
+}

@@ -1,0 +1,3246 @@
+<Shapes xmlns="http://www.evolus.vn/Namespace/Pencil"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        id="extJSKitchenSink"
+        displayName="Ext JS Neptune"
+        description="Common elements to create simple design Ext JS Neptune"
+        author="Pencil Team">
+    <Script comments="Scripts for creating nine-patches">
+      <![CDATA[
+        collection.Saturation_Light = {Dark : {"s":148,"l":127}, Middle : {"s":163,"l":134}, Light : {"s":162,"l":145}, Stroke : {"s":207,"l":97}};
+        collection.getDarkColor= function(rgb) {
+        }
+      ]]>
+    </Script>
+    <Properties>
+        <PropertyGroup name="Fill colors">
+            <Property name="primaryFillColor" type="Color" displayName="Primary Color">#157FCCff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Text">
+            <Property name="defaultTextFont" type="Font" displayName="Default Font">Helvetica,Arial,sans-serif|normal|normal|13px</Property>
+            <Property name="defaultTextColor" type="Color" displayName="Default Text Color">#000000ff</Property>
+            <Property name="headerTextFont" type="Font" displayName="Header Font">Helvetica,Arial,sans-serif|bold|normal|13px</Property>
+            <Property name="headerTextColor" type="Color" displayName="Header Text Color">#ffffffff</Property>
+        </PropertyGroup>
+    </Properties>
+
+    <Shortcut displayName="Text" icon="Icons/text.png" to="Evolus.Common:PlainText">
+        <PropertyValue name="label">Text</PropertyValue>
+        <PropertyValue name="textColor"><E>$$defaultTextColor</E></PropertyValue>
+        <PropertyValue name="textFont"><E>$$defaultTextFont</E></PropertyValue>
+    </Shortcut>
+    
+    <Shape id="input" displayName="Text Input" icon="Icons/textInput.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,25</Property>
+                <Property name="hintText" displayName="Hint Text" type="Bool">false</Property>
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['text|Text', 'spinner|Spinner', 'dateField|DateField', 'combobox|Combobox']">text</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="title" displayName="Text" type="PlainText" ><![CDATA[Text Input]]></Property>
+                <Property name="textFont" displayName="Text Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+            </For>
+            <For ref="text">
+                <TextContent>$title</TextContent>
+                <Fill>!$hintText.value ? Color.fromString("#000000ff"): Color.fromString("#C0C0C0ff")</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                  <Arg>new Bound(6, 0, $box.w - 6, $box.h)</Arg>
+                  <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="topline">
+                <D>[M(-0.5,0), L($box.w + 0.5, 0)]</D>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+            <For ref="line">
+                <D>[M(0,0), L(0, $box.h), L($box.w, $box.h), L($box.w, 0)]</D>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>            
+                   if($type.value == "spinner") "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAD1JREFUOI1jYBgFIwKkQTFRgJEEQ5HBLGoYjMuVeA0nZDAhrxN0+SigHaBZ5A1YcsNlOFWTGUlZehQMYQAABZoHn87fCfsAAAAASUVORK5CYII="
+                   else if ($type.value == "dateField") "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAE9JREFUOI1jYBgFtAaM6AIzZ878T65h6enpcPOYyDVkwADeoEhPT2cklQ9j0ywohmEYw8SQ2cjyZIcxTCOp6ZugwTBXILtmQMFoOh4FdAQAdyA8E0U2MQIAAAAASUVORK5CYII="
+                   else if ($type.value == "combobox")                   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAADlJREFUOI3t0LERADAIw0AyLTNpWrJAMKT3tz5UEGFmraNGoNSeme29DKu4iq7Cr/gU/QLU9BozW7qd9BGY77JWogAAAABJRU5ErkJggg=="
+                   else ""
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>$box.w - 22</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>($box.h - 22)/2</Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <rect id="background" style="fill: #ffffff;"/>            
+            <path id="line" style="stroke-width: 1px; stroke: #D9D9D9; fill: none"/>
+            <path id="topline" style="stroke-width: 1px; stroke: #C0C0C0; fill:none"/>
+            <image id="icon" width="22" height="22" preserveAspectRatio="none" />
+            <text id="text" />
+        </p:Content>
+    </Shape>    
+    <Shortcut displayName="DateField" icon="Icons/dateField.png" to="input">
+        <PropertyValue name="type">dateField</PropertyValue>
+        <PropertyValue name="title">01/01/2013</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Spinner Field" icon="Icons/spinner.png" to="input">
+        <PropertyValue name="type">spinner</PropertyValue>
+        <PropertyValue name="title">1</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Combobox" icon="Icons/combobox.png" to="input">
+        <PropertyValue name="type">combobox</PropertyValue>
+        <PropertyValue name="hintText">true</PropertyValue>
+        <PropertyValue name="title">Select ...</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="iconLight" displayName="Icons Set - Light" icon="Icons/iconLight.png">
+        <Properties>            
+            <PropertyGroup name="Icon">
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['closed|Closed', 'minimized|Minimized', 'refresh|Refresh', 'save|Save', 'pin|Pin', 'collapseLeft|Collapse Left', 'expandRight|Expand Right', 'collapseTop|Collapse Top', 'expandeBottom|Expand Bottom', 'search|Search', 'collapse|Collapse', 'expand|Expand']">closed</Property>
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAORJREFUOI2t001qAkEQBeAhCyFXcbyDP+j1ogtHcpeQW0jMNivRVQIRoox8WaQGm2YmJDEPGqZfvVd0/UxRZEAfd9jgI85TcP1cnxp7WOKsG2fc47bN/PCNMccjemmCKgKHeMW2xbSN2CHuy8Zcog5yFdwIu8S8wyhiq+BqlAXmifAFwxCO8RpnHNwwNA3mha9up9hjEoYZZvE9yV4FmwLHlnrfME16NA0ux/Gmc64/w6mthN0vSlhf28RFgYHLGKuOMe5dxtjsTI3BNYtU/d8qJ0n+9jNliUos8IwT3rEObpDrPwEuIti4PwiP3gAAAABJRU5ErkJggg==]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>if($type.value == "closed")                    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAORJREFUOI2t001qAkEQBeAhCyFXcbyDP+j1ogtHcpeQW0jMNivRVQIRoox8WaQGm2YmJDEPGqZfvVd0/UxRZEAfd9jgI85TcP1cnxp7WOKsG2fc47bN/PCNMccjemmCKgKHeMW2xbSN2CHuy8Zcog5yFdwIu8S8wyhiq+BqlAXmifAFwxCO8RpnHNwwNA3mha9up9hjEoYZZvE9yV4FmwLHlnrfME16NA0ux/Gmc64/w6mthN0vSlhf28RFgYHLGKuOMe5dxtjsTI3BNYtU/d8qJ0n+9jNliUos8IwT3rEObpDrPwEuIti4PwiP3gAAAABJRU5ErkJggg=="
+                    else if($type.value == "minimized")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAMNJREFUOI2lk0FqAjEYRl9SGOhNyii0h/I8pQsFjyK0vUMFqbMqeAcXOjA8N5kSghabeRAI4X9fEvIHCtRWfVX36imN77TWlvW52KhLdfA2g7pWH6/J73+IJZ9qkwes/iGPLAGCOgO2wMPN+11nAJ4jsKiQSc4iqHvgqSIAoAvqGWgAQgjhHks1TftYufNIH4GfPPkesoBDBDYTTvAR1DnwRd0zvoxHr2mk1W+UU1s5C6n7TEXQTH1TO7VXj+ourc3L+gtWYbGVt2zsWwAAAABJRU5ErkJggg=="
+                    else if($type.value == "refresh")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAR5JREFUOI2dk78uxEEUhb9ZS2ziESi0a3kGQYhiS61XWRoKCRLLqiUegVKhUCoUqNZbsNafT+EWk9/+drPZm0wyd+acc8/M3IFCqHX1WH1We+qn+qKeq/UCtpUnNfVC/XZ4fKln6rTaUk1BngFugI3Q6wJXwFPkC8AmsA1UgDdgMa9+FhV+1cMQHAi1WbSEupTZ3i8jBnlOvS8TOIl5d0TlUrJqFdgK3HVKqT/EwBrwEGNAvRdiO8Psj4oKkCYh5gLdmK9MpDDOJRbwU2olX2iM84wZfk99VFfzxXbWSAdlTtSqehQY1UuICwzCLbAe+LyVZ4EGsAvMx/4d0EwpvecVampH/SlrmMxhR50ddca6eqq+qn31w//v3FaXi/g/JIeFg57W0r4AAAAASUVORK5CYII="
+                    else if($type.value == "collapseLeft")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAMJJREFUOI2t0z1qQlEQBeCLhRCX4nuLSpEN2JnSWogiCllDOjshZBcSXYhFFOWzyBMuw7si6oHbnDlnhvm5KQWgjw9s8Ne834brR31u7GKOkzJO+MRLm/n7ijHiB908weKKeIY3HAM/v5irluAF46zIa4gdUSVMCuZRaPGrRTNJ/qcd8R7My0KRTcI+kIPM3MOqYIZ9p7jX23AotTC8sYX1o0OcJtTuX2P9yCEtnnfKWZL7PlNIVGGKLQ7YYd1wddSfAfv94R33jJ7/AAAAAElFTkSuQmCC"
+                    else if($type.value == "expandRight")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAMNJREFUOI2t00FqQjEUheHQgWCX4nuLctANdKZDxwUVUegaOuusIO5C1IU40IfyOfAVQkikag9kknvOT3JvEkIi9DDGFod2bdq9XuqPgx3McVbWGZ/o5sLLG8FUK3RiwCIxnPCG2Q3I/DdctYFY/Qj+UQCcUAVMMsWv+IgYFSCT4NrtnL4TyCDj2QYcCwD4wWsEeU/qx5fiXP+m5p4rDDOe9bNNnAbUHh9j/cxDWvzfU44gj32mBFRhih0a7LFu9+rUfwFSheEd5JO06wAAAABJRU5ErkJggg=="
+                    else if($type.value == "collapseTop")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAPZJREFUOI2lk0FqAkEQRf8YGIhHUcHcItfwDK7M0rXgDDJCzqAXEMQ7qISYVSBniAsVh+fCHiiKHkH9UDRT/f/vrqoeyQFoAWNgBxxCfIdcy/OtMAUKoKQeJfAJvMbEyxtCjxWQWoPpHeIKhSQlQFvSRtJLpLJ+WMeRvVJSV0BWc8LA3PCjhpOJa7c9hpEmDyO8nYCjS46MqAk0zffIcY/eYOImswiRmvzE8P8bkn7NTbeVWNJc0nuIuTHZGv6fb+IZ6AGzSL2zsHc2uTwBOpLWNWO8hVLSW1XXIw9pakf03FM2Jo/9TM6oDeTAD3AC9sBXyHU8/wKHXX30++/hXgAAAABJRU5ErkJggg=="
+                    else if($type.value == "expandeBottom")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAQFJREFUOI2lk0FKA0EURF8bCZhLCC4TUS+TA4hzAle6zDqQuEjAO2QVt+IdFILxIC5MYHgu7IFPMyMYC4ahq6t+T/3fAwXUkfqgfqh79VPdZO681EdjX12otd2o1Uf1pM38/IuxxIvajwWWfzA3WAKknOsV6HXma0cNXB0BN8FcA9fAqsWwynt1XveACnUbPqsKPVkHft1kVqvAb46Bs3DKBUBKaa+OgafMj1NK+6jJOEXdFc2ZhuYO1EFYTwvtrozQYFI2QJ206Lao844x3QXzfYdmntQR8Eb7GG/ze9ayVwOXzQmHXKRFzPe/qxyKHPYzFYWG6syf6Xzl5z1zw1L/DQFESNQVXCxqAAAAAElFTkSuQmCC"
+                    else if($type.value == "pin")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAANdJREFUOI2VkTEKAjEQRWfELbYR3HPtXkCwsxTFygvsBbTQ22ztFfQIKwhqoWLxbEZY4iTqQEjIf/8PmYg4BVRAA1xtNUDpsZ65Jl71N3Np4AOYAQUwtPPDtCoV0Bg0d7SlaU0q4GJQ4WiFaZfufS/g7sk3OkwYsLN97BgnAfNZwCgY4tAZ4igVkAPHxDcegTz6BFW9icg22kFkY0y8bNpnp/vZ+51wiKKqJxFZOdlr074XMADaTvcWGPxk7oRMOwHTv8wWkAEHYA9kMa4fE1T1CSze5xj3AhhzLfV2T4YfAAAAAElFTkSuQmCC"
+                    else if($type.value == "search")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAP5JREFUOI2l0j8rhlEYx/HLkygLikKxGiRl8krEqp5i9mcRi9mrsEl5AyiDhcGAYpFNWSjJn+RjcJXH3X0/j/gtp873ur7XOZ0TURJ0YgQ9ZbwymMAunn3nHHXUWjVP4yWbrrCDA7zm3i46qprHsvAR0wU2gqOUbFYJtrNgtoJ34wZvGCrCdjzhusUVV3LIXON+LSIGIqIrIi6aCSLiMtfhouAhIkREfwvBYK73Zcc7xjtGq7qxn1eYLIMzCU/QV8IXk59V2duwlUV32Mh/Ucehn1mrktSwni9SzB5W8dFUkqLenL6EeYw3sIVfSZqlIFn+r+S07U+GL8lURNx+Ahd4YP1eDoPwAAAAAElFTkSuQmCC"
+                    else if($type.value == "save")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAALxJREFUOI3F0rFKQmEYBmDjgHfQIi0aSENIU5Mu3pIX0BC4BEE0Cm6Cg6SX0E00OTg4CELU0trTUMPfx1HPOYO+2znf+3w//+HUascO6pijVxUv/OYTt2Vwhqn/eS2KzzAO+A3naaG5Z8FzwEs00sIj3tHJwQ8Br3CRFu6T4RZXyewu4DVa8YRhTukSg/B+g/auOz6F8hbf4fn60Fceyc8HbnbiZEmGScCVfpaXP/yFbmGcLKljhn5pfJL8AKZ4XHsQJZ23AAAAAElFTkSuQmCC"    
+                    else if($type.value == "collapse")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAANBJREFUOI2lk1FqwkAURc+kYHUppoJdlOspBZOupbQuQqEEvwruwQ8JhuNHpyVOjcR4YWB4zDm8Yd5AEjVXX9RKPcRVxVqenm+DY7VUj3bnqC7VUQqP1M8rYJqPM0m03poCIKhPwAZ46Lzf5TTAPAMWA2AiswhqBUwHCAC2QT0AjwAhhNCHUo3bOgN6QR2pM+C7be6TlmCXAe93dLAK6gxYM+wZn39bLwYMUvmn8meUVzfA56McJRP1TW2ugI2XPlMiytVXdavW6l79irV/3/kEKKmxgDm6evAAAAAASUVORK5CYII="
+                    else if($type.value == "expand")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAMxJREFUOI2lk00KwjAYBV9SqHoUq8fyPCL4cxZRjyGlK8E7uJDSMm5SSNOkFh3oJnlv+EgaKQAogC1QAm/3lW6tCPN+cQ4cgYY0DbAH8rCcA9eRYsilJ3HWAd5+jEO3uUqN/UXQACsraSMpSx5OmkzSxgClpGUsYYwx3QQJSWWAt6SZX/iGJ6ytpEmlBLWV9PDNUw7REzytpPMfE9wErP+4xnUXOPwgOMoL5MAtEYzR/5WdZAGcgHak2BJ7TIGoAHZABdTAC7i7tcFz/gBspf97tulnkQAAAABJRU5ErkJggg=="
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+            </For>
+        </Behaviors>     
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                          new SnappingData("IconRight", b.x + b.width, "IconRight", true, this.id),
+                          new SnappingData("IconTop", b.y, "IconTop", false, this.id)
+                          ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">      
+            <image id="icon" x="0" y="0" width="16" height="16" preserveAspectRatio="none" style="opacity: 0.5" />
+        </p:Content>
+    </Shape>
+    
+    <Shape id="iconDark" displayName="Icons Set - Dark" icon="Icons/iconDark.png">
+        <Properties>            
+            <PropertyGroup name="Icon">
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['closed|Closed', 'minimized|Minimized', 'refresh|Refresh', 'save|Save', 'pin|Pin', 'collapseLeft|Collapse Left', 'expandRight|Expand Right', 'collapseTop|Collapse Top', 'expandBottom|Expand Bottom', 'search|Search', 'collapse|Collapse', 'expand|Expand']">closed</Property>
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAORJREFUOI2t001qAkEQBeAhCyFXcbyDP+j1ogtHcpeQW0jMNivRVQIRoox8WaQGm2YmJDEPGqZfvVd0/UxRZEAfd9jgI85TcP1cnxp7WOKsG2fc47bN/PCNMccjemmCKgKHeMW2xbSN2CHuy8Zcog5yFdwIu8S8wyhiq+BqlAXmifAFwxCO8RpnHNwwNA3mha9up9hjEoYZZvE9yV4FmwLHlnrfME16NA0ux/Gmc64/w6mthN0vSlhf28RFgYHLGKuOMe5dxtjsTI3BNYtU/d8qJ0n+9jNliUos8IwT3rEObpDrPwEuIti4PwiP3gAAAABJRU5ErkJggg==]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>if($type.value == "closed")                    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAgFJREFUOI2Nkz1LXEEUhp8ziqBFXFOlCiR2sU3vBwqKVZArWoWFmc2HNv6RpDLFnVkWu5iLnQGLZdX/ELaUxEqsJikMLu6cFBnDuijkhYHhzPOeOXNmRhhSvV5/MTo6akVkBXgGoKpnwNHNzU1otVrdQV5uJ0VRjE1NTX0A3gFmOHFWUlUfY9ypqur3vwRFUYzVarWvIrL4gPGOVLUTY1ypqqpnAGq12sdsvgJ2gYt7fBd57UpEFnK1GOfcDPAmQ3tlWW6nlDaBywHzZUppsyzLbWAvV/HWOTdjRMSKyEgGV51zsyGEE2AD+JnHRgjhxDk3C6wCiMiIiFgDLA/s9BSorLULZVkep5SKlFJRluWxtXZBRL5k5lbL4py7FpGxofP+UtU1730bwDm3KCIHwKOhZvYeuq7/koj0jIicDcUvU0qvvPdta+2StXbJe99OKb3ibmNR1R8GOBqInavqegih02g05o0xlTGmajQa8yGEjqquA+cDfNv0+/2mqvZzxkPv/am1dg74DEwCk6q6b62d896fquphZvsppSC5Sbsi8p6/D6kFrAFPho52ARwAdWBCVT9577cMQIxxR1XbwASwdY+ZHNvK5k6McQdgBKDb7fanp6f3x8fHHwMvGfhkQ0qqWsYYX1dVdc19YH7aTkSWgeeq2gO+A+2UUmg2m98G+T9hN/K59oY6XwAAAABJRU5ErkJggg=="
+                    else if($type.value == "minimized")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAT5JREFUOI2lkzFOAlEQhr9ZNiR0izcQGqOFjScwFnCArQ0JS2LJRaRmZUNtXm1CQbiDCdmS6A1eZyTsGwufZCUSd/WrXjH/P/9k5gkHDAaD8zAMhyLSB04BVHUDLHa73Ww+n+flevl6xHHcbLfb98AdEBwae5yqPlhrx8aYt71BHMfNKIqeROTmiPAbqrqy1vaNMdsAIIqiSVUxgIhc+7RIkiQXwLOINKoa+BQFcBmKyBCoJfYpGsAwAHp1xSV6oap2RD6Xkaap/CIAYDQaKYCqdo6tqxIisg1FZAOclZ2roqqvAbD4R4hlUBRF5ldSC1UtnHOzIMuyNTD9Q/dplmXrAMBaO1bVZY3uK2vtGPwB5XledLvdx1ardQJcUfpkBzhVTa21t8aYd34q9KediEgP6KjqFngBls65mR95zwc/EIUEKNNoaAAAAABJRU5ErkJggg=="
+                    else if($type.value == "refresh")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAdRJREFUOI2dkz9oU1EUxn/fe4+q4HDfIgg6NNlUXBrclKCN1qHjmwQh9CXgqOCgIhHEoUMdBKF9QVIEp2xBi4tdhE6SgkLG1NklmUTNn+PQlxLTJxW/6Z57zvfdc849R8ygXC6fC4IgBpYk5cxMkrpmtj0cDl82Go3OJDaO45omRhRFJ8IwXDOzqiR/VjjF0MzWJd0bj8cPPc97opQ855x7J2kxDeyOx+PXkj4DSDoLXAduAp6Z7UmaBwgAnHNrkhZtP9/VXq9Xazabv2Zef7GysrLs+35rQgYIKpXKeeBOaj9NkqSWlXsURSc9z7s/ex9IigHfzPb6/f6zv5Gdc1uSLh8SMLMbkgDeZKRNWuJVYMfMdrIyyAFMGpaFer3eAlpZPs/MlOX4V3iSugBmdvG/BID36flWFEVzRxGiKPJT3r7AaDR6ZWYjSfPOuUdHCYRh+LharX6K47gI4O/u7n4rFAqngEvAlYWFhWP5fP5jp9MZTROLxWJQKpVWgQeSTgM/2+3224NRDsNwC7iWxh+Mspkd9zzvgpndlnQGwMy2JS0nSfL9j2Vyzj2XVJ2ucRpmZsDGYDC4u7m5+QPg0Bem61yVtATk0v58BT4AG0mSfJmO/w0nBK8QcQrfYQAAAABJRU5ErkJggg=="
+                    else if($type.value == "collapseLeft")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAbVJREFUOI2NkzGLU0EUhb/z8gjRagL+AMk2ooLgT5AFg8J2r9aQTArFYhcsthG0EEHZFIurvFnJD3hgYeFukT+hYMoVf0Gmsgh5uTbJ8ja8gKeZ4Z57Doe5c8UGer3e7TRNB0BXUmdV/m1mZ4vF4nQ8Hk+r/Vpfsiy75pwbSfJAsmm8whL4NJvNDoqimF8aZFnWdM6dSXqwRXgFZjaJMT4uimKeALTb7aNtYjM7BryZlZexpV3n3AhA3vs7wA9JjRrxhxDCSwDv/VNJ4wpXAvcSSYMt4jdrcZZlTUmPqrykhqRBCnRrkh+GEN6txc65Atir6eumZtaRVC0e5Hk+AhgOh9fN7Kukh1vep5NImteR/4vEzP5s1I6894cAeZ7/jTHumdm3OrGkiwSY1BBvvfevAYqimMcYM6Co8ThPlsvlaXXGFZNX3vv3axMz+17lzawsy/KLALz3HyU9q4tpZseSfprZ5+q4zewkhPA8BYgx7jvnbtX9RkkvVmfVdBJj3AdoAEyn03JnZ6dotVo3JN2nsmQbWAInMcYnV5apin6/fzdJkgGwC9yU1AQuzOwcCCGEX9X+f+DWvTnhFtUnAAAAAElFTkSuQmCC"
+                    else if($type.value == "expandRight")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAcBJREFUOI2NU7FqVEEUPWd2WZ6pZiEfIPuaYIKB3T/QFKKQbmpZduchikWCgpWgTYpAIogRdiJr/yBFCpMihV+wYOErI37BTmWx7HvX5q1MHhPwVMPcc849l7lDNDAcDu+12+0xgEcke/X1LxG5WC6Xp9PptAj5XB2MMXe01sckLQDVNK5RAfg8n8/38zxf/DMwxnS01hckH9wivAERufLeP8nzfKEAoNvtHoViESkBWBH5GDMguaO1PgYAWms3Afwg2QoMhs65rwBgrT0k+SqSogSwrUiOQ3Hd4bExpgMAzrnXIvI+kqJFctwaDAYfAKw36ptJkmynaXpWFEU5m82+9/v9BcmHDZ5WItJDBCR3tdbnWZat1UkOAOw3xugpkouYwf9CicjvWEFEzr33u5PJ5A8AZFn2BsBRI+W1AnAV0efee7NaFmvtOwAHEd6lqqrqtH6SsPu3QHxI8m0kYVmW5RfWpE8kn4dFks9E5D7Jl7eMeOKce9EGAO/9ntZ6Y7WN9V44kjHtapX3AKAFAEVRlGma5kmSrJPsI/hkDVQATrz3T298phCj0WhLKTUGsAPgLskOgGsRuQTgnHM/Q/5f/07AYj/AE94AAAAASUVORK5CYII="
+                    else if($type.value == "collapseTop")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAapJREFUOI2Vk0FrE1EUhb87DcF0NfEfmOxU0IW/QISm7mctIZkBd0bowlWhC3VRGqSrzmTIWh50p7go/Q0qJcui/+DtxJDMceFMicME7Nm89y7nnHsv9z6jhuFweL/Vao3NbB+4ByDpGviyWq1m8/l8scm36hJFUbvb7Z4AL4GgblyikJR57yfOuV83BlEUtcMw/GRmz7YI/4GkS+/9vnNuGQCEYTj9XzGAmT0tq8XiOH4AfDOznQbu6/I8aahiDTxqmdkYaBK/SdN0ChDH8R0ze1urYgcYB8Cgwf0oTdP31TvLsneSjhqSDAJJvZr4OMuyQ4AkSXaTJNktTQ4lHde4vaAWOM2y7AD+TkbSuaTzKIrapcmBpNONNpaBmV1vBL5X4jAMnZntmdleGIauMqk4ZcKfliTJFHhVBtbA2MyeA1GtXyfpMzCrJibpg41Go4dBEHzdMsatkLQuiuJxkOf5FXB2G3GJszzPrwIA7/1E0sUtsl967ydQLtBisVj3+/2PnU7nLvCEjU9WQyEp9d6/cM79polYrnZsZgOgJ2kJ/AAuiqKYlS3f4A8aJMGaHgjlAQAAAABJRU5ErkJggg=="
+                    else if($type.value == "expandBottom")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAbNJREFUOI2NUz9rFEEcfW/2OLhuzy8g5hpRUQs/gaRI2sB2AVkus0QxRVJpE9E2kFRpbnJcWpkuIFwg5DNEkNNK/AY7nXjc7bPZk8lykXvNDDPvz4/fb4ZowFr7GIAluQFgTdIUwC8AV1VVnQ2Hw28xn4tNlmXtbrd7DOA1ANM0rlFJciGEfe/9738GWZa10zT9QnL9DuEtSLoOIWx676cGANI0PVlVDAAkX6ZpegIA7Pf7T4wxNySTVQ3qKuZVVT03SZL0F2JJc0k5AL9E4yXlkuZ1FYkxZscA2IhK23XOnZdluS3pIkq7KMty2zl3TnI3Ml03ktYi4lMA8N5PQwiZpEtJlyGEzHs/jTl14P1b4yK5Z609WpiQ3CK5tRBba49I7kWBbRZF8R3Aw0aDPjnnPsRn1tqPJA8bfflhAIyb3SJ5WBTFu0j8fokYAMasn+7XO8Z4UK/HzYt6Gs9YJ5ySfLPE4H84HQwGbw0AhBD2JV2tqpR0XZblAQAkADCZTOa9Xu9zp9O5B+AFok/WQCVpEEJ45b3/g2XEPM8ftVqtHZKbAB7UiT8BjGez2dloNJrE/L9Ur8pbaWqF5QAAAABJRU5ErkJggg=="
+                    else if($type.value == "pin")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAW5JREFUOI2Vj8FKG1EUhr9zrxaE2aT6Aj5CoD6F5gUKriZzt2IX3bhLuxAtYrKoNCErGShk4ULXroVCHkAfQXEgTFIR5p5uJnAdr0J/uHDPOd//c44QUZqmHWvtPrBVt/6o6sloNLpqsrbZ6Ha73621Z8Am8KF+myLyud1ur06n0+uQN2GRZdmOMeZAVZ+Bvaqq1suy/AjsqeqzMeYgTdNO6FkJCxH5Un+/DofDQTAaZFm2BhzWp11GN1DVTwDe+/Pmad77UchEA4CnpjGiF8yLABG5ATDG7DZd1tpuyCy10uB+Ax3gyDmnZVmeAyRJsquq30RkycQDiqK4aLVaDyKyAfSTJOkH2wE8FEVx8eYJk8nkL3DWXH8pVf1ZM/EAgKqqToFZxD/z3vebzVcB4/H4EXgFquqgnr0fADCfz3+o6n1gvl8sFscxNhqQ5/lMRHrLWkR6eZ7HzooH1PoF3Knqbf3/fznntp1z2+8x/wCbLoyVGJxnTgAAAABJRU5ErkJggg=="
+                    else if($type.value == "search")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAbdJREFUOI2V0L9rk1EUxvHvk7y2Ygar+BvSKeDg4JJBECQIQlsXpwqlOLwkFxycCrqICh3cBAcFbyqUKhTM4j8gLro1LrEgLqKLoEMa6ZThfRxM4E2MlT7LuRfO+XDuFRMyPz8/XS6XT/b7/V/r6+s7k3qGUf6Spun5JEke2J6TdBDA9jbwuNlsPgeyfwKNRmNR0gYwbfsz0JF01PZFSVPA6263e73VavXzQDIYPge8APq2bzSbzVfDhhDCrO1NSddmZmYeAit5oAAg6b6kqSzLQn4YIMb4TdKC7a+SbqVpemYEqNVqCXDV9pe1tbXNSR8VY+xJegocKBaLcyNApVI5BRwCticND2P706CWR4Ber7dj25KO7wVIOg1QKBS6I0Cr1doFtmxX0zQ9u8cGi4PjuxFgUB9JKiZJ8jKEcGx8OISwIuky8DHG+GFks2ENIWwAy7Z/As+ADnBY0jJwKTdzL8a4Og4AFBqNxl1Jd/jzqfm8Ad7aXpWkPKKxRpaWlo6USqUrwCywK+l9jLEzeMpN20/yyF/A/5JHsiy7Xdwv0G63t6rV6g/bC5JO7HuDYer1+gXb338D1Zet1WSoM24AAAAASUVORK5CYII="
+                    else if($type.value == "save")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAXJJREFUOI3NkT1IA0EQhd9LRA5scqKVlQmICgoxbQo1/oCNghzWwt5iIYJir2ApFtre5tKIhQhiKdpY2ZggIqlEREIQLKKN1ebWJidnUInYON28mW/e7A7wx4j/FnAcpz2bzR6l0+lqqVR65G/hRCJxSHIWwGu9Xp9qeQPHceK2be+TnG9IFsm+WIs8bdv2ACxEtLLW2gkHUAjR+x3tuu4egMUwN8bcaa0nC4XCc6zRsEPySggx/AW8TXI5Ij0YY8Z8368CQMx13S2SqyQ7SZ5LKfvDTiHEBsn1iHNFa51TSlVCrQ2RU5LsNsacSSlHAcwB2Iw4PwHI+b5//+lzAEBKuQtgJeL0DKCLJMM8CILxfD5/2/zEOAAUi8XTTCbTA2CksUlHBH4BMKGUummGASC8gqnVaksADprqr0EQTHued/0V/LEBAJTLZZNMJk8syxoiOQDgDcCMUuryO/jTgHBIKpU6tixr0Biz5nnexU/w/4h33qyEHr/3VIsAAAAASUVORK5CYII="
+                    else if($type.value == "collapse")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAT1JREFUOI2dk7FOwlAUhr9zKUa24iN0Mjo4+AoaGVzZSwJ1Vp8DN6M2NDxAZxMS8CFMSEeiT8Cdm7bHpZjaIKF80x3O/58/OfcXagwGgzPHcYZAT0Q8AFVdAbMsyybT6TSpzsvm4fv+cbvdHgN3ItKqG5dGOfBirX2M4zj9Nej3+0eu676LyNU24RajubX2No7j1AC4rjveVwwgItfdbvcJQEaj0Tnw+V/sHSly4MIRkSHQSFymaAFDo6o3TcUVes7mVABhGMqu6Q1BECiAqnpGVfcSbUNEUkdEVsBp1XlfVPXbALNDEwALk+d5VJ6kEaqaF0UxMVEULUXk9YDtb1EULQ3Aer1+AD4abJ9ba++h/EBJkuSe58WdTucEuKRSshqFqj5ba/0/ZapS1jkQkR7gqWoKfAGLLMvCep1/APBthP4jVpi7AAAAAElFTkSuQmCC"
+                    else if($type.value == "expand")                     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAVBJREFUOI2dkzFOw1AMhj+HFOiWcIRMFR05AiA6sHZvpSbACJyjbAiIGvUAmZEqtceoMlZwgr4RRUnMQIpCFKG23/Rk+f9tP9lCjeFweGrb9gjoiYgHoKorYJZl2WQ6nSbVfNk8BoPBcavVGgM3InJQNy6NcuDFGPMYx3H6a9Dv9w8dx3kXkYsmYYPR3BhzHcdxagE4jjNuEodhKGEYSj0uIpeu6z4BWL7vd4G7bSrXurj1fb9ri8gIaJz5P8p/GlmqerWruEJPgiD4Ao7gZ+ZtVEEQKICqppaqbiVqQkRSW0RWQKfqvGHTUT2+QVU/LWC2bwfAwsrzPCo3bCdUNS+KYmJFUbQUkdc9qr9FUbS0Adbr9YPruh3gvJrxz+xzY8w9lAuUJEnueV7cbrdPgDMqR1ajUNVnY8zgzzFVKc85EJEe4KlqCnwAiyzLwvo5fwMEvZG6eAvZSgAAAABJRU5ErkJggg=="
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+            </For>
+        </Behaviors>     
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                          new SnappingData("IconRight", b.x + b.width, "IconRight", true, this.id),
+                          new SnappingData("IconTop", b.y, "IconTop", false, this.id)
+                          ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">      
+            <image id="icon" x="0" y="0" width="16" height="16" preserveAspectRatio="none" style="opacity: 0.5" />
+        </p:Content>
+    </Shape>
+    
+    <Shape id="panel" displayName="Basic Panel" icon="Icons/basicPanel.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">400,210</Property>
+                <Property name="withIcon" displayName="With Icon" type="Bool">false</Property>
+                <Property name="withHeader" displayName="With Header" type="Bool">true</Property>
+                <Property name="withFrame" displayName="With Frame" type="Bool">false</Property>
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$primaryFillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="content" displayName="Content" type="RichText" ><![CDATA[Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.]]></Property>
+                <Property name="textColor" displayName="Text Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textFont" displayName="Text Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="title" displayName="Title" type="PlainText" ><![CDATA[Header]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">
+                    <E>$$headerTextColor</E>
+                </Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Align" type="Alignment">0,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUItiAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rvOi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laSJ2zlP998DWoGAAAAAElFTkSuQmCC]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="frame">
+                <Bound>Bound.fromBox($box)</Bound>
+                <Fill>$fillColor</Fill>
+                <Visibility>$withFrame</Visibility>
+            </For>        
+            <For ref="rect">
+                <Bound>$withFrame.value ? Bound.fromBox($box, 5) : Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="headerFrame">
+                <Visibility>$withHeader</Visibility>
+            </For>
+            <For ref="header">
+                <Fill>$fillColor</Fill>
+                <Bound>
+                var height = 31;
+                if(40 > $box.h) height = $box.h - 10; 
+                $withFrame.value ? new Bound(0 , 5 , $box.w, height) : new Bound(0 , 0 , $box.w, 36)</Bound>
+            </For>
+            <For ref="title">
+                <TextContent>$title</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>
+                  var paddingLeft = $withIcon.value ? 25 : 10;
+                  new Bound(paddingLeft, 0, $box.w - paddingLeft, 36)</Arg>
+                  <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="content">
+                <TextContent>$content</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                  <Arg>$withHeader.value ? new Bound(10, 46, $box.w - 20, $box.h - 56) : Bound.fromBox($box, 10, 10)</Arg>
+                  <Arg>$textAlign</Arg>
+                </BoxFit> 
+            </For>                        
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Visibility>$withIcon.value</Visibility>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var withHeader = this.getProperty("withHeader");
+                        var withFrame = this.getProperty("withFrame");
+                        if (withHeader.value) {
+                          if(withFrame.value)
+                            return [
+                              new SnappingData("Top", b.y + 36, "Top", false, this.id),
+                              new SnappingData("Bottom", b.y + b.height - 5, "Bottom", false, this.id),
+                              new SnappingData("Left", b.x + 5, "Left", true, this.id),
+                              new SnappingData("Right", b.x + b.width - 5, "Right", true, this.id),
+                              new SnappingData("IconRight", b.x + b.width - 10, "IconRight", true, this.id),
+                              new SnappingData("IconTop", b.y + 10, "IconTop", false, this.id)
+                              ]
+                          else
+                            return [
+                              new SnappingData("Top", b.y + 36, "Top", false, this.id),
+                              new SnappingData("IconRight", b.x + b.width - 10, "IconRight", true, this.id),
+                              new SnappingData("IconTop", b.y + 10, "IconTop", false, this.id)
+                              ]
+                        }
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">         
+            <rect id="frame" stroke="none" rx="4" ry="4"/>
+            <rect id="rect" stroke="none" style="fill: white;"/>
+            <g id="headerFrame">
+              <rect id="header" stroke="none"/>
+              <text id="title" />
+            </g>
+            <foreignObject x="0" y="0" width="200" height="150" id="content">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                </div>
+            </foreignObject>
+            <image id="icon" x="5" y="10" width="16" height="16" preserveAspectRatio="none"/>
+        </p:Content>
+    </Shape>
+    
+    <Shortcut displayName="Blank Panel" icon="Icons/blankPanel.png" to="panel">
+        <PropertyValue name="withHeader">false</PropertyValue>
+    </Shortcut>
+    
+    <Shortcut displayName="Frame Panel" icon="Icons/framePanel.png" to="panel">
+        <PropertyValue name="withFrame">true</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="toolbar" displayName="Top Toolbar" icon="Icons/topToolbar.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">300,38</Property>
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['white|White', 'blue|Blue']">white</Property>
+                <Property name="postition" displayName="Postition" type="Enum" p:enumValues="['top|Top', 'bottom|Bottom']">top</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Fill>$type.value == "white" ? Color.fromString("#FFFFFFFF") : Color.fromString("#DFEAF2FF")</Fill>
+            </For>
+            <For ref="line">
+              <D>$postition.value == "top" ? [M(0, $box.h), L($box.w, $box.h)] : [M(0, 0), L($box.w, 0)]</D>
+              <Transform>[translate(0, 0.5)]</Transform>
+              <Visibility>$type.value == "white"</Visibility>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                              new SnappingData("AddingBottom", b.y + b.height, "Top", false, this.id),
+                              new SnappingData("AddingRight", b.x + b.width - 8, "Right", true, this.id),
+                              new SnappingData("AddingLeft", b.x + 8, "Left", true, this.id)]
+                             
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <rect id="background"/>
+            <path id="line" style="stroke:#C0C0C0;stroke-width:1px;stroke-opacity:1"/>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Bottom Toolbar" icon="Icons/bottomToolbar.png" to="toolbar">
+        <PropertyValue name="postition">bottom</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Blue Toolbar" icon="Icons/blueToolbar.png" to="toolbar">
+        <PropertyValue name="type">blue</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="pagingToolbar" displayName="Paging Toolbar" icon="Icons/pagingToolbar.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockHeight="true">600,38</Property>
+                <Property name="withBG" displayName="With Background" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="current" displayName="Current Page" type="PlainText" ><![CDATA[1]]></Property>
+                <Property name="total" displayName="Total Page" type="PlainText" ><![CDATA[of 3]]></Property>
+                <Property name="info" displayName="Information" type="PlainText" ><![CDATA[Displaying 1-10 of 29]]></Property>
+                <Property name="textColor" displayName="Text Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textFont" displayName="Text Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>                
+                <Property name="textAlign" displayName="Align" type="Alignment">0,0</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Visibility>$withBG</Visibility>
+            </For>
+            <For ref="line">
+              <D>[M(0, 0), L($box.w, 0)]</D>
+              <Transform>[translate(0, 0.5)]</Transform>
+              <Visibility>$withBG</Visibility>
+            </For>
+            <For ref="current">
+                <TextContent>$current</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                  <Arg>new Bound(130, 0, 38, 38)</Arg>
+                  <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="total">
+                <TextContent>$total</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                  <Arg>new Bound(174, 0, 30, 38)</Arg>
+                  <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="info">
+                <TextContent>$info</TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                  <Arg>new Bound(50, 0, 150, 38)</Arg>
+                  <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+                <CustomStyle>
+                  <Arg>"font-weight"</Arg>
+                  <Arg>"bold"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="page">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                  <Arg>new Bound(84, 0, 20, 38) //depends $textColor</Arg>
+                  <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="right">
+                <Transform>[translate($box.w - 233, 0)]</Transform>
+            </For>
+        </Behaviors>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <rect id="background" style="fill:#ffffff"/>
+            <path id="line" style="stroke:#C0C0C0;stroke-width:1px;stroke-opacity:1"/>
+            <g id="left">
+              <image id="first" x="12" y="11" width="16" height="16" preserveAspectRatio="none" style="opacity: 0.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAASNJREFUOI2lkrFOwzAQhv+LsCJ16A4bE7xHZx6gTxBLlbNkrGAAqVMYsIuUPAE8AGsfpFM32DtUQif5WBLLiRRn4Db/n/0l9h1hVG3blgDe+rWIfGmtH6ZYNjp8LSIvUXRh5jLFBgIReSWiZb/23u+MMacUC4KmaVZEtI5kR2au51gGANbanIj2o+fYlGX5m2JBkOd5BeA+2vCptT7MMQC4cs7dAthGv3dm5goAUqyvTCllASyi7MkY8w0AKRYE+GdlXZ8vUfbsnLsBgBQLAmPMyXu/6wMiWiqlagBIscEVmLkWkWO0cd00zWqOBUHX083oeu/W2jzFggAAtNYHEfmIvnTXzUCSDbpARJWInKNo283CJBsIiqL4IaLHKFp0szDJ/gAx2sqjIoSuLgAAAABJRU5ErkJggg=="/>
+              <image id="previous" x="44" y="11" width="16" height="16" preserveAspectRatio="none" style="opacity: 0.5" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAARFJREFUOI2dkjFqAzEQRf8EC4EL906XKrmH6xzAJ1iB0TZbmqRIwJVTREpAe4LkAGl9EFfukt6FIQg0abQwXq+NyHT/M//xYYZwYdq2rQG8dpqZv4wx93Ln6kJ4yszPwjrEGOv+3lkAM78Q0aTTKaWVtXZXBAghzIhoLmDbGON6aPcE4JzTRPTWsxd1Xf8WAbTWDYA7YX0aYzZDYQAYSeG9vwGwFNX3McbmXPikgVLKARgL69Fa+10M+M8cAfKdD8J68t5fFwOstbuU0qrTRDRRSg2ebxCQW6yZeSsg8xDCrBiQ773o2e/OOV0EAABjzIaZP0SL2/wfZYAcaph5L6xl/pMyQFVVP0T0IKxx/pOj+QPt6GYlwnp6ZAAAAABJRU5ErkJggg=="/>
+              <path d="m 72,12 0,14" style="stroke: #E1E1E1; stroke-width: 1px;"/>
+              <text id="page">Page</text>
+              <rect id="background" x="122" y="9" width="39" height="22" style="stroke:#D9D9D9; stroke-width: 1px; fill:#ffffff"/>
+              <text id="current"/>
+              <text id="total"/>
+              <path d="m 202,12 0,14" style="stroke: #E1E1E1; stroke-width: 1px;"/>
+              <image id="next" x="214" y="11" width="16" height="16" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAQ5JREFUOI2NkrFOwzAYhO8QVqQO3WFjgvfoygv0CRypchg6VjCA1CkscZGcJ4CdmQfp1A32DpWIJf8sjmSatPJtd7I/W7ojEjnnPkneJ9GD1rrBGV2kxntfATj0XkRe2ra9ygYYY3YhhHXvSU5F5DUbEH9Ri8g2gcydc7NsQFVVvwAWaUZy0zRNkQUAgLIsvwB8JNFdURTLbAAAdF23FJF9Eq2stTfZAGPMN4CnJJoopQaVngTk6iTAWnsN4DmJDnEneQClVE1y2vsQwtoYs8sCOOdmJOe9F5Gt974eOzsAxL7fjuJF3MdAl8dB7Ps2ef097mJU/34Qe14ll/ckRwc0Cog9T3pP8lFr/XMO8AdydmMfTVtgywAAAABJRU5ErkJggg=="/>
+              <image id="last" x="246" y="11" width="16" height="16" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAASdJREFUOI2dkrFOwzAURc+LiCJ16A4bE/xHV36gX5BKlc3QsYIBpE5lSUByvwB2Zj6kUzfYO1RqI+Wx2MFBqiv1bb7n6VjxjTjnPkXkjr+5L8uyAkixMFnTNBbYhUBVn1er1SVAinUCY8ymbdtFCERkqKovACnWCfxNS1VdR4tj59zoFOsE1to9MI3NIvJaVVWRYp0AYDKZfAEf0d5tURSzUyyLQg6Hw0xVt1E0r+v6OsV6AmPMN/AYRYM8z6sU6wnOmZ6grusr4CmKdv5fOMp6gjzPlyIyDOe2bRfGmE2KdQLn3EhExuGsquumaZanWAbgO33793lTa+0+xQAuAHynN9EN7777JAPIfM/zaGErIjP/cEdZJ/A9D0IgIg9lWf74hzvKwvwCElPGHPmJfWsAAAAASUVORK5CYII="/>
+              <path d="m 275,12 0,14" style="stroke: #E1E1E1; stroke-width: 1px;"/>
+              <image id="refresh" x="288" y="11" width="16" height="16" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAbFJREFUOI2dkzFrVEEUhb/z3tugu/6AeaBFUkbxHwiyisYi5VaCVch7rJXaKbKDIGqRLWSXnVfYCP6BgMHGlKlsjGC5sZxfICK612Lfhs1mIZjTzcw9h3Pm3isWEEJYl7QFbJjZmiQBYzPbB4ZlWX6f1VZV1dPs0O/3L7ZarR1gG0gXhQHM7I+kADwGngJeAN77lTzPPwK368KxpPeTyeQQIEmSK8AdM7snKQGOgFWADCDP852abMCbGGPPe/97wcDbEMImsDsjA2gwGFxtNBpfgdTMXpRl2VtmfzgcXkrTdE/Sjfn7JMuyrTrzUYzx5f+QATJJd+vcH5bYntqU2sCBmR2cEqhbhaTDZWSAbre7W2c/haTu87mRAGMAM7t+LgEz+wQg6b73fuUsQqfTSb33ybzAO+AvsOqce3aWQLvdfu6c+zIajW4CCCCEMJD0cJrEXscY/WJHvPeZc+6VpCc1ryqKojweZefcnqRbcHKUJV0ws2tJkjwALtfv+5I2i6L4eWKZms1mH9iu530ZzMyqGOMj7/2v4wjzCCGsM93IDUlr9f/8MLPPkqqiKL7N1/8DB6usveQ8agcAAAAASUVORK5CYII="/>
+            </g>
+            <g id="right">
+              <rect id="background" x="0" y="9" width="225" height="20" style="stroke:none; fill:#f5f5f5"/>
+              <rect id="background" x="0" y="9" width="75" height="20" style="stroke:none; fill:#C1DDF1"/>
+              <text id="info" style="fill:#666666"/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="toolbarButton" displayName="Toolbar Button" icon="Icons/toolbarButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">100,24</Property>                
+                <Property name="withIcon" displayName="With Icon" type="Bool">false</Property>
+                <Property name="withArrow" displayName="With Combo" type="Bool">false</Property>
+                <Property name="splited" displayName="With Split" type="Bool">true</Property>                  
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="text" displayName="Text" type="PlainText" ><![CDATA[Button]]></Property>
+                <Property name="headerColor" displayName="Text Color" type="Color">#666666ff</Property>
+                <Property name="headerFont" displayName="Text Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Align" type="Alignment">1,1</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAARlJREFU
+SInt1LFugkAYB/APjqEkJELr0MnB6Gx3TeybODL5AExNEwgP4KDoI/EMjdEH4Mxd0jQEOZfSUES8
+D3Ax/pNb/tx3v+HIgRACMGu5Xo5d151h51RAZLVZ9bZf2z6l1PQ8b4SZlYZ+kemBHvqcc5NS+o7B
+pKA8knVY7CpUhtTBKqEqBItdhGQQDFYKYRBZ7Ayqg8hg/6AmyDXsD2oDqcLUtpFLGOl2Xwa73X7S
+JpIljuOnNE1fwzD8UQFgeAskC+fcBIA3RQhx9tG27Y8mhwdB8FnsUK93k9wfpMluVBRFWJZF8x1j
+rJMkCWkVIoSkvu8v8p3jOPMoip5l5u/vjh5Q7ZT+dZqmHYudruvfxc4wDMYY68hAJxlGIfS8JX0f
+AAAAAElFTkSuQmCC]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>
+                    var paddingRight = $withArrow.value ? 25 : 9;
+                    $withIcon.value ? new Bound(25, 0, $box.w - (25 + paddingRight), $box.h)
+                    : new Bound(9, 0, $box.w - (9 + paddingRight), $box.h)
+                  </Arg>
+                  <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>($box.h - 16)/2</Arg>
+                </Attr>
+                <Visibility>$withIcon.value</Visibility>
+            </For>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>$box.w - 21</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>($box.h - 15)/2 + 1</Arg>
+                </Attr>
+                <Visibility>$withArrow.value</Visibility>
+            </For>
+            <For ref="line1">
+              <D>
+              var paddingButton = 4;
+              [M($box.w - 22, paddingButton), L($box.w - 22, $box.h - paddingButton + 1)]</D>
+              <Transform>[translate(0.5, 0)]</Transform>
+              <Visibility>$withArrow.value &amp;&amp; $splited.value</Visibility>
+            </For>
+            <For ref="line2">
+              <D>
+              var paddingButton = 4;
+              [M($box.w - 23, paddingButton), L($box.w - 23, $box.h - paddingButton + 1)]</D>
+              <Transform>[translate(0.5, 0)]</Transform>
+              <Visibility>$withArrow.value &amp;&amp; $splited.value</Visibility>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#F6F6F6;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#F5F5F5;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#E8E8E8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#F5F5F5;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <rect id="background" style="stroke: #E1E1E1; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+            <text id="text" />
+            <image id="icon" x="4" width="16" height="16" preserveAspectRatio="none"/>
+            <image width="18" height="15" id="arrow" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAPCAYAAADphp8SAAAABHNCSVQICAgIfAhkiAAAAINJREFU
+OI3tjrENwjAUBc8UHiJ7UFCyC0GWjKdxYVtZhooU7BF7BsvSp6FCVgQIUeXK+0+nDxt/Q/VkSmkC
+Tr2biEzGmPOr3/XGOWcrInMnMpdSLm9/BOC9H7TWd2B4qqXWunfOLR+FAGKMB6XUFaC1drTW3tb2
+q4QQxhDC+HVg4/c8AKHJKyYONmmAAAAAAElFTkSuQmCC
+"/>
+            <path id="line1" style="stroke:#e1e1e1;stroke-width:1px;"/>
+            <path id="line2" style="stroke:#ffffff;stroke-width:1px;"/>
+        </p:Content>
+    </Shape>
+    
+    <Shortcut displayName="Icon Toolbar Button" icon="Icons/iconToolbarButton.png" to="toolbarButton">
+        <PropertyValue name="withIcon">true</PropertyValue>
+        <PropertyValue name="withArrow">true</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Button - Sort Asc" icon="Icons/buttonSortAsc.png" to="toolbarButton">
+        <PropertyValue name="withIcon">true</PropertyValue>
+        <PropertyValue name="image"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAGZJREFUOI1j/P//PwMDAwPDrFmzGEgFaWlpDEwk60IDhAyoh2KcgIWA5gYkfiMpLkDX3IDLJdgMQNeM1xB0A3BpxmkIugGNDAwMjFBsiyRuiySOEhY0j8ZRA4gA+JLyEQZItNHWBQDU9RDedb/jHAAAAABJRU5ErkJggg==]]></PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Button - Sort Desc" icon="Icons/buttonSortDesc.png" to="toolbarButton">
+        <PropertyValue name="withIcon">true</PropertyValue>
+        <PropertyValue name="image"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAGdJREFUOI3t0dEJwCAMRdHb0rGcxzl0DddxsPSnUmljrPrbB4IE3lHIJiIApJQYjfeefbj1iAU4QK7jZoDlH/zAJBC4V5erea7moQdE48HYAyzkVW4BGqKWAY4GUBDt/hkwiyXLazwBBqkWn0n1Q6oAAAAASUVORK5CYII=]]></PropertyValue>
+    </Shortcut>
+    
+    <Shape id="dockedToolbarButton" displayName="Docked Toolbar Button" icon="Icons/dockedToolbarButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockRatio="true">24,24</Property>                
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAARlJREFU
+SInt1LFugkAYB/APjqEkJELr0MnB6Gx3TeybODL5AExNEwgP4KDoI/EMjdEH4Mxd0jQEOZfSUES8
+D3Ax/pNb/tx3v+HIgRACMGu5Xo5d151h51RAZLVZ9bZf2z6l1PQ8b4SZlYZ+kemBHvqcc5NS+o7B
+pKA8knVY7CpUhtTBKqEqBItdhGQQDFYKYRBZ7Ayqg8hg/6AmyDXsD2oDqcLUtpFLGOl2Xwa73X7S
+JpIljuOnNE1fwzD8UQFgeAskC+fcBIA3RQhx9tG27Y8mhwdB8FnsUK93k9wfpMluVBRFWJZF8x1j
+rJMkCWkVIoSkvu8v8p3jOPMoip5l5u/vjh5Q7ZT+dZqmHYudruvfxc4wDMYY68hAJxlGIfS8JX0f
+AAAAAElFTkSuQmCC]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>($box.w - 16)/2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>($box.h - 16)/2</Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#F6F6F6;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#F5F5F5;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#E8E8E8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#F5F5F5;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <rect id="background" style="stroke: #E1E1E1; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+            <image id="icon" width="16" height="16" preserveAspectRatio="none"/>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="button" displayName="Button" icon="Icons/button.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">80,24</Property>
+                <Property name="withIcon" displayName="With Icon" type="Bool">false</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>
+                <Property name="iconPosition" displayName="Icon Position" type="Enum" p:enumValues="['left|Left', 'right|Right', 'top|Top', 'bottom|Bottom']">left</Property>
+                <Property name="textPosition" displayName="Text Position" type="Enum" p:enumValues="['left|Left', 'center|Center', 'right|Right']">center</Property>                
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="title" displayName="Title" type="PlainText" ><![CDATA[Button]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">
+                    <E>$$headerTextColor</E>
+                </Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+            <For ref="text">
+                <TextContent>$title</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>             
+                    var paddingButton = 4;
+                    var paddingWithNoIcon = ($iconSize.value=="small" ? 5 : ($iconSize.value=="medium" ? 8 : 10)) + paddingButton;
+                    var paddingWithIcon = ($iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 29 : 37)) + paddingButton;
+                    if(!$withIcon.value) Bound.fromBox($box, paddingWithNoIcon)
+                    else {
+                      if($iconPosition.value == "left") new Bound(paddingWithIcon, 0, $box.w - (paddingWithNoIcon + paddingWithIcon), $box.h)                  
+                      else if($iconPosition.value == "right") new Bound(paddingWithNoIcon, 0, $box.w - (paddingWithNoIcon + paddingWithIcon), $box.h)
+                      else if($iconPosition.value == "top") new Bound(paddingWithNoIcon, paddingWithIcon, $box.w - 2*paddingWithNoIcon, $box.h - paddingWithIcon)
+                      else new Bound(paddingWithNoIcon, paddingButton, $box.w - 2*paddingWithNoIcon, $box.h - paddingButton )
+                    }
+                  </Arg>
+                  <Arg>
+                    var h = 0;
+                    var v = 0;
+                    $textPosition.value == "center" ? h = 1 : ($textPosition.value == "left" ? h = 0 : h = 2);
+                    ($iconPosition.value == "left" || $iconPosition.value == "right") ? v = 1 : v = 0;
+                    if (!$withIcon.value) v = 1;
+                    new Alignment(h, v)
+                  </Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    if ($iconPosition.value == "left") paddingButton
+                    else if ($iconPosition.value == "right") $box.w - iconSize - paddingButton
+                    else ($box.w - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    if ($iconPosition.value == "top") paddingButton
+                    else if ($iconPosition.value == "bottom") $box.h - iconSize - paddingButton
+                    else ($box.h - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Visibility>$withIcon.value</Visibility>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+            <For ref="group">
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <text id="text" />
+              <image id="icon" preserveAspectRatio="none"/>
+            </g>
+        </p:Content>
+    </Shape>    
+    <Shortcut displayName="Icon and Text Button - Left" icon="Icons/button_left.png" to="button">
+        <PropertyValue name="withIcon">true</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Icon and Text Button - Right" icon="Icons/button_right.png" to="button">
+        <PropertyValue name="withIcon">true</PropertyValue>
+        <PropertyValue name="iconPosition">right</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Icon and Text Button - Top" icon="Icons/button_top.png" to="button">
+        <PropertyValue name="withIcon">true</PropertyValue>
+        <PropertyValue name="iconPosition">top</PropertyValue>
+        <PropertyValue name="box">80,44</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Icon and Text Button - Bottom" icon="Icons/button_bottom.png" to="button">
+        <PropertyValue name="withIcon">true</PropertyValue>
+        <PropertyValue name="iconPosition">bottom</PropertyValue>
+        <PropertyValue name="box">80,44</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="iconButton" displayName="Icon Only Button" icon="Icons/iconButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockRatio="true">24,24</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>            
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    ($box.w - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    ($box.h - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <image id="icon" preserveAspectRatio="none"/>
+            </g>
+        </p:Content>
+    </Shape>
+            
+    <Shape id="toggleButton" displayName="Toggle Button" icon="Icons/toggleButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">80,24</Property>
+                <Property name="withIcon" displayName="With Icon" type="Bool">true</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>
+                <Property name="iconPosition" displayName="Icon Position" type="Enum" p:enumValues="['left|Left', 'right|Right', 'top|Top', 'bottom|Bottom']">left</Property>
+                <Property name="textPosition" displayName="Text Position" type="Enum" p:enumValues="['left|Left', 'center|Center', 'right|Right']">center</Property>                
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="title" displayName="Title" type="PlainText" ><![CDATA[Button]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">
+                    <E>$$headerTextColor</E>
+                </Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="text">
+                <TextContent>$title</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>
+                    var paddingButton = 4;
+                    var paddingWithNoIcon = ($iconSize.value=="small" ? 5 : ($iconSize.value=="medium" ? 8 : 10)) + paddingButton;
+                    var paddingWithIcon = ($iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 29 : 37)) + paddingButton;
+                    if(!$withIcon.value) Bound.fromBox($box, paddingWithNoIcon)
+                    else {
+                      if($iconPosition.value == "left") new Bound(paddingWithIcon, 0, $box.w - (paddingWithNoIcon + paddingWithIcon), $box.h)                  
+                      else if($iconPosition.value == "right") new Bound(paddingWithNoIcon, 0, $box.w - (paddingWithNoIcon + paddingWithIcon), $box.h)
+                      else if($iconPosition.value == "top") new Bound(paddingWithNoIcon, paddingWithIcon, $box.w - 2*paddingWithNoIcon, $box.h - paddingWithIcon)
+                      else new Bound(paddingWithNoIcon, paddingButton, $box.w - 2*paddingWithNoIcon, $box.h - paddingButton )
+                    }
+                  </Arg>
+                  <Arg>
+                    var h = 0;
+                    var v = 0;
+                    $textPosition.value == "center" ? h = 1 : ($textPosition.value == "left" ? h = 0 : h = 2);
+                    ($iconPosition.value == "left" || $iconPosition.value == "right") ? v = 1 : v = 0;
+                    if (!$withIcon.value) v = 1;
+                    new Alignment(h, v)
+                  </Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    if ($iconPosition.value == "left") paddingButton
+                    else if ($iconPosition.value == "right") $box.w - iconSize - paddingButton
+                    else ($box.w - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    if ($iconPosition.value == "top") paddingButton
+                    else if ($iconPosition.value == "bottom") $box.h - iconSize - paddingButton
+                    else ($box.h - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Visibility>$withIcon.value</Visibility>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <text id="text" />
+              <image id="icon" preserveAspectRatio="none"/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="iconToggleButton" displayName="Icon Only Toggle Button" icon="Icons/iconToggleButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockRatio="true">24,24</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>               
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    ($box.w - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    ($box.h - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <image id="icon" preserveAspectRatio="none"/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="menuButton" displayName="Menu Button" icon="Icons/menuButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">110,24</Property>
+                <Property name="withIcon" displayName="With Icon" type="Bool">true</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>
+                <Property name="iconPosition" displayName="Icon Position" type="Enum" p:enumValues="['left|Left', 'right|Right', 'top|Top', 'bottom|Bottom']">left</Property>
+                <Property name="textPosition" displayName="Text Position" type="Enum" p:enumValues="['left|Left', 'center|Center', 'right|Right']">center</Property>                
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="title" displayName="Title" type="PlainText" ><![CDATA[Button]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">
+                    <E>$$headerTextColor</E>
+                </Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="text">
+                <TextContent>$title</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>
+                    var paddingButton = 4;
+                    var arrowPadding = $iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 30 : 36);
+                    var paddingWithNoIcon = ($iconSize.value=="small" ? 5 : ($iconSize.value=="medium" ? 8 : 10)) + paddingButton;
+                    var paddingWithIcon = ($iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 29 : 37)) + paddingButton;
+                    if(!$withIcon.value) new Bound(paddingWithNoIcon, 0, $box.w - (2*paddingWithNoIcon + arrowPadding), $box.h)
+                    else {
+                      if($iconPosition.value == "left") new Bound(paddingWithIcon, 0, $box.w - (paddingWithNoIcon + paddingWithIcon + arrowPadding), $box.h)                  
+                      else if($iconPosition.value == "right") new Bound(paddingWithNoIcon, 0, $box.w - (paddingWithNoIcon + paddingWithIcon + arrowPadding), $box.h)
+                      else if($iconPosition.value == "top") new Bound(paddingWithNoIcon, paddingWithIcon, $box.w - (2*paddingWithNoIcon + arrowPadding), $box.h - paddingWithIcon)
+                      else new Bound(paddingWithNoIcon, paddingButton, $box.w - (2*paddingWithNoIcon + arrowPadding), $box.h - paddingButton )
+                    }
+                  </Arg>
+                  <Arg>
+                    var h = 0;
+                    var v = 0;
+                    $textPosition.value == "center" ? h = 1 : ($textPosition.value == "left" ? h = 0 : h = 2);
+                    ($iconPosition.value == "left" || $iconPosition.value == "right") ? v = 1 : v = 0;
+                    if (!$withIcon.value) v = 1;
+                    new Alignment(h, v)
+                  </Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    var arrowPadding = $iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 30 : 36);
+                    if ($iconPosition.value == "left") paddingButton
+                    else if ($iconPosition.value == "right") ($box.w - iconSize - paddingButton - arrowPadding)
+                    else ($box.w - iconSize - arrowPadding)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    if ($iconPosition.value == "top") paddingButton
+                    else if ($iconPosition.value == "bottom") $box.h - iconSize - paddingButton
+                    else ($box.h - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Visibility>$withIcon.value</Visibility>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var arrowWidth = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34);
+                    $box.w - (arrowWidth + paddingButton)
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var arrowHeight = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29);
+                    ($box.h - arrowHeight)/2 
+                    </Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <text id="text" />
+              <image id="icon" preserveAspectRatio="none"/>
+              <image id="arrow" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAdCAYAAADPa766AAAABHNCSVQICAgIfAhkiAAAAJ1JREFU
+SInt0iEOwkAQRuFZBMGhSYNFcYJKPJY7cItaLsEteoO6HgGDwaAwCAwPs2JEQ7dJuzX/0zOTT4yZ
+UkqpcQupg0BhZuXA+/cQQjtwpxeyBBrSewG7UREOswEeCYgvcJwE4TAl8OmBVJMiHOb8B1EDiyyQ
+iLl2IG7AOhsiQlZA6xBvYJ8V4TBb4Bmf8zQLwmEOwGVWhFJKqY5+oyX2u2IUZsgAAAAASUVORK5C
+YII="/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="iconOnlyMenuButton" displayName="Icon Only Menu Button" icon="Icons/iconOnlyMenuButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">55,24</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>          
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    var arrowPadding = $iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 30 : 36);
+                    ($box.w - iconSize - arrowPadding)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    ($box.h - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var arrowWidth = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34);
+                    $box.w - (arrowWidth + paddingButton)
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var arrowHeight = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29);
+                    ($box.h - arrowHeight)/2 
+                    </Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <image id="icon" preserveAspectRatio="none"/>
+              <image id="arrow" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAdCAYAAADPa766AAAABHNCSVQICAgIfAhkiAAAAJ1JREFU
+SInt0iEOwkAQRuFZBMGhSYNFcYJKPJY7cItaLsEteoO6HgGDwaAwCAwPs2JEQ7dJuzX/0zOTT4yZ
+UkqpcQupg0BhZuXA+/cQQjtwpxeyBBrSewG7UREOswEeCYgvcJwE4TAl8OmBVJMiHOb8B1EDiyyQ
+iLl2IG7AOhsiQlZA6xBvYJ8V4TBb4Bmf8zQLwmEOwGVWhFJKqY5+oyX2u2IUZsgAAAAASUVORK5C
+YII="/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="menuBottomButton" displayName="Menu Bottom Button" icon="Icons/menuBottomButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">95,42</Property>
+                <Property name="withIcon" displayName="With Icon" type="Bool">true</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>
+                <Property name="iconPosition" displayName="Icon Position" type="Enum" p:enumValues="['left|Left', 'right|Right', 'top|Top', 'bottom|Bottom']">left</Property>
+                <Property name="textPosition" displayName="Text Position" type="Enum" p:enumValues="['left|Left', 'center|Center', 'right|Right']">center</Property>                
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="title" displayName="Title" type="PlainText" ><![CDATA[Button]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">
+                    <E>$$headerTextColor</E>
+                </Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="text">
+                <TextContent>$title</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>
+                    var paddingButton = 4;
+                    var arrowpadding = $iconSize.value=="small" ? 18 : ($iconSize.value=="medium" ? 26 : 32);
+                    var paddingWithNoIcon = ($iconSize.value=="small" ? 5 : ($iconSize.value=="medium" ? 8 : 10)) + paddingButton;
+                    var paddingWithIcon = ($iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 29 : 37)) + paddingButton;
+                    if(!$withIcon.value) new Bound(paddingWithNoIcon, paddingButton, $box.w - 2*paddingWithNoIcon, $box.h - (2*paddingButton + arrowpadding))
+                    else {
+                      if($iconPosition.value == "left") new Bound(paddingWithIcon, paddingButton, $box.w - (paddingWithNoIcon + paddingWithIcon), $box.h - 2*paddingButton - arrowpadding)                  
+                      else if($iconPosition.value == "right") new Bound(paddingWithNoIcon, paddingButton, $box.w - (paddingWithNoIcon + paddingWithIcon), $box.h - 2*paddingButton - arrowpadding)
+                      else if($iconPosition.value == "top") new Bound(paddingWithNoIcon, paddingWithIcon, $box.w - 2*paddingWithNoIcon, $box.h - paddingWithIcon)
+                      else new Bound(paddingWithNoIcon, paddingButton, $box.w - 2*paddingWithNoIcon, $box.h - paddingButton)
+                    }
+                  </Arg>
+                  <Arg>
+                    var h = 0;
+                    var v = 0;
+                    $textPosition.value == "center" ? h = 1 : ($textPosition.value == "left" ? h = 0 : h = 2);
+                    ($iconPosition.value == "left" || $iconPosition.value == "right") ? v = 1 : v = 0;
+                    if (!$withIcon.value) v = 1;
+                    new Alignment(h, v)
+                  </Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    if ($iconPosition.value == "left") paddingButton
+                    else if ($iconPosition.value == "right") $box.w - iconSize - paddingButton
+                    else ($box.w - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    var arrowpadding = $iconSize.value=="small" ? 18 : ($iconSize.value=="medium" ? 26 : 32);
+                    if ($iconPosition.value == "top") paddingButton
+                    else if ($iconPosition.value == "bottom") ($box.h - arrowpadding - iconSize - paddingButton)
+                    else ($box.h - arrowpadding - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Visibility>$withIcon.value</Visibility>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>                    
+                      var arrowWidth = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34);
+                      ($box.w - arrowWidth)/2 
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                      var paddingButton = 4;
+                      var arrowHeight = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29);
+                      $box.h - (arrowHeight + paddingButton)
+                    </Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <text id="text" />
+              <image id="icon" x="0" y="0" preserveAspectRatio="none"/>
+              <image id="arrow" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAdCAYAAADPa766AAAABHNCSVQICAgIfAhkiAAAAJ1JREFU
+SInt0iEOwkAQRuFZBMGhSYNFcYJKPJY7cItaLsEteoO6HgGDwaAwCAwPs2JEQ7dJuzX/0zOTT4yZ
+UkqpcQupg0BhZuXA+/cQQjtwpxeyBBrSewG7UREOswEeCYgvcJwE4TAl8OmBVJMiHOb8B1EDiyyQ
+iLl2IG7AOhsiQlZA6xBvYJ8V4TBb4Bmf8zQLwmEOwGVWhFJKqY5+oyX2u2IUZsgAAAAASUVORK5C
+YII="/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="onlyIconMenuBottomButton" displayName="Only Icon Menu Bottom Button" icon="Icons/onlyIconMenuBottomButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">24,42</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>       
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    ($box.w - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    var arrowpadding = $iconSize.value=="small" ? 18 : ($iconSize.value=="medium" ? 26 : 32);
+                    ($box.h - arrowpadding - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>                    
+                      var arrowWidth = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34);
+                      ($box.w - arrowWidth)/2 
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                      var paddingButton = 4;
+                      var arrowHeight = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29);
+                      $box.h - (arrowHeight + paddingButton)
+                    </Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <image id="icon" x="0" y="0" preserveAspectRatio="none"/>
+              <image id="arrow" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAdCAYAAADPa766AAAABHNCSVQICAgIfAhkiAAAAJ1JREFU
+SInt0iEOwkAQRuFZBMGhSYNFcYJKPJY7cItaLsEteoO6HgGDwaAwCAwPs2JEQ7dJuzX/0zOTT4yZ
+UkqpcQupg0BhZuXA+/cQQjtwpxeyBBrSewG7UREOswEeCYgvcJwE4TAl8OmBVJMiHOb8B1EDiyyQ
+iLl2IG7AOhsiQlZA6xBvYJ8V4TBb4Bmf8zQLwmEOwGVWhFJKqY5+oyX2u2IUZsgAAAAASUVORK5C
+YII="/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="splitButton" displayName="Split Button" icon="Icons/splitButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">100,24</Property>
+                <Property name="withIcon" displayName="With Icon" type="Bool">true</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>
+                <Property name="iconPosition" displayName="Icon Position" type="Enum" p:enumValues="['left|Left', 'right|Right', 'top|Top', 'bottom|Bottom']">left</Property>
+                <Property name="textPosition" displayName="Text Position" type="Enum" p:enumValues="['left|Left', 'center|Center', 'right|Right']">center</Property>                
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="title" displayName="Title" type="PlainText" ><![CDATA[Button]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">
+                    <E>$$headerTextColor</E>
+                </Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="text">
+                <TextContent>$title</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>
+                    var paddingButton = 4;
+                    var arrowPadding = $iconSize.value=="small" ? 23 : ($iconSize.value=="medium" ? 32 : 38);
+                    var paddingWithNoIcon = ($iconSize.value=="small" ? 5 : ($iconSize.value=="medium" ? 8 : 10)) + paddingButton;
+                    var paddingWithIcon = ($iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 29 : 37)) + paddingButton;
+                    if(!$withIcon.value) new Bound(paddingWithNoIcon, 0, $box.w - (2*paddingWithNoIcon + arrowPadding), $box.h)
+                    else {
+                      if($iconPosition.value == "left") new Bound(paddingWithIcon, 0, $box.w - (paddingWithNoIcon + paddingWithIcon + arrowPadding), $box.h)                  
+                      else if($iconPosition.value == "right") new Bound(paddingWithNoIcon, 0, $box.w - (paddingWithNoIcon + paddingWithIcon + arrowPadding), $box.h)
+                      else if($iconPosition.value == "top") new Bound(paddingWithNoIcon, paddingWithIcon, $box.w - (2*paddingWithNoIcon + arrowPadding), $box.h - paddingWithIcon)
+                      else new Bound(paddingWithNoIcon, paddingButton, $box.w - (2*paddingWithNoIcon + arrowPadding), $box.h - paddingButton )
+                    }
+                  </Arg>
+                  <Arg>
+                    var h = 0;
+                    var v = 0;
+                    $textPosition.value == "center" ? h = 1 : ($textPosition.value == "left" ? h = 0 : h = 2);
+                    ($iconPosition.value == "left" || $iconPosition.value == "right") ? v = 1 : v = 0;
+                    if (!$withIcon.value) v = 1;
+                    new Alignment(h, v)
+                  </Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    var arrowPadding = $iconSize.value=="small" ? 23 : ($iconSize.value=="medium" ? 32 : 38);
+                    if ($iconPosition.value == "left") paddingButton
+                    else if ($iconPosition.value == "right") ($box.w - iconSize - paddingButton - arrowPadding)
+                    else ($box.w - iconSize - arrowPadding)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    if ($iconPosition.value == "top") paddingButton
+                    else if ($iconPosition.value == "bottom") $box.h - iconSize - paddingButton
+                    else ($box.h - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Visibility>$withIcon.value</Visibility>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var arrowWidth = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34);
+                    $box.w - (arrowWidth + paddingButton)
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var arrowHeight = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29);
+                    ($box.h - arrowHeight)/2 
+                    </Arg>
+                </Attr>
+            </For>
+            <For ref="line1">
+              <D>
+              var paddingButton = 4;
+              var arrowPadding = $iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 30 : 36);
+              [M($box.w - paddingButton - arrowPadding + 3, paddingButton), L($box.w - paddingButton - arrowPadding + 3, $box.h - paddingButton)]</D>
+              <Transform>[translate(0.5, 0)]</Transform>
+            </For>
+            <For ref="line2">
+              <D>
+              var paddingButton = 4;
+              var arrowPadding = $iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 30 : 36);
+              [M($box.w - paddingButton - arrowPadding + 2, paddingButton), L($box.w - paddingButton - arrowPadding + 2, $box.h - paddingButton)]</D>
+              <Transform>[translate(0.5, 0)]</Transform>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <text id="text" />
+              <image id="icon" preserveAspectRatio="none"/>
+              <image id="arrow" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAdCAYAAADPa766AAAABHNCSVQICAgIfAhkiAAAAJ1JREFU
+SInt0iEOwkAQRuFZBMGhSYNFcYJKPJY7cItaLsEteoO6HgGDwaAwCAwPs2JEQ7dJuzX/0zOTT4yZ
+UkqpcQupg0BhZuXA+/cQQjtwpxeyBBrSewG7UREOswEeCYgvcJwE4TAl8OmBVJMiHOb8B1EDiyyQ
+iLl2IG7AOhsiQlZA6xBvYJ8V4TBb4Bmf8zQLwmEOwGVWhFJKqY5+oyX2u2IUZsgAAAAASUVORK5C
+YII="/>
+              <path id="line1" style="stroke:#000000;stroke-width:1px;stroke-opacity:0.1"/>
+              <path id="line2" style="stroke:#ffffff;stroke-width:1px;stroke-opacity:0.2"/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="iconOnlySplitButton" displayName="Icon Only Split Button" icon="Icons/iconOnlySplitButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">46,24</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>   
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    var arrowPadding = $iconSize.value=="small" ? 23 : ($iconSize.value=="medium" ? 32 : 38);
+                    ($box.w - iconSize - arrowPadding)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    ($box.h - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var arrowWidth = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34);
+                    $box.w - (arrowWidth + paddingButton)
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var arrowHeight = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29);
+                    ($box.h - arrowHeight)/2 
+                    </Arg>
+                </Attr>
+            </For>
+            <For ref="line1">
+              <D>
+              var paddingButton = 4;
+              var arrowPadding = $iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 30 : 36);
+              [M($box.w - paddingButton - arrowPadding + 3, paddingButton), L($box.w - paddingButton - arrowPadding + 3, $box.h - paddingButton)]</D>
+              <Transform>[translate(0.5, 0)]</Transform>
+            </For>
+            <For ref="line2">
+              <D>
+              var paddingButton = 4;
+              var arrowPadding = $iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 30 : 36);
+              [M($box.w - paddingButton - arrowPadding + 2, paddingButton), L($box.w - paddingButton - arrowPadding + 2, $box.h - paddingButton)]</D>
+              <Transform>[translate(0.5, 0)]</Transform>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <image id="icon" preserveAspectRatio="none"/>
+              <image id="arrow" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAdCAYAAADPa766AAAABHNCSVQICAgIfAhkiAAAAJ1JREFU
+SInt0iEOwkAQRuFZBMGhSYNFcYJKPJY7cItaLsEteoO6HgGDwaAwCAwPs2JEQ7dJuzX/0zOTT4yZ
+UkqpcQupg0BhZuXA+/cQQjtwpxeyBBrSewG7UREOswEeCYgvcJwE4TAl8OmBVJMiHOb8B1EDiyyQ
+iLl2IG7AOhsiQlZA6xBvYJ8V4TBb4Bmf8zQLwmEOwGVWhFJKqY5+oyX2u2IUZsgAAAAASUVORK5C
+YII="/>
+              <path id="line1" style="stroke:#000000;stroke-width:1px;stroke-opacity:0.1"/>
+              <path id="line2" style="stroke:#ffffff;stroke-width:1px;stroke-opacity:0.2"/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="splitBottomButton" displayName="Split Bottom Button" icon="Icons/splitBottomButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">95,42</Property>
+                <Property name="withIcon" displayName="With Icon" type="Bool">true</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>
+                <Property name="iconPosition" displayName="Icon Position" type="Enum" p:enumValues="['left|Left', 'right|Right', 'top|Top', 'bottom|Bottom']">left</Property>
+                <Property name="textPosition" displayName="Text Position" type="Enum" p:enumValues="['left|Left', 'center|Center', 'right|Right']">center</Property>                
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="title" displayName="Title" type="PlainText" ><![CDATA[Button]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">
+                    <E>$$headerTextColor</E>
+                </Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="text">
+                <TextContent>$title</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>
+                    var paddingButton = 4;
+                    var arrowpadding = $iconSize.value=="small" ? 20 : ($iconSize.value=="medium" ? 28 : 34);
+                    var paddingWithNoIcon = ($iconSize.value=="small" ? 5 : ($iconSize.value=="medium" ? 8 : 10)) + paddingButton;
+                    var paddingWithIcon = ($iconSize.value=="small" ? 21 : ($iconSize.value=="medium" ? 29 : 37)) + paddingButton;
+                    if(!$withIcon.value) new Bound(paddingWithNoIcon, paddingButton, $box.w - 2*paddingWithNoIcon, $box.h - (2*paddingButton + arrowpadding))
+                    else {
+                      if($iconPosition.value == "left") new Bound(paddingWithIcon, paddingButton, $box.w - (paddingWithNoIcon + paddingWithIcon), $box.h - 2*paddingButton - arrowpadding)                  
+                      else if($iconPosition.value == "right") new Bound(paddingWithNoIcon, paddingButton, $box.w - (paddingWithNoIcon + paddingWithIcon), $box.h - 2*paddingButton - arrowpadding)
+                      else if($iconPosition.value == "top") new Bound(paddingWithNoIcon, paddingWithIcon, $box.w - 2*paddingWithNoIcon, $box.h - paddingWithIcon)
+                      else new Bound(paddingWithNoIcon, paddingButton, $box.w - 2*paddingWithNoIcon, $box.h - paddingButton)
+                    }
+                  </Arg>
+                  <Arg>
+                    var h = 0;
+                    var v = 0;
+                    $textPosition.value == "center" ? h = 1 : ($textPosition.value == "left" ? h = 0 : h = 2);
+                    ($iconPosition.value == "left" || $iconPosition.value == "right") ? v = 1 : v = 0;
+                    if (!$withIcon.value) v = 1;
+                    new Alignment(h, v)
+                  </Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    if ($iconPosition.value == "left") paddingButton
+                    else if ($iconPosition.value == "right") $box.w - iconSize - paddingButton
+                    else ($box.w - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var paddingButton = 4;
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    var arrowpadding = $iconSize.value=="small" ? 20 : ($iconSize.value=="medium" ? 28 : 34);
+                    if ($iconPosition.value == "top") paddingButton
+                    else if ($iconPosition.value == "bottom") ($box.h - arrowpadding - iconSize - paddingButton)
+                    else ($box.h - arrowpadding - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Visibility>$withIcon.value</Visibility>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>                    
+                      var arrowWidth = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34);
+                      ($box.w - arrowWidth)/2 
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                      var paddingButton = 4;
+                      var arrowHeight = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29);
+                      $box.h - (arrowHeight + 2)
+                    </Arg>
+                </Attr>
+            </For>
+            <For ref="line1">
+              <D>
+              var paddingButton = 4;
+              var arrowpadding = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 33);
+              [M(paddingButton, $box.h - arrowpadding), L($box.w - paddingButton, $box.h - arrowpadding)]</D>
+              <Transform>[translate(0, 0.5)]</Transform>
+            </For>
+            <For ref="line2">
+              <D>
+              var paddingButton = 4;
+              var arrowpadding = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 33);
+              [M(paddingButton, $box.h - arrowpadding + 1), L($box.w - paddingButton, $box.h - arrowpadding + 1)]</D>
+              <Transform>[translate(0, 0.5)]</Transform>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <text id="text" />
+              <image id="icon" x="0" y="0" preserveAspectRatio="none"/>
+              <image id="arrow" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAdCAYAAADPa766AAAABHNCSVQICAgIfAhkiAAAAJ1JREFU
+SInt0iEOwkAQRuFZBMGhSYNFcYJKPJY7cItaLsEteoO6HgGDwaAwCAwPs2JEQ7dJuzX/0zOTT4yZ
+UkqpcQupg0BhZuXA+/cQQjtwpxeyBBrSewG7UREOswEeCYgvcJwE4TAl8OmBVJMiHOb8B1EDiyyQ
+iLl2IG7AOhsiQlZA6xBvYJ8V4TBb4Bmf8zQLwmEOwGVWhFJKqY5+oyX2u2IUZsgAAAAASUVORK5C
+YII="/>
+              <path id="line1" style="stroke:#000000;stroke-width:1px;stroke-opacity:0.1"/>
+              <path id="line2" style="stroke:#ffffff;stroke-width:1px;stroke-opacity:0.2"/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="iconOnlySplitBottomButton" displayName="Icon Only Split Bottom Button" icon="Icons/iconOnlySplitBottomButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">23,42</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="iconSize" displayName="Icon Size" type="Enum" p:enumValues="['small|Small', 'medium|Medium', 'large|Large']">small</Property>              
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[26,26,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAOlJREFU
+SInt1TEOwiAUxvE/0M42HsCh0VlX46AX8gzGM3gCb+IVPInGwTiU4tIYa0vLs+1ifAvJFx6/EAgo
+5xySyshWEWoK5ijp05LJDx4ThUrBJMBc0htJkJh4bTBpEW2K8RzSH7SjGgQgKbCgnbVCHkSMNUIt
+iAjzQoFIMFYLCZEgrAJ9ibRiJagj0oi9oJ4QL6YHQGox5ZybWuyyZ+S9rsBJg50NiAAkYBfK83rv
+Oi6+/wxEr3eX+j0o+D8CHHApR/kItOkZynPQh3Kmt8A4pPv3zugPfV2eW5fbaqbv1czeQI1q5laS
+J2zlP998DWoGAAAAAElFTkSuQmCC
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>                
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($selected.value ? "#266FA3" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#358ac8")</StopColor>                
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($selected.value ? "#0E5A91" : "#3892d3")</StopColor>                
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($selected.value ? "#0F5F99" : "#4b9cd7")</StopColor>                
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    ($box.w - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                    var iconSize = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32);
+                    var arrowpadding = $iconSize.value=="small" ? 20 : ($iconSize.value=="medium" ? 28 : 34);
+                    ($box.h - arrowpadding - iconSize)/2
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 24 : 32)</Arg>
+                </Attr>
+            </For>
+            <For ref="group">
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$disabled.value ? 0.5 : 1</Arg>
+                </Attr>
+            </For>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29)</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>                    
+                      var arrowWidth = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 34);
+                      ($box.w - arrowWidth)/2 
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>
+                      var paddingButton = 4;
+                      var arrowHeight = $iconSize.value=="small" ? 16 : ($iconSize.value=="medium" ? 23 : 29);
+                      $box.h - (arrowHeight + 2)
+                    </Arg>
+                </Attr>
+            </For>
+            <For ref="line1">
+              <D>
+              var paddingButton = 4;
+              var arrowpadding = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 33);
+              [M(paddingButton, $box.h - arrowpadding), L($box.w - paddingButton, $box.h - arrowpadding)]</D>
+              <Transform>[translate(0, 0.5)]</Transform>
+            </For>
+            <For ref="line2">
+              <D>
+              var paddingButton = 4;
+              var arrowpadding = $iconSize.value=="small" ? 19 : ($iconSize.value=="medium" ? 27 : 33);
+              [M(paddingButton, $box.h - arrowpadding + 1), L($box.w - paddingButton, $box.h - arrowpadding + 1)]</D>
+              <Transform>[translate(0, 0.5)]</Transform>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                <stop style="stop-color:#4b9cd7;stop-opacity:1" offset="0" id="stop4" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="0.5" id="stop3" />
+                <stop style="stop-color:#358ac8;stop-opacity:1" offset="0.51" id="stop2" />
+                <stop style="stop-color:#3892d3;stop-opacity:1" offset="1" id="stop1" />
+              </linearGradient>
+            </defs>
+            <g id="group">
+              <rect id="background" style="stroke: #126DAF; stroke-width: 1px;fill: url(#linearFill);fill-opacity:1;" rx="3" ry="3"/>
+              <image id="icon" x="0" y="0" preserveAspectRatio="none"/>
+              <image id="arrow" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAdCAYAAADPa766AAAABHNCSVQICAgIfAhkiAAAAJ1JREFU
+SInt0iEOwkAQRuFZBMGhSYNFcYJKPJY7cItaLsEteoO6HgGDwaAwCAwPs2JEQ7dJuzX/0zOTT4yZ
+UkqpcQupg0BhZuXA+/cQQjtwpxeyBBrSewG7UREOswEeCYgvcJwE4TAl8OmBVJMiHOb8B1EDiyyQ
+iLl2IG7AOhsiQlZA6xBvYJ8V4TBb4Bmf8zQLwmEOwGVWhFJKqY5+oyX2u2IUZsgAAAAASUVORK5C
+YII="/>
+              <path id="line1" style="stroke:#000000;stroke-width:1px;stroke-opacity:0.1"/>
+              <path id="line2" style="stroke:#ffffff;stroke-width:1px;stroke-opacity:0.2"/>
+            </g>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="Checkbox" displayName="Check Box" icon="Icons/checkbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="checked" displayName="Checked" type="Bool">false</Property>
+                <Property name="focused" displayName="Focused" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Text" type="PlainText"><![CDATA[Check box]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="image">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                      $checked.value ?
+                      ( !$focused.value ?                                  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAXJJREFUKJGd0r2KIkEQwPF/N4KDzCvMmpuMYir4HH6LoOI9wOGDCBsaXyjMIJjIwZkNZvMCF4jRRSMY9FRdcLuD3t66yxUUdEP/6OrqMvxHzGazr8B3A5AkSRdYAK2P4OFw+Jmm6ZOq/ioB5Hm+qNVqLd/3H8IoikjT9AlQVf1S4s+q5fs+qvoQRlGEtZZ2u206nc63EoCIoKrv4jiOCziZTHDOAWBfykZVEZE3eXvjeDym2WyS5/k9TpKE9XqNc66AcRwTxzHWWkajEY1GA1UtcAnger2y2Wy4XC6ICIPBgN1ux3a7xVrLcDikXq8jIlhr77ExhsViwWq14ng8cjqdOJ/PWGvp9/uEYYiI8NLct2+uVqvM53M8zytgr9cr4Gveln3XsCAImE6nVCoVut0uYRgWv3Cbd2W/bkSEIAhYLpd4nleU+nfcYRH5kWVZMSjlcvmfyBhDlmU45w4Fds497/d7jDEfzjZwUNXnT5x7HL8B6t7+LmbmV9sAAAAASUVORK5CYII="                          :"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAblJREFUKJGdkr1rU2EUxn/nvffN1VbxmsqlCqZDUVCK6J61rbVaRFx0c6yDg4OLgoNLwaRFFKPgPyAOIiK4JRGrLoIfi0IXi8UkpY1DCpa8Hw63toRYAx54tvM7D885R/iPSq6/v2adrwrAqYefLgpqGiHfC/y2ahcbLZsDVkMAj5q+NbY/f2Jo7z/BQrlGYbGW8x4P/nJISueP52Kcc9uCxUqdYqVOoIShOJB3V489VikLzrltVSjXUlCEe+cOEvcpABSA8ylsre1SsVJnttogELhz9gCnj+zGebZg7+HZ5yZXnn5nvW0wJtVstcHcq2UCgbkzg0wc7sNai9+AQ4C2gxsv6/z8ZTHOU5hMuP+2yd03TQKB4mTCyQ1QRDadQwAlwqPzg1x68oMXX1p8XV5nYaVNIHB7Yh/jh3ZirQVARPBIZ+aRRPNgaoBdGcXCShslMDOeZXQ42oxhjMFa253ZOcdIElKayrJnh2JmNGZsOPrr9jsy/5lkjOHogPD8Qpb+jGCM6bq31rrT2Xn/+sNSiyiK0FoT92fQWncpiiI+Lq3h8fNbzkjpZrkFstbzt/F+Hi+lnn296jceEu2UOrelXAAAAABJRU5ErkJggg==")              
+                      : ( !$focused.value ? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAKtJREFUKJGlkrENg1AMRJ9RSsahZJJskInYIGtQQIovsc3/pc2lSVCkIPJFrrTu6Sz74A8ZwLIsV+AG9BXMDAxd190BSClNOWfVKOeslNIEcAGQ1Ldti6SfsS9fv8HruiKpCn77NzgikLQNj9Q0DRFxDjaz8/BXsrtXw5Jw93PJkvbXrrn2LgxUJX/633+eSyk/i2JmlFKIiMcGu/swjiNmVtPth6ShasUjPQGBp8HW9ih1vgAAAABJRU5ErkJggg==" : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAOJJREFUKJGlkrFNA0EQRd/sebWpK3AJyAVcA6YEGkBUQRmna8AlkBLYDi0Bcu7IInJmZzczDo4zBxLaBUaa7L95mtmFf5QA3LZvd0J4QKizhLN2rHm6v1kCsGh3q+3+6GaW7e3+6It2twKYfEyr57MpZpYVz2dT8Pf6CjtgZrh7fk8RhtQEwLyHS8whBMxHsDuoKqqahauqwsfwYC6BReSbGSk29zvLV7Oq0nXdH8y/OFj/KiN4mFRijjFe86GHff1yOJFSIsb4Y6eUeD2ccXzzaUaax+cTyLngb/sGlyaby9UFWRmhbZeIAqkAAAAASUVORK5CYII=")
+;
+                    </Arg>
+                    <Arg>PencilNamespaces.xlink</Arg>
+                </Attr>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <BoxFit>
+                    <Arg>new Bound(20, 0, 15, 15)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <image id="image" x="0" y="0" width="15" height="15" preserveAspectRatio="none"  />
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Checkbox - Checked" icon="Icons/checkbox_checked.png" to="Checkbox">
+        <PropertyValue name="checked">true</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="radioButton" displayName="Radio Button" icon="Icons/radioButton.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="checked" displayName="Checked" type="Bool">false</Property>
+                <Property name="focused" displayName="Focused" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Text" type="PlainText"><![CDATA[Radio Button]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="image">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                      $checked.value ?
+                      ( $focused.value ?                                  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAl9JREFUKJF1kk9IFGEYxp/vmxnH8d+sW4FpgeWtKenooe6R0ZYURMdItIMXM8w6FKFImB2kPKzRJYJAxUKRCPpzrFuuO1IWdDBDWnedHXN2Zne/7+0gO/gHH3jgg9/7PLy8fAw7dGfS7kr7rGct4A1BkSm6SqJWl8tRg4YH26yRrbOs9OibSFzI5pX+yopq65wVgXXQgGkocHMC9koOs7aD7L/1haiB+wNt1njYcHc8EYvFF2kmuUZSyj09azsUiy/S7XH7chi+8dJOTs9vBoUQe7pU0PHCtgGA3Xo130W6OfLwfAOIaOcJdokxhr7pZYic081XA9bTapmQUoZeSrnoHP2E031v0DH6Eb9X17fxViuCTJ5387SnHDpRb0BKCSICEaF/MgE7JcGrolhIEQanEiGTUuJYnY5MTqlXPcG5qTMUiyJc7UdaoKwyAqaoIFHEr4wHKWXITV2FV+Sc60xKx98EpfbmI/vBNQ1cUcA1DVZjNGQA4PgSOpeSm3pxaW7ZD1eSUqL3bBNONlSAM+B4nYGbZ46GjIhgrwSo0Qp/VFPND00l3CenGg9ACAEiQm05x9ClJiiKAiEEfN+HlBKMMXDOMZXIokYJHgMAro7NfZtOOuR5HrmuS9lsdpdd16WNjQ2aSTp0Jf71OwBwAKhS/QeP3v/F28UAmqaBcx7eAAA459A0De9+5jH8IYVqXujf9revj32OrQt9IBLZZ11sNtFcp6HWYFjzCfMrBbxOuEhnUgs1av7es/aWiW3hkq7Fv3Q6oqw3Wyg/nBOKYnAhTc1fimjB0PP2lqdbZ/8DWleUBf2v2zIAAAAASUVORK5CYII="                          :"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAjVJREFUKJF1kr9LHEEYhp+Z3T1UPGHRdSHIimJ3KQKCVyQKWgsK2tjYX/yDLoGQRgQFS+skF60U/BGCrVx1t+wdKx4Hwux8k0YXI/jCwMD7PjPvN4zilc7Pz1eUUg2l1DIQAT3n3Klzrrm0tNR6mVXPm4uLi/fOuc/VarUxPT3N+Pg4QRBQFAWDwYAsyxgMBl9FpFmv129K+OzsrFapVP7Ozs4SRdHrMqWyLKPdbuOc+1Cv1280gOd5e0mSEEURzrk3VxRFJEmCtbYBoFqt1koYhq1arYZz7s1byzmV4vb2ln6/v+YrpRpxHCMiJdzr9djf36fdbpMkCbu7u0xNTZVwHMfked7QRVGsTkxMlLBzjoODAzqdDqOjo3S7XQ4PD0tPRKhWq1hrP/kiEvu+T1EUZbVut8vY2Bhaa0SELMsQkdJ/ysdaRFJjDEB5+sLCAr7v43kevu8zPz9fegDGGEQk1dbaH3mel5VEhK2tLZIkQSnFzMwMm5ubpeec4/7+HhE5UycnJ8thGP5eXFzEGINzDq01IyMjeJ6HtZbHx0dEBKUUQRBweXlJlmVren19/bTf739L0xTP8wCw1jIcDnl4eGA4HGKtBUBrTZqmZFn2fWNj46d+mqF5dXVFp9MhCAK01uUbPENBEJCmKdfX1xhjmv/97ePj4xqwNzk52ZibmyMMQyqVCsYY8jzn7u6OXq/3BWhub2//+Q9+1tHR0UegoZRaVUq9AzrAr6Iomjs7O6cvs/8AfEZGm2piCOMAAAAASUVORK5CYII=")              
+                      : ( $focused.value ? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAfNJREFUKJGNUktrE2EUPXO/mUxTYiYNgpLSP2BiVj5+hJWoCK5cWLQUxE2xWKmLLnyAT7SKGgQXXYlUgxatrnTZbZKJpLps66N5TComM53Mva6MNVKaA2d3zrmcw9XQhakX9ljVpQs1VxtyfU31GRLETV6Oh/nG1WOpB5u12l9TPlN31ZVwOJIcTsawN9GPeL+OWrMN+2sL87aDX82fthUKLl07ns51EibnCicOPy7L62JdmHlLzhfrkskuycW5wsmOeWzWLr21HWFmCYJgSzKzvPvkyOhsqQwA2sSz/Fk2YvevZwYhIt0T/AdN0zD5agXsOuNUddXEoZQFZu6Zw6kYahs0rleaNJROhMHM214FABHBnt0mai2V0JsBkWVqaLeDnswAYJk6mm0i3dSYHZcpoqPnzg2XYWrMFAu1l/OrHkSkp74iguI3D9GQv0pR3bv5Mt8AEW0bICIgIuQKDUSVd5sento3U6tX7TflFpRSnVG6CQBKKSwstbBWrZYejey/QwCwQ3enZj5WsPB5A4ZhgIg6IQBARDAMA++/eLj7oYKI4U0Dm3579MnikUY7dDk+sDN5NB1FcpcBq0/Duiuwv/vIFdbxo7pWGjD86ezpg8//Mf/BSHbxXCMInXd8c9BjpUziwDLcFUv3bz09c+DeZu1vTcV1K9fWOb4AAAAASUVORK5CYII=" : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAbZJREFUKJGNksGK2mAUhb//T+JKRUSj3Siu7aIbcVGnlHkBd+IrpH2eNswb6FOMVdxooTTUtWQVa0Qjukri/3czih0Q58CBuzjn3Hu5V/AK8/n8oxDCAT4D74BAaz1WSrntdntyrRXnYjabNYGv2WzWsW2bXC5HJpMhjmOOxyPr9ZrD4eAKIb63Wq0/F/N0Ov1gWdavWq2Gbduvh7kgDEN83yeO41an0/kpAYQQTr1ex7ZttNY3WS6XqdfrSCkdADEajR6KxeK42Wyitb7Z9bKnECwWC7bb7aMppXQqlQpKqTebq9UqURQ5Zpqmj/l8HqXUXSOA1ppcLsfpdOqYSqmKaZqkafomM8CLviKVUn+TJLmk3iNAkiQopdYyTdPn3W6H1hql1F1qrYmiCKXURCZJ4vq+j5TyboDWGinl+dau7Ha74zAM3SAIMAzj5vgAhmEQBAFhGD51u91n+bLDN8/zWK1WWJaFlPISAiClxLIsVqsVnueRpqkLV789GAzem6b5pVQqOY1Gg0KhcPnt/X7Pcrlks9k8JUni9vv93/+ZzxgOh58ARwjxANhACEwAt9fr/bjW/gMVlj1UCxlQEwAAAABJRU5ErkJggg==")
+                    </Arg>
+                    <Arg>PencilNamespaces.xlink</Arg>
+                </Attr>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <BoxFit>
+                    <Arg>new Bound(20, 0, 15, 15)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <image id="image" x="0" y="0" width="15" height="15" preserveAspectRatio="none"  />
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="RadioButton - Checked" icon="Icons/radioButton_checked.png" to="radioButton">
+        <PropertyValue name="checked">true</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="slider" displayName="Slider" icon="Icons/sliderField.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" p:lockHeight="true" type="Dimension">200,8</Property>
+                <Property name="checked" displayName="Checked" type="Bool">false</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="a" displayName="Handle" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w">50,0</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="handle">                
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>$a.x - 7</Arg>
+                </Attr>
+            </For>
+            <For ref="frame">
+                <Box>$box</Box>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+        </Behaviors>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <rect id="frame" rx="4" ry="4" style="stroke:#d1d1d1; stroke-width:1px; stroke-opacity: 0.87; fill: #f5f5f5"/>
+            <image id="handle" x="0" y="-3" width="15" height="15" preserveAspectRatio="none"  xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAjVJREFUKJF1kr9LHEEYhp+Z3T1UPGHRdSHIimJ3KQKCVyQKWgsK2tjYX/yDLoGQRgQFS+skF60U/BGCrVx1t+wdKx4Hwux8k0YXI/jCwMD7PjPvN4zilc7Pz1eUUg2l1DIQAT3n3Klzrrm0tNR6mVXPm4uLi/fOuc/VarUxPT3N+Pg4QRBQFAWDwYAsyxgMBl9FpFmv129K+OzsrFapVP7Ozs4SRdHrMqWyLKPdbuOc+1Cv1280gOd5e0mSEEURzrk3VxRFJEmCtbYBoFqt1koYhq1arYZz7s1byzmV4vb2ln6/v+YrpRpxHCMiJdzr9djf36fdbpMkCbu7u0xNTZVwHMfked7QRVGsTkxMlLBzjoODAzqdDqOjo3S7XQ4PD0tPRKhWq1hrP/kiEvu+T1EUZbVut8vY2Bhaa0SELMsQkdJ/ysdaRFJjDEB5+sLCAr7v43kevu8zPz9fegDGGEQk1dbaH3mel5VEhK2tLZIkQSnFzMwMm5ubpeec4/7+HhE5UycnJ8thGP5eXFzEGINzDq01IyMjeJ6HtZbHx0dEBKUUQRBweXlJlmVren19/bTf739L0xTP8wCw1jIcDnl4eGA4HGKtBUBrTZqmZFn2fWNj46d+mqF5dXVFp9MhCAK01uUbPENBEJCmKdfX1xhjmv/97ePj4xqwNzk52ZibmyMMQyqVCsYY8jzn7u6OXq/3BWhub2//+Q9+1tHR0UegoZRaVUq9AzrAr6Iomjs7O6cvs/8AfEZGm2piCOMAAAAASUVORK5CYII="/>            
+        </p:Content>
+    </Shape>
+    
+    <Shape id="tabFrame" displayName="Basic Tab Panel" icon="Icons/basicTabFrame.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">400,210</Property>
+                <Property name="withHeader" displayName="With Header" type="Bool">true</Property>
+                <Property name="withFrame" displayName="With Frame" type="Bool">false</Property>
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$primaryFillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="content" displayName="Content" type="RichText" ><![CDATA[Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.]]></Property>
+                <Property name="textColor" displayName="Text Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textFont" displayName="Text Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>                
+                <Property name="textAlign" displayName="Align" type="Alignment">0,0</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="frame">
+                <Attr>
+                  <Arg>"width"</Arg>
+                  <Arg>$box.w + 10</Arg>
+                </Attr>
+                <Attr>
+                  <Arg>"height"</Arg>
+                  <Arg>$box.h + 10</Arg>
+                </Attr>
+                <Fill>$fillColor</Fill>
+                <Visibility>$withFrame</Visibility>
+            </For>        
+            <For ref="rect">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="header">
+                <Fill>$fillColor</Fill>
+                <Bound>new Bound(0 , 0 , $box.w, 36)</Bound>
+                <Visibility>$withFrame.value || $withHeader.value</Visibility>
+            </For>
+            <For ref="content">
+                <TextContent>$content</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                  <Arg>($withFrame.value || $withHeader.value) ? new Bound(10, 46, $box.w - 20, $box.h - 56) : Bound.fromBox($box, 10, 10)</Arg>
+                  <Arg>$textAlign</Arg>
+                </BoxFit> 
+            </For>           
+            <For ref="tabPadding">
+                <Bound>($withHeader.value || $withFrame.value) ? new Bound(0, 31, $box.w, 5) : new Bound(0, -5, $box.w, 5)</Bound>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var withHeader = this.getProperty("withHeader");
+                        var withFrame = this.getProperty("withFrame");
+                        if(withFrame.value) {
+                          return [
+                              new SnappingData("Top", b.y + 5, "Top", false, this.id), 
+                              new SnappingData("Left", b.x + 5, "Left", true, this.id), 
+                              new SnappingData("Right", b.x + b.width + 5, "Right", true, this.id)]
+                        } else {
+                          if(!withHeader.value)
+                            return [new SnappingData("Top", b.y, "Bottom", false, this.id)]
+                        }
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">         
+            <rect id="frame" stroke="none" x="-5" y="-5" rx="4" ry="4"/>
+            <rect id="rect" stroke="none" style="fill: white;"/>
+            <rect id="header" stroke="none"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="content">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                </div>
+            </foreignObject>
+            <rect id="tabPadding" stroke="none" style="fill: #ADD2ED;"/>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Blank Tab Panel" icon="Icons/blankTabFrame.png" to="tabFrame">
+        <PropertyValue name="withHeader">false</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Frame Tab Panel" icon="Icons/tabFrame.png" to="tabFrame">
+        <PropertyValue name="withFrame">true</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="tab" displayName="Tab" icon="Icons/tab.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">80,31</Property>
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$primaryFillColor</E></Property>
+                <Property name="withIcon" displayName="With Icon" type="Bool">false</Property>
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['active|Active', 'inactive|Inactive', 'disabled|Disable']">active</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="title" displayName="Title" type="PlainText" ><![CDATA[Tab]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">
+                    <E>$$headerTextColor</E>
+                </Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Icon">
+                <Property name="image" displayName="Image" type="ImageData"><![CDATA[32,32,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAABHNCSVQICAgIfAhkiAAAAVhJREFU SInt1TFLw0AYxvH/m0tsoAhuRe2is4uLQjdXJ/EDOBX8TK6OrkL9Dk4d3CriUJzERZpW29zrUAJp uLa5NmTy2fKQy48jx72iqnjGADEQAN8+C0NfKCFpNWh0DBgwPR/QBzMJSSsmug7QrqJfMq9Lg4E/ JF1FY+BAsbeQXgK7VWEuKIsXuA5bBXmDq7AykBe4DPOBSoMubBOoFFjEtoHWgnmsCmglmGFVQktB UVUD431LeFUhlM+HENyB6YVADNEJ6LnCAASgCXq8BTACecseLLaTYl/FfetPzxTuN5UEniG6yVVm yHCn7N24bdI27XFdGOA3YhSYsDhODNBkPkwrxX4U+oo+ZYUge8CFwGnV2BRkYIgect2hZXYEWgqr 9Z/9Y5XEeUCmYEMYLbYygvS3sESD+SldeNfCxLULJxYRfcLssVBPBPNS6BKQvhRKQd5d3601f0mJ oJpe0jtXAAAAAElFTkSuQmCC 
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Fill>$type.value == "active" ? Color.fromString("#ADD2ED") : Color.fromString("#4B9CD7")</Fill>
+            </For>
+            <For ref="footer">
+                <Bound>new Bound(0, $box.h - 3, $box.w, 3)</Bound>
+                <Fill>$type.value == "active" ? Color.fromString("#ADD2ED") : Color.fromString("#4B9CD7")</Fill>
+            </For>
+            <For ref="text">
+                <TextContent>$title</TextContent>
+                <Fill>$type.value == "active" ? $fillColor : ($type.value == "inactive" ? $headerColor : Color.fromString("#ffffff4d"))</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>
+                    if(!$withIcon.value) Bound.fromBox($box, 12)
+                    else new Bound(34, 0, $box.w - 46, $box.h)
+                  </Arg>
+                  <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : "";
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>($box.h - 14)/2</Arg>
+                </Attr>
+                <Visibility>$withIcon.value</Visibility>
+                <Attr>
+                  <Arg>"opacity"</Arg>
+                  <Arg>$type.value == "disabled" ? 0.3 : 1</Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                          new SnappingData("AddingRight", b.x + b.width + 1, "Left", true, this.id)
+                          ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <rect id="footer" style="stroke: none"/>
+            <rect id="background" style="stroke: none" rx="3" ry="3"/>
+            <text id="text" />
+            <image id="icon" x="12" y="0" width="14" height="14" preserveAspectRatio="none"/>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Tab - Inactive" icon="Icons/tabInactive.png" to="tab">
+        <PropertyValue name="type">inactive</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Tab - Disabled" icon="Icons/tabDisabled.png" to="tab">
+        <PropertyValue name="type">disabled</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="groupBox" displayName="Groupbox" icon="Icons/groupBox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">250,150</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Text" type="PlainText"><![CDATA[header]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+			<For ref="header">
+                <TextContent>$text</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <BoxFit>
+                    <Arg>new Bound(14, -F.textSize("header").h / 2, F.textSize("header").w - 1, F.textSize("header").h)</Arg>
+                    <Arg>new Alignment(1, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="bg">
+                <D>
+                [
+                  M(0, 0), L(10, 0), M(16 + F.textSize("header").w, 0), L($box.w, 0),
+                  L($box.w, $box.h), L(0, $box.h), L(0, 0)
+                ]	//depends $text, $textFont
+              </D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <text id="header"/>
+			<path transform="translate(0.5, 0.5)" id="bg" style="stroke: #B5B8C8; stroke-width: 1px; fill: none;"/>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="columnHeader" displayName="Column Header" icon="Icons/columnHeader.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">150,30</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>                
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['first|First', 'center|Center', 'last|Last', 'only|Only']">center</Property>
+                <Property name="sort" displayName="Sort" type="Enum" p:enumValues="['ascending|Ascending', 'descending|Descending']">ascending</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="header" displayName="Header" type="PlainText" ><![CDATA[Column]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">#666666ff</Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Fill>$selected.value ? Color.fromString("#EEF6FBFF") : Color.fromString("#f5f5f5ff")</Fill>
+            </For>
+            <For ref="text">
+                <TextContent>$header</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>new Bound(10, 0, $box.w - 6, $box.h)</Arg>
+                  <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line">
+                <D>
+                if($type.value == "first") [M(0,0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h)]
+                else if($type.value == "center") [M(0,0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), z]
+                else if($type.value == "last") [M($box.w, 0), L(0, 0), L(0, $box.h), L($box.w, $box.h)]
+                else [M(0,0), L($box.w, 0), M($box.w, $box.h), L(0, $box.h)]
+                </D>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>            
+                   $sort.value == "ascending" ? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAFhJREFUOI1jYBjUYObMmfUzZ86sx6eGEZ9mBgaGBii3IT09vZFoA9A0wwBWQzAMwKEZpyEoBhDQjNUQfGFgw8DAcBjKtU1PTz+CTR0TAdsIglEDqGDAwAMAaRsdpqFlP24AAAAASUVORK5CYII="                   :"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAGFJREFUOI1jYBhowIhLYubMmTYMDAyHoVzb9PT0I9jUMVHqglEDqGAASjROnz69gYmJqR6fhn///jVmZmY2YDWAkCHomrEagMsQbJpxGoBuCC7NBMH06dMbpk+fTrpGugIANNwpnGoxlWsAAAAASUVORK5CYII="
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>11 + F.textSize("text").w //depends $header, $headerFont</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>($box.h - 16)/2</Arg>
+                </Attr>
+                <Visibility>$selected.value</Visibility>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                              new SnappingData("AdddingRight", b.x + b.width, "Left", true, this.id), 
+                              new SnappingData("AddingLeft", b.x, "Right", true, this.id),
+                              new SnappingData("CellSnapping", b.y + b.height + 1, "CellSnapping", false, this.id),
+                              new SnappingData("BottomToTop", b.y + b.height, "Top", false, this.id)]
+                             
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <rect id="background" style="fill: #ffffff;"/>            
+            <path id="line" style="stroke-width: 1px; stroke: #c0c0c0; fill: none"/>
+            <image id="icon" width="16" height="16" preserveAspectRatio="none" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="columnHeader - Selected" icon="Icons/columnHeaderSelected.png" to="columnHeader">
+        <PropertyValue name="selected">true</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="gridGroup" displayName="Grid Group - Expand" icon="Icons/gridGroup.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">150,33</Property>
+                <Property name="fillColor" displayName="Background Color" type="Color">#f5f5f5ff</Property>
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['collapse|Collapse', 'expand|Expand']">expand</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="header" displayName="Header" type="PlainText" ><![CDATA[Group]]></Property>
+                <Property name="headerColor" displayName="Header Color" type="Color">#666666ff</Property>
+                <Property name="headerFont" displayName="Header Font" type="Font">
+                    <E>$$headerTextFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Fill>$fillColor</Fill>
+            </For>
+            <For ref="text">
+                <TextContent>$header</TextContent>
+                <Fill>$headerColor</Fill>
+                <Font>$headerFont</Font>
+                <BoxFit>
+                  <Arg>new Bound(22, 0, $box.w - 22, $box.h)</Arg>
+                  <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line">
+                <D>[M($box.w, $box.h), L(0, $box.h)]</D>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+            <For ref="icon">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>            
+                   $type.value == "expand" ? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAABHNCSVQICAgIfAhkiAAAAHBJREFUGJWNkVsKgEAIRY/RJoeCWVtQzLaCoG3Yh9M8wIHxS/Tgvarcz6sAIEBOu6j1tdTUAzFQLFu8droOV8GFRwqTsPmQf8F0etIWYY89nJUA8xy22A4FBgt6FtApWItitTE4swKSh9eniA9L88EPL4ojo48jrg8AAAAASUVORK5CYII="                   :"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAABHNCSVQICAgIfAhkiAAAAGZJREFUGJWVkVEKgEAIRGeWLhkEnW0/omsFQdewD8U1UNj8kuGpw8jrfgQAAAKw9lNDX1yTDISC1K4VRHrhByyzsPpwz+fRS3Tddh0ZaaAOw2rCBn3RBCx+sUUtRcWWMz6FOczwwRcbWhhq1r3YaQAAAABJRU5ErkJggg=="
+                    </Arg>
+                    <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>($box.h - 11)/2</Arg>
+                </Attr>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                          new SnappingData("BottomToTop", b.y + b.height + 1, "Top", false, this.id),
+                          new SnappingData("CellSnapping", b.y, "CellSnapping", false, this.id),
+                          ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <rect id="background" style="fill: #ffffff;"/>            
+            <path id="line" style="stroke-width: 1px; stroke: #c0c0c0; fill: none"/>
+            <image id="icon" x="5" width="11" height="11" preserveAspectRatio="none" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Grid Group - Collapse" icon="Icons/gridGroupCollapse.png" to="gridGroup">
+        <PropertyValue name="type">collapse</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="cell" displayName="Cell" icon="Icons/cell.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">150,25</Property>
+                <Property name="fillColor" displayName="Background Color" type="Color">#ffffffff</Property>
+                <Property name="withSplit" displayName="With Split" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">                
+                <Property name="text" displayName="Text" type="PlainText" ><![CDATA[Cell Item]]></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Text Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>  
+            <For ref="background">
+                <Box>$box</Box>
+                <Fill>$fillColor</Fill>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                  <Arg>new Bound(10, 0, $box.w - 6, $box.h)</Arg>
+                  <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line">
+                <D>
+                $withSplit.value ? [M(0, $box.h), L($box.w, $box.h), L($box.w, 0)] :
+                [M($box.w, $box.h), L(0, $box.h)]</D>
+                <Transform>[translate(0.5, 0.5)]</Transform>
+            </For>
+        </Behaviors>        
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                              new SnappingData("CellSnapping", b.y, "CellSnapping", false, this.id),
+                              new SnappingData("BottomToTop", b.y + b.height + 1, "Top", false, this.id)]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <rect id="background" style="fill: #ffffff;"/>            
+            <path id="line" style="stroke-width: 1px; stroke: #ededed; fill: none"/>
+            <text id="text" />
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Cell - With Split" icon="Icons/cellWithSplit.png" to="cell">
+        <PropertyValue name="withSplit">true</PropertyValue>
+    </Shortcut>
+    
+    <Shape id="parentTreeItem" displayName="Parent Tree Item - Expand" icon="Icons/parentTreeItemExpand.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="folderType" displayName="Type" type="Enum" p:enumValues="['collapse|Collapse', 'expand|Expand']">expand</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Text" type="PlainText"><![CDATA[item]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Image">
+            <Property name="image" displayName="Image" type="ImageData"><![CDATA[16,16,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAADpJREFUOI1jYBhowLh+/fr/WMQvfPjwwTExMfEDIQOYcIgbCAgI7J8/f74AuS4gGuBywagBowYMMQAAfTAPL7Jgfg4AAAAASUVORK5CYII=]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="arrow">
+                <Attr>
+                    <Arg>"xlink:href"</Arg>
+                    <Arg>
+                      if($folderType.value == "collapse")                           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAYCAYAAAD3Va0xAAAABHNCSVQICAgIfAhkiAAAAH9JREFUOI3tkDEOAjEQA21ExwOvhWo3yofSwaNOPCXlmgakI5dQUZ0ypa11ogEmkyPCNiil3EleRweSHu5+a/PTbpnMkp6DkZVk7nW7ITOrkhYAtakqgMXM2rw/BAAppTUivl6OiOzu3Z8CHUdbPr5GXracf5VvH5eRl8nk37wAlTouSF+klOgAAAAASUVORK5CYII="
+                      else "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAYCAYAAAD3Va0xAAAABHNCSVQICAgIfAhkiAAAAIxJREFUOI3tkDEOAjEMBL2IiqcgWt5Cmy6y7kGxK/IdRIt4ypVZmisQknU5ISoyXbTReG2RweCHmNnV3Q+9/3dRACCRvJnZ8SvRIjsBuJdS0poIUeDufH+TrACmnPO8udFHuyQiNcq7RSSriKQo33c45tbapKphm1URySfJi6o+1qaFqy3HPfdIBn/PC5g+MN170o7dAAAAAElFTkSuQmCC"
+                    </Arg>
+                    <Arg>PencilNamespaces.xlink</Arg>
+                </Attr>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <BoxFit>
+                    <Arg>new Bound(40, 0, 30, 24)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                  <Arg>"xlink:href"</Arg>
+                  <Arg>$image.data</Arg>
+                  <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;                        
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");                        
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="loadFolder" displayName="Load Default Folder Icon">
+                <Impl>
+                    <![CDATA[                       
+                        var thiz = this;
+                        var folderType = thiz.getProperty("folderType");
+                        if(folderType.value == "collapse") 
+                          thiz.setProperty("image", new ImageData(16, 16,"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAG5JREFUOI3Nj1ENgDAMRHszwKRgASlTNgebBCzgYOCg+19yGICQdAtwn5fc66vI10HOmRf9pqpLCEGfAO6mn733a4zRWw3eC1JKCmCyjElWJyJ7h8D+AwCAYl0DKI6k2YDkgBdaa2ZArfXoOD4oJ8hYLiycD1SOAAAAAElFTkSuQmCC"));
+                        else
+                          thiz.setProperty("image", new ImageData(16, 16,"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAADpJREFUOI1jYBhowLh+/fr/WMQvfPjwwTExMfEDIQOYcIgbCAgI7J8/f74AuS4gGuBywagBowYMMQAAfTAPL7Jgfg4AAAAASUVORK5CYII="));
+                    ]]>
+                </Impl>
+            </Action>            
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                          new SnappingData("AddingLeft", b.x + 20, "Left", true, this.id),
+                          new SnappingData("ChildSnapping", b.x + 40, "ChildSnapping", true, this.id),
+                          new SnappingData("BottomToTop", b.y + b.height, "Top", false, this.id), 
+                          new SnappingData("TopToBottom", b.y, "Bottom", false, this.id)]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <image id="arrow" x="0" y="0" width="18" height="24" preserveAspectRatio="none"/>
+            <image id="icon" x="20" y="4" width="16" height="16" preserveAspectRatio="none"/>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Parent TreeItem - Collapse" icon="Icons/parentTreeItemCollapse.png" to="parentTreeItem">
+        <PropertyValue name="folderType">collapse</PropertyValue>
+        <PropertyValue name="image"><![CDATA[16,16,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAG5JREFUOI3Nj1ENgDAMRHszwKRgASlTNgebBCzgYOCg+19yGICQdAtwn5fc66vI10HOmRf9pqpLCEGfAO6mn733a4zRWw3eC1JKCmCyjElWJyJ7h8D+AwCAYl0DKI6k2YDkgBdaa2ZArfXoOD4oJ8hYLiycD1SOAAAAAElFTkSuQmCC]]></PropertyValue>
+    </Shortcut>
+    
+    <Shape id="childTreeItem" displayName="Child Tree Item" icon="Icons/checkTreeItem.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="type" displayName="Type" type="Enum" p:enumValues="['checked|Checked', 'unchecked|Unchecked', 'none|None']">none</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Text" type="PlainText"><![CDATA[item]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Image">
+            <Property name="image" displayName="Image" type="ImageData"><![CDATA[16,24,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAYCAYAAADzoH0MAAAABHNCSVQICAgIfAhkiAAAAG9JREFUOI3t0UEKgCAQheFeN3SuEi3CIAiDCOoo4xFfi3QTCurafyUo3ww4DD3Eg/eeuUckJxF5Undj0RTgVtW5GSC5A7hU1TYBIrKRPAC4P1IEBGQleQbEVQMBWQJiI1L0C7mMMajaIFUHOtD7egFjzC3Oy9qAQwAAAABJRU5ErkJggg==]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <BoxFit>
+                    <Arg>
+                    var x = ($type.value == "none") ? 40 : 60;
+                    new Bound(x, 0, 30, 24)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="icon">
+                <Attr>
+                  <Arg>"xlink:href"</Arg>
+                  <Arg>$image.data</Arg>
+                  <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Attr>
+                  <Arg>"x"</Arg>
+                  <Arg>($type.value == "none") ? 20 : 40</Arg>
+                </Attr>
+            </For>
+            <For ref="check">
+                <Attr>
+                  <Arg>"xlink:href"</Arg>
+                  <Arg>
+                  if($type.value == "checked")  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAYCAYAAAAlBadpAAAABHNCSVQICAgIfAhkiAAAAXlJREFUOI3t0r+KGlEUx/HvvQgOMq8wa28ziq3gc/hfBBXzAMEHEba0TinMINhIIHaD3bxACrFKNYLFnXNSZHfQ3WQ3Sb0/OHAv3A/33D/wkX+K+R80m80+A18NQJIkXWABtN6Dh8Phe5qmD6r6owSQ5/miVqu1fN9/E0ZRRJqmD4Cq6qcSv0Yt3/dR1TdhFEVYa2m326bT6XwpAYgIqvpHHMdxASeTCc45AOxT26gqIvKqbnccj8c0m03yPL/HSZKwXq9xzhUwjmPiOMZay2g0otFooKoFLgFcr1c2mw2XywURYTAYsNvt2G63WGsZDofU63VEBGvtPTbGsFgsWK1WHI9HTqcT5/MZay39fp8wDBERni739Zmr1Srz+RzP8wrY6/UK+Fy3bd9dWBAETKdTKpUK3W6XMAyLV7itu7afJyJCEAQsl0s8zytafZk7LCLfsiwrPkq5XP4tMsaQZRnOuUOBnXOP+/0eY8y7fxs4qOrjX6z7yMv8BD4k/i4WPyr4AAAAAElFTkSuQmCC"
+                   else "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAYCAYAAAAlBadpAAAABHNCSVQICAgIfAhkiAAAAK9JREFUOI3tkrENwkAQBOcsQpfj0JXQARW5A9pwAA5ecjf/4Z2XBCwQFrwcEDHha0d7+jv48zsMYJ7nI3AC+grnCgxd150BSCldcs6qIeeslNIF4AAgqW/bFklfa++5fpWXZUFSlfzIr3JEIGl9/ETTNETEPtnM9stvze5eLUvC3fc1S9oeu+a3N2Wgqvk5/9jztZTy9VDMjFIKETGtsrsP4zhiZjW3PUkaqkb888oNTafB1hqeQY4AAAAASUVORK5CYII="</Arg>
+                  <Arg>"http://www.w3.org/1999/xlink"</Arg>
+                </Attr>
+                <Visibility>($type.value != "none")</Visibility>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="setImage" displayName="Select Icon...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;                        
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");                        
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="loadFile" displayName="Load Default File Icon">
+                <Impl>
+                    <![CDATA[                       
+                        var thiz = this;
+                        thiz.setProperty("image", new ImageData(16, 24,"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAYCAYAAADzoH0MAAAABHNCSVQICAgIfAhkiAAAAG9JREFUOI3t0UEKgCAQheFeN3SuEi3CIAiDCOoo4xFfi3QTCurafyUo3ww4DD3Eg/eeuUckJxF5Undj0RTgVtW5GSC5A7hU1TYBIrKRPAC4P1IEBGQleQbEVQMBWQJiI1L0C7mMMajaIFUHOtD7egFjzC3Oy9qAQwAAAABJRU5ErkJggg=="));
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                          new SnappingData("BottomToTop", b.y + b.height, "Top", false, this.id),
+                          new SnappingData("TopToBottom", b.y, "Bottom", false, this.id),
+                          new SnappingData("ChildSnapping", b.x, "ChildSnapping", true, this.id),]      
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <image id="check" x="20" y="0" width="15" height="24" preserveAspectRatio="none"/>
+            <image id="icon" x="20" y="0" width="16" height="24" preserveAspectRatio="none"/>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Child Tree Item - Uncheck" icon="Icons/childTreeItemUncheck.png" to="childTreeItem">
+        <PropertyValue name="type">unchecked</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Child Tree Item - Check" icon="Icons/childTreeItemCheck.png" to="childTreeItem">
+        <PropertyValue name="type">checked</PropertyValue>
+    </Shortcut>
+</Shapes>
+

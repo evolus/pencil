@@ -1,0 +1,2117 @@
+<Shapes
+    xmlns="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://web.resource.org/cc/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    id="Evolus.Common"
+    displayName="Common Shapes"
+    description="Collection of general shapes"
+    author="Duong Thanh An (an.duong@evolus.vn)"
+    url="http://www.evolus.vn/Projects/FOSS/Pencil/Collections/CommonShapes.html">
+    <Properties>
+        <PropertyGroup name="Text">
+            <Property name="defaultTextFont" type="Font" displayName="Default Font">"Liberation Sans",Arial,sans-serif|normal|normal|13px</Property>
+            <Property name="defaultTextColor" type="Color" displayName="Default Text Color">#000000ff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Border">
+            <Property name="strokeColor" type="Color" displayName="Default Border Color">#1B3280ff</Property>
+            <Property name="strokeStyle" type="StrokeStyle" displayName="Default Border Style">2|</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Background">
+            <Property name="fillColor" type="Color" displayName="Default Background Color">#4388CCff</Property>
+        </PropertyGroup>
+    </Properties>
+    <Script>
+        <![CDATA[
+            collection.VIA_LENGTH = 10;
+            collection.LUDArrow = function (a, b, box) {
+                var y = b.y;
+                var x = y + box.w - box.h;
+                return {
+                    x: x, y: y
+                };
+            };
+            collection.calloutPoint = function(a, box) {
+                var pos = F.getRelativeLocation(a, box);
+                var w = box.w;
+                var h = box.h;
+                if (pos == "top") {
+                    return a.x < w/2 ? {a: {x: w/6, y: 0}, b: {x: 4*w/10, y: 0}, t: 1} : {a: {x: 6*w/10, y: 0}, b: {x: 5*w/6, y: 0}, t: 2};
+                }
+                if (pos == "right") {
+                    return a.y < h/2 ? {a: {x: w, y: h/6}, b: {x: w, y: 4*h/10}, t: 3} : {a: {x: w, y: 6*h/10}, b: {x: w, y: 5*h/6}, t: 4};
+                }
+                if (pos == "bottom") {
+                    return a.x > w/2 ? {a: {x: 5*w/6, y: h}, b: {x: 6*w/10, y: h}, t: 5} : {a: {x: 4*w/10, y: h}, b: {x: w/6, y: h}, t: 6};
+                }
+                if (pos == "left") {
+                    return a.y > h/2 ? {a: {x: 0, y: 5*h/6}, b: {x: 0, y: 6*h/10}, t: 7} : {a: {x: 0, y: 4*h/10}, b: {x: 0, y: h/6}, t: 8};
+                }
+                return null;
+            };
+            collection.circularConstraint = function(a, b, box) {
+                var rx = 2*box.w/5;
+                var ry = 2*box.h/5;
+
+                var alpha = Math.atan2(b.y - box.h/2, b.x - box.w/2);
+
+                var co = Math.cos(alpha);
+                var si = Math.sin(alpha);
+
+                var m = Math.sqrt(ry * ry * co * co + rx * rx * si * si);
+                var r = rx * ry / m;
+
+                var x = r * co + box.w/2;
+                var y = r * si + box.h/2;
+
+                return {
+                    x: x, y: y
+                };
+            };
+            collection.circularConstraint5 = function(a, b, box, h4) {
+                var dx = (h4.x - box.w/2)*(b.y - box.h/2)/(h4.y - box.h/2);
+                if (h4.y > box.h/2) {
+                    return {
+                        x: h4.x < box.w/2 ? Math.max(h4.x, Math.min(box.w/2 + dx, box.w/2 - 5)) : Math.max(box.w/2 + 5, Math.min(box.w/2 + dx, h4.x)), y: Math.max(box.h/2 + 5, Math.min(b.y, h4.y))
+                    };
+                }
+                return {
+                    x: h4.x < box.w/2 ? Math.max(h4.x, Math.min(box.w/2 + dx, box.w/2 - 5)) : Math.max(box.w/2 + 5, Math.min(box.w/2 + dx, h4.x)), y: Math.max(h4.y, Math.min(b.y, box.h/2 - 5))
+                };
+            };
+            collection.Donut = function (a, b, box) {
+                var y = a.y;
+                var t = Math.sqrt(Math.abs(box.w/2 - b.x)*Math.abs(box.w/2 - b.x) + Math.abs(box.h/2 - b.y)*Math.abs(box.h/2 - b.y));
+                var x = (t <= box.w/2 - Math.min(box.w/2, box.h/2)) ? Math.min(box.w/2, box.h/2) : (box.w/2 - t);
+                return {
+                    x: x, y: y
+                };
+            };
+            collection.radiusConFun = function(aa, bb, r, box) {
+                var a = {
+                    x: aa.x, y: aa.y, toString: function() {
+                        return this.x + "," + this.y;
+                    }
+                };
+                var b = {
+                    x: bb.x, y: bb.y, toString: function() {
+                        return this.x + "," + this.y;
+                    }
+                };
+
+                var rx = r;
+                var ry = box.h / 2 - (box.w/2 - rx);
+
+                var alpha = Math.atan2(b.y - box.h / 2, b.x - box.w / 2);
+
+                var co = Math.cos(alpha);
+                var si = Math.sin(alpha);
+
+                var m = Math.sqrt(ry * ry * co * co + rx * rx * si * si);
+                var r = rx * ry / m;
+
+                var x = box.w/2 + r * co ;
+                var y = box.h/2 + r * si ;
+
+                return {
+                    x: x, y: y
+                };
+            };
+        ]]>
+    </Script>
+
+    <Shape id="PlainText" displayName="Plain Text" icon="Icons/plain-text.png" system="true">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Plain text</Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textFont" displayName="Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$label</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(0, 0, 100, 12)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShort" displayName="Generate Short Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("label", PlainText.fromLoremIpsum(4));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremLong" displayName="Generate Long Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("label", PlainText.fromLoremIpsum(15));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <text id="text" xml:space="preserve">checkbutton2</text>
+        </p:Content>
+    </Shape>
+    <Shape id="PlainTextV2" displayName="Plain Text" icon="Icons/plain-text.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="width" displayName="Width" type="Handle" p:lockY="true" p:minX="10" p:disabled="!$fixedWidth.value">100,0</Property>
+                <Property name="fixedWidth" displayName="Fixed Width" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText" p:editInfo="var size = 80; ({targetName: 'text', bound: new Bound(0, 0 - $textFont.getPixelHeight() / 2, 180 , 80), font: $textFont, align: $textAlign, multi: $fixedWidth.value})">Plain text</Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textFont" displayName="Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,0</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <DomContent>F.buildTextWrapDomContent(F._target, $label.value, $fixedWidth.value ? $width.x : 2000, $textAlign)</DomContent>
+            </For>
+            <For ref="bgRect">
+                <Visibility>$fixedWidth</Visibility>
+                <Bound>
+                    //depends $textFont, $label, $fixedWidth
+                    new Bound(0, 0, $fixedWidth.value ? $width.x : 0, $fixedWidth.value ? F.textSize("text").h : 0)
+                </Bound>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShort" displayName="Generate Short Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("label", PlainText.fromLoremIpsum(4));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremLong" displayName="Generate Long Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("label", PlainText.fromLoremIpsum(15));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" style="fill: none; stroke: none;" id="bgRect" />
+            <text id="text" xml:space="preserve">checkbutton2</text>
+        </p:Content>
+    </Shape>
+    <Shape id="RichTextBox" system="true" displayName="Rich Text" icon="Icons/rich-text.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="width" displayName="Width" type="Handle" p:lockY="true" p:minX="0">200,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Text pane]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <RichTextFit>$width.x</RichTextFit>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShortRichTextBox" displayName="Generate Short Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(10));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremLongRichTextBox" displayName="Generate Long Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(45));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremExtraLongRichTextBox" displayName="Generate Longer Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(150));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                    Rich
+                    <strong>text</strong>
+                    pane contains
+                    <a href="#">hyper text</a>
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="RichTextBoxV2" displayName="Rich Text" icon="Icons/rich-text.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="width" displayName="Width" type="Handle" p:lockY="true" p:minX="10" p:disabled="!$fixedWidth.value">200,0</Property>
+                <Property name="fixedWidth" displayName="Fixed Width" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Rich <strong>text</strong>]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"display: inline-block; " + $customStyle.value</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"white-space"</Arg>
+                    <Arg>$fixedWidth.value ? null : "nowrap"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$fixedWidth.value ? ($width.x + "px") : null</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"text-decoration"</Arg>
+                    <Arg>$textFont.decor</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="htmlObject">
+                <TextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <Box>var size = F.elementSize("textDiv"); new Dimension($fixedWidth.value ? $width.x : size.w, size.h); /* depends $textFont $textContent $customStyle */</Box>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShortRichTextBox" displayName="Generate Short Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(10));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremLongRichTextBox" displayName="Generate Long Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(65));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremExtraLongRichTextBox" displayName="Generate Longer Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(150));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv">
+                    Rich
+                    <strong>text</strong>
+                    pane contains
+                    <a href="#">hyper text</a>
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="RoundedRect" displayName="Rectangle" icon="Icons/rectangle.png">
+        <Properties>
+
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,80</Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Handles">
+                <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2">0,0</Property>
+                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,10</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[]]>
+                </Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="Text Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="rrRect">
+                <Box>$box.narrowed($strokeStyle.w)</Box>
+                <Transform>[translate(($strokeStyle.w / 2), ($strokeStyle.w / 2))]</Transform>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Radius>
+                    <Arg>$radius.x</Arg>
+                    <Arg>$radius.x</Arg>
+                </Radius>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $textPadding.y)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="removeBorder" displayName="Remove Border">
+                <Impl>
+                        <![CDATA[
+                            var strokeStyle = this.getProperty("strokeStyle");
+                            strokeStyle.w = 0;
+                            this.setProperty("strokeStyle", strokeStyle);
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="makeSquares" displayName="Make Squared">
+                <Impl>
+                        <![CDATA[
+                            var box = this.getProperty("box");
+                            box.w = Math.max(box.w, box.h);
+                            box.h = box.w;
+                            this.setProperty("box", box);
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var sw = this.getProperty("strokeStyle").w;
+                        var w = this.getProperty("box").w;
+                        var h = this.getProperty("box").h;
+                        return [
+                            new SnappingData("Left", b.x - sw / 2, "Left", true, this.id),
+                            new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
+                            new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
+                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="getConnectorOutlets">
+                <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        return [
+                            new Outlet("top-left", "Bounding", 0, 0),
+                            new Outlet("top-center", "Bounding", box.w / 2, 0),
+                            new Outlet("top-right", "Bounding", box.w, 0),
+                            new Outlet("middle-left", "Bounding", 0, box.h / 2),
+                            new Outlet("middle-center", "Bounding", box.w / 2, box.h / 2),
+                            new Outlet("middle-right", "Bounding", box.w, box.h / 2),
+                            new Outlet("bottom-left", "Bounding", 0, box.h),
+                            new Outlet("bottom-center", "Bounding", box.w / 2, box.h),
+                            new Outlet("bottom-right", "Bounding", box.w, box.h)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <rect width="61" height="24" rx="3" ry="3" x="0" y="0" style="stroke-width: 1px;" id="rrRect" />
+                <filter id="shadingFilter" height="1.2558399" y="-0.12792" width="1.06396" x="-0.03198">
+                    <feGaussianBlur stdDeviation="1" in="SourceAlpha" />
+                </filter>
+            </defs>
+            <use xlink:href="#rrRect" id="bgCopy" transform="translate(2, 2)" p:filter="url(#shadingFilter)" style="opacity:0.5;" p:heavy="true" />
+            <use xlink:href="#rrRect" />
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="RectWithGradient" displayName="Gradient Rectangle" icon="Icons/rectangle-grad.png">
+        <Properties>
+
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,80</Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Handles">
+                <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2">0,0</Property>
+                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,5</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Background">
+                <Property name="startFillColor" displayName="Start Color" type="Color">
+                    <E>$$fillColor.shaded(0.3)</E>
+                </Property>
+                <Property name="endFillColor" displayName="End Color" type="Color">
+                    <E>$$fillColor.shaded(-0.4)</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[]]>
+                </Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+
+        </Properties>
+        <Behaviors>
+            <For ref="stop1">
+                <StopColor>$startFillColor</StopColor>
+                <Offset>0</Offset>
+            </For>
+            <For ref="stop2">
+                <StopColor>$endFillColor</StopColor>
+                <Offset>1</Offset>
+            </For>
+            <For ref="rrRect">
+                <Box>$box.narrowed($strokeStyle.w % 2 == 0 ? 0 : 1)</Box>
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Radius>
+                    <Arg>$radius.x</Arg>
+                    <Arg>$radius.x</Arg>
+                </Radius>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $textPadding.y)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="removeBorder" displayName="Remove Border">
+                <Impl>
+                        <![CDATA[
+                            var strokeStyle = this.getProperty("strokeStyle");
+                            strokeStyle.w = 0;
+                            this.setProperty("strokeStyle", strokeStyle);
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="makeSquares" displayName="Make Squared">
+                <Impl>
+                        <![CDATA[
+                            var box = this.getProperty("box");
+                            box.w = Math.max(box.w, box.h);
+                            box.h = box.w;
+                            this.setProperty("box", box);
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                    <stop style="stop-color:#165C80;stop-opacity:1" offset="0" id="stop1" />
+                    <stop style="stop-color:#165C80;stop-opacity:1" offset="1" id="stop2" />
+                </linearGradient>
+                <rect width="61" height="24" rx="3" ry="3" x="0" y="0" style="stroke-width: 1px; fill: url(#linearFill)" id="rrRect" />
+                <filter id="shadingFilter" height="1.2558399" y="-0.12792" width="1.06396" x="-0.03198">
+                    <feGaussianBlur stdDeviation="1" in="SourceAlpha" />
+                </filter>
+            </defs>
+            <use xlink:href="#rrRect" id="bgCopy" transform="translate(2, 2)" p:filter="url(#shadingFilter)" style="opacity:0.5;" p:heavy="true" />
+            <use xlink:href="#rrRect" />
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="ms-oval" displayName="Oval" icon="Icons/oval.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">100,80</Property>
+                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2">0,20</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Line Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Line Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[]]>
+                </Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="Text Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Actions>
+            <Action id="makeCircle" displayName="Make Circle">
+                <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        var size = Math.max(box.w, box.h);
+                        this.setProperty("box", new Dimension(size, size));
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="getConnectorOutlets">
+                <Impl>
+                        <![CDATA[
+                            function createOutlet(a, b, t, name) {
+                                var x = Math.PI * x / 180;
+                                var x = a * Math.cos(x) + a;
+                                var y = b * Math.sin(x) + b;
+                                
+                                return new Outlet(name, "Input", x, y);
+                            }
+                            
+                            var box = this.getProperty("box");
+                            var a = box.w / 2;
+                            var b = box.h / 2;
+                            
+                            
+                            return [
+                                new Outlet("right", "Input", a * Math.cos(0) + a, b * Math.sin(0) + b),
+                                new Outlet("topRight", "Input", a * Math.cos(0 - Math.PI / 4) + a, b * Math.sin( - Math.PI / 4) + b),
+                                new Outlet("top", "Input", a * Math.cos(0 - Math.PI / 2) + a, b * Math.sin(0 - Math.PI / 2) + b),
+                                new Outlet("topLeft", "Input", a * Math.cos(0 - 3 * Math.PI / 4) + a, b * Math.sin(0 - 3 * Math.PI / 4) + b),
+                                new Outlet("left", "Input", a * Math.cos(0 - Math.PI) + a, b * Math.sin(0 - Math.PI) + b),
+                                new Outlet("bottomRight", "Input", a * Math.cos(Math.PI / 4) + a, b * Math.sin(Math.PI / 4) + b),
+                                new Outlet("bottom", "Input", a * Math.cos(Math.PI / 2) + a, b * Math.sin(Math.PI / 2) + b),
+                                new Outlet("bottomLeft", "Input", a * Math.cos(3 * Math.PI / 4) + a, b * Math.sin(3 * Math.PI / 4) + b),
+                                new Outlet("middle", "Input", a, b),
+                            ];
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <Behaviors>
+            <For ref="ellipse">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <Attr>
+                    <Arg>"cx"</Arg>
+                    <Arg>$box.w / 2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"cy"</Arg>
+                    <Arg>$box.h / 2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"rx"</Arg>
+                    <Arg>$box.w / 2</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"ry"</Arg>
+                    <Arg>$box.h / 2</Arg>
+                </Attr>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $textPadding.y)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <ellipse id="ellipse" style="stroke-linejoin: round;" />
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="Bitmap" displayName="Bitmap Image" icon="Icons/bitmap.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockRatio="true">55,44</Property>
+                <Property name="imageData" type="ImageData"><![CDATA[55,44,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAAAsCAYAAADByiAeAAADyUlEQVRoge1ZTWgdVRSeUJPYJvYpqBu1i/pTF91o2yxcWuPCTVZD6g+CoCOIS9ushLuRTDrJzNzzfS5b3ZQqQSlRpLiwrUjxp9AWK5QqBUUqSKvWmtSki3HheXhznXlJGvPei8wHs3jnnHvu98097/5NENSoUWPdgWRBsgCQtPK3m9d/giZ5kgt5nm+r8neC26rhiCsAHK3yd4LbquEI+4hkYa0dKfP77YwxfSTHAJwBMKfPGRHZG0VRb/sUtIAj7mEANwBcNMbc6vvdNiLST/KEO+re80lXCHTJA8hV6Otlfsc2pvZfSO4xxgwaYwZF5GkAv5IsRGRvu7X8Cy758fHxOwBcJjlrrd3i+502Z/UljPr5ADyjbU63R0EL+OQBvKK26TK/2q6TLJIkGfDzGWMGVfjc2rNfAj75MAw3APhaCT7+vxIXBEFgrd2tBL9ZoizDknx7urYsHfsRdwb0fGMq7jKAMEmSgSRJBgCM6iTTfROKizRNHwAwX7UUAPi0aikAcMwY09c+FRVotQMhub/Kr2vdmJbodQBzJM8C2NcVwmrUqFGjRo0aHca6vudYCrW49YoWx5aCZBHHcQPA2wCu6jFlXxAEgYjcRfJdAH/o9cIbQRD0eDmGAXxI8je94Tpprd3t9yUi95Oc0VxXSR6YmJi4rYobgOcAHNe88wC+I7k/juPGisSRnCk5loQkT/l2EXm5Iof7LFhrdzRjJicn7wRwqSRupoRbD4BDVcclkudEZPNKxH2Z5/m2NE03AkjV9nuZHcAXXo5pko8aY/pE5F4AhzXusDMKieb8VkSGNHZIR2MRN5IvavuL1tqROI4bURT1Wmt3APhMX3C8bHEi8kjTpqXYyn7Nz+Miy7LbNe4Hp5/zaht2Y0XkyRJxn5Ms8jzf5edO0/QeFX5h2eLCMNywEnvzt14WvUbyNMlZr6znm3EA/iRZpGm60c1njNlUIm5RnqqyX7a4m7U7JVz63Iw4PbEvJe4fbmso7oqO0qjOYj0isrlkNM5rmT/h5RsuyfkVycJau93vvxRrKG5OiYyISH+WZVsBvFMibrL5XwGwM4qiXgA7AVwoyfmCxn4vIs9PTU3dZ4y5Re9kHhKRlwCcbIe49/1yAfCBH5ckyd0kf6qKBXDD7QeAdLwsdf16j+SsfuB4K47jRll7a+2DutjP6mbhYJZlW1Xcz35fevE7TfJHkgtaJecAvCkiQ35818EpwWOd5rIqkDxirX1MRPrjOG6IyLPO56xXO81vVWjx/zm17i9prbVPAfiY3kZ40T6xxt/4C9jjJmTPHAGHAAAAAElFTkSuQmCC]]></Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#ffffff00</Property>
+                <Property name="strokeColor" displayName="Border Color" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">0|</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="imageContainer">
+                <Scale>
+                    <Arg>$box.w / $imageData.w</Arg>
+                    <Arg>$box.h / $imageData.h</Arg>
+                </Scale>
+            </For>
+            <For ref="bgRect">
+                <Box>$box.narrowed(0 - $strokeStyle.w)</Box>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <Transform>"translate(" + [0 - $strokeStyle.w / 2, 0 - $strokeStyle.w / 2] + ")"</Transform>
+            </For>
+            <For ref="image">
+                <Image>$imageData</Image>
+            </For>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="toOriginalSize" displayName="To Original Size">
+                <Impl>
+                    <![CDATA[
+                        var data = this.getProperty("imageData");
+                        this.setProperty("box", new Dimension(data.w, data.h));
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="fixRatioW" displayName="Correct Ratio by Width">
+                <Impl>
+                    <![CDATA[
+                        var data = this.getProperty("imageData");
+                        var box = this.getProperty("box");
+                        var h = Math.round(box.w * data.h / data.w);
+                        this.setProperty("box", new Dimension(box.w, h));
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="fixRatioH" displayName="Correct Ratio by Height">
+                <Impl>
+                    <![CDATA[
+                        var data = this.getProperty("imageData");
+                        var box = this.getProperty("box");
+                        var w = Math.round(box.h * data.w / data.h);
+                        this.setProperty("box", new Dimension(w, box.h));
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="selectExternalFile" displayName="Load Linked Image...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function(data) {
+                            if (!data) return;
+                            thiz.setProperty("imageData", data);
+                            thiz.setProperty("box", new Dimension(data.w, data.h));
+                            if (data.data.match(/\.png$/)) {
+                                thiz.setProperty("fillColor", Color.fromString("#ffffff00"));
+                            }
+                        });
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="selectExternalFileEmbedded" displayName="Load Embedded Image...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function(data) {
+                            if (!data) return;
+                            thiz.setProperty("imageData", data);
+                            thiz.setProperty("box", new Dimension(data.w, data.h));
+                            if (data.data.match(/\.png$/)) {
+                                thiz.setProperty("fillColor", Color.fromString("#ffffff00"));
+                            }
+                        }, "embedded");
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="convertToEmbeded" displayName="Convert to embedded">
+                <Impl>
+                    <![CDATA[
+                        var imageData = this.getProperty("imageData");
+                        var thiz = this;
+                        ImageData.convertToEmbeded(imageData, function (convertedData) {
+                            if (!convertedData) return;
+                            thiz.setProperty("imageData", convertedData);
+                        });
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="editExternal" displayName="Edit with External Editor...">
+                <Impl>
+                    <![CDATA[
+                        var imageData = this.getProperty("imageData");
+
+                        if (imageData.data.match(/^data:(image\/(gif|jpeg|png))[;\,]/)) {
+                            var ext = RegExp.$2;
+                            if (ext == "jpeg") ext = "jpg";
+                        } else if (imageData.data.match(/^file:\/\/.*\.(gif|jpg|png)$/)) {
+                            var ext = RegExp.$1;
+                        } else return;
+
+
+                        var thiz = this;
+
+                        ImageData.ExternalEditorSupports.editImageData(imageData, ext, thiz);
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="imageShading" height="1.2558399" y="-0.12792" width="1.06396" x="-0.03198">
+                    <feGaussianBlur stdDeviation="1.3325" in="SourceAlpha" />
+                </filter>
+                <g id="container">
+                    <rect id="bgRect" style="fill: none; stroke: none;" />
+                    <g id="imageContainer">
+                        <image id="image" x="0" y="0" />
+                    </g>
+                </g>
+            </defs>
+            <use xlink:href="#container" id="bgCopy" transform="translate(1, 1)" p:filter="url(#imageShading)" style=" opacity:0.6;" />
+            <use xlink:href="#container" />
+        </p:Content>
+    </Shape>
+    <Shape id="Line" displayName="Straight line" icon="Icons/hline.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockHeight="true">170,10</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Line">
+                <Property name="strokeColor" displayName="Line Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Line Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="bgRect">
+                <Box>$box</Box>
+            </For>
+            <For ref="line1">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <D>[M(0, $box.h / 2), L($box.w, $box.h / 2)]</D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect id="bgRect" style="fill: #000000; fill-opacity: 0; stroke: none;" x="0" y="0" />
+            <path style="fill:none; stroke: #ACA899; stroke-width: 1px;" d="M 0,0 L 4,4 L 0,8 z" id="line1" />
+        </p:Content>
+    </Shape>
+    <Shape id="Triangle" displayName="Triangle" icon="Icons/triangle.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="Inner Top" type="Handle">0,0</Property>
+                <Property name="b" displayName="Inner Top" type="Handle">90,0</Property>
+                <Property name="c" displayName="Inner Top" type="Handle">0,90</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Line Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Line Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>[M($a.x, $a.y), L($b.x, $b.y), L($c.x, $c.y),z]</D>
+                <Fill>$fillColor</Fill>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" fill="none" style="stroke-linejoin: round;" />
+        </p:Content>
+    </Shape>
+    <Shape displayName="Free Line" icon="Icons/FreeLine2.png" id="arrow">
+        <Properties>
+            <PropertyGroup name="Common">
+                <Property displayName="Start" name="startPin" p:connectTo="*" type="Handle">0,0</Property>
+                <Property displayName="End" name="endPin" p:connectTo="*" type="Handle">100,70</Property>
+                <Property displayName="Start Arrow" name="withStartArrow" type="Bool">true</Property>
+                <Property displayName="End Arrow" name="withEndArrow" type="Bool">true</Property>
+                <Property name="mode" displayName="Mode" type="Enum" p:enumValues="['straight|Straight', 'multi-straight|Multiple straight segments', 'curvy|Curvy']">curvy</Property>
+                <Property displayName="Slightly Detached" name="detached" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property displayName="Border Color" name="strokeColor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property displayName="Border Style" name="strokeStyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property displayName="Text Content" name="textContent" p:editInfo="({targetName: 'text', bound: new Bound($startPin.x, $startPin.y, 100, 20), font: $textFont, align: $textAlign, multi: false})" type="PlainText" />
+                <Property displayName="Text Font" name="textFont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property displayName="Text Color" name="textColor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="outArrow1">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+            <For ref="path">
+                <D><![CDATA[
+                    var startVia = null;
+                    var viaLength = collection.VIA_LENGTH;
+                    if ($startPin.meta && $endPin.meta
+                        && $startPin.meta.connectedShapeId
+                        && $startPin.meta.connectedShapeId == $endPin.meta.connectedShapeId) {
+                        viaLength = collection.VIA_LENGTH * 3;
+                    }
+                    stencilDebug("viaLength: " + viaLength);
+                    if ($startPin.meta && $startPin.meta.viax && $startPin.meta.viay) {
+                        startVia = {x: parseFloat($startPin.meta.viax), y: parseFloat($startPin.meta.viay)};
+                        startVia = geo_getRotatedPoint(startVia, $startPin, viaLength, 0);
+                    } else {
+                        if ($endPin.meta && $endPin.meta.viax && $endPin.meta.viay) {
+                            endVia = {x: parseFloat($endPin.meta.viax), y: parseFloat($endPin.meta.viay)};
+                            var dx = Math.abs($endPin.x - endVia.x);
+                            var dy = Math.abs($endPin.y - endVia.y);
+
+                            startVia = {x: $endPin.x, y: $endPin.y };
+                            
+                            if (dx > dy) {  //horizontal
+                                startVia.x = $startPin.x;
+                            } else {
+                                startVia.y = $startPin.y;
+                            }
+                            startVia = geo_getRotatedPoint(startVia, $startPin, viaLength, 0);
+                        } else {
+                            startVia = geo_getRotatedPoint($endPin, $startPin, viaLength, 0);
+                        }
+                    }
+                    
+                    var result = null;
+                    if ($mode.value == 'multi-straight' && $endPin.meta && $endPin.meta.viax && $endPin.meta.viay) {
+                        endVia = {x: parseFloat($endPin.meta.viax), y: parseFloat($endPin.meta.viay)};
+                        endVia = geo_getRotatedPoint(endVia, $endPin, viaLength, 0);
+                        
+                        stencilDebug("startPine: " + $startPin.toSource());
+                        stencilDebug("endPin: " + $endPin.toSource());
+                        
+                        stencilDebug("endVia: " + endVia.toSource());
+                        var i = geo_findIntersection($startPin, startVia, $endPin, endVia);
+                        
+                        //check if intersection is in the same direction with the vias
+                        if (i != null
+                                && (i.x - $startPin.x) * (startVia.x - $startPin.x) >= 0
+                                && (i.y - $startPin.y) * (startVia.y - $startPin.y) >= 0
+                                && (i.x - $endPin.x) * (endVia.x - $endPin.x) >= 0
+                                && (i.y - $endPin.y) * (endVia.y - $endPin.y) >= 0) {
+                                
+                            result = arrowTo([{x: $startPin.x, y: $startPin.y}, i],
+                                    {
+                                        x: $endPin.x,
+                                        y: $endPin.y
+                                    },
+                                    $strokeStyle.w,
+                                    viaLength,
+                                    "supportUnconnected",
+                                    $withStartArrow.value,
+                                    $withEndArrow.value,
+                                    true,
+                                    $detached.value ? 5 : 0)
+                                
+                        } else {
+                            result = arrowTo([{x: $startPin.x, y: $startPin.y}, startVia, endVia],
+                                    {
+                                        x: $endPin.x,
+                                        y: $endPin.y
+                                    },
+                                    $strokeStyle.w,
+                                    viaLength,
+                                    "supportUnconnected",
+                                    $withStartArrow.value,
+                                    $withEndArrow.value,
+                                    true,
+                                    $detached.value ? 5 : 0)
+                        }
+                    } else if ($mode.value == "straight") {
+                        result = arrowTo([{x: $startPin.x, y: $startPin.y}],
+                                {
+                                    x: $endPin.x,
+                                    y: $endPin.y
+                                }
+                                ,
+                                $strokeStyle.w,
+                                viaLength,
+                                "supportUnconnected",
+                                $withStartArrow.value,
+                                $withEndArrow.value,
+                                true,
+                                $detached.value ? 5 : 0)
+                    } else {
+                        result = arrowTo([{x: $startPin.x, y: $startPin.y}, startVia], $endPin,
+                                $strokeStyle.w,
+                                viaLength,
+                                "supportUnconnected",
+                                $withStartArrow.value,
+                                $withEndArrow.value,
+                                false,
+                                $detached.value ? 5 : 0)
+                    }
+                    
+                    result;
+                ]]></D>
+            </For>
+            <For ref="text">
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+            </For>
+            <For ref="textSpan">
+                <InnerText>$textContent</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $textFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg>
+                        var arrowLength = Math.max($strokeStyle.w * 4, 6) * 2;
+                        var dx = 0;
+                        if ($withStartArrow.value) dx += arrowLength;
+                        if ($withEndArrow.value) dx -= arrowLength;
+                        dx;
+                    </Arg>
+                </Attr>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getConnectorOutlets">
+                <Impl>
+                    <![CDATA[
+                        var startPin = this.getProperty("startPin");
+                        var endPin = this.getProperty("endPin");
+                        var outlet = new Outlet("commonSegmentInput", "Input", startPin.x, startPin.y);
+                        outlet.via = geo_getRotatedPoint(endPin, startPin, collection.VIA_LENGTH, Math.PI);
+                        outlet.noVia = true;
+                        return [
+                            //outlet
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <path id="path" style="stroke-linejoin: round; fill: none;" />
+            </defs>
+            <use xlink:href="#path" stroke-width="10" stroke-opacity="0" stroke="#FF0000" />
+            <use xlink:href="#path" id="outArrow1" />
+            <text id="text">
+                <textPath xlink:href="#path" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan" dy="-5">Text along a curved path</tspan>
+                </textPath>
+            </text>
+
+        </p:Content>
+    </Shape>
+    <Shape id="2pointline" displayName="Free Line" icon="Icons/free-line.png" system="true">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="Inner Top" type="Handle">0,0</Property>
+                <Property name="b" displayName="Inner Top" type="Handle">90,60</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Line Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Line Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>[M($a.x, $a.y), L($b.x, $b.y),z]</D>
+            </For>
+            <For ref="bgpath">
+                <D>[M($a.x, $a.y), L($b.x, $b.y),z]</D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="bgpath" fill="none" style="stroke: rgba(0, 0, 0, 0); stroke-width: 10px;" />
+            <path id="path" fill="none" style="stroke-linejoin: round;" />
+        </p:Content>
+    </Shape>
+    <Shape id="SVGImage" system="true" displayName="SVG Image" icon="Icons/bitmap.png" xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">48,48</Property>
+                <Property name="originalDim" type="Dimension">48,48</Property>
+            </PropertyGroup>
+            <PropertyGroup>
+                <Property name="svgXML" displayName="SVG XML" type="PlainText">xx</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="container">
+                <Scale>
+                    <Arg>$box.w / $originalDim.w</Arg>
+                    <Arg>$box.h / $originalDim.h</Arg>
+                </Scale>
+                <DomContent>$svgXML</DomContent>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="toOriginalSize" displayName="To Original Size">
+                <Impl>
+                    <![CDATA[
+                        var originalDim = this.getProperty("originalDim");
+                        this.setProperty("box", originalDim);
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="fixRatioW" displayName="Correct Ratio by Width">
+                <Impl>
+                    <![CDATA[
+                        var originalDim = this.getProperty("originalDim");
+                        var box = this.getProperty("box");
+                        var h = Math.round(box.w * originalDim.h / originalDim.w);
+                        this.setProperty("box", new Dimension(box.w, h));
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="fixRatioH" displayName="Correct Ratio by Height">
+                <Impl>
+                    <![CDATA[
+                        var originalDim = this.getProperty("originalDim");
+                        var box = this.getProperty("box");
+                        var w = Math.round(box.h * originalDim.w / originalDim.h);
+                        this.setProperty("box", new Dimension(w, box.h));
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="editExternal" displayName="Edit with external editor...">
+                <Impl>
+                    <![CDATA[
+                        var originalDim = this.getProperty("originalDim");
+                        var container = Pencil.findObjectByName(this.svg, "container");
+
+                        var thiz = this;
+
+
+                        ImageData.ExternalEditorSupports.editSVGData(originalDim, container, thiz);
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <g id="container"></g>
+        </p:Content>
+    </Shape>
+    <!-- moved from the annotation collection -->
+    <Shape id="Balloon" displayName="Balloon" icon="Icons/balloon.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,80</Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Handles">
+                <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="Math.min($box.w, $box.h) / 2">8,0</Property>
+
+                <Property name="leftStart" displayName="Start Point" type="Handle" p:lockX="true" p:minY="$radius.x + 2" p:maxY="$leftEnd.y - 5" p:disabled="F.getRelativeLocation($pin, $box) != 'left'">0,12</Property>
+                <Property name="leftEnd" displayName="End Point" type="Handle" p:lockX="true" p:minY="$leftStart.y + 5" p:maxY="$box.h - $radius.x - 2" p:disabled="F.getRelativeLocation($pin, $box) != 'left'">0,33</Property>
+
+                <Property name="rightStart" displayName="Start Point" type="Handle" p:lockX="true" p:expressionX="$box.w" p:minY="$radius.x + 2" p:maxY="$rightEnd.y - 5" p:disabled="F.getRelativeLocation($pin, $box) != 'right'">0,12</Property>
+                <Property name="rightEnd" displayName="End Point" type="Handle" p:lockX="true" p:expressionX="$box.w" p:minY="$rightStart.y + 5" p:maxY="$box.h - $radius.x - 2" p:disabled="F.getRelativeLocation($pin, $box) != 'right'">0,33</Property>
+
+                <Property name="topStart" displayName="Start Point" type="Handle" p:lockY="true" p:minX="$radius.x + 2" p:maxX="$topEnd.x - 5" p:disabled="F.getRelativeLocation($pin, $box) != 'top'">12,0</Property>
+                <Property name="topEnd" displayName="End Point" type="Handle" p:lockY="true" p:minX="$topStart.x + 5" p:maxX="$box.w - $radius.x - 2" p:disabled="F.getRelativeLocation($pin, $box) != 'top'">33,0</Property>
+
+                <Property name="bottomStart" displayName="Start Point" type="Handle" p:lockY="true" p:expressionY="$box.h" p:minX="$radius.x + 2" p:maxX="$bottomEnd.x - 5" p:disabled="F.getRelativeLocation($pin, $box) != 'bottom'">12,0</Property>
+                <Property name="bottomEnd" displayName="End Point" type="Handle" p:lockY="true" p:expressionY="$box.h" p:minX="$bottomStart.x + 5" p:maxX="$box.w - $radius.x - 2" p:disabled="F.getRelativeLocation($pin, $box) != 'bottom'">33,0</Property>
+
+                <Property name="pin" displayName="Balloon Pin" type="Handle" p:connectTo="*" p:noMove="true">-12,23</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Annotation]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="rect">
+                <D>
+                    var type = F.getRelativeLocation($pin, $box);
+
+                    var x = {"left": [M($radius.x, 0), L($box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                    L($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                    L($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                    L(0, $leftEnd.y), L($pin.x, $pin.y), L(0, $leftStart.y), L(0, $radius.x),
+                    C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)],
+
+                    "top": [M($radius.x, 0),L($topStart.x,0), L($pin.x, $pin.y), L($topEnd.x,0),
+                    L($box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                    L($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                    L($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                    L(0, $radius.x),C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)],
+                    "right": [M($radius.x, 0), L($box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                    L($box.w, $rightStart.y),L($pin.x, $pin.y), L($box.w, $rightEnd.y), L($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                    L($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                    L(0, $radius.x),C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)] ,
+                    "bottom": [M($radius.x, 0), L($box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                    L($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                    L($bottomEnd.x, $box.h), L($pin.x, $pin.y),L($bottomStart.x, $box.h),
+                    L($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                    L(0, $radius.x),C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)]
+                    }[type];
+                    x</D>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $radius.x)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <filter id="imageShading" height="1.2558399" y="-0.12792" width="1.06396" x="-0.03198">
+                    <feGaussianBlur stdDeviation="1.3325" in="SourceAlpha" />
+                </filter>
+                <g id="container">
+                    <path transform="translate(0.5 0.5)" style="stroke-width: 1px;" id="rect" />
+                </g>
+            </defs>
+            <use xlink:href="#container" id="bgCopy" transform="translate(1, 1)" p:filter="url(#imageShading)" style=" opacity:0.6;" p:heavy="true" />
+            <use xlink:href="#container" />
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">
+                    Balloon message
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="Bullet" displayName="Bullet" icon="Icons/bullet.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockRatio="true">30,30</Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[1]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+            <For ref="ellipse">
+                <EllipseFit>$box</EllipseFit>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 0)</Arg>
+                    <Arg>new Alignment(1, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="makeSquare" displayName="Make Square">
+                <Impl>
+                <![CDATA[
+                    var box = this.getProperty("box");
+                    var size = Math.max(box.w, box.h);
+                    this.setProperty("box", new Dimension(size, size));
+                ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <filter id="imageShading" height="1.2558399" y="-0.12792" width="1.2558399" x="-0.12792">
+                    <feGaussianBlur stdDeviation="1.3325" in="SourceAlpha" />
+                </filter>
+                <g id="container">
+                    <ellipse id="ellipse" />
+                </g>
+            </defs>
+            <use xlink:href="#container" id="bgCopy" transform="translate(1, 1)" p:filter="url(#imageShading)" style=" opacity:0.6;" p:heavy="true" />
+            <use xlink:href="#container" />
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml">1</div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="triangle2" displayName="Triangle 2" icon="Icons/triangle2.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="box" type="Dimension">80,100</Property>
+                <Property name="a" displayName="handle" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w">20,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
+                <Property name="textFont" displayName="defaultfont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="textcolor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>[M($a.x, $a.y), L($box.w, $box.h), L(0, $box.h), z]</D>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound($a.x / 2, $box.h/2, $box.w / 2, $box.h / 2)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="triangle3" displayName="Triangle 3" icon="Icons/triangle3.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="box" type="Dimension">80,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
+                <Property name="textFont" displayName="defaultfont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="textcolor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>[M(0, 0), L($box.w, $box.h), L(0, $box.h), z]</D>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound(0, $box.h/2, $box.w / 2, $box.h / 2)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="parallelogram" displayName="Parallelogram" icon="Icons/parallelogram.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="box" type="Dimension">80,100</Property>
+                <Property name="a" displayName="handle" type="Handle" p:lockY="true" p:maxX="$box.w">20,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>[M($a.x, $a.y), L($box.w, $a.y), L($box.w - $a.x, $box.h), L(0, $box.h), z]</D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="trapezoid" displayName="Trapezoid" icon="Icons/trapezoid.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="box" type="Dimension">120,80</Property>
+                <Property name="a" displayName="handle" type="Handle" p:lockY="true" p:maxX="$box.w / 2">30,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>[M($a.x, $a.y), L($box.w - $a.x, $a.y), L($box.w, $box.h), L(0, $box.h), z]</D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="diamond" displayName="Diamond" icon="Icons/diamond.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="box" type="Dimension">80,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
+                <Property name="textFont" displayName="defaultfont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="textcolor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>[M($box.w / 2, 0), L($box.w, $box.h / 2), L($box.w / 2, $box.h), L(0, $box.h / 2), z]</D>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound($box.w / 4, $box.h/4, $box.w / 2, $box.h / 2)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="pentagon" displayName="Pentagon" icon="Icons/pentagon.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="box" type="Dimension">80,80</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
+                <Property name="textFont" displayName="defaultfont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="textcolor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>[M($box.w / 2, 0), L($box.w, $box.h / 2.5), L(3 * $box.w / 4, $box.h), L($box.w / 4, $box.h), L(0, $box.h / 2.5), z]</D>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound($box.w / 4, $box.h/6, $box.w / 2, $box.h *5/ 6)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="hexagon" displayName="Hexagon" icon="Icons/hexagon.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="box" type="Dimension">80,80</Property>
+                <Property name="a" displayName="handle" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2">20,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
+                <Property name="textFont" displayName="defaultfont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="textcolor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>[M($a.x, $a.y), L($box.w - $a.x, $a.y), L($box.w, $box.h / 2), L($box.w - $a.x, $box.h), L($a.x, $box.h), L(0, $box.h / 2), z]</D>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound($a.x / 2, $box.h/4, $box.w - $a.x, $box.h / 2)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="pie" displayName="Pie" icon="Icons/pie.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="handle1" type="Handle" p:constraintFunction="function (a, b) { return  F.pieConstraintFunction(a, b, $box); }">80,50</Property>
+                <Property name="b" displayName="handle2" type="Handle" p:constraintFunction="function (a, b) { return  F.pieConstraintFunction(a, b, $box); }">50,0</Property>
+                <Property name="box" displayName="box" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    var t = ($a.y - $box.h / 2)*($b.x - $box.w / 2) + ($box.h / 2)*($a.x - $box.w / 2) - $b.y*($a.x - $box.w / 2);
+                    var f2 = t > 0 ? "1" : "0";
+                    [M($a.x, $a.y), A($box.w / 2, $box.h / 2, 0, f2, 1, $b.x, $b.y), L($box.w / 2, $box.h / 2), z]
+                </D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="chord" displayName="Chord" icon="Icons/chord.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="handle1" type="Handle" p:constraintFunction="function (a, b) { return  F.pieConstraintFunction(a, b, $box); }">80,50</Property>
+                <Property name="b" displayName="handle2" type="Handle" p:constraintFunction="function (a, b) { return  F.pieConstraintFunction(a, b, $box); }">50,0</Property>
+                <Property name="box" displayName="box" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    var t = ($a.y - $box.h / 2)*($b.x - $box.w / 2) + ($box.h / 2)*($a.x - $box.w / 2) - $b.y*($a.x - $box.w / 2);
+                    var f2 = t > 0 ? "1" : "0";
+                    [M($a.x, $a.y), A($box.w / 2, $box.h / 2, 0, f2, 1, $b.x, $b.y), z]
+                </D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="can" displayName="Can" icon="Icons/can.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="handle1" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.h/2" p:minX="$box.w/2" p:maxX="$box.w/2">50,20</Property>
+                <Property name="box" displayName="box" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
+                <Property name="textFont" displayName="defaultfont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="textcolor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M(0, $a.y/2), L(0, $box.h - $a.y/2), C(0, $box.h - $a.y/4, $box.w/4, $box.h, $box.w/2, $box.h),
+                    S($box.w, $box.h - $a.y/4, $box.w, $box.h - $a.y/2), L($box.w, $a.y/2), z]
+                </D>
+            </For>
+            <For ref="btop">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor.shaded(-0.3)</Fill>
+            </For>
+            <For ref="top">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    [M(-($strokeStyle.w % 2) / 2, $a.y/2), C(-($strokeStyle.w % 2) / 2, $a.y/4, $box.w/4, 0, $box.w/2, 0), S($box.w-($strokeStyle.w % 2) / 2, $a.y/4, $box.w-($strokeStyle.w % 2) / 2, $a.y/2),
+                    C($box.w-($strokeStyle.w % 2) / 2, 3*$a.y/4, 3*$box.w/4, $a.y, $box.w/2, $a.y), S(-($strokeStyle.w % 2) / 2, 3*$a.y/4, -($strokeStyle.w % 2) / 2, $a.y/2), z]
+                </D>
+            </For>
+            <For ref="markContainer">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Bound>Bound.fromBox($box, -100)</Bound>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound(0 , $a.y, $box.w, $box.h - $a.y)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <path id="top" style="stroke-linejoin: round;" />
+                <mask id="mask">
+                    <rect id="markContainer" style="fill: white; stroke-linejoin: round;" />
+                    <use xlink:href="#top" style="fill: black; stroke-linejoin: round;" />
+                </mask>
+            </defs>
+            <path id="path" mask="url(#mask)" style="stroke-linejoin: round;" />
+            <use id="btop" xlink:href="#top" style="stroke-linejoin: round;" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="cube" displayName="Cube" icon="Icons/cube.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="handle1" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.h">0,30</Property>
+                <Property name="box" displayName="box" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
+                <Property name="textFont" displayName="defaultfont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="textcolor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="fpath">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor.shaded(-0.3)</Fill>
+                <D>
+                    [M(0, $a.y), L(0, $box.h), L($box.w - $a.y, $box.h), L($box.w - $a.y, $a.y)]
+                </D>
+            </For>
+            <For ref="tpath">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor.shaded(-0.6)</Fill>
+                <D>
+                    [M($box.w - $a.y, $a.y), L(0, $a.y), L($a.y, 0), L($box.w, 0)]
+                </D>
+            </For>
+            <For ref="rpath">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M($box.w - $a.y, $a.y), L($box.w, 0), L($box.w, $box.h - $a.y), L($box.w - $a.y, $box.h)]
+                </D>
+            </For>
+            <For ref="stroke">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    [M(0, $a.y), L(0, $box.h), L($box.w - $a.y, $box.h), L($box.w, $box.h - $a.y), L($box.w, 0), L($box.w - $a.y, $a.y),
+                    L(0, $a.y), L($a.y, 0), L($box.w, 0), M($box.w - $a.y, $a.y), L($box.w - $a.y, $box.h)]
+                </D>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound(0 , $a.y, $box.w - $a.y, $box.h - $a.y)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="tpath" stroke="none" />
+            <path id="fpath" stroke="none" />
+            <path id="rpath" stroke="none" />
+            <path id="stroke" fill="none" style="stroke-linejoin:  round;" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="bevel" displayName="Bevel" icon="Icons/bevel.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="handle1" type="Handle" p:lockY="true" p:minX="0" p:maxX="Math.min($box.h/2, $box.w/2)">30,0</Property>
+                <Property name="box" displayName="box" type="Dimension">100,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="linecolor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
+                <Property name="textFont" displayName="defaultfont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="textcolor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="tpath">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor.shaded(-0.2)</Fill>
+                <D>
+                    [M(0, 0), L($box.w, 0), L($box.w - $a.x, $a.x), L($a.x, $a.x)]
+                </D>
+            </For>
+            <For ref="lpath">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor.shaded(-0.35)</Fill>
+                <D>
+                    [M(0, $box.h), L(0, 0), L($a.x, $a.x), L($a.x, $box.h - $a.x)]
+                </D>
+            </For>
+            <For ref="bpath">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor.shaded(0.2)</Fill>
+                <D>
+                    [M($box.w, $box.h), L(0, $box.h), L($a.x, $box.h - $a.x), L($box.w - $a.x, $box.h - $a.x)]
+                </D>
+            </For>
+            <For ref="rpath">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor.shaded(0.35)</Fill>
+                <D>
+                    [M($box.w, 0), L($box.w, $box.h), L($box.w - $a.x, $box.h - $a.x), L($box.w - $a.x, $a.x)]
+                </D>
+            </For>
+            <For ref="cpath">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <Fill>$fillColor</Fill>
+                <D>
+                    [M($a.x, $a.x), L($box.w - $a.x, $a.x), L($box.w - $a.x, $box.h - $a.x), L($a.x, $box.h - $a.x)]
+                </D>
+            </For>
+            <For ref="stroke">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    [M(0, 0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), L(0, 0), L($a.x, $a.x),
+                    L($box.w - $a.x, $a.x), L($box.w, 0), M($box.w - $a.x, $a.x), L($box.w - $a.x, $box.h - $a.x),
+                    L($box.w, $box.h), M($box.w - $a.x, $box.h - $a.x), L($a.x, $box.h - $a.x), L(0, $box.h),
+                    M($a.x, $box.h - $a.x), L($a.x, $a.x)]
+                </D>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound($a.x , $a.x, $box.w - 2 * $a.x, $box.h - 2 * $a.x)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="tpath" stroke="none" />
+            <path id="lpath" stroke="none" />
+            <path id="bpath" stroke="none" />
+            <path id="rpath" stroke="none" />
+            <path id="cpath" stroke="none" />
+            <path id="stroke" fill="none" style="stroke-linejoin:  round;" />
+            <text id="text" />
+        </p:Content>
+    </Shape>
+</Shapes>

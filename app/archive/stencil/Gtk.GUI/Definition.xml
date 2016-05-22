@@ -1,0 +1,820 @@
+<Shapes xmlns="http://www.evolus.vn/Namespace/Pencil"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+   	    id="Evolus.GTK.Widgets"
+   	    displayName="Desktop - GTK Widgets"
+   	    description="A Nodoka-based GTK+ widget collection"
+        author="Duong Thanh An (an.duong@evolus.vn)"
+        url="http://www.evolus.vn/Projects/FOSS/Pencil/Collections/NodokaWidget.html">
+    <Shape id="Label" displayName="Label" icon="Icons/label.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Label</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font">Liberation Sans|normal|normal|12px</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$label</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(0, 0, 100, 12)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+              <text
+                 id="text"
+                 y="9.0077095"
+                 x="17.999992"
+                 style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                 xml:space="preserve">checkbutton2</text>
+        </p:Content>
+    </Shape>
+    <Shape id="Button" displayName="Button" icon="Icons/button.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">90,24</Property>
+            </PropertyGroup>
+            
+            <PropertyGroup name="Text">
+                <Property name="buttonText" displayName="Caption" type="PlainText">Button</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font">Liberation Sans|normal|normal|12px</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Background">
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="stop1">
+                <StopColor>Color.fromString("#fdfdfcff").shaded(0.01)</StopColor>
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString("#fdfdfcff").shaded($disabled.value ? 0.01 : 0.07)</StopColor>
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString("#fdfdfcff").shaded($disabled.value ? 0.01 : 0)</StopColor>
+            </For>
+            <For ref="rect">
+                <Box>$box.narrowed(1)</Box>
+                <StrokeColor>Color.fromString("#a19685ff").shaded($disabled.value ? -0.3 : 0)</StrokeColor>
+            </For>
+            <For ref="text">
+                <TextContent>$buttonText</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            
+            <defs>
+                <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="linearFill">
+                    <stop style="stop-color:#fdfdfc;stop-opacity:1" offset="0" id="stop1"/>
+                    <stop style="stop-color:#eae7df;stop-opacity:1" offset="0.7" id="stop2"/>
+                    <stop style="stop-color:#fdfdfc;stop-opacity:1" offset="1" id="stop3"/>
+                </linearGradient>
+            </defs>
+            <rect
+                width="60"
+                height="23"
+                rx="3"
+                ry="3"
+                x="0.5"
+                y="0.5"
+                style="fill:url(#linearFill);stroke:#a19685;stroke-width:1;stroke-linejoin:round;"
+                id="rect" />
+            <text
+                x="31.5"
+                y="17.25"
+                style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                id="text"
+                xml:space="preserve">Button</text>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="Panel" displayName="Panel" icon="Icons/panel.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">300,200</Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">true</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="rect">
+                <Box>$box</Box>
+            </For>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter
+                   id="shadingFilter"
+                   height="1.2558399"
+                   y="-0.12792"
+                   width="1.06396"
+                   x="-0.03198">
+                    <feGaussianBlur stdDeviation="1.3325" in="SourceAlpha"/>
+                </filter>            
+                <rect id="rect" x="0" y="0" width="10" height="10" 
+                        style="stroke: none; fill-opacity:1; fill: #ede9e3;"/>                    
+            </defs>
+            <use xlink:href="#rect" id="bgCopy" transform="translate(2, 2)" p:filter="url(#shadingFilter)" style="opacity:0.6;" p:heavy="true"/>
+            <use xlink:href="#rect"/>
+        </p:Content>
+    </Shape>
+    <Shape id="Progress" displayName="Progress" icon="Icons/progress.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">149,19</Property>
+                <Property name="value" displayName="Value" type="Handle" p:lockY="true" p:minX="2" p:maxX="$box.w - 3">50,0</Property>
+                <Property name="forceFull" displayName="Force 100%" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="outerRect">
+                <Box>$box.narrowed(1)</Box>
+            </For>
+            <For ref="innerRect">
+                <Box>new Dimension($forceFull.value ? $box.w - 5 : $value.x - 2, $box.h - 5)</Box>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <defs
+     id="defs2659">
+    <linearGradient
+       id="linearGradient31435">
+      <stop
+         style="stop-color:#bab4a7;stop-opacity:1"
+         offset="0"
+         id="stop31437" />
+      <stop
+         style="stop-color:#bab4a8;stop-opacity:1"
+         offset="0.30131003"
+         id="stop31439" />
+      <stop
+         style="stop-color:#d6cec0;stop-opacity:1"
+         offset="1"
+         id="stop31441" />
+    </linearGradient>
+    <linearGradient
+       x1="0%"
+       y1="100%"
+       x2="0%"
+       y2="0%"
+       id="linearGradient55484"
+       xlink:href="#linearGradient31435"
+       gradientUnits="userSpaceOnUse"/>
+    <linearGradient
+       x1="0%"
+       y1="100%"
+       x2="0%"
+       y2="0%"
+       id="linearGradient57450">
+          <stop
+             style="stop-color:#0080c3;stop-opacity:1"
+             offset="0"
+             id="stop2239" />
+          <stop
+             style="stop-color:#28a2e1;stop-opacity:1"
+             offset="0.57124019"
+             id="stop2268" />
+          <stop
+             style="stop-color:#3cb3f0;stop-opacity:1"
+             offset="0.74453777"
+             id="stop2270" />
+          <stop
+             style="stop-color:#51c4ff;stop-opacity:1"
+             offset="1"
+             id="stop2241" />
+    </linearGradient>
+  </defs>
+              <rect
+       width="149"
+       height="19"
+       x="0.5"
+       y="0.5"
+       style="opacity:1;color:#000000;fill:url(#linearGradient55484);fill-opacity:1;fill-rule:nonzero;stroke:#a19685;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="outerRect" />
+    <rect
+       width="112"
+       height="15"
+       x="2.5"
+       y="2.5"
+       style="opacity:1;color:#000000;fill:url(#linearGradient57450);fill-opacity:1;fill-rule:nonzero;stroke:#0054fe;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="innerRect" />
+        </p:Content>
+    </Shape>
+    <Shape id="TextBox" displayName="Text Box" icon="Icons/textbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">194,21</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Content" type="PlainText">Text box</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font">Liberation Sans|normal|normal|12px</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="rect">
+                <Box>$box.narrowed(1)</Box>
+                <Fill>Color.fromString($disabled.value ? "#F6F4F1FF" : "#FFFFFFFF")</Fill>
+                <StrokeColor>Color.fromString($disabled.value ? "#C7C0B4FF" : "#A19685FF")</StrokeColor>
+            </For>
+            <For ref="path">
+                <Visibility>$disabled.negative()</Visibility>
+                <D>"M " + ($box.w - 1.3) + ",1.3360847 L 3.4959684,1.3360847 C 2.0817584,1.2771647 1.1978687,2.5825147 1.3746487,3.9378047 L 1.3746487," + ($box.h - 1.7)</D>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+              <defs
+                 id="defs2659">
+                <linearGradient
+                   id="linearGradient31435">
+                  <stop
+                     style="stop-color:#bab4a7;stop-opacity:1"
+                     offset="0"
+                     id="stop31437" />
+                  <stop
+                     style="stop-color:#bab4a8;stop-opacity:1"
+                     offset="0.30131003"
+                     id="stop31439" />
+                  <stop
+                     style="stop-color:#d6cec0;stop-opacity:1"
+                     offset="1"
+                     id="stop31441" />
+                </linearGradient>
+                <linearGradient
+                   x1="503"
+                   y1="106"
+                   x2="503"
+                   y2="86"
+                   id="linearGradient55484"
+                   xlink:href="#linearGradient31435"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="translate(-381.00001,-85.899192)" />
+                <linearGradient
+                   id="linearGradient2237">
+                  <stop
+                     style="stop-color:#0080c3;stop-opacity:1"
+                     offset="0"
+                     id="stop2239" />
+                  <stop
+                     style="stop-color:#28a2e1;stop-opacity:1"
+                     offset="0.57124019"
+                     id="stop2268" />
+                  <stop
+                     style="stop-color:#3cb3f0;stop-opacity:1"
+                     offset="0.74453777"
+                     id="stop2270" />
+                  <stop
+                     style="stop-color:#51c4ff;stop-opacity:1"
+                     offset="1"
+                     id="stop2241" />
+                </linearGradient>
+                <linearGradient
+                   x1="439.5"
+                   y1="104"
+                   x2="439.5"
+                   y2="88"
+                   id="linearGradient57450"
+                   xlink:href="#linearGradient2237"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="translate(-381.00001,-85.899192)" />
+              </defs>
+              <rect
+                 style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#a19685;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="rect"
+                 width="194"
+                 height="21"
+                 x="0.5"
+                 y="0.5"
+                 rx="3"
+                 ry="3" />
+              <text
+                 xml:space="preserve"
+                 style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                 x="4.5048509"
+                 y="14.894419"
+                 id="text">GtkEntry</text>
+              <path
+                 id="path"
+                 d="M 192.73543,1.3360847 L 3.4959684,1.3360847 C 2.0817584,1.2771647 1.1978687,2.5825147 1.3746487,3.9378047 L 1.3746487,19.367321"
+                 style="opacity:0.27363186;fill:none;fill-rule:evenodd;stroke:#6d6d6d;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+        </p:Content>
+    </Shape>
+    <Shape id="CheckBox" displayName="Checkbox" icon="Icons/checkbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="checked" displayName="Checked" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Checkbox</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font">Liberation Sans|normal|normal|12px</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="rect">
+                <StrokeColor>Color.fromString($disabled.value ? "#C7C0B4ff" : "#a19685ff")</StrokeColor>
+            </For>
+            <For ref="shadowPath">
+                <Visibility>$disabled.negative()</Visibility>
+            </For>
+            <For ref="checkedPath">
+                <Visibility>$checked</Visibility>
+                <StrokeColor>Color.fromString($disabled.value ? "#92CD79ff" : "#2fa600ff")</StrokeColor>
+            </For>
+            <For ref="text">
+                <TextContent>$label</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(18, 0, 100, 12)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+                <defs
+                     id="defs2659">
+                    <linearGradient
+                       id="linearGradient31435">
+                      <stop
+                         style="stop-color:#bab4a7;stop-opacity:1"
+                         offset="0"
+                         id="stop31437" />
+                      <stop
+                         style="stop-color:#bab4a8;stop-opacity:1"
+                         offset="0.30131003"
+                         id="stop31439" />
+                      <stop
+                         style="stop-color:#d6cec0;stop-opacity:1"
+                         offset="1"
+                         id="stop31441" />
+                    </linearGradient>
+                    <linearGradient
+                       x1="503"
+                       y1="106"
+                       x2="503"
+                       y2="86"
+                       id="linearGradient55484"
+                       xlink:href="#linearGradient31435"
+                       gradientUnits="userSpaceOnUse"
+                       gradientTransform="translate(-381.00001,-85.899192)" />
+                    <linearGradient
+                       id="linearGradient2237">
+                      <stop
+                         style="stop-color:#0080c3;stop-opacity:1"
+                         offset="0"
+                         id="stop2239" />
+                      <stop
+                         style="stop-color:#28a2e1;stop-opacity:1"
+                         offset="0.57124019"
+                         id="stop2268" />
+                      <stop
+                         style="stop-color:#3cb3f0;stop-opacity:1"
+                         offset="0.74453777"
+                         id="stop2270" />
+                      <stop
+                         style="stop-color:#51c4ff;stop-opacity:1"
+                         offset="1"
+                         id="stop2241" />
+                    </linearGradient>
+                    <linearGradient
+                       x1="439.5"
+                       y1="104"
+                       x2="439.5"
+                       y2="88"
+                       id="linearGradient57450"
+                       xlink:href="#linearGradient2237"
+                       gradientUnits="userSpaceOnUse"
+                       gradientTransform="translate(-381.00001,-85.899192)" />
+                  </defs>
+                  <rect
+                     y="0.5"
+                     x="0.5"
+                     height="11"
+                     width="11"
+                     id="rect"
+                     style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#a19685;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+                  <text
+                     id="text"
+                     y="9.0077095"
+                     x="17.999992"
+                     style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                     xml:space="preserve">checkbutton2</text>
+                  <path
+                     style="fill:none;fill-rule:evenodd;stroke:#2fa600;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+                     d="M 2.6828715,6.1855819 C 3.8900545,6.7030619 4.8089835,7.6180019 5.6880745,9.0140022 C 6.8298705,6.2591419 7.6236995,4.6281819 9.7539433,2.5616519"
+                     id="checkedPath"/>
+                  <path
+                     id="shadowPath"
+                     d="M 10.990947,1.5527519 L 1.4449985,1.5527519 L 1.6217755,11.27548"
+                     style="opacity:0.27363186;fill:none;fill-rule:evenodd;stroke:#6d6d6d;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+        </p:Content>
+    </Shape>
+    <Shape id="Radio" displayName="Radio" icon="Icons/radio.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Radio Button</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font">Liberation Sans|normal|normal|12px</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="outerPath">
+                <StrokeColor>Color.fromString($disabled.value ? "#C7C0B4ff" : "#a19685ff")</StrokeColor>
+            </For>
+            <For ref="shadowPath">
+                <Visibility>$disabled.negative()</Visibility>
+            </For>
+            <For ref="bullet">
+                <Visibility>$selected</Visibility>
+                <Fill>Color.fromString($disabled.value ? "#7BA8DAff" : "#005dc2ff")</Fill>
+            </For>
+            <For ref="text">
+                <TextContent>$label</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(18, 0, 100, 12)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+<defs
+     id="defs2659">
+    <linearGradient
+       id="linearGradient31435">
+      <stop
+         style="stop-color:#bab4a7;stop-opacity:1"
+         offset="0"
+         id="stop31437" />
+      <stop
+         style="stop-color:#bab4a8;stop-opacity:1"
+         offset="0.30131003"
+         id="stop31439" />
+      <stop
+         style="stop-color:#d6cec0;stop-opacity:1"
+         offset="1"
+         id="stop31441" />
+    </linearGradient>
+    <linearGradient
+       x1="503"
+       y1="106"
+       x2="503"
+       y2="86"
+       id="linearGradient55484"
+       xlink:href="#linearGradient31435"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-381.00001,-85.899192)" />
+    <linearGradient
+       id="linearGradient2237">
+      <stop
+         style="stop-color:#0080c3;stop-opacity:1"
+         offset="0"
+         id="stop2239" />
+      <stop
+         style="stop-color:#28a2e1;stop-opacity:1"
+         offset="0.57124019"
+         id="stop2268" />
+      <stop
+         style="stop-color:#3cb3f0;stop-opacity:1"
+         offset="0.74453777"
+         id="stop2270" />
+      <stop
+         style="stop-color:#51c4ff;stop-opacity:1"
+         offset="1"
+         id="stop2241" />
+    </linearGradient>
+    <linearGradient
+       x1="439.5"
+       y1="104"
+       x2="439.5"
+       y2="88"
+       id="linearGradient57450"
+       xlink:href="#linearGradient2237"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-381.00001,-85.899192)" />
+  </defs>
+  <path
+     transform="matrix(0.9362048,0,0,0.9362048,-111.82866,-312.21823)"
+     d="M 131.75 339.875 A 5.875 5.875 0 1 1  120,339.875 A 5.875 5.875 0 1 1  131.75 339.875 z"
+     id="outerPath"
+     style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#a19685;stroke-width:1.06770825;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+     />
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+     x="18.016193"
+     y="8.9744911"
+     id="text">radiobutton2</text>
+  <path
+     id="shadowPath"
+     d="M 3.5201411,9.8478598 C 1.4655909,8.4017026 0.93900042,5.5125628 2.3446111,3.3988028 C 3.7503111,1.2850728 6.5585511,0.74328308 8.6131111,2.1894328 C 9.2297411,2.6234428 9.6679911,3.1221828 10.025751,3.7969628"
+     style="opacity:0.27363186;color:#000000;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#6d6d6d;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+  <path
+     style="opacity:1;color:#000000;fill:#005dc2;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+     id="bullet"
+     d="M 128.5 363.75 A 2.5 2.75 0 1 1  123.5,363.75 A 2.5 2.75 0 1 1  128.5 363.75 z"
+     transform="matrix(1.2,0,0,1.0909092,-145.18388,-390.84385)" />
+        </p:Content>
+    </Shape>
+    <Shape id="ComboBox" displayName="Combo Box" icon="Icons/combobox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">194,25</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Content" type="PlainText">Combo Box</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font">Liberation Sans|normal|normal|12px</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="rect">
+                <Box>$box.narrowed(1)</Box>
+                <Fill>Color.fromString($disabled.value ? "#F6F4F1FF" : "#FFFFFFFF")</Fill>
+                <StrokeColor>Color.fromString($disabled.value ? "#C7C0B4FF" : "#A19685FF")</StrokeColor>
+            </For>
+            <For ref="path">
+                <Visibility>$disabled.negative()</Visibility>
+                <D>"M " + ($box.w - 25) + ",1.3360847 L 3.4959684,1.3360847 C 2.0817584,1.2771647 1.1978687,2.5825147 1.3746487,3.9378047 L 1.3746487," + ($box.h - 1.7)</D>
+            </For>
+            <For ref="dropDownButton">
+                <D>"M " + ($box.w - 24.5) + ",0.54551944 L " + ($box.w - 24.5) + "," + ($box.h - 0.5) + " L " + ($box.w - 3.5) + "," + ($box.h - 0.5) + " C " + ($box.w - 1) + "," + ($box.h - 0.5) + " " + ($box.w + 0.5) + "," + ($box.h - 2) + " " + ($box.w + 0.5) + "," + ($box.h - 3.5) + " L " + ($box.w + 0.5) + ",3.5455196 C " + ($box.w + 0.5) + ",1.8835196 " + ($box.w - 1) + ",0.54551944 " + ($box.w - 3.5) + ",0.54551944 L " + ($box.w - 24.5) + ",0.54551944 z "</D>
+                <StrokeColor>Color.fromString($disabled.value ? "#C7C0B4FF" : "#A19685FF")</StrokeColor>
+            </For>
+            <For ref="marker">
+                <D>"M " + ($box.w - 16) + "," + ($box.h / 2 - 1.5) + " L " + ($box.w - 12) + "," + ($box.h / 2 + 3) + " L " + ($box.w - 8) + "," + ($box.h / 2 - 1.5)</D>
+                <StrokeColor>Color.fromString($disabled.value ? "#777572FF" : "#000000FF")</StrokeColor>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+              <defs
+                 id="defs2659">
+                <linearGradient
+                   id="linearGradient31435">
+                  <stop
+                     style="stop-color:#bab4a7;stop-opacity:1"
+                     offset="0"
+                     id="stop31437" />
+                  <stop
+                     style="stop-color:#bab4a8;stop-opacity:1"
+                     offset="30%"
+                     id="stop31439" />
+                  <stop
+                     style="stop-color:#d6cec0;stop-opacity:1"
+                     offset="100%"
+                     id="stop31441" />
+                </linearGradient>
+                <linearGradient
+                   id="linearGradient2237">
+                  <stop
+                     style="stop-color:#0080c3;stop-opacity:1"
+                     offset="0"
+                     id="stop2239" />
+                  <stop
+                     style="stop-color:#28a2e1;stop-opacity:1"
+                     offset="0.57124019"
+                     id="stop2268" />
+                  <stop
+                     style="stop-color:#3cb3f0;stop-opacity:1"
+                     offset="0.74453777"
+                     id="stop2270" />
+                  <stop
+                     style="stop-color:#51c4ff;stop-opacity:1"
+                     offset="1"
+                     id="stop2241" />
+                </linearGradient>
+                <linearGradient
+                   x1="439.5"
+                   y1="104"
+                   x2="439.5"
+                   y2="88"
+                   id="linearGradient57450"
+                   xlink:href="#linearGradient2237"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="translate(-381.00001,-85.899192)" />
+                <linearGradient
+                   id="linearGradient27481">
+                  <stop
+                     style="stop-color:#f6f4ef;stop-opacity:1"
+                     offset="0"
+                     id="stop27483" />
+                  <stop
+                     style="stop-color:#eae7df;stop-opacity:1"
+                     offset="0.30131003"
+                     id="stop27489" />
+                  <stop
+                     style="stop-color:#fdfdfc;stop-opacity:1"
+                     offset="1"
+                     id="stop27485" />
+                </linearGradient>
+                <linearGradient
+                   x1="198"
+                   y1="118"
+                   x2="198"
+                   y2="93"
+                   id="linearGradient38337"
+                   xlink:href="#linearGradient27481"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="translate(-16.00949,-92.954482)" />
+              </defs>
+              <rect
+                 style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#a19685;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="rect"
+                 width="194"
+                 height="21"
+                 x="0.5"
+                 y="0.5"
+                 rx="3"
+                 ry="3" />
+              <path
+                 d="M 169.49051,0.54551944 L 169.49051,24.545518 L 191.49051,24.545518 C 193.15251,24.545518 194.49051,23.207518 194.49051,21.545518 L 194.49051,3.5455196 C 194.49051,1.8835196 193.15251,0.54551944 191.49051,0.54551944 L 169.49051,0.54551944 z "
+                 style="color:#000000;fill:url(#linearGradient38337);fill-opacity:1;fill-rule:nonzero;stroke:#a19685;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="dropDownButton" />
+              <path
+                 id="path"
+                 d="M 192.73543,1.3360847 L 3.4959684,1.3360847 C 2.0817584,1.2771647 1.1978687,2.5825147 1.3746487,3.9378047 L 1.3746487,19.367321"
+                 style="opacity:0.27363186;fill:none;fill-rule:evenodd;stroke:#6d6d6d;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+              <text
+                 xml:space="preserve"
+                 style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                 x="4.5048509"
+                 y="14.894419"
+                 id="text">GtkEntry</text>
+              <path
+                 d="M 178.17039,10.905848 L 181.71474,15.695008 L 185.12231,10.842638"
+                 style="opacity:1;color:#000000;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="marker" />
+             </p:Content>
+    </Shape>
+    <Shape id="Window" displayName="Window Frame" icon="Icons/window.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">300,250</Property>
+                <Property name="headerHeight" displayName="Header Bar Height" type="Handle" p:lockX="true" p:minY="30" p:maxY="$box.h - 6">0,30</Property>
+            </PropertyGroup>
+            
+            <PropertyGroup name="Text">
+                <Property name="titleText" displayName="Title" type="PlainText">Untitled Frame</Property>
+                <Property name="textColor" displayName="Color" type="Color">#ffffffff</Property>
+                <Property name="textFont" displayName="Font" type="Font">Liberation Sans|bold|normal|13px</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Background">
+                <Property name="headerColor" displayName="Header Color" type="Color">#ffffffff</Property>
+                <Property name="withShadow" displayName="With Shadow" type="Bool">true</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="shadowBox">
+                <Visibility>$withShadow</Visibility>
+                <Box>$box</Box>
+            </For>
+            <For ref="outBorder1">
+                <Box>$box.narrowed(1)</Box>
+            </For>
+            <For ref="outBorder2">
+                <Box>$box.narrowed(3)</Box>
+            </For>
+            <For ref="titleBg">
+                <Box>new Dimension($box.w - 4, 27)</Box>
+            </For>
+            <For ref="contentBg">
+                <Box>new Dimension($box.w - 5, $box.h - 32)</Box>
+            </For>
+            <For ref="headerBar">
+                <Box>new Dimension($box.w - 6, $headerHeight.y - 30)</Box>
+                <Fill>$headerColor</Fill>
+            </For>
+            <For ref="text">
+                <TextContent>$titleText</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(10, 4, $box.w - 20, 21)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="shadowText">
+                <TextContent>$titleText</TextContent>
+                <Fill>Color.fromString("#00000055")</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(11, 5, $box.w - 20, 21)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            
+        </Behaviors>
+
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            
+            <defs>
+                <linearGradient x1="0%" y1="0%" x2="100%" y2="0%" id="linearFill">
+                    <stop style="stop-color:#165C80;stop-opacity:1" offset="0" id="stop1"/>
+                    <stop style="stop-color:#0A7AB4;stop-opacity:1" offset="0.5" id="stop2"/>
+                    <stop style="stop-color:#165C80;stop-opacity:1" offset="1" id="stop3"/>
+                </linearGradient>
+            </defs>
+            <rect width="60" height="23" rx="0" ry="0" x="3" y="3"
+                  style="fill: #000000; fill-opacity: .2; stroke: none;"
+                  id="shadowBox" />
+            <rect width="60" height="23" rx="0" ry="0" x="0.5" y="0.5"
+                  style="fill: none;stroke: #005481; stroke-width:1; stroke-linejoin:round;"
+                  id="outBorder1" />
+            <rect width="60" height="23" rx="0" ry="0" x="1.5" y="1.5"
+                  style="fill: none;stroke: #18B0FF; stroke-width:1; stroke-linejoin:round;"
+                  id="outBorder2" />
+            <rect width="60" height="23" rx="0" ry="0" x="2" y="2"
+                  style="fill: url(#linearFill); stroke: none;"
+                  id="titleBg" />
+            <rect width="60" height="23" rx="0" ry="0" x="2.5" y="29.5"
+                  style="fill: #EDE9E3; stroke: #0071AC; stroke-width:1;stroke-linejoin:round;"
+                  id="contentBg" />
+            <text
+                x="31.5"
+                y="17.25"
+                style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                id="shadowText"
+                xml:space="preserve">Title</text>
+            <text
+                x="31.5"
+                y="17.25"
+                style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                id="text"
+                xml:space="preserve">Title</text>
+            <rect width="60" height="23" rx="0" ry="0" x="3" y="30"
+                  style="fill: #EDE9E3; stroke: none;"
+                  id="headerBar" />
+        </p:Content>
+    </Shape>
+</Shapes>

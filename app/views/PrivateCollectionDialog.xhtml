@@ -1,0 +1,80 @@
+<vbox class="Form">
+    <style>
+    body .Form .InputRow {
+        margin-top: 1em;
+    }
+    body .InputRow > label {
+        max-width: 6em;
+    }
+
+    @collectionList  {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        height: 100%;
+    }
+    @collectionList {
+        overflow-y:scroll;
+    }
+
+    @collectionList li:hover {
+        background-color: #99ceff;
+        color:white;
+    }
+
+    @collectionList li[active="true"] {
+        background-color: #1aa3ff;
+        color:white;
+    }
+
+    @collectionSelector {
+        border: solid 0.5px #8D9FB3;
+        border-radius: 0.3em;
+        width: 30em;
+        height: 30em;
+    }
+
+    @collectionSelector li {
+        list-style-type: none;
+        padding: 0.5em;
+    }
+
+    @definition h3 {
+        margin-bottom: 0em;
+        margin-top: 1ex;
+    }
+    </style>
+    <vbox>
+        <h3 anon-id="stepTitle"></h3>
+        <p anon-id="stepInfo"></p>
+    </vbox>
+    <div anon-id="wizardContent">
+        <vbox anon-id="collectionSelector">
+            <ul anon-id="collectionList"></ul>
+        </vbox>
+
+        <vbox anon-id="definition">
+            <vbox anon-id="collectionDefinition">
+                <h3>Collection definition </h3>
+                <hbox class="InputRow">
+                    <label for="collectionName">Name:  </label> <input type="text" anon-id="collectionName" flex="1"/>
+                </hbox>
+                <hbox class="InputRow">
+                    <label for="collectionDescription">Description: </label> <textarea rows="10" anon-id="collectionDescription" flex="1"> </textarea>
+                </hbox>
+            </vbox>
+            <vbox anon-id="shapeDefinition">
+                <h3>Shape definition </h3>
+                <hbox class="InputRow">
+                    <label for="shapeName">Name:  </label> <input type="text" anon-id="shapeName" flex="1"/>
+                    <input type="checkbox" checked="true" anon-id="generateIconCheck" /> <label style="max-width: 10em;"> Auto generate icon </label>
+                </hbox>
+                <hbox class="InputRow">
+                    <label for="shapeIcon">Icon: </label>
+                    <input type="text" disabled="true" anon-id="shapeIcon" flex="1" />
+                    <button anon-id="browse" disabled="true">Browse...</button>
+                </hbox>
+            </vbox>
+        </vbox>
+    </div>
+</vbox>

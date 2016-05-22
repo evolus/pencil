@@ -1,0 +1,144 @@
+function ExportDialog () {
+    Dialog.call(this);
+    this.title = "Export Document";
+
+    function sameIdComparer(a, b) {
+        if (!a) return !b;
+        if (!b) return false;
+        return a.id == b.id;
+    };
+
+    this.exporterCombo.renderer = function (exporter) {
+        return exporter.name;
+    };
+    this.exporterCombo.comparer = sameIdComparer;
+
+    this.exporterCombo.setItems(Pencil.documentExporters);
+
+    this.exporterCombo.addEventListener("p:ItemSelected", function () {
+        this.invalidateUIByExporter();
+    }.bind(this), false);
+
+    this.templateCombo.renderer = function (template) {
+        return template.name;
+    };
+
+    this.templateCombo.comparer = sameIdComparer;
+
+
+    this.invalidateUIByExporter();
+
+}
+__extend(Dialog, ExportDialog);
+
+
+ExportDialog.prototype.invalidateUIByExporter = function () {
+    var exporter = this.exporterCombo.getSelectedItem();
+    if (exporter.supportTemplating()) {
+        this.templateCombo.setItems(exporter.getTemplates());
+        this.templateCombo.setDisabled(false);
+    } else {
+        this.templateCombo.setItems([]);
+        this.templateCombo.setDisabled(true);
+    }
+
+    if (exporter.getWarnings && exporter.getWarnings()) {
+        this.warningContent.innerHTML = Dom.htmlEncode(exporter.getWarnings());
+        this.warningBox.removeAttribute("disabled");
+    } else {
+        this.warningBox.setAttribute("disabled", "true");
+    }
+};
+ExportDialog.prototype.setup = function (options) {
+    var source = function (page, callback) {
+        if (!page) {
+            callback(Pencil.controller.getRootPages());
+        } else {
+            callback(page.children);
+        }
+    };
+    var renderer = function (page) {
+        return page.name;
+    };
+
+    this.pageTree.setup(source, renderer, {
+        expandedAll: true,
+        checkable: true,
+        propagateCheckActionDownwards: true,
+        propagateUncheckActionDownwards: true,
+        isItemSelectable: function () { return false; },
+        isItemInitiallyChecked: function () { return false; }
+    });
+
+    var options = options || {};
+    if (options.lastParams) {
+        this.pageTree.setCheckedItems(options.lastParams.pages);
+        this.exporterCombo.selectItem({id: options.lastParams.exporterId}, false, true);
+        this.invalidateUIByExporter();
+        this.templateCombo.selectItem({id: options.lastParams.templateId}, false, true);
+    } else {
+        this.pageTree.setCheckedItems(Pencil.controller.doc.pages);
+    }
+};
+
+
+
+ExportDialog.prototype.getDialogActions = function () {
+    return [
+        {   type: "cancel", title: "Cancel",
+            isCloseHandler: true,
+            run: function () {
+                return true;
+            }
+        },
+        {   type: "accept", title: "Export",
+            run: function () {
+                var exporter = this.exporterCombo.getSelectedItem();
+                var template = this.templateCombo.getSelectedItem();
+
+                var result = {
+                    pages: this.pageTree.getCheckedItemsSync(),
+                    exporterId: exporter.id,
+                    templateId: template ? template.id : null,
+                    options: {}
+                };
+
+                if (exporter.getOutputType() != BaseExporter.OUTPUT_TYPE_NONE) {
+                    var isFile = (exporter.getOutputType() == BaseExporter.OUTPUT_TYPE_FILE);
+
+                    var dialogOptions = {
+                        title: "Select output " + (isFile ? "file" : "folder"),
+                        defaultPath: os.homedir(),
+                        properties: [isFile ? "openFile" : "openDirectory"]
+                    };
+
+                    if (isFile) {
+                        var filters = [];
+                        exporter.getOutputFileExtensions().forEach(function (filter) {
+                            filters.push({
+                                name: filter.title || filter.ext,
+                                extensions: [filter.ext]
+                            });
+                        });
+
+                        dialogOptions.filters = filters;
+                    }
+
+                    dialog.showOpenDialog(dialogOptions, function (filenames) {
+                        if (!filenames || filenames.length <= 0) return;
+                        result.targetPath = filenames[0];
+
+                        this.close(result);
+
+                    }.bind(this));
+                } else {
+                    this.close(result);
+                }
+
+
+
+                return false;
+            }
+        }
+    ]
+};

@@ -1,0 +1,184 @@
+/*
+@import "../lib/bootstrap/bootstrap.less";
+@import "../lib/bootstrap/theme.less";
+@import "bootstrap-fix.less";
+@import "../lib/font-awesome-4.4.0/less/font-awesome.less";
+*/
+.hbox {
+  flex-direction: row;
+  display: flex;
+}
+.vbox {
+  flex-direction: column;
+  display: flex;
+}
+html {
+  flex-direction: row;
+  display: flex;
+}
+body {
+  flex: 1;
+  flex-direction: column;
+  display: flex;
+  overflow: hidden;
+}
+hbox {
+  flex-direction: row;
+  display: flex;
+}
+vbox {
+  flex-direction: column;
+  display: flex;
+}
+box {
+  display: flex;
+}
+box[orient="vertical"] {
+  flex-direction: column;
+  display: flex;
+}
+box[orient="horizontal"] {
+  flex-direction: row;
+  display: flex;
+}
+vbox > *,
+hbox > *,
+box > * {
+  flex-shrink: 0;
+}
+*[flex='1'] {
+  flex: 1 1 auto;
+}
+*[flex='2'] {
+  flex: 2 1 auto;
+}
+*[flex='3'] {
+  flex: 3 1 auto;
+}
+*[flex='4'] {
+  flex: 4 1 auto;
+}
+*[flex='5'] {
+  flex: 5 1 auto;
+}
+*[flex='6'] {
+  flex: 6 1 auto;
+}
+*[flex='7'] {
+  flex: 7 1 auto;
+}
+*[flex='8'] {
+  flex: 8 1 auto;
+}
+*[flex='9'] {
+  flex: 9 1 auto;
+}
+*[flex='10'] {
+  flex: 10 1 auto;
+}
+hbox.InputRow > * + *,
+hbox.InputRow > * + input[type] {
+  margin-left: 1ex;
+}
+hbox.InputRow {
+  align-items: center;
+}
+/*
+button {
+    .btn();
+}
+
+button:not([role]) {
+    .btn-default();
+}
+
+button[role='primary'] {
+    .btn-primary();
+}
+button[role='danger'] {
+    .btn-danger();
+}
+
+*/
+footer {
+  flex-direction: row;
+  display: flex;
+  padding: 0.5em;
+}
+footer:after {
+  content: " ";
+  flex: 1;
+  order: 50;
+}
+footer > button[role='primary'] {
+  order: 99;
+  margin-left: 0.3em;
+}
+footer > button:not([role]),
+footer > button[role='dismissal'] {
+  order: 98;
+  margin-left: 0.3em;
+}
+footer > button[role='extra1'] {
+  order: 1;
+  margin-right: 0.3em;
+}
+footer > button[role='extra2'] {
+  order: 2;
+  margin-right: 0.3em;
+}
+footer > button[role='extra3'] {
+  order: 3;
+  margin-right: 0.3em;
+}
+html {
+  height: 100%;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+}
+#appView {
+  visibility: hidden;
+}
+#bootingIndicator {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 46%;
+  text-align: center;
+}
+body[loaded] #appView {
+  visibility: visible;
+}
+body[loaded] #bootingIndicator {
+  display: none;
+}
+html {
+  user-select: none;
+  -o-user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+}
+label {
+  font-weight: normal;
+}
+icon {
+  line-height: 1em;
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  opacity: 0.54;
+}

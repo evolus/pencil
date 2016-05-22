@@ -1,0 +1,306 @@
+<?xml version="1.0"?>
+<!DOCTYPE prefwindow SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css" ?>
+<?xml-stylesheet href="chrome://pencil/skin/settingDialog.css" type="text/css" ?>
+
+<prefwindow id="pencil-settings"
+    title="&pencil.settings.title;"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    buttons="accept,cancel"
+    buttonlabelaccept="&button.accept.label.apply;"
+    buttonlabelcancel="&button.cancel.label.cancel;"
+    ondialogaccept="return handleOnOk();"
+    ondialogcancel="return handleOnCancel();"
+    onunload="onConfigUnload();"
+    flex="1" persist="screenX screenY" >
+
+    <script src="chrome://pencil/content/common/util.js" />
+    <script src="chrome://pencil/content/common/config.js" />
+    <script src="chrome://pencil/content/settingDialog.js" />
+
+    <preferences>
+
+        <preference id="pencil-gridEnabled"
+            name="pencil.config.grid.enabled" type="bool" instantApply="true" />
+        <preference id="pencil-gridSize"
+            name="pencil.config.edit.gridSize" type="int" instantApply="true" />
+        <preference id="pencil-snapToGrid"
+            name="pencil.config.edit.snap.grid" type="bool" instantApply="true" />
+        <preference id="pencil-objectSnappingEnabled"
+            name="pencil.config.object.snapping.enabled" type="bool" instantApply="true" />
+        <preference id="pencil-objectSnappingBackground"
+            name="pencil.config.object.snapping.background" type="bool" instantApply="true" />
+        <preference id="pencil-dockingEnabled"
+            name="pencil.config.docking.enabled" type="bool" instantApply="true" />
+
+        <preference id="pencil-clipartBrowserScale"
+            name="pencil.config.clipartbrowser.scale" type="bool" instantApply="true" />
+        <preference id="pencil-clipartBrowserScaleWidth"
+            name="pencil.config.clipartbrowser.scale.width" type="int" instantApply="true" />
+        <preference id="pencil-clipartBrowserScaleHeight"
+            name="pencil.config.clipartbrowser.scale.height" type="int" instantApply="true" />
+
+        <preference id="pencil-viewUndoLevel"
+            name="pencil.config.view.undoLevel" type="int" instantApply="true" />
+        <preference id="pencil-quickEditting"
+            name="pencil.config.quick.editting" type="bool" instantApply="true" />
+        <preference id="pencil-cutAndPasteAtTheSamePlace"
+            name="pencil.config.edit.cutAndPasteAtTheSamePlace" type="bool" instantApply="true" />
+        <preference id="pencil-copyShapeFormat"
+            name="pencil.config.painterPropertyMap" type="string" instantApply="true" />
+
+        <preference id="pencil-embedImages"
+            name="pencil.config.document.EmbedImages" type="bool" instantApply="true" />
+        <preference id="pencil-saveWithPrefixNumber"
+            name="pencil.config.document.SaveWithPrefixNumber" type="bool" instantApply="true" />
+
+        <preference id="pencil-openOfficeConverter"
+            name="pencil.config.export.oo.converter" type="string" instantApply="true" />
+        <preference id="pencil-openOfficeConverterUNOPath"
+            name="pencil.config.export.oo.converter.uno.path" type="string" instantApply="true" />
+        <preference id="pencil-openOfficeConverterJODUrl"
+            name="pencil.config.export.oo.converter.jod.url" type="string" instantApply="true" />
+
+        <preference id="pencil-bitmapEditorUrl"
+            name="pencil.config.external.editor.bitmap.path" type="string" instantApply="true" />
+        <preference id="pencil-svgEditorUrl"
+            name="pencil.config.external.editor.vector.path" type="string" instantApply="true" />
+
+    </preferences>
+
+    <prefpane id="pencil-mainpane" label="&prefpane.general.label;" flex="1"
+        minheight="400" minwidth="600"
+            image="chrome://pencil/skin/images/pane-selector-general.png">
+
+        <deck selectedIndex="0" id="pencil-statusdeck" >
+            <vbox>
+                <groupbox>
+                    <caption label="&caption.canvas.label;" />
+                    <grid>
+                        <columns> <column /><column /></columns>
+                        <rows>
+                            <row align="center">
+                                <hbox align="center">
+                                    <checkbox id="checkboxEnableGrid" label="&checkbox.show.grid.label;"
+                                            onclick="document.getElementById('labelGridSize').disabled=this.checked;document.getElementById('textboxGridSize').disabled=this.checked;"
+                                            preference="pencil-gridEnabled"/>
+                                    <label value="&label.grid.size.value;" id="labelGridSize"/>
+                                    <textbox id="textboxGridSize" size="1" type="number" min="1" max="256" preference="pencil-gridSize"/>
+                                </hbox>
+                            </row>
+                            <row align="center">
+                                <checkbox id="snapToGrid"
+                                    label="&snap.objects.to.grid.label;" preference="pencil-snapToGrid"/>
+                            </row>
+
+                            <row align="center">
+                                <checkbox id="enableSnapping"
+                                    label="&snap.objects.to.objects.label;" preference="pencil-objectSnappingEnabled" onclick="document.getElementById('enableSnappingBackground').disabled=this.checked;"/>
+                            </row>
+                            <row align="center">
+                                <checkbox id="enableSnappingBackground" style="margin-left:2em;"
+                                    label="&snap.objects.to.objects.bgr.label;" preference="pencil-objectSnappingBackground"/>
+                            </row>
+
+                            <row align="center" style="display:none;">
+                                <checkbox id="enableDocking"
+                                    label="&dock.objects.to.objects.label;" preference="pencil-dockingEnabled"/>
+                            </row>
+
+                            <row align="center">
+                                <checkbox id="embedImages"
+                                    label="&embed.images.when.dnd.label;" preference="pencil-embedImages"/>
+                            </row>
+
+                        </rows>
+                    </grid>
+                </groupbox>
+
+                <groupbox>
+                    <caption label="&caption.edit.label;" />
+                    <grid>
+                        <columns> <column /><column /></columns>
+                        <rows>
+                            <row align="center">
+                                <checkbox id="quickEditting"
+                                    label="&start.text.editting.label;" preference="pencil-quickEditting"/>
+                            </row>
+
+                            <row align="center">
+                                <checkbox id="cutAndPasteAtTheSamePlace"
+                                    label="&cut.and.paste.same.place.label;" preference="pencil-cutAndPasteAtTheSamePlace"/>
+                            </row>
+
+                            <row align="center">
+                                <hbox align="center">
+                                    <checkbox id="undoEnabled"
+                                        label="&enable.undo.redo.label;"
+                                        onclick="document.getElementById('undoLevel').disabled=document.getElementById('textboxUndoLevel').disabled=this.checked;"/>
+                                    <label value="&label.undo.level.value;" id="undoLevel"/>
+                                    <textbox id="textboxUndoLevel" size="1" type="number" min="0" max="100" preference="pencil-viewUndoLevel" oncommand="if (this.value==0){document.getElementById('undoEnabled').checked=false;this.disabled=true;}"/>
+                                </hbox>
+                            </row>
+                        </rows>
+                    </grid>
+                </groupbox>
+            </vbox>
+        </deck>
+    </prefpane>
+<!--
+    <prefpane id="pencil-documentExpoter" label="&caption.document.exporter.label;" flex="1"
+            image="chrome://pencil/skin/images/pane-selector-export.png">
+        <deck>
+            <vbox>
+                <groupbox>
+                    <caption label="&caption.document.exporter.label;" />
+                    <grid>
+                        <columns> <column /><column /></columns>
+                        <rows>
+                            <row align="center">
+                                <label value="&label.openoffice.converter.value;" id="openOfficeConverter"/>
+                                <menulist id="openOfficeConverterList" oncommand="updateConverter();" style="max-width: 260px;" preference="pencil-openOfficeConverter">
+                                    <menupopup>
+                                        <menuitem value="uno" label="&menu.uno.converter.label;" />
+                                        <menuitem value="jod" label="&menu.jod.online.converter.label;" />
+                                    </menupopup>
+                                </menulist>
+                            </row>
+                            <row align="center" id="unoBox" style="xdisplay:none">
+                                <label value="&label.path.to.uno.converter.value;" id="labelUnoConverterUrl" />
+                                <textbox id="unoConverterUrl" width="350" value="/bin/sh" preference="pencil-openOfficeConverterUNOPath" />
+                            </row>
+                            <row align="center" id="jodBox" style="xdisplay:none">
+                                <label value="&label.path.to.jod.converter.value;" id="labelJodConverterUrl" />
+                                <textbox id="jodConverterUrl" width="350" value="http://example.com" preference="pencil-openOfficeConverterJODUrl" />
+                            </row>
+                        </rows>
+                    </grid>
+                </groupbox>
+            </vbox>
+        </deck>
+    </prefpane>
+ -->
+    <prefpane id="pencil-clipartBrowser" label="&prefpane.clipart.browser.label;" flex="1"
+            image="chrome://pencil/skin/images/pane-selector-openclipart.png">
+        <deck>
+            <vbox>
+                <groupbox>
+                    <caption label="&caption.clipartbrowser.label;" />
+                    <grid>
+                        <columns> <column /><column /></columns>
+                        <rows>
+                            <row align="center">
+                                <hbox align="center">
+                                    <checkbox id="checkboxScaleImage"
+                                        label="&scale.images.before.inserting.label;"
+                                        onclick="document.getElementById('clipartBrowserScaleWidth').disabled=document.getElementById('textboxClipartBrowserScaleWidth').disabled=document.getElementById('clipartBrowserScaleHeight').disabled=document.getElementById('textboxClipartBrowserScaleHeight').disabled=this.checked;"
+                                        preference="pencil-clipartBrowserScale"/>
+                                    <label value="&label.width.value;" id="clipartBrowserScaleWidth"/>
+                                    <textbox id="textboxClipartBrowserScaleWidth" size="1" type="number" min="16" max="256" preference="pencil-clipartBrowserScaleWidth"/>
+                                    <label value="&label.height.value;" id="clipartBrowserScaleHeight"/>
+                                    <textbox id="textboxClipartBrowserScaleHeight" size="1" type="number" min="16" max="256" preference="pencil-clipartBrowserScaleHeight"/>
+                                </hbox>
+                            </row>
+                        </rows>
+                    </grid>
+                </groupbox>
+            </vbox>
+        </deck>
+    </prefpane>
+
+    <prefpane id="pencil-externalEditor" label="&caption.external.editor.label;" flex="1"
+            image="chrome://pencil/skin/images/pane-external-editor.png">
+        <deck>
+            <vbox>
+                <groupbox>
+                    <caption label="&caption.external.editor.label;" />
+                    <grid>
+                        <columns> <column /><column /></columns>
+                        <rows>
+                            <row align="center" id="svgBox">
+                                <label value="&label.external.svg.editor.value;" id="labelSvgEditorUrl" />
+                                <textbox id="svgEditorUrl" width="350" value="/usr/bin/inkscape" preference="pencil-svgEditorUrl" />
+                            </row>
+                            <row align="center" id="bitmapBox">
+                                <label value="&label.external.bitmap.editor.value;" id="labelBitmapEditorUrl" />
+                                <textbox id="bitmapEditorUrl" width="350" value="/usr/bin/gimp" preference="pencil-bitmapEditorUrl" />
+                            </row>
+                        </rows>
+                    </grid>
+                </groupbox>
+            </vbox>
+        </deck>
+    </prefpane>
+
+    <prefpane id="pencil-advanced" label="&prefpane.advanced.label;" flex="1"
+            image="chrome://pencil/skin/images/pane-selector-advanced.png">
+        <deck id="configDeck" flex="1">
+            <vbox>
+                <hbox id="filterRow" align="center">
+                    <label value="&label.filter.value;" accesskey="&label.filter.accesskey;" control="textbox"/>
+                    <textbox id="textbox" flex="1" type="search" class="compact"
+                            aria-controls="configTree"
+                            oncommand="FilterPrefs();"/>
+                </hbox>
+
+                <tree id="configTree" flex="1" seltype="single"
+                        onselect="updateCommands('select');"
+                        enableColumnDrag="true" context="configContext" minheight="250">
+                        <treecols>
+                        <treecol id="prefCol" label="&treecol.preference.name.label;" flex="7"
+                            class="sortDirectionIndicator"
+                            ignoreincolumnpicker="true"
+                            persist="hidden width ordinal sortDirection"/>
+                        <splitter class="tree-splitter" />
+                        <treecol id="lockCol" label="&treecol.status.label;" flex="1"
+                            class="sortDirectionIndicator"
+                            persist="hidden width ordinal sortDirection"/>
+                        <splitter class="tree-splitter" />
+                        <treecol id="typeCol" label="&treecol.type.label;" flex="1"
+                            class="sortDirectionIndicator"
+                            persist="hidden width ordinal sortDirection"/>
+
+                        <splitter class="tree-splitter" />
+                        <treecol id="valueCol" label="&treecol.value.label;" flex="10"
+                            class="sortDirectionIndicator"
+                            persist="hidden width ordinal sortDirection"/>
+                        </treecols>
+
+                        <treechildren id="configTreeBody" ondblclick="if (event.button == 0) ModifySelected();"/>
+                </tree>
+
+                <menupopup id="configContext" onpopupshowing="if (event.target == this) updateContextMenu();">
+                    <menuitem id="toggleSelected" default="true"
+                            label="&menu.toggle.label;" accesskey="&menu.toggle.accesskey;"
+                            oncommand="ModifySelected();"/>
+                    <menuitem id="modifySelected" default="true"
+                            label="&menu.modify.label;" accesskey="&menu.modify.accesskey;"
+                            oncommand="ModifySelected();"/>
+                    <menuseparator/>
+                    <menuitem id="copyPref" label="&menu.copy.label;" accesskey="&menu.copy.accesskey;" oncommand="copyPref();"/>
+                    <menuitem id="copyName" label="&menu.copy.name.label;" accesskey="&menu.copy.name.accesskey;" oncommand="copyName();"/>
+                    <menuitem id="copyValue" label="&menu.copy.value.label;" accesskey="&menu.copy.value.accesskey;" oncommand="copyValue();"/>
+                    <menu label="&menu.new.label;" accesskey="&menu.new.accesskey;">
+                    <menupopup>
+                        <menuitem label="&menu.string.label;" accesskey="&menu.string.accesskey;" oncommand="NewPref(nsIPrefBranch.PREF_STRING);"/>
+                        <menuitem label="&menu.integer.label;" accesskey="&menu.integer.accesskey;" oncommand="NewPref(nsIPrefBranch.PREF_INT);"/>
+                        <menuitem label="&menu.boolean.label;" accesskey="&menu.boolean.accesskey;" oncommand="NewPref(nsIPrefBranch.PREF_BOOL);"/>
+                    </menupopup>
+                    </menu>
+                    <menuitem id="resetSelected" label="&menu.reset.label;" accesskey="&menu.reset.accesskey;" oncommand="ResetSelected();"/>
+                </menupopup>
+
+                <keyset id="configTreeKeyset" disabled="true">
+                    <key keycode="VK_ENTER" oncommand="ModifySelected();"/>
+                    <key keycode="VK_RETURN" oncommand="ModifySelected();"/>
+                    <key key="f" modifiers="accel" oncommand="document.getElementById('textbox').focus();"/>
+                </keyset>
+            </vbox>
+        </deck>
+    </prefpane>
+</prefwindow>

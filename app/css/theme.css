@@ -1,0 +1,226 @@
+html {
+}
+body {
+}
+/* MATERIAL */
+button {
+    font: inherit;
+
+    padding: 0em 0.6em;
+    margin: 0px;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+
+    line-height: 2.4em;
+    height: 2.4em;
+    box-sizing: border-box;
+
+    border-radius: 0.3ex;
+
+    background: #FFF;
+    outline: none;
+
+    text-shadow: 0px 1px 0px #FFF;
+    background-image: linear-gradient(to bottom, #FFF 0px, #E0E0E0 100%);
+    background-repeat: repeat-x;
+    display: inline-flex;
+    align-items: center;
+}
+button[disabled] {
+    background: rgba(255, 255, 255, 0.2);
+    cursor: default;
+    opacity: 0.6;
+}
+button[disabled] * {
+    opacity: 0.4;
+}
+button > i {
+    display: inline-block;
+    font-size: 1.4em;
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: subpixel-antialiased;
+    opacity: 0.7;
+}
+button > i[rotated="true"] {
+    transform: rotate(90deg);
+}
+button > * {
+    vertical-align: middle;
+}
+button > * + i {
+    margin-left: 0.35em;
+}
+button[mode='icon'] > i {
+    margin-left: 0em;
+}
+button[mode='icon'] {
+    padding: 0em 1em;
+}
+
+hbox.ButtonGroup > button {
+    box-shadow: none !important;
+}
+hbox.ButtonGroup > button:first-child,
+hbox.ButtonGroup > button + button {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-right-width: 0px;
+}
+hbox.ButtonGroup > button:first-child > i,
+hbox.ButtonGroup > button + button > i {
+    padding-right: 1px;
+}
+hbox.ButtonGroup > button + button {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-left-width: 0px;
+}
+hbox.ButtonGroup > button + button > i {
+    padding-left: 1px;
+}
+hbox.ButtonGroup > button:last-child {
+    border-top-right-radius: 0.3ex;
+    border-bottom-right-radius: 0.3ex;
+    border-right-width: 1px;
+}
+hbox.ButtonGroup > button:last-child > i {
+    padding-right: 0px;
+}
+hbox.ButtonGroup > button[disabled] + button:not([disabled]),
+hbox.ButtonGroup > button:not([disabled]) + button[disabled] {
+    border-left-width: 1px;
+}
+hbox.ButtonGroup > button[disabled] + button:not([disabled]) > i,
+hbox.ButtonGroup > button:not([disabled]) + button[disabled] > i {
+    padding-left: 0px;
+}
+hbox.ButtonGroup {
+    display: inline-flex;
+}
+button[selected='true'],
+button[checked='true'] {
+    background: #C8C8C8;
+}
+button[active='true'],
+button:active:not([disabled]) {
+    background: #E0E0E0;
+    border-color: #DBDBDB;
+}
+
+button[selected='true'] > i,
+button[checked='true'] > i {
+    opacity: 1;
+}
+
+
+input[type="text"],
+input[type="number"] {
+    font-size: 1em;
+    line-height: 2.4em;
+    height: 2.4em;
+    box-sizing: border-box;
+    padding: 0em 0.3em;
+
+    background: #FFF;
+
+    outline: none;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+}
+textarea {
+    font: inherit;
+    font-size: 1em;
+    box-sizing: border-box;
+    padding: 0.3em;
+
+    background: #FFF;
+
+    outline: none;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+}
+input[type="number"] {
+    padding-right: 0em;
+}
+input[type="text"][disabled],
+textarea[disabled],
+input[type="number"][disabled] {
+    background: rgba(255, 255, 255, 0.2);
+    opacity: 0.5;
+}
+input[type="text"]:focus,
+textarea:focus,
+input[type="number"]:focus {
+    border-color: #336699;
+    box-shadow: 0px 0px 0.3ex #336699;
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: optimizeSpeed;
+    font-size: 1.4em;
+    width: 1em;
+    height: 1em;
+    margin: 0;
+    display: inline-block;
+    position: relative;
+    cursor:pointer;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+    outline: none;
+}
+input[type='checkbox']:after,
+input[type='radio']:after {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    line-height: 1em;
+    text-align: center;
+    cursor: pointer;
+
+    display: inline-block;
+    font-family: 'Material Icons';
+    font-weight: bold;
+    font-style: normal;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: subpixel-antialiased;
+    color: rgba(0, 0, 0, 0.54);
+}
+input[type='checkbox']:checked:after,
+input[type='radio']:checked:after {
+    color: #039be5;
+    opacity: 0.54;
+}
+
+input[type='checkbox']:after {
+    content: '\E835';
+}
+input[type='checkbox']:checked:after {
+    content:'\E834';
+}
+input[type='radio']:after {
+    content: '\E836';
+}
+input[type='radio']:checked:after {
+    content:'\E837';
+}

@@ -1,0 +1,71 @@
+<vbox class="Form">
+    <style>
+        body @popupContainer {
+            font-size: 0.85em;
+            background: #F0F0F0;
+            margin: 0;
+            padding: 0em;
+            border: none;
+            box-shadow: 0em 0.1ex 0.25em rgba(0, 0, 0, 0.15);
+        }
+        body @popupContainer button,
+        body @popupContainer hbox.ButtonGroup {
+            box-shadow: 0em 0.1ex 0.25em rgba(0, 0, 0, 0.15);
+        }
+        body @popupContainer button {
+            padding-left: 0.7em;
+            padding-right: 0.7em;
+        }
+        body @popupContainer .widget_ComboManager @selectContainer > button {
+            padding-right: 0.3em;
+        }
+        @editor {
+            height: 300px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            border: inset 1px;
+            width: 40em;
+        }
+    </style>
+    <div anon-id="popupContainer">
+         <vbox>
+             <hbox>
+                 <ui:ComboManager anon-id="blockformat" flex="1"/>
+                 <ui:ComboManager anon-id="fontCombo" flex="1"/>
+                 <ui:ComboManager anon-id="fontSizeCombo" />
+             </hbox>
+            <hbox>
+                <hbox class="ButtonGroup" anon-id="textFormatContainer">
+                    <button mode="icon" anon-id="medBoldButton" tooltiptext="toolbar.bold.tooltiptext;" command="bold" group="TextFormatGroup"><i>format_bold</i></button>
+                    <button mode="icon" anon-id="medItalicButton" tooltiptext="toolbar.italic.tooltiptext;" command="italic" group="TextFormatGroup"><i>format_italic</i></button>
+                    <button mode="icon" anon-id="medUnderlineButton" tooltiptext="toolbar.underline.tooltiptext;" command="underline" group="TextFormatGroup"><i>format_underlined</i></button>
+                    <button mode="icon" anon-id="medStrikeButton" tooltiptext="toolbar.strike.through.tooltiptext;" command="strikeThrough" group="TextFormatGroup"><i>strikethrough_s</i></button>
+                </hbox>
+                <hbox anon-id="malignContainer" class="ButtonGroup">
+                    <button group="AlignRadioGroup" tooltiptext="toolbar.align.left.tooltiptext;" mode="icon" anon-id="malignLeftCommand" command="justifyleft"><i>format_align_left</i></button>
+                    <button group="AlignRadioGroup" tooltiptext="toolbar.align.center.tooltiptext;" mode="icon" anon-id="malignCenterCommand" command="justifycenter"><i>format_align_center</i></button>
+                    <button group="AlignRadioGroup" tooltiptext="toolbar.align.right.tooltiptext;" mode="icon" anon-id="malignRightCommand" command="justifyright"><i>format_align_right</i></button>
+                </hbox>
+                <hbox class="ButtonGroup">
+                    <button mode="icon" anon-id="medBulletedListButton" tooltiptext="toolbar.unordered.list.tooltiptext;" command="insertunorderedlist"><i>format_list_bulleted</i></button>
+                    <button mode="icon" anon-id="medNumberedListButton" tooltiptext="toolbar.ourdered.list.tooltiptext;" command="insertorderedlist"><i>format_list_numbered</i></button>
+                </hbox>
+                <hbox class="ButtonGroup">
+                    <button mode="icon" anon-id="medIndentButton" tooltiptext="toolbar.indent.tooltiptext;" command="indent"><i>format_indent_increase</i></button>
+                    <button mode="icon" anon-id="medOutdentButton" tooltiptext="toolbar.outdent.tooltiptext;" command="outdent"><i>format_indent_decrease</i></button>
+                </hbox>
+                <button anon-id="mtextColorButton" tooltiptext="pcolorbutton.text.color.tooltip;">AB</button>
+                <button anon-id="mhilightColorButton" tooltiptext="pcolorbutton.bgr.color.tooltip;"><span anon-id="colorDisplay" class="ColorDisplay"></span></button>
+                <button mode="icon" anon-id="medCleanUpButton" tooltiptext="Clean Up" command="removeformat"><i>clear</i></button>
+                <button mode="icon" anon-id="medInsertLinkButton" tooltiptext="Insert Link" command="createlink"><i>insert_link</i></button>
+                <ui:Popup anon-id="selectorContainer">
+                    <ui:ColorSelector anon-id="selector" />
+                </ui:Popup>
+            </hbox>
+       </vbox>
+
+   </div>
+<!-- <<<<<<< HEAD >>>>>>> c5e748cadd82f900b721422fea43e54756fd8aab -->
+    <div anon-id="editor" contenteditable="true"> </div>
+
+</vbox>

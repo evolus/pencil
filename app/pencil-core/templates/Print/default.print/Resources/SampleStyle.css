@@ -1,0 +1,23 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: .95em;
+}
+
+h1 {
+    border-bottom: solid 2px #666;
+}
+
+.Page {
+    page-break-after: always;
+    page-break-inside: avoid;
+}
+
+.SVGContainer {
+    border: solid 2px #ccc;
+}
+.SVGContainer > svg {
+    display: inline-block;
+}
+

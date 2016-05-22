@@ -1,0 +1,80 @@
+<vbox>
+    <style>
+        button {
+            box-shadow: none;
+        }
+        @propertyContainer {
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-transition: opacity 1s;
+            transition: opacity 1s;
+            font-size: 0.9em;
+            padding: 0.5em;
+        }
+        @propertyContainer > .Group + .Group {
+            margin-top: 2em;
+        }
+        @propertyContainer > .Group > .Wrapper {
+            align-items: center;
+            padding-left: 1em;
+        }
+        @propertyContainer > .Group > .Label + .Wrapper {
+            margin-top: 0.5em;
+        }
+        @propertyContainer > .Group > .Wrapper + .Wrapper {
+            padding-top: 0.5ex;
+        }
+        @propertyContainer > .Group > div.Label.Group {
+            font-weight: bold;
+            color: darken(@app_bg, 50%);
+            text-shadow: 1px 1px 0px lighten(@app_bg, 20%);
+        }
+        @propertyContainer > .Group > .Wrapper > div.Label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 6em;
+            font-size: 0.9em;
+        }
+
+        @propertyContainer input[type='text'],
+        @propertyContainer input[type='number'],
+        @propertyContainer button {
+            font-size: 1em;
+            line-height: 1.8em;
+            height: 1.8em;
+            padding: 0em .4em;
+            box-sizing: border-box;
+        }
+        @propertyContainer button {
+            min-width: 1.8em;
+            border: solid 1px rgba(0, 0, 0, 0.2);
+        }
+        @propertyContainer button > i {
+            font-size: 1.4em;
+            line-height: 1.286em;
+        }
+
+        @propertyContainer input[type='text'],
+        @propertyContainer input[type='number'] {
+            border: solid 1px rgba(0, 0, 0, 0.2);
+            padding: 0em 0.2em;
+        }
+
+        @noTargetMessagePane {
+            color: #BBB;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, .8);
+            text-align: center;
+            vertical-align: middle;
+            align-items: center;
+            justify-content: center;
+            padding: 2em;
+        }
+
+    </style>
+    <vbox anon-id="noTargetMessagePane" flex="1">
+        <span>Select objects in the canvas to edit properties.</span>
+    </vbox>
+    <vbox anon-id="propertyContainer" flex="1" style="transition: opacity 0.1s; -webkit-transition: opacity 0.1s;">
+    </vbox>
+</vbox>

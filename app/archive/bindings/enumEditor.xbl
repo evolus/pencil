@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+        xmlns:xbl="http://www.mozilla.org/xbl"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="enumEditor">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                this.menulist = document.getAnonymousElementByAttribute(this, "aid", "menulist");
+                this.popup = document.getAnonymousElementByAttribute(this, "aid", "popup");
+
+                if (this._property && this._property.meta) {
+                    this.setTypeMeta(this._property.meta);
+                }
+
+                if (this.hasAttribute("value")) this.setValue(Enum.fromString(this.getAttribute("value")));
+            ]]>
+            </constructor>
+            <method name="setTypeMeta">
+                <parameter name="meta"/>
+                <body>
+                <![CDATA[
+                    this.meta = meta;
+                    var enumValues = Enum.getValuesFromMeta(this.meta);
+                    this.valueItemMap = {};
+                    for (var i in enumValues) {
+                        var item = this.popup.ownerDocument.createElementNS(PencilNamespaces.xul, "menuitem");
+
+                        var enumObject = enumValues[i];
+                        var label = enumObject.label;
+                        var value = "" + enumObject.value;
+                        item.setAttribute("label", label);
+                        item.setAttribute("value", value);
+                        this.popup.appendChild(item);
+
+                        this.valueItemMap[value] = item;
+                    }
+                ]]>
+                </body>
+            </method>
+            <method name="setValue">
+                <parameter name="enumObject"/>
+                <body>
+                <![CDATA[
+                    var value = "" + enumObject.value;
+                    this.menulist.value = value;
+                ]]>
+                </body>
+            </method>
+            <method name="getValue">
+                <body>
+                <![CDATA[
+                    var enumObject = new Enum(this.menulist.value);
+                    return enumObject;
+                ]]>
+                </body>
+            </method>
+            <method name="isModified">
+                <body>
+                <![CDATA[
+                    return true; //this.isUserModified;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <content>
+            <menulist aid="menulist" flex="1" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xbl:inherits="disabled">
+                <menupopup aid="popup">
+                </menupopup>
+            </menulist>
+        </content>
+    </binding>
+</bindings>

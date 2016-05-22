@@ -1,0 +1,33 @@
+@import url(chrome://pencil/content/bindings/colorPickers.css);
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+
+pcoloreditor {
+    -moz-binding: url(chrome://pencil/content/bindings/colorEditor.xbl#colorEditor);
+}
+pcoloreditor > hbox > vbox {
+    margin-left: 1em;
+}
+pcoloreditor > hbox > vbox > label {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+pcoloreditor > hbox > vbox > * + label {
+    margin-top: .5em;
+}
+pcoloreditor > hbox > vbox > scale {
+    margin: 0px;
+}
+pcoloreditor box[aid="previewContainer"] {
+    background: url(ColorEditor-Preview-Bg.png) no-repeat 50% 50%;
+    border: outset 1px;
+}
+pcoloreditor box[aid="previewBox"] {
+    width: 60px;
+    height: 60px;
+}
+pcoloreditor[disabled='true'] colorpicker {
+    -moz-user-input: disabled;
+    -moz-user-focus: ignore;
+    opacity: .2;
+}

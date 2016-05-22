@@ -1,0 +1,151 @@
+<!ENTITY displayName "BlockArrow Shapes">
+<!ENTITY collectionDesc "Collection of BlockArrow shapes">
+<!ENTITY backgrcolor "Couleur de fond">
+<!ENTITY linecolor "Couleur de ligne">
+<!ENTITY linestyle "Style de ligne">
+<!ENTITY defaultfont "Police par défaut">
+<!ENTITY defaultextcolor "Couleur du texte par défaut">
+<!ENTITY line "Ligne">
+<!ENTITY innertop "Intérieur haut">
+<!ENTITY arrow "Flèche">
+<!ENTITY relarrowsize "Taille relative de la flèche ">
+<!ENTITY style "Style">
+<!ENTITY doublearrow "Double flèche">
+<!ENTITY startstyle "Style de départ">
+<!ENTITY elbowconnector "Connecteur en angle">
+<!ENTITY endstyle "Style d'arrivée">
+<!ENTITY elbowarrowconn "Connecteur en angle avec flèche">
+<!ENTITY box "Boîte">
+<!ENTITY elbowdblarrowconn "Connecteur en angle avec double flèche">
+<!ENTITY curvedconn "Connecteur en arc">
+<!ENTITY curvedarrowconn "Connecteur en arc avec flèche">
+<!ENTITY curveddblarrowconn "Connecteur en arc avec double flèche">
+<!ENTITY isoscelestriangle "Triangle isocèle">
+<!ENTITY handle "Poignée">
+<!ENTITY oval "Ellipse">
+<!ENTITY textpadding "Texte de remplissage">
+<!ENTITY textcont "Contenu du texte">
+<!ENTITY textcolor "Couleur du texte">
+<!ENTITY textalign "Alignement du texte">
+<!ENTITY makecircle "Transformer en cercle">
+<!ENTITY righttriangle "Triangle rectangle">
+<!ENTITY parallelogram "Parallélogramme">
+<!ENTITY trapezoid "Trapèze">
+<!ENTITY diamond "Losange">
+<!ENTITY regpentagon "Pentagone régulier">
+<!ENTITY hexagon "Hexagone">
+<!ENTITY pie "Secteur">
+<!ENTITY handle1 "Poignée 1">
+<!ENTITY handle2 "Poignée 2">
+<!ENTITY handle3 "Poignée 3">
+<!ENTITY handle4 "Poignée 4">
+<!ENTITY handle5 "Poignée 5">
+<!ENTITY chord "Appuyer simultanément">
+<!ENTITY teardrop "Larme">
+<!ENTITY frame "Cadre">
+<!ENTITY halfframe "Demi-cadre">
+<!ENTITY lshape "Forme en L">
+<!ENTITY diagstripe "Rayures diagonales">
+<!ENTITY cross "Croix">
+<!ENTITY plaque "Plaque">
+<!ENTITY can "Cylindre">
+<!ENTITY cube "Cube">
+<!ENTITY bevel "Relief">
+<!ENTITY rightarrow "Flèche droite">
+<!ENTITY leftarrow "Flèche gauche">
+<!ENTITY uparrow "Flèche vers le haut">
+<!ENTITY downarrow "Flèche vers le bas">
+<!ENTITY leftrightarrow "Double flèche horizontale">
+<!ENTITY updownarrow "Double flèche verticale">
+<!ENTITY flowchartdispl "Organigramme: affichage">
+<!ENTITY flowchartmagndsk "Organigramme: Disque dur">
+<!ENTITY flowchartdiraccstor "Organigramme: Stockage à accès direct">
+<!ENTITY flowchartseqaccstor "Organigramme: Stockage à accès séquentiel">
+<!ENTITY flowchartdelay "Organigramme: Délai">
+<!ENTITY flowchartstordata "Organigramme: Données stockées">
+<!ENTITY flowchartmrg "Organigramme: Fusionner">
+<!ENTITY flowchartextr "Organigramme: Extraire">
+<!ENTITY flowchartsort "Organigramme: Trier">
+<!ENTITY flowchartcoll "Organigramme: Rassembler">
+<!ENTITY flowchartor "Organigramme: Ou">
+<!ENTITY flowchartsummjunct "Organigramme: Jonction de sommaire">
+<!ENTITY flowchartpunchtape "Organigramme: Bande perforée">
+<!ENTITY flowchartcard "Organigramme: Carte">
+<!ENTITY flowchartoffpgconn "Organigramme: Connecteur hors page">
+<!ENTITY flowchartconn "Organigramme: Connecteur">
+<!ENTITY flowchartmanoper "Organigramme: Opération manuelle">
+<!ENTITY flowchartmaninp "Organigramme: Saisie manuelle">
+<!ENTITY flowchartprep "Organigramme: Préparation">
+<!ENTITY flowchartterm "Organigramme: Terminaison">
+<!ENTITY flowchartproc "Organigramme: Processus">
+<!ENTITY flowchartaltroc "Organigramme: Procédé alternatif">
+<!ENTITY flowchartdecis "Organigramme: Décision">
+<!ENTITY flowchartdata "Organigramme: Données">
+<!ENTITY flowchartpredefproc "Organigramme: Procédé prédéfini">
+<!ENTITY flowchartinternstor "Organigramme: Stockage interne">
+<!ENTITY flowchartdoc "Organigramme: Document">
+<!ENTITY flowchartmultidoc "Organigramme: Multidocument">
+<!ENTITY plus "Plus">
+<!ENTITY minus "Moins">
+<!ENTITY multiply "Multiplication">
+<!ENTITY division "Division">
+<!ENTITY equal "Égal">
+<!ENTITY notequal "Non égal">
+<!ENTITY rectangcallout "Légende rectangulaire">
+<!ENTITY textfont "Police du texte">
+<!ENTITY textsize "Taille du texte">
+<!ENTITY roundrectangcallout "Légende rectangulaire à coins arrondis">
+<!ENTITY linecallout "Légende encadrée">
+<!ENTITY ovalcallout "Légende ronde">
+<!ENTITY cloudcallout "Légende nuage">
+<!ENTITY curvrightarrow "Flèche courbée vers la droite">
+<!ENTITY curvleftarrow "Flèche courbée vers la gauche">
+<!ENTITY curvuparrow "Flèche courbée vers le haut">
+<!ENTITY curvdownarrow "Flèche courbée vers le bas">
+<!ENTITY circarrow "Flèche en arc">
+<!ENTITY sun "Soleil">
+<!ENTITY moon "Lune">
+<!ENTITY arc "Arc">
+<!ENTITY doublbrack "Parenthèses">
+<!ENTITY doublbrace "Accolades">
+<!ENTITY leftbracket "Parenthèse ouvrante">
+<!ENTITY rightbracket "Parenthèse fermante">
+<!ENTITY leftbrace "Accolade ouvrante">
+<!ENTITY rightbrace "Accolade fermante">
+<!ENTITY quadarrow "Flèche à quatre pointes">
+<!ENTITY size "Taille">
+<!ENTITY leftrightuparrow "Flèche à trois pointes">
+<!ENTITY bentarrow "Virage">
+<!ENTITY rectangle "Rectangle">
+<!ENTITY roundrectangle "Rectangle à coins arrondis">
+<!ENTITY snipsingcornrectan "Rectangle avec un coin coupé">
+<!ENTITY snipsmsidecornrectan "Rectangle avec deux coins voisins coupés">
+<!ENTITY snipdiagcornrectan "Rectangle avec deux coins opposés coupés">
+<!ENTITY sniprounsingcornrectan "Rectangle avec un coin coupé et un coin arrondi">
+<!ENTITY rounsingcornrectan "Rectangle avec un coin arrondi">
+<!ENTITY rounsmsidecornrectan "Rectangle avec deux coins voisins arrondis">
+<!ENTITY roundiagcornrectan "Rectangle avec deux coins opposés arrondis">
+<!ENTITY leftuparrow "Flèche angle droit à deux points">
+<!ENTITY benduparrow "Flèche à angle droit">
+<!ENTITY striprightarrow "Flèche droite rayée">
+<!ENTITY notchrightarrow "Flèche droite à entaille">
+<!ENTITY pentagon "Pentagone">
+<!ENTITY chevron "Chevron">
+<!ENTITY rightarrowcallout "Rectangle avec flèche vers la droite">
+<!ENTITY downarrowcallout "Rectangle avec flèche vers le bas">
+<!ENTITY leftarrowcallout "Rectangle avec flèche vers la gauche">
+<!ENTITY uparrowcallout "Rectangle avec flèche vers le haut">
+<!ENTITY lftrghtarrcallout "Rectangle à deux flèches horizontales">
+<!ENTITY quadarrowcallout "Rectangle à quatre flèches">
+<!ENTITY upturnarrow "Flèche demi-tour">
+<!ENTITY nosymbol "Interdiction">
+<!ENTITY fillcolor "Couleur de remplissage">
+<!ENTITY donut "Anneau">
+<!ENTITY foldedcorner "Carré corné">
+<!ENTITY blockarc "Arc plein">
+<!ENTITY smileyface "Sourire">
+<!ENTITY heart "Cœur">
+<!ENTITY lightbolt "Éclair">
+<!ENTITY cloud "Nuage">
+<!ENTITY text "Texte">
+<!ENTITY shape "Shape">

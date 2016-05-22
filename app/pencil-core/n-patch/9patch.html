@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>N-Patch stencil script generator</title>
+<!--
+        
+        <link rel="stylesheet" href="css/default.css"/>
+-->
+        <script type="text/javascript" src="9patch.js"></script>
+        <style type="text/css">
+            body {
+                font-family: sans-serif;
+                font-size: .9em;
+                padding: 0px;
+                margin: 0px;
+            }
+            #result {
+                padding: 10px;
+                position: absolute;
+                top: 1.3em;
+                left: 0px;
+                bottom: 0px;
+                right: 0px;
+            }
+            #parsedImageContainer img {
+                margin: 1px 0px 0px 1px;
+            }
+            
+            textarea {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100%;
+            }
+            
+            #sourcePane {
+                position: absolute;
+                left: 15px;
+                top: 15px;
+                bottom: 15px;
+                width: 300px;
+            }
+            #resultPane {
+                position: absolute;
+                left: 330px;
+                top: 15px;
+                right: 15px;
+                bottom: 15px;
+            }
+            hr {
+                border: none;
+                border-top: solid 1px #777;
+            }
+            h1 {
+                margin: 0px;
+                color: #777;
+            }
+            h2 {
+                margin: 0px;
+                font-size: 1.1em;
+                line-height: 1em;
+            }
+            button {
+                padding: .3em;
+                min-width: 7em;
+                font-weight: bold;
+            }
+            fieldset {
+                float: left;
+                margin-top: 1em;
+                margin-right: 1em;
+                background: url(bg.png);
+            }
+            #copyright {
+                clear: left;
+                color: #999;
+                padding-top: 3em;
+            }
+            #path {
+                clear: left;
+                padding-top: 1em;
+            }
+            a {
+                color: #1B6FE0;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="sourcePane">
+            <h2>Source .9.png:</h2>
+            <div>
+                <p class="Guide">
+                    Please select the n-patch image file to start parsing into JavaScript.
+                </p>
+                <button onclick="browse()">Browse Android n-Patch file...</button>
+                <!--
+                <button onclick="NinePatch.start('drawable-hdpi/panel_picture_frame_bg_focus_blue.9.png');">Start &gt;&gt;</button>
+                -->
+            </div>
+            <fieldset>
+                <legend>Source image:</legend>
+                <div id="imageContainer"></div>
+            </fieldset>
+            <fieldset>
+                <legend>Parsed image:</legend>
+                <div id="parsedImageContainer"></div>
+            </fieldset>
+            <div id="path"></div>
+            <div class="Guide" style="position: absolute; left: 0px; right: 0px; bottom: 0px; opacity: .7;">
+                Pencil supports parsing and embedding scalable n-Patch format that is used in the Google Android OS. More information:<br/>
+                <ul>
+                    <li><a href="http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch">About Android n-Patch format</a></li>
+                    <li><a href="http://www.pencil-project.org/wiki/devguide/Tutorial/Nine_Patches.html">Using n-Patches in Pencil stencils</a></li>
+                </ul>
+            </div>
+        </div>
+        <div id="resultPane">
+            <h2>Result:</h2>
+            <div id="result">
+            </div>
+        </div>
+        <div style="width: 1px; height: 1px; overflow: hidden;">
+            <canvas id="canvas" width="400" height="400"/>
+            <br/>
+        </div>
+    </body>
+</html>
+

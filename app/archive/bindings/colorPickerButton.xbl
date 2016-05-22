@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+        xmlns:xbl="http://www.mozilla.org/xbl"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="colorbutton">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                this.button = document.getAnonymousElementByAttribute(this, "aid", "button");
+                this.popup = document.getAnonymousElementByAttribute(this, "aid", "popup");
+                this.picker = document.getAnonymousElementByAttribute(this, "aid", "picker");
+                this.selectButton = document.getAnonymousElementByAttribute(this, "aid", "selectButton");
+                this.label = document.getAnonymousElementByAttribute(this, "aid", "label");
+                this.colorBox = document.getAnonymousElementByAttribute(this, "aid", "colorBox");
+
+                this.type = this.getAttribute("type");
+                this.picker.setAllowOpacity(this.getAttribute("allow-opacity"));
+
+                var thiz = this;
+                //generate id
+                var popupId = "popup" + (new Date().getTime()) + Math.ceil(Math.random() * 10000);
+                this.popup.setAttribute("id", popupId);
+                this.popupId = popupId;
+                this.setEnable(true);
+
+                //event
+                this.picker.addEventListener("modify", function (event) {
+                    event.stopPropagation();
+                    var cssColor = thiz.picker.getValue().toRGBString();
+                    thiz.label.style.color = cssColor;
+                    thiz.colorBox.style.backgroundColor = cssColor;
+                    thiz.colorBox.style.borderColor = cssColor;
+                    if (thiz.type == "preview") {
+                        //thiz.button.style.backgroundColor = thiz.picker.getValue().toRGBString();
+                    }
+                    Dom.emitEvent("change", thiz, {});
+                }, false);
+            ]]>
+            </constructor>
+            <property name="color">
+                <getter>
+                    return this.picker.getValue(true);
+                </getter>
+                <setter>
+                    this.picker.setValue(val);
+                    var cssColor = val.toRGBString();
+                    
+                    this.label.style.color = cssColor;
+                    this.colorBox.style.backgroundColor = cssColor;
+                    this.colorBox.style.borderColor = cssColor;
+                    
+                    if (this.type == "preview") {
+                        //this.button.style.backgroundColor = cssColor;
+                    }
+                    return val;
+                </setter>
+            </property>
+            <method name="setEnable">
+                <parameter name="enable"/>
+                <body>
+                <![CDATA[
+                    if (enable) {
+                        this.button.removeAttribute("disabled");
+                        this.button.setAttribute("popup", this.popupId);
+                    } else {
+                        this.button.setAttribute("disabled", true);
+                        this.button.removeAttribute("popup");
+                    }
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <xbl:content xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+            <toolbarbutton aid="button" xbl:inherits="image,disabled,tooltiptext">
+                <box>
+                    <label aid="label" xbl:inherits="value"/>
+                    <box aid="colorBox" style="width: 16px; height: 16px;"/>
+                </box>
+            </toolbarbutton>
+            <panel aid="popup" position="after_start">
+                <pcoloreditor aid="picker" color="#ffffffff"/>
+            </panel>
+        </xbl:content>
+    </binding>
+</bindings>

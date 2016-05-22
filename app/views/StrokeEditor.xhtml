@@ -1,0 +1,29 @@
+<hbox>
+    <style>
+
+        @strokeContainer > * + * {
+            margin-left: 0.2em;
+            align-content: center;
+        }
+        @strokeWidth {
+            width: 3.5em;
+            margin-right: @toolbar_spacing;
+        }
+        .widget_ComboManager @button {
+        }
+        .widget_ComboManager @button div {
+            display: inline-block;
+            width: 2em !important;
+            overflow: hidden;
+        }
+        body .Item:hover .StrokeStyleComboItem path {
+            stroke: @selected_fg !important;
+        }
+    </style>
+    <vbox>
+        <hbox anon-id="strokeContainer">
+            <input type="number" min="0" max="30" anon-id="strokeWidth" size="2"/>
+            <ui:ComboManager anon-id="styleCombo" />
+        </hbox>
+    </vbox>
+</hbox>

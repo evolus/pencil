@@ -1,0 +1,35 @@
+image: mbrainiac/electron-builder:latest
+
+cache:
+  paths:
+  - node_modules
+  - app/node_modules
+  - .electron-cache
+
+before_script:
+
+stages:
+  - build
+
+build_job:
+  stage: build
+  script:
+    - sudo npm install
+    - npm run install-app-deps
+    - npm run dist:linux
+    - mkdir -p ./dist/linux
+    - tar -czvf ./dist/Pencil-linux-x64.tar.gz -C ./dist/Pencil-linux-x64 .
+    - cp -rf ./dist/*.gz ./dist/linux
+    - cp -rf ./dist/*.deb ./dist/linux
+    - npm run dist:win32
+    - npm run dist:darwin
+    - mkdir -p ./dist/darwin
+    - cp -rf ./dist/Pencil-darwin-x64/*.zip ./dist/darwin
+  artifacts:
+    paths:
+    - dist/linux
+    - dist/win
+    - dist/win-x64
+    - dist/darwin
+  only:
+    - master@evolus/pencil

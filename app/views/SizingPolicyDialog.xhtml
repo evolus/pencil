@@ -1,0 +1,73 @@
+<vbox style="padding: 1em;" class="Form">
+    <style>
+        .PolicyGroup > * + * {
+            margin-left: 1em;
+        }
+
+        .PolicyGroup > button {
+            padding: 1.5em 2em;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: solid 1px transparent;
+        }
+        .PolicyGroup > button:disabled {
+            opacity: 0.2;
+        }
+        .PolicyGroup > button[selected="true"] {
+            border: solid 1px @primary_color;
+        }
+        @policyContainer > vbox + vbox {
+            margin-top: 1em;
+        }
+    </style>
+    <vbox style="margin-bottom: 1em; padding: 1ex; background: #F2F2F2; border: solid 1px #999;">
+        <div style="width: 30em;">
+            Define how the element size and position are changed when its container is scaled. Please note that these
+            rules are applied only when the element is grouped.
+        </div>
+    </vbox>
+    <vbox anon-id="policyContainer">
+        <vbox>
+            <strong>Width:</strong>
+            <vbox>
+                <hbox anon-id="groupW" oncommand="validateXPolicySelection();" class="PolicyGroup">
+                    <button group="w" selected="true" value="w-fixed" tooltiptext="Keep fixed width" style="background-image:url(css/images/sizepolicy-w-fixed.png);"/>
+                    <button group="w" value="w-start-end" style="background-image:url(css/images/sizepolicy-w-start-end.png" tooltiptext="Resize to maintain constant distances to both left and right sides"/>
+                    <button group="w" value="w-relative" style="background-image:url(css/images/sizepolicy-w-relative.png" tooltiptext="Resize according to group's width"/>
+                </hbox>
+            </vbox>
+        </vbox>
+        <vbox>
+            <strong>Height:</strong>
+            <vbox>
+                <hbox anon-id="groupH" oncommand="validateYPolicySelection();" class="PolicyGroup">
+                    <button group="h" value="h-fixed" style="background-image:url(css/images/sizepolicy-h-fixed.png" tooltiptext="Keep fixed height"/>
+                    <button group="h" value="h-start-end" style="background-image:url(css/images/sizepolicy-h-start-end.png" tooltiptext="Resize to maintain constant distances to both top and bottom"/>
+                    <button group="h" value="h-relative" style="background-image:url(css/images/sizepolicy-h-relative.png" tooltiptext="Resize according to group's height"/>
+                </hbox>
+            </vbox>
+        </vbox>
+        <vbox>
+            <strong>Horizontal:</strong>
+            <vbox>
+                <hbox anon-id="groupX" class="PolicyGroup">
+                    <button group="x" value="x-start" style="background-image:url(css/images/sizepolicy-x-start.png" tooltiptext="Align to parent's left side"/>
+                    <button group="x" value="x-middle" style="background-image:url(css/images/sizepolicy-x-middle.png" tooltiptext="Align to parent's center"/>
+                    <button group="x" value="x-end" style="background-image:url(css/images/sizepolicy-x-end.png" tooltiptext="Align to parent's right side"/>
+                    <button group="x" value="x-relative" style="background-image:url(css/images/sizepolicy-x-relative.png" tooltiptext="Move according to group's width"/>
+                </hbox>
+            </vbox>
+        </vbox>
+        <vbox>
+            <strong>Vertical:</strong>
+            <vbox>
+                <hbox anon-id="groupY" class="PolicyGroup">
+                    <button group="y" value="y-start" style="background-image:url(css/images/sizepolicy-y-start.png" tooltiptext="Align to parent's top"/>
+                    <button group="y" value="y-middle" style="background-image:url(css/images/sizepolicy-y-middle.png" tooltiptext="Align to parent's middle"/>
+                    <button group="y" value="y-end" style="background-image:url(css/images/sizepolicy-y-end.png" tooltiptext="Align to parent's bottom"/>
+                    <button group="y" value="y-relative" style="background-image:url(css/images/sizepolicy-y-relative.png" tooltiptext="Move according to group's height"/>
+                </hbox>
+            </vbox>
+        </vbox>
+    </vbox>
+</vbox>

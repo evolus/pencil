@@ -1,0 +1,21 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+paligneditor {
+    -moz-binding: url(chrome://pencil/content/bindings/alignEditor.xbl#alignEditor);
+}
+paligneditor button {
+    min-width: 0px;
+    margin: 0;
+	padding: 0;
+    margin-right: 1px;
+    opacity: 0.5;
+}
+paligneditor button[aid="b3"],
+paligneditor button[aid="b6"] {
+    margin-left: 1em;
+}
+paligneditor button[checked="true"],
+paligneditor button:hover {
+    opacity: 1;
+}
+

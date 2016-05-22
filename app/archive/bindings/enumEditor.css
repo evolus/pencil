@@ -1,0 +1,5 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+penumeditor {
+    -moz-binding: url(chrome://pencil/content/bindings/enumEditor.xbl#enumEditor);
+}

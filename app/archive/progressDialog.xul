@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://pencil/skin/dialog.css" type="text/css"?>
+
+<dialog id="pencilMessageDialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="handleOnload()"
+        orient="vertical"
+        style="min-width: 35em; max-width: 50em;"
+        flex="1"
+        buttons="cancel"
+        defaultButton="cancel"
+        buttonlabelcancel="&button.cancel.label.cancel;"
+        ondialogcancel="handleOnCancel(); return false;">
+
+    <script src="chrome://pencil/content/common/pencilNamespaces.js"/>
+    <script src="chrome://pencil/content/common/util.js"/>
+    <script src="chrome://pencil/content/progressDialog.js"/>
+
+    <hbox class="Body">
+        <vbox flex="1">
+            <description id="titleText"></description>
+            <progressmeter id="percent" mode="determined" value="0"/>
+            <description id="detailText"></description>
+        </vbox>
+    </hbox>
+</dialog>

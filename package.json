@@ -1,0 +1,57 @@
+{
+  "name": "Pencil",
+  "devDependencies": {
+    "electron-builder": "^3.21.0",
+    "electron-prebuilt": "^0.37.5",
+    "rimraf": "^2.5.2"
+  },
+  "build": {
+    "app-bundle-id": "vn.evolus.pencil",
+    "app-category-type": "public.app-category.graphics-design",
+    "iconUrl": "https://raw.githubusercontent.com/mbrainiac/pencil/master/build/icon.ico",
+    "productName": "Pencil",
+    "osx": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
+    "linux": {
+      "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
+      "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
+      "vendor": "Evolus"
+    },
+    "win": {
+      "authors": "Evolus",
+      "owners": "Evolus",
+      "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
+      "copyright": "Copyright © 2008-2016 Evolus. All rights reserved."
+    },
+    "download": {
+      "cache": ".electron-cache"
+    }
+  },
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
+    "start": "./node_modules/.bin/electron ./app",
+    "start:dev":  "./node_modules/.bin/electron ./app --enable-dev --disable-gpu",
+    "clean": "rimraf dist",
+    "pack": "build",
+    "dist": "build",
+    "release": "build",
+    "dist:linux": "./node_modules/.bin/build --platform linux --arch x64",
+    "dist:win32": "./node_modules/.bin/build --platform win32 --arch x64",
+    "dist:darwin": "./node_modules/.bin/build --platform darwin"
+  },
+  "private": true
+}

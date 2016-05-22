@@ -1,0 +1,48 @@
+<hbox>
+    <style>
+        @fontContainer > * + * {
+            margin-left: 0.2em;
+        }
+        @boldButton span {
+            font-weight: bold;
+        }
+        @italicButton span {
+            font-style: italic;
+        }
+        @underlineButton span {
+            text-decoration: underline;
+        }
+        @fontContainer button[checked="true"]{
+            border-color: #000000;
+
+        }
+        @pixelFontSize {
+            width: 3.5em;
+        }
+
+        .widget_ComboManager button @buttonDisplay {
+            width: 10em;
+            display: inline-block;
+        }
+        @fontContainer @fontCombo {
+            margin-left: @toolbar_spacing;
+            margin-right: @toolbar_spacing;
+        }
+        @fontContainer @fontCombo button {
+            width: 12em;
+        }
+    </style>
+    <vbox>
+        <hbox anon-id="fontContainer">
+            <hbox class="ButtonGroup">
+                <button anon-id="formatPainterButton" mode="icon"><i>format_paint</i></button>
+            </hbox>
+            <ui:ComboManager anon-id="fontCombo" />
+            <input anon-id="pixelFontSize" type="number" min="0" />
+            <hbox class="ButtonGroup">
+                <button anon-id="boldButton" mode="icon"><i>format_bold</i></button>
+                <button anon-id="italicButton" mode="icon"><i>format_italic</i></button>
+            </hbox>
+        </hbox>
+    </vbox>
+</hbox>

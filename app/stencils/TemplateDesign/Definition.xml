@@ -1,0 +1,988 @@
+<Shapes
+    xmlns="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://web.resource.org/cc/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    id="Evolus.OpenPractice.TemplateDesign"
+    displayName="Thiết kế mẫu EvoMed"
+    description="Các thành phần dùng để thiết kế mẫu nhập liệu cho EvoMed">
+    <Properties>
+        <PropertyGroup name="Colors">
+            <Property name="fillColor" type="Color" displayName="Background Color">#e6e6e6</Property>
+            <Property name="strokeColor" type="Color" displayName="Border Color">#444444FF</Property>
+            <Property name="strokeStyle" type="StrokeStyle" displayName="Border Style">1|</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Text">
+            <Property name="textColor" type="Color" displayName="Text Color">#000000FF</Property>
+            <Property name="textFont" type="Font" displayName="Text Font">Arial,'Liberation Sans',sans-serif|normal|normal|12px</Property>
+            <Property name="defaultLinkColor" type="Color" displayName="Default Link Color">#0000ffff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Macro Id Display">
+            <Property name="idTextColor" type="Color" displayName="Text Color">#FF000077</Property>
+            <Property name="idTextFont" type="Font" displayName="Text Font">sans-serif|normal|normal|11px</Property>
+        </PropertyGroup>
+    </Properties>
+
+    <Script comments="Scripts for calculating table column widths">
+        <![CDATA[
+            collection.MIN_COL_WIDTH = 5;
+            collection.getMaxColumns = function (rawText) {
+                var a = F.parseTextArray(rawText);
+
+                var c = 0;
+                for (var i in a) {
+                    c = Math.max(c, a[i].length);
+                }
+
+                return c;
+            };
+            collection.getMaxXForColumnHandle = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                if (i < cols - 2) {
+                    return properties["h" + (i + 1)].x - this.MIN_COL_WIDTH;
+                }
+
+                return properties["box"].w - this.MIN_COL_WIDTH;
+            };
+            collection.getMinXForColumnHandle = function (i, properties) {
+                if (i > 0) {
+                    return properties["h" + (i - 1)].x + this.MIN_COL_WIDTH;
+                }
+
+                return this.MIN_COL_WIDTH;
+            };
+            collection.isColumnHandleDisabled = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                return i >= cols - 1;
+            };
+        ]]>
+    </Script>
+    <Shape id="Label" displayName="Nhãn" icon="Icons/label.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Không kích hoạt" type="Bool">false</Property>
+                <Property name="width" displayName="Độ rộng" type="Handle" p:lockY="true" p:minX="10" p:disabled="!$fixedWidth.value">100,0</Property>
+                <Property name="fixedWidth" displayName="Cố định chiều rộng" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Nội dung" type="PlainText" p:editInfo="var size = 80; ({targetName: 'text', bound: new Bound(0, 0 - $textFont.getPixelHeight() / 2, 180 , 80), font: $textFont, align: $textAlign, multi: $fixedWidth.value})">Plain text</Property>
+                <Property name="textColor" displayName="Màu chữ" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textFont" displayName="Kiểu chữ" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Canh lề" type="Alignment">0,0</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <PlainTextContent>  
+                    <Arg>$label</Arg>  
+                    <Arg>new Bound(0, 0, $fixedWidth.value ? $width.x : 2000, 100)</Arg>  
+                    <Arg>new Alignment($textAlign.h, 0)</Arg>  
+                </PlainTextContent>  
+            </For>
+            <For ref="bgRect">
+                <Visibility>$fixedWidth</Visibility>
+                <Bound>
+                    //depends $textFont, $label, $fixedWidth
+                    new Bound(0, 0, $fixedWidth.value ? $width.x : 0, $fixedWidth.value ? F.textSize("text").h : 0)
+                </Bound>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShort" displayName="Generate Short Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("label", PlainText.fromLoremIpsum(4));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremLong" displayName="Generate Long Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("label", PlainText.fromLoremIpsum(15));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" style="fill: none; stroke: none;" id="bgRect" />
+            <text id="text" xml:space="preserve">checkbutton2</text>
+        </p:Content>
+    </Shape>
+    <Shape id="AutoValue" displayName="Giá trị Tự động" icon="Icons/autoLabel.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="width" displayName="Width" type="Handle" p:lockY="true" p:minX="10" p:disabled="!$fixedWidth.value">100,0</Property>
+                <Property name="fixedWidth" displayName="Fixed Width" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textFont" displayName="Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="macroId" displayName="Data ID" type="PlainText" p:editInfo="var size = 80; ({targetName: 'text', bound: new Bound(0, 0 - $textFont.getPixelHeight() / 2, 180 , 80), font: $textFont, align: $textAlign, multi: $fixedWidth.value})"><![CDATA[autoValue]]></Property>
+                <Property name="path" displayName="Path" type="PlainText">property.name</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <PlainTextContent>  
+                    <Arg>new PlainText("${" + $macroId.value + "}")</Arg>  
+                    <Arg>new Bound(0, 0, $fixedWidth.value ? $width.x : 2000, 100)</Arg>  
+                    <Arg>new Alignment($textAlign.h, 0)</Arg>  
+                </PlainTextContent>  
+            </For>
+            <For ref="bgRect">
+                <Visibility>$fixedWidth</Visibility>
+                <Bound>
+                    //depends $textFont, $macroId, $fixedWidth
+                    new Bound(0, 0, $fixedWidth.value ? $width.x : 0, $fixedWidth.value ? F.textSize("text").h : 0)
+                </Bound>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" style="fill: none; stroke: none;" id="bgRect" />
+            <text id="text" xml:space="preserve">checkbutton2</text>
+        </p:Content>
+    </Shape>
+    <Shape id="textbox" displayName="Trường nhập liệu" icon="Icons/textfield.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">200,25</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Initial Text" type="PlainText"><![CDATA[default text]]></Property>
+                <Property name="textFont" displayName="Text Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="macroId" displayName="Data ID" type="PlainText"><![CDATA[value]]></Property>
+                <Property name="displayName" displayName="Display Name" type="PlainText"><![CDATA[]]></Property>
+                <Property name="referenceRange" displayName="Reference Range" type="PlainText"><![CDATA[
+]]></Property>
+                <Property name="siUI" displayName="SI Unit" type="PlainText"><![CDATA[]]></Property>
+                <Property name="conventionalUnit" displayName="Conventional Unit" type="PlainText"><![CDATA[]]></Property>
+                <Property name="conventionalUnitConversionFactor" displayName="Conventional Unit Conversion Factor" type="PlainText"><![CDATA[1.0]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Auto complete">
+                <Property name="autoCompleteCategory" displayName="Auto-complete category" type="PlainText"><![CDATA[]]></Property>
+                <Property name="autoCompleteValues" displayName="Auto-complete values" type="PlainText"><![CDATA[
+]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>new Alignment(0, $box.h > 30 ? 0 : 1)</Arg>
+                </PlainTextContent>
+                <Fill>$textColor</Fill>
+            </For>
+            <For ref="idDisplay">
+                <Font>collection.properties.idTextFont.value</Font>
+                <PlainTextContent>
+                    <Arg>$macroId</Arg>
+                    <Arg>new Bound($box.w / 2, -20, $box.w / 2, 20)</Arg>
+                    <Arg>new Alignment(2, 2)</Arg>
+                </PlainTextContent>
+                <Fill>collection.properties.idTextColor.value</Fill>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        M(0, 0),
+                        L($box.w, 0),
+                        L($box.w, $box.h),
+                        L(0, $box.h),
+                        L(0, 0),
+                        z
+                    ]
+                </D>
+                <StrokeColor>collection.properties.strokeColor.value</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+             </For>
+            <For ref="rect">
+                <Fill>$fillColor</Fill>
+             </For>
+             <For ref="autoCompleteIndicator">
+                <Transform>
+                    [translate($box.w - 19, $box.h > 30 ? 3 : $box.h / 2 - 8)]
+                </Transform>
+                <Visibility>
+                    $autoCompleteCategory.value
+                </Visibility>
+             </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        return [
+                            new SnappingData("Top", 0, "Top", false, this.id).makeLocal(true),
+                            new SnappingData("HCenter", box.h / 2, "HCenter", false, this.id).makeLocal(true),
+                            new SnappingData("Bottom", box.h, "Bottom", false, this.id).makeLocal(true),
+                            new SnappingData("Left", 0, "Left", true, this.id).makeLocal(true),
+                            new SnappingData("VCenter", box.w / 2, "VCenter", true, this.id).makeLocal(true),
+                            new SnappingData("Right", box.w, "Right", true, this.id).makeLocal(true)
+                            ];
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path id="line1" style="stroke-linejoin: round;"/>
+            </g>
+            <text id="text"/>
+            <text id="idDisplay" style="fill: #770000; stroke: none;"/>
+            <g id="autoCompleteIndicator" style="opacity: .3">
+                <path transform="scale(0.35)" d="M 45.00,21.00l-3.00,0.00 c-0.105,0.00-0.192,0.051-0.297,0.06 c-0.456-2.769-1.527-5.316-3.093-7.506c 0.075-0.063, 0.168-0.087, 0.24-0.159l 2.121-2.121c 1.173-1.173, 1.173-3.069,0.00-4.242 s-3.072-1.173-4.242,0.00L 34.605,9.15c-0.069,0.069-0.096,0.165-0.159,0.24C 32.259,7.821, 29.709,6.753, 26.94,6.297 C 26.949,6.192, 27.00,6.105, 27.00,6.00L27.00,3.00 c0.00-1.656-1.341-3.00-3.00-3.00S 21.00,1.344, 21.00,3.00l0.00,3.00 c0.00,0.105, 0.051,0.192, 0.06,0.297 C 18.291,6.753, 15.741,7.821, 13.554,9.39C 13.491,9.315, 13.464,9.222, 13.395,9.15L 11.274,7.029c-1.173-1.173-3.072-1.173-4.245,0.00 c-1.17,1.173-1.17,3.069,0.00,4.242l 2.124,2.121C 9.222,13.464, 9.312,13.491, 9.39,13.554C 7.821,15.744, 6.753,18.291, 6.297,21.06 C 6.192,21.051, 6.105,21.00, 6.00,21.00L3.00,21.00 C 1.341,21.00,0.00,22.344,0.00,24.00s 1.341,3.00, 3.00,3.00l3.00,0.00 c 0.105,0.00, 0.192-0.048, 0.297-0.06 c 0.456,2.769, 1.527,5.316, 3.093,7.506c-0.075,0.063-0.168,0.087-0.237,0.159l-2.124,2.121c-1.17,1.173-1.17,3.072,0.00,4.242 c 1.173,1.173, 3.072,1.173, 4.245,0.00l 2.121-2.121c 0.069-0.069, 0.096-0.165, 0.159-0.24c 2.187,1.569, 4.737,2.637, 7.506,3.096 C 21.051,41.808, 21.00,41.895, 21.00,42.00l0.00,3.00 c0.00,1.659, 1.341,3.00, 3.00,3.00s 3.00-1.341, 3.00-3.00l0.00,-3.00 c0.00-0.105-0.051-0.192-0.06-0.297 c 2.769-0.459, 5.316-1.527, 7.506-3.096c 0.063,0.075, 0.087,0.171, 0.159,0.24l 2.124,2.121c 1.17,1.173, 3.069,1.173, 4.242,0.00 c 1.173-1.17, 1.173-3.069,0.00-4.242l-2.121-2.121c-0.072-0.069-0.165-0.093-0.24-0.159c 1.566-2.19, 2.637-4.737, 3.093-7.506 C 41.808,26.952, 41.895,27.00, 42.00,27.00l3.00,0.00 c 1.659,0.00, 3.00-1.344, 3.00-3.00S 46.659,21.00, 45.00,21.00z M 24.00,36.00c-6.627,0.00-12.00-5.373-12.00-12.00s 5.373-12.00, 12.00-12.00s 12.00,5.373, 12.00,12.00 S 30.627,36.00, 24.00,36.00z"/>
+            </g>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Trường nhập liệu Nhiều dòng" icon="Icons/textfield.png" to="textbox">
+        <PropertyValue name="box">300,80</PropertyValue>
+    </Shortcut>
+
+    <Shape id="capturedImage" displayName="Hình ảnh" icon="Icons/image.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">200,200</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="macroId" displayName="Data ID" type="PlainText"><![CDATA[capture1]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>new PlainText(Math.round($box.w) +" x "+Math.round($box.h))</TextContent>
+                <Font>collection.properties.textFont.value</Font>
+                <Color>Color.fromString("#777777FF")</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box)</Arg>
+                    <Arg>new Alignment(1, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        M(3, 3),
+                        L($box.w - 3, $box.h - 3),
+                        M(3, $box.h - 3),
+                        L($box.w - 3, 3),
+                    ]
+                </D>
+                <StrokeColor>collection.properties.strokeColor.value //depends $box</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+             </For>
+            <For ref="line2">
+                <D>
+                    [
+                        M(0, 0),
+                        L($box.w, 0),
+                        L($box.w, $box.h),
+                        L(0, $box.h),
+                        L(0, 0),
+                        z,
+                    ]
+                </D>
+                <Fill>collection.properties.fillColor.value //depends $box</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+             <For ref="mask">
+                <D>
+                    var length = $box.w - 5;
+                    var height = collection.properties.textFont.value.getPixelHeight();
+                    [
+                        M($box.w/2 - length / 2, $box.h/2 - height / 2),
+                        L($box.w/2 + length / 2, $box.h/2 - height / 2),
+                        L($box.w/2 + length / 2, $box.h/2 + height / 2),
+                        L($box.w/2 - length / 2, $box.h/2 + height / 2),
+                        z
+                    ]
+                </D>
+                <Fill>collection.properties.fillColor.value</Fill>
+             </For>
+            <For ref="idDisplay">
+                <Font>collection.properties.idTextFont.value</Font>
+                <PlainTextContent>
+                    <Arg>$macroId</Arg>
+                    <Arg>new Bound(0, 0, $box.w, 40).narrowed(10)</Arg>
+                    <Arg>new Alignment(1, 0)</Arg>
+                </PlainTextContent>
+                <Fill>collection.properties.idTextColor.value</Fill>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        return [
+                            new SnappingData("Top", 0, "Top", false, this.id).makeLocal(true),
+                            new SnappingData("HCenter", box.h / 2, "HCenter", false, this.id).makeLocal(true),
+                            new SnappingData("Bottom", box.h, "Bottom", false, this.id).makeLocal(true),
+                            new SnappingData("Left", 0, "Left", true, this.id).makeLocal(true),
+                            new SnappingData("VCenter", box.w / 2, "VCenter", true, this.id).makeLocal(true),
+                            new SnappingData("Right", box.w, "Right", true, this.id).makeLocal(true)
+                            ];
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path id="line2" style="stroke-linejoin: round;"/>
+                <path id="line1" style="stroke-linejoin: round; fill: none;"/>
+            </g>
+            <path id="mask" style="stroke:none"/>
+            <text id="text" />
+            <text id="idDisplay" style="fill: #770000; stroke: none;"/>
+        </p:Content>
+    </Shape>
+    <Shape id="combobox" displayName="Hộp tùy chọn" icon="Icons/combobox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">200,25</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="macroId" displayName="Data ID" type="PlainText"><![CDATA[selection1]]></Property>
+                <Property name="options" displayName="Options" type="PlainText"
+                    p:editInfo="({targetName: 'text', bound: new Bound(0, 0, $box.w, 80), font: $textFont, align: new Alignment(0, 0), multi: true})"
+                ><![CDATA[Option #1
+Option #2]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>PlainText.fromString($options.value.split(/[\r\n]/)[0])</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <BoxFit>
+                    <Arg>new Bound(5,0, $box.w - $box.h - 5, $box.h)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        M(0, 0),
+                        L($box.w - $box.h, 0),
+                        L($box.w - $box.h, $box.h),
+                        L(0, $box.h),
+                        z
+                    ]
+                </D>
+             </For>
+             <For ref="line2">
+                <D>
+                    [
+                        M($box.w - $box.h, 0),
+                        L($box.w, 0),
+                        L($box.w, $box.h),
+                        L($box.w - $box.h, $box.h),
+                        L($box.w - $box.h, 0),
+                        z
+                    ]
+                </D>
+             </For>
+            <For ref="triangle">
+                <D>
+                    var d = $box.h / 5;
+                    [
+                        M($box.w - $box.h / 2 - 0.87 * d, $box.h / 2 - d / 2),
+                        L($box.w - $box.h / 2 + 0.87 * d, $box.h / 2 - d / 2),
+                        L($box.w - $box.h / 2, $box.h / 2 + d),
+                        L($box.w - $box.h / 2 - 0.87 * d, $box.h / 2 - d / 2),
+                        z
+                    ]
+                </D>
+             </For>
+             <For ref="rect">
+                <Fill>collection.properties.fillColor.value //depends $box</Fill>
+                <StrokeColor>collection.properties.strokeColor.value</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+             </For>
+             <For ref="fillrect">
+                <Fill>collection.properties.fillColor.value //depends $box</Fill>
+                <StrokeColor>collection.properties.strokeColor.value</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+             </For>
+            <For ref="idDisplay">
+                <Font>collection.properties.idTextFont.value</Font>
+                <PlainTextContent>
+                    <Arg>$macroId</Arg>
+                    <Arg>new Bound($box.w / 2, -20, $box.w / 2, 20)</Arg>
+                    <Arg>new Alignment(2, 2)</Arg>
+                </PlainTextContent>
+                <Fill>collection.properties.idTextColor.value</Fill>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        return [
+                            new SnappingData("Top", 0, "Top", false, this.id).makeLocal(true),
+                            new SnappingData("HCenter", box.h / 2, "HCenter", false, this.id).makeLocal(true),
+                            new SnappingData("Bottom", box.h, "Bottom", false, this.id).makeLocal(true),
+                            new SnappingData("Left", 0, "Left", true, this.id).makeLocal(true),
+                            new SnappingData("VCenter", box.w / 2, "VCenter", true, this.id).makeLocal(true),
+                            new SnappingData("Right", box.w, "Right", true, this.id).makeLocal(true)
+                            ];
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path id="line1" style="stroke-linejoin: round;"/>
+            </g>
+            <g id="fillrect">
+                <path id="line2" style="stroke-linejoin: round;"/>
+            </g>
+            <path id="triangle" d="m 178.23656,8.1964881 9.26343,11.1161139 9.26343,-11.1161139 -18.52686,0 z" style="fill:black;stroke-linejoin: round;"/>
+            <text id="text"/>
+            <text id="idDisplay" style="fill: #770000; stroke: none;"/>
+        </p:Content>
+    </Shape>
+    <Shape id="radioOption" displayName="Tùy chọn" icon="Icons/radio.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">250,25</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textFont" displayName="Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="options" displayName="Options" type="PlainText" p:editInfo="({targetName: 'text', bound: new Bound(0, 0, $box.w, 80), font: $textFont, align: new Alignment(0, 0), multi: true})"
+                >1::Option 1 | 2::Option 2 | 3::Option 3</Property>
+                <Property name="colors" displayName="Colors" type="PlainText">#000000|#000000|#000000</Property>
+                <Property name="macroId" displayName="Data ID" type="PlainText"><![CDATA[radioOption1]]></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <PlainTextContent>
+                    <Arg>var a = $options.value.split(/[\|]/); PlainText.fromString($options.value.length &lt; 25 ? $options.value : (a[0] + (a.length > 1 ? " | ..." : "")))</Arg>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+            <For ref="bgRect">
+                <StrokeColor>collection.properties.strokeColor.value</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+                <Fill>collection.properties.fillColor.value</Fill>
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="idDisplay">
+                <Font>collection.properties.idTextFont.value</Font>
+                <PlainTextContent>
+                    <Arg>$macroId</Arg>
+                    <Arg>new Bound($box.w / 2, -20, $box.w / 2, 20)</Arg>
+                    <Arg>new Alignment(2, 2)</Arg>
+                </PlainTextContent>
+                <Fill>collection.properties.idTextColor.value</Fill>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        return [
+                            new SnappingData("Top", 0, "Top", false, this.id).makeLocal(true),
+                            new SnappingData("HCenter", box.h / 2, "HCenter", false, this.id).makeLocal(true),
+                            new SnappingData("Bottom", box.h, "Bottom", false, this.id).makeLocal(true),
+                            new SnappingData("Left", 0, "Left", true, this.id).makeLocal(true),
+                            new SnappingData("VCenter", box.w / 2, "VCenter", true, this.id).makeLocal(true),
+                            new SnappingData("Right", box.w, "Right", true, this.id).makeLocal(true)
+                            ];
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" style="fill: none; stroke: none;" id="bgRect" />
+            <text id="text" xml:space="preserve">abc</text>
+            <text id="idDisplay" style="fill: #770000; stroke: none;"/>
+        </p:Content>
+    </Shape>
+    <Shape id="checkbox" displayName="Hộp đánh dấu" icon="Icons/checkbox.png">
+        <Properties>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Checkbox]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="macroId" displayName="Data ID" type="PlainText"><![CDATA[checkbox1]]></Property>
+                <Property name="truePrintingValue" displayName="Selected display text" type="PlainText"><![CDATA[]]></Property>
+                <Property name="falsePrintingValue" displayName="Unselected display text" type="PlainText"><![CDATA[]]></Property>
+                <Property name="checked" displayName="Checked" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound(20, 0, 200, 15)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </PlainTextContent>
+                <Fill>$textColor</Fill>
+            </For>
+            <For ref="cbTick">
+                <Visibility>$checked</Visibility>
+             </For>
+             <For ref="rect">
+                <StrokeColor>collection.properties.strokeColor.value //depends $textContent</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+             </For>
+            <For ref="idDisplay">
+                <Font>collection.properties.idTextFont.value</Font>
+                <PlainTextContent>
+                    <Arg>$macroId</Arg>
+                    <Arg>new Bound(F.textSize("text").w + 25, 0, 80, 15) //depends $textContent, $textFont</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </PlainTextContent>
+                <Fill>collection.properties.idTextColor.value</Fill>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+           <g id="rect">
+                <path
+                    d="M 0,0 L 15,0 L 15,15 L 0,15 z"
+                    style="fill:none;"/>
+                <path
+                    style="fill:none;"
+                    d="M 4,4 L 11,11 M 11,4 L 4,11"
+                    id="cbTick"/>
+            </g>
+            <text id="text"/>
+            <text id="idDisplay" style="fill: #770000; stroke: none;"/>
+        </p:Content>
+    </Shape>
+    <Shape id="nameValueList" displayName="Danh sách Tên/Giá trị" icon="Icons/namevalue.png">
+        <Properties>
+            <PropertyGroup name="Common">
+                <Property name="box" displayName="Box" type="Dimension">400,200</Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>                
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="minItemCount" displayName="Minimum Row Count" type="PlainText">4</Property>
+                <Property name="macroId" displayName="Data ID" type="PlainText"><![CDATA[nameValueList1]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Auto-complete">
+                <Property name="nameAutoCompleteCategory" displayName="Name auto-complete category" type="PlainText"><![CDATA[]]></Property>
+                <Property name="valueAutoCompleteCategory" displayName="Value auto-complete category" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>new PlainText("Min rows: " + $minItemCount)</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box)</Arg>
+                    <Arg>new Alignment(1, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        M(0, 0),
+                        L($box.w, 0),
+                        L($box.w, $box.h),
+                        L(0, $box.h),
+                        L(0, 0),
+                        z
+                    ]
+                </D>
+             </For>
+            <For ref="rect">
+                <Fill>collection.properties.fillColor.value //depends $box</Fill>
+                <StrokeColor>collection.properties.strokeColor.value</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+             </For>
+            <For ref="idDisplay">
+                <Font>collection.properties.idTextFont.value</Font>
+                <PlainTextContent>
+                    <Arg>$macroId</Arg>
+                    <Arg>new Bound($box.w / 2, -20, $box.w / 2, 20)</Arg>
+                    <Arg>new Alignment(2, 2)</Arg>
+                </PlainTextContent>
+                <Fill>collection.properties.idTextColor.value</Fill>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path id="line1" style="stroke-linejoin: round;"/>
+            </g>
+            <text id="text" />
+            <text id="idDisplay" style="fill: #770000; stroke: none;"/>
+        </p:Content>
+    </Shape>
+    <Shape id="problemAnalyzer" displayName="Nút phân tích" icon="Icons/analyzer.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">100,22</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Analyze...</Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textFont" displayName="Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="target" displayName="Target List" type="PlainText">nameValueList1</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <PlainTextContent>
+                    <Arg>$label</Arg>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>new Alignment(1, 1)</Arg>
+                </PlainTextContent>
+            </For>
+            <For ref="bgRect">
+                <StrokeColor>collection.properties.strokeColor.value</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+                <Fill>collection.properties.fillColor.value</Fill>
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" style="fill: none; stroke: none;" id="bgRect" />
+            <text id="text" xml:space="preserve">abc</text>
+        </p:Content>
+    </Shape>
+    <Shape id="actionButton" displayName="Nút thực thi" icon="Icons/action.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">100,22</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Action...</Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textFont" displayName="Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="action" displayName="Action" type="PlainText">actionId</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <PlainTextContent>
+                    <Arg>$label</Arg>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>new Alignment(1, 1)</Arg>
+                </PlainTextContent>
+            </For>
+            <For ref="bgRect">
+                <StrokeColor>collection.properties.strokeColor.value</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+                <Fill>collection.properties.fillColor.value</Fill>
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" style="fill: none; stroke: none;" id="bgRect" />
+            <text id="text" xml:space="preserve">abc</text>
+        </p:Content>
+    </Shape>
+
+    <Shape id="ecgLoader" displayName="Nút ECG" icon="Icons/ecg.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">100,22</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Nạp ECG...</Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textFont" displayName="Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Data">
+                <Property name="target" displayName="Target List" type="PlainText">ecgText,ecgImage1,ecgImage2</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <PlainTextContent>
+                    <Arg>$label</Arg>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>new Alignment(1, 1)</Arg>
+                </PlainTextContent>
+            </For>
+            <For ref="bgRect">
+                <StrokeColor>collection.properties.strokeColor.value</StrokeColor>
+                <StrokeStyle>collection.properties.strokeStyle.value</StrokeStyle>
+                <Fill>collection.properties.fillColor.value</Fill>
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" style="fill: none; stroke: none;" id="bgRect" />
+            <text id="text" xml:space="preserve">abc</text>
+        </p:Content>
+    </Shape>
+    
+    <Shape id="RichTextBox" displayName="In ấn: Văn bản dài" icon="Icons/richbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,40</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Handles">
+                <Property name="textPadding" p:noScale="true" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,10</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"
+                    p:editInfo="({targetName: 'text', bound: new Bound(0, 0, $box.w, Math.max(80, $box.h)), font: $textFont, align: $textAlign, multi: true})"
+                ><![CDATA[sample <span style="font-weight: bold;">$M{macro}</span> in rich text]]>
+                </Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+                <Property name="textColor" displayName="Text Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,0</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="rrRect">
+                <Box>$box.narrowed($strokeStyle.w)</Box>
+                <Transform>[translate(($strokeStyle.w / 2), ($strokeStyle.w / 2))]</Transform>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+            <For ref="text">
+                <DomContent><![CDATA[
+                    var w = Math.max(0, $box.w - 2 * $textPadding.y);
+                    var h = Math.max(0, $box.h - 2 * $textPadding.y);
+                    var hAlign = ["left", "center", "right"][$textAlign.h];
+                    var vAlign = ["top", "middle", "bottom"][$textAlign.v];
+                    var xml = "<div xmlns=\"http://www.w3.org/1999/xhtml\" style=\""
+                    + "width: " + w + "px; "
+                    + "height: " + h + "px; "
+                    + "overflow: hidden; "
+                    + "\">"
+                        + "<div style=\""
+                        + "width: " + w + "px; "
+                        + "height: " + h + "px; "
+                        + "display: table-cell; "
+                        + "text-align: " + hAlign + "; "
+                        + "vertical-align: " + vAlign + "; "
+                        + "\">" + $textContent.html + "</div></div>";
+                    ({value: xml});
+                ]]></DomContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <Bound>Bound.fromBox($box, $textPadding.y)</Bound>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="removeBorder" displayName="Remove Border">
+                <Impl>
+                        <![CDATA[
+                            var strokeStyle = this.getProperty("strokeStyle");
+                            strokeStyle.w = 0;
+                            this.setProperty("strokeStyle", strokeStyle);
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="makeSquares" displayName="Make Squared">
+                <Impl>
+                        <![CDATA[
+                            var box = this.getProperty("box");
+                            box.w = Math.max(box.w, box.h);
+                            box.h = box.w;
+                            this.setProperty("box", box);
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var sw = this.getProperty("strokeStyle").w;
+                        var w = this.getProperty("box").w;
+                        var h = this.getProperty("box").h;
+                        return [
+                            new SnappingData("Left", b.x - sw / 2, "Left", true, this.id),
+                            new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
+                            new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
+                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="getConnectorOutlets">
+                <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        return [
+                            new Outlet("top-left", "Bounding", 0, 0),
+                            new Outlet("top-center", "Bounding", box.w / 2, 0),
+                            new Outlet("top-right", "Bounding", box.w, 0),
+                            new Outlet("middle-left", "Bounding", 0, box.h / 2),
+                            new Outlet("middle-center", "Bounding", box.w / 2, box.h / 2),
+                            new Outlet("middle-right", "Bounding", box.w, box.h / 2),
+                            new Outlet("bottom-left", "Bounding", 0, box.h),
+                            new Outlet("bottom-center", "Bounding", box.w / 2, box.h),
+                            new Outlet("bottom-right", "Bounding", box.w, box.h)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <rect width="61" height="24" rx="0" ry="0" x="0" y="0" style="stroke-width: 1px;" id="rrRect" />
+                <filter id="shadingFilter" height="1.2558399" y="-0.12792" width="1.06396" x="-0.03198">
+                    <feGaussianBlur stdDeviation="1" in="SourceAlpha" />
+                </filter>
+            </defs>
+            <use xlink:href="#rrRect" />
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="text2">
+                    <div xmlns="http://www.w3.org/1999/xhtml"></div>
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="DynamicText" displayName="In ấn: Biểu thức đơn giản" icon="Icons/textfield.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="width" displayName="Width" type="Handle" p:lockY="true" p:minX="10" p:disabled="!$fixedWidth.value">100,0</Property>
+                <Property name="fixedWidth" displayName="Fixed Width" type="Bool">false</Property>
+                <Property name="styled" displayName="Styled" type="Bool">false</Property>
+                <Property name="mode" displayName="Mode" type="Enum" p:enumValues="['simple|Simple String', 'advanced|Use JAVA Expression']">simple</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="expression" displayName="JAVA Expression" type="PlainText" p:editInfo="var size = 80; ({targetName: 'text', bound: new Bound(0, 0 - $textFont.getPixelHeight() / 2, $fixedWidth.value ? $width.x : 180 , 80), font: $textFont, align: $textAlign, multi: $fixedWidth.value})">dynamic text</Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textFont" displayName="Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,0</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <DomContent>F.buildTextWrapDomContent(F._target, $expression.value, $fixedWidth.value ? $width.x : 2000, $textAlign)</DomContent>
+            </For>
+            <For ref="bgRect">
+                <Visibility>$fixedWidth</Visibility>
+                <Bound>
+                    //depends $textFont, $expression, $fixedWidth
+                    new Bound(0, 0, $fixedWidth.value ? $width.x : 0, $fixedWidth.value ? F.textSize("text").h : 0)
+                </Bound>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" style="fill: none; stroke: none;" id="bgRect" />
+            <text id="text" xml:space="preserve">checkbutton2</text>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="In ấn: Biểu thức nâng cao" icon="Icons/textfield.png" to="DynamicText">
+        <PropertyValue name="mode">advanced</PropertyValue>
+        <PropertyValue name="expression">"dynamic text"</PropertyValue>
+    </Shortcut>
+</Shapes>

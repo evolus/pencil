@@ -1,0 +1,23 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+pfonteditor {
+    -moz-binding: url(chrome://pencil/content/bindings/fontEditor.xbl#fontEditor);
+}
+pfonteditor button[aid="bold"],
+pfonteditor button[aid="underline"],
+pfonteditor button[aid="italic"] {
+    min-width: 3em;
+    margin-right: 0px;
+}
+pfonteditor button[aid="bold"] {
+    font-weight: bold;
+}
+pfonteditor button[aid="italic"] {
+    font-style: italic;
+}
+pfonteditor button[aid="underline"] {
+    text-decoration: underline;
+}
+pfonteditor > hbox > vbox + vbox {
+    margin-left: 1em;
+}

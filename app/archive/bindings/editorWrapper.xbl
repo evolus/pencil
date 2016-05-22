@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+        xmlns:xbl="http://www.mozilla.org/xbl"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="editorWrapper">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                var thiz = this;
+
+                this.box = document.getAnonymousElementByAttribute(this, "aid", "box");
+                this.label = document.getAnonymousElementByAttribute(this, "aid", "label");
+                this.checkbox = document.getAnonymousElementByAttribute(this, "aid", "checkbox");
+
+                try {
+                    var tagName = this.getAttribute("editor");
+                    this.editor = document.createElementNS(PencilNamespaces.xul, tagName);
+                    if (this.hasAttribute("value")) {
+                        this.editor.setAttribute("value", this.getAttribute("value"));
+                        this.removeAttributeNS(PencilNamespaces.p, "null");
+                        this.isInitiallyNull = false;
+                    } else {
+
+                        this.editor.setAttribute("disabled", true);
+                        this.setAttributeNS(PencilNamespaces.p, "p:null", true);
+                        this.isInitiallyNull = true;
+
+                        //try to set the initial value, which is the first available value in case of multiple diff value of target set
+                        if (this.hasAttribute("initial-value")) {
+                            this.editor.setAttribute("value", this.getAttribute("initial-value"));
+                        }
+                    }
+
+
+                    this.checkbox.addEventListener("command", function(event) {
+                        if (thiz.checkbox.checked) {
+                            thiz.editor.removeAttribute("disabled");
+                        } else {
+                            thiz.editor.setAttribute("disabled", true);
+                        }
+                    }, false);
+
+                    this.editor._property = this._property;
+                    this.box.appendChild(this.editor);
+                } catch (e) {
+                    Console.dumpError(e);
+                }
+            ]]>
+            </constructor>
+            <method name="setEditor">
+                <parameter name="tagName"/>
+                <body>
+                <![CDATA[
+                ]]>
+                </body>
+            </method>
+            <method name="setName">
+                <parameter name="name"/>
+                <body>
+                <![CDATA[
+                    this.label.value = name;
+                    this.checkbox.label = name;
+                ]]>
+                </body>
+            </method>
+            <method name="getValue">
+                <parameter name="saveColor" />
+                <body>
+                <![CDATA[
+                    if (!this.isInitiallyNull || this.checkbox.checked) {
+                        return this.editor.getValue(saveColor);
+                    } else {
+                        return null;
+                    }
+                ]]>
+                </body>
+            </method>
+            <method name="isModified">
+                <body>
+                <![CDATA[
+                    if (this.isInitiallyNull) {
+                        return this.checkbox.checked;
+                    } else {
+                        return this.editor.isModified();
+                    }
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <content>
+            <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1" aid="box">
+                <checkbox xbl:inherits="label=name" checked="false" aid="checkbox"/>
+                <label  xbl:inherits="value=name" aid="label"/>
+            </vbox>
+        </content>
+    </binding>
+</bindings>

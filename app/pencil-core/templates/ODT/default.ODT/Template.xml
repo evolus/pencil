@@ -1,0 +1,6 @@
+<Template xmlns="http://www.evolus.vn/Namespace/Pencil">
+    <Property name="id">Evolus:ODT:Default.Template</Property>
+    <Property name="name">Default Document Template</Property>
+    <Property name="author">Evolus</Property>
+    <Property name="description">Simple template for exporting to .ODT, .DOC and .PDF</Property>
+</Template>

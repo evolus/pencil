@@ -1,0 +1,108 @@
+<div>
+    <style>
+        body .widget_ScrollableView {
+            overflow: hidden;
+            position: relative;
+        }
+
+        body .widget_ScrollableView > button {
+            position: absolute;
+            line-height: 1.8em;
+            padding: 0em 0.2em !important;
+
+            background: @app_bg !important;
+            border: none;
+            border-radius: 0px;
+        }
+        body .widget_ScrollableView:not([orient="vertical"]) > button {
+            top: 0px;
+            bottom: 0px;
+        }
+        body .widget_ScrollableView[orient="vertical"] > button {
+            left: 0px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        body .widget_ScrollableView > button:active {
+            background: @selected_button_bg;
+        }
+        @previousButton > i, @nextButton > i {
+            line-height: 1.285714286;
+        }
+
+        body .widget_ScrollableView @previousButton {
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+            box-shadow: 2px 0px 3px rgba(0, 0, 0, 0.2);
+        }
+        body .widget_ScrollableView @nextButton {
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+            box-shadow: -2px 0px 3px rgba(0, 0, 0, 0.2);
+        }
+        body .widget_ScrollableView[orient="vertical"] @previousButton {
+            box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.2);
+        }
+        body .widget_ScrollableView[orient="vertical"] @nextButton {
+            box-shadow: 0px -2px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        body .widget_ScrollableView > button[disabled] {
+            opacity: 0.5;
+            box-shadow: none !important;
+        }
+        body .widget_ScrollableView > button[disabled]:not(:hover) {
+            display: none;
+        }
+        body .widget_ScrollableView > button[disabled]:active {
+            background: @app_bg !important;
+        }
+
+        body .widget_ScrollableView:not([orient="vertical"]) @previousButton {
+            left: 0px;
+            height: 100%;
+        }
+        body .widget_ScrollableView:not([orient="vertical"]) @nextButton {
+            right: 0px;
+            height: 100%;
+        }
+
+        body .widget_ScrollableView[orient="vertical"] @previousButton {
+            top: 0px;
+        }
+        body .widget_ScrollableView[orient="vertical"] @nextButton {
+            bottom: 0px;
+        }
+
+        @content {
+            flex-direction: row;
+            position: absolute;
+            top: 0px;
+            transition: left 0.2s ease;
+        }
+        body .widget_ScrollableView[orient="vertical"] @content {
+            transition: top 0.2s ease;
+        }
+        @previousButton > i:before {
+            @iconify();
+            content: "keyboard_arrow_left";
+            display: inline-block;
+        }
+        @nextButton > i:before {
+            @iconify();
+            content: "keyboard_arrow_right";
+            display: inline-block;
+        }
+
+        body .widget_ScrollableView[orient="vertical"] @previousButton > i:before {
+            content: "keyboard_arrow_up";
+        }
+        body .widget_ScrollableView[orient="vertical"] @nextButton > i:before {
+            content: "keyboard_arrow_down";
+        }
+    </style>
+    <box anon-id="content"></box>
+    <button anon-id="previousButton"><i></i></button>
+    <button anon-id="nextButton"><i></i></button>
+</div>

@@ -1,0 +1,43 @@
+<hbox>
+    <style>
+        @container button[checked="true"]{
+            border-color: #000000;
+        }
+        button .AnonId_buttonDisplay {
+            align-items: center;
+            display: flex;
+        }
+        button i {
+            @iconify();
+            font-size: 1.2em;
+            padding-right: 0.3em;
+        }
+        body .AlignEditorPopup .Item i {
+            @iconify();
+            font-size: 1.2em;
+            padding-right: 0.3em;
+        }
+        body .AlignEditorPopup .Item > * {
+            vertical-align: middle;
+        }
+        .widget_ComboManager button {
+            width: 2em;
+        }
+        button .AnonId_buttonDisplay span {
+            min-width: 2em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        @horzCombo button {
+            border-right: none !important;
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+        }
+        @vertCombo button {
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+        }
+    </style>
+    <ui:ComboManager anon-id="horzCombo" flex="1" />
+    <ui:ComboManager anon-id="vertCombo" flex="1" />
+</hbox>

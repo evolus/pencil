@@ -1,0 +1,74 @@
+hbox, vbox {
+
+}
+.hbox {
+    flex-direction: row;
+    display: flex;
+}
+.vbox {
+    flex-direction: column;
+    display: flex;
+}
+
+html {
+
+    .hbox();
+}
+body {
+    flex: 1;
+    .vbox();
+    overflow: hidden;
+}
+
+hbox { .hbox(); }
+vbox { .vbox(); }
+
+box {
+    display: flex;
+}
+
+box[orient="vertical"] { .vbox(); }
+box[orient="horizontal"] { .hbox(); }
+vbox > *,
+hbox > *,
+box > * {
+    flex-shrink: 0;
+}
+*[flex='1'] {
+    flex: 1 1 auto;
+}
+*[flex='2'] {
+    flex: 2 1 auto;
+}
+*[flex='3'] {
+    flex: 3 1 auto;
+}
+*[flex='4'] {
+    flex: 4 1 auto;
+}
+*[flex='5'] {
+    flex: 5 1 auto;
+}
+*[flex='6'] {
+    flex: 6 1 auto;
+}
+*[flex='7'] {
+    flex: 7 1 auto;
+}
+*[flex='8'] {
+    flex: 8 1 auto;
+}
+*[flex='9'] {
+    flex: 9 1 auto;
+}
+*[flex='10'] {
+    flex: 10 1 auto;
+}
+
+hbox.InputRow > * + *,
+hbox.InputRow > * + input[type] {
+    margin-left: 1ex;
+}
+hbox.InputRow {
+    align-items: center;
+}

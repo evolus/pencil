@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+        xmlns:xbl="http://www.mozilla.org/xbl"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="alignEditor">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                var groupId = "align" + (new Date().getTime()) + Math.round(1000 * Math.random());
+                this.buttons = [];
+
+                for (var i = 0; i < 9; i ++) {
+                    var button = document.getAnonymousElementByAttribute(this, "aid", "b" + i);
+                    this.buttons[i] = button;
+
+                    button.setAttribute("group", groupId);
+                    button._h = parseInt(button.getAttribute("horz"), 10);
+                    button._v = parseInt(button.getAttribute("vert"), 10);
+
+                }
+
+                if (this.hasAttribute("value")) this.setValue(Alignment.fromString(this.getAttribute("value")));
+
+            ]]>
+            </constructor>
+            <method name="setTypeMeta">
+                <parameter name="meta"/>
+                <body>
+                <![CDATA[
+                    this.meta = meta;
+                ]]>
+                </body>
+            </method>
+            <method name="setValue">
+                <parameter name="alignment"/>
+                <body>
+                <![CDATA[
+                    for (var i in this.buttons) {
+                        var button = this.buttons[i];
+                        if (alignment.h == button._h && alignment.v == button._v) {
+                            button.checked = true;
+
+                            return;
+                        }
+                    }
+                    this.buttons[0].checked = true;
+                ]]>
+                </body>
+            </method>
+            <method name="getValue">
+                <body>
+                <![CDATA[
+                    var checkedButton = null;
+                    for (var i in this.buttons) {
+                        if (this.buttons[i].checked) {
+                            checkedButton = this.buttons[i];
+                            break;
+                        }
+                    }
+
+                    if (checkedButton) {
+                        return new Alignment(checkedButton._h, checkedButton._v);
+                    } else return null;
+                ]]>
+                </body>
+            </method>
+            <method name="isModified">
+                <body>
+                <![CDATA[
+                    return true; //this.isUserModified;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <content>
+            <hbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1">
+                <hbox flex="1">
+                    <button type="radio" tooltiptext="&align.top.left.tooltiptext;" class="align-left-top" aid="b0" vert="0" horz="0" xbl:inherits="disabled"/>
+                    <button type="radio" tooltiptext="&align.top.center.tooltiptext;" class="align-center-top" aid="b1" vert="0" horz="1" xbl:inherits="disabled"/>
+                    <button type="radio" tooltiptext="&align.top.right.tooltiptext;" class="align-right-top" aid="b2" vert="0" horz="2" xbl:inherits="disabled"/>
+                    <button type="radio" tooltiptext="&align.middle.left.tooltiptext;" class="align-left-center" aid="b3" vert="1" horz="0" xbl:inherits="disabled"/>
+                    <button type="radio" tooltiptext="&align.middle.center.tooltiptext;" class="align-center-center" aid="b4" vert="1" horz="1" xbl:inherits="disabled"/>
+                    <button type="radio" tooltiptext="&align.middle.right.tooltiptext;" class="align-right-center" aid="b5" vert="1" horz="2" xbl:inherits="disabled"/>
+                    <button type="radio" tooltiptext="&align.bottom.left.tooltiptext;" class="align-left-bottom" aid="b6" vert="2" horz="0" xbl:inherits="disabled"/>
+                    <button type="radio" tooltiptext="&align.bottom.center.tooltiptext;" class="align-center-bottom" aid="b7" vert="2" horz="1" xbl:inherits="disabled"/>
+                    <button type="radio" tooltiptext="&align.bottom.right.tooltiptext;" class="align-right-bottom" aid="b8" vert="2" horz="2" xbl:inherits="disabled"/>
+                </hbox>
+            </hbox>
+        </content>
+    </binding>
+</bindings>

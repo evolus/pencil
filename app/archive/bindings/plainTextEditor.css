@@ -1,0 +1,5 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+pplaintexteditor {
+    -moz-binding: url(chrome://pencil/content/bindings/plainTextEditor.xbl#plainTextEditor);
+}

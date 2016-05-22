@@ -1,0 +1,164 @@
+<hbox>
+    <style>
+        @mainArea {
+            overflow: hidden;
+            background:
+                linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 20em,rgba(255,255,255,0) 100%),
+                url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AgMAAABHkjHhAAAACVBMVEWAgIBaWlo+Pj7rTFvWAAAAA3RSTlMHCAw+VhR4AAAA+klEQVQoz4WSMW7EQAhFPxKWNh2FCx+HkaZI6RRb5DYbyVfIJXLKDCFoMbaTKSw/8ZnPAPjaH2xgZcUNUDADD7D9LtDBCLZ45fbkvo/30K8yeI64pPwl6znd/3n/Oe93P3ho9qeh72btTFzqkz0rsJle8Zr81OLEwZ1dv/713uWqvu2pl+k0fy7MWtj9r/tN5q/02z89qa/L4Dc2LvM93kezPfXlME/O86EbY/V9GB9ePX8G1/6W+/9h1dq/HGfTfzT3j/xNo7522Bfnqe5jO/fvhVthlfk434v3iO9zG/UOphyPeinPl1J8Gtaa7xPTa/Dk+RIs4deMvwGvcGsmsCvJ0AAAAABJRU5ErkJggg==);
+        }
+
+        @contentHeader {
+            padding: 0.7em;
+            box-shadow: 0px 0px 1.5em 0.4em #FFF;
+            border-bottom: solid 1px darken(@app_bg, 10%);
+        }
+        @contentHeader > vbox > * + * {
+            margin-top: 0.5em;
+        }
+        @contentHeader > vbox > .widget_ScrollableView > @content > * + * {
+            margin-left: 0.4em;
+        }
+        @contentBody {
+            text-align: center;
+            overflow: auto;
+            background: darken(@app_bg, 10%);
+            box-shadow: inset 0px 0px 1ex rgba(0, 0, 0, 0.3);
+        }
+        @contentBody > * {
+            text-align: left;
+        }
+        @contentBody[overflowx='false'] {
+            justify-content: center;
+        }
+        @contentBody[overflowy='false'] {
+            align-items: center;
+        }
+        .CanvasWrapper {
+            padding: 10px;
+            box-sizing: content-box;
+        }
+        .Canvas {
+            background: #FFF;
+            border: solid 1px #AAA;
+            box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.2);
+            line-height: 1px;
+            outline: none;
+            overflow: hidden;
+        }
+        .Canvas:focus {
+            border: solid 1px fadeout(@selected_bg, 30%);
+        }
+        .Canvas svg {
+            line-height: 1.428;
+        }
+
+        .widget_SharedPropertyEditor {
+            overflow-x: hidden;
+        }
+
+        @contentHeader {
+            font-size: 0.85em;
+            background: @app_bg;
+        }
+        @contentHeader button,
+        @contentHeader hbox.ButtonGroup {
+        }
+        @contentHeader button {
+            padding-left: 0.7em;
+            padding-right: 0.7em;
+        }
+        @contentHeader .widget_ComboManager @selectContainer > button {
+            padding-right: 0.3em;
+        }
+        @contentHeader > hbox > * {
+            margin-left: 1em;
+            white-space: nowrap;
+        }
+        @contentHeader > hbox > *:first-child {
+            margin-left: 0em;
+        }
+        @contentHeader input[type='number'] {
+            text-align: center;
+        }
+        @contentHeader @menuIcon {
+            @iconify();
+            opacity: 1;
+            font-size: 2.5em;
+            padding: 0.3em;
+            border-radius: 1em;
+            cursor: pointer;
+        }
+        @contentHeader @menuIcon:hover {
+            background: #FFF;
+            color: @selected_bg;
+        }
+        @contentHeader @appName i {
+            @iconify();
+            font-size: 1.3em;
+            opacity: 1;
+        }
+        @logoBox {
+            padding-right: 3em;
+            align-items: center;
+        }
+        @appName {
+            font-size: 2em;
+            color: darken(saturate(#da8500, 20%), 0%);
+        }
+        @appName * {
+            vertical-align: middle;
+        }
+        @documentContainer {
+            min-width: 0px;
+            flex: 1 1 auto;
+        }
+        @toolbarContainer {
+            flex-wrap: wrap;
+            margin-top: -0.4ex;
+        }
+        @toolbarContainer > * + * {
+            margin-left: 0.4ex;
+            margin-top: 0.4ex;
+        }
+    </style>
+
+    <vbox flex="1" anon-id="mainArea">
+        <hbox anon-id="contentHeader" style="align-items: center;">
+            <hbox anon-id="logoBox">
+                <i anon-id="menuIcon">menu</i>
+                <div anon-id="appName">
+                    <strong>PENCIL</strong>
+                </div>
+            </hbox>
+            <vbox flex="1">
+                <hbox anon-id="toolbarContainer">
+                    <ui:FileToolbar />
+                    <ui:EditToolbar />
+                    <ui:ZoomToolbar />
+                    <ui:AlignmentToolbar />
+                    <ui:SizeToolbar />
+                    <ui:SharedFontEditor anon-id="sharedFontEditor" />
+                    <ui:ColorEditor />
+                    <ui:SharedBorderStyleEditor />
+                    <ui:SharedGeomtryEditor />
+                </hbox>
+            </vbox>
+        </hbox>
+        <hbox flex="1" style="overflow: hidden; position: relative; ">
+            <ui:CollapseablePanel orient="horizontal" name="left_pane" mode="float">
+                <ui:CollectionPane anon-id="collectionPane"/>
+                <ui:MyCollectionPane anon-id="myCollectionPane"/>
+                <ui:OpenClipartPane anon-id="openClipartPane"/>
+            </ui:CollapseablePanel>
+            <vbox flex="1" anon-id="documentContainer">
+                <hbox anon-id="contentBody" flex="1" style="position: relative;">
+                    <ui:StartUpDocumentView anon-id="startupDocumentView" />
+                </hbox>
+                <ui:PageListView anon-id="pageListView" />
+            </vbox>
+            <ui:CollapseablePanel orient="horizontal" name="right_pane">
+                <ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />
+            </ui:CollapseablePanel>
+        </hbox>
+    </vbox>
+</hbox>

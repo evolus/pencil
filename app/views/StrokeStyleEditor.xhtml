@@ -1,0 +1,29 @@
+<hbox anon-id="strokeContainer">
+    <style>
+
+        @strokeContainer > * + * {
+            margin-left: 0.2em;
+            align-content: center;
+        }
+        @strokeWidth {
+            width: 5ex;
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+        }
+        @styleCombo {
+            width: 6ex;
+        }
+        @styleCombo button {
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+            border-right: none;
+        }
+        @styleCombo .StrokeStyleComboItem {
+            width: 100% !important;
+            overflow: hidden;
+            display: block;
+        }
+    </style>
+    <ui:ComboManager anon-id="styleCombo" flex="1"/>
+    <input type="number" min="0" max="30" anon-id="strokeWidth" size="2"/>
+</hbox>

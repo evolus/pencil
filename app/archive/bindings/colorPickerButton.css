@@ -1,0 +1,67 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+@namespace svg url(http://www.w3.org/2000/svg);
+@namespace html url(http://www.w3.org/1999/xhtml);
+
+pcolorbutton {
+    -moz-binding: url(chrome://pencil/content/bindings/colorPickerButton.xbl#colorbutton);
+}
+pcolorbutton panel {
+    padding: 1em;
+}
+pcolorbutton panel > hbox {
+    -moz-box-flex: 1;
+    -moz-box-pack: end;
+    padding-top: 1em;
+}
+pcolorbutton panel > hbox button {
+    margin: 0px;
+    font-size: .9em;
+}
+pcolorbutton > toolbarbutton > box {
+    width: 16px;
+    height: 16px;
+    background: red;
+}
+pcolorbutton[type="preview"] > toolbarbutton {
+  -moz-appearance: none;
+  padding: 8px;
+}
+pcolorbutton[type="preview"] {
+	background: url(ColorEditor-Preview-Bg.png) no-repeat 50% 50%;
+    border: outset 1px;
+}
+xpcolorbutton pcoloreditor label[aid='opacityText'],
+xpcolorbutton pcoloreditor scale[aid='opacity'] {
+    display: none;
+}
+pcolorbutton[mode='text'] toolbarbutton label {
+    background: none !important;
+    font-weight: bold;
+    text-shadow: 1px 1px 0px rgba(0, 0, 0, .1);
+}
+pcolorbutton[mode='text'] box[aid='colorBox'] {
+    display: none;
+}
+pcolorbutton[mode='border'] toolbarbutton label,
+pcolorbutton[mode='full'] toolbarbutton label {
+    display: none;
+}
+pcolorbutton[mode='border'] box[aid='colorBox'],
+pcolorbutton[mode='full'] box[aid='colorBox'] {
+    box-shadow: 1px 1px 0px rgba(0, 0, 0, .1);
+}
+
+pcolorbutton[mode='full'] box[aid='colorBox'] {
+    border-width: 0px !important;
+}
+pcolorbutton[mode='border'] box[aid='colorBox'] {
+    background: none !important;
+    border-width: 2px;
+    border-style: solid;
+}
+pcolorbutton toolbarbutton > box {
+    background: none !important;
+}
+pcolorbutton toolbarbutton[disabled] {
+    opacity: .3 !important;
+}

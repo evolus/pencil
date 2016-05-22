@@ -1,0 +1,150 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+@namespace svg url(http://www.w3.org/2000/svg);
+@namespace html url(http://www.w3.org/1999/xhtml);
+*[pencil-canvas='true'] {
+    background-color: transparent;
+    -moz-box-align: center;
+    -moz-box-pack: center;
+    -moz-user-select: none;
+    user-select: none;
+    position: relative;
+}
+*[pencil-canvas='true'] svg html|* {
+    -moz-user-select: none !important;
+    user-select: none !important;
+}
+*[pencil-canvas='true'] svg {
+}
+*[pencil-canvas='true'] svg|g[p|type='Shape'] {
+	cursor: move;
+}
+*[pencil-canvas='true'] svg|g[p|type='Shape'][p|locked='true'] {
+	cursor: default;
+}
+body[format-painter='true'] *[pencil-canvas='true'],
+body[format-painter='true'] *[pencil-canvas='true'] svg|g[p|type='Shape'] {
+    cursor: url(images/format-painter-16.png) 16 16, default !important;
+}
+*[pencil-canvas='true'] > box {
+    padding: 0px;
+	/*padding: 0;*/
+    background-color: #666;
+    -moz-user-focus: normal;
+    margin: 0px;
+    -moz-box-shadow: 0px 0px 6px rgba(0, 0, 0, .4);
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, .4);
+}
+*[pencil-canvas='true'] > box > box {
+    margin: 0px;
+	/*margin: 0;*/
+    -moz-box-orient: horizontal;
+    -moz-box-align: center;
+    -moz-box-pack: center;
+    -moz-box-flex: 0;
+    /*
+    -moz-user-input: enabled;
+    -moz-user-modify: read-write;
+    */
+
+	-moz-user-focus: normal;
+    border: solid 1px #666;
+    background-color: #fff;
+}
+*[pencil-canvas='true'] box[focusable='true'] {
+	-moz-user-focus: normal;
+	user-focus: normal;
+}
+*[pencil-canvas='true'] box[focusable='true'] svg {
+    -moz-user-focus: ignore;
+    user-focus: ignore;
+}
+
+*[pencil-canvas='true'] > box:focus > box {
+    border: solid 1px highlight;
+}
+
+*[pencil-canvas='true'] g[p|type='ControlLayer'] rect[p|type='RangeBound'] {
+    fill: none;
+    stroke: highlight;
+    stroke-dasharray: 3,3;
+
+    visibility: hidden;
+}
+*[pencil-canvas='true'] g[p|type='ControlLayer'] rect[p|type='RangeBound'][p|on='true'] {
+    visibility: visible;
+}
+*[pencil-canvas='true'] g#selectionContainer rect {
+    fill: none;
+    stroke: #0a0;
+    stroke-width: 4px;
+    stroke-opacity: .3;
+    xstroke-dasharray: 1,2;
+}
+
+*[pencil-canvas='true'][p|selection='1'] g#selectionContainer rect {
+    visibility: hidden;
+}
+*[pencil-canvas='true'][p|holding] g[p|type='ControlLayer'] > * {
+    display: none;
+}
+*[pencil-canvas='true'] svg|svg svg|g[p|type] svg|foreignObject[p|mime='text/html']:hover > html|div {
+    outline: solid 1px highlight;
+}
+*[pencil-canvas='true'] svg|svg svg|text[p|editable='true'] {
+    cursor: text;
+}
+
+*[pencil-canvas='true'] svg|g[p|type='Shape'] svg|foreignObject html|input {
+}
+
+*[pencil-canvas='true'] svg|svg svg|g[p|type][p|moving],
+*[pencil-canvas='true'] svg|svg svg|g[p|type][p|moving] * {
+    visibility: hidden !important;
+}
+*[pencil-canvas='true'] g[p|name='Background'] g[p|name='grids'] {
+    opacity: .3;
+}
+*[pencil-canvas='true'] g[p|name='Background'] g[p|name='grids'] line {
+    stroke: #777;
+    stroke-width: 1px;
+    fill: none;
+}
+
+window[p|hide-heavy='true'] *[pencil-canvas='true'] svg|*[p|heavy],
+window[p|hide-heavy='true'] *[pencil-canvas='true'] svg|*[p|filter] {
+    display: none;
+}
+
+*[pencil-canvas='true'] svg|rect[p|name='BackgroundDimmer'] {
+    fill: #000000;
+    visibility: hidden;
+}
+
+*[pencil-canvas='true'][p|with-background][p|with-background-dimmer] svg|rect[p|name='BackgroundDimmer'] {
+    visibility: visible;
+    opacity: .2;
+}
+*[pencil-canvas='true'] g[p|name='Snapping'] line {
+	fill: none;
+	stroke: blue;
+	stroke-width: 1;
+	opacity: 0.3;
+}
+*[pencil-canvas='true'] g[p|name='Snapping'] line.Center,
+*[pencil-canvas='true'] g[p|name='Snapping'] line.HCenter,
+*[pencil-canvas='true'] g[p|name='Snapping'] line.VCenter {
+	stroke: magenta;
+}
+
+*[pencil-canvas='true'] > .DragOverlay {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    display: none;
+    opacity: 0;
+}
+*[is-dragover='true'] > .DragOverlay {
+    display: block;
+}

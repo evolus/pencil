@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay SYSTEM "chrome://pencil/locale/pencil.dtd">
+
+<overlay id="pencil-overlay"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="chrome://pencil/content/common/util.js" />
+    <script src="chrome://pencil/content/common/pencilNamespaces.js" />
+    <script src="chrome://pencil/content/firefoxOverlay.js" />
+
+    <menupopup id="menu_ToolsPopup">
+        <menuitem id="pencil-launcher" label="&menu.pencil.sketching.label;" image="chrome://pencil/skin/pencil-16.png" class="menuitem-iconic"
+            oncommand="window.openDialog('chrome://pencil/content/mainWindow.xul', '_blank', 'chrome, centerscreen, resizable=yes, dialog=no, all, modal=no, dependent=no');"/>
+        <menu label="&menu.send.page.to.pencil.label;">
+            <menupopup id="pencil_sendToMenuPopup">
+            </menupopup>
+        </menu>
+    </menupopup>
+
+    <statusbar id="status-bar">
+		<statusbarpanel id="pencil-panel">
+			<image id="pencil-statusbar-icon"
+                src="chrome://pencil/skin/pencil-16.png"
+                onclick="window.openDialog('chrome://pencil/content/mainWindow.xul', '_blank', 'chrome, centerscreen, resizable=yes, dialog=no, all, modal=no, dependent=no');"
+                tooltiptext="Open Pencil"/>
+		</statusbarpanel>
+	</statusbar>
+
+</overlay>

@@ -1,0 +1,1481 @@
+<Shapes
+    xmlns="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://web.resource.org/cc/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    id="Evolus.NativeGUI"
+    displayName="Desktop - Native UI Widgets"
+    description="Collection of native UI elements">
+    <Properties>
+        <PropertyGroup>
+            <Property name="parseAccessKey" displayName="Use _ as Accesskey Indicator" type="Bool">true</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Control Text">
+            <Property name="defaultTextFont" displayName="Default Text Font" type="Font">"Liberation Sans",Arial,sans-serif|normal|normal|13px|none</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Window Frame">
+            <Property name="defaultFrameStyle" displayName="Default Window Style" type="Enum" p:enumValues="['nodoka|Gnome Nodoka', 'vista|Windows Vista (no Aero)', 'royale|Windows XP (Royale)', 'macosx|Mac OSX']">nodoka</Property>
+            <Property name="defaultWindowTitleFont" displayName="Default Title Font" type="Font">"Liberation Sans",Arial,sans-serif|normal|normal|16px|none</Property>
+            <Property name="defaultWindowTitleColor" displayName="Default Title Text Color" type="Color">#ffffffff</Property>
+        </PropertyGroup>
+    </Properties>
+    <Script>
+        <![CDATA[
+            collection.MIN_COL_WIDTH = 5;
+            collection.getMaxColumns = function (rawText) {
+                var a = F.parseTextArray(rawText);
+
+                var c = 0;
+                for (var i in a) {
+                    c = Math.max(c, a[i].length);
+                }
+
+                return c;
+            };
+            collection.getMaxXForColumnHandle = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                if (i < cols - 2) {
+                    return properties["h" + (i + 1)].x - this.MIN_COL_WIDTH;
+                }
+
+                return properties["box"].w - this.MIN_COL_WIDTH;
+            };
+            collection.getMinXForColumnHandle = function (i, properties) {
+                if (i > 0) {
+                    return properties["h" + (i - 1)].x + this.MIN_COL_WIDTH;
+                }
+
+                return this.MIN_COL_WIDTH;
+            };
+            collection.isColumnHandleDisabled = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                return i >= cols - 1;
+            };
+        ]]>
+    </Script>
+    <Shape id="TabBox" displayName="Tab Box" icon="Icons/tab.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">300,200</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="tabLabel" displayName="Tab Labels" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), 30), font: $textFont, align: new Alignment(0, 1), multi: false})">#Banana|Pummelo|Mango</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="tabbox">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+            <For ref="tabs">
+                <DomContent>
+                <![CDATA[
+                    //depends: $tabLabel
+
+                    var items = $tabLabel.value.split(/\|/);
+                    var specs = [];
+
+                    for (var i in items) {
+                        var label = items[i];
+                        var selected = false;
+
+                        if (label.match(/^#/)) {
+                            selected = true;
+                            label = label.substring(1);
+                        }
+
+                        specs.push(
+                            {
+                                _name: "tab",
+                                _uri: "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+                                label: label,
+                                selected: selected
+                            }
+                        );
+                    }
+
+                    F.newDOMFragment(specs);
+                ]]>
+                </DomContent>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var padding = 13;
+                        return [
+                            new SnappingData("FrameInnerPaddingRight", b.x + b.width - 2 - padding, "Right", true, this.id),
+                            new SnappingData("FrameInnerPaddingLeft", b.x + padding, "Left", true, this.id),
+                            new SnappingData("FrameInnerPaddingTop", b.y + 20 + padding, "Top", false, this.id),
+                            new SnappingData("FrameInnerPaddingBottom", b.y + b.height - 2 - padding, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <tabbox id="tabbox" flex="1" style="pointer-events: none; margin: 0px !important;">
+                      <tabs id="tabs">
+                        <tab label="First tab" selected="true"/>
+                        <tab label="Second tab"/>
+                        <tab label="Third tab"/>
+                      </tabs>
+                      <tabpanels flex="1">
+                        <tabpanel></tabpanel>
+                      </tabpanels>
+                    </tabbox>
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <!--
+    <Shape id="DatePicker" displayName="Date Picker" icon="Icons/plain-text.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">200,180</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="dateText" displayName="Date Text" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, $box.w, $box.h), font: $textFont, align: new Alignment(1, 1), multi: false})">2009-10-29</Property>
+                <Property name="textFont" displayName="Font" type="Font">Liberation Sans|normal|normal|12px|none</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Font>$textFont</Font>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="xulControl">
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h</Arg>
+                </Attr>
+                <Property>
+                    <Arg>"disabled"</Arg>
+                    <Arg>$disabled.value ? true : false</Arg>
+                </Property>
+                <Attr>
+                    <Arg>"value"</Arg>
+                    <Arg>$dateText.value</Arg>
+                </Attr>
+                <Property>
+                    <Arg>"dateValue"</Arg>
+                    <Arg>
+                        var date = new Date();
+                        if ($dateText.value.match(/^([0-9]{4,4})-([0-9]{2,2})-([0-9]{2,2})$/)) {
+                            var y = parseInt(RegExp.$1, 10);
+                            var m = parseInt(RegExp.$2, 10) - 1;
+                            var d = parseInt(RegExp.$3, 10);
+
+                            date = new Date(y, m, d);
+                        }
+
+                        date;
+                    </Arg>
+                </Property>
+            </For>
+            <For ref="control">
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <datepicker id="xulControl" type="grid" disabled="true" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+-->
+    <Shape id="Button" displayName="Button" icon="Icons/button.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">80,25</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="default" displayName="Default Button" type="Bool">false</Property>
+                <Property name="parseAccessKey" displayName="Use _ as Accesskey Indicator" type="Bool">true</Property>
+                <Property name="image" displayName="Image" type="ImageData">0,0, </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 25)), font: $textFont, align: new Alignment(1, 1), multi: false})">Button</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Label>
+                    <Arg>$label.value</Arg>
+                    <Arg>$parseAccessKey.value</Arg>
+                </Label>
+                <Attr>
+                    <Arg>"default"</Arg>
+                    <Arg>$default.value</Arg>
+                </Attr>
+
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+                <Attr>
+                    <Arg>"image"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : null;
+                    </Arg>
+                </Attr>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="setImage" displayName="Select Button Image...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="removeImage" displayName="Remove Button Image">
+                <Impl>
+                    <![CDATA[
+                        this.setProperty("image", new ImageData(0, 0, ""));
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; line-height: 1px !important; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <button id="xulControl"
+                            style="margin: 0px !important; min-height: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="TextBox" displayName="TextBox" icon="Icons/textbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">80,25</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 25)), font: $textFont, align: new Alignment(0, 0), multi: true})">Text</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Value>$text.value</Value>
+
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; !important; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <textbox id="xulControl"
+                            value="asdasdasd"
+                            multilines="true"
+                            wrap="true"
+                            style="margin: 0px !important; min-height: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; vertical-align: middle;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="Radio" displayName="Radio" icon="Icons/radio.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">120,20</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="parseAccessKey" displayName="Use _ as accesskey indicator" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 20)), font: $textFont, align: new Alignment(0, 0), multi: true})">Radio button</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Label>
+                    <Arg>$label.value</Arg>
+                    <Arg>$parseAccessKey.value</Arg>
+                </Label>
+                <Attr>
+                    <Arg>"selected"</Arg>
+                    <Arg>$selected.value</Arg>
+                </Attr>
+
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <radio id="xulControl"
+                            style="margin: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; vertical-align: middle;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="Label" displayName="Label" icon="Icons/label.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">80,20</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="parseAccessKey" displayName="Use _ as accesskey indicator" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 20)), font: $textFont, align: new Alignment(0, 1), multi: false})">Label</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulBox">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+            </For>
+            <For ref="xulControl">
+                <Value>
+                    <Arg>$label.value</Arg>
+                    <Arg>$parseAccessKey.value</Arg>
+                </Value>
+
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <hbox id="xulBox" align="center">
+                        <label id="xulControl"
+                                style="margin: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; vertical-align: middle;" flex="1" />
+                    </hbox>
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="Checkbox" displayName="Checkbox" icon="Icons/checkbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">100,20</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="parseAccessKey" displayName="Use _ as accesskey indicator" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 25)), font: $textFont, align: new Alignment(0, 0), multi: true})">Check box</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Label>
+                    <Arg>$label.value</Arg>
+                    <Arg>$parseAccessKey.value</Arg>
+                </Label>
+                <Attr>
+                    <Arg>"checked"</Arg>
+                    <Arg>$selected.value</Arg>
+                </Attr>
+
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <checkbox id="xulControl"
+                            style="margin: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; vertical-align: middle;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="Combo" displayName="Combo Box" icon="Icons/combo.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">140,25</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 25)), font: $textFont, align: new Alignment(0, 0), multi: true})">Selection...</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Label>
+                    <Arg>$label.value</Arg>
+                </Label>
+
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <menulist id="xulControl"
+                            style="margin: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; vertical-align: middle;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="Listbox" displayName="List Box" icon="Icons/list.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">140,200</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="items" displayName="Items" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 25)), font: $textFont, align: new Alignment(0, 0), multi: true})">Item1
+#Item2
+Item3</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+                <DomContent>
+                <![CDATA[
+                    var items = $items.value.split(/[\r\n]+/);
+                    var specs = [];
+
+                    for (var i in items) {
+                        var label = items[i];
+                        var selected = false;
+                        var type = "";
+                        var checked = false;
+
+                        if (label.match(/^#/)) {
+                            selected = true;
+                            label = label.substring(1);
+                        }
+                        if (label.match(/^\[\]/)) {
+                            label = label.substring(2);
+                            type = "checkbox";
+                        } else if (label.match(/^\[\*\]/)) {
+                            label = label.substring(3);
+                            type = "checkbox";
+                            checked = true;
+                        } else if (label.match(/^\(\)/)) {
+                            label = label.substring(2);
+                            type = "radio";
+                        } else if (label.match(/^\(\*\)/)) {
+                            label = label.substring(3);
+                            type = "radio";
+                            checked = true;
+                        }
+
+                        specs.push(
+                            {
+                                _name: "listitem",
+                                _uri: "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+                                label: label,
+                                type: type,
+                                checked: checked,
+                                selected: selected
+                            }
+                        );
+                    }
+
+                    F.newDOMFragment(specs);
+                    ]]>
+                </DomContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <listbox id="xulControl"
+                            style="margin: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; vertical-align: middle;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="Groupbox" displayName="Group Box" icon="Icons/group.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">300,200</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="parseAccessKey" displayName="Use _ as accesskey indicator" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 25)), font: $textFont, align: new Alignment(0, 0), multi: true})">Group box</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+            </For>
+            <For ref="caption">
+                <Label>
+                    <Arg>$label.value</Arg>
+                    <Arg>$parseAccessKey.value</Arg>
+                </Label>
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var padding = 13;
+                        return [
+                            new SnappingData("FrameInnerPaddingRight", b.x + b.width - padding, "Right", true, this.id),
+                            new SnappingData("FrameInnerPaddingLeft", b.x + padding, "Left", true, this.id),
+                            new SnappingData("FrameInnerPaddingTop", b.y + 15 + padding , "Top", false, this.id),
+                            new SnappingData("FrameInnerPaddingBottom", b.y + b.height - padding, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <groupbox id="xulControl"
+                            style="margin: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; vertical-align: middle;">
+                            <caption id="caption"/>
+                    </groupbox>
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="SpinInput" displayName="Spin Input" icon="Icons/spin-input.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">40,25</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="rangeMode" displayName="Range Status" type="Enum" p:enumValues="['min|At min', 'normal|Normal', 'max|At max']">normal</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 25)), font: $textFont, align: new Alignment(0, 0), multi: true})">10</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Attr>
+                    <Arg>"decimalplaces"</Arg>
+                    <Arg>
+                        var d = 0;
+
+                        var i = $text.value.indexOf(".");
+                        if (i > 0) {
+                            d = $text.value.length - i - 1;
+                        }
+
+                        d;
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"min"</Arg>
+                    <Arg>$rangeMode.value == "min" ? parseFloat($text.value) : null</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"max"</Arg>
+                    <Arg>$rangeMode.value == "max" ? parseFloat($text.value) : null</Arg>
+                </Attr>
+                <Property>
+                    <Arg>"min"</Arg>
+                    <Arg>$rangeMode.value == "min" ? parseFloat($text.value) : Number.NEGATIVE_INFINITY</Arg>
+                </Property>
+                <Property>
+                    <Arg>"max"</Arg>
+                    <Arg>$rangeMode.value == "max" ? parseFloat($text.value) : Number.POSITIVE_INFINITY</Arg>
+                </Property>
+                <Value>$text.value</Value>
+
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; line-height: 1px !important; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <textbox id="xulControl"
+                            value="asdasdasd"
+                            multilines="true"
+                            type="number"
+                            style="margin: 0px !important; min-height: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; vertical-align: middle;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="Scale" displayName="Scale" icon="Icons/scale.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">100,25</Property>
+                <Property name="valueHandle" displayName="Value" type="Handle" p:lockY="true" p:expressionY="$box.h / 2" p:maxX="$box.w" p:minX="0">70,0</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Attr>
+                    <Arg>"max"</Arg>
+                    <Arg>$box.w</Arg>
+                </Attr>
+                <Value>$valueHandle.x</Value>
+            </For>
+            <For ref="control">
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; line-height: 1px !important; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"><scale id="xulControl" style="margin: 0px !important; min-height: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; padding: 0px !important;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="Scrollbar" displayName="Scrollbar" icon="Icons/scrollbar.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">20,200</Property>
+                <Property name="startHandle" displayName="Value" type="Handle" p:lockX="true" p:expressionX="$box.w / 4" p:maxY="$box.h" p:minY="0">0,30</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Attr>
+                    <Arg>"maxpos"</Arg>
+                    <Arg>100</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"curpos"</Arg>
+                    <Arg>100 * $startHandle.y / $box.h</Arg>
+                </Attr>
+            </For>
+            <For ref="control">
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; line-height: 0px !important; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                <scrollbar id="xulControl"
+                            orient="vertical"
+                            style="margin: 0px !important; min-height: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; padding: 0px !important;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="Tree" displayName="Table/Tree" icon="Icons/table-tree.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">300,250</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="withColumnPicker" displayName="With column picker" type="Bool">false</Property>
+                <Property name="h0" displayName="Column 1 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(0, properties)" p:minX="collection.getMinXForColumnHandle(0, properties)" p:disabled="collection.isColumnHandleDisabled(0, properties)">80,0</Property>
+                <Property name="h1" displayName="Column 2 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(1, properties)" p:minX="collection.getMinXForColumnHandle(1, properties)" p:disabled="collection.isColumnHandleDisabled(1, properties)">160,0</Property>
+                <Property name="h2" displayName="Column 3 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(2, properties)" p:minX="collection.getMinXForColumnHandle(2, properties)" p:disabled="collection.isColumnHandleDisabled(2, properties)">240,0</Property>
+                <Property name="h3" displayName="Column 4 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(3, properties)" p:minX="collection.getMinXForColumnHandle(3, properties)" p:disabled="collection.isColumnHandleDisabled(3, properties)">260,0</Property>
+                <Property name="h4" displayName="Column 5 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(4, properties)" p:minX="collection.getMinXForColumnHandle(4, properties)" p:disabled="collection.isColumnHandleDisabled(4, properties)">270,0</Property>
+                <Property name="h5" displayName="Column 6 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(5, properties)" p:minX="collection.getMinXForColumnHandle(5, properties)" p:disabled="collection.isColumnHandleDisabled(5, properties)">280,0</Property>
+                <Property name="h6" displayName="Column 7 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(6, properties)" p:minX="collection.getMinXForColumnHandle(6, properties)" p:disabled="collection.isColumnHandleDisabled(6, properties)">290,0</Property>
+                <Property name="h7" displayName="Column 8 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(7, properties)" p:minX="collection.getMinXForColumnHandle(7, properties)" p:disabled="collection.isColumnHandleDisabled(7, properties)">290,0</Property>
+                <Property name="h8" displayName="Column 9 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(8, properties)" p:minX="collection.getMinXForColumnHandle(8, properties)" p:disabled="collection.isColumnHandleDisabled(8, properties)">290,0</Property>
+                <Property name="h9" displayName="Column 10 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(9, properties)" p:minX="collection.getMinXForColumnHandle(9, properties)" p:disabled="collection.isColumnHandleDisabled(9, properties)">290,0</Property>
+                <Property name="h10" displayName="Column 11 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(10, properties)" p:minX="collection.getMinXForColumnHandle(10, properties)" p:disabled="collection.isColumnHandleDisabled(10, properties)">290,0</Property>
+                <Property name="h11" displayName="Column 12 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(11, properties)" p:minX="collection.getMinXForColumnHandle(11, properties)" p:disabled="collection.isColumnHandleDisabled(11, properties)">290,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="content" displayName="Content" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 25)), font: $textFont, align: new Alignment(0, 0), multi: true})">Column 1|Column 2
+Content 1|Content 2
+Content 3|Content 4</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <DomContent>
+                <![CDATA[
+                    var fragment = null;
+
+                    try {
+                        var a = F.parseTextArray($content.value);
+
+                        var specs = [];
+
+                        var cols = {
+                            _name: "treecols",
+                            _uri: PencilNamespaces.xul,
+                            _children: []
+                        };
+                        var rows = {
+                            _name: "treechildren",
+                            _uri: PencilNamespaces.xul,
+                            _children: []
+                        };
+
+                        if (a.length > 0) {
+                            var headers = a[0];
+                            var lastWidth = 0;
+                            for (var i = 0; i < headers.length; i ++) {
+                                var header = headers[i];
+                                if (i > 0) {
+                                    cols._children.push({
+                                                _name: "splitter",
+                                                _url: PencilNamespaces.xul,
+                                                class: "tree-splitter"
+                                            });
+                                }
+
+                                var label = header;
+                                var type = "";
+                                if (header.match(/^\[\](.*)/)) {
+                                    label = RegExp.$1;
+                                    type = "checkbox";
+                                } else if (header.match(/^==(.*)/)) {
+                                    label = RegExp.$1;
+                                    type = "progressmeter";
+                                }
+
+
+                                //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11
+
+                                var h = {
+                                            _name: "treecol",
+                                            _url: PencilNamespaces.xul,
+                                            id: ("" + new Date().getTime() + Math.round(Math.random() * 1000)),
+                                            flex: (i == headers.length - 1) ? 1 : 0,
+                                            label: label,
+                                            type: type
+                                        };
+
+                                if (i < headers.length - 1) {
+                                    h.width = properties["h" + i].x - lastWidth;
+                                }
+
+                                cols._children.push(h);
+                                lastWidth = properties["h" + i].x;
+                            }
+                        }
+                        for (var i = 1; i < a.length; i ++) {
+                            var row = {
+                                _name: "treerow",
+                                _uri: PencilNamespaces.xul,
+                                _children: []
+                            }
+                            var treeitem = {
+                                _name: "treeitem",
+                                _uri: PencilNamespaces.xul,
+                                _children: [row]
+                            };
+                            rows._children.push(treeitem);
+
+                            var cells = a[i];
+                            for (var j = 0; j < cells.length; j ++) {
+                                var cell = cells[j];
+
+                                row._children.push({
+                                    _name: "treecell",
+                                    _uri: PencilNamespaces.xul,
+                                    label: cell,
+                                    value: "50%",
+                                    editable: true
+                                });
+                            }
+                        }
+                        specs.push(cols);
+                        specs.push(rows);
+
+                        fragment = F.newDOMFragment(specs);
+                    } catch (e) {
+                        Console.dumpError(e);
+                    }
+
+                    fragment;
+                ]]>
+                </DomContent>
+                <Attr>
+                    <Arg>"hidecolumnpicker"</Arg>
+                    <Arg>!$withColumnPicker.value</Arg>
+                </Attr>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; line-height: 0px !important;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:x="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <tree id="xulControl"
+                            flex="1"
+                            hidecolumnpicker="false"
+                            seltype="multi"
+                            style="margin: 0px !important; min-height: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; padding: 0px !important;">
+                    </tree>
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="ProgressBar" displayName="Progress Bar" icon="Icons/progress.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">200,20</Property>
+                <Property name="valueHandle" displayName="Value" type="Handle" p:lockY="true" p:maxX="$box.w" p:minX="0">70,0</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Attr>
+                    <Arg>"max"</Arg>
+                    <Arg>$box.w</Arg>
+                </Attr>
+                <Value>$valueHandle.x</Value>
+            </For>
+            <For ref="control">
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; line-height: 0px !important; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"><progressmeter id="xulControl" style="margin: 0px !important; min-height: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="WindowBorder" displayName="Window Frame" description="Window/dialog frame with styles for various platforms" icon="Icons/window-frame.png">
+        <Properties>
+            <PropertyGroup name="Common">
+                <Property name="box" displayName="Size" type="Dimension">300,200</Property>
+                <Property name="withMinButton" displayName="With Minimize Button" type="Bool">true</Property>
+                <Property name="withRestoreButton" displayName="With Restore Button" type="Bool">true</Property>
+                <Property name="withCloseButton" displayName="With Close Button" type="Bool">true</Property>
+                <Property name="withRoomForIcon" displayName="With Room for Icon" type="Bool">false</Property>
+                <Property name="withShadow" displayName="With Shadow" type="Bool">false</Property>
+                <Property name="useSystemColor" displayName="Use System Background Color" type="Bool">true</Property>
+                <Property name="showMockupNotice" displayName="Show Mockup Notice" type="Bool">false</Property>
+
+                <Property name="glassHeight" displayName="Glass Extend" type="Handle" p:minY="28" p:maxY="$box.h" p:lockX="true" p:disabled="$style.value.indexOf('vista') &lt; 0">0,28</Property>
+                <Property name="macHeaderHeight" displayName="Header Height" p:noScale="true" type="Handle" p:minY="21" p:maxY="$box.h" p:lockX="true" p:disabled="$style.value.indexOf('macosx') &lt; 0">0,52</Property>
+                <Property name="fillColor" displayName="Background Color" type="Color">#ffffffff</Property>
+
+                <Property name="style" displayName="Style" type="Enum" p:enumValues="['nodoka|Gnome Nodoka', 'vista|Windows Vista (no Aero)', 'royale|Windows XP (Royale)', 'macosx|Mac OSX']"><E>$$defaultFrameStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="title" displayName="Content" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(5, 5, Math.max($box.w, 80) - 10, 25), font: $textFont, align: new Alignment(0, 1), multi: false})">Window Title</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultWindowTitleColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultWindowTitleFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>
+                    var d = $withShadow.value ? 5 : 0;
+                    new Bound(0 - d, 0 - d, $box.w + 2 * d, $box.h + 13 + 2 * d);
+                </Bound>
+            </For>
+            <For ref="div">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>
+                        var style = {
+                            vista: "background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAG4CAYAAABijkbEAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCQ4QOJtjHhkAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAA6UlEQVRYw+2YMQ7CMAxF/aPcf+YgHISjMCAYCjIDtKrjCMdQhJB+F9RH7P/txBmK3f6gsnoqBGJA8y4VQACKX+FylNch9u++Sol9lMh6ozMQ4mQ71bY5QqcIm1yA5Da4FhL8AlSEK9oR20KlPn6wDgknewtZvOG0Mw26Ml9sJSOyA11HfOWkVfwg++KikIGrL5Yd8JGvBVGOnvVYBemuYz7cEBW1xiD4aOfmg7d0DCYEzyUmKRKHLj1ibudU1YLp1oDjebLgdLmaNLykCQgICAgICAgICAgICAgICAgICP4PVBVZvtB+TeUO6OYaidn/eOEAAAAASUVORK5CYII=) repeat-x #b9d1ea; border: solid 2px; -moz-border-top-colors: #000 #fff; -moz-border-right-colors: #000 #3fcef2; -moz-border-bottom-colors: #000 #3fcef2; -moz-border-left-colors: #000 #fff; -moz-border-radius-topleft: 6px; -moz-border-radius-topright: 6px; padding: 5px; padding-top: 28px; -moz-box-sizing: border-box; box-sizing: border-box; position: relative;",
+
+                            nodoka: "background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAWCAYAAAAFMyaXAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCRACIghNGcoAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAANElEQVQY02NkmPHiPwMUsDD++8OA4PxF5uCR+Y1DhuEfkQagyPwmWQ8DGW7DbTTT769wDgDAISxVMJDQJwAAAABJRU5ErkJggg==) repeat-x #14628a; border: solid 1px #14628A; -moz-border-radius-topleft: 6px; -moz-border-radius-topright: 6px; padding: 3px; padding-top: 22px; box-sizing: border-box; -moz-box-sizing: border-box; position: relative;",
+
+                            royale: "background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAdCAYAAABi6qYTAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCRA3GGxwAs4AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAc0lEQVQoz42ROw6AMAxD06r337kQF4EJCSQklqb5sGMjNeOTEydOWdY75VPtMBOAjkyamiO0qAiHEmUmUXoP0j5yzgiJiDQbxF1VmRFR7ueDsBjZ052dGSTPGARWlqez2+lM0ZhUJvtmGAkkcORPyP3aAL4T3UdphOekEAAAAABJRU5ErkJggg==) repeat-x #254394; border: solid 1px; border-width: 1px 3px 3px 3px; -moz-border-radius-topleft: 6px; -moz-border-radius-topright: 6px; border-top-color: #2A4DAB; -moz-border-bottom-colors: #3262BD #84B0DF #5E89CB; -moz-border-right-colors: #3262BD #84B0DF #5E89CB; -moz-border-left-colors: #3262BD #84B0DF #5E89CB; padding: 1px; padding-top: 29px; box-sizing: border-box; -moz-box-sizing: border-box; position: relative;",
+
+                            macosx: "background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAA0CAYAAACglemUAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCgYyIt0VXxUAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAOUlEQVQY02O8cOHCfwYGBgaW////M6AwmBigAI8IeYrxMEjT9e/fPwrswmc7zGRKzaGST/EEL6YUAF0feKqONwzTAAAAAElFTkSuQmCC) repeat-x #a7a7a7; border: solid 1px #9b9b9b; border-top-width: 2px; -moz-border-top-colors: #cbcbcb #e2e2e2; -moz-border-radius-topleft: 6px; -moz-border-radius-topright: 6px; padding: 0px; padding-top: 22px; box-sizing: border-box; -moz-box-sizing: border-box; position: relative;"
+
+                        }[$style.value];
+
+                        style;
+                    </Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+
+                <CustomStyle>
+                    <Arg>"top"</Arg>
+                    <Arg>$withShadow.value ? "5px" : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"left"</Arg>
+                    <Arg>$withShadow.value ? "5px" : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"-moz-box-shadow"</Arg>
+                    <Arg>$withShadow.value ? ($style.value == "macosx" ? "rgba(60, 60, 60, .7) 0px 2px 5px" : "rgba(0, 0, 0, .7) 0px 0px 5px") : ""</Arg>
+                </CustomStyle>
+
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding-top"</Arg>
+                    <Arg>
+                        var top = {
+                            vista: ($glassHeight.y + "px"),
+                            nodoka: "22px",
+                            royale: "29px",
+                            macosx: ($macHeaderHeight.y + "px")
+                        }[$style.value];
+
+                        top;
+                    </Arg>
+                </CustomStyle>
+            </For>
+            <For ref="minimizeButton">
+                <CustomStyle>
+                    <Arg>"display"</Arg>
+                    <Arg>$withMinButton.value ? "inline" : "none"</Arg>
+                </CustomStyle>
+                <Attr>
+                    <Arg>"src"</Arg>
+                    <Arg>
+                        var src = {
+                            vista: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAARCAYAAAAlpHdJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCQ4eGUmJI8kAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAACB0lEQVRIx5VVPWsUURQ9582dzEchpLNQ0CXrElOoGM2mM41WVgr+BP+E4E/Q1tYukM4qnYWFAUUTWIQkKwGTIBgSUgTWXZhrMfPcmdk3H7nVvPfm3Hvux3mPb9c/Yf/HQM/PzqAKkAAUADFdly07BwBVBbOf2uKvzM/j1u0lyuDrF3329BF63Q6aLB+okk0L/O7eT2x8+KgyHv9Fr9vB4clFe0eVJWmH7y7cxHi8CSGJJFEkao/oCFB2mNUUrvN2eIIQAlkptVha4v/e1IEry+J3WzwJiIJQAIllRjrDVGZSbkELfJJ9izFpCbWif8zIFXtcDFbd5wo8DUhC7KKoDessn0UpQCHjchWa8aqaDtyf03PsDn87ydse7n3fwsFgu1FON5buoHt3pVaesbkKYwzEkjWGbsVkwIPBNjbW3zUGf/7iJXr3+jP4PBG7Jcak024845ZvrlrD4bDmokmdA4DxDOq7lRIQkhDfRxhFpZjpsORtMpm0uvHCKHLirYnvW50TIoIgmMvE75pZxeJyH69ev2m4OoHF5VWEQVCbiIik004S4nkI5mYBeTIP1h7j4dqTmWyrRVbEWwKqCvE80BBCQxhD+L7gMpbPpq7ELktngpAoinF8dIzO9WuVvZyuL/d6VeGPfh0ijmPw/eYOvm191tFoNP2p4T3O7xff83b4IAxxv7/Kf9iy+X28yyXiAAAAAElFTkSuQmCC",
+
+                            nodoka: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAVCAYAAABc6S4mAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCRAFOc1pRuEAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAA4ElEQVQ4y9WVsQrCQBBEZ5NTwaBY2Sj6AYKtkMLftrURLCxSCFrYCAYLBRVBktztnUUEixgVYQuvHYbh3eyyNJw4B6G3XsygEgYqTosEEGdQqQV8lgrQUCkDNSMZYAFrjCwByxMIBoC1LAFYi3XgsYYieQLz5x3Qhw4G7TpGnSZ8r6gZ6zDfXbE63F56/W8Ixr0GjLVIMlvQgqqPsBtgub+89Kqc4H0H080RYb+FuqKClmmN2fZc6n+OKZd/URSfEMWn38bUPgIgdBIcUV4yIHRzyMv3QIoA5OUEJEugRQnuGZKgSSUr6jMAAAAASUVORK5CYII=",
+
+                            royale: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCRA4D2g7m8YAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAACPElEQVQ4y5WUvW7TUBTHf8e+iRtTIRVQVSEWigQLEitMqEJMDIiBgXfgFZgYeA1egb1CYgBGBjq2qhAVEJS2tECb2L73z2AncZy4wJnuPZ//82lPX+4wPM3obw+EAGNKzT9ny5YvpKysnTc3PM04+HSoRw9v0E7jeNYqFcbWhz36347l+tsD3d9Y52gU+DUKIIHNG1sNIFLFnIZZTiLWr62y83oXB+BD4PB3PXQoHbcEmK1BGeSgECtxGd0BBCDzWmyAkIRVzuvvpn6IShsnCS/Ii7JqUiCyiFD+sIl7NYsw0R8H8a5MzhmGp3RaygzPFPUsytBADKraJwmPYQYOgxBUIV3srM6ff09zCaHkljUV5N4W9ru9hlSDNNWdOD3J+3z5scaXfVUyzQ6RAGuii+aaCUbXYoZFH5dlBQ5PPhryv9TMItYSoyzHneQFZuJklNcqJEyGrMI1Hkeb3StNcKvKLWGUeVxRBASEIlTdrC9mmblqeyBpZufHbVKlNyoCLvOeroNO7CeKb57faU357rP3rbKuM3LvcVIg6Ri9WIRJN9upF6tVljjwCjgUSDsRSdx+hWYM48V8A9IkAgWcCKRLMambOnzyoj3Fsd6iU5t2Y0TAGSJdikg79pfxaT9Y4wDnejGGcCD2B8fcu32Fz19//sO5q+YTm4F6caXH98ERksd1bc02337Ug41bXL96qbZ+duaKNtd1d2+fzXdbJNFls5uPXyEb4Tt9zVdpfA5L8NY4J01yftUiJfwBqVIy+wKZIp0AAAAASUVORK5CYII=",
+
+                            macosx: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCgY2Jr4UXggAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAACxklEQVQozwXB3W9TZRwH8O/v97yd55zutNvaboeBxITCWKxx3oiJLxBiuCNGbv2b+AO44MpbvCEkqNEoxgAui0GBAS5qhXm6reu6bqd9Ts+bnw9tbm628zw/l6bp5clg/9rg++/emb56XsckEQAAPyjs+bWj5tXPnvrN1jfGmB+llNsyy7Jz0+n0vYPHP3cPv/4qsvXQi5Yj9k91QcRI/uvx0Z+b3uuNH6L5L77sLn7w8chaCzmbzS4PN37pju/c6i4tB+3TFxumdekjWvjwc4AZhw/v0v7D++b11rg9uHOrS8xoXfqkIScHg2sn925H0Rlun+1QYJsly7yPvP8cIILIY8y3CjYQgZJ8eu/ebR101k6J62frN73xq4W19+etXagJL9SkdAWuEiDZAU3+BSMhoYka80odDiaBS7Eo/eEfYbszx7ZZJxP6kIEP4QGCdwGUEHMVpKpDWkXCTMSZTu7tDZ9qGagTEUYNmMU6TN2HtB7YKJBgEABRKJSzDMJqQCmESUGJGwtJxhQqDFg3aqTmAgirwUoCUgEAKM/AeQ6SCiCGGqUVmbSUZRiNcyIrar4Wvs/sKUArQEqAAMo0aDYDSKKsqMz5eFaG0ZSxsr41Soo91iYlT5fQGtAKZBRIa8AowBiQ0SUZnY5O8j2srG+xXb3ywBViO+67EaTMIGVJUoJIAMRgKQEpSyiVxf3pKC3Utl298oALoR5x58aT+M2414+TIYgdwHkFVARUFSivQK4fJ8P4zXGPOjeeFEI9kkVRvPSiVTtjxj8vvh0nrnp7canWsoHxQQSXpJOD3ZP9/d7R3+XK9Wd66fyvzrmXUggRp2laecsXjr2VC/2dFz+t7+703q0FhxFASCYqztRbvzfXP/3NFXjmnNsWQvQlgATATpqmScY8aly8mnueV2NmHwC8svzLObdxPJ0+LsuyB2AEwP0PSVQoMuWR8X8AAAAASUVORK5CYII="
+                        }[$style.value];
+
+                        src;
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>
+                        var w = {
+                            vista: "31",
+                            nodoka: "24",
+                            royale: "21",
+                            macosx: "14"
+                        }[$style.value];
+
+                        w;
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>
+                        var h = {
+                            vista: "17",
+                            nodoka: "21",
+                            royale: "21",
+                            macosx: "15"
+                        }[$style.value];
+
+                        h;
+                    </Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"margin-left"</Arg>
+                    <Arg>
+                        var m = {
+                            vista: "2px",
+                            nodoka: "0px",
+                            royale: "2px",
+                            macosx: "7px"
+                        }[$style.value];
+
+                        m;
+                    </Arg>
+                </CustomStyle>
+            </For>
+            <For ref="restoreButton">
+                <CustomStyle>
+                    <Arg>"display"</Arg>
+                    <Arg>$withRestoreButton.value ? "inline" : "none"</Arg>
+                </CustomStyle>
+                <Attr>
+                    <Arg>"src"</Arg>
+                    <Arg>
+                        var src = {
+                            vista: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAARCAYAAAAlpHdJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCQ4fEClOqiwAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAACPElEQVRIx5WVv2sUURDHP9+3b3O314hWFtoc3EG0kygJsYiExM5KFLUX9A+wEuwEK7GxsBUFxcpOg2BhoqCx8QfEQCy8iEUuiiDHJsc9i/1xu7m9u80Uu/vezHdn5jsz7+ne0zesf/3i/mz/RgIcIHCOaL1XYj2Acw7FRql9CfyBQwdpHDsu+/n9B3f+3BzNRp1RknU0NJqS+G/rGzx7/trZnd2QZqNOa+tfuR8NTYnS+Gajzs7uCywI56DnyPKZcbD3hzGnFOnL4V0vYsEa9aNOqVEC6uuWXy2xurI8ltqp2dPMzi8M4HMiIcAi4YAeIvkuomp1ZZknj++Pre3Fy9eZmV8cUSoX+ZAi2gtiAxxCqeF+xI3EK34KK8VVceRnJTUaDO3CpWsDnd9nJXI6iO/b9+KllcTW9l/Wvv8aO17tdjvdW7hyNd1fevSAdrudZra20Ro+ng4CczhquIQVY1QwMcoFEoZhzmE2o6zOpE2rwkSSt5WihZEZLG2GLUmEYYgk7ty+McBSogPwPFM4ZUnfSUIJ7db3qdaCjM+kbnnpdrslTjyYCKqF+ESs78WZIzzPo1KpUHx4RoFMTk1z89bdEUdnRPPk1DRBpToyEWt9jAxWRvjWUpmYyAHIQByOU2fOcnJuMZftsMO0CC+UsmU9D5l4zo1n8H27jznuZzOsRKNERlEQtVqNn61N6kePFNayv97/7TUMv/mjRRDU0MOXn/j47q3rdDqR0Zj7OLufv89daXwQVDkxPaP/WY7/SkfWmWIAAAAASUVORK5CYII=",
+
+                            nodoka: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAVCAYAAABc6S4mAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCRAGDyn+gLsAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAABWUlEQVQ4y7WVvUoDQRSFv5kdXROIiiFNUBS0jY0giIUBK1/EysfxXexMFQRxQUkjQrQJERFdE3822Z2ZtVjFymQUZpqpDud+99zLFZsneY6nd33RRo0MzOSZFwNhUtTYQmB8GWSosYFQ+zSwYLX2S2D8E7gZrFYUB2tl2v0RnafUzQCTORPs1cukWrNVU1w+vLsbuGagsAwTy3wonTTSZCgxhaBRK7FTLxNIqIaCl8RQDQMOG/MYC2f9DzqPySQCPTGD5vISr6km0Zbnj5T31HJjiupLStJcLnF1P/x/Bq27mN2VCuVQsjin6MYj1hdmeRlpTJ7Tuot/1YvvFk3qZ9QbEPUGABxt18mt4fFtzPF5f2oGwV+nKDOaUBa/i0YVBNp5D9q3T+xvVDntPjtpfsbUuI1p1IuJerHzJkv7ZYCnk5ALUYQMnm6OkMUe+CJAyIJA+CXIvBJ8AqLi5FrKB7maAAAAAElFTkSuQmCC",
+
+                            royale: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCRA4L1NVuw4AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAACWElEQVQ4y52UPW8UMRCGn9n17X0kQgogQqRQ8KFUiBqJBoSoKBAFSJQUVLT8ADoa/gFFejpKpEh0oaOBMgoSiRIuOhIlkMvuee2h2O+7nC4wlccez7wzfv3Ky9UNktjS3xgo46aAzNir+fPneyxcPicmiS0HPw708aOV/Fw4zRSdegbgUb5+2Wbv55Ga/sZAH9y7xmGi/El8LUsOXLJEUgOG6sT+fDvg+o1FNj99x6gqTpWDYzcFg1ZFpIZUfebn+/upYyHMwo2I4FVJUkXyS6rV+tQCE76iqvggg24AnELqqsC3T5c5q716v12uXV4jT6qkTsqK/2Kpqzpz+ZQMgFcYWc//2MhqPgbFe0GK9r1XrGvO8MXq1kwqvXt+BeuKtxJ80f7Q9tk9WmLnl8/5kZ3s7Mc1cusY66siO/sn5TqSkNjtYUajlFBTbBI3UNh4OIMJRVyVNNQOSTLCnNgU8AwT2yDMMLZojfFChrgYhubRx4kFFAGENnGSYmyakVidb/BbvW/8bS35r022Ol+GqcDIKcY6T2TABGljViZwZ3r9Kk6JjGCdw3h1RC2hG4JS0aoT1inWlKU6G7phhbvTEpx6DOqZiwLaYVOhPr6+cyak7bAq240E9Q7j8fTaIT1TJXz25vNUOR23+r1eOwRRTIAy1wnptWRCiGbp9USBToCgGFAGg0Pu315ma/d3TU7z2Z0qVpPVLyx02RscAR7TYlHW1r/pw7u3WLl6cSqK8e9a+MXn2NwesLb+jUiWRG4++YBKQmr6Wupp2WqzaZmiqgX4lr8kgbb5C5FFOJeoznWfAAAAAElFTkSuQmCC",
+
+                            macosx: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCgY3DQuzlgkAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAC3ElEQVQozwXB309bVQAH8O89P+4591xobYHa1gEWYdlwuEVYzObLYkx4cyb6OuJf5F/gm3v3xSWamGgWZjFas5mlLIodToFa2trScu+5veeHn0/QarUqxpj1LMvuDcbnu83D724cddvFzCTUewfBY7tRfXt85/qHzxeKS98KIX5gjB2xPM/X0zS91frjx62vW1/W1LySS/UKaZRWYZ1Ff9glv3WfyIM/v699tP1ga3vj7iiKItC9vb0Hrd+f3P6q+cVWsapqqxt1de+dXfLp+5/h5to2LE2DKf2XZCbjTw9/ikpqSVZLVxQbXvR3HzUf1oq1uPJ6Q8Vz85RMbQ+dwXNkeYIEA8wXJalyFQceVx41H4Zv1a/X6drN6udnk+Py+u3FqPBaTMOYBp7lSNwYw9kppvYc4HkghAjmSoL/d6Jj5GSBnV12CsvXFslipRSEIQdnDIw6zMgAjjhEMQWPCrC5CTJlaHIN8mzYCVkeJvSNegnFuQJCTsEZAQMFpQG897BOwHiL3HqI3KBSR3AyuaAs4pFVUUTmIhVwSiAYhaAcIWEAPGbOIDUGM2shmMVE5l7ymWOVUu3C6iSSPAwlY0RSDsUEJAvhAWijQUmGzBjowDirg1mlXEtJY2HzcNLXPeZZJmjoFJeIeQTFIsQsQswVFIsgWOioZ9mkn/bWypuH5Gpt+3Es5NH5q8mIg+c8CB0PQjASghIGHnCIIHQcPO/9NRlFYXR0tb7zmBBHDnZW7j8bnyfHg9PpwBmXOueNNc47A+8cjDEu7f8zGYz70+P33rz/jDhywKy1L2rzq5Iuf+zaJ9+M8sQ0yuVCVSmp4D0uE50Mhhfd3jB5ubPySbuiln/WWr8I9vf3C865qpRyjQm62f67+e5Qv7zF+KzuPWDy8LQkG09vrNz51WS2rbXuEEK6DMAlgJMsy6Z5Tkab9btOyg8KhJAYAJxzHa31L+k0PXDOvQIwBqD/B5CiXphOZa1fAAAAAElFTkSuQmCC"
+                        }[$style.value];
+
+                        src;
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>
+                        var w = {
+                            vista: "31",
+                            nodoka: "24",
+                            royale: "21",
+                            macosx: "14"
+                        }[$style.value];
+
+                        w;
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>
+                        var h = {
+                            vista: "17",
+                            nodoka: "21",
+                            royale: "21",
+                            macosx: "15"
+                        }[$style.value];
+
+                        h;
+                    </Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"margin-left"</Arg>
+                    <Arg>
+                        var m = {
+                            vista: "2px",
+                            nodoka: "0px",
+                            royale: "2px",
+                            macosx: "7px"
+                        }[$style.value];
+
+                        m;
+                    </Arg>
+                </CustomStyle>
+            </For>
+            <For ref="closeButton">
+                <CustomStyle>
+                    <Arg>"display"</Arg>
+                    <Arg>$withCloseButton.value ? "inline" : "none"</Arg>
+                </CustomStyle>
+                <Attr>
+                    <Arg>"src"</Arg>
+                    <Arg>
+                        var src = {
+                            vista: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAARCAYAAAAlpHdJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCQ4fOBz7AtYAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAADYElEQVRIx72VXWhcRRTHf7N7b7f3Y+2XDVHRRFpE8SEKytq+SGOLYIUixsaCz039QgKhlRIJxRBoCAYRWz8e9EGtX4iCvqWPfqBUt9BaxUqeaqGY+GDA3XvvzPFh5t672SQ2Tw4cdubc+f//c86cPaPe/WCOudOvytVLFymHAIqVo8MvAmqV+TrwN991N4NHXlDqwB33y7Njh9m9617WGiu4ryNxPfzX3/7EqZm38JYWF9jVGGDpYnPZhtUERQSl1LoE/gu/uzHA9OICHoBogxgNym1w8RgXmlKWrCCtuHXXYQSFEUOlokAUBikzo2yqjFg9wIobnWHStCASOvIpdv3FL1eZu3ytENq7s4cDd97E586fR5X7O6+m+6qMzkpx0RrRWRmdAiXLUzV3+RqffvRmQfL4wcOI1pydX1jmHxoe4dEdN5bB5tlx2VNODxEqACbLMEmKzpy1s2JuMjsf7NvC0PAIxhiMMXzy4Rucnf+Tj8+cLnxDwyMM9m3BpCkmc6YdV5ohHZwoZcUF0DpDp5n9YOwGk2WItr/7+zaz57ZNPPHkEbTWaK05897raK3JsoyDh55mz6038Ej/ZotxXKWlaBdkPjyAhZ/PM//Z+113UxZePnYgLIb9HHrqOU699nLhf+b5lxj45wo7m9/wa3NtfO67vbaxFAeobqghqvz3ljDl7g2+q93Ceb+X2ZlxWq1WUaCzM+OMjk2ivCqN1pW8sC1aKSsqK7tEBYBKFS+M8IMIP4jxgwivsAA/jPg+6qfp93Jy6ihJkpCmKaNjkyRJQrvd5uTUUZp+Lz/E/ZbLmReEli8sTVWrgLtzr1bDj2K8qI4X1vHjGD/KrY4fxfyotjF5YpQ0TUmShGPHp7nP+5tjx6fJsow0TZk8Mco5tlpMzhE7czx+FFPxN7i0i1CtbcSP613NUsqOgtBQbcYnZouvjaDNg5FQWWoxPvFKgX0gTPCj2K7FdPR/irkXBE5cKZumqF62MFRHk7F98qFQ2KtMx9l8UD77ItiHlLcsHlBfge9st14QlQXnBSFeGEG+Qbo6k+p8zYwrIgUYFyGrAhWqLLzieIIXhFa8vr2HC7//wT0PP7bycVjnq7Xm47IGvnnhN+rbe1Bvv/MVX05NyNJfi//bex5v3cb+FyfUvxCHx2MkoaMiAAAAAElFTkSuQmCC",
+
+                            nodoka: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAVCAYAAABc6S4mAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCRAGKmL6VPwAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAABzElEQVQ4y7WVy29SQRSHv8O9F7gGlUKrxqQxPiBxAW0T/wE3bv03Xbk1Mb42LkwwuuSWQmjqo7WAQAsF554ZF9hEEy64ubOcyck33/nNQ+ovnCOl0Wy8x58pBM6kAhD9hT+34GlaAIM/V8jFaQIs2DhO10BXGNy95uMJtEcxl6dBgO2CR0aE7ln8PwbLAfevBzy9k8U6+Bw63n2ZIcDj7ZBaOSAjwvO2oTuOkwGoSTSYzh2x5mgNDbWNAKsBAjwsekSDOZViwGRu0HgNICmDo2HMp2OPna08rcGMeikLwMFgxoNilsb3Kd9Gs8QWZdTgywoDgFedIaoF9m6E7PcvAKhsZPl4fM7bw/P1IaNxYgYAIoBVnLU4uzC11gdVnBpWvQNrMxCBJ/eK1DZzNHsTqqU8Doh6E2qbeaxe4XV3lAiRyxYlZVAth9S38kSnEyrlkMbXMQLs3irQ6k3YuxnS6U85GFwsrffWGVgNEOeolnJ8OBrypvMTEbBWeXT7KuIcuqLeXxgkZxCdjHhmDOocnb92+bJ5Qvv0DIB2f4pbl4HV5S2yQPRjvHRtP2H+n2Nq/wBI6UtwIouQIaU/RzKLe5CWAZJZGEi6BiZVg9/JdR8D2amAcAAAAABJRU5ErkJggg==",
+
+                            royale: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCRA5E2Uh9sgAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAADv0lEQVQ4y3WVT4hVVRzHP79z731v5r13570ZRwpNoT/TKmlkKP8QrtqZkUKEQm11Y9DChJjFbCIikMBNLV3kJkiNcJkgYmkZs9ACFSFBxZx0xhl15p5zfr8W580dpvLC5dx7fuf7/Z3ff/no1B3mb89y9/qMsfwYIPDUf/5fNrJxmN76Ycnnb8/y4M8H9uGmO4y1F8gAh4FZzSMkfWaJxdX7SSYYVx51+fbmErNg+d1rM3Zw0x1GZYZb9xYoNJBrIDMjSyw401qBM13Z00iBkpky1h3hveciX/zRJEdgrPWQ7MZVRjCiZNxvDoEpZobDUAUnidgMnEUUw5kRTRGLcP8eL20cBoMcwMWAxoiY4oi4rMKZ4jSRZpYIDCXrO1JMySythmHikoOFvns0otEjIfAEx4Y33+bVQ59RYSxiPBJh3jkWXM6cy5lzBS9+8iWdnft4gkNCQKPHtO8aDEQVfIDoIVSMjm8BYOLw5zgfcN7jfNVfPROHPwdI50KVcD6ARjBwCIhGTAP4ChcC01MH64zZPHkECckKCZ7Nk0dq2fTUQVxIONOAma6Yr6rgPcQqafae6ckDNXh86ijmK8anjq4QTh6AkCyzPoaYzM8f+7vEv26xeOUi0ZZ4nJcs5CVgnNuzjTe++ynd+NOva8Jze7atZH2Yx4UFKmng1qxlMT6Pq6pQRz1DU9RNcWY4U87vfn1VAZ3fvWWV3JkiFlLWYCwtVbgnPuAQnEVcX7hcJWLK9hMXV5FuP3EBMa3PpMtEnEXEjKUq4nxQHEpuy4KAWEQssu3kLzXZz+9M1N+vffPjqnPOYsKjLPqIq0LEFQV5a5Ci3aFolRStNltPXqpJLu3bQdFq8+veHSkQ7ZKtJ3+jaLXJB9sU7Q55a5CsKAiqOEPJGgMUZY+8U9Ioh5g4frYmvLx/F82yS7PsMjDU5fL+XbVs4vhZmkNd8k5JUfZwjQGiKQ5T3MAgjd4oee8ZGr1R5i6cAeDaxx/QGOrR7A6veq8eeh+AuQtnaPRGKYYTTgZaYIq8vPcrO7+zIrsxTYZHBWbzNSBSB8NIfheLZBZTpC11p9QDhEiBvrCJ7adb5E7AtTow8ixqAQQargMCYtZvwCkT0hrJBARFdFmpABkMlgiB3DC+n+mwc+1GzFeYQI6gBiL0Qf2GXKdSUmSmmKRaj/kAp++VwN/khV8nx64sGOPreGus2QcITiT5B0l9ta8gTYSkZrnzG8IP1z3Hfn9I7teLvPLuKQBC46b9dxD9azj1b29PGVt5tUGcg38A/xAB/UdBnqYAAAAASUVORK5CYII=",
+
+                            macosx: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kLCgY2CRXFY1EAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAC10lEQVQozyXNTW8bRRwH4N9/ZnZndtfe3bqNE4eU0siUNMG8iKRSySWo0B7KB0DiO/EVKvVAc4cLtAeURiWksVBDQwg2doMaiBtvseOXnfXujjn0Azx6qF6vl7MsqyZJstHvdu80Hj18v/PH70EWaw4AXKl87vpy/93Pv3geXLr0g5TyJyFEU6RpWo3j+KPWk59rzza/rXieq8qzcyxcug5Mgd7JCXtVr6sXj7cqH371dW3x05s9x3EgJpPJRntnp7Z//15twSuUl2bL8r3bt2nh7peY5jlefv8dHT38UR79k5T379+rESNU19dDMYiiO4cPNitVaZVrgrzZJGbFdgvp012QMSi+aOHaRLNAkPebtBYOH2zas0tL83y9UvmGWo3STSmceT7lQTYhORxAvI5ArSZYuwF72Cc1NeQTszpZ5mkmLgreaPjLtsXmLKJQEBSbQoz7YO0/AQB2qiEFYBEnYlO+PCV12mzYwnkd8bK04DsSrs1hCQEubIBzgAjIPfA8A8tSmCRDGQn1o4gL27ZzyS3m+h7ZjgumFOB4gHLewEkCPh6CtIarYygMp3YOI+Q7V88nnRNHBCWbikWGQhEo+kChAABAHAPnfdBoCDEYmCROJ2pmPhbOysph9+x0IfPDGTsMJMKQwQ8Br/BmHI8AKUFSmZzxJOp0z9TyyksWrq1tYf5y8y9iPXOhlCIsGQQh4PtAsQgEIXChZEwQpi3iPbx1uRmurW6J3LJ2/Fu35Ku9XdcTNt52vUC4rg0pOYgAxvI8zyd/j8b9DreOg43PnuWWtSPyPD9Si4sO5xzHB8/P44J/tSTljMOYCxBinYz/i/XZWTdqy9W1A+vKlV2t9RFtb28Hxpg5pVRVMbYS7e19zEbDD1zPqwCE8Xj0r/G8/YufrP6qjTnQWjcZY6cCwAjASZIko5SxXnDjRqaUKjDGXADwjGlprZ8O4vgXY8wxgB4A/T8ZRzC6trEKvwAAAABJRU5ErkJggg=="
+                        }[$style.value];
+
+                        src;
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"width"</Arg>
+                    <Arg>
+                        var w = {
+                            vista: "31",
+                            nodoka: "24",
+                            royale: "21",
+                            macosx: "14"
+                        }[$style.value];
+
+                        w;
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"height"</Arg>
+                    <Arg>
+                        var h = {
+                            vista: "17",
+                            nodoka: "21",
+                            royale: "21",
+                            macosx: "15"
+                        }[$style.value];
+
+                        h;
+                    </Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"margin-left"</Arg>
+                    <Arg>
+                        var m = {
+                            vista: "2px",
+                            nodoka: "0px",
+                            royale: "2px",
+                            macosx: "7px"
+                        }[$style.value];
+
+                        m;
+                    </Arg>
+                </CustomStyle>
+            </For>
+            <For ref="inner">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>
+                        $style.value == "macosx" ?
+                            "-moz-box-sizing: border-box; box-sizing: border-box; width: 100%; height: 100%; border-top: solid 1px #515151; position: relative; top: 0px;" :
+                            "width: 100%; height: 100%;"</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"background-color"</Arg>
+                    <Arg>$useSystemColor.value ? ($style.value == "macosx" ? "#fff" : "threedface") : $fillColor.toRGBAString()</Arg>
+                </CustomStyle>
+            </For>
+
+            <For ref="title">
+                <InnerText>$title.value</InnerText>
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>
+                        var macButtonWidth = 0;
+                        if ($withMinButton.value) macButtonWidth += 21;
+                        if ($withRestoreButton.value) macButtonWidth += 21;
+                        if ($withCloseButton.value) macButtonWidth += 21;
+
+                        var s = {
+                            vista: "-moz-box-sizing: border-box; box-sizing: border-box; position: absolute; top: 5px; left: 5px; right: 105px; height: 17px; line-height: 17px !important; min-height: 0px; font-family: 'Segoe UI';",
+
+                            nodoka: "-moz-box-sizing: border-box; box-sizing: border-box; position: absolute; top: 0px; left: 5px; right: 105px; height: 22px; line-height: 22px !important; min-height: 0px; font: -moz-list; color: #fff; font-family: 'Liberation Sans'; font-weight: bold;",
+
+                            royale: "-moz-box-sizing: border-box; box-sizing: border-box; position: absolute; top: 0px; left: 5px; right: 105px; height: 29px; line-height: 29px !important; min-height: 0px; font: -moz-list; color: #fff; font-family: 'Trebuchet MS'; font-weight: bold;",
+
+                            macosx: "text-align: center; -moz-box-sizing: border-box; box-sizing: border-box; position: absolute; top: 3px; left: " + macButtonWidth + "px; right: 0px; height: 15px; line-height: 15px !important; min-height: 0px; font: -moz-list; color: #000; font-family: 'Lucida Grande'; font-weight: bold; font-size: 11px;"
+
+                        }[$style.value];
+
+                        s;
+                    </Arg>
+                </Attr>
+
+                <CustomStyle>
+                    <Arg>"padding-left"</Arg>
+                    <Arg>$withRoomForIcon.value ? "22px" : "0px"</Arg>
+                </CustomStyle>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+            </For>
+            <For ref="prototypeMarker">
+                <Visibility>$showMockupNotice.value</Visibility>
+            </For>
+            <For ref="buttonContainer">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>
+                        var t = {
+                            vista: "position: absolute; top: 5px; right: 5px;",
+                            nodoka: "position: absolute; top: 0px; right: 5px;",
+                            royale: "position: absolute; top: 4px; right: 5px;",
+                            macosx: "position: absolute; top: 3px; left: 1px;"
+                        }[$style.value];
+
+                        t;
+                    </Arg>
+                </Attr>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var glassHeight = this.getProperty("glassHeight");
+                        var style = this.getProperty("style");
+                        var macHeaderHeight = this.getProperty("macHeaderHeight");
+
+                        var top = {
+                            vista: glassHeight.y + 1 + 13,
+                            nodoka: 23 + 13,
+                            royale: 30 + 13,
+                            macosx: macHeaderHeight.y + 2 + 13
+                        }[style.value];
+
+                        var bottom = {
+                            vista: 19 + 13,
+                            nodoka: 13 + 3 + 13,
+                            royale: 29, // 13 + 3 + 13
+                            macosx: 13 + 13
+                        }[style.value];
+
+                        var right = {
+                            vista: 6 + 13,
+                            nodoka: 3 + 13,
+                            royale: 16, // 3 + 13Button
+                            macosx: 13
+                        }[style.value];
+
+                        var left = {
+                            vista: 6 + 13 ,
+                            nodoka: 3 + 13 ,
+                            royale: 17, // 4 + 13
+                            macosx: 13
+                        }[style.value];
+
+                        return [
+                            new SnappingData("FrameInnerPaddingRight", b.x + b.width - right, "Right", true, this.id),
+                            new SnappingData("FrameInnerPaddingLeft", b.x + left, "Left", true, this.id),
+                            new SnappingData("FrameInnerPaddingTop", b.y + top, "Top", false, this.id),
+                            new SnappingData("FrameInnerPaddingBottom", b.y + b.height - bottom, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="div">
+            <div style="" id="buttonContainer"><img id="minimizeButton"/><img id="restoreButton"/><img id="closeButton"/></div>
+            <div id="title" style="-moz-box-sizing: border-box; box-sizing: border-box; position: absolute; top: 5px; left: 5px; right: 105px; height: 17px; line-height: 17px !important; min-height: 0px;">This is the title</div>
+            <div id="inner" style="background: threedface; width: 100%; height: 100%;"></div>
+            <span id="prototypeMarker" style="position: absolute; bottom: -1.5em; margin-left: -2px; line-height: 1em; left: 0em; font: -moz-list; font-size: 10px; opacity: .3; height: 1.2em; overflow: hidden;">notice: mockup user interface</span>
+        </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+</Shapes>

@@ -1,0 +1,257 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:svg="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="colorEditor">
+        <implementation>
+            <constructor>
+            <![CDATA[
+
+                this.gcolorPicker = document.getAnonymousElementByAttribute(this, "aid", "gcolorPicker");
+                this.wcolorPicker = document.getAnonymousElementByAttribute(this, "aid", "wcolorPicker");
+                this.colorCode = document.getAnonymousElementByAttribute(this, "aid", "colorCode");
+                this.previewBox = document.getAnonymousElementByAttribute(this, "aid", "previewBox");
+                this.opacity = document.getAnonymousElementByAttribute(this, "aid", "opacity");
+                this.opacityText = document.getAnonymousElementByAttribute(this, "aid", "opacityText");
+                this.dropperButton = document.getAnonymousElementByAttribute(this, "aid", "dropperButton");
+
+                this.colorPicker = this.gcolorPicker;
+                this.colorCode._control = this;
+
+                this.isUserModified = false;
+
+                var thiz = this;
+
+                document.getAnonymousElementByAttribute(this, "aid", "toggleColorPicker").addEventListener("command", function (event) {
+                    thiz.changeColorPicker();
+                }, false);
+
+                this.colorCode.addEventListener("change", function (event) {
+                    thiz._handleColorCodeChange();
+                }, false);
+
+                this.wcolorPicker.addEventListener("ValueChange", function(event) {
+                    thiz._handleColorPickerValueChange();
+                }, false);
+                this.gcolorPicker.addEventListener("ValueChange", function(event) {
+                    thiz._handleColorPickerValueChange();
+                }, false);
+
+                this.opacity.addEventListener("change", function(event) {
+                    var a = thiz.opacity.value;
+                    if (a == 0) {
+                        a = "0";
+                    }
+                    thiz.opacityText.value = Util.getMessage("opacity.value", a) + "%";
+                    thiz._updatePreviewColor();
+                    event.stopPropagation();
+                }, false);
+
+                this.opacity.addEventListener("mouseup", function(event) {
+                    thiz._fireModifiedEvent();
+                }, false);
+
+                this._handleColorPickerValueChange = function (event) {
+                    thiz.colorCode.value = this.colorPicker.getColor().toRGBString();
+                    thiz._updatePreviewColor();
+
+                    thiz._fireModifiedEvent();
+                };
+
+                this._handleColorCodeChange = function (event) {
+                    var s = this.colorCode.value;
+                    if (s.match(/^#[a-f0-9]{6,6}$/i)) {
+                        this.colorPicker.setColor(Color.fromString(s + "FF"));
+                        thiz._updatePreviewColor();
+
+                        this._fireModifiedEvent();
+                    }
+                };
+
+                this._fireModifiedEvent = function () {
+                    thiz.isUserModified = true;
+
+                    var event = document.createEvent("Events");
+                    event.initEvent("modify", false, false);
+                    thiz.dispatchEvent(event);
+                };
+
+                if (this.hasAttribute("value")) {
+                    this.setValue(Color.fromString(this.getAttribute("value")));
+                }
+
+                var onColorProbed = function (color) {
+                    thiz.onColorProbed(color);
+                };
+
+                if (ColorDropper.isAvailable()) {
+                    this.dropperButton.addEventListener("command", function (event) {
+                        ColorDropper.begin(onColorProbed, thiz);
+                    }, false);
+                } else {
+                    this.dropperButton.style.display = "none";
+                }
+
+                //this.setValue(Color.fromString('#00000000'));
+            ]]>
+            </constructor>
+            <method name="setAllowOpacity">
+                <parameter name="allowOpacity"/>
+                <body>
+                <![CDATA[
+                    if (allowOpacity == "") {
+                        allowOpacity = true;
+                    }
+                    if (allowOpacity == false || allowOpacity == "false") {
+                        this.opacity.disabled = true;
+                        this.opacityText.disabled = true;
+                    } else {
+                        this.opacity.disabled = false;
+                        this.opacityText.disabled = false;
+                    }
+                ]]>
+                </body>
+            </method>
+            <method name="onColorProbed">
+                <parameter name="color"/>
+                <body>
+                <![CDATA[
+                    this.colorCode.value = color.toRGBString();
+                    this._handleColorCodeChange();
+                ]]>
+                </body>
+            </method>
+            <method name="changeColorPicker">
+                <body>
+                <![CDATA[
+                    var color = this.getValue();
+                    
+                    this.colorPicker.style.display = "none";
+                    if (this.colorPicker.name == "GridColorPicker") {
+                        this.colorPicker = this.wcolorPicker; // document.getAnonymousElementByAttribute(this, "aid", "wcolorPicker");
+                    } else {
+                        this.colorPicker = this.gcolorPicker; // document.getAnonymousElementByAttribute(this, "aid", "gcolorPicker");
+                    }
+
+                    this.colorPicker.setColor(color);
+                    
+                    var thiz = this;
+                    //this.colorPicker.addEventListener("ValueChange", function(event) {
+                    //    thiz._handleColorPickerValueChange();
+                    //}, false);
+                    this.colorPicker.style.display = "";
+                ]]>
+                </body>
+            </method>
+            <method name="setTypeMeta">
+                <parameter name="meta"/>
+                <body>
+                <![CDATA[
+                    this.meta = meta;
+                ]]>
+                </body>
+            </method>
+            <method name="setValue">
+                <parameter name="color"/>
+                <body>
+                <![CDATA[
+                    var colorText = color.toRGBString();
+
+                    try {
+                        if (this.wcolorPicker && this.wcolorPicker.setColor)
+                            this.wcolorPicker.setColor(color);
+                        if (this.gcolorPicker && this.gcolorPicker.setColor)
+                            this.gcolorPicker.setColor(color);
+                    } catch (e) {
+                    }
+                    this.colorCode.value = colorText;
+                    var a = Math.round(color.a * 100) % 101;
+                    this.opacity.setAttribute("value", a);
+                    if (a == 0) {
+                        a = "0";
+                    }
+                    this.opacityText.setAttribute("value", Util.getMessage("opacity.value", a) + "%");
+
+                    this.isUserModified = false;
+
+                    this._updatePreviewColor(color);
+                ]]>
+                </body>
+            </method>
+            <method name="_updatePreviewColor">
+                <parameter name="c"/>
+                <body>
+                <![CDATA[
+                    try {
+                        var color = c ? c : this.getValue();
+                        this.previewBox.style.backgroundColor = color.toRGBString();
+                        this.previewBox.style.opacity = color.a;
+                    } catch (e) {
+                        //Console.dumpError(e);
+                    }
+                ]]>
+                </body>
+            </method>
+            <method name="getValue">
+                <parameter name="saveColor" />
+                <body>
+                <![CDATA[
+                    var color = null;
+                    if (this.colorCode.value.match(/^#[a-f0-9]{6,6}$/i)) {
+                        color = Color.fromString(this.colorCode.value + "FF");
+                    } else {
+                        color = (this.colorPicker && this.colorPicker.getColor) ? this.colorPicker.getColor():
+                                Color.fromString(this.getAttribute("value"));
+                    }
+
+                    if (saveColor && this.colorPicker.updateRecentlyUsedColor) {
+                        this.colorPicker.updateRecentlyUsedColor(color);
+                    }
+
+                    color.a = this.opacity.value / 100;
+
+                    return color;
+                ]]>
+                </body>
+            </method>
+            <method name="isModified">
+                <body>
+                <![CDATA[
+                    return this.isUserModified;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <content>
+            <hbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1">
+                <pgridcolorpicker aid="gcolorPicker" flex="1" xbl:inherits="disabled,color=value"/>
+                <pwheelcolorpicker aid="wcolorPicker" flex="1" xbl:inherits="disabled,color=value" style="display:none;"/>
+                <vbox flex="1">
+                    <checkbox label="&advanced-mode.label;" aid="toggleColorPicker" xbl:inherits="disabled"/>
+                    <label value="&label.html.code.value;" xbl:inherits="disabled"/>
+                    <hbox>
+                        <textbox aid="colorCode" xbl:inherits="disabled" flex="1" style="min-width: 50px;" size="8" value="#000000"/>
+                        <button aid="dropperButton" class="color-picker" style="min-width: 0px; margin: 0px; pargin-left: 3px;"/>
+                    </hbox>
+                    <label value="&label.opacity.value;%" xbl:inherits="disabled" aid="opacityText"/>
+                    <scale aid="opacity" min="0" max="100" xbl:inherits="disabled"/>
+                    <label value="&label.preview.value;" xbl:inherits="disabled"/>
+                    <hbox pack="center">
+                        <box aid="previewContainer">
+                            <box aid="previewBox"/>
+                        </box>
+                    </hbox>
+                </vbox>
+            </hbox>
+        </content>
+    </binding>
+</bindings>

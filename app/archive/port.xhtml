@@ -1,0 +1,124 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <script type="text/javascript" src="common/pencilNamespaces.js"></script>
+        <script type="text/javascript" src="common/nsDragAndDrop2.js"></script>
+        <script type="text/javascript" src="common/util.js"></script>
+        <!--
+        <script type="text/javascript" src="common/io.js"></script>
+        -->
+        <script type="text/javascript" src="common/lorem.js"></script>
+        <script type="text/javascript" src="common/base64.js"></script>
+        <script type="text/javascript" src="common/dockingManager.js"></script>
+
+        <script type="text/javascript" src="common/config.js"></script>
+        
+        <script type="text/javascript" src="canvasHelper/canvasCareTaker.js"></script>
+        <script type="text/javascript" src="canvasHelper/canvasMemento.js"></script>
+        <script type="text/javascript" src="canvasHelper/canvasImpl.js"></script>
+        <script type="text/javascript" src="canvasHelper/snappingHelper.js"></script>
+
+        <script type="text/javascript" src="privateCollection/privateCollection.js"></script>
+        <script type="text/javascript" src="privateCollection/privateShapeDef.js"></script>
+        <script type="text/javascript" src="privateCollection/privateShapeDefParser.js"></script>
+        <script type="text/javascript" src="privateCollection/privateCollectionManager.js"></script>
+
+        <script type="text/javascript" src="definition/geometry.js"></script>
+        <script type="text/javascript" src="definition/shapeDef.js"></script>
+        <script type="text/javascript" src="definition/shapeDefCollection.js"></script>
+        <script type="text/javascript" src="definition/shapeDefCollectionParser.js"></script>
+        <script type="text/javascript" src="definition/collectionManager.js"></script>
+
+        <script type="text/javascript" src="definition/exportTemplate.js"></script>
+        <script type="text/javascript" src="definition/exportTemplateManager.js"></script>
+
+        <script type="text/javascript" src="common/pencil.js"></script>
+        <script type="text/javascript" src="common/controller.js"></script>
+        
+        <!--
+        <script type="text/javascript" src="mainWindow.js"></script>
+        -->
+
+        <script type="text/javascript" src="document/document.js"></script>
+        <script type="text/javascript" src="document/xmlDocumentPersister.js"></script>
+        <script type="text/javascript" src="document/persistentHooks.js"></script>
+
+        <script type="text/javascript" src="behavior/commonBehaviors.js"></script>
+        <script type="text/javascript" src="behavior/commonFunctions.js"></script>
+
+        <script type="text/javascript" src="propertyType/bound.js"></script>
+        <script type="text/javascript" src="propertyType/dimension.js"></script>
+        <script type="text/javascript" src="propertyType/point.js"></script>
+        <script type="text/javascript" src="propertyType/handle.js"></script>
+        <script type="text/javascript" src="propertyType/color.js"></script>
+        <script type="text/javascript" src="propertyType/css.js"></script>
+        <script type="text/javascript" src="propertyType/font.js"></script>
+        <script type="text/javascript" src="propertyType/alignment.js"></script>
+        <script type="text/javascript" src="propertyType/strokeStyle.js"></script>
+        <script type="text/javascript" src="propertyType/bool.js"></script>
+        <script type="text/javascript" src="propertyType/enum.js"></script>
+        <script type="text/javascript" src="propertyType/plainText.js"></script>
+        <script type="text/javascript" src="propertyType/richText.js"></script>
+        <script type="text/javascript" src="propertyType/imageData.js"></script>
+        <script type="text/javascript" src="propertyType/shadowStyle.js"></script>
+        <script type="text/javascript" src="propertyType/snappingData.js"></script>
+
+        <script type="text/javascript" src="common/typeEditorRegistry.js"></script>
+        <script type="text/javascript" src="common/collectionSettingEditor.js"></script>
+
+        <script type="text/javascript" src="common/svgRasterizer.js"></script>
+
+        <script type="text/javascript" src="target/shape.js"></script>
+        <script type="text/javascript" src="target/targetSet.js"></script>
+        <script type="text/javascript" src="target/group.js"></script>
+        <script type="text/javascript" src="target/null.js"></script>
+
+        <script type="text/javascript" src="editor/geometryEditor.js"></script>
+        <script type="text/javascript" src="editor/handleEditor.js"></script>
+        
+        <!--
+        <script type="text/javascript" src="editor/propertyPageEditor.js"></script>
+        <script type="text/javascript" src="editor/onMenuEditor.js"></script>
+        <script type="text/javascript" src="editor/onMenuTypeEditors.js"></script>
+        <script type="text/javascript" src="editor/onScreenTextEditor.js"></script>
+        <script type="text/javascript" src="editor/onScreenTextEditor-RichTextSupport.js"></script>
+
+        <script type="text/javascript" src="editor/sharedFontEditor.js"></script>
+        <script type="text/javascript" src="editor/sharedFillColorEditor.js"></script>
+        <script type="text/javascript" src="editor/sharedGeometryEditor.js"></script>
+        <script type="text/javascript" src="editor/sharedBorderStyleEditor.js"></script>
+        -->
+
+        <script type="text/javascript" src="xferHelper/shapeXferHelper.js"></script>
+        <script type="text/javascript" src="xferHelper/targetSetXferHelper.js"></script>
+        <script type="text/javascript" src="xferHelper/pngImageXferHelper.js"></script>
+        <script type="text/javascript" src="xferHelper/svgXferHelper.js"></script>
+        <script type="text/javascript" src="xferHelper/richTextXferHelper.js"></script>
+
+        <script type="text/javascript" src="xferHelper/dragObservers.js"></script>
+        
+        <!--
+        <script type="text/javascript" src="exporter/baseExporter.js"></script>
+        <script type="text/javascript" src="exporter/baseRasterizedExporter.js"></script>
+        <script type="text/javascript" src="exporter/webPageExporter.js"></script>
+        <script type="text/javascript" src="exporter/printingExporter.js"></script>
+        <script type="text/javascript" src="exporter/svgExporter.js"></script>
+        <script type="text/javascript" src="exporter/odtExporter.js"></script>
+        <script type="text/javascript" src="exporter/ooConversionExporter.js"></script>
+        -->
+
+        <script type="text/javascript" src="common/colorDroppers.js"></script>
+        <script type="text/javascript" src="common/connectorSupports.js"></script>
+        
+        <script type="text/javascript" src="common/jspdf.min.js"></script>
+        <script type="text/javascript" src="common/Canvas.js"></script>
+        <script type="text/javascript" src="main.js"></script>
+        
+        <link rel="stylesheet" href="styles/canvas.css" />
+    </head>
+    <body style="height: 100%; padding: 0em; margin: 0em;">
+        <div id="collection" style="float: right; width: 30em; border: solid 1px #00f; height: 100%; overflow: auto; box-sizing: border-box;"></div>
+        <div style="margin-left: 2em; margin-top: 2em; border: solid 1px #999; float: left;">
+            <div style="width: 600px; height: 500px;" id="canvas"></div>
+        </div>
+    </body>
+</html>

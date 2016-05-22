@@ -1,0 +1,61 @@
+<div>
+    <style>
+        body .MenuPopupContainer {
+            border: @popup_border;
+            border-radius: 0.35ex;
+            background: lighten(@app_bg, 5%);
+            padding: 0.5ex;
+            box-shadow: 0em 0.15ex 0.7em rgba(0, 0, 0, 0.3);
+            transition: opacity 0.4s;
+            box-sizing: border-box;
+        }
+
+        body .MenuPopupContainer .MenuItem:not(.MenuSeparator) {
+            align-items: center;
+            padding: 0.3em 0.5em;
+            cursor: default;
+        }
+        body .MenuPopupContainer .MenuSeparator {
+            border: none;
+            margin: 0.8em 0em;
+        }
+        body .MenuPopupContainer .MenuItem.Active:not([disabled='true']),
+        body .MenuPopupContainer .MenuItem:not([disabled='true']):hover {
+            background: @selected_bg;
+            color: @selected_fg;
+        }
+        body .MenuPopupContainer .MenuItem[disabled='true'] {
+            opacity: 0.3;
+        }
+        body .MenuPopupContainer .MenuItem > input {
+            margin: 0px;
+            margin: 0.1em 0.2em 0.1em 0em;
+        }
+        body .MenuPopupContainer .MenuItem > label {
+            min-width: 1em;
+        }
+        body .MenuPopupContainer .MenuItem > i {
+            @iconify();
+            font-size: 1.4em;
+            width: 1.2em;
+        }
+        body .MenuPopupContainer.NoPrefix .MenuItem > i:first-child {
+            display: none;
+        }
+
+        body .MenuPopupContainer .MenuItem > label + i {
+            text-align: right;
+        }
+        body .MenuPopupContainer .MenuItem > *:first-child + label {
+            margin-left: 0.8ex;
+        }
+        body .MenuPopupContainer.NoPrefix .MenuItem > *:first-child + label {
+            margin-left: 0ex;
+        }
+        body .MenuPopupContainer .MenuItem > *:first-child + label + * {
+            margin-left: 2ex;
+        }
+    </style>
+    <div anon-id="popupContainer" class="MenuPopupContainer">
+    </div>
+</div>

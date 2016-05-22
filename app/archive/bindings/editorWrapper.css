@@ -1,0 +1,28 @@
+@namespace p url(http://www.evolus.vn/Namespace/Pencil);
+
+peditorwrapper {
+    -moz-binding: url(chrome://pencil/content/bindings/editorWrapper.xbl#editorWrapper);
+}
+
+peditorwrapper > vbox > label[aid='label'],
+peditorwrapper > vbox > checkbox[aid='checkbox'] {
+    margin-left: 0px !important;
+    font-weight: bold;
+}
+peditorwrapper > vbox > label[aid='label'] + * {
+    margin-left: 1em;
+}
+peditorwrapper + peditorwrapper {
+    margin-top: 1.5em;
+}
+
+peditorwrapper[p|null] > vbox > checkbox {
+    display: -moz-box;
+}
+peditorwrapper[p|null] > vbox > label,
+peditorwrapper > vbox > checkbox {
+    display: none;
+}
+peditorwrapper > vbox > label + *[disabled='true'] {
+    opacity: .5;
+}

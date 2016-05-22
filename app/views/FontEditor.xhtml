@@ -1,0 +1,32 @@
+<hbox>
+    <style>
+        > * + * {
+            border-top-left-radius:  0px !important;
+            border-bottom-left-radius:  0px !important;
+            border-left: 0px !important;
+        }
+        > *:not(:last-child) {
+            border-top-right-radius:  0px !important;
+            border-bottom-right-radius:  0px !important;
+        }
+        @fontCombo button {
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+        }
+        @pixelFontSize {
+            width: 5ex;
+        }
+        @fontCombo button {
+            width: 2em;
+        }
+        @fontCombo .AnonId_buttonDisplay {
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+    <ui:ComboManager anon-id="fontCombo" flex="1"/>
+    <input anon-id="pixelFontSize" type="number" />
+    <button anon-id="boldButton"><span>B</span></button>
+    <button anon-id="italicButton"><span>I</span></button>
+</hbox>

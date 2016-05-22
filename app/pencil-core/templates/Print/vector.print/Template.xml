@@ -1,0 +1,11 @@
+<Template xmlns="http://www.evolus.vn/Namespace/Pencil">
+    <Property name="id">Evolus:Print:Vector.Template</Property>
+    <Property name="name">Vector Export Template (A4)</Property>
+    <Property name="author">Evolus</Property>
+    <Property name="description">The simple/default printing template</Property>
+
+    <Property name="styleSheet">StyleSheet.xslt</Property>
+
+    <Property name="print.paperSize">A4</Property>
+    <Property name="print.landscape">false</Property>
+</Template>

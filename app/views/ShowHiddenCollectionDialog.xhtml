@@ -1,0 +1,42 @@
+<vbox class="Form">
+    <style>
+        @collectionContainer {
+            display: block;
+            width: 26em;
+        }
+        @collectionContainer > button {
+            height: 7em;
+            width:  8em;
+            margin: 0.3em;
+            padding: 0em;
+        }
+        @collectionContainer > button {
+            background-color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.3);;
+        }
+        @collectionContainer > button:hover {
+            background-color: #F2F2F2;
+        }
+        @collectionContainer > button[selected = true] {
+            background-color: @selected_button_bg;
+        }
+        @collectionContainer > button > i {
+            font-size: 2.5em;
+        }
+        @collectionContainer button span {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            height: 1.2em;
+            line-height: 1.2em;
+            font-size: 0.8em;
+            text-align: center;
+            opacity: 0.5;
+            font-weight: bold;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
+            text-transform: none;
+            display: block;
+        }
+    </style>
+    <vbox anon-id = "collectionContainer" flex="1">
+    </vbox>
+</vbox>

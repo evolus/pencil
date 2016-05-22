@@ -1,0 +1,52 @@
+<vbox>
+    <style>
+        @header {
+            border-bottom: solid 1px #DDDDDD;
+            padding: 0px;
+            cursor: pointer;
+        }
+        @header .TabHeader {
+            border: solid 1px transparent;
+
+            padding: 0.5em 0.7em;
+            color: rgba(0, 0, 0, 0.6);
+            font-weight: bold;
+        }
+        @header .ActiveTab {
+            color: #000;
+            border-color: #DDDDDD;
+            border-top-left-radius: 0.3em;
+            border-top-right-radius: 0.3em;
+            border-bottom: none;
+            margin-bottom: -1px;
+            background: #FAFAFA;
+            cursor: default;
+        }
+
+        @content {
+            position: relative;
+            border: solid 1px #DDDDDD;
+            border-top: none;
+            background: #FAFAFA;
+            box-sizing: content-box;
+        }
+        @content > .TabBody {
+            position: absolute;
+            visibility: hidden;
+            padding: 0.7em;
+            left: 0px;
+            top: 0px;
+        }
+        @content > .TabBody.Measured {
+            right: 0px;
+            bottom: 0px;
+        }
+        @content > .ActiveTab {
+            visibility: inherit;
+        }
+    </style>
+    <hbox anon-id="header">
+    </hbox>
+    <div anon-id="content">
+    </div>
+</vbox>

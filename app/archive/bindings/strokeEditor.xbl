@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+<!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+%pencilDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+        xmlns:xbl="http://www.mozilla.org/xbl"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="strokeEditor">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                this.strokeWidth = document.getAnonymousElementByAttribute(this, "aid", "width");
+                this.styleList = document.getAnonymousElementByAttribute(this, "aid", "styleList");
+                this.stylePopup = document.getAnonymousElementByAttribute(this, "aid", "stylePopup");
+
+                //setting up dasharray
+                var STYLES = [
+                                [Util.getMessage("stroke.style.solid"), ""],
+                                [Util.getMessage("stroke.style.dotted"), "1,3"],
+                                [Util.getMessage("stroke.style.condensed.dotted"), "1,1"],
+                                [Util.getMessage("stroke.style.dashed"), "5,5"],
+                                [Util.getMessage("stroke.style.condensed.dashed"), "3,3"],
+                                [Util.getMessage("stroke.style.dashed.dotted"), "8,4,1,4"],
+                                [Util.getMessage("stroke.style.condensed.dashed.dotted"), "4,2,1,2"]
+                            ];
+                for (var i in STYLES) {
+                    var label = STYLES[i][0];
+                    var value = STYLES[i][1];
+                    var menuitem = document.createElementNS(PencilNamespaces.xul, "menuitem");
+                    menuitem.setAttribute("label", label);
+                    menuitem.setAttribute("value", value);
+
+                    this.stylePopup.appendChild(menuitem);
+                }
+                if (this.hasAttribute("value")) this.setValue(StrokeStyle.fromString(this.getAttribute("value")));
+            ]]>
+            </constructor>
+            <method name="setTypeMeta">
+                <parameter name="meta"/>
+                <body>
+                <![CDATA[
+                    this.meta = meta;
+                ]]>
+                </body>
+            </method>
+            <method name="setValue">
+                <parameter name="stroke"/>
+                <body>
+                <![CDATA[
+                    this.strokeWidth.value = stroke.w;
+                    if (stroke.array) {
+                        this.styleList.value = stroke.array;
+                    } else {
+                        this.styleList.value = "";
+                    }
+                ]]>
+                </body>
+            </method>
+            <method name="getValue">
+                <body>
+                <![CDATA[
+                    var stroke = new StrokeStyle();
+                    stroke.w = this.strokeWidth.value;
+                    stroke.array = this.styleList.value;
+
+                    return stroke;
+                ]]>
+                </body>
+            </method>
+            <method name="isModified">
+                <body>
+                <![CDATA[
+                    return true; //this.isUserModified;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <content>
+            <hbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1">
+                <label value="&label.width.value;"/>
+                <textbox type="number" min="0" max="30" size="2" aid="width" xbl:inherits="disabled"/>
+                <label value="&label.style.value;"/>
+                <menulist aid="styleList" flex="1" xbl:inherits="disabled">
+                    <menupopup aid="stylePopup"></menupopup>
+                </menulist>
+            </hbox>
+        </content>
+    </binding>
+</bindings>

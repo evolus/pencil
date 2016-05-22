@@ -1,0 +1,8 @@
+@import url(chrome://pencil/content/bindings/colorEditor.css);
+@import url(chrome://pencil/content/bindings/fontEditor.css);
+@import url(chrome://pencil/content/bindings/alignEditor.css);
+@import url(chrome://pencil/content/bindings/editorWrapper.css);
+@import url(chrome://pencil/content/bindings/strokeEditor.css);
+@import url(chrome://pencil/content/bindings/plainTextEditor.css);
+@import url(chrome://pencil/content/bindings/shadowStyleEditor.css);
+@import url(chrome://pencil/content/bindings/enumEditor.css);

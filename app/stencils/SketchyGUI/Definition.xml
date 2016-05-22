@@ -1,0 +1,2111 @@
+<Shapes
+    xmlns="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://web.resource.org/cc/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    id="Evolus.Sketchy.GUI"
+    displayName="Desktop - Sketchy GUI"
+    description="Sketchy GUI elements for prototyping">
+    <Properties>
+        <PropertyGroup name="Colors">
+            <Property name="fillColor" type="Color" displayName="Background Color">#FFFFFFFF</Property>
+            <Property name="strokeColor" type="Color" displayName="Border Color">#000000FF</Property>
+            <Property name="strokeStyle" type="StrokeStyle" displayName="Border Style">1|</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Text">
+            <Property name="textColor" type="Color" displayName="Text Color">#000000FF</Property>
+            <Property name="textFont" type="Font" displayName="Text Font">'Comic Sans MS'|normal|normal|12px</Property>
+            <Property name="defaultLinkColor" type="Color" displayName="Default Link Color">#0000ffff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Table: header">
+            <Property name="defaultHeaderTextColor" type="Color" displayName="Default Header Text Color">#000000ff</Property>
+            <Property name="defaultHeaderBGColor" type="Color" displayName="Default Header Background Color">#ccccccff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Table: border">
+            <Property name="defaultTableBorderColor" type="Color" displayName="Default Border Color">#000000FF</Property>
+            <Property name="defaultTableBorderStyle" type="StrokeStyle" displayName="Default Border Style">1|</Property>
+        </PropertyGroup>
+    </Properties>
+
+    <Script comments="Scripts for calculating table column widths">
+        <![CDATA[
+            collection.MIN_COL_WIDTH = 5;
+            collection.getMaxColumns = function (rawText) {
+                var a = F.parseTextArray(rawText);
+
+                var c = 0;
+                for (var i in a) {
+                    c = Math.max(c, a[i].length);
+                }
+
+                return c;
+            };
+            collection.getMaxXForColumnHandle = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                if (i < cols - 2) {
+                    return properties["h" + (i + 1)].x - this.MIN_COL_WIDTH;
+                }
+
+                return properties["box"].w - this.MIN_COL_WIDTH;
+            };
+            collection.getMinXForColumnHandle = function (i, properties) {
+                if (i > 0) {
+                    return properties["h" + (i - 1)].x + this.MIN_COL_WIDTH;
+                }
+
+                return this.MIN_COL_WIDTH;
+            };
+            collection.isColumnHandleDisabled = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                return i >= cols - 1;
+            };
+        ]]>
+    </Script>
+    <Shape id="box" displayName="Box" icon="Icons/box.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">200,150</Property>
+                <Property name="textPadding" displayName="Text Padding" type="Handle"
+                            p:disabled="$textAlign.v == 1 &amp;&amp; $textAlign.h == 1"
+                            p:minX="0" p:minY="0"
+                            p:maxX="$box.w / 2" p:maxY="$box.h / 2">10,10</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>Bound.fromBox($box, $textPadding.x, $textPadding.y)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+            <For ref="line1">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <D>
+                    [
+                        sk(0, 0, $box.w, 0),
+                        skTo($box.w, $box.h),
+                        skTo(0, $box.h),
+                        skTo(0, 0),
+                        z
+                    ]
+                </D>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="line1" style="stroke-linejoin: round;"/>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shape id="line" displayName="Line" icon="Icons/line.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="Start" type="Handle" p:lockX="$mode.value == 'vertical'" p:lockY="$mode.value == 'horizontal'">0,0</Property>
+                <Property name="b" displayName="Start" type="Handle" p:lockX="$mode.value == 'vertical'"  p:lockY="$mode.value == 'horizontal'">100,0</Property>
+                <Property name="mode" displayName="Direction" type="Enum" p:enumValues="['horizontal|Horizontal', 'vertical|Vertical', 'free|Free']">free</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="line1,bg">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <D>
+                    [
+                        sk($a.x, $a.y, $b.x, $b.y)
+                    ]
+                </D>
+             </For>
+            <For ref="rect">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+    			<path id="bg" style="stroke: #FFFFFF; stroke-opacity: 0; stroke-width: 8px; fill: none;"/>
+    			<path id="line1" style="stroke-linejoin: round; fill: none;"/>
+    		</g>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Horizontal Line" icon="Icons/hline.png" to="line">
+        <PropertyValue name="b">100,0</PropertyValue>
+        <PropertyValue name="mode" p:readonly="true">horizontal</PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Vertical Line" icon="Icons/hline.png" to="line">
+        <PropertyValue name="b">0,100</PropertyValue>
+        <PropertyValue name="mode" p:readonly="true">vertical</PropertyValue>
+    </Shortcut>
+    <Shape id="textbox" displayName="Text Field" icon="Icons/textfield.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">200,25</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[text]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <D>
+                    [
+                        sk(0, 0, $box.w, 0),
+                        skTo($box.w, $box.h),
+                        skTo(0, $box.h),
+                        skTo(0, 0),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+            <For ref="rect">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+    			<path id="line1" style="stroke-linejoin: round;"/>
+    		</g>
+    		<text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Password Field" icon="Icons/password-field.png" to="textbox">
+        <PropertyValue name="textContent" p:readonly="true"><![CDATA[**********]]></PropertyValue>
+    </Shortcut>
+
+    <Shortcut displayName="Label" icon="Icons/label.png" to="Evolus.Common:PlainTextV2">
+        <PropertyValue name="label">Label</PropertyValue>
+        <PropertyValue name="textColor"><E>$$textColor</E></PropertyValue>
+        <PropertyValue name="textFont"><E>$$textFont</E></PropertyValue>
+    </Shortcut>
+    <Shape id="Label" system="true" displayName="Label" icon="Icons/label.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">80,20</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="parseAccessKey" displayName="Use _ as accesskey indicator" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 20)), font: $textFont, align: new Alignment(0, 1), multi: false})">Label</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$textFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Value>
+                    <Arg>$label.value</Arg>
+                    <Arg>$parseAccessKey.value</Arg>
+                </Value>
+
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                        <label id="xulControl"
+                                style="margin: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box; vertical-align: middle;" flex="1" />
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="htmlLink" displayName="Hyperlink" icon="Icons/link.png">
+        <Properties>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"
+                p:editInfo="var size = F.elementSize('textDiv'); ({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max(size.w, 80) , Math.max(size.h, 10)), font: $textFont, align: new Alignment(0, 1)})"><![CDATA[Hyperlink]]></Property>
+               <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$defaultLinkColor</E></Property>
+                 <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"white-space: nowrap; text-decoration: underline; display: inline-block !important; " + $customStyle.value</Arg>
+                </Attr>
+            </For>
+            <For ref="htmlObject">
+                <TextContent>
+                    <Arg>new RichText($textContent)</Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <Box>var size = F.elementSize("textDiv"); new Dimension(size.w, size.h); /* depends $textFont $textContent $customStyle */</Box>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShortRichTextBox" displayName="Generate Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(7));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="htmlText" displayName="HTML Texts" icon="Icons/html.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="width" displayName="Width" type="Handle" p:lockY="true" p:minX="10" p:disabled="!$fixedWidth.value">200,0</Property>
+                <Property name="fixedWidth" displayName="Fixed Width" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Sample text]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="textDiv1">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"display: inline-block; " + $customStyle.value</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"white-space"</Arg>
+                    <Arg>$fixedWidth.value ? null : "nowrap"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$fixedWidth.value ? ($width.x + "px") : null</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"text-decoration"</Arg>
+                    <Arg>$textFont.decor</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="htmlObject1">
+                <TextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <Box>var size = F.elementSize("textDiv1"); new Dimension($fixedWidth.value ? $width.x : size.w, size.h); /* depends $textFont $textContent $customStyle */</Box>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShortRichTextBox" displayName="Generate Short Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(10));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremLongRichTextBox" displayName="Generate Long Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(45));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremExtraLongRichTextBox" displayName="Generate Longer Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(150));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject1">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv1">
+                    Rich <strong>text</strong> pane contains <a href="#">hyper text</a>
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="breadCrumb" displayName="Bread Crumb" icon="Icons/bread.png">
+        <Properties>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"
+                        p:editInfo="var size = F.elementSize('textDiv'); ({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max(size.w, 80) , Math.max(size.h, 10)), font: $textFont, align: new Alignment(0, 1)})"><![CDATA[Home > Products > Pencil]]></Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$defaultLinkColor</E></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Home Styles">
+                <Property name="homeColor" displayName="Home Color" type="Color"><E>$$defaultLinkColor</E></Property>
+                <Property name="homeCustomStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Separator Styles">
+                <Property name="sepColor" displayName="Home Color" type="Color"><E>$$textColor.hollowed(0.5)</E></Property>
+                <Property name="spaceSize" displayName="Spacing" type="Enum" p:enumValues="['0|None', '0.5|Half a char', '1|One char', '2|Two chars']">0.5</Property>
+                <Property name="sepCustomStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="End Styles">
+                <Property name="endColor" displayName="End Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="endCustomStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"display: inline-block; white-space: nowrap; " + $customStyle.value</Arg>
+                </Attr>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <CustomStyle>
+                    <Arg>"text-decoration"</Arg>
+                    <Arg>"none"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="htmlObject">
+                <TextContent>
+                    <Arg>
+                        <![CDATA[
+                            var items = $textContent.value.split(/[ \t]*>[ \t]*/);
+                            for (var i in items) {
+                                items[i] = "<span style=\""
+                                        + (i == 0 ? ("color: " + $homeColor.toRGBAString() + "; " + $homeCustomStyle) : "")
+                                        + (i == items.length - 1 ? ("color: " + $endColor.toRGBAString() + "; " + $endCustomStyle) : "text-decoration: " + $textFont.decor + ";")
+                                        + ";\">"
+                                        + Dom.htmlEncode(items[i])
+                                        + "</span>";
+                            }
+                            var html = items.join("<span style=\"color: " + $sepColor.toRGBAString() + "; margin: 0px " + $spaceSize.value + "ex; " + $sepCustomStyle + "\">&gt;</span>");
+
+                            new RichText(html);
+                        ]]>
+                    </Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Box>var size = F.elementSize("textDiv"); new Dimension(size.w, size.h); /* depends $textFont $customStyle $homeCustomStyle $endCustomStyle $sepCustomStyle $textContent $spaceSize */</Box>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="button" displayName="Button" icon="Icons/button.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">90,25</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="default" displayName="Default Button" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor.shaded(0.2)</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[button]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        sk(0, 0, $box.w, 0),
+                        skTo($box.w, $box.h),
+                        skTo(0, $box.h),
+                        skTo(0, 0),
+                        z
+                    ]
+                </D>
+             </For>
+            <For ref="rect">
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle.condensed($default.value ? 0.7 : 0)</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+    			<path id="line1" style="stroke-linejoin: round;"/>
+    		</g>
+    		<text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shape id="checkbox" displayName="Checkbox" icon="Icons/checkbox.png">
+        <Properties>
+            <PropertyGroup name="General">
+                <Property name="checked" displayName="Checked" type="Bool">false</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Checkbox]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                <BoxFit>
+                    <Arg>new Bound(20, 0, 10, 15)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>"20"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>"12"</Arg>
+                </Attr>
+            </For>
+            <For ref="cbTick">
+                <Visibility>$checked</Visibility>
+             </For>
+            <For ref="rect">
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+           <g id="rect">
+                <path
+                    d="m 1.2896594,14.987973 c 4.21875,-0.0313 9.1874996,-0.562496 13.4062466,-0.593746 0.44792,-4.21875 -0.604173,-8.4375002 -0.156253,-12.6562502 -4.5937436,-0.22917 -8.9374936,0.0417 -13.5312436,-0.1875 -0.0729,4.47917 0.35417,8.9583302 0.28125,13.4374962 z"
+                    id="cbBox"/>
+                <path
+                    style="fill:none;"
+                    d="m 5.0048894,5.0121168 1.88908,4.8033 3.3587596,-3.18198 c 2.28541,-4.02289 3.74045,-4.86056 5.126527,-8.83883"
+                    id="cbTick"/>
+    		</g>
+    		<text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Checked Checkbox" icon="Icons/checked-checkbox.png" to="checkbox">
+        <PropertyValue name="checked">true</PropertyValue>
+    </Shortcut>
+    <Shape id="radio" displayName="Radio button" icon="Icons/radio.png">
+        <Properties>
+            <PropertyGroup name="General">
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Radio button]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                <BoxFit>
+                    <Arg>new Bound(20, 0, 10, 15)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+                <Attr>
+                    <Arg>"x"</Arg>
+                    <Arg>"20"</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y"</Arg>
+                    <Arg>"12"</Arg>
+                </Attr>
+            </For>
+            <For ref="rdTick">
+                <Visibility>$selected</Visibility>
+                <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+             </For>
+            <For ref="rdCircle">
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path
+                    d="m 14.854643,7.698003 c 0,3.85476 -2.200949,6.63069 -7.000875,6.97968 C 3.997527,14.958043 0.50284396,11.669103 0.85288796,7.698003 1.191377,3.858033 4.003037,0.37077296 7.853768,0.71833296 11.720246,1.067323 14.854643,3.843233 14.854643,7.698003 z"
+                    id="rdCircle"/>
+                <path
+                    style="stroke:none"
+                    d="m 11.354207,7.349023 c 0,1.79888 -0.295905,3.60616 -3.500439,3.60616 -1.804357,0 -3.500439,-1.57462 -3.500439,-3.37351 0,-1.79889 1.696082,-3.14085 3.500439,-3.14085 1.804357,0 3.500439,1.10931 3.500439,2.9082 z"
+                    id="rdTick"/>
+            </g>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+
+    <Shortcut displayName="Selected Radio" icon="Icons/selected-radio.png" to="radio">
+        <PropertyValue name="selected">true</PropertyValue>
+    </Shortcut>
+    <Shape id="grid960" displayName="Grid 960" icon="Icons/grid960.png">
+        <Properties>
+            <PropertyGroup name="General">
+                <Property name="height" displayName="Height" type="Handle">0,500</Property>
+                <Property name="mode" displayName="Mode" type="Enum" p:enumValues="['12|12 Columns', '16|16 Columns']">12</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#E7E7E733</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color">#E0E0E0FF</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="rect">
+                <Bound>new Bound(0, 0, 960, $height.y)</Bound>
+            </For>
+            <For ref="lines">
+                <D>
+                    var count = ($mode.value == "12" ? 12 : 16);
+                    var PADDING = 10;
+                    var w = 960 / count;
+                    var ops = [];
+
+                    for (var i = 0; i &lt; count; i ++) {
+                        ops.push(M(i * w + PADDING, 0));
+                        ops.push(L(i * w + PADDING, $height.y));
+                        ops.push(L((i + 1) * w - PADDING, $height.y));
+                        ops.push(L((i + 1) * w - PADDING, 0));
+                        ops.push(z);
+                    }
+
+                    ops;
+                </D>
+                <Fill>$fillColor</Fill>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect id="rect" style="fill: #ffffff; stroke: none;"/>
+            <path id="lines" style="stroke: none;"/>
+        </p:Content>
+    </Shape>
+
+    <Shape id="SketchyTriangle" displayName="Sketchy Triangle" icon="Icons/sketchy-triangle.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">150,150</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[text]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color">#000000FF</Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound(0, 0, 3 * $box.w / 4, $box.h)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <D>
+                    //depends $box
+                    [
+                        sk(0, 0, 0, $box.h),
+                        skTo($box.w, $box.h / 2),
+                        skTo(0, 0),
+                        z
+                    ]
+                </D>
+                <Fill>$fillColor</Fill>
+             </For>
+            <For ref="rect">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+    			<path id="line1" style="fill:#000000;fill-opacity:0;stroke-miterlimit:4;stroke-linejoin: round;"/>
+    		</g>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="combobox" displayName="ComboBox" icon="Icons/combobox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">200,25</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[text goes here]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                <BoxFit>
+                    <Arg>new Bound(5,0, $box.w - $box.h - 5, $box.h)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        sk(0, 0, $box.w - $box.h, 0),
+                        skTo($box.w - $box.h, $box.h),
+                        skTo(0, $box.h),
+                        skTo(0, 0),
+                        z
+                    ]
+                </D>
+             </For>
+             <For ref="line2">
+                <D>
+                    [
+                        sk($box.w - $box.h, 0, $box.w, 0),
+                        skTo($box.w, $box.h),
+                        skTo($box.w - $box.h, $box.h),
+                        skTo($box.w - $box.h, 0),
+                        z
+                    ]
+                </D>
+             </For>
+            <For ref="triangle">
+                <D>
+                    var d = $box.h / 5;
+                    [
+                        sk($box.w - $box.h / 2 - 0.87 * d, $box.h / 2 - d / 2, $box.w - $box.h / 2 + 0.87 * d, $box.h / 2 - d / 2),
+                        skTo($box.w - $box.h / 2, $box.h / 2 + d),
+                        skTo($box.w - $box.h / 2 - 0.87 * d, $box.h / 2 - d / 2),
+                        z
+                    ]
+                </D>
+             </For>
+             <For ref="rect">
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+             <For ref="fillrect">
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0.2)</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path id="line1" style="stroke-linejoin: round;"/>
+            </g>
+            <g id="fillrect">
+                <path id="line2" style="stroke-linejoin: round;"/>
+            </g>
+            <path id="triangle" d="m 178.23656,8.1964881 9.26343,11.1161139 9.26343,-11.1161139 -18.52686,0 z" style="fill:black;stroke-linejoin: round;"/>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+
+    <Shape id="SketchyCircle" displayName="Sketchy Circle" icon="Icons/circle-triangle.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">150,150</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[text]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color">#000000FF</Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 0)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <Scale>
+                    <Arg>$box.w / 150</Arg>
+                    <Arg>$box.h / 150</Arg>
+                </Scale>
+                <Fill>$fillColor</Fill>
+             </For>
+            <For ref="rect">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>
+                        new StrokeStyle($strokeStyle.w / (Math.max($box.w / 150, $box.h / 150)), $strokeStyle.array);
+                    </StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path id="line1" d="m 148.93503,74.635904 c 2.07604,15.97711 -3.99359,28.155016 -12.17212,41.296436 -8.00312,7.27769 -15.17355,16.63311 -24.26107,22.67939 -5.86352,3.13543 -12.49769,5.62895 -19.923889,7.40646 -12.971585,3.3196 -25.996188,3.94023 -38.785696,-0.25407 -7.352001,-2.7067 -14.206711,-6.89127 -20.854109,-11.52417 C 28.608357,131.2223 24.511688,127.84112 20.7864,124.12014 15.856113,112.8313 6.2318574,103.42492 2.2802477,91.727478 -0.26356072,80.409296 1.3268354,68.866237 4.0467287,57.74996 5.4891813,52.26114 6.0420175,44.867346 8.3718156,39.826256 24.480188,17.781301 27.889706,7.3989933 54.438678,1.3290745 72.708305,1.5956602 97.298669,2.9991824 113.67008,11.622241 c 11.67504,7.939259 20.28065,18.798517 26.52343,31.311835 2.56943,10.545458 7.79835,20.823863 8.74152,31.701828 z" style="fill:#000000;fill-opacity:0;stroke-miterlimit:4;stroke-linejoin: round;"/>
+            </g>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="listbox" displayName="List Box" icon="Icons/listbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">159,170</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="withscrollbar" displayName="With Scrollbar" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="contentText" displayName="Text Content" type="PlainText" p:editInfo="({targetName: 'content', bound: Bound.fromBox($box, 0, 5), font: $textFont, align: new Alignment(0, 0), multi: true})"><![CDATA[MenuItem*
+MenuItem
+MenuItem]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="bg">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="content">
+                <Bound>new Bound(1, 1, $box.w - 2, $box.h - 1)</Bound>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        sk(0, 0, $box.w, 0),
+                        skTo($box.w, $box.h),
+                        skTo(0, $box.h),
+                        skTo(0, 0),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+            <For ref="rect">
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+             <For ref="div">
+                <DomContent>
+                <![CDATA[
+                    var items = $contentText.value.split(/[\r\n]+/);
+                    var specs = [];
+                    for (var i = 0; i < items.length; i ++) {
+                        var title = items[i];
+                        var css = new CSS();
+                        var lastchar = items[i].charAt(items[i].length - 1);
+                        var height =  20 * $textFont.getPixelHeight() / 12 ;
+                        css.set("height", height+"px" );
+                        css.set("line-height", height+"px" );
+                        css.set("padding", "0px 5px");
+                        if (title.match(/^(.+)\*[ ]*$/)) {
+                            title = RegExp.$1;
+                            css.set("background", $fillColor.shaded(0.1).toRGBString());
+                        }
+
+                        specs.push({
+                            _name: "div",
+                            _uri: "http://www.w3.org/1999/xhtml",
+                            _text: title,
+                            style: css
+                        });
+                    }
+                    Dom.newDOMFragment(specs);
+                ]]>
+                </DomContent>
+                <Font>$textFont</Font>
+                <Color>$textColor.hollowed($disabled.value ? 0.5 : 0)</Color>
+            </For>
+            <For ref="line2">
+                <D>
+                    var lengh = 10 ;
+                    var a = $box.w - 14;
+                    var padding = 2 ;
+                    var b = 10 ;
+                    var c = 5 ;
+                    [
+                        sk(a, 0, a, $box.h),
+                        skTo($box.w , $box.h),
+                        skTo($box.w , 0),
+                        z,
+                        sk(a + padding, $box.h / 2 + lengh, $box.w - 2 * padding, $box.h / 2 + lengh),
+                        sk(a + padding, $box.h / 2, $box.w - 2 * padding, $box.h / 2),
+                        sk(a + padding, $box.h / 2 - lengh, $box.w - 2 * padding, $box.h / 2 - lengh),
+
+                        sk(a + padding, b, ($box.w + a) / 2, b - c),
+                        skTo($box.w - 2 * padding, b),
+
+                        sk(a + padding, $box.h - b, ($box.w + a) / 2, $box.h - b + c),
+                        skTo($box.w - 2 * padding, $box.h - b),
+                    ]
+                </D>
+             </For>
+             <For ref="scrollbar">
+                <Visibility>$withscrollbar</Visibility>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect id="bg" rx="0" ry="0" style="fill: white; stroke: none;"/>
+            <g id="rect">
+                <path id="line1" style="stroke-linejoin: round;"/>
+            </g>
+            <foreignObject id="content">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="div" >
+                    asdadadasd
+                </div>
+            </foreignObject>
+            <g id="scrollbar" style="fill: none;">
+                <path id="line2" style="stroke-linejoin: round;"/>
+            </g>
+        </p:Content>
+    </Shape>
+
+    <Shape id="scrollbar" displayName="ScrollBar" icon="Icons/scrollbar.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">14,170</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+
+        </Properties>
+        <Behaviors>
+             <For ref="line2">
+                <D>
+                    var lengh = 10 ;
+                    var a = 0;
+                    var padding = 2 ;
+                    var b = 10 ;
+                    var c = 5 ;
+                    [
+                        sk(a, 0, a, $box.h),
+                        skTo($box.w , $box.h),
+                        skTo($box.w , 0),
+                        z,
+                        sk(a + padding, $box.h / 2 + lengh, $box.w - 2 * padding, $box.h / 2 + lengh),
+                        sk(a + padding, $box.h / 2, $box.w - 2 * padding, $box.h / 2),
+                        sk(a + padding, $box.h / 2 - lengh, $box.w - 2 * padding, $box.h / 2 - lengh),
+
+                        sk(a + padding, b, ($box.w + a) / 2, b - c),
+                        skTo($box.w - 2 * padding, b),
+
+                        sk(a + padding, $box.h - b, ($box.w + a) / 2, $box.h - b + c),
+                        skTo($box.w - 2 * padding, $box.h - b),
+                    ]
+                </D>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+             <For ref="scrollbar">
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+             <For ref="bg">
+                <Box>$box</Box>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect id="bg" rx="0" ry="0" style="fill: white; stroke: none;"/>
+            <g id="scrollbar" style="fill: none;">
+                <path id="line2" style="stroke-linejoin: round;"/>
+            </g>
+        </p:Content>
+    </Shape>
+
+    <Shape id="messagebox" displayName="Message Box" icon="Icons/messagebox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">250,50</Property>
+                <Property name="status" displayName="Status" type="Enum" p:enumValues="['normal|Normal', 'error|Error', 'warning|Warning', 'success|Success']">error</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Message]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,0</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>new Bound(55,8, $box.w - 55, $box.h - 8)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="erroricon">
+                <Visibility>$status.value == "error"</Visibility>
+            </For>
+            <For ref="warningicon">
+                <Visibility>$status.value == "warning"</Visibility>
+            </For>
+            <For ref="successicon">
+                <Visibility>$status.value == "success"</Visibility>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        sk(0, 0, $box.w, 0),
+                        skTo($box.w, $box.h),
+                        skTo(0, $box.h),
+                        skTo(0, 0),
+                        z
+                    ]
+                </D>
+             </For>
+            <For ref="rect">
+                <Fill>$fillColor.shaded(0.1)</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path id="line1" style="stroke-linejoin: round;"/>
+            </g>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+            <g id="erroricon">
+              <rect
+         ry="15"
+         rx="15.000001"
+         y="9.8622351"
+         x="10.691102"
+         height="30"
+         width="30.000002"
+         id="rect3640"
+         style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.99999988;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;display:inline;overflow:visible;enable-background:accumulate" />
+      <path
+         id="path3644"
+         d="m 21.10633,20.27743 9.16963,9.16963"
+         style="fill:#e6e6e6;fill-rule:evenodd;stroke:#ffffff;stroke-width:3.99999952;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         id="path3646"
+         d="m 30.27596,20.27743 -9.16964,9.16964"
+         style="fill:#e6e6e6;fill-rule:evenodd;stroke:#ffffff;stroke-width:3.99999952;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+            </g>
+
+            <g id="warningicon">
+      <path
+         transform="matrix(-0.5011805,0,0,-0.5274179,143.44091,352.03909)"
+         d="m 235,653.37508 c -7.29896,-0.44495 -18.44488,-18.65474 -22.10123,-24.98751 -3.33427,-5.77492 -12.76626,-23.47045 -9.08686,-29.03184 4.03483,-6.0986 25.37792,-6.64636 32.69043,-6.64647 6.66837,-10e-5 26.70914,0.67932 29.68575,6.64647 3.26413,6.54357 -6.93305,25.3011 -10.58921,31.63398 -3.33409,5.77503 -13.94287,22.79114 -20.59888,22.38537 z"
+         inkscape:randomized="0"
+         inkscape:rounded="0.21920489"
+         inkscape:flatsided="false"
+         sodipodi:arg2="2.6788584"
+         sodipodi:arg1="1.5707963"
+         sodipodi:r2="24.698654"
+         sodipodi:r1="36.012901"
+         sodipodi:cy="617.36218"
+         sodipodi:cx="235"
+         sodipodi:sides="3"
+         id="path3699"
+         style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.2;marker:none;display:inline;overflow:visible;enable-background:accumulate"
+         sodipodi:type="star" />
+      <path
+         id="path3701"
+         d="m 25.71431,24.93243 0,-5.92721"
+         style="fill:#ffffff;fill-rule:evenodd;stroke:#ffffff;stroke-width:3.99999976;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         id="path3703"
+         d="m 25.71431,31.86213 0,-0.69715"
+         style="fill:#ffffff;fill-rule:evenodd;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+
+    <g  id="successicon">
+      <rect
+         ry="15"
+         rx="15.000001"
+         y="9.8622227"
+         x="10.357143"
+         height="30"
+         width="30.000002"
+         id="rect3765"
+         style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.99999988;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;display:inline;overflow:visible;enable-background:accumulate" />
+      <path
+         sodipodi:nodetypes="ccc"
+         id="path3767"
+         d="m 19.67041,25.4881 3.68906,4.2797 7.6844,-9.8112"
+         style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+        </p:Content>
+    </Shape>
+
+    <Shape id="scale" displayName="Scale" icon="Icons/scale.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">150,15</Property>
+                <Property name="a" displayName="Start" type="Handle" p:lockY="true" p:minX="7.5" p:maxX="$box.w - 7.5">50,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="line1">
+                <D>
+                    [
+                        sk(0, $box.h / 2, $box.w, $box.h / 2)
+                    ]
+                </D>
+             </For>
+            <For ref="rect">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+             <For ref="rdCircle">
+                <Fill>$fillColor.shaded(0.1)</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Transform>[translate($a.x - 7.5, $box.h / 2 - 7.5)]</Transform>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path id="line1" style="stroke-linejoin: round;"/>
+            </g>
+            <path id="rdCircle"
+                    d="m 14.854643,7.698003 c 0,3.85476 -2.200949,6.63069 -7.000875,6.97968 C 3.997527,14.958043 0.50284396,11.669103 0.85288796,7.698003 1.191377,3.858033 4.003037,0.37077296 7.853768,0.71833296 11.720246,1.067323 14.854643,3.843233 14.854643,7.698003 z" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="image" displayName="Image" icon="Icons/image.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">100,100</Property>
+                <Property name="text" displayName="With Dimension" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Message]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent = new RichText(Math.round($box.w) +" x "+Math.round($box.h))</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+                <Visibility>$text</Visibility>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        sk(0, 0, $box.w, 0),
+                        skTo($box.w, $box.h),
+                        skTo(0, $box.h),
+                        skTo(0, 0),
+                        z,
+                        sk(3, 3, $box.w - 3, $box.h - 3),
+                        sk(3, $box.h - 3, $box.w - 3, 3),
+                    ]
+                </D>
+             </For>
+             <For ref="mask">
+                <D>
+                    var length = $box.w - 5;
+                    var height = $textFont.getPixelHeight();
+                    [
+                        M($box.w/2 - length / 2, $box.h/2 - height / 2),
+                        L($box.w/2 + length / 2, $box.h/2 - height / 2),
+                        L($box.w/2 + length / 2, $box.h/2 + height / 2),
+                        L($box.w/2 - length / 2, $box.h/2 + height / 2),
+                        z
+                    ]
+                </D>
+                <Fill>$fillColor</Fill>
+                <Visibility>$text</Visibility>
+             </For>
+            <For ref="rect">
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path id="line1" style="stroke-linejoin: round;"/>
+            </g>
+            <path id="mask" style="stroke:none"/>
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="tab" displayName="Tab" icon="Icons/tab.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">90,35</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[tab]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="rect">
+                <Fill>$fillColor.shaded($selected.value ? 0 : 0.1)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>
+                    new StrokeStyle($strokeStyle.w / (Math.max($box.w / 90, $box.h / 35)), $strokeStyle.array);
+                </StrokeStyle>
+             </For>
+             <For ref="line1">
+                <Scale>
+                    <Arg>$box.w/90</Arg>
+                    <Arg>$box.h/35</Arg>
+                </Scale>
+             </For>
+             <For ref="line2">
+                <D>
+                    [
+                        sk(1.5, $box.h - 4, $box.w - 1.5, $box.h - 4),
+                        skTo($box.w - 1.5 , $box.h + 3),
+                        skTo(1.5 , $box.h + 3),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Visibility>$selected.value</Visibility>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <path   id="line1"
+       d="m 12.801673,0.54494216 c 3.314701,-0.0352053 7.573557,-0.0890949 7.573557,-0.0890949 l 9.303121,0.28181817 8.814904,-0.0695124 7.648939,-0.21610285 10.722374,0.34092343 8.532977,-0.06653 7.912504,-0.13988077 7.482767,0.24608667 c 3.626099,0.54342239 8.567352,3.03702269 8.395326,6.17228789 l 0.09915,3.0270916 0.169651,5.440829 0.320925,4.665193 -0.220173,5.51029 0.05642,4.261539 -0.194682,4.709292 L 78.972906,34.79986 71.358529,34.78491 61.024168,34.622897 51.670695,34.441941 44.075442,34.552909 34.433383,34.74434 27.610762,34.66976 18.987081,34.795183 9.3624747,34.593551 0.50906708,34.619172 0.7793527,29.919697 0.7538155,26.107691 0.62109819,22.175759 0.91240035,18.01618 0.44387272,13.884022 0.50371576,8.4666042 C 1.4978957,3.4882952 3.1208872,3.295014 7.2739642,1.133705 8.3402909,0.57877605 10.899509,1.1741957 12.801673,0.54494216 z" />
+
+            </g>
+            <path   id="line2" style="fill:white;stroke:white"  />
+            <foreignObject x="0" y="0" width="200" height="150" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+
+        </p:Content>
+    </Shape>
+
+    <Shape id="ProgressBar" displayName="Progress Bar" icon="Icons/progressbar.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">200,20</Property>
+                <Property name="valueHandle" displayName="Value" p:noScale="true" type="Handle" p:lockY="true" p:maxX="$box.w" p:minX="0">70,0</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="rect">
+                <D>
+                  [
+                    sk(0, 0, $box.w, 0),
+                    skTo($box.w , $box.h),
+                    skTo(0 , $box.h),
+                    z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+            <For ref="line">
+                <D>
+                    var arr = new Array();
+                    var i = 0;
+                    for(i = 0; i &lt; Math.round($valueHandle.x / 5) ; i++ ) {
+                       arr.push(sk( i * 5 , 3, i * 5 , $box.h - 3 )) ;
+                    }
+                    arr;
+                </D>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path  id="rect" style="fill:white;stroke:black"/>
+            <path  id="line" style="fill:white;stroke:black"/>
+        </p:Content>
+    </Shape>
+
+    <Shape id="winframe" displayName="Windown Frame" icon="Icons/winframe.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">300,200</Property>
+                <Property name="withMinButton" displayName="With Minimize Button" type="Bool">true</Property>
+                <Property name="withRestoreButton" displayName="With Restore Button" type="Bool">true</Property>
+                <Property name="withCloseButton" displayName="With Close Button" type="Bool">true</Property>
+                <Property name="disabled" displayName="Inactive" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Window Title]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">'Comic Sans MS'|Bold|normal|12px</Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="menu">
+                <D>
+                  [
+                    sk(0, 0, $box.w, 0),
+                    skTo($box.w , 28),
+                    skTo(0, 28),
+                    z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>Color.fromString("#dededeff")</Fill>
+            </For>
+            <For ref="body">
+                <D>
+                  [
+                    sk(0, 0, $box.w, 0),
+                    skTo($box.w , $box.h),
+                    skTo(0 , $box.h),
+                    z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+            <For ref="button">
+                <D>
+                    var a = 28;
+                    var padding = 4;
+                    size = a - 2 * padding;
+                    var arr = new Array();
+                    var i = 1;
+                    var space = 5;
+
+                    //close button
+                    if($withCloseButton.value)
+                    {
+                        arr.push(sk( $box.w - size - padding, padding, $box.w - padding, padding ));
+                        arr.push(skTo($box.w - padding, a - padding));
+                        arr.push(skTo($box.w - size - padding, a - padding));
+                        arr.push(z);
+                        arr.push(sk( $box.w - size - padding + 4, padding + 4, $box.w - padding - 4, a - padding - 4 ));
+                        arr.push(sk( $box.w - padding - 4, padding + 4, $box.w - padding - size + 4, a - padding - 4 ));
+                        i++;
+                    }
+
+                    //restore button
+                    if($withRestoreButton.value)
+                    {
+                        arr.push(sk( $box.w - i * (size + padding), padding, $box.w - (i - 1)*(size + padding) - padding, padding ));
+                        arr.push(skTo($box.w - (i - 1)*(size + padding) - padding, a - padding));
+                        arr.push(skTo($box.w - i * (size + padding), a - padding));
+                        arr.push(z);
+                        arr.push(sk( $box.w - i * (size + padding) + space, padding + space, $box.w - (i - 1)*(size + padding) - padding - space, padding + space ));
+                        arr.push(skTo($box.w - (i - 1)*(size + padding) - padding - space, a - padding - space));
+                        arr.push(skTo($box.w - i * (size + padding) + space, a - padding - space));
+                        arr.push(z);
+                        i++;
+                    }
+
+                    //min button
+                    if($withMinButton.value)
+                    {
+                        arr.push(sk( $box.w - i * (size + padding), padding, $box.w - (i - 1)*(size + padding) - padding, padding ));
+                        arr.push(skTo($box.w - (i - 1)*(size + padding) - padding, a - padding));
+                        arr.push(skTo($box.w - i * (size + padding), a - padding));
+                        arr.push(z);
+                        arr.push(sk( $box.w - i * (size + padding) + space, a - padding - space,  $box.w - (i - 1)*(size + padding) - padding - space, a - padding - space ));
+                    }
+                    arr
+                </D>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor.hollowed($disabled.value ? 0.5 : 0)</Color>
+                <BoxFit>
+                    <Arg>new Bound(10, 0, $box.w -10, 28)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path  id="body" style="fill:white;stroke:black"/>
+            <path  id="menu" style="fill:white;stroke:black"/>
+            <path  id="button" style="fill:white;stroke:black"/>
+            <foreignObject x="0" y="0" width="200" height="100" id="text">
+                <div xmlns="http://www.w3.org/1999/xhtml"></div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+
+    <Shape id="table" displayName="Table" icon="Icons/table.png">
+        <Properties>
+            <PropertyGroup name="Sizing">
+                <Property name="box" displayName="Size" type="Dimension">300,110</Property>
+                <Property name="useHtmlContent" displayName="Use HTML Content" type="Bool">false</Property>
+                <Property name="fixedHeaderHeight" noScale="true" displayName="Fixed Header Height" type="Bool">false</Property>
+                <Property name="padding" displayName="Cell Padding" type="Handle" p:noScale="true" p:lockX="true" p:minY="0">0,4</Property>
+                <Property name="headerHeight" p:disabled="!$fixedHeaderHeight.value" p:noScale="true" displayName="Header Height" type="Handle" p:lockX="true" p:minY="10" p:maxY="$box.h">0,20</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Columns Width">
+                <Property name="h0" displayName="Column 1 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(0, properties)" p:minX="collection.getMinXForColumnHandle(0, properties)" p:disabled="collection.isColumnHandleDisabled(0, properties)">30,0</Property>
+                <Property name="h1" displayName="Column 2 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(1, properties)" p:minX="collection.getMinXForColumnHandle(1, properties)" p:disabled="collection.isColumnHandleDisabled(1, properties)">120,0</Property>
+                <Property name="h2" displayName="Column 3 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(2, properties)" p:minX="collection.getMinXForColumnHandle(2, properties)" p:disabled="collection.isColumnHandleDisabled(2, properties)">220,0</Property>
+                <Property name="h3" displayName="Column 4 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(3, properties)" p:minX="collection.getMinXForColumnHandle(3, properties)" p:disabled="collection.isColumnHandleDisabled(3, properties)">260,0</Property>
+                <Property name="h4" displayName="Column 5 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(4, properties)" p:minX="collection.getMinXForColumnHandle(4, properties)" p:disabled="collection.isColumnHandleDisabled(4, properties)">270,0</Property>
+                <Property name="h5" displayName="Column 6 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(5, properties)" p:minX="collection.getMinXForColumnHandle(5, properties)" p:disabled="collection.isColumnHandleDisabled(5, properties)">280,0</Property>
+                <Property name="h6" displayName="Column 7 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(6, properties)" p:minX="collection.getMinXForColumnHandle(6, properties)" p:disabled="collection.isColumnHandleDisabled(6, properties)">290,0</Property>
+                <Property name="h7" displayName="Column 8 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(7, properties)" p:minX="collection.getMinXForColumnHandle(7, properties)" p:disabled="collection.isColumnHandleDisabled(7, properties)">290,0</Property>
+                <Property name="h8" displayName="Column 9 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(8, properties)" p:minX="collection.getMinXForColumnHandle(8, properties)" p:disabled="collection.isColumnHandleDisabled(8, properties)">290,0</Property>
+                <Property name="h9" displayName="Column 10 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(9, properties)" p:minX="collection.getMinXForColumnHandle(9, properties)" p:disabled="collection.isColumnHandleDisabled(9, properties)">290,0</Property>
+                <Property name="h10" displayName="Column 11 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(10, properties)" p:minX="collection.getMinXForColumnHandle(10, properties)" p:disabled="collection.isColumnHandleDisabled(10, properties)">290,0</Property>
+                <Property name="h11" displayName="Column 12 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(11, properties)" p:minX="collection.getMinXForColumnHandle(11, properties)" p:disabled="collection.isColumnHandleDisabled(11, properties)">290,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="content" displayName="Text Content" type="PlainText"
+                        p:editInfo="var size = F.elementSize('textDiv'); ({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max(size.w, 80) , Math.max(size.h, 10)), font: $textFont, align: new Alignment(0, 1), multi: true})"><![CDATA[[] | Column 2
+[*] | Cell Content 1
+() | Cell content 2
+(*) | Cell content 3]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Content Color">
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$textFont</E></Property>
+                <Property name="fillColor" displayName="Table Background" type="Color">#00000000</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Header Color">
+                <Property name="headerTextColor" displayName="Default Text Color" type="Color"><E>$$defaultHeaderTextColor</E></Property>
+                <Property name="headerBackground" displayName="Header Background" type="Color"><E>$$defaultHeaderBGColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$defaultTableBorderColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$defaultTableBorderStyle</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"display: inline-block; " + $customStyle.value</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <CustomStyle>
+                    <Arg>"text-decoration"</Arg>
+                    <Arg>"none"</Arg>
+                </CustomStyle>
+                <DomContent>
+                    <![CDATA[
+                        var gen = function (isHeader, content, colIndex, colCount) {
+                            var style = new CSS();
+                            content = content.replace("\r", "<br />");
+
+                            //style.set("border", "solid " + $strokeStyle.w + "px " + $strokeColor.toRGBAString());
+                            //style.set("border-image", "url('http://www.webdeveloper.com/forum/attachment.php?attachmentid=6300&d=1135355737') 27 round stretch;");
+                            style.set("padding", "0px");
+
+                            if (isHeader) {
+                                //style.set("background-color", $headerBackground.toRGBAString());
+                                style.set("color", $headerTextColor.toRGBAString());
+                            }
+
+                            style.set("text-align", ["left", "center", "right"][$textAlign.h]);
+                            style.set("vertical-align", ["top", "middle", "bottom"][$textAlign.v]);
+                            style.set("min-width", "0px");
+                            style.set("min-height", "0px");
+                            style.set("overflow", "hidden");
+
+                            var w = 0;
+                            if (colIndex < colCount - 1) {
+                                w = properties["h" + colIndex].x - (colIndex > 0 ? properties["h" + (colIndex - 1)].x : 0);
+                            } else {
+                                if (colIndex > 0) {
+                                    w = properties["box"].w - properties["h" + (colIndex - 1)].x;
+                                } else {
+                                    w = properties["box"].w;
+                                }
+                            }
+
+                            w -= $strokeStyle.w + ($strokeStyle.w % 2);
+                            style.set("width", w + "px");
+
+                            var index = content.indexOf("@@");
+                            if (index >= 0) {
+                                style.importRaw(content.substring(index + 2));
+                                content = content.substring(0, index);
+                            }
+
+                            content = content.replace(/\\n/gi, "\n");
+
+                            var cell = {
+                                _name: isHeader ? "th" : "td",
+                                _uri: "http://www.w3.org/1999/xhtml",
+                                style: style.toString(),
+                                _children: [
+                                    {
+                                        _name: "div",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        _children: [],
+                                        style: new CSS()
+                                                .set("overflow", "hidden")
+                                                .set("min-width", "0px")
+                                                .set("-moz-box-sizing", "border-box")
+                                                .set("box-sizing", "border-box")
+                                                .set("padding", $padding.y + "px")
+                                                .set("width", w + "px")
+                                                .set("line-height", "0px")
+                                                .set("text-align", "center")
+                                    }
+                                ]
+                            };
+
+                            var div = cell._children[0];
+
+                            if (content.match(/^[ \t]*\[\][ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "img",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAATCAYAAACZZ43PAAABgElEQVQ4je3SvWtaURjH8S+mctSriBePF5zqUjtVy9nEl7qUgoI4ONzQJaKDhW5Kszu6dLDDNUsySIrg0KFLL2RO/pCs8WoliRlystjQjmfvA7/x+cDzAv8LwBVCXNu2fWXb9pWU8sJxHN9xHD+TyfxKJpM/0+n0dynleSKROLMs6zQej58IIb4BEYBjpdSj7/va9329XC71YrH4J7PZTHue95zpdKoBDbwAOB6NRg/asPYAAJ8Hg8HOpDkIAi2EuPsDDHq93q0JsN1udTgc3j0D3W53azaA1qFQ6BE4APjY6XSMgVgsdgfYAIftdntjCkgpfwMvAdxWqxWYArlcLgDeADTq9fraFCgUCiugDNCo1WorU6Bard4ADYD3pVLJGFBKrYB3AOVisWi8g79HKAN6Pp9rz/P0ZDLR4/FYD4fDXb/fv3ddd9NsNjeVSmWtlAry+fw6m81u9q/8FuB1JBK5TKVSPyzLOo1Go1+BMfAF+AQcAR3gA1ADFPBqf8KDJ0waiwHtKg20AAAAAElFTkSuQmCC",
+                                        width: "16",
+                                        height: "19"
+                                    }
+                                );
+                            } else if (content.match(/^[ \t]*\[\*\][ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "img",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAATCAYAAACZZ43PAAACKklEQVQ4jaWRv0tbYRSGn2jCjQbRXLwJ6FIHawep1ruJmrq0tQrikCGlUioKRuim1M0ho4NdryC0FGkJOFxKl1wo4i/qYKf+CXYRaa5paGqHvF2MxKrY6gvf8p33ec93zgfXVwgwbsDzDMjeJOAL8PC68GPgKxAASBmG8c00zV3TNHcty/oUj8e9eDzuxWKxXGNj48fm5ub3lmW9a2hoeBOJRN4GAgE/GAx+AMIA87Ztlz3Pk+d5WltbUzabPXOWl5flOI4cx9HQ0JB6enoECAgCzM/Nzf3WP2hra0utra06ODioBADwIp1OH18Fl0oltbe3y3Vd+b4vwzBKlYD05OTkz4pxfX1d09PT5wIWFhaUTCYlScViUaFQ6Pg0YGJiolgx5vN5NTU16fDw8BTe2dlRNBrV/v7+6V1NTU0ZqAV4mkwmi1XNND4+rqWlJUnS9va2YrGYXNc986L6+voSYAI8GRsbK1QXNzY21NnZKc/zZFmWcrncuZEsy/oB3AJIjY6O+tXFcrlc2bI2NzcvXGpbW5sP3AUYHhwcPPrbsLKyor29vQthSerq6soDfQDDiUQif6nzEg0MDHwHhgEe9Pb2/neAbdt54D5AX3d3t381clbVI/QBWl1dleM4WlxcVCaT0ezs7PHU1NSvVCpVGBkZKfT39x/Ztu13dHQctbS0FE6WfA/gTjgc/hyNRt1IJPK6rq7uFZABXgIzwHMgCTwCEoAN3D75wto/Px5g2X6Uf1YAAAAASUVORK5CYII=",
+                                        width: "16",
+                                        height: "19"
+                                    }
+                                );
+                            } else if (content.match(/^[ \t]*\(\)[ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "img",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAARCAYAAADQWvz5AAABl0lEQVQ4ja3UT0sCQRzG8ceV1IXZWd1FUZAo2kPRoZO9AOnipS7tQciFxSgKOwluxNLBg4fegvgW0mtvoKCLIBh46R4UtKurhzWnQwWbf1Kh73n4MMxvZoDZrQE4BmAAOAGQAuD7Y/1ECVEU70RRdDRNGxiGwTRNcxRFsQkhb4FAoAQgMA9ZJYS8mKY57Pf7bLxWq8XS6XSPUtoGkJiFrFBKn2q12nBCGKtSqQwppc8A+AmF5/kLVVXtechPhUJhIEnSzbjjEwThtdPpLOowx3EYpbQHgHqhXUVRrIWV7zKZzDuAQy90msvlnGUhwzBcjuOuvNBlqVRyl4VM0/zgOO7aC53l8/mld5TNZrsAdC+0mUwmF54YY4yNRiMWj8dtABu/xhaLxR4ajcbCUL1eH0Wj0ftpF3I7EonY7XZ7LtJsNpksyzaArWkQgsHgPiHEqVarzHUnz96yLFYul11BELp+v/9gKuJpJxwOP8qy3FNVtVssFge6rjupVMoKhUIDSZJuASjzEG/rAI7w9Y2cA9jDtLf1330CebU+HAHMC6AAAAAASUVORK5CYII=",
+                                        width: "18",
+                                        height: "17"
+                                    }
+                                );
+                            } else if (content.match(/^[ \t]*\(\*\)[ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "img",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAARCAYAAADQWvz5AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9oDEAk2MibSQ9wAAAIeSURBVDjLtZNNy1JBFMf/evXxJR3f8OIl0SSJXsBsE0iBIC10k5v8FraTVq5cCLVqL2LfQF0FblylG0HQa2JkIi000FvX59EHr3qnzeNNU3PVHwZmzjnzm5lzzqhwWncAvADgAPATQBNAAwA9Fqw6YuMsFssHAM/j8bia4zj9aDRa1Gq1zXg8XkmS9FaSpPcApH9cAh6TyfQjnU6vF4sF/VutVotGIpErQkgHAHcKoiWEfM7n82t6Rtlsdk0I+QbAcEAxGAyvE4nEbHeDJEm01+vRbrdLl8vlHiyZTF7b7fZ3B7kym82TXq+nBFarVerz+ehNcinLsrRQKCj++XxOCSFXAMgu6Knf7xe3QcPhkFosFgWyHQzD0Hq9rsBisdgvAK8AQH0DehIKhTRbarlchiiKB8/fbDaoVCrKOhAI3FKr1fd2QTaO4y62ASzLniyrXq//Ux2tVg1AswsSp9Op0hfRaBRer/coKBwOK/N+v7+QZfn7rv++2+3eqxjP8zQYDCr5UalUNJVKKX5ZlqnL5ZoBuLt3Esuy9VKpdNAzg8GANhoNOplM9uzFYlF2Op21Y7d+ZLPZZp1O51w/0mazSR0OxwzAg6Pv1+l0L00m0zyXy9HVanUAEEWRZjKZldlsvmQYJn7u0z62Wq05hmEeRiIR6vF4NIIgyDzPr9vt9oXRaPwoCMIbAF/PgbbyAXgG4DaASwBfAHwCcI3/qd/UQZ1L0EoXKwAAAABJRU5ErkJggg==",
+                                        width: "18",
+                                        height: "17"
+                                    }
+                                );
+                            } else {
+                                div.style.unset("line-height");
+                                div.style.unset("text-align");
+                                if ($useHtmlContent.value) {
+                                    div._html = content;
+                                } else {
+                                    div._text = content;
+                                }
+                            }
+
+
+                            return cell;
+                        };
+
+                        //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                        var fragment = null;
+                        try {
+                            var a = F.parseTextArray($content.value);
+                            var cols = collection.getMaxColumns($content.value);
+
+                            //table and table styles
+                            var tableStyle = CSS.fromString($customStyle.value);
+
+                            tableStyle.setIfNot("border-collapse", "collapse");
+                            tableStyle.setIfNot("background-color", $fillColor.toRGBAString());
+
+                            tableStyle.set("width",  ($box.w - $strokeStyle.w) + "px");
+                            tableStyle.set("height",  ($box.h - $strokeStyle.w) + "px");
+                            tableStyle.set("margin-left",  Math.ceil($strokeStyle.w / 2) + "px");
+                            tableStyle.set("margin-top",  Math.ceil($strokeStyle.w / 2) + "px");
+
+                            var table = {
+                                _name: "table",
+                                _uri: "http://www.w3.org/1999/xhtml",
+                                _children: [],
+                                style: tableStyle.toString()
+                            };
+
+                            if (a.length > 0) {
+                                headers = a[0];
+
+                                var tr = {
+                                    _name: "tr",
+                                    _uri: "http://www.w3.org/1999/xhtml",
+                                    _children: []
+                                };
+                                if ($fixedHeaderHeight.value) {
+                                    tr.style = new CSS();
+                                    tr.style.set("height", $headerHeight.y + "px");
+                                }
+
+
+                                table._children.push({
+                                    _name: "thead",
+                                    _uri: "http://www.w3.org/1999/xhtml",
+                                    _children: [tr]
+                                });
+
+                                for (var i = 0; i < headers.length; i ++) {
+                                    var header = headers[i];
+                                    tr._children.push(gen(true, header, i, cols));
+                                }
+                            }
+                            if (a.length > 1) {
+                                var tbody = {
+                                    _name: "tbody",
+                                    _uri: "http://www.w3.org/1999/xhtml",
+                                    _children: []
+                                };
+
+                                for (var r = 1; r < a.length; r ++) {
+                                    var cells = a[r];
+                                    var tr = {
+                                        _name: "tr",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        _children: []
+                                    };
+
+                                    tbody._children.push(tr);
+
+                                    for (var i = 0; i < cells.length; i ++) {
+                                        var cell = cells[i];
+                                        tr._children.push(gen(false, cell, i, cols));
+                                    }
+                                }
+
+                                table._children.push(tbody);
+                            }
+
+                            fragment = Dom.newDOMFragment([table]);
+                        } catch (e) {
+                            Console.dumpError(e);
+                        }
+                        fragment;
+                    ]]>
+                </DomContent>
+            </For>
+            <For ref="htmlObject">
+                <Box>
+                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                    //depends also: $textFont, $customStyle, $padding
+                    new Dimension($box.w + $strokeStyle.w % 2, Math.max($box.h + $strokeStyle.w % 2, F.elementSize("textDiv").h))
+                </Box>
+            </For>
+            <For ref="horizontal-line">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                <![CDATA[
+                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                    //depends also: $textFont, $customStyle, $padding
+                    var a = F.parseTextArray($content.value);
+                    var row = a.length;
+                    var minHeight = F.textSize("htmlObject").h;
+                    var h = Math.max(minHeight, $box.h)
+                    var fh = (h / row);
+                    if ($fixedHeaderHeight.value) {
+                        fh = $headerHeight.y;
+                        row -= 1;
+                        h -= $headerHeight.y;
+                        fh += (h / row);
+                    }
+
+                    var da = [sk(0, fh, $box.w, fh)];
+                    for (var i = 1; i < row; i++) {
+                        da.push(M(0, fh + (h / row) * i));
+                        da.push(skTo($box.w, fh + (h / row) * i));
+                    }
+                    da;
+                ]]>
+                </D>
+            </For>
+            <For ref="vertical-line">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                <![CDATA[
+                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                    //depends also: $textFont, $customStyle, $padding
+                    var minHeight = F.textSize("htmlObject").h;
+                    var h = Math.max(minHeight, $box.h)
+                    var a = F.parseTextArray($content.value);
+                    if (a.length > 0) {
+                        col = a[0].length;
+                        //debug("c: " + col);
+                        var w = $box.w;
+                        var da = [sk(0, 0, 0, h)];
+                        for (var i = 0; i < col - 1; i++) {
+                            var cw = properties["h" + i].x;
+                            //debug(cw);
+                            da.push(M(cw, 0));
+                            da.push(skTo(cw, h));
+                        }
+                        da.push(M(w, 0));
+                        da.push(skTo(w, h));
+                        da;
+                    }
+                ]]>
+                </D>
+            </For>
+            <For ref="header">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <Fill>$headerBackground</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                <![CDATA[
+                    var r = F.parseTextArray($content.value).length;
+                    var h = $box.h / r;
+                    if ($fixedHeaderHeight.value) {
+                        h = $headerHeight.y;
+                    }
+
+                    [
+                        sk(0, 0, $box.w, 0),
+                        skTo($box.w, h),
+                        skTo(0, h),
+                        skTo(0, 0),
+                        z
+                    ]
+                ]]>
+                </D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="header" style="stroke-linejoin:round" />
+            <path id="horizontal-line" style="fill:none;stroke-linejoin:round" />
+            <path id="vertical-line" style="fill:none;stroke-linejoin:round" />
+            <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="padding: 5px;">
+                </div>
+                <div xmlns="http://www.w3.org/1999/xhtml" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="Balloon" displayName="Balloon" icon="Icons/balloon.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,80</Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Handles">
+                <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="Math.min($box.w, $box.h) / 2">8,0</Property>
+
+                <Property name="leftStart" displayName="Start Point" type="Handle" p:lockX="true" p:minY="$radius.x + 2" p:maxY="$leftEnd.y - 5" p:disabled="F.getRelativeLocation($pin, $box) != 'left'">0,12</Property>
+                <Property name="leftEnd" displayName="End Point" type="Handle" p:lockX="true" p:minY="$leftStart.y + 5" p:maxY="$box.h - $radius.x - 2" p:disabled="F.getRelativeLocation($pin, $box) != 'left'">0,33</Property>
+
+                <Property name="rightStart" displayName="Start Point" type="Handle" p:lockX="true" p:expressionX="$box.w" p:minY="$radius.x + 2" p:maxY="$rightEnd.y - 5" p:disabled="F.getRelativeLocation($pin, $box) != 'right'">0,12</Property>
+                <Property name="rightEnd" displayName="End Point" type="Handle" p:lockX="true" p:expressionX="$box.w" p:minY="$rightStart.y + 5" p:maxY="$box.h - $radius.x - 2" p:disabled="F.getRelativeLocation($pin, $box) != 'right'">0,33</Property>
+
+                <Property name="topStart" displayName="Start Point" type="Handle" p:lockY="true" p:minX="$radius.x + 2" p:maxX="$topEnd.x - 5" p:disabled="F.getRelativeLocation($pin, $box) != 'top'">12,0</Property>
+                <Property name="topEnd" displayName="End Point" type="Handle" p:lockY="true" p:minX="$topStart.x + 5" p:maxX="$box.w - $radius.x - 2" p:disabled="F.getRelativeLocation($pin, $box) != 'top'">33,0</Property>
+
+                <Property name="bottomStart" displayName="Start Point" type="Handle" p:lockY="true" p:expressionY="$box.h" p:minX="$radius.x + 2" p:maxX="$bottomEnd.x - 5" p:disabled="F.getRelativeLocation($pin, $box) != 'bottom'">12,0</Property>
+                <Property name="bottomEnd" displayName="End Point" type="Handle" p:lockY="true" p:expressionY="$box.h" p:minX="$bottomStart.x + 5" p:maxX="$box.w - $radius.x - 2" p:disabled="F.getRelativeLocation($pin, $box) != 'bottom'">33,0</Property>
+
+                <Property name="pin" displayName="Balloon Pin" type="Handle" p:connectTo="*" p:noMove="true">-12,23</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Annotation]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="rect">
+                <D>
+                    var type = F.getRelativeLocation($pin, $box);
+
+                    var x = {"left": [sk($radius.x, 0, $box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                                        skTo($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                                        skTo($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                                        skTo(0, $leftEnd.y), skTo($pin.x, $pin.y), skTo(0, $leftStart.y), skTo(0, $radius.x),
+                                        C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)],
+
+                    "top": [sk($radius.x, 0, $topStart.x,0), skTo($pin.x, $pin.y), skTo($topEnd.x,0),
+                            skTo($box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                            skTo($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                            skTo($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                            skTo(0, $radius.x),C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)],
+                    "right": [sk($radius.x, 0, $box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                            skTo($box.w, $rightStart.y),skTo($pin.x, $pin.y), skTo($box.w, $rightEnd.y), skTo($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                            skTo($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                            skTo(0, $radius.x),C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)] ,
+                    "bottom": [sk($radius.x, 0, $box.w - $radius.x, 0), C($box.w - $radius.x / 3, 0, $box.w, $radius.x / 3, $box.w, $radius.x),
+                            skTo($box.w, $box.h - $radius.x), C($box.w, $box.h - $radius.x / 3, $box.w - $radius.x / 3, $box.h, $box.w - $radius.x, $box.h),
+                            skTo($bottomEnd.x, $box.h), skTo($pin.x, $pin.y),skTo($bottomStart.x, $box.h),
+                            skTo($radius.x, $box.h), C($radius.x / 3, $box.h, 0, $box.h - $radius.x / 3, 0, $box.h - $radius.x),
+                            skTo(0, $radius.x),C(0, $radius.x / 3, $radius.x / 3, 0, $radius.x, 0)]
+                    }[type];
+                    x</D>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>Bound.fromBox($box, $radius.x / 2)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <filter id="imageShading" height="1.2558399" y="-0.12792" width="1.06396" x="-0.03198">
+                    <feGaussianBlur stdDeviation="1.3325" in="SourceAlpha" />
+                </filter>
+                <g id="container">
+                    <path transform="translate(0.5 0.5)" style="stroke-width: 1px;" id="rect" />
+                </g>
+            </defs>
+            <use xlink:href="#container" id="bgCopy" transform="translate(1, 1)" p:filter="url(#imageShading)" style=" opacity:0.6;" p:heavy="true" />
+            <use xlink:href="#container" />
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shape id="Pointer1" displayName="Pointer 1" icon="Icons/pointer1.png">
+        <Properties>
+            <PropertyGroup name="Common">
+                <Property name="box" type="Dimension" p:lockRatio="true">38,28</Property>
+                <Property name="angle" type="PlainText" p:readonly="true">45</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[1]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>
+                    var c = {x: $box.w * 81 / 202.4, y: $box.h / 2};
+                    [
+                        scale($box.w / 202.4, $box.h / 152),
+                        translate(81, 76),
+                        rotate($angle),
+                        translate(-81, -76),
+                    ]
+                </Transform>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>
+                    var r = 202.4 / $box.w;
+                    var a = [];
+                    if ($strokeStyle.array) {
+                        var b = $strokeStyle.array.split(",");
+                        for (var i = 0; i &lt; b.length; i ++) {
+                            var item = parseInt(b[i], 10);
+                            a.push(item * r);
+                        }
+                    }
+                    stencilDebug("r: " + r);
+                    stencilDebug("$strokeStyle.w * r: " + $strokeStyle.w);
+                    stencilDebug("r*: " + $strokeStyle.w * r);
+                    new StrokeStyle("" + $strokeStyle.w * r, "" + a);
+                </StrokeStyle>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound(0, 0, $box.h, $box.h)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin:round;"
+                    d="M 115.16242,135.0524 C 99.441333,146.0604 80.746673,146.47208 63.230283,143.73702 45.713894,141.00197 26.54735,137.94861 15.539353,122.22754 4.5313381,106.50645 8.7158499,72.255446 11.804461,54.739062 14.893073,37.222678 20.421317,30.076951 36.142397,19.068936 48.109263,10.689649 64.002155,4.2019066 78.480832,6.8535552 92.959509,9.5052038 120.87321,19.882029 132.84008,28.261314 l 35.40381,32.708176 38.23224,31.293962 -51.31371,19.273158 z" />
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+</Shapes>

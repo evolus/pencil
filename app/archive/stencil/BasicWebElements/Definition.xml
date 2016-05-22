@@ -1,0 +1,1127 @@
+<Shapes
+    xmlns="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    id="Evolus.BasicWebElements"
+    displayName="Basic Web Elements"
+    description="Collection of basic items that are regularly used in web designs."
+    author="Duong Thanh An"
+    url="http://">
+    <Properties>
+        <PropertyGroup name="Commons">
+            <Property name="defaultTextFont" type="Font" displayName="Default Font">"Liberation Sans",Arial,sans-serif|normal|normal|13px</Property>
+            <Property name="defaultTextColor" type="Color" displayName="Default Text Color">#000000ff</Property>
+            <Property name="defaultLinkColor" type="Color" displayName="Default Link Color">#0000ffff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Heading">
+            <Property name="defaultH1Font" type="Font" displayName="Heading 1 Font">"Liberation Sans",Arial,sans-serif|bold|normal|24px</Property>
+            <Property name="defaultH2Font" type="Font" displayName="Heading 2 Font">"Liberation Sans",Arial,sans-serif|bold|normal|20px</Property>
+            <Property name="defaultH3Font" type="Font" displayName="Heading 3 Font">"Liberation Sans",Arial,sans-serif|bold|normal|17px</Property>
+            <Property name="defaultH4Font" type="Font" displayName="Heading 4 Font">"Liberation Sans",Arial,sans-serif|bold|normal|14px</Property>
+            <Property name="defaultH5Font" type="Font" displayName="Heading 5 Font">"Liberation Sans",Arial,sans-serif|bold|normal|12px</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Table: header">
+            <Property name="defaultHeaderTextColor" type="Color" displayName="Default Header Text Color">#000000ff</Property>
+            <Property name="defaultHeaderBGColor" type="Color" displayName="Default Header Background Color">#ccccccff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Table: border">
+            <Property name="defaultTableBorderColor" type="Color" displayName="Default Border Color">#00000055</Property>
+            <Property name="defaultTableBorderStyle" type="StrokeStyle" displayName="Default Border Style">1|</Property>
+        </PropertyGroup>
+    </Properties>
+
+    <Script>
+        collection.foo = function () {
+            return 123;
+        };
+        collection.generateBreadCrumbHTML = function (plainText) {
+            var html = "ul";
+        };
+    </Script>
+    <Script comments="Scripts for calculating table column widths">
+        <![CDATA[
+            collection.MIN_COL_WIDTH = 5;
+            collection.getMaxColumns = function (rawText) {
+                var a = F.parseTextArray(rawText);
+
+                var c = 0;
+                for (var i in a) {
+                    c = Math.max(c, a[i].length);
+                }
+
+                return c;
+            };
+            collection.getMaxXForColumnHandle = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                if (i < cols - 2) {
+                    return properties["h" + (i + 1)].x - this.MIN_COL_WIDTH;
+                }
+
+                return properties["box"].w - this.MIN_COL_WIDTH;
+            };
+            collection.getMinXForColumnHandle = function (i, properties) {
+                if (i > 0) {
+                    return properties["h" + (i - 1)].x + this.MIN_COL_WIDTH;
+                }
+
+                return this.MIN_COL_WIDTH;
+            };
+            collection.isColumnHandleDisabled = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                return i >= cols - 1;
+            };
+        ]]>
+    </Script>
+
+    <Shape id="pane" displayName="Pane" icon="Icons/pane.png">
+        <Properties>
+            <PropertyGroup name="Handles">
+                <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2" p:disabled="$cornerStyle.value == 'none'">10,0</Property>
+                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2">0,10</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#eeeeeeff</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Shadow">
+                <Property name="shadowStyle" displayName="Style" type="ShadowStyle">0|0|3</Property>
+                <Property name="shadowColor" displayName="Color" type="Color">#00000000</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">0|</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"
+                    p:editInfo="({targetName: 'htmlObject', bound: Bound.fromBox($box, $textPadding.y), font: $textFont, align: $textAlign, multi: true})"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Style">
+                <Property name="box" type="Dimension">200,300</Property>
+                <Property name="cornerStyle" displayName="Corner Style" type="Enum" p:enumValues="['none|None', 'all|All rounded', 'top|Rounded top corners', 'bottom|Rounded bottom corners', 'left|Rounded left corners', 'right|Rounded right corners']">none</Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="htmlObject">
+                <TextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <Bound>
+                    var x = Math.min(0, $shadowStyle.dx - $shadowStyle.size);
+                    var y = Math.min(0, $shadowStyle.dy - $shadowStyle.size);
+                    var w = Math.max($box.w, $box.w + $shadowStyle.dx + $shadowStyle.size) - x;
+                    var h = Math.max($box.h, $box.h + $shadowStyle.dy + $shadowStyle.size) - y;
+                    new Bound(x, y, w, h);
+                </Bound>
+            </For>
+            <For ref="div">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"box-sizing: border-box; -moz-box-sizing: border-box; overflow: hidden; " + $customStyle.value</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"box-shadow"</Arg>
+                    <Arg>$shadowColor.a > 0 ? $shadowStyle.toCSSString($shadowColor) : "none"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding"</Arg>
+                    <Arg>$textPadding.y + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"background-color"</Arg>
+                    <Arg>$fillColor.toRGBAString()</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-radius"</Arg>
+                    <Arg>($cornerStyle.value == "all") ? ($radius.x + "px") : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-radius-topleft"</Arg>
+                    <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "top" || $cornerStyle.value == "left") ? ($radius.x + "px") : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-radius-topright"</Arg>
+                    <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "top" || $cornerStyle.value == "right") ? ($radius.x + "px") : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-radius-bottomleft"</Arg>
+                    <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "bottom" || $cornerStyle.value == "left") ? ($radius.x + "px") : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-radius-bottomright"</Arg>
+                    <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "bottom" || $cornerStyle.value == "right") ? ($radius.x + "px") : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border"</Arg>
+                    <Arg>$strokeStyle.w > 0 ? ("solid " + $strokeStyle.w + "px " + $strokeColor.toRGBAString()) : "none"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"margin-left"</Arg>
+                    <Arg>(0 - Math.min(0, $shadowStyle.dx - $shadowStyle.size)) + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"margin-top"</Arg>
+                    <Arg>(0 - Math.min(0, $shadowStyle.dy - $shadowStyle.size)) + "px"</Arg>
+                </CustomStyle>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShortRichTextBox" displayName="Generate Short Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(10));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremLongRichTextBox" displayName="Generate Long Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(45));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremExtraLongRichTextBox" displayName="Generate Longer Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(100));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var shadow = this.getProperty("shadowStyle");
+                        return [
+                            new SnappingData("Left", b.x + shadow.size, "Left", true, this.id),
+                            new SnappingData("Right", b.x + b.width - shadow.size, "Right", true, this.id),
+                            new SnappingData("Top", b.y + shadow.size, "Top", false, this.id),
+                            new SnappingData("Bottom", b.y + b.height- shadow.size, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden;">
+                    Rich <strong>text</strong> pane contains <a href="#">hyper text</a>
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="combo" system="true" displayName="Combo" icon="Icons/combo.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,25</Property>
+                <Property name="disabled" type="Bool" displayName="Disabled">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Caption" type="PlainText">Select</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font" p:disabled="$useSystemFontStyle"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="select">
+                <Attr>
+                    <Arg>"disabled"</Arg>
+                    <Arg>$disabled.value ? "true" : null</Arg>
+                </Attr>
+            </For>
+            <For ref="htmlObject">
+                <Box>$box</Box>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.5) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(8, 0, $box.w - 30, $box.h)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; position: relative;">
+                    <select id="select" style="width: 100%; height: 100%; -moz-user-focus: ignore; vertical-align: middle;"></select>
+                    <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </div>
+            </foreignObject>
+            <text id="text" xml:space="preserve"></text>
+        </p:Content>
+    </Shape>
+    <Shape id="button" system="true" displayName="Button" icon="Icons/button.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">80,25</Property>
+                <Property name="disabled" type="Bool" displayName="Disabled">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Caption" type="PlainText">Select</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font" p:disabled="$useSystemFontStyle"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="button">
+                <Attr>
+                    <Arg>"disabled"</Arg>
+                    <Arg>$disabled.value ? "true" : null</Arg>
+                </Attr>
+            </For>
+            <For ref="htmlObject">
+                <Box>$box</Box>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.5) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <CustomStyle>
+                    <Arg>"font"</Arg>
+                    <Arg>$textFont</Arg>
+                </CustomStyle>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>new Alignment(1, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; position: relative;">
+                    <input type="button" id="button" style="width: 100%; height: 100%; -moz-user-focus: ignore; vertical-align: middle; margin: 0px !important;" />
+                    <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </div>
+            </foreignObject>
+            <text id="text" xml:space="preserve"></text>
+        </p:Content>
+    </Shape>
+    <Shape id="textbox" system="true" displayName="Text Box" icon="Icons/textbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,25</Property>
+                <Property name="disabled" type="Bool" displayName="Disabled">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Caption" type="PlainText">Select</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font" p:disabled="$useSystemFontStyle"><E>$$defaultTextFont</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="textbox">
+                <Attr>
+                    <Arg>"disabled"</Arg>
+                    <Arg>$disabled.value ? "true" : null</Arg>
+                </Attr>
+            </For>
+            <For ref="htmlObject">
+                <Box>$box</Box>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.5) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <CustomStyle>
+                    <Arg>"font"</Arg>
+                    <Arg>$textFont</Arg>
+                </CustomStyle>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; position: relative;">
+                    <input type="text" id="textbox" style="width: 100%; height: 100%; -moz-user-focus: ignore; vertical-align: middle; -moz-box-sizing: border-box;" />
+                    <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </div>
+            </foreignObject>
+            <text id="text" xml:space="preserve"></text>
+        </p:Content>
+    </Shape>
+    <Shape id="textArea" system="true" displayName="Text Area" icon="Icons/textarea.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">300,200</Property>
+                <Property name="padding" type="Handle" p:lockX="true" p:maxY="100" p:minY="5">0,5</Property>
+                <Property name="disabled" type="Bool" displayName="Disabled">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Text Content" type="RichText"
+                    p:editInfo="var size = F.elementSize('textArea'); ({targetName: 'htmlObject', bound: new Bound(5, 5, size.w - 10, size.h -10), font: $textFont, align: $textAlign})"
+                ></Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font" p:disabled="$useSystemFontStyle"><E>$$defaultTextFont</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="textArea">
+                <Attr>
+                    <Arg>"disabled"</Arg>
+                    <Arg>$disabled.value ? "true" : null</Arg>
+                </Attr>
+            </For>
+            <For ref="htmlObject">
+                <Box>
+                    <Arg>$box</Arg>
+                </Box>
+            </For>
+            <For ref="content">
+                <TextContent>$text</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <CustomStyle>
+                    <Arg>"text-align"</Arg>
+                    <Arg>["left", "center", "right"][$textAlign.h]</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"vertical-align"</Arg>
+                    <Arg>["top", "middle", "bottom"][$textAlign.v]</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"text-decoration"</Arg>
+                    <Arg>$textFont.decor</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"top"</Arg>
+                    <Arg>($padding.y) + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"left"</Arg>
+                    <Arg>($padding.y) + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"bottom"</Arg>
+                    <Arg>($padding.y) + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"right"</Arg>
+                    <Arg>($padding.y) + "px"</Arg>
+                </CustomStyle>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; position: relative;">
+                    <textarea type="text" id="textArea" style="width: 100%; height: 100%; -moz-user-focus: ignore; -moz-box-sizing: border-box; -moz-column-gap: 0px; margin: 0px !important;"></textarea>
+                    <div style="position: absolute; overflow: hidden;" id="content">
+                    </div>
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="radio" system="true" displayName="Radio" icon="Icons/radio.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="selected" type="Bool" displayName="Selected">false</Property>
+                <Property name="disabled" type="Bool" displayName="Disabled">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Caption" type="PlainText">Radio</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="radio">
+                <Attr>
+                    <Arg>"disabled"</Arg>
+                    <Arg>$disabled.value ? "true" : null</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"checked"</Arg>
+                    <Arg>$selected.value ? "true" : null</Arg>
+                </Attr>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.5) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(17, 0, 100, 20)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="21" height="21" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; position: relative; display: table;">
+                    <div style="display: table-cell; vertical-align: middle; text-align: left; line-height: 1px;"><input type="radio" id="radio" style="margin: 0px; padding: 0px;"/></div>
+                    <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </div>
+            </foreignObject>
+            <text id="text" xml:space="preserve"></text>
+        </p:Content>
+    </Shape>
+    <Shape id="checkbox" system="true" displayName="Checkbox" icon="Icons/checkbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="selected" type="Bool" displayName="Selected">false</Property>
+                <Property name="disabled" type="Bool" displayName="Disabled">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="text" displayName="Caption" type="PlainText">Check Box</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="check">
+                <Attr>
+                    <Arg>"disabled"</Arg>
+                    <Arg>$disabled.value ? "true" : null</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"checked"</Arg>
+                    <Arg>$selected.value ? "true" : null</Arg>
+                </Attr>
+            </For>
+            <For ref="text">
+                <TextContent>$text</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.5) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(17, 0, 100, 20)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="21" height="21" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; position: relative; display: table;">
+                    <div style="display: table-cell; vertical-align: middle; text-align: left; line-height: 1px;"><input type="checkbox" id="check" style="margin: 0px; padding: 0px;"/></div>
+                    <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </div>
+            </foreignObject>
+            <text id="text" xml:space="preserve"></text>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="HTML Texts" icon="Icons/html.png" to="Evolus.Common:RichTextBoxV2">
+        <PropertyValue name="textContent"><![CDATA[HTML Texts]]></PropertyValue>
+        <PropertyValue name="textFont"><E>$$defaultTextFont</E></PropertyValue>
+        <PropertyValue name="textColor"><E>$$defaultTextColor</E></PropertyValue>
+    </Shortcut>
+    <Shape id="htmlText" system="true" displayName="HTML Texts" icon="Icons/html.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="width" displayName="Width" type="Handle" p:lockY="true" p:minX="10" p:disabled="!$fixedWidth.value">200,0</Property>
+                <Property name="fixedWidth" displayName="Fixed Width" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Sample text]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"display: inline-block; " + $customStyle.value</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"white-space"</Arg>
+                    <Arg>$fixedWidth.value ? null : "nowrap"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$fixedWidth.value ? ($width.x + "px") : null</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"text-decoration"</Arg>
+                    <Arg>$textFont.decor</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="htmlObject">
+                <TextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <Box>var size = F.elementSize("textDiv"); new Dimension($fixedWidth.value ? $width.x : size.w, size.h); /* depends $textFont $textContent $customStyle */</Box>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShortRichTextBox" displayName="Generate Short Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(10));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremLongRichTextBox" displayName="Generate Long Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(45));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremExtraLongRichTextBox" displayName="Generate Longer Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(150));
+                            this.setProperty("fixedWidth", new Bool(true));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv">
+                    Rich <strong>text</strong> pane contains <a href="#">hyper text</a>
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="htmlLink" displayName="Hyperlink" icon="Icons/link.png">
+        <Properties>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"
+                p:editInfo="var size = F.elementSize('textDiv'); ({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max(size.w, 80) , Math.max(size.h, 10)), font: $textFont, align: new Alignment(0, 1)})"><![CDATA[Hyperlink]]></Property>
+               <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$defaultLinkColor</E></Property>
+                 <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"white-space: nowrap; text-decoration: underline; display: inline-block !important; " + $customStyle.value</Arg>
+                </Attr>
+            </For>
+            <For ref="htmlObject">
+                <TextContent>
+                    <Arg>new RichText($textContent)</Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <Box>var size = F.elementSize("textDiv"); new Dimension(size.w, size.h); /* depends $textFont $textContent $customStyle */</Box>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShortRichTextBox" displayName="Generate Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(7));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="heading" system="true" displayName="Heading" icon="Icons/h1.png">
+        <Properties>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"
+                p:editInfo="var size = F.elementSize('textDiv'); ({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max(size.w, 80) , Math.max(size.h, 10)), font: $textFont, align: new Alignment(0, 1)})"><![CDATA[Heading level 1]]></Property>
+               <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultH1Font</E></Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$defaultTextColor</E></Property>
+                 <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>
+                        CSS.fromString($customStyle.value)
+                            .set("white-space", "nowrap")
+                            .set("display", "inline-block !important");
+                    </Arg>
+                </Attr>
+            </For>
+            <For ref="htmlObject">
+                <TextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <Box>var size = F.elementSize("textDiv"); new Dimension(size.w, size.h); /* depends $textFont $textContent $customStyle */</Box>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShortRichTextBox" displayName="Generate Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(7));
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shortcut displayName="Heading 1" icon="Icons/h1.png" to="heading">
+        <PropertyValue name="textContent"><![CDATA[Heading level 1]]></PropertyValue>
+        <PropertyValue name="textFont"><E>$$defaultH1Font</E></PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Heading 2" icon="Icons/h2.png" to="heading">
+        <PropertyValue name="textContent"><![CDATA[Heading level 2]]></PropertyValue>
+        <PropertyValue name="textFont"><E>$$defaultH2Font</E></PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Heading 3" icon="Icons/h3.png" to="heading">
+        <PropertyValue name="textContent"><![CDATA[Heading level 3]]></PropertyValue>
+        <PropertyValue name="textFont"><E>$$defaultH3Font</E></PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Heading 4" icon="Icons/h4.png" to="heading">
+        <PropertyValue name="textContent"><![CDATA[Heading level 4]]></PropertyValue>
+        <PropertyValue name="textFont"><E>$$defaultH4Font</E></PropertyValue>
+    </Shortcut>
+    <Shortcut displayName="Heading 5" icon="Icons/h5.png" to="heading">
+        <PropertyValue name="textContent"><![CDATA[Heading level 5]]></PropertyValue>
+        <PropertyValue name="textFont"><E>$$defaultH5Font</E></PropertyValue>
+    </Shortcut>
+
+    <Shape id="htmlHR" system="true" displayName="HR" icon="Icons/hr.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="width" displayName="Width" type="Handle" p:lockY="true" p:minX="10" p:disabled="!$fixedWidth.value">200,0</Property>
+                <Property name="hairLine" displayName="Hair Line" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$width.x + "px"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="htmlObject">
+                <Box>var size = F.elementSize("textDiv"); new Dimension($width.x, size.h); /* depends $hairLine */</Box>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="display: inline-block;">
+                    <hr/>
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="breadCrumb" displayName="Bread Crumb" icon="Icons/bread.png">
+        <Properties>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"
+                        p:editInfo="var size = F.elementSize('textDiv'); ({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max(size.w, 80) , Math.max(size.h, 10)), font: $textFont, align: new Alignment(0, 1)})"><![CDATA[Home > Products > Pencil]]></Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$defaultLinkColor</E></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Home Styles">
+                <Property name="homeColor" displayName="Home Color" type="Color"><E>$$defaultLinkColor</E></Property>
+                <Property name="homeCustomStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Separator Styles">
+                <Property name="sepColor" displayName="Home Color" type="Color"><E>$$defaultTextColor.hollowed(0.5)</E></Property>
+                <Property name="spaceSize" displayName="Spacing" type="Enum" p:enumValues="['0|None', '0.5|Half a char', '1|One char', '2|Two chars']">0.5</Property>
+                <Property name="sepCustomStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="End Styles">
+                <Property name="endColor" displayName="End Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="endCustomStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"display: inline-block; white-space: nowrap; " + $customStyle.value</Arg>
+                </Attr>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <CustomStyle>
+                    <Arg>"text-decoration"</Arg>
+                    <Arg>"none"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="htmlObject">
+                <TextContent>
+                    <Arg>
+                        <![CDATA[
+                            var items = $textContent.value.split(/[ \t]*>[ \t]*/);
+                            for (var i in items) {
+                                items[i] = "<span style=\""
+                                        + (i == 0 ? ("color: " + $homeColor.toRGBAString() + "; " + $homeCustomStyle) : "")
+                                        + (i == items.length - 1 ? ("color: " + $endColor.toRGBAString() + "; " + $endCustomStyle) : "text-decoration: " + $textFont.decor + ";")
+                                        + ";\">"
+                                        + Dom.htmlEncode(items[i])
+                                        + "</span>";
+                            }
+                            var html = items.join("<span style=\"color: " + $sepColor.toRGBAString() + "; margin: 0px " + $spaceSize.value + "ex; " + $sepCustomStyle + "\">&gt;</span>");
+
+                            new RichText(html);
+                        ]]>
+                    </Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Box>var size = F.elementSize("textDiv"); new Dimension(size.w, size.h); /* depends $textFont $customStyle $homeCustomStyle $endCustomStyle $sepCustomStyle $textContent $spaceSize */</Box>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv">
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="table" displayName="Table" icon="Icons/table.png">
+        <Properties>
+            <PropertyGroup name="Sizing">
+                <Property name="box" displayName="Size" type="Dimension">350,100</Property>
+                <Property name="useHtmlContent" displayName="Use HTML Content" type="Bool">false</Property>
+                <Property name="fixedHeaderHeight" noScale="true" displayName="Fixed Header Height" type="Bool">false</Property>
+                <Property name="padding" displayName="Cell Padding" type="Handle" p:noScale="true" p:lockX="true" p:minY="0">0,4</Property>
+                <Property name="headerHeight" p:disabled="!$fixedHeaderHeight.value" p:noScale="true" displayName="Header Height" type="Handle" p:lockX="true" p:minY="10" p:maxY="$box.h">0,30</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Columns Width">
+                <Property name="h0" displayName="Column 1 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(0, properties)" p:minX="collection.getMinXForColumnHandle(0, properties)" p:disabled="collection.isColumnHandleDisabled(0, properties)">30,0</Property>
+                <Property name="h1" displayName="Column 2 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(1, properties)" p:minX="collection.getMinXForColumnHandle(1, properties)" p:disabled="collection.isColumnHandleDisabled(1, properties)">120,0</Property>
+                <Property name="h2" displayName="Column 3 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(2, properties)" p:minX="collection.getMinXForColumnHandle(2, properties)" p:disabled="collection.isColumnHandleDisabled(2, properties)">220,0</Property>
+                <Property name="h3" displayName="Column 4 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(3, properties)" p:minX="collection.getMinXForColumnHandle(3, properties)" p:disabled="collection.isColumnHandleDisabled(3, properties)">260,0</Property>
+                <Property name="h4" displayName="Column 5 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(4, properties)" p:minX="collection.getMinXForColumnHandle(4, properties)" p:disabled="collection.isColumnHandleDisabled(4, properties)">270,0</Property>
+                <Property name="h5" displayName="Column 6 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(5, properties)" p:minX="collection.getMinXForColumnHandle(5, properties)" p:disabled="collection.isColumnHandleDisabled(5, properties)">280,0</Property>
+                <Property name="h6" displayName="Column 7 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(6, properties)" p:minX="collection.getMinXForColumnHandle(6, properties)" p:disabled="collection.isColumnHandleDisabled(6, properties)">290,0</Property>
+                <Property name="h7" displayName="Column 8 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(7, properties)" p:minX="collection.getMinXForColumnHandle(7, properties)" p:disabled="collection.isColumnHandleDisabled(7, properties)">290,0</Property>
+                <Property name="h8" displayName="Column 9 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(8, properties)" p:minX="collection.getMinXForColumnHandle(8, properties)" p:disabled="collection.isColumnHandleDisabled(8, properties)">290,0</Property>
+                <Property name="h9" displayName="Column 10 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(9, properties)" p:minX="collection.getMinXForColumnHandle(9, properties)" p:disabled="collection.isColumnHandleDisabled(9, properties)">290,0</Property>
+                <Property name="h10" displayName="Column 11 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(10, properties)" p:minX="collection.getMinXForColumnHandle(10, properties)" p:disabled="collection.isColumnHandleDisabled(10, properties)">290,0</Property>
+                <Property name="h11" displayName="Column 12 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(11, properties)" p:minX="collection.getMinXForColumnHandle(11, properties)" p:disabled="collection.isColumnHandleDisabled(11, properties)">290,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="content" displayName="Text Content" type="PlainText"
+                        p:editInfo="var size = F.elementSize('textDiv'); ({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max(size.w, 80) , Math.max(size.h, 10)), font: $textFont, align: new Alignment(0, 1), multi: true})"><![CDATA[[] | Column 2
+[*] | Cell Content 1
+[] | Cell content 2]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Content Color">
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$defaultTextFont</E></Property>
+                <Property name="fillColor" displayName="Table Background" type="Color">#00000000</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Header Color">
+                <Property name="headerTextColor" displayName="Default Text Color" type="Color"><E>$$defaultHeaderTextColor</E></Property>
+                <Property name="headerBackground" displayName="Header Background" type="Color"><E>$$defaultHeaderBGColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$defaultTableBorderColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$defaultTableBorderStyle</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"overflowx: hidden; display: inline-block; " + $customStyle.value</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <CustomStyle>
+                    <Arg>"text-decoration"</Arg>
+                    <Arg>"none"</Arg>
+                </CustomStyle>
+                <DomContent>
+                    <![CDATA[
+                        var gen = function (isHeader, content, colIndex, colCount, height) {
+                            var style = new CSS();
+
+                            style.set("border", "solid " + $strokeStyle.w + "px " + $strokeColor.toRGBAString());
+                            style.set("border-width", $strokeStyle.w + "px 0px 0px " + $strokeStyle.w + "px");
+                            style.set("padding", "0px");
+
+                            if (isHeader) {
+                                style.set("background-color", $headerBackground.toRGBAString());
+                                style.set("color", $headerTextColor.toRGBAString());
+                            }
+
+                            style.set("text-align", ["left", "center", "right"][$textAlign.h]);
+                            style.set("vertical-align", ["top", "middle", "bottom"][$textAlign.v]);
+                            style.set("min-width", "0px");
+                            style.set("min-height", "0px");
+                            style.set("height", height + "px");
+                            style.set("overflow", "hidden");
+                            style.set("-moz-box-sizing", "border-box");
+                            style.set("box-sizing", "border-box");
+
+                            var w = 0;
+                            if (colIndex < colCount - 1) {
+                                w = properties["h" + colIndex].x - (colIndex > 0 ? properties["h" + (colIndex - 1)].x : 0);
+                            } else {
+                                if (colIndex > 0) {
+                                    w = properties["box"].w - properties["h" + (colIndex - 1)].x;
+                                } else {
+                                    w = properties["box"].w;
+                                }
+
+                                w -= $strokeStyle.w;
+                            }
+
+                            w -= $strokeStyle.w + ($strokeStyle.w % 2);
+                            style.set("width", w + "px");
+
+                            var index = content.indexOf("@@");
+                            if (index >= 0) {
+                                style.importRaw(content.substring(index + 2));
+                                content = content.substring(0, index);
+                            }
+
+                            content = content.replace(/\\n/gi, "\n");
+
+                            var cell = {
+                                _name: isHeader ? "th" : "td",
+                                _uri: "http://www.w3.org/1999/xhtml",
+                                style: style.toString(),
+                                _children: [
+                                    {
+                                        _name: "div",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        _children: [],
+                                        style: new CSS()
+                                                .set("overflow", "hidden")
+                                                .set("min-width", "0px")
+                                                .set("-moz-box-sizing", "border-box")
+                                                .set("box-sizing", "border-box")
+                                                .set("padding", $padding.y + "px")
+                                                .set("width", w + "px")
+                                                .set("line-height", "0px")
+                                                .set("text-align", "center")
+                                    }
+                                ]
+                            };
+
+                            var div = cell._children[0];
+
+                            if (content.match(/^[ \t]*\[\][ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "input",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        type: "checkbox",
+                                        style: "margin: 0px !important; padding: 0px; -moz-user-input: disabled; -moz-user-focus: ignore;"
+                                    }
+                                );
+                            } else if (content.match(/^[ \t]*\[\*\][ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "input",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        type: "checkbox",
+                                        style: "margin: 0px !important; padding: 0px; -moz-user-input: disabled; -moz-user-focus: ignore;",
+                                        checked: "true"
+                                    }
+                                );
+                            } else if (content.match(/^[ \t]*\(\)[ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "input",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        type: "radio",
+                                        style: "margin: 0px !important; padding: 0px; -moz-user-input: disabled; -moz-user-focus: ignore;",
+                                    }
+                                );
+                            } else if (content.match(/^[ \t]*\(\*\)[ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "input",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        type: "radio",
+                                        style: "margin: 0px !important; padding: 0px; -moz-user-input: disabled; -moz-user-focus: ignore;",
+                                        checked: "true"
+                                    }
+                                );
+                            } else {
+                                div.style.unset("line-height");
+                                div.style.unset("text-align");
+                                if ($useHtmlContent.value) {
+                                    div._html = content;
+                                } else {
+                                    div._text = content;
+                                }
+                            }
+
+
+                            return cell;
+                        };
+
+                        //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                        var fragment = null;
+                        try {
+                            var a = F.parseTextArray($content.value);
+                            var cols = collection.getMaxColumns($content.value);
+
+                            //table and table styles
+                            var tableStyle = CSS.fromString($customStyle.value);
+
+                            tableStyle.setIfNot("border-collapse", "collapse");
+                            tableStyle.setIfNot("background-color", $fillColor.toRGBAString());
+
+                            tableStyle.set("width",  ($box.w - $strokeStyle.w) + "px");
+                            tableStyle.set("height",  ($box.h - $strokeStyle.w) + "px");
+
+                            tableStyle.set("border", "solid " + $strokeStyle.w + "px " + $strokeColor.toRGBAString());
+                            tableStyle.set("border-width", "0px " + $strokeStyle.w + "px " + $strokeStyle.w + "px 0px");
+
+                            var table = {
+                                _name: "table",
+                                _uri: "http://www.w3.org/1999/xhtml",
+                                _children: [],
+                                style: tableStyle.toString()
+                            };
+
+                            var height = 0;
+
+                            var contentHeight = $box.h - $strokeStyle.w;
+
+                            if (a.length > 0) {
+                                height = Math.floor(contentHeight / a.length);
+
+                                headers = a[0];
+
+                                var tr = {
+                                    _name: "tr",
+                                    _uri: "http://www.w3.org/1999/xhtml",
+                                    _children: []
+                                };
+                                if ($fixedHeaderHeight.value) {
+                                    if (a.length > 1) {
+                                        height = Math.floor((contentHeight - $headerHeight.y) / (a.length - 1));
+                                    }
+                                }
+                                var headerHeight = contentHeight - (a.length - 1) * height;
+
+                                tr.style = new CSS();
+                                tr.style.set("height", headerHeight + "px");
+                                tr.style.set("min-height", "0px");
+
+                                table._children.push({
+                                    _name: "thead",
+                                    _uri: "http://www.w3.org/1999/xhtml",
+                                    _children: [tr]
+                                });
+
+                                for (var i = 0; i < cols; i ++) {
+                                    var header = i < headers.length ? headers[i] : "";
+                                    tr._children.push(gen(true, header, i, cols, headerHeight));
+                                }
+                            }
+                            if (a.length > 1) {
+                                var tbody = {
+                                    _name: "tbody",
+                                    _uri: "http://www.w3.org/1999/xhtml",
+                                    _children: []
+                                };
+
+                                for (var r = 1; r < a.length; r ++) {
+                                    var cells = a[r];
+                                    var tr = {
+                                        _name: "tr",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        _children: []
+                                    };
+                                    tr.style = new CSS();
+                                    tr.style.set("height", height + "px");
+                                    tr.style.set("min-height", "0px");
+
+                                    tbody._children.push(tr);
+
+                                    for (var i = 0; i < cols; i ++) {
+                                        var cell = i < cells.length ? cells[i] : "";
+                                        tr._children.push(gen(false, cell, i, cols, height));
+                                    }
+                                }
+
+                                table._children.push(tbody);
+                            }
+
+                            fragment = F.newDOMFragment([table]);
+                        } catch (e) {
+                            Console.dumpError(e);
+                        }
+                        fragment;
+                    ]]>
+                </DomContent>
+            </For>
+            <For ref="htmlObject">
+                <Box>
+                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                    //depends also: $textFont, $customStyle, $padding
+                    new Dimension($box.w + $strokeStyle.w % 2, Math.max($box.h + $strokeStyle.w % 2, F.elementSize("textDiv").h))
+                </Box>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="padding: 5px;">
+                </div>
+                <div xmlns="http://www.w3.org/1999/xhtml" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+</Shapes>

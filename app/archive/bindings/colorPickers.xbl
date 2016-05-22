@@ -1,0 +1,753 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % pencilDTD SYSTEM "chrome://pencil/locale/pencil.dtd">
+  %pencilDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:svg="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <binding id="wheelColorPicker">
+        <implementation>
+            <constructor>
+            <![CDATA[
+                try {
+                    this.wheelImage = document.getAnonymousElementByAttribute(this, "aid", "wheelImage");
+                    this.pin = document.getAnonymousElementByAttribute(this, "aid", "pin");
+                    this.hue = document.getAnonymousElementByAttribute(this, "aid", "hue");
+                    this.sat = document.getAnonymousElementByAttribute(this, "aid", "sat");
+                    this.brightScale = document.getAnonymousElementByAttribute(this, "aid", "brightScale");
+                    this.bright = document.getAnonymousElementByAttribute(this, "aid", "bright");
+                    this.clearSatButton = document.getAnonymousElementByAttribute(this, "aid", "clearSatButton");
+
+                    //get the radius
+                    this.radius = this.wheelImage.width / 2;
+                    this.pinHeld = false;
+
+                    var thiz = this;
+                    //register the event handler
+                    this.pin.addEventListener("mousedown", function (event) {
+                        thiz._handlePinMouseDown(event);
+                    }, false);
+
+                    this._mouseMoveFunction = function (event) {
+                        if (!thiz._handleMouseMove) {
+                            document.removeEventListener("mousemove", arguments.callee, false);
+                            return;
+                        }
+                        thiz._handleMouseMove(event);
+                    };
+                    this.ownerDocument.addEventListener("mousemove", this._mouseMoveFunction, false);
+
+                    this._mouseUpFunction = function (event) {
+                        if (!thiz._handleMouseUp) {
+                            document.removeEventListener("mouseup", arguments.callee, false);
+                            return;
+                        }
+                        thiz._handleMouseUp(event);
+                    };
+                    this.ownerDocument.addEventListener("mouseup", this._mouseUpFunction, false);
+
+                    this.brightScale.addEventListener("change", function(event) {
+                        thiz.bright.value = thiz.brightScale.value;
+                        thiz._disableEventFiringOnce = false;
+                    }, false);
+                    this.brightScale.addEventListener("mouseup", function(event) {
+                        thiz._emitChangeEvent();
+                    }, false);
+
+                    this.bright.addEventListener("change", function(event) {
+                        thiz.brightScale.value = thiz.bright.value;
+                        thiz._emitChangeEvent();
+                    }, false);
+
+                    this.hue.addEventListener("change", function(event) {
+                        thiz._handleHueSatNumberChange(true);
+                    }, false);
+                    this.sat.addEventListener("change", function(event) {
+                        thiz._handleHueSatNumberChange(true);
+                    }, false);
+                    this.wheelImage.addEventListener("mousedown", function(event) {
+                        if (thiz.getAttribute("disabled")) return;
+                        var x = event.screenX - thiz.wheelImage.boxObject.screenX;
+                        var y = event.screenY - thiz.wheelImage.boxObject.screenY;
+
+                        var r = Math.sqrt((thiz.radius - x) * (thiz.radius - x) + (thiz.radius - y) * (thiz.radius - y));
+
+                        if (r > thiz.radius) {
+                            return;
+                        }
+
+                        thiz.pin.setAttribute("left", x);
+                        thiz.pin.setAttribute("top", y);
+
+                        var h = Math.round(Math.atan2(thiz.radius - y, x - thiz.radius) * 180 / Math.PI);
+                        h = (h + 360) % 360;
+
+                        var s = Math.round(r * 100 / thiz.radius);
+
+                        thiz._changHS(h, s);
+
+                        thiz._handlePinMouseDown(event);
+                    }, false);
+                    this.clearSatButton.addEventListener("command", function(event) {
+                        thiz.sat.value = 0;
+                        thiz._handleHueSatNumberChange(true);
+                    }, false)
+
+                    if (this.hasAttribute("color")) {
+                        this.setColor(Color.fromString(this.getAttribute("color")));
+                    } else {
+                        this.setColor(Color.fromString("#ffffffff"));
+                    }
+                } catch (e) {
+                    alert("error in color picker: " + e);
+                }
+            ]]>
+            </constructor>
+            <destructor action="alert(0); try { this.ownerDocument.removeEventListener('mousemove', this._mouseMoveFunction, false); this.ownerDocument.removeEventListener('mouseup', this._mouseUpFunction, false); } catch (e) { alert(e); }" />
+            <method name="_handlePinMouseDown">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                    if (this.getAttribute("disabled")) return;
+                    this.pinHeld = true;
+                    this.ox = event.clientX;
+                    this.oy = event.clientY;
+
+                    this.pinOX = parseInt(this.pin.left, 10);
+                    this.pinOY = parseInt(this.pin.top, 10);
+                ]]>
+                </body>
+            </method>
+            <method name="_handleMouseMove">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                    if (!this.pinHeld) return;
+
+                    event.preventDefault();
+
+                    var dx = event.clientX - this.ox;
+                    var dy = event.clientY - this.oy;
+
+                    var x = this.pinOX;
+                    var y = this.pinOY;
+
+                    x += dx;
+                    y += dy;
+
+                    var r = Math.sqrt((this.radius - x) * (this.radius - x) + (this.radius - y) * (this.radius - y));
+
+                    if (r > this.radius) {
+                        x = Math.round(this.radius * (r - this.radius + x) / r);
+                        y = Math.round(this.radius * (r - this.radius + y) / r);
+
+                        r = this.radius;
+                    }
+
+                    this.pin.setAttribute("left", x);
+                    this.pin.setAttribute("top", y);
+
+                    var h = Math.round(Math.atan2(this.radius - y, x - this.radius) * 180 / Math.PI);
+                    h = (h + 360) % 360;
+
+                    var s = Math.round(r * 100 / this.radius);
+
+                    this._changHS(h, s);
+                ]]>
+                </body>
+            </method>
+            <method name="_handleMouseUp">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                    this.pinHeld = false;
+                ]]>
+                </body>
+            </method>
+            <method name="_handleHueSatNumberChange">
+                <parameter name="fireEvent"/>
+                <body>
+                <![CDATA[
+                    //repositioning pin
+                    var h = this.hue.value;
+                    var s = this.sat.value;
+                    var a = (h <= 180 ? h : h - 360) * Math.PI / 180;
+
+                    var x = this.radius + Math.round(this.radius * (s / 100) * Math.cos(a));
+                    var y = this.radius - Math.round(this.radius * (s / 100) * Math.sin(a));
+
+                    this.pin.setAttribute("left", x);
+                    this.pin.setAttribute("top", y);
+
+                    if (fireEvent) this._emitChangeEvent();
+                ]]>
+                </body>
+            </method>
+            <method name="_emitChangeEvent">
+                <body>
+                <![CDATA[
+                    if (this._disableEventFiringOnce) {
+                        this._disableEventFiringOnce = false;
+                        return;
+                    }
+                    var event = document.createEvent("Events");
+                    event.initEvent("ValueChange", false, false);
+                    this.dispatchEvent(event);
+                ]]>
+                </body>
+            </method>
+            <method name="_changHS">
+                <parameter name="hue"/>
+                <parameter name="sat"/>
+                <body>
+                <![CDATA[
+                    this.hue.value = hue;
+                    this.sat.value = sat;
+                    this._emitChangeEvent();
+                ]]>
+                </body>
+            </method>
+            <method name="setColor">
+                <parameter name="color"/>
+                <body>
+                <![CDATA[
+                    this._disableEventFiringOnce = true;
+                    var hsv = color.getHSV();
+                    this.hue.value = hsv.hue;
+                    this.sat.value = hsv.saturation;
+                    this.bright.value = hsv.value;
+
+                    this._handleHueSatNumberChange(); //do not fire the change event
+                    this.brightScale.setAttribute("value", this.bright.value);
+                ]]>
+                </body>
+            </method>
+            <method name="getColor">
+                <body>
+                <![CDATA[
+                    return Color.fromHSV(parseInt(this.hue.value, 10),
+                                         parseInt(this.sat.value, 10),
+                                         parseInt(this.bright.value, 10));
+                ]]>
+                </body>
+            </method>
+            <method name="isModified">
+                <body>
+                <![CDATA[
+                    return this.isUserModified;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <content>
+            <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1">
+                <vbox>
+                    <hbox style="max-width:160px;text-align:center;">
+                        <stack style="width: 150px; height: 150px; overflow: hidden;text-align:center;">
+                            <image top="5" left="5" style="margin-right: 5px; margin-bottom: 5px;" src="chrome://pencil/content/bindings/color-wheel-70.png" width="140" height="140" aid="wheelImage"/>
+                            <box aid="pin" left="50" top="50" width="10" height="10" tooltiptextx="Drag around the wheel to select a color"/>
+                        </stack>
+                        <vbox class="pwheelcolorpicker-scale-box">
+                            <label value="&label.hue.value;"/>
+                            <textbox type="number" min="0" max="359" size="3" increment="1" aid="hue" xbl:inherits="disabled"/>
+                            <hbox>
+                                <label value="&label.sat.value;"/>
+                                <toolbarbutton class="ClearButton" tooltiptext="&toolbar.remove.color.tooltiptext;" aid="clearSatButton"/>
+                            </hbox>
+                            <textbox type="number" min="0" max="100" size="3" increment="1" aid="sat" xbl:inherits="disabled"/>
+                        </vbox>
+                    </hbox>
+                    <hbox>
+                        <label value="&label.brightness.value;"/>
+                        <hbox flex="1">
+                            <scale min="0" max="100" flex="1" aid="brightScale" xbl:inherits="disabled"/>
+                            <vbox class="pwheelcolorpicker-scale-box">
+                                <textbox type="number" min="0" max="100" size="3" increment="1" aid="bright" xbl:inherits="disabled"/>
+                            </vbox>
+                        </hbox>
+                    </hbox>
+                </vbox>
+
+            </vbox>
+        </content>
+    </binding>
+
+    <binding id="gridColorPicker">
+        <content>
+            <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1">
+                <hbox style="margin-top:1px;">
+                    <vbox>
+                        <hbox>
+                          <spacer class="colorpickertile cp-light" style="background-color: #FFFFFF" color="#FFFFFF"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #FFCCCC" color="#FFCCCC"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #FFCC99" color="#FFCC99"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #FFFF99" color="#FFFF99"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #FFFFCC" color="#FFFFCC"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #99FF99" color="#99FF99"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #99FFFF" color="#99FFFF"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #CCFFFF" color="#CCFFFF"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #CCCCFF" color="#CCCCFF"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #FFCCFF" color="#FFCCFF"/>
+                        </hbox>
+                        <hbox>
+                          <spacer class="colorpickertile" style="background-color: #CCCCCC" color="#CCCCCC"/>
+                          <spacer class="colorpickertile" style="background-color: #FF6666" color="#FF6666"/>
+                          <spacer class="colorpickertile" style="background-color: #FF9966" color="#FF9966"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #FFFF66" color="#FFFF66"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #FFFF33" color="#FFFF33"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #66FF99" color="#66FF99"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #33FFFF" color="#33FFFF"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #66FFFF" color="#66FFFF"/>
+                          <spacer class="colorpickertile" style="background-color: #9999FF" color="#9999FF"/>
+                          <spacer class="colorpickertile" style="background-color: #FF99FF" color="#FF99FF"/>
+                        </hbox>
+                        <hbox>
+                          <spacer class="colorpickertile" style="background-color: #C0C0C0" color="#C0C0C0"/>
+                          <spacer class="colorpickertile" style="background-color: #FF0000" color="#FF0000"/>
+                          <spacer class="colorpickertile" style="background-color: #FF9900" color="#FF9900"/>
+                          <spacer class="colorpickertile" style="background-color: #FFCC66" color="#FFCC66"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #FFFF00" color="#FFFF00"/>
+                          <spacer class="colorpickertile cp-light" style="background-color: #33FF33" color="#33FF33"/>
+                          <spacer class="colorpickertile" style="background-color: #66CCCC" color="#66CCCC"/>
+                          <spacer class="colorpickertile" style="background-color: #33CCFF" color="#33CCFF"/>
+                          <spacer class="colorpickertile" style="background-color: #6666CC" color="#6666CC"/>
+                          <spacer class="colorpickertile" style="background-color: #CC66CC" color="#CC66CC"/>
+                        </hbox>
+                        <hbox>
+                          <spacer class="colorpickertile" style="background-color: #999999" color="#999999"/>
+                          <spacer class="colorpickertile" style="background-color: #CC0000" color="#CC0000"/>
+                          <spacer class="colorpickertile" style="background-color: #FF6600" color="#FF6600"/>
+                          <spacer class="colorpickertile" style="background-color: #FFCC33" color="#FFCC33"/>
+                          <spacer class="colorpickertile" style="background-color: #FFCC00" color="#FFCC00"/>
+                          <spacer class="colorpickertile" style="background-color: #33CC00" color="#33CC00"/>
+                          <spacer class="colorpickertile" style="background-color: #00CCCC" color="#00CCCC"/>
+                          <spacer class="colorpickertile" style="background-color: #3366FF" color="#3366FF"/>
+                          <spacer class="colorpickertile" style="background-color: #6633FF" color="#6633FF"/>
+                          <spacer class="colorpickertile" style="background-color: #CC33CC" color="#CC33CC"/>
+                        </hbox>
+                        <hbox>
+                          <spacer class="colorpickertile" style="background-color: #666666" color="#666666"/>
+                          <spacer class="colorpickertile" style="background-color: #990000" color="#990000"/>
+                          <spacer class="colorpickertile" style="background-color: #CC6600" color="#CC6600"/>
+                          <spacer class="colorpickertile" style="background-color: #CC9933" color="#CC9933"/>
+                          <spacer class="colorpickertile" style="background-color: #999900" color="#999900"/>
+                          <spacer class="colorpickertile" style="background-color: #009900" color="#009900"/>
+                          <spacer class="colorpickertile" style="background-color: #339999" color="#339999"/>
+                          <spacer class="colorpickertile" style="background-color: #3333FF" color="#3333FF"/>
+                          <spacer class="colorpickertile" style="background-color: #6600CC" color="#6600CC"/>
+                          <spacer class="colorpickertile" style="background-color: #993399" color="#993399"/>
+                        </hbox>
+                        <hbox>
+                          <spacer class="colorpickertile" style="background-color: #000000" color="#000000"/>
+                          <spacer class="colorpickertile" style="background-color: #330000" color="#330000"/>
+                          <spacer class="colorpickertile" style="background-color: #993300" color="#993300"/>
+                          <spacer class="colorpickertile" style="background-color: #663333" color="#663333"/>
+                          <spacer class="colorpickertile" style="background-color: #333300" color="#333300"/>
+                          <spacer class="colorpickertile" style="background-color: #003300" color="#003300"/>
+                          <spacer class="colorpickertile" style="background-color: #003333" color="#003333"/>
+                          <spacer class="colorpickertile" style="background-color: #000066" color="#000066"/>
+                          <spacer class="colorpickertile" style="background-color: #330099" color="#330099"/>
+                          <spacer class="colorpickertile" style="background-color: #330033" color="#330033"/>
+                        </hbox>
+                    </vbox>
+                </hbox>
+                <hbox style="margin:10px 0 5px 0;">
+                    <label value="&recently-used-colors.label;"></label>
+                </hbox>
+                <hbox>
+                    <hbox aid="recentlyUsedColor">
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                      <spacer class="colorpickertile " style="background-color: #FFFFFF" color="#FFFFFF"/>
+                    </hbox>
+                </hbox>
+            </vbox>
+        </content>
+        <handlers>
+            <handler event="mouseover"><![CDATA[
+                this.hoverCell(event.originalTarget);
+            ]]></handler>
+
+            <handler event="click"><![CDATA[
+                if (event.originalTarget.hasAttribute("color")) {
+                    this.selectCell(event.originalTarget);
+                    this.hoverCell(this.mSelectedCell);
+                }
+            ]]></handler>
+
+            <handler event="focus" phase="capturing">
+            <![CDATA[
+                if (!mIsPopup && this.getAttribute('focused') != 'true') {
+                    //debug("focused");
+                    this.setAttribute('focused','true');
+                    //document.addEventListener("keydown", this, true);
+                    if (this.mSelectedCell)
+                        this.hoverCell(this.mSelectedCell);
+                }
+            ]]>
+            </handler>
+
+            <handler event="blur" phase="capturing">
+            <![CDATA[
+                if (!mIsPopup && this.getAttribute('focused') == 'true') {
+                    document.removeEventListener("keydown", this, true);
+                    this.removeAttribute('focused');
+                    this.resetHover();
+                }
+            ]]>
+            </handler>
+        </handlers>
+        <implementation implements="nsIDOMEventListener">
+            <method name="getColor">
+                <body>
+                <![CDATA[
+                    return this.mSelectedCell ? Color.fromString(this.mSelectedCell.getAttribute("color")) : null;
+                ]]>
+                </body>
+            </method>
+            <method name="setColor">
+                <parameter name="val"/>
+                <body>
+                <![CDATA[
+                    if (!val)
+                        return val;
+
+                    if (!this._initialized) this.initialize();
+
+                    var uppercaseVal = val.toRGBString ? val.toRGBString().toUpperCase() : (val.toUpperCase ? val.toUpperCase() : val);
+                    // Translate standard HTML color strings:
+                    if (uppercaseVal[0] != "#") {
+                        switch (val) {
+                            case "GREEN":
+                                uppercaseVal = "#008000";
+                                break;
+                            case "LIME":
+                                uppercaseVal = "#00FF00";
+                                break;
+                            case "OLIVE":
+                                uppercaseVal = "#808000";
+                                break;
+                            case "TEAL":
+                                uppercaseVal = "#008080";
+                                break;
+                            case "YELLOW":
+                                uppercaseVal = "#FFFF00";
+                                break;
+                            case "RED":
+                                uppercaseVal = "#FF0000";
+                                break;
+                            case "MAROON":
+                                uppercaseVal = "#800000";
+                                break;
+                            case "PURPLE":
+                                uppercaseVal = "#800080";
+                                break;
+                            case "FUCHSIA":
+                                uppercaseVal = "#FF00FF";
+                                break;
+                            case "NAVY":
+                                uppercaseVal = "#000080";
+                                break;
+                            case "BLUE":
+                                uppercaseVal = "#0000FF";
+                                break;
+                            case "AQUA":
+                                uppercaseVal = "#00FFFF";
+                                break;
+                            case "WHITE":
+                                uppercaseVal = "#FFFFFF";
+                                break;
+                            case "SILVER":
+                                uppercaseVal = "#CC0C0C0";
+                                break;
+                            case "GRAY":
+                                uppercaseVal = "#808080";
+                                break;
+                            default: // BLACK
+                                uppercaseVal = "#000000";
+                                break;
+                        }
+                    } else if (uppercaseVal.length > 7) {
+                        uppercaseVal = uppercaseVal.substring(7);
+                    }
+
+                    var cells = this.mBox.getElementsByAttribute("color", uppercaseVal);
+                    //debug("setcolor " + [uppercaseVal, cells, cells.item(0)]);
+                    if (cells.item(0)) {
+                        this.selectCell(cells[0]);
+                        this.hoverCell(this.mSelectedCell);
+                    }
+
+                    return val;
+                ]]>
+                </body>
+            </method>
+
+            <method name="initColor">
+                <parameter name="aColor"/>
+                <body><![CDATA[
+                    // Use this to initialize color without
+                    //  triggering the "onselect" handler,
+                    //  which closes window when it's a popup
+                    this.mDoOnSelect = false;
+                    this.color = aColor;
+                    this.mDoOnSelect = true;
+                ]]></body>
+            </method>
+
+            <method name="updateRecentlyUsedColor">
+                <parameter name="aColor"/>
+                <body><![CDATA[
+                    if (this.updatingColor) return;
+                    this.updatingColor = true;
+                    for (var i = 0; i < this.recentlyUsedColors.length; i++) {
+                        if (this.recentlyUsedColors[i] == aColor) {
+                            this.updatingColor = false;
+                            return;
+                        }
+                    }
+                    this.recentlyUsedColors.push(aColor);
+                    if (this.recentlyUsedColors.length > 10) {
+                        this.recentlyUsedColors.shift();
+                    }
+                    var colors = this.recentlyUsedColors.join(",");
+                    Config.set("gridcolorpicker.recentlyUsedColors", colors);
+                    this.updatingColor = false;
+                ]]></body>
+            </method>
+
+            <method name="reloadRecentlyUsedColors">
+                <parameter name="aColor"/>
+                <body><![CDATA[
+                    var thiz = this;
+                    this.recentlyUsedColors = [];
+                    var colors = Config.get("gridcolorpicker.recentlyUsedColors");
+                    if (!colors) {
+                        colors = "#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF,#FFFFFFFF";
+                    }
+                    colors = colors.split(",");
+                    for (var i = 0; i < colors.length; i++) {
+                        this.recentlyUsedColors.push(colors[i]);
+                    }
+                    var e = document.getAnonymousElementByAttribute(thiz, "aid", "recentlyUsedColor").childNodes;
+                    for (var i = 0; i < Math.min(e.length, this.recentlyUsedColors.length); i++) {
+                        var color = this.recentlyUsedColors[i];
+                        if (color.length > 7) {
+                            color = color.substring(0, 7);
+                        }
+                        //debug("color: " + color);
+                        e[i].setAttribute("color", color);
+                        e[i].setAttribute("style", "background-color: " + color);
+                    }
+                ]]></body>
+            </method>
+
+            <method name="initialize">
+                <body><![CDATA[
+                try {
+                    this.reloadRecentlyUsedColors();
+
+                    if (this._initialized) return;
+                    this._initialized = true;
+
+                    this.name = "GridColorPicker";
+                    this.mSelectedCell = null;
+                    this.mHoverCell = null;
+                    this.mBox = document.getAnonymousNodes(this)[0];
+                    this.mIsPopup = false;
+                    this.mDoOnSelect = true;
+
+                    // used to capture keydown at the document level
+                    this.mPickerKeyDown = function(aEvent) {
+                        document._focusedPicker.pickerKeyDown(aEvent);
+                    }
+
+                    var thiz = this;
+                    var el = document.getAnonymousElementByAttribute(this, "aid", "recentlyUsedColor").childNodes;
+                    if (this._timer) clearInterval(this._timer);
+                    this._timer = setInterval(function () {
+                        var colors = Config.get("gridcolorpicker.recentlyUsedColors");
+                        //debug("color: " + [colors, thiz._lastColors]);
+                        //debug("color: " + colors);
+                        if (colors != thiz._lastUsedColors) {
+                            thiz._lastUsedColors = colors;
+                            var c = colors.split(",");
+                            thiz.recentlyUsedColors = c;
+                            for (var i = 0; i < Math.min(el.length, c.length); i++) {
+                                var color = c[i];
+                                if (color.length > 7) {
+                                    color = color.substring(0, 7);
+                                }
+                                //debug("color: " + color);
+                                el[i].setAttribute("color", color);
+                                el[i].setAttribute("style", "background-color: " + color);
+                            }
+                        }
+                    }, 300);
+                } catch (e) {Console.dumpError(e);}
+                ]]></body>
+            </method>
+            <method name="_emitChangeEvent">
+                <body>
+                <![CDATA[
+                    var event = document.createEvent("Events");
+                    event.initEvent("ValueChange", false, false);
+                    this.dispatchEvent(event);
+                ]]>
+                </body>
+            </method>
+
+            <method name="resetHover">
+                <body><![CDATA[
+                    if (this.mHoverCell)
+                        this.mHoverCell.removeAttribute("hover");
+                ]]></body>
+            </method>
+
+            <method name="getColIndex">
+                <parameter name="aCell"/>
+                <body><![CDATA[
+                    var cell = aCell;
+                    var idx;
+                    for (idx = -1; cell; idx++)
+                        cell = cell.previousSibling;
+                    return idx;
+                ]]></body>
+            </method>
+
+            <method name="isColorCell">
+                <parameter name="aCell"/>
+                <body><![CDATA[
+                    return aCell && aCell.hasAttribute("color");
+                ]]></body>
+            </method>
+
+            <method name="hoverLeft">
+                <body><![CDATA[
+                    var cell = this.mHoverCell.previousSibling;
+                    this.hoverCell(cell);
+                ]]></body>
+            </method>
+
+            <method name="hoverRight">
+                <body><![CDATA[
+                    var cell = this.mHoverCell.nextSibling;
+                    this.hoverCell(cell);
+                ]]></body>
+            </method>
+
+            <method name="hoverUp">
+                <body><![CDATA[
+                    var row = this.mHoverCell.parentNode.previousSibling;
+                    if (row) {
+                        var colIdx = this.getColIndex(this.mHoverCell);
+                        var cell = row.childNodes[colIdx];
+                        this.hoverCell(cell);
+                    }
+                ]]></body>
+            </method>
+
+            <method name="hoverDown">
+                <body><![CDATA[
+                    var row = this.mHoverCell.parentNode.nextSibling;
+                    if (row) {
+                        var colIdx = this.getColIndex(this.mHoverCell);
+                        var cell = row.childNodes[colIdx];
+                        this.hoverCell(cell);
+                    }
+                ]]></body>
+            </method>
+
+            <method name="hoverTo">
+                <parameter name="aRow"/>
+                <parameter name="aCol"/>
+                <body><![CDATA[
+                    var row = this.mBox.childNodes[aRow];
+                    if (!row) return;
+                    var cell = row.childNodes[aCol];
+                    if (!cell) return;
+                    this.hoverCell(cell);
+                ]]></body>
+            </method>
+
+            <method name="hoverCell">
+                <parameter name="aCell"/>
+                <body><![CDATA[
+                    if (this.isColorCell(aCell)) {
+                        this.resetHover();
+                    aCell.setAttribute("hover", "true");
+                    this.mHoverCell = aCell;
+                    var event = document.createEvent('Events');
+                    event.initEvent('DOMMenuItemActive', true, true);
+                    aCell.dispatchEvent(event);
+                }
+                ]]></body>
+            </method>
+
+            <method name="selectHoverCell">
+                <body><![CDATA[
+                    this.selectCell(this.mHoverCell);
+                ]]></body>
+            </method>
+
+            <method name="selectCell">
+                <parameter name="aCell"/>
+                <body><![CDATA[
+                    if (this.isColorCell(aCell)) {
+                        if (this.mSelectedCell)
+                            this.mSelectedCell.removeAttribute("selected");
+
+                        this.mSelectedCell = aCell;
+                        aCell.setAttribute("selected", "true");
+
+                        if (this.mDoOnSelect) {
+                            this._emitChangeEvent();
+                        }
+                    }
+                ]]></body>
+            </method>
+
+            <method name="handleEvent">
+                <parameter name="aEvent"/>
+                <body><![CDATA[
+                    switch (aEvent.keyCode) {
+                        case 37: // left
+                            this.hoverLeft();
+                            break;
+                        case 38: // up
+                            this.hoverUp();
+                            break;
+                        case 39: // right
+                            this.hoverRight();
+                            break;
+                        case 40: // down
+                            this.hoverDown();
+                            break;
+                        case 13: // enter
+                        case 32: // space
+                            this.selectHoverCell();
+                        break;
+                    }
+                ]]></body>
+            </method>
+
+            <constructor><![CDATA[
+                this.initialize();
+            ]]></constructor>
+
+        </implementation>
+    </binding>
+</bindings>
