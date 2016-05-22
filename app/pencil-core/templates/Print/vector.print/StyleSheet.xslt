@@ -12,9 +12,6 @@
                     <xsl:value-of select="/p:Document/p:Properties/p:Property[@name='friendlyName']/text()"/>
                 </title>
                 <link rel="stylesheet" href="Resources/SampleStyle.css"/>
-                <link rel="stylesheet" href="chrome://global/skin/"/>
-                <link rel="stylesheet" href="chrome://pencil/skin/htmlForeignObject.css"/>
-                <link rel="stylesheet" href="chrome://pencil/skin/htmlForeignObjectXUL.css"/>
             </head>
             <body>
                 <h1 id="documentTitle"><xsl:value-of select="/p:Document/p:Properties/p:Property[@name='friendlyName']/text()"/></h1>
@@ -29,7 +26,7 @@
                 <xsl:value-of select="p:Properties/p:Property[@name='name']/text()"/>
             </h2>
             
-            <div class="SVGContainer">
+            <div class="SVGContainer" style="overflow: hidden;">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="{p:Properties/p:Property[@name='width']/text()}" height="{p:Properties/p:Property[@name='height']/text()}">
                     <xsl:apply-templates select="p:BackgroundPages/p:Page" mode="copyBackground"/>
                     <g inkscape:label="{p:Properties/p:Property[@name='name']/text()}"

@@ -128,11 +128,11 @@ Dialog.prototype.createButton = function (action) {
 Dialog.prototype.show = function () {
     this.dialogFrame.parentNode.removeChild(this.dialogFrame);
     if (this.overlay) {
-        this.overlay.parentNode.removeChild(this.overlay);
-    } else {
-        this.overlay = this.node().ownerDocument.createElement("div");
-        Dom.addClass(this.overlay, "Sys_DialogOverlay");
+        if (this.overlay.parentNode) this.overlay.parentNode.removeChild(this.overlay);
     }
+
+    this.overlay = this.node().ownerDocument.createElement("div");
+    Dom.addClass(this.overlay, "Sys_DialogOverlay");
 
     this.node().ownerDocument.body.appendChild(this.overlay);
 
@@ -181,25 +181,28 @@ Dialog.prototype.moveBy = function (dx, dy) {
     this.moveTo(this.dialogX + dx, this.dialogY + dy);
 };
 Dialog.prototype.close = function () {
-    if (this.overlay.parentNode) this.overlay.parentNode.removeChild(this.overlay);
+    if (this.overlay && this.overlay.parentNode) this.overlay.parentNode.removeChild(this.overlay);
     this.dialogFrame.style.transition = "opacity 0.1s";
     this.dialogFrame.style.opacity = "0";
-    var thiz = this;
-    window.setTimeout(function () {
-        if (thiz.dialogFrame.parentNode) thiz.dialogFrame.parentNode.removeChild(thiz.dialogFrame);
-        thiz.dialogFrame.style.display = "none";
-    }, 100);
-    this.overlay.style.display = "none";
 
+    var args = [];
     if (arguments.length > 0 && this.callback) {
-        var args = [];
         for (var i = 0; i < arguments.length; i ++) {
             args.push(arguments[i]);
         }
-        this.callback.apply(window, args);
     }
 
-    BaseWidget.unregisterClosable(this);
+    window.setTimeout(function () {
+        if (this.dialogFrame.parentNode) this.dialogFrame.parentNode.removeChild(this.dialogFrame);
+        this.dialogFrame.style.display = "none";
+        if (this.overlay) this.overlay.style.display = "none";
+
+        BaseWidget.unregisterClosable(this);
+
+        if (args.length > 0 && this.callback) {
+            this.callback.apply(window, args);
+        }
+    }.bind(this), 100);
 };
 Dialog.prototype.callback = function (callback) {
     this.callback = callback;

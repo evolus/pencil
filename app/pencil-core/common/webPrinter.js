@@ -80,6 +80,8 @@ module.exports = function () {
             currentPrintingCallback = null;
         });
 
+        // browserWindow.show();
+
         ipcMain.on("printer-request", function (event, data) {
             queueHandler.submit(createPrintingTask(event, data));
         });

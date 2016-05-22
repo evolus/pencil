@@ -74,6 +74,10 @@ Popup.prototype.toggle = function (anchor, hAlign, vAlign, hPadding, vPadding, a
         this.show(anchor, hAlign, vAlign, hPadding, vPadding, autoFlip);
     }
 };
+Popup.prototype._showContainer = function () {
+    var name = this.popupContainer.localName;
+    this.popupContainer.style.display = (name == "hbox" || name == "vbox" || name == "box") ? "flex" : "block";
+};
 Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding, autoFlip) {
     this.reparent();
 
@@ -86,7 +90,7 @@ Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding, aut
     this.popupContainer.style.top = "0px";
 
     this.popupContainer.style.visibility = "hidden";
-    this.popupContainer.style.display = "block";
+    this._showContainer();
     this.popupContainer.style.height = "auto";
     this.popupContainer.style.overflow = "visible";
 
@@ -107,7 +111,7 @@ Popup.prototype.showAt = function (x, y, skipEvent, autoFlip) {
 
     this.popupContainer.style.position = "absolute";
     this.popupContainer.style.visibility = "hidden";
-    this.popupContainer.style.display = "block";
+    this._showContainer();
 
     var w = this.popupContainer.offsetWidth;
     var h = this.popupContainer.offsetHeight;
@@ -224,11 +228,10 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
     }
 
     this.popupContainer.style.position = "absolute";
-    this.popupContainer.style.left = x + "px";
-    this.popupContainer.style.top = y + "px";
+    this._setPosition(x, y);
     if (this.useZIndex) this.popupContainer.style.zIndex = Popup.Z_INDEX;
     this.popupContainer.style.visibility = "inherit";
-    this.popupContainer.style.display = "block";
+    this._showContainer();
     this.popupContainer.style.opacity = this.popupOpacity || 1;
 
     this.visible = true;
@@ -237,6 +240,10 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
     if (!this.skipStack) {
         BaseWidget.registerClosable(this);
     }
+};
+Popup.prototype._setPosition = function (x, y) {
+    this.popupContainer.style.left = x + "px";
+    this.popupContainer.style.top = y + "px";
 };
 Popup.prototype.close = function () {
     this.hide();

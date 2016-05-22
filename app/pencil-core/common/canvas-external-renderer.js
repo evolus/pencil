@@ -2,6 +2,7 @@ const path = require("path");
 function init() {
     const ipcRenderer = require("electron").ipcRenderer;
     const fs = require("fs");
+    const sharedUtil = require("./pencil-core/common/shared-util");
     const xlink = "http://www.w3.org/1999/xlink";
 
     var combinedCSS = "";
@@ -207,55 +208,14 @@ function init() {
         queueHandler.submit(createRenderTask(event, data));
     });
 
-    function prepareCombinedFontCSS(data) {
-        const MIME_MAP = {
-            ".ttf": "application/x-font-ttf",
-            ".wotf": "application/x-font-woff"
-        };
-        console.log("Got font loading request:", data);
-
-        //creating combinedCSS
-        combinedCSS = "";
-        if (!data || !data.faces) {
-            ipcRenderer.send("font-loading-response", data);
-            return;
-        }
-
-        var index = -1;
-        function next() {
-            index ++;
-            if (index >= data.faces.length) {
-                console.log("Sending response", data);
-                ipcRenderer.send("font-loading-response", data);
-
-                return;
-            }
-
-            var installedFace = data.faces[index];
-
-            fs.readFile(installedFace.filePath, function (error, bytes) {
-                var ext = path.extname(installedFace.filePath).toLowerCase();
-                var mime = MIME_MAP[ext];
-                if (!mime) {
-                    mime = "application/octet-stream";
-                }
-                var url = "data:" + mime + ";base64," + new Buffer(bytes).toString("base64");
-
-                combinedCSS +=  "@font-face {\n"
-                                + "    font-family: '" + installedFace.name + "';\n"
-                                + "    src: url('" + url + "');\n"
-                                + "    font-weight: " + installedFace.weight + ";\n"
-                                + "    font-style: " + installedFace.style + ";\n"
-                                + "}\n";
-                next();
-            });
-        }
-
-        next();
-    }
 
     ipcRenderer.on("font-loading-request", function (event, data) {
-        prepareCombinedFontCSS(data);
+        //creating combinedCSS
+        combinedCSS = "";
+        sharedUtil.buildEmbeddedFontFaceCSS(data.faces, function (css) {
+            combinedCSS = css;
+            ipcRenderer.send("font-loading-response", data);
+        });
     });
 
 
