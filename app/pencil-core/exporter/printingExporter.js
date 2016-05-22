@@ -111,6 +111,9 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
 
     var fontFaces = FontLoader.instance.allFaces;
 
+    console.log(result.documentElement);
+
+
     if (fontFaces && fontFaces.length > 0) {
         sharedUtil.buildEmbeddedFontFaceCSS(fontFaces, function (css) {
             console.log("Font faces CSS", css.length);

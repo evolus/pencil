@@ -1,11 +1,16 @@
 <Template xmlns="http://www.evolus.vn/Namespace/Pencil">
-    <Property name="id">Evolus:Print:Vector.Template</Property>
-    <Property name="name">Vector Export Template (A4)</Property>
+    <Property name="id">Evolus:Print:Vector.Template.Unified</Property>
+    <Property name="name">Vector Template (Unified)</Property>
     <Property name="author">Evolus</Property>
-    <Property name="description">The simple/default printing template</Property>
+    <Property name="description">The vector printing template with full options</Property>
 
     <Property name="styleSheet">StyleSheet.xslt</Property>
-
-    <Property name="print.paperSize">A4</Property>
-    <Property name="print.landscape">false</Property>
+    <Property name="pageSize" displayName="Page size" type="Enum" p:enumValues="['a3|A3', 'a4|A4', 'a5|A5', 'letter|Letter', 'legal|Legal', 'tabloid|Tabloid']">a4</Property>
+    <Property name="orientation" displayName="Orientation" type="Enum" p:enumValues="['portrait|Portrait', 'landscape|Landscape']">portrait</Property>
+    <Property name="cols" displayName="Columns" type="Enum" p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6']">1</Property>
+    <Property name="rows" displayName="Rows" type="Enum" p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6']">1</Property>
+    <Property name="withPageName" displayName="With page name" type="Bool">true</Property>
+    <Property name="withHeaderFooter" displayName="With header/footer" type="Bool">true</Property>
+    <Property name="withPageNote" displayName="With notes" type="Bool">true</Property>
+    <Property name="withBorder" displayName="With border" type="Bool">true</Property>
 </Template>
