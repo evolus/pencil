@@ -1,0 +1,63 @@
+<vbox class="Form">
+    <style>
+        @imagePane {
+            max-width: 30em;
+        }
+        @imagePane .imageContainer {
+            width: 13em;
+            height: 15em;
+        }
+        @resultPane {
+            margin-left: 1em;
+        }
+        @browse {
+            margin-bottom: 1em;
+        }
+        @result {
+            overflow: auto;
+            overflow-x: hidden;
+        }
+    </style>
+    <hbox>
+        <vbox anon-id="imagePane">
+            <vbox>
+                <strong>Source .9.png:</strong>
+                Please select the n-patch image file to start parsing into JavaScript.
+                <hbox>
+                    <button anon-id="browse">Browse Android n-Patch file...</button>
+                </hbox>
+
+                <!--
+                <button onclick="NinePatch.start('drawable-hdpi/panel_picture_frame_bg_focus_blue.9.png');">Start &gt;&gt;</button>
+                -->
+            </vbox>
+            <hbox>
+                <vbox>
+                    <fieldset>
+                        <legend>Source image:</legend>
+                        <div class="imageContainer" anon-id="sourceImageContainer"></div>
+                    </fieldset>
+                </vbox>
+                <vbox>
+                    <fieldset>
+                        <legend>Parsed image:</legend>
+                        <div class="imageContainer" anon-id="parsedImageContainer"></div>
+                    </fieldset>
+                </vbox>
+            </hbox>
+            <hbox class="InputRow" anon-id="path"> </hbox>
+            <vbox anon-id="Guide">
+                Pencil supports parsing and embedding scalable n-Patch format that is used in the Google Android OS. More information:<br/>
+                <ul>
+                    <li><a href="http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch">About Android n-Patch format</a></li>
+                    <li><a href="http://www.pencil-project.org/wiki/devguide/Tutorial/Nine_Patches.html">Using n-Patches in Pencil stencils</a></li>
+                </ul>
+            </vbox>
+        </vbox>
+
+        <vbox anon-id="resultPane">
+            <strong>Result:</strong>
+            <textarea anon-id="result" rows="30" cols="60" readonly="true"></textarea>
+        </vbox>
+    </hbox>
+</vbox>
