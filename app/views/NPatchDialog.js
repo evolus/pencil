@@ -17,14 +17,11 @@ function NPatchDialog() {
 
                 thiz.sourceImageContainer.innerHTML="";
                 thiz.parsedImageContainer.innerHTML="";
-                // var holder={};
                 var img = Dom.newDOMElement({
                     _name: "img",
-                    // _id: "nPatchImg"
-                    src: filenames
+                    src: filenames + "?time=" + new Date().getTime()
                 });
                 thiz.sourceImageContainer.appendChild(img);
-                // Util.setupImage(holder.nPatchImg, filenames, "center-inside");
                 window.setTimeout(function () {
                     thiz.handleImageLoad(img);
                 }, 100);
@@ -227,10 +224,12 @@ NPatchDialog.prototype.createPatches = function (image) {
     */
 
     var js = JSON.stringify(this.data);
-
     this.result.value = js;
+
+    this.sourceImageContainer.style.height = parsedImageContainer.offsetHeight + "px";
     this.result.select();
     this.result.focus();
+
 };
 
 function Walker() {
@@ -257,10 +256,6 @@ Walker.prototype.step = function (alpha) {
 function Point(x, y) {
     this.x = x;
     this.y = y;
-}
-
-function getSourceImageContainer() {
-    return document.getElementById("imageContainer");
 }
 
 function test() {

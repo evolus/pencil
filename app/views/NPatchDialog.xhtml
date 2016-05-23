@@ -31,6 +31,10 @@
         @Guide {
             max-width: 30em;
         }
+
+        @parsedImageContainer br {
+            line-height: 1px;
+        }
     </style>
     <hbox>
         <vbox anon-id="imagePane">
@@ -46,18 +50,14 @@
                 -->
             </vbox>
             <hbox>
-                <vbox>
-                    <fieldset>
-                        <legend>Source image:</legend>
-                        <div class="imageContainer" anon-id="sourceImageContainer"></div>
-                    </fieldset>
-                </vbox>
-                <vbox>
-                    <fieldset>
-                        <legend>Parsed image:</legend>
-                        <div class="imageContainer" anon-id="parsedImageContainer"></div>
-                    </fieldset>
-                </vbox>
+                <fieldset>
+                    <legend>Source image:</legend>
+                    <div class="imageContainer" anon-id="sourceImageContainer"></div>
+                </fieldset>
+                <fieldset>
+                    <legend>Parsed image:</legend>
+                    <div class="imageContainer" anon-id="parsedImageContainer"></div>
+                </fieldset>
             </hbox>
             <vbox anon-id="path"> </vbox>
             <vbox anon-id="Guide">
