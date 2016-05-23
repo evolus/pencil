@@ -17,13 +17,11 @@ function NPatchDialog() {
 
                 thiz.sourceImageContainer.innerHTML="";
                 thiz.parsedImageContainer.innerHTML="";
-                var holder={};
                 var img = Dom.newDOMElement({
                     _name: "img",
-                    _id: "nPatchImg"
-                },null,holder);
+                    src: filenames + "?time=" + new Date().getTime()
+                });
                 thiz.sourceImageContainer.appendChild(img);
-                Util.setupImage(holder.nPatchImg, filenames, "center-inside");
                 window.setTimeout(function () {
                     thiz.handleImageLoad(img);
                 }, 100);
@@ -32,7 +30,19 @@ function NPatchDialog() {
 
     this.bind("click",function() {
         thiz.result.select();
-    }, this.result)
+    }, this.result);
+
+
+    function openExternalLink(url) {
+        require("shell").openExternal(url);
+    }
+    this.bind("click", function () {
+        openExternalLink("http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch");
+    }, this.aboutNPatchLink);
+
+    this.bind("click", function () {
+        openExternalLink("http://www.pencil-project.org/wiki/devguide/Tutorial/Nine_Patches.html");
+    }, this.usageNPatchLink);
 };
 
 __extend(Dialog, NPatchDialog);
@@ -71,7 +81,7 @@ NPatchDialog.prototype.getPixel = function(imageData, x, y) {
     };
 }
 
-NPatchDialog.prototype.createPatch = function(srcImage, p1, p2, scaleX, scaleY) {
+NPatchDialog.prototype.createPatch = function(srcImage, p1, p2, scaleX, scaleY, container) {
     var canvas = this.canvas;
     var w = p2.x - p1.x;
     var h = p2.y - p1.y;
@@ -83,11 +93,11 @@ NPatchDialog.prototype.createPatch = function(srcImage, p1, p2, scaleX, scaleY) 
 
     context.drawImage(srcImage, p1.x, p1.y, w, h, 0, 0, w, h);
     var data = canvas.toDataURL("image/png");
-    this.appendResult(data, w, h, scaleX, scaleY);
+    this.appendResult(data, w, h, scaleX, scaleY, container);
 }
 
-NPatchDialog.prototype.appendResult = function (data, w, h, scaleX, scaleY) {
-    var result= this.parsedImageContainer;
+NPatchDialog.prototype.appendResult = function (data, w, h, scaleX, scaleY, container) {
+    var result = container ? container : this.parsedImageContainer;
     var img = Dom.newDOMElement({
         _name: "img",
         src: data
@@ -195,13 +205,15 @@ NPatchDialog.prototype.createPatches = function (image) {
        var vs = vWalker.segments[j];
        this.currentRow = [];
        this.data.patches.push(this.currentRow);
+       var hbox = Dom.newDOMElement({_name: "hbox"});
+       parsedImageContainer.appendChild(hbox);
        for (var i = 0; i < hWalker.segments.length; i ++) {
            var hs = hWalker.segments[i];
-           this.createPatch(image, new Point(hs.start + 1, vs.start + 1), new Point(hs.end + 2, vs.end + 2), hs.alpha > 0, vs.alpha > 0);
+           this.createPatch(image, new Point(hs.start + 1, vs.start + 1), new Point(hs.end + 2, vs.end + 2), hs.alpha > 0, vs.alpha > 0, hbox);
            if (hs.alpha > 0 && i > lastScaleX) lastScaleX = i;
        }
        if (vs.alpha > 0 && j > lastScaleY) lastScaleY = j;
-       parsedImageContainer.appendChild(document.createElement("br"));
+    //    parsedImageContainer.appendChild(document.createElement("br"));
    }
 
    this.data.lastScaleX = lastScaleX;
@@ -226,10 +238,12 @@ NPatchDialog.prototype.createPatches = function (image) {
     */
 
     var js = JSON.stringify(this.data);
-
     this.result.value = js;
+
+    this.sourceImageContainer.style.height = parsedImageContainer.offsetHeight + "px";
     this.result.select();
     this.result.focus();
+
 };
 
 function Walker() {
@@ -256,10 +270,6 @@ Walker.prototype.step = function (alpha) {
 function Point(x, y) {
     this.x = x;
     this.y = y;
-}
-
-function getSourceImageContainer() {
-    return document.getElementById("imageContainer");
 }
 
 function test() {
