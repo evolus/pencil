@@ -190,8 +190,7 @@ ExportDialog.prototype.getDialogActions = function () {
 
                     var dialogOptions = {
                         title: "Select output " + (isFile ? "file" : "folder"),
-                        defaultPath: os.homedir(),
-                        properties: [isFile ? "openFile" : "openDirectory"]
+                        defaultPath: os.homedir()
                     };
 
                     if (isFile) {
@@ -204,15 +203,24 @@ ExportDialog.prototype.getDialogActions = function () {
                         });
 
                         dialogOptions.filters = filters;
+                        dialog.showSaveDialog(dialogOptions, function (filename) {
+                            if (!filename) return;
+                            result.targetPath = filename;
+
+                            this.close(result);
+
+                        }.bind(this));
+                    } else {
+                        dialogOptions.properties = ["openDirectory"];
+                        dialog.showOpenDialog(dialogOptions, function (filenames) {
+                            if (!filenames || filenames.length <= 0) return;
+                            result.targetPath = filenames[0];
+
+                            this.close(result);
+
+                        }.bind(this));
                     }
 
-                    dialog.showOpenDialog(dialogOptions, function (filenames) {
-                        if (!filenames || filenames.length <= 0) return;
-                        result.targetPath = filenames[0];
-
-                        this.close(result);
-
-                    }.bind(this));
                 } else {
                     this.close(result);
                 }
