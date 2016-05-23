@@ -5,17 +5,29 @@
         }
         @imagePane .imageContainer {
             width: 13em;
-            height: 15em;
+            height: 10em;
         }
         @resultPane {
             margin-left: 1em;
         }
-        @browse {
-            margin-bottom: 1em;
-        }
+
         @result {
             overflow: auto;
             overflow-x: hidden;
+        }
+        @parsedImageContainer img {
+            margin: 1px 0px 0px 1px;
+        }
+
+        @imagePane fieldset {
+            float: left;
+            margin-top: 1em;
+            margin-right: 1em;
+            margin-bottom: 1em;
+            background: url(pencil-core/n-patch/bg.png);
+        }
+        @path {
+            margin-bottom: 1em;
         }
     </style>
     <hbox>
@@ -45,7 +57,7 @@
                     </fieldset>
                 </vbox>
             </hbox>
-            <hbox class="InputRow" anon-id="path"> </hbox>
+            <vbox anon-id="path"> </vbox>
             <vbox anon-id="Guide">
                 Pencil supports parsing and embedding scalable n-Patch format that is used in the Google Android OS. More information:<br/>
                 <ul>
@@ -58,6 +70,9 @@
         <vbox anon-id="resultPane">
             <strong>Result:</strong>
             <textarea anon-id="result" rows="30" cols="60" readonly="true"></textarea>
+            <div style="width: 1px; height: 1px; overflow: hidden;">
+                <canvas anon-id="canvas" width="400" height="400"></canvas>
+            </div>
         </vbox>
     </hbox>
 </vbox>
