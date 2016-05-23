@@ -53,7 +53,7 @@ before_install:
 install:
   - nvm install $NODE_VERSION
   - npm install npm -g
-  - npm install electron-builder@3.25.0
+  - npm install git+https://github.com/mbrainiac/electron-builder.git#v3.26.1.1
   - npm install
   - npm prune
 
