@@ -1351,6 +1351,10 @@ Controller.prototype.getRootPages = function () {
 Controller.prototype.exportCurrentDocument = function () {
     Pencil.documentExportManager.exportDocument(this.doc);
 };
+Controller.prototype.printCurrentDocument = function () {
+    Pencil.documentExportManager.exportDocument(this.doc, "PrintingExporter");
+};
+
 
 window.onbeforeunload = function (event) {
     var remote = require("electron").remote;

@@ -57,13 +57,17 @@
             height: 1.65em;
             line-height: 1.65em;
         }
+        @optionPane.ForcedExporter > @exporterLabel,
+        @optionPane.ForcedExporter > @exporterCombo {
+            display: none;
+        }
     </style>
     <vbox>
         <label>Select pages:</label>
         <ui:Tree anon-id="pageTree" />
     </vbox>
     <vbox anon-id="optionPane">
-        <label>Output type:</label>
+        <label anon-id="exporterLabel">Output type:</label>
         <ui:ComboManager anon-id="exporterCombo" />
         <label>Template:</label>
         <ui:ComboManager anon-id="templateCombo" />

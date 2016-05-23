@@ -1,6 +1,6 @@
 function PrintingExporter(pdfOutput) {
     this.pdfOutput = pdfOutput;
-    this.name = pdfOutput ? "Portable Document Format (PDF)" : "Send to printer";
+    this.name = pdfOutput ? "Portable Document Format (PDF)" : "Print";
     this.id = pdfOutput ? "PDFExporter" : "PrintingExporter";
 }
 PrintingExporter.HTML_FILE = "index.html";

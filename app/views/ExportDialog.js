@@ -113,13 +113,26 @@ ExportDialog.prototype.setup = function (options) {
         isItemInitiallyChecked: function () { return false; }
     });
 
+    if (options.forcedExporterId) {
+        this.exporterCombo.selectItem({id: options.forcedExporterId}, false, true);
+        this.exporterCombo.setDisabled(true);
+        this.invalidateUIByExporter();
+        Dom.addClass(this.optionPane, "ForcedExporter");
+
+        var exporter = this.exporterCombo.getSelectedItem();
+        if (exporter) this.title = exporter.name;
+    }
+
     var options = options || {};
     if (options.lastParams) {
         this.pageTree.setCheckedItems(options.lastParams.pages);
-        this.exporterCombo.selectItem({id: options.lastParams.exporterId}, false, true);
-        this.invalidateUIByExporter();
+        if (!options.forcedExporterId) {
+            this.exporterCombo.selectItem({id: options.lastParams.exporterId}, false, true);
+            this.invalidateUIByExporter();
+        }
         this.templateCombo.selectItem({id: options.lastParams.templateId}, false, true);
         this.invalidateUIByTemplate();
+
         if (options.lastParams.options) {
             this.setOptionValues(options.lastParams.options);
         }

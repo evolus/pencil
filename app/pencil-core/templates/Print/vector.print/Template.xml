@@ -1,8 +1,8 @@
 <Template xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil">
-    <Property name="id">Evolus:Print:Vector.Template.Unified</Property>
-    <Property name="name">Vector Template (Unified)</Property>
+    <Property name="id">Evolus:Print:Default.Template.Unified</Property>
+    <Property name="name">Default Export Template</Property>
     <Property name="author">Evolus</Property>
-    <Property name="description">The vector printing template with full options</Property>
+    <Property name="description">The default printing template with full options</Property>
 
     <Property name="styleSheet">StyleSheet.xslt</Property>
     <Property name="format" displayName="Image format" type="Enum" p:enumValues="['vector|Scalable/Vector', 'rasterized|Bitmap/Rasterized']">vector</Property>
