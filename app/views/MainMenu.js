@@ -104,7 +104,8 @@ MainMenu.prototype.setup = function () {
         key: "nPatchGenerator",
         label: "N-Patch Script Generator...",
         run: function () {
-
+            var patchDialog = new NPatchDialog();
+            patchDialog.open();
         }
     });
     developerToolSubItems.push({
