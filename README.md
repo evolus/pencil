@@ -1,4 +1,3 @@
-
 About The Next Version
 ==========
 
@@ -8,6 +7,8 @@ Pencil V3 is a rewrite of Pencil that aims to fix major performance and scalabil
   * A new, zip-based file format was introduced to support large documents and better embedding of external bitmaps/resources.
   * A new mechanism for page management that dramatically reduces memory usage for large documents.
   * Document pages can now be structured into a tree-like model.
+  * Custom fonts can now be embedded into Pencil .epz documents
+  * Printing and PDF export will be improved to support all platforms and with many options
   * New UI approach
 
 

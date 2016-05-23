@@ -2238,6 +2238,7 @@ function deleteFileOrFolder(p) {
         if (stat.isDirectory()) {
             var children = fs.readdirSync(p);
             children.forEach(function (child) {
+                if (child == "." || child == "..") return;
                 deleteFileOrFolder(path.join(p, child));
             });
 
