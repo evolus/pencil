@@ -30,7 +30,19 @@ function NPatchDialog() {
 
     this.bind("click",function() {
         thiz.result.select();
-    }, this.result)
+    }, this.result);
+
+
+    function openExternalLink(url) {
+        require("shell").openExternal(url);
+    }
+    this.bind("click", function () {
+        openExternalLink("http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch");
+    }, this.aboutNPatchLink);
+
+    this.bind("click", function () {
+        openExternalLink("http://www.pencil-project.org/wiki/devguide/Tutorial/Nine_Patches.html");
+    }, this.usageNPatchLink);
 };
 
 __extend(Dialog, NPatchDialog);
