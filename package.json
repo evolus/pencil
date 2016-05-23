@@ -28,7 +28,9 @@
     "linux": {
       "description": "An open-source GUI prototyping tool that's available for ALL platforms.",
       "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
-      "vendor": "Evolus"
+      "vendor": "Evolus",
+      "target": ["deb", "rpm", "tar.gz"],
+      "depends": []
     },
     "win": {
       "authors": "Evolus",
