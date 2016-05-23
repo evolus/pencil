@@ -12,7 +12,7 @@ Walker.prototype.step = function (alpha) {
             end: this.i,
             alpha: alpha
         };
-        
+
         this.segments.push(this.currentSegment);
     } else {
         this.currentSegment.end = this.i;
@@ -54,25 +54,25 @@ function handleImageLoad () {
 NinePatch.createPatches = function (image) {
     var w = image.width;
     var h = image.height;
-    
+
     var canvas = document.getElementById("canvas");
     var parsedImageContainer = document.getElementById("parsedImageContainer");
     parsedImageContainer.innerHTML = "";
-    
+
     canvas.setAttribute("width", w);
     canvas.setAttribute("height", h);
     var context = canvas.getContext("2d");
     context.clearRect(0, 0, w, h);
-    
+
     context.drawImage(image, 0, 0, w, h);
     var imageData = context.getImageData(0, 0, w, h);
-    
+
     //parsing n-patch markers
     var hWalker = new Walker();
     for (var i = 1; i < w - 1; i ++) {
         hWalker.step(getPixel(imageData, i, 0).a);
     }
-    
+
     var vWalker = new Walker();
     for (var i = 1; i < h - 1; i ++) {
         vWalker.step(getPixel(imageData, 0, i).a);
@@ -80,7 +80,7 @@ NinePatch.createPatches = function (image) {
 
     var p1 = new Point(0, 0);
     var p2 = new Point(0, 0);
-    
+
     var walker = new Walker();
     for (var i = 1; i < w - 1; i ++) {
         walker.step(getPixel(imageData, i, h - 1).a);
@@ -94,7 +94,7 @@ NinePatch.createPatches = function (image) {
         } else {
             p1.x = 0;
         }
-        
+
         if (walker.segments[walker.segments.length - 1].alpha == 0) {
             p2.x = walker.segments[walker.segments.length - 1].start;
         } else {
@@ -115,7 +115,7 @@ NinePatch.createPatches = function (image) {
         } else {
             p1.y = 0;
         }
-        
+
         if (walker.segments[walker.segments.length - 1].alpha == 0) {
             p2.y = walker.segments[walker.segments.length - 1].start;
         } else {
@@ -133,7 +133,7 @@ NinePatch.createPatches = function (image) {
     };
     var result= document.getElementById("result");
     result.innerHTML = "";
-    
+
     var lastScaleX = -1;
     var lastScaleY = -1;
     for (var j = 0; j < vWalker.segments.length; j ++) {
@@ -148,30 +148,30 @@ NinePatch.createPatches = function (image) {
         if (vs.alpha > 0 && j > lastScaleY) lastScaleY = j;
         parsedImageContainer.appendChild(document.createElement("br"));
     }
-    
+
     NinePatch.data.lastScaleX = lastScaleX;
     NinePatch.data.lastScaleY = lastScaleY;
-    
-    
-    
+
+
+
     /*
     createPatch(image, new Point(s1.x, 0), new Point(s2.x, s1.y));
     createPatch(image, new Point(s2.x, 0), new Point(w, s1.y));
-    
+
     document.getElementById("result").appendChild(document.createElement("br"));
     createPatch(image, new Point(0, s1.y), new Point(s1.x, s2.y));
     createPatch(image, new Point(s1.x, s1.y), new Point(s2.x, s2.y));
     createPatch(image, new Point(s2.x, s1.y), new Point(w, s2.y));
-    
+
     document.getElementById("result").appendChild(document.createElement("br"));
     createPatch(image, new Point(0, s2.y), new Point(s1.x, h));
     createPatch(image, new Point(s1.x, s2.y), new Point(s2.x, h));
     createPatch(image, new Point(s2.x, s2.y), new Point(w, h));
-    
+
     */
-    
+
     var js = JSON.stringify(NinePatch.data);
-    
+
     var textarea = document.createElement("textarea");
     textarea.value = js;
     result.appendChild(textarea);
@@ -193,12 +193,12 @@ function createPatch(srcImage, p1, p2, scaleX, scaleY) {
     var canvas = document.getElementById("canvas");
     var w = p2.x - p1.x;
     var h = p2.y - p1.y;
-    
+
     canvas.setAttribute("width", w);
     canvas.setAttribute("height", h);
     var context = canvas.getContext("2d");
     context.clearRect(0, 0, w, h);
-    
+
     context.drawImage(srcImage, p1.x, p1.y, w, h, 0, 0, w, h);
     var data = canvas.toDataURL("image/png");
     appendResult(data, w, h, scaleX, scaleY);
@@ -206,12 +206,12 @@ function createPatch(srcImage, p1, p2, scaleX, scaleY) {
 function appendResult(data, w, h, scaleX, scaleY) {
     var result= document.getElementById("parsedImageContainer");
     var img = document.createElement("img");
-    
+
     img.setAttribute("width", w);
     img.setAttribute("height", h);
     img.src = data;
     result.appendChild(img);
-    
+
     var patch = {
         url: data,
         w: w,
@@ -234,9 +234,9 @@ function browse() {
     var image = document.createElement("img");
     getSourceImageContainer().innerHTML = "";
     getSourceImageContainer().appendChild(image);
-    
-    var ios = Components.classes["@mozilla.org/network/io-service;1"].  
-          getService(Components.interfaces.nsIIOService);  
+
+    var ios = Components.classes["@mozilla.org/network/io-service;1"].
+          getService(Components.interfaces.nsIIOService);
     var url = ios.newFileURI(fp.file);
     image.onload = handleImageLoad;
     image.src = url.spec + "?time=" + new Date().getTime();
@@ -253,7 +253,7 @@ function test() {
         ["focused", "pressed", null],
         ["holo_dark.png", "holo_light.png"]
     ];
-    
+
     function gen(i) {
         var b = cases[i];
         var result = [];
@@ -271,7 +271,7 @@ function test() {
         }
         return result;
     }
-    
+
     return gen(0);
 }
 
