@@ -47,6 +47,8 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git-lfs-1.2.0/git-lfs pull; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y ruby-dev gcc make; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then gem install --no-ri --no-rdoc fpm; fi
+  # https://github.com/electron-userland/electron-builder/issues/398
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then security import "certs/sca.code2.crt" -k ~/Library/Keychains/login.keychain -T /usr/bin/codesign; fi
 
 install:
   - nvm install $NODE_VERSION
