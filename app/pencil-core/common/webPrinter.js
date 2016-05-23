@@ -28,16 +28,16 @@ module.exports = function () {
                 if (data.pdf) {
                     const OPTION_NAMES = ["marginsType", "pageSize", "printBackground", "printSelectionOnly", "landscape"];
 
-                    OPTION_NAMES.forEach(function (name) {
-                        var value = data["print." + name];
-                        if (typeof(value) != "undefined") {
-                            if (value == "true" || value == "false") {
-                                options[name] = (value == "true");
-                            } else {
-                                options[name] = value;
-                            }
-                        }
-                    });
+                    // OPTION_NAMES.forEach(function (name) {
+                    //     var value = data["print." + name];
+                    //     if (typeof(value) != "undefined") {
+                    //         if (value == "true" || value == "false") {
+                    //             options[name] = (value == "true");
+                    //         } else {
+                    //             options[name] = value;
+                    //         }
+                    //     }
+                    // });
                     browserWindow.webContents.printToPDF(options, function(error, pdfBuffer) {
                         if (error) {
                             try {
@@ -79,6 +79,8 @@ module.exports = function () {
             currentPrintingCallback();
             currentPrintingCallback = null;
         });
+
+        // browserWindow.show();
 
         ipcMain.on("printer-request", function (event, data) {
             queueHandler.submit(createPrintingTask(event, data));

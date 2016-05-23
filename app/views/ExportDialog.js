@@ -2,9 +2,16 @@ function ExportDialog () {
     Dialog.call(this);
     this.title = "Export Document";
 
+    function sameIdComparer(a, b) {
+        if (!a) return !b;
+        if (!b) return false;
+        return a.id == b.id;
+    };
+
     this.exporterCombo.renderer = function (exporter) {
         return exporter.name;
     };
+    this.exporterCombo.comparer = sameIdComparer;
 
     this.exporterCombo.setItems(Pencil.documentExporters);
 
@@ -15,6 +22,12 @@ function ExportDialog () {
     this.templateCombo.renderer = function (template) {
         return template.name;
     };
+    this.templateCombo.addEventListener("p:ItemSelected", function () {
+        this.invalidateUIByTemplate();
+    }.bind(this), false);
+
+    this.templateCombo.comparer = sameIdComparer;
+
 
     this.invalidateUIByExporter();
 
@@ -29,6 +42,7 @@ ExportDialog.prototype.invalidateUIByExporter = function () {
         this.templateCombo.setDisabled(false);
     } else {
         this.templateCombo.setItems([]);
+        this.templateCombo.selectedItem = null;
         this.templateCombo.setDisabled(true);
     }
 
@@ -37,6 +51,45 @@ ExportDialog.prototype.invalidateUIByExporter = function () {
         this.warningBox.removeAttribute("disabled");
     } else {
         this.warningBox.setAttribute("disabled", "true");
+    }
+
+    this.invalidateUIByTemplate();
+};
+ExportDialog.prototype.invalidateUIByTemplate = function () {
+    var template = this.templateCombo.getSelectedItem();
+    Dom.empty(this.optionEditorPane);
+    Dom.toggleClass(this.optionPane, "NoExtraOptions", !template || !template.editableProperties || template.editableProperties.length == 0);
+    this.propertyEditors = {};
+    if (!template) return;
+    for(var i = 0; i < template.editableProperties.length; i++) {
+        var property = template.editableProperties[i];
+        var propName = property.displayName;
+        var editorWrapper = Dom.newDOMElement({
+            _name: "hbox",
+            "class": "Wrapper",
+            _children: [
+                {
+                    _name: "div",
+                    "class": "Label Property",
+                    _text: propName + ":"
+                }
+            ]
+        });
+        var editor = TypeEditorRegistry.getTypeEditor(property.type);
+        var constructeur = window[editor];
+        var editorWidget = new constructeur();
+
+        editorWrapper.appendChild(editorWidget.node());
+        editorWidget.setAttribute("flex", "1");
+        if (editorWidget.setTypeMeta) {
+            editorWidget.setTypeMeta(property.meta);
+        }
+        editorWidget.setValue(property.value);
+        editorWidget._property = property;
+        this.propertyEditors[property.name] = editorWidget;
+
+        editorWrapper._property = property;
+        this.optionEditorPane.appendChild(editorWrapper);
     }
 };
 ExportDialog.prototype.setup = function (options) {
@@ -60,9 +113,49 @@ ExportDialog.prototype.setup = function (options) {
         isItemInitiallyChecked: function () { return false; }
     });
 
-    this.pageTree.setCheckedItems(Pencil.controller.doc.pages);
-};
+    if (options.forcedExporterId) {
+        this.exporterCombo.selectItem({id: options.forcedExporterId}, false, true);
+        this.exporterCombo.setDisabled(true);
+        this.invalidateUIByExporter();
+        Dom.addClass(this.optionPane, "ForcedExporter");
 
+        var exporter = this.exporterCombo.getSelectedItem();
+        if (exporter) this.title = exporter.name;
+    }
+
+    var options = options || {};
+    if (options.lastParams) {
+        this.pageTree.setCheckedItems(options.lastParams.pages);
+        if (!options.forcedExporterId) {
+            this.exporterCombo.selectItem({id: options.lastParams.exporterId}, false, true);
+            this.invalidateUIByExporter();
+        }
+        this.templateCombo.selectItem({id: options.lastParams.templateId}, false, true);
+        this.invalidateUIByTemplate();
+
+        if (options.lastParams.options) {
+            this.setOptionValues(options.lastParams.options);
+        }
+    } else {
+        this.pageTree.setCheckedItems(Pencil.controller.doc.pages);
+    }
+};
+ExportDialog.prototype.setOptionValues = function (valueMap) {
+    var template = this.templateCombo.getSelectedItem();
+    if (!template) return;
+
+    for (var name in valueMap) {
+        var editor = this.propertyEditors[name];
+        if (!editor) continue;
+
+        var property = template.findEditableProperty(name);
+        if (!property) return;
+
+        var valueLiteral = valueMap[name];
+        var value = property.type.fromString(valueLiteral);
+        editor.setValue(value);
+    }
+};
 
 
 ExportDialog.prototype.getDialogActions = function () {
@@ -85,13 +178,19 @@ ExportDialog.prototype.getDialogActions = function () {
                     options: {}
                 };
 
+                if (this.propertyEditors) {
+                    for (var name in this.propertyEditors) {
+                        var value = this.propertyEditors[name].getValue();
+                        if (value) result.options[name] = value.toString();
+                    }
+                }
+
                 if (exporter.getOutputType() != BaseExporter.OUTPUT_TYPE_NONE) {
                     var isFile = (exporter.getOutputType() == BaseExporter.OUTPUT_TYPE_FILE);
 
                     var dialogOptions = {
                         title: "Select output " + (isFile ? "file" : "folder"),
-                        defaultPath: os.homedir(),
-                        properties: [isFile ? "openFile" : "openDirectory"]
+                        defaultPath: os.homedir()
                     };
 
                     if (isFile) {
@@ -104,15 +203,24 @@ ExportDialog.prototype.getDialogActions = function () {
                         });
 
                         dialogOptions.filters = filters;
+                        dialog.showSaveDialog(dialogOptions, function (filename) {
+                            if (!filename) return;
+                            result.targetPath = filename;
+
+                            this.close(result);
+
+                        }.bind(this));
+                    } else {
+                        dialogOptions.properties = ["openDirectory"];
+                        dialog.showOpenDialog(dialogOptions, function (filenames) {
+                            if (!filenames || filenames.length <= 0) return;
+                            result.targetPath = filenames[0];
+
+                            this.close(result);
+
+                        }.bind(this));
                     }
 
-                    dialog.showOpenDialog(dialogOptions, function (filenames) {
-                        if (!filenames || filenames.length <= 0) return;
-                        result.targetPath = filenames[0];
-
-                        this.close(result);
-
-                    }.bind(this));
                 } else {
                     this.close(result);
                 }

@@ -26,6 +26,7 @@ function ComboManager() {
         });
         return !found;
     };
+    this.popup.setPopupClass("ComboManagerPopup");
 }
 
 ComboManager.DEFAULT_RENDERER = function (item) {
@@ -93,7 +94,7 @@ ComboManager.prototype.setItems = function (items) {
     if (items.length > 0) this.selectItem(first);
 };
 
-ComboManager.prototype.selectItem = function (item, fromUserAction) {
+ComboManager.prototype.selectItem = function (item, fromUserAction, whenMatched) {
     var comparer = this.comparer || function (a, b) { return a == b};
 
     var matched = false;
@@ -106,6 +107,8 @@ ComboManager.prototype.selectItem = function (item, fromUserAction) {
             }
         }
     }
+    if (!matched && whenMatched) return;
+
     var element = this.renderer(item);
     if (!element) return;
 

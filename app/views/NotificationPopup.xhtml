@@ -1,0 +1,41 @@
+<hbox>
+    <style>
+        body .NotificationPopup {
+            border: @popup_border;
+            border-radius: 0.35ex;
+            background: #000;
+            padding: 1em;
+            box-shadow: 0em 0.15ex 2em rgba(0, 0, 0, 0.5);
+            transition: opacity 0.4s;
+            box-sizing: border-box;
+            align-items: flex-start;
+            color: #fff;
+        }
+        body .NotificationPopup icon {
+            margin-right: 1em;
+            font-size: 1.5em;
+        }
+        body .NotificationPopup @footer {
+            margin-top: 1em;
+            justify-content: flex-end;
+        }
+        body .NotificationPopup @messagePane {
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 20em;
+        }
+        @this:not(.WithAction) @footer {
+            display: none;
+        }
+    </style>
+    <hbox anon-id="popupContainer" class="NotificationPopup">
+        <icon>info</icon>
+        <vbox>
+            <div anon-id="messagePane"></div>
+            <hbox anon-id="footer">
+                <button anon-id="actionButton"></button>
+            </hbox>
+        </vbox>
+    </hbox>
+</hbox>

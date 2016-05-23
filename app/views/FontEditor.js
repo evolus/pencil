@@ -23,10 +23,6 @@ FontEditor._setupFontCombo = function (fontCombo, changeEvent, withNullValue) {
     };
 
     FontEditor._loadFontItems(fontCombo, withNullValue);
-    // var localFonts = Local.getInstalledFonts();
-    // var items = localFonts;
-    // if (withNullValue) items.unshift("");
-    // fontCombo.setItems(items);
     fontCombo.addEventListener("p:ItemSelected", function(event) {
         // if (OnScreenTextEditor.isEditing) return;
         changeEvent();
@@ -39,26 +35,6 @@ FontEditor._loadFontItems = function (fontCombo, withNullValue) {
     fontCombo.setItems(items);
 };
 FontEditor.prototype.setup = function () {
-    //grab control references
-    /*this.underlineButton = document.getElementById("edUnderlineButton");
-    this.strikeButton = document.getElementById("edStrikeButton");*/
-
-    // this.fontCombo.renderer = function (font) {
-    //     return font;
-    // };
-    // this.fontCombo.decorator = function (node, font) {
-    //     node.style.fontFamily = "'" + font + "'";
-    // };
-    //
-    // var localFonts = Local.getInstalledFonts();
-    // var items = localFonts;
-    // this.fontCombo.setItems(items);
-    //
-    // var thiz = this;
-    // this.fontCombo.addEventListener("p:ItemSelected", function(event) {
-    //     if (!thiz.font || OnScreenTextEditor.isEditing) return;
-    //     thiz.fireChangeEvent();
-    // }, false);
     var thiz = this;
     FontEditor._setupFontCombo(this.fontCombo, function () {
         thiz.fireChangeEvent();

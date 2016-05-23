@@ -8,8 +8,25 @@ ProgressiveJobDialog.prototype.setup = function (options) {
     this.options = options || {};
     this.starter = this.options.starter;
     this.title = this.options.title || "Progress";
-    this.onProgressUpdated("Starting...", 0, 1);
-    this.starter(this);
+
+    var thiz = this;
+    var listener = {
+        onTaskDone: function () {
+            try {
+                thiz.close();
+            } catch (e) {
+                console.error(e);
+            }
+        },
+        onProgressUpdated: function (status, completed, total) {
+            thiz.statusLabel.innerHTML = Dom.htmlEncode(status || "Please wait...");
+            thiz.progressBarInner.style.width = Math.round(100 * completed / total) + "%";
+        }
+    };
+
+    listener.onProgressUpdated("Starting...", 0, 1);
+    
+    this.starter(listener);
 }
 ProgressiveJobDialog.prototype.getDialogActions = function () {
     var thiz = this;
@@ -23,12 +40,4 @@ ProgressiveJobDialog.prototype.getDialogActions = function () {
             run: function () { return true; }
         }
     ]
-};
-
-ProgressiveJobDialog.prototype.onTaskDone = function () {
-    this.close();
-};
-ProgressiveJobDialog.prototype.onProgressUpdated = function (status, completed, total) {
-    this.statusLabel.innerHTML = Dom.htmlEncode(status || "Please wait...");
-    this.progressBarInner.style.width = Math.round(100 * completed / total) + "%";
 };

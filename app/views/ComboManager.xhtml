@@ -27,7 +27,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding: 0.3em;
+            padding: 0.3em 0.7em;
             cursor: default;
         }
         body @list .Item[selected="true"] {
@@ -38,6 +38,9 @@
         body @list .Item:hover {
             background: @selected_bg;
             color: @selected_fg;
+        }
+        body .AnonId_popupContainer.ComboManagerPopup {
+            padding: 0.3em;
         }
     </style>
     <div anon-id="selectContainer">

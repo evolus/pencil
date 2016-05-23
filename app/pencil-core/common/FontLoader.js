@@ -3,15 +3,15 @@ function FontLoader() {
     this.documentRepo = null;
 
 
-    //TODO: remove this test
-    var face = new FontFace(null, "url(file:///home/dgthanhan/.fonts/Signika-Bold.ttf) format('truetype')");
-    var addPromise = document.fonts.add(face);
-    addPromise.ready.then(function () {
-        document.fonts.forEach(function (fontFace) {
-            console.log(fontFace);
-        });
-        face.load();
-    });
+    // //TODO: remove this test
+    // var face = new FontFace(null, "url(file:///home/dgthanhan/.fonts/Signika-Bold.ttf) format('truetype')");
+    // var addPromise = document.fonts.add(face);
+    // addPromise.ready.then(function () {
+    //     document.fonts.forEach(function (fontFace) {
+    //         console.log(fontFace);
+    //     });
+    //     face.load();
+    // });
 }
 FontLoader.prototype.setDocumentRepoDir = function (dirPath) {
     if (dirPath) {
@@ -25,7 +25,22 @@ FontLoader.prototype.loadFonts = function (callback) {
     if (this.documentRepo) this.documentRepo.load();
 
     var allFaces = [].concat(this.userRepo.faces);
-    if (this.documentRepo) allFaces = allFaces.concat(this.documentRepo.faces);
+
+    if (this.documentRepo && this.documentRepo.faces.length > 0) {
+        for (var face of this.documentRepo.faces) {
+            var existed = false;
+            for (var f of allFaces) {
+                if (face.name == f.name && face.weight == f.weight && face.style == f.style) {
+                    existed = true;
+                    break;
+                }
+            }
+
+            if (!existed) allFaces.push(face);
+        }
+    }
+
+    this.allFaces = allFaces;
 
     console.log("All faces to load", allFaces);
     FontLoaderUtil.loadFontFaces(allFaces, function () {
@@ -58,6 +73,35 @@ FontLoader.prototype.removeFont = function (font, callback) {
             ApplicationPane._instance.unbusy();
         });
     }.bind(this), "Cancel");
+};
+FontLoader.prototype.getAllInstalledFonts = function () {
+    this.userRepo.load();
+    if (this.documentRepo) this.documentRepo.load();
+
+    var fonts = [];
+    var fontNames = [];
+
+    if (this.userRepo.fonts.length > 0) {
+        for (var font of this.userRepo.fonts) {
+            var font = JSON.parse(JSON.stringify(font));
+            font._type = FontRepository.TYPE_USER;
+            fonts.push(font);
+            fontNames.push(font.name);
+        }
+    }
+
+    if (this.documentRepo && this.documentRepo.fonts.length > 0) {
+        for (var docFont of this.documentRepo.fonts) {
+            if (fontNames.indexOf(docFont.name) >= 0) continue;
+            fontNames.push(docFont.name);
+
+            var docFont = JSON.parse(JSON.stringify(docFont));
+            docFont._type = FontRepository.TYPE_DOCUMENT;
+            fonts.push(docFont);
+        }
+    }
+
+    return fonts;
 };
 FontLoader.prototype.getUserFonts = function () {
     return this.userRepo.fonts;

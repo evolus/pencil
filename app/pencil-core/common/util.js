@@ -582,6 +582,14 @@ Dom.serializeNode = function (node) {
 };
 Dom.serializeNodeToFile = function (node, file, additionalContentPrefixes) {
     var xml = Controller.serializer.serializeToString(node);
+    var root = node.documentElement ? node.documentElement : node;
+    if (root.namespaceURI == PencilNamespaces.html) {
+        //this is actually an HTML document, performing a trick for supporting ">" chars inside <style> tags
+        xml = xml.replace(/(<style[^>]*>)([^<]+)(<\/style>)/g, function (whole, leading, content, trailing) {
+            return leading + content.replace(/&gt;/g, ">") + trailing;
+        });
+    }
+
     fs.writeFileSync(file, xml, "utf8");
 };
 Dom._buildHiddenFrame = function () {
@@ -1005,11 +1013,20 @@ var Local = {};
 Local.getInstalledFonts = function () {
     var installedFaces = [];
     var localFonts = [];
-    document.fonts.forEach(function (face) {
-        if (!face._type || installedFaces.indexOf(face.family) >= 0) return;
-        installedFaces.push(face.family);
-        localFonts.push({family: face.family, type: face._type});
-    });
+    // document.fonts.forEach(function (face) {
+    //     if (!face._type || installedFaces.indexOf(face.family) >= 0) return;
+    //     installedFaces.push(face.family);
+    //     localFonts.push({family: face.family, type: face._type});
+    // });
+
+    var installedFonts = FontLoader.instance.getAllInstalledFonts();
+    if (installedFonts.length > 0) {
+        for (var font of installedFonts) {
+            if (installedFaces.indexOf(font.name) >= 0) continue;
+            installedFaces.push(font.name);
+            localFonts.push({family: font.name, type: font._type});
+        }
+    }
 
     Local.sortFont(localFonts);
 
@@ -2053,7 +2070,7 @@ function pEval (expression, extra) {
             result = eval(expression)
         }
     } catch (ex) {
-        error("Problematic code: " + expression);
+        if (expression.length < 1000) error("Problematic code: " + expression);
         Console.dumpError(ex);
     }
 

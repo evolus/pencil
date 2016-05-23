@@ -1170,6 +1170,11 @@ Controller.prototype.rasterizeCurrentPage = function () {
     }, function (filePath) {
         if (!filePath) return;
         this.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
+            if (!error) {
+                NotificationPopup.show("Page exprted as '" + path.basename(filePath) + "'.", "View", function () {
+                    shell.openItem(filePath);
+                });
+            }
         });
     }.bind(this));
 };
@@ -1346,6 +1351,10 @@ Controller.prototype.getRootPages = function () {
 Controller.prototype.exportCurrentDocument = function () {
     Pencil.documentExportManager.exportDocument(this.doc);
 };
+Controller.prototype.printCurrentDocument = function () {
+    Pencil.documentExportManager.exportDocument(this.doc, "PrintingExporter");
+};
+
 
 window.onbeforeunload = function (event) {
     var remote = require("electron").remote;
