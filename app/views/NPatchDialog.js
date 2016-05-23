@@ -72,7 +72,7 @@ NPatchDialog.prototype.getPixel = function(imageData, x, y) {
     };
 }
 
-NPatchDialog.prototype.createPatch = function(srcImage, p1, p2, scaleX, scaleY) {
+NPatchDialog.prototype.createPatch = function(srcImage, p1, p2, scaleX, scaleY, container) {
     var canvas = this.canvas;
     var w = p2.x - p1.x;
     var h = p2.y - p1.y;
@@ -84,11 +84,11 @@ NPatchDialog.prototype.createPatch = function(srcImage, p1, p2, scaleX, scaleY) 
 
     context.drawImage(srcImage, p1.x, p1.y, w, h, 0, 0, w, h);
     var data = canvas.toDataURL("image/png");
-    this.appendResult(data, w, h, scaleX, scaleY);
+    this.appendResult(data, w, h, scaleX, scaleY, container);
 }
 
-NPatchDialog.prototype.appendResult = function (data, w, h, scaleX, scaleY) {
-    var result= this.parsedImageContainer;
+NPatchDialog.prototype.appendResult = function (data, w, h, scaleX, scaleY, container) {
+    var result = container ? container : this.parsedImageContainer;
     var img = Dom.newDOMElement({
         _name: "img",
         src: data
@@ -196,13 +196,15 @@ NPatchDialog.prototype.createPatches = function (image) {
        var vs = vWalker.segments[j];
        this.currentRow = [];
        this.data.patches.push(this.currentRow);
+       var hbox = Dom.newDOMElement({_name: "hbox"});
+       parsedImageContainer.appendChild(hbox);
        for (var i = 0; i < hWalker.segments.length; i ++) {
            var hs = hWalker.segments[i];
-           this.createPatch(image, new Point(hs.start + 1, vs.start + 1), new Point(hs.end + 2, vs.end + 2), hs.alpha > 0, vs.alpha > 0);
+           this.createPatch(image, new Point(hs.start + 1, vs.start + 1), new Point(hs.end + 2, vs.end + 2), hs.alpha > 0, vs.alpha > 0, hbox);
            if (hs.alpha > 0 && i > lastScaleX) lastScaleX = i;
        }
        if (vs.alpha > 0 && j > lastScaleY) lastScaleY = j;
-       parsedImageContainer.appendChild(document.createElement("br"));
+    //    parsedImageContainer.appendChild(document.createElement("br"));
    }
 
    this.data.lastScaleX = lastScaleX;
