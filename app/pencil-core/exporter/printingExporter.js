@@ -13,7 +13,7 @@ PrintingExporter.prototype.requireRasterizedData = function (options) {
     var template = ExportTemplateManager.getTemplateById(templateId);
     if (!template) return false;
 
-    return "true" == template["useRasterizedImages"];
+    return (options && options.options && options.options.format == 'rasterized');
 };
 PrintingExporter.prototype.getRasterizedPageDestination = function (baseDir) {
     this.tempDir = Local.createTempDir("printing");

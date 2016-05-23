@@ -4,6 +4,7 @@
     xmlns="http://www.w3.org/1999/xhtml">
 <xsl:output method="html"/>
 
+<xsl:param name="format" select="'vector'" />
 <xsl:param name="pageSize" select="'a4'" />
 <xsl:param name="orientation" select="'portrait'" />
 <xsl:param name="cols" select="2" />
@@ -206,18 +207,36 @@
                 <div class="PageName"><xsl:value-of select="p:Properties/p:Property[@name='name']/text()"/></div>
             </xsl:if>
             <div class="SVGContainer" style="overflow: hidden;">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-                    viewBox="0 0 {p:Properties/p:Property[@name='width']/text()} {p:Properties/p:Property[@name='height']/text()}">
-                    <xsl:call-template name="calculateSVGSize">
-                        <xsl:with-param name="width" select="p:Properties/p:Property[@name='width']/text()" />
-                        <xsl:with-param name="height" select="p:Properties/p:Property[@name='height']/text()" />
-                    </xsl:call-template>
-                    <xsl:apply-templates select="p:BackgroundPages/p:Page" mode="copyBackground"/>
-                    <g inkscape:label="{p:Properties/p:Property[@name='name']/text()}"
-                       inkscape:groupmode="layer" id="layer_{p:Properties/p:Property[@name='fid']/text()}">
-                        <xsl:apply-templates select="p:Content/*" mode="copy" />
-                    </g>
-                </svg>
+                <xsl:choose>
+                    <xsl:when test="$format = 'vector'">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+                            viewBox="0 0 {p:Properties/p:Property[@name='width']/text()} {p:Properties/p:Property[@name='height']/text()}">
+                            <xsl:call-template name="calculateSVGSize">
+                                <xsl:with-param name="width" select="p:Properties/p:Property[@name='width']/text()" />
+                                <xsl:with-param name="height" select="p:Properties/p:Property[@name='height']/text()" />
+                            </xsl:call-template>
+                            <xsl:apply-templates select="p:BackgroundPages/p:Page" mode="copyBackground"/>
+                            <g inkscape:label="{p:Properties/p:Property[@name='name']/text()}"
+                               inkscape:groupmode="layer" id="layer_{p:Properties/p:Property[@name='fid']/text()}">
+                                <xsl:apply-templates select="p:Content/*" mode="copy" />
+                            </g>
+                        </svg>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <div>
+                            <xsl:call-template name="calculateImageSize">
+                                <xsl:with-param name="width" select="p:Properties/p:Property[@name='width']/text()" />
+                                <xsl:with-param name="height" select="p:Properties/p:Property[@name='height']/text()" />
+                            </xsl:call-template>
+                            <img src="{@rasterized}"
+                                style="width: 100%; height: 100%;"
+                                usemap="#map_{p:Properties/p:Property[@name='fid']/text()}"/>
+                        </div>
+                        <map name="map_{p:Properties/p:Property[@name='fid']/text()}">
+                            <xsl:apply-templates select="p:Links/p:Link" />
+                        </map>
+                    </xsl:otherwise>
+                </xsl:choose>
                 <xsl:if test="p:Note and $withPageNote = 'true'">
                     <div class="Notes">
                         <xsl:call-template name="calculateNoteHeight">
@@ -244,6 +263,18 @@
             <xsl:otherwise>
                 <xsl:attribute name="width"><xsl:value-of select="$imageWidth" />mm</xsl:attribute>
                 <xsl:attribute name="height"><xsl:value-of select="floor($height div ($width div $imageWidth)) - $pageNotePadding" />mm</xsl:attribute>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    <xsl:template name="calculateImageSize">
+        <xsl:param name="width" />
+        <xsl:param name="height" />
+        <xsl:choose>
+            <xsl:when test="($height div $imageHeight) > ($width div $imageWidth)">
+                <xsl:attribute name="style">width: <xsl:value-of select="floor($width div ($height div $imageHeight))" />mm; height:<xsl:value-of select="$imageHeight" />mm;</xsl:attribute>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:attribute name="style">width: <xsl:value-of select="$imageWidth" />mm; height: <xsl:value-of select="floor($height div ($width div $imageWidth)) - $pageNotePadding" />mm;</xsl:attribute>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
