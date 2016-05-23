@@ -17,13 +17,14 @@ function NPatchDialog() {
 
                 thiz.sourceImageContainer.innerHTML="";
                 thiz.parsedImageContainer.innerHTML="";
-                var holder={};
+                // var holder={};
                 var img = Dom.newDOMElement({
                     _name: "img",
-                    _id: "nPatchImg"
-                },null,holder);
+                    // _id: "nPatchImg"
+                    src: filenames
+                });
                 thiz.sourceImageContainer.appendChild(img);
-                Util.setupImage(holder.nPatchImg, filenames, "center-inside");
+                // Util.setupImage(holder.nPatchImg, filenames, "center-inside");
                 window.setTimeout(function () {
                     thiz.handleImageLoad(img);
                 }, 100);
