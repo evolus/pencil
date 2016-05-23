@@ -62,6 +62,14 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
 
     var xsltProcessor = new XSLTProcessor();
     xsltProcessor.importStylesheet(xsltDOM);
+
+    if (options && options.options) {
+        for (var name in options.options) {
+            var value = options.options[name];
+            xsltProcessor.setParameter(null, name, value);
+        }
+    }
+
     var result = xsltProcessor.transformToDocument(sourceDOM);
 
     //this result contains the HTML DOM of the file to print.

@@ -26,6 +26,7 @@ function ComboManager() {
         });
         return !found;
     };
+    this.popup.setPopupClass("ComboManagerPopup");
 }
 
 ComboManager.DEFAULT_RENDERER = function (item) {
@@ -107,7 +108,7 @@ ComboManager.prototype.selectItem = function (item, fromUserAction, whenMatched)
         }
     }
     if (!matched && whenMatched) return;
-    
+
     var element = this.renderer(item);
     if (!element) return;
 

@@ -40,7 +40,6 @@ ExportTemplateManager.loadUserDefinedTemplates = function () {
     try {
 
         var templateDir = ExportTemplateManager.getUserTemplateDirectory();
-        console.log("load user define template from: " + templateDir );
         ExportTemplateManager.loadTemplatesIn(templateDir);
     } catch (e) {
         Console.dumpError(e);
@@ -90,19 +89,15 @@ ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type)
             var dirPath = path.join(templateDir, dir);
             stat = fs.statSync(dirPath);
             if (!stat.isDirectory()) return;
-
             var template = ExportTemplate.parse(dirPath);
-
             if (!template) {
                 return;
             }
 
-            debug("Found template: " + template.name + ", at: " + dir);
-
             ExportTemplateManager.addTemplate(template, type);
         })
     } catch (e) {
-        Console.dumpError(e);
+        console.error(e);
     }
 };
 

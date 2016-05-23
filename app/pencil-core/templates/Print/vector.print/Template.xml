@@ -1,4 +1,4 @@
-<Template xmlns="http://www.evolus.vn/Namespace/Pencil">
+<Template xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil">
     <Property name="id">Evolus:Print:Vector.Template.Unified</Property>
     <Property name="name">Vector Template (Unified)</Property>
     <Property name="author">Evolus</Property>
@@ -9,8 +9,8 @@
     <Property name="orientation" displayName="Orientation" type="Enum" p:enumValues="['portrait|Portrait', 'landscape|Landscape']">portrait</Property>
     <Property name="cols" displayName="Columns" type="Enum" p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6']">1</Property>
     <Property name="rows" displayName="Rows" type="Enum" p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6']">1</Property>
-    <Property name="withPageName" displayName="With page name" type="Bool">true</Property>
-    <Property name="withHeaderFooter" displayName="With header/footer" type="Bool">true</Property>
-    <Property name="withPageNote" displayName="With notes" type="Bool">true</Property>
-    <Property name="withBorder" displayName="With border" type="Bool">true</Property>
+    <Property name="withPageName" displayName="With title" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
+    <Property name="withHeaderFooter" displayName="With header/footer" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
+    <Property name="withPageNote" displayName="With notes" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
+    <Property name="withBorder" displayName="Draw borders" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
 </Template>
