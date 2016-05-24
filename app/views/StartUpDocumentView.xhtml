@@ -2,6 +2,8 @@
     <style>
         body .widget_StartUpDocumentView {
             text-align: left;
+            justify-content: center;
+            align-items: center;
         }
 
         @recentDocumentPane {
@@ -64,23 +66,25 @@
             margin-top: 1em;
         }
     </style>
-    <vbox anon-id="recentDocumentPane">
-        <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" anon-id="recentDocumentRepeater" flex="1">
-            <strong role="header">Recent Documents</strong>
-            <vbox role="item">
-                <div class="ImageContainer">
-                    <img anon-id="thumbnailImage"/>
-                </div>
-                <vbox class="InfoPane">
-                    <strong anon-id="name"></strong>
-                    <span anon-id="info"></span>
+    <vbox>
+        <vbox anon-id="recentDocumentPane">
+            <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" anon-id="recentDocumentRepeater" flex="1">
+                <strong role="header">Recent Documents</strong>
+                <vbox role="item">
+                    <div class="ImageContainer">
+                        <img anon-id="thumbnailImage"/>
+                    </div>
+                    <vbox class="InfoPane">
+                        <strong anon-id="name"></strong>
+                        <span anon-id="info"></span>
+                    </vbox>
                 </vbox>
-            </vbox>
-            <hr role="footer"></hr>
-        </ui:RepeaterView>
+                <hr role="footer"></hr>
+            </ui:RepeaterView>
+        </vbox>
+        <hbox anon-id="otherOptionPane">
+            <button command="openDocumentCommand"><i>open_in_browser</i>Open a Document...</button>
+            <button command="newDocumentCommand"><i>note_add</i>Create a New Document</button>
+        </hbox>
     </vbox>
-    <hbox anon-id="otherOptionPane">
-        <button command="openDocumentCommand"><i>open_in_browser</i>Open a Document...</button>
-        <button command="newDocumentCommand"><i>note_add</i>Create a New Document</button>
-    </hbox>
 </vbox>

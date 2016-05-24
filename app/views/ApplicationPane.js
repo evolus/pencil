@@ -32,23 +32,28 @@ function ApplicationPane() {
     var lastOverflowY = null;
 
     var overflowChecker = function () {
-        var overflowX = thiz.contentBody.scrollWidth > thiz.contentBody.clientWidth;
-        var overflowY = thiz.contentBody.scrollHeight > thiz.contentBody.clientHeight;
+        var pane = thiz.activeCanvas ? thiz.activeCanvas._scrollPane : null;
+        if (!pane) {
+            window.setTimeout(overflowChecker, 100);
+            return;
+        }
+        var overflowX = pane.scrollWidth > pane.clientWidth;
+        var overflowY = pane.scrollHeight > pane.clientHeight;
 
-        if (lastOverflowX == null || lastOverflowX != overflowX || lastOverflowY == null || lastOverflowY != overflowY) {
-            thiz.contentBody.setAttribute("overflowx", overflowX);
-            thiz.contentBody.setAttribute("overflowy", overflowY);
+        if (pane.lastOverflowX == null || pane.lastOverflowX != overflowX || pane.lastOverflowY == null || pane.lastOverflowY != overflowY) {
+            pane.setAttribute("overflowx", overflowX);
+            pane.setAttribute("overflowy", overflowY);
 
-            thiz.contentBody.style.transform = "";
-            thiz.contentBody.style.transform = "translateZ(0)";
+            pane.style.transform = "";
+            pane.style.transform = "translateZ(0)";
         }
 
-        lastOverflowX = overflowX;
-        lastOverdlowY = overflowY;
+        pane.lastOverflowX = overflowX;
+        pane.lastOverdlowY = overflowY;
 
         window.setTimeout(overflowChecker, 100);
     };
-    overflowChecker();
+    //overflowChecker();
 
     this.pageListView.setController(this.controller);
 
@@ -96,9 +101,14 @@ ApplicationPane.prototype.createCanvas = function () {
 
     var doc = this.getCanvasContainer().ownerDocument;
 
+    var scrollPane = doc.createElement("hbox");
+    Dom.addClass(scrollPane, "CanvasScrollPane");
+    scrollPane.setAttribute("flex", "1");
+
     var wrapper = doc.createElement("div");
     Dom.addClass(wrapper, "CanvasWrapper");
     wrapper.setAttribute("tabindex", 0);
+    scrollPane.appendChild(wrapper);
 
     var container = doc.createElement("div");
     wrapper.appendChild(container);
@@ -108,11 +118,13 @@ ApplicationPane.prototype.createCanvas = function () {
 
     var canvas = new Canvas(container);
 
-    this.getCanvasContainer().appendChild(wrapper);
+    this.getCanvasContainer().appendChild(scrollPane);
     wrapper._canvas = canvas;
+    scrollPane._canvas = canvas;
     canvas._wrapper = wrapper;
+    canvas._scrollPane = scrollPane;
 
-    wrapper.style.display = "none";
+    scrollPane.style.display = "none";
 
     canvas.element.addEventListener("p:SizeChanged", function () {
         var w = Math.ceil(canvas.width * canvas.zoom);
@@ -137,9 +149,9 @@ ApplicationPane.prototype.testSave = function () {
 };
 ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     for (var i = 0; i < this.getCanvasContainer().childNodes.length; i ++) {
-        var wrapper = this.getCanvasContainer().childNodes[i];
-        if (!wrapper.getAttribute) continue;
-        wrapper.style.display = (canvas != null && canvas._wrapper == wrapper) ? "inline-block" : "none";
+        var scrollPane = this.getCanvasContainer().childNodes[i];
+        if (!scrollPane.getAttribute) continue;
+        scrollPane.style.display = (canvas != null && canvas._scrollPane == scrollPane) ? "flex" : "none";
     }
 
     Pencil.activeCanvas = canvas;
@@ -153,7 +165,7 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
 ApplicationPane.prototype.showStartupPane = function () {
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
-    this.startupDocumentView.node().style.display = "inline-block";
+    this.startupDocumentView.node().style.display = "flex";
 
     this.invalidateUIForControllerStatus();
 };

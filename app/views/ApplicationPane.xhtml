@@ -19,23 +19,30 @@
             margin-left: 0.4em;
         }
         @contentBody {
+            background: darken(@app_bg, 10%);
+        }
+        @contentBody > .CanvasScrollPane {
             text-align: center;
             overflow: auto;
             background: darken(@app_bg, 10%);
             box-shadow: inset 0px 0px 1ex rgba(0, 0, 0, 0.3);
+            align-items: center;
         }
-        @contentBody > * {
+        @contentBody > .CanvasScrollPane > * {
             text-align: left;
         }
-        @contentBody[overflowx='false'] {
+        @contentBody > .CanvasScrollPane[overflowx='false'] {
             justify-content: center;
         }
-        @contentBody[overflowy='false'] {
+        @contentBody > .CanvasScrollPane[overflowy='false'] {
             align-items: center;
         }
         .CanvasWrapper {
             padding: 10px;
             box-sizing: content-box;
+            margin: auto;
+            vertical-align: middle;
+            display: inline-block;
         }
         .Canvas {
             background: #FFF;
@@ -44,9 +51,13 @@
             line-height: 1px;
             outline: none;
             overflow: hidden;
+            display: inline-block;
         }
-        .Canvas:focus {
-            border: solid 1px fadeout(@selected_bg, 30%);
+        .CanvasWrapper:focus {
+            outline: none;
+        }
+        .CanvasWrapper:focus > .Canvas {
+            outline: solid 1px fadeout(@selected_bg, 30%);
         }
         .Canvas svg {
             line-height: 1.428;
@@ -152,7 +163,7 @@
             </ui:CollapseablePanel>
             <vbox flex="1" anon-id="documentContainer">
                 <hbox anon-id="contentBody" flex="1" style="position: relative;">
-                    <ui:StartUpDocumentView anon-id="startupDocumentView" />
+                    <ui:StartUpDocumentView anon-id="startupDocumentView" flex="1" />
                 </hbox>
                 <ui:PageListView anon-id="pageListView" />
             </vbox>

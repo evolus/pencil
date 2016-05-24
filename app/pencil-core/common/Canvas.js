@@ -3,7 +3,7 @@ function Canvas(element) {
     this.oldElement = "";
     this.__delegate("addEventListener", "hasAttribute", "getAttribute", "setAttribute", "setAttributeNS", "removeAttribute", "removeAttributeNS", "dispatchEvent");
     this.element.setAttribute("pencil-canvas", "true");
-    this.element.setAttribute("tabindex", "0");
+    this.element.parentNode.setAttribute("tabindex", "0");
 
     this.xferHelpers = [];
     this.dragObservers = [];
@@ -14,7 +14,7 @@ function Canvas(element) {
     // building the content as: box >> svg
     var thiz = this;
 
-    this.focusableBox = this.element;
+    this.focusableBox = this.element.parentNode;
 
     this.addEventListener("mousedown", function (event) {
         var inDrawing = Dom.findUpward(event.originalTarget, function (node) {

@@ -803,6 +803,9 @@ Controller.prototype.getPageSVG = function (page) {
 Controller.prototype.swapOut = function (page) {
     if (!page.canvas) throw "Invalid page state. Unable to swap out un-attached page";
     this.serializePage(page, page.tempFilePath);
+    page.careTakerTempFile = tmp.fileSync({postfix: ".xml", keep: false});
+    page.canvas.careTaker.saveState(page.careTakerTempFile.name);
+
     this.canvasPool.return(page.canvas);
     page.canvas = null;
     page.lastUsed = null;
@@ -821,6 +824,13 @@ Controller.prototype.swapIn = function (page, canvas) {
             canvas.drawingLayer.appendChild(c);
         }
     }
+    canvas.careTaker.reset();
+    if (page.careTakerTempFile) {
+        canvas.careTaker.loadState(page.careTakerTempFile.name);
+        page.careTakerTempFile.removeCallback();
+        page.careTakerTempFile = null;
+    }
+
     page.canvas = canvas;
     canvas.page = page;
     canvas.setSize(page.width, page.height);

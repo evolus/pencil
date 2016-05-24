@@ -17,9 +17,8 @@ CanvasMenu.prototype.setup = function () {
         key: "undoCommand",
         getLabel: function () { return "Undo: " + thiz.canvas.careTaker.getCurrentAction(); },
         icon: "undo",
-        shortcut: "Ctrl+Z",
         isValid: function () { return thiz.canvas.careTaker.canUndo(); },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             thiz.canvas.careTaker.undo();
         }
@@ -28,9 +27,8 @@ CanvasMenu.prototype.setup = function () {
         key: "redoCommand",
         getLabel: function () { return "Redo: " + thiz.canvas.careTaker.getPrevAction(); },
         icon: "redo",
-        shortcut: "Ctrl+Y",
         isValid: function () { return thiz.canvas.careTaker.canRedo(); },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             thiz.canvas.careTaker.redo();
         }
@@ -41,7 +39,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Bring to Front",
         shortcut: "Shift+PAGE_UP",
         isValid: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringToFront},
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.currentController.bringToFront();
         }
@@ -51,7 +49,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Bring Forward",
         shortcut: "PAGE_UP",
         isValid: function () { return thiz.canvas.currentController && thiz.canvas.currentController.bringForward; },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.currentController.bringForward();
         }
@@ -61,7 +59,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Send Backward",
         shortcut: "PAGE_DOWN",
         isValid: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendBackward; },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.currentController.sendBackward();
         }
@@ -71,7 +69,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Send to Back",
         shortcut: "Shift+PAGE_DOWN",
         isValid: function () { return thiz.canvas.currentController && thiz.canvas.currentController.sendToBack; },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.currentController.sendToBack();
         }
@@ -97,7 +95,7 @@ CanvasMenu.prototype.setup = function () {
             (thiz.canvas.currentController instanceof TargetSet);
         },
         isValid: function () { return thiz.canvas.currentController; },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.doGroup();
         }
@@ -111,7 +109,7 @@ CanvasMenu.prototype.setup = function () {
             (thiz.canvas.currentController instanceof Group);
         },
         isValid: function () { return thiz.canvas.currentController; },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.doUnGroup();
         }
@@ -126,7 +124,7 @@ CanvasMenu.prototype.setup = function () {
             (thiz.canvas.currentController instanceof Shape || thiz.canvas.currentController instanceof Group || thiz.canvas.currentController instanceof TargetSet);
         },
         isValid: function () { return thiz.canvas.currentController; },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             thiz.canvas.deleteSelected();
             ApplicationPane._instance.invalidatePropertyEditor();
@@ -152,7 +150,7 @@ CanvasMenu.prototype.setup = function () {
         icon: "content_cut",
         shortcut: "Ctrl+X",
         isValid: function () { return Pencil.activeCanvas.currentController; },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.doCopy();
             Pencil.activeCanvas.deleteSelected();
@@ -164,7 +162,7 @@ CanvasMenu.prototype.setup = function () {
         icon: "content_copy",
         shortcut: "Ctrl+C",
         isValid: function () { return Pencil.activeCanvas.currentController; },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.doCopy();
         }
@@ -175,7 +173,7 @@ CanvasMenu.prototype.setup = function () {
         icon: "content_paste",
         shortcut: "Ctrl+V",
         isValid: function () { return true; /*FIXME: check for clipboard content*/ },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.doPaste();
         }
@@ -186,7 +184,7 @@ CanvasMenu.prototype.setup = function () {
         icon: "select_all",
         shortcut: "Ctrl+A",
         isValid: function () { return true; },
-        applyWhenClass: "Canvas",
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.selectAll();
         }
