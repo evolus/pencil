@@ -1,6 +1,6 @@
 function TemplateManagementDialog() {
     Dialog.call(this);
-    this.title = "Export Template Managerment";
+    this.title = "Export Template Management";
 
     this.templateTypeSelector.renderer = function (items) {
         // if (!pageSize.value) return pageSize.displayName;
