@@ -5,7 +5,7 @@ function CanvasMenu() {
 __extend(Menu, CanvasMenu);
 
 CanvasMenu.prototype.getTemplatePath = function () {
-    return this.getTemplatePrefix() + "Menu.xhtml";
+    return this.getTemplatePrefix() + "menus/Menu.xhtml";
 };
 
 CanvasMenu.prototype.setup = function () {

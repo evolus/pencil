@@ -62,7 +62,7 @@ BaseCollectionPane.ICON_MAP = {
 };
 
 BaseCollectionPane.prototype.getTemplatePath = function () {
-    return this.getTemplatePrefix() + "BaseCollectionPane.xhtml";
+    return this.getTemplatePrefix() + "collections/BaseCollectionPane.xhtml";
 };
 
 BaseCollectionPane.prototype.getTitle = function() {

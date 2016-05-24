@@ -11,6 +11,13 @@ function SharedColorEditor() {
     }, this.selectorContainer.node());
 
     this.selectorContainer.setPopupClass("SharedColorEditorPopup");
+    var thiz = this;
+    this.selectorContainer.shouldCloseOnBlur = function(event) {
+        var found = Dom.findUpward(event.target, function (node) {
+            return node == thiz.node();
+        });
+        return !found;
+    };
 }
 __extend(BaseTemplatedWidget, SharedColorEditor);
 
@@ -22,6 +29,10 @@ SharedColorEditor.prototype.setup = function () {
 
     this.node().addEventListener("click", function (event) {
         // this.color = Color.fromString("#336699");
+        if (thiz.selectorContainer.isVisible()) {
+            thiz.selectorContainer.hide();
+            return;
+        }
         if (!thiz.color) return;
         thiz.selector.setColor(thiz.color);
         thiz.selectorContainer.show(thiz.node(), "left-inside", "bottom", 0, 5);

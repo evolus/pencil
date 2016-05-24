@@ -3,7 +3,13 @@ function ColorPropertyEditor() {
     this.bind("p:PopupHidden", function () {
         // this.selectorContainer.removePopup();
     }, this.selectorContainer);
-
+    var thiz = this;
+    this.selectorContainer.shouldCloseOnBlur = function(event) {
+        var found = Dom.findUpward(event.target, function (node) {
+            return node == thiz.colorButton;
+        });
+        return !found;
+    };
 };
 __extend(PropertyEditor, ColorPropertyEditor);
 ColorPropertyEditor.prototype.setup = function () {
@@ -11,6 +17,10 @@ ColorPropertyEditor.prototype.setup = function () {
     var thiz = this;
 
     this.colorButton.addEventListener("click", function (event) {
+        if (thiz.selectorContainer.isVisible()) {
+            thiz.selectorContainer.hide();
+            return;
+        }
         thiz.selector.setColor(thiz.color);
         thiz.selectorContainer.show(thiz.colorButton, "left-inside", "bottom", 0, 5);
         event.cancelBubble = true;

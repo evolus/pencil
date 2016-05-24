@@ -54,18 +54,23 @@ ShapeDefDragObserver.prototype = {
         }
 
         if (!this.commited && this.hasDrag) {
+            console.log("event: ", event);
             var loc = this.canvas.getEventLocation(event);
             var cRect = this.canvas.svg.parentNode.getBoundingClientRect();
+            console.log("cRect: ", cRect);
             var rec = {
-                x: Math.round(0 - cRect.left),
-                y: Math.round(0 - cRect.top),
-                w: cRect.width,
-                h: cRect.height
+                x: Math.round(cRect.left),
+                y: Math.round(cRect.top),
+                w: Math.round(cRect.width),
+                h: Math.round(cRect.height)
             }
-            //console.log("loc: ", loc);
-            //console.log("rect: ", rec);
-            if (loc.x >= loc.x && loc.x <= rec.x + rec.w
+            console.log("loc: ", loc);
+            console.log("rect: ", rec);
+            if (loc.x >= rec.x && loc.x <= rec.x + rec.w
                 && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
+
+                console.log("finishMoving: ", loc);
+
                 this.commited = true;
                 this.canvas.finishMoving(event);
             } else {
@@ -146,15 +151,35 @@ PrivateShapeDefDragObserver.prototype = {
         this.commited = false;
         this.hasDrag = true;
     },
-    exit: function () {
+    exit: function (event) {
         this.aboutToDelete = false;
         if (this.deleteDiscarded) {
             return;
         }
 
+
         if (!this.commited && this.hasDrag) {
-            this.canvas.deleteSelected();
+            var loc = this.canvas.getEventLocation(event);
+            var cRect = this.canvas.svg.parentNode.getBoundingClientRect();
+            var rec = {
+                x: Math.round(0 - cRect.left),
+                y: Math.round(0 - cRect.top),
+                w: cRect.width,
+                h: cRect.height
+            }
+            console.log("loc: ", loc);
+            console.log("rect: ", rec);
+            if (loc.x >= rec.x && loc.x <= rec.x + rec.w
+                && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
+
+                console.log("finishMoving: ", loc);
+                this.commited = true;
+                this.canvas.finishMoving(event);
+            } else {
+                this.canvas.deleteSelected();
+            }
         }
+
 
         this.hasDrag = false;
     },
@@ -165,7 +190,7 @@ PrivateShapeDefDragObserver.prototype = {
         this.deleteDiscarded = false;
 
         window.setTimeout(function () {
-            thiz.exit();
+            thiz.exit(event);
         }, 10);
     },
     onDragOver: function (event, flavour, session) {
@@ -231,7 +256,23 @@ ShapeShortcutDragObserver.prototype = {
         }
 
         if (!this.commited && this.hasDrag) {
-            this.canvas.deleteSelected();
+            var loc = this.canvas.getEventLocation(event);
+            var cRect = this.canvas.svg.parentNode.getBoundingClientRect();
+            var rec = {
+                x: Math.round(0 - cRect.left),
+                y: Math.round(0 - cRect.top),
+                w: cRect.width,
+                h: cRect.height
+            }
+            //console.log("loc: ", loc);
+            //console.log("rect: ", rec);
+            if (loc.x >= rec.x && loc.x <= rec.x + rec.w
+                && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
+                this.commited = true;
+                this.canvas.finishMoving(event);
+            } else {
+                this.canvas.deleteSelected();
+            }
         }
         this.hasDrag = false;
     },
