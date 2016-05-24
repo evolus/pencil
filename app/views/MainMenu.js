@@ -1,7 +1,8 @@
-function MainMenu (menu) {
+function MainMenu (anchorView) {
     Menu.call(this);
     this.setup();
     this.itemRecentFile;
+    this.anchorView = anchorView;
 }
 
 __extend(Menu, MainMenu);
@@ -9,7 +10,15 @@ __extend(Menu, MainMenu);
 MainMenu.prototype.getTemplatePath = function () {
     return this.getTemplatePrefix() + "Menu.xhtml";
 };
+MainMenu.prototype.shouldCloseOnBlur = function(event) {
+    var thiz = this;
 
+    var found = Dom.findUpward(event.target, function (node) {
+        return node == thiz.anchorView;
+    });
+
+    return !found;
+}
 MainMenu.prototype.setup = function () {
 
     var thiz = this;

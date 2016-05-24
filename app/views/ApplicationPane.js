@@ -14,10 +14,13 @@ function ApplicationPane() {
     this.sharedFontEditor.applicationPane = this;
 
     var thiz = this;
-
+    this.mainMenu = new MainMenu(this.menuIcon);
     this.bind("click", function (event) {
-        var mainMenu = new MainMenu();
-        mainMenu.showMenu(this.menuIcon, "left-inside", "bottom", 0, 0);
+        if (thiz.mainMenu.isVisible()){
+            thiz.mainMenu.hide();
+            return;
+        }
+        thiz.mainMenu.showMenu(this.menuIcon, "left-inside", "bottom", 0, 0);
     }, this.menuIcon);
 
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
