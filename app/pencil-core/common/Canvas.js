@@ -58,24 +58,24 @@ function Canvas(element) {
     var fixTarget = this.topGroup;
     var fixRef = this.svg;
 
-    window.setTimeout(function () {
-        try {
-            var matrix = fixTarget.getScreenCTM();
-            var dx = matrix.e - Math.floor(matrix.e);
-            var dy = matrix.f - Math.floor(matrix.f);
-
-            if ((dx != 0 || dy != 0) && thiz.zoom == 1) {
-                matrix = fixRef.getScreenCTM();
-                dx = (matrix.e - Math.floor(matrix.e)) / thiz.zoom;
-                dy = (matrix.f - Math.floor(matrix.f)) / thiz.zoom;
-
-                var t = "translate(" + (0 - dx) + "," + (0 - dy) + ")";
-                fixTarget.setAttribute("transform", t);
-            }
-        } catch (e) {
-        }
-        window.setTimeout(arguments.callee, 1000);
-    }, 1000);
+    // window.setTimeout(function () {
+    //     try {
+    //         var matrix = fixTarget.getScreenCTM();
+    //         var dx = matrix.e - Math.floor(matrix.e);
+    //         var dy = matrix.f - Math.floor(matrix.f);
+    //
+    //         if ((dx != 0 || dy != 0) && thiz.zoom == 1) {
+    //             matrix = fixRef.getScreenCTM();
+    //             dx = (matrix.e - Math.floor(matrix.e)) / thiz.zoom;
+    //             dy = (matrix.f - Math.floor(matrix.f)) / thiz.zoom;
+    //
+    //             var t = "translate(" + (0 - dx) + "," + (0 - dy) + ")";
+    //            fixTarget.setAttribute("transform", t);
+    //         }
+    //     } catch (e) {
+    //     }
+    //     window.setTimeout(arguments.callee, 1000);
+    // }, 1000);
 
     this.svg.appendChild(this.topGroup);
 

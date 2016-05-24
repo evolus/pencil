@@ -488,6 +488,7 @@ StencilGenerator.loadStencil = function (result, stencils, index, callback, list
         }
     } catch (ex) {
         Console.dumpError(ex);
+        callback(null);
     }
 };
 StencilGenerator.getImageFileData = function (url) {
@@ -608,11 +609,8 @@ StencilGenerator.createCollection = function () {
                             }
 
                             Util.info(Util.getMessage("stencil.generator.title"), Util.getMessage("collection.has.been.created", StencilGenerator.collectionName.value));
-
                             listener.onTaskDone();
-
-                            StencilGenerator.closeDialog();
-
+                            // StencilGenerator.closeDialog();
                             return true;
                         }
 
