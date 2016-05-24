@@ -34,26 +34,4 @@ EditToolbar.prototype.registerCommands = function () {
             Pencil.activeCanvas.doPaste();
         }
     });
-
-    UICommandManager.register({
-        key: "globalUndoCommand",
-        shortcut: "Ctrl+Z",
-        getLabel: function () { return "Undo: " + Pencil.activeCanvas.careTaker.getCurrentAction(); },
-        icon: "undo",
-        isValid: function () { return Pencil.activeCanvas.careTaker.canUndo(); },
-        run: function () {
-            Pencil.activeCanvas.careTaker.undo();
-        }
-    });
-    UICommandManager.register({
-        key: "globalRedoCommand",
-        shortcut: "Ctrl+Y",
-        getLabel: function () { return "Redo: " + Pencil.activeCanvas.careTaker.getPrevAction(); },
-        icon: "redo",
-        isValid: function () { return Pencil.activeCanvas.careTaker.canRedo(); },
-        run: function () {
-            Pencil.activeCanvas.careTaker.redo();
-        }
-    });
-
 };

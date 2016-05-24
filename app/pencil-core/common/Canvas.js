@@ -140,8 +140,6 @@ function Canvas(element) {
 
     this.onScreenEditors = [];
 
-    this.menu = new CanvasMenu(this);
-
     // register event handler
     this.svg.addEventListener("click", function (event) {
         thiz.handleClick(event);
@@ -1419,7 +1417,7 @@ Canvas.prototype.handleContextMenuShow = function (event) {
         }
     }
 
-    this.menu.showMenuAt(event.clientX, event.clientY);
+    ApplicationPane._instance.canvasMenu.showMenuAt(event.clientX, event.clientY);
 };
 /*
     try {

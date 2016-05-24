@@ -6,6 +6,7 @@ function ApplicationPane() {
     this.canvasPool = new CanvasPool(this, 3);
     this.controller = new Controller(this.canvasPool, this);
     this.rasterizer = new Rasterizer(this.controller);
+    this.canvasMenu = new CanvasMenu();
 
     Pencil.controller = this.controller;
     Pencil.rasterizer = this.rasterizer;
