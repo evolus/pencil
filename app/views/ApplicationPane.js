@@ -148,6 +148,10 @@ ApplicationPane.prototype.testSave = function () {
     this.controller.serializePage(page, page.tempFilePath);
 };
 ApplicationPane.prototype.setActiveCanvas = function (canvas) {
+    if (this.activeCanvas && this.activeCanvas != canvas) {
+        this.activeCanvas._cachedState = this.activeCanvas.getCanvasState();
+    }
+
     for (var i = 0; i < this.getCanvasContainer().childNodes.length; i ++) {
         var scrollPane = this.getCanvasContainer().childNodes[i];
         if (!scrollPane.getAttribute) continue;

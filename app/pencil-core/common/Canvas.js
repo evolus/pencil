@@ -2095,6 +2095,40 @@ Canvas.prototype.run = function (job, targetObject, actionName, args) {
     }
 
 };
+Canvas.prototype.getCanvasState = function () {
+    var state = {
+        zoom: this.zoom,
+    }
+
+    if (this._scrollPane) {
+        state.scrollTop = this._scrollPane.scrollTop;
+        state.scrollLeft = this._scrollPane.scrollLeft;
+    }
+
+    console.log("return state: " + JSON.stringify(state), state);
+
+    return state;
+};
+Canvas.prototype.setCanvasState = function (state) {
+    if (state) {
+        console.log("Setting canvas state", state);
+        this.zoomTo(state.zoom);
+        if (this._scrollPane) {
+            window.setTimeout(function () {
+                this._scrollPane.scrollTop = state.scrollTop;
+                this._scrollPane.scrollLeft = state.scrollLeft;
+            }.bind(this), 10);
+        }
+    } else {
+        this.zoomTo(1);
+        if (this._scrollPane) {
+            window.setTimeout(function () {
+                this._scrollPane.scrollTop = 0;
+                this._scrollPane.scrollLeft = 0;
+            }.bind(this), 10);
+        }
+    }
+};
 Canvas.prototype.setBackgroundColor = function (color) {
     if(color) {
         this.focusableBox.style.backgroundColor = color.toRGBString();

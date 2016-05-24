@@ -805,6 +805,7 @@ Controller.prototype.swapOut = function (page) {
     this.serializePage(page, page.tempFilePath);
     page.careTakerTempFile = tmp.fileSync({postfix: ".xml", keep: false});
     page.canvas.careTaker.saveState(page.careTakerTempFile.name);
+    page.canvasState = this.canvasPool.getCanvasState(page.canvas);
 
     this.canvasPool.return(page.canvas);
     page.canvas = null;
@@ -830,6 +831,8 @@ Controller.prototype.swapIn = function (page, canvas) {
         page.careTakerTempFile.removeCallback();
         page.careTakerTempFile = null;
     }
+
+    canvas.setCanvasState(page.canvasState);
 
     page.canvas = canvas;
     canvas.page = page;
