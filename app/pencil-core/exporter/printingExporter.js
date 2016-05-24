@@ -75,7 +75,15 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
     //this result contains the HTML DOM of the file to print.
     //in case of using vector only data, we need to embed the font data into the stlye of this HTML DOM
 
+    var css = "svg { line-height: 1.428; }";
+
     var exportJob = function () {
+        var head = Dom.getSingle("/html/head", result);
+        var style = result.createElement("style");
+        style.setAttribute("type", "text/css");
+        style.appendChild(result.createTextNode(css));
+        head.appendChild(style);
+
         var htmlFile = path.join(destDir.name, PrintingExporter.HTML_FILE);
 
         Dom.serializeNodeToFile(result, htmlFile);
@@ -121,16 +129,9 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
 
     console.log(result.documentElement);
 
-
     if (fontFaces && fontFaces.length > 0) {
-        sharedUtil.buildEmbeddedFontFaceCSS(fontFaces, function (css) {
-            console.log("Font faces CSS", css.length);
-            var head = Dom.getSingle("/html/head", result);
-            var style = result.createElement("style");
-            style.setAttribute("type", "text/css");
-            style.appendChild(result.createTextNode(css));
-            head.appendChild(style);
-
+        sharedUtil.buildEmbeddedFontFaceCSS(fontFaces, function (fontFaceCSS) {
+            css += "\n" + fontFaceCSS;
             exportJob();
         });
     } else {
