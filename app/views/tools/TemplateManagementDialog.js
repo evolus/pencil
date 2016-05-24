@@ -3,20 +3,21 @@ function TemplateManagementDialog() {
     this.title = "Export Template Management";
 
     this.templateTypeSelector.renderer = function (items) {
-        // if (!pageSize.value) return pageSize.displayName;
         return items.displayName;
     }
     var thiz = this;
     this.templates;
     this.templateTypeSelector.addEventListener("p:ItemSelected", function (event) {
-        var templateType = thiz.templateTypeSelector.getSelectedItem();
-        thiz.loadTemplates(templateType.value);
+        thiz.invalidateTemplateList();
     }, false);
 }
 
 __extend(Dialog, TemplateManagementDialog);
 
-TemplateManagementDialog.prototype.loadTemplates = function (type) {
+TemplateManagementDialog.prototype.invalidateTemplateList = function () {
+    var templateType = this.templateTypeSelector.getSelectedItem();
+    var type = templateType.value;
+
     this.activedType = type;
     this.templates = ExportTemplateManager.getTemplatesForType(type);
     var items = [];
@@ -31,10 +32,9 @@ TemplateManagementDialog.prototype.loadTemplates = function (type) {
         items.push(item);
     }
     this.templateTable.setItems(items);
-
 }
 
-TemplateManagementDialog.prototype.initializePreferenceTable = function () {
+TemplateManagementDialog.prototype.initializeTemplateTable = function () {
     this.templateTable.column(new DataTable.PlainTextColumn("Template", function (data) {
         return data.templateName;
     }).width("1*"));
@@ -62,18 +62,19 @@ TemplateManagementDialog.prototype.initializePreferenceTable = function () {
      }];
     this.templateTable.column(new DataTable.ActionColumn(actions).width("5em"));
     this.templateTable.selector(false);
+
     var thiz = this;
     window.setTimeout(function () {
-        thiz.templateTable.setup();
-        thiz.templateTable.setDefaultSelectionHandler({
+        this.templateTable.setup();
+        this.templateTable.setDefaultSelectionHandler({
             run: function (data) {
 
             }
         });
-        thiz.loadTemplates("HTML");
-    }, 200);
+        this.templateTable.invalidateSizing();
+        this.invalidateTemplateList();
+    }.bind(this), 200);
 }
-
 TemplateManagementDialog.prototype.setup = function () {
     var templateType = ExportTemplateManager.SUPPORTED_TYPES;
     var templateTypeName = ExportTemplateManager.SUPPORTED_TYPES_NAMES;
@@ -86,12 +87,8 @@ TemplateManagementDialog.prototype.setup = function () {
         });
     }
     this.templateTypeSelector.setItems(templateItems);
-
-    //Setup table
-    this.initializePreferenceTable();
+    this.initializeTemplateTable();
 }
-
-
 
 TemplateManagementDialog.prototype.getDialogActions = function () {
     var thiz = this
