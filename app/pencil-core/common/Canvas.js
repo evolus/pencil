@@ -388,20 +388,26 @@ Canvas.prototype.selectSibling = function (next) {
     this.selectShape(sibling);
 
 };
-Canvas.prototype.invalidateAll = function () {
+Canvas.prototype.invalidateAll = function (callback) {
     if (this.element.clientWidth <= 0) {
-        setTimeout(this.invalidateAll.bind(this), 10);
+        setTimeout(function () {
+            this.invalidateAll(callback);
+        }.bind(this), 10);
         return;
     }
 
-    Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
-        try {
-            var controller = this.createControllerFor(node);
-            if (controller && controller.validateAll) controller.validateAll();
-        } catch (e) {
-            console.error(e);
-        }
-    }.bind(this));
+    try {
+        Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
+            try {
+                var controller = this.createControllerFor(node);
+                if (controller && controller.validateAll) controller.validateAll();
+            } catch (e) {
+                console.error(e);
+            }
+        }.bind(this));
+    } finally {
+        if (callback) callback();
+    }
 };
 Canvas.prototype.selectAll = function () {
 
@@ -2131,9 +2137,9 @@ Canvas.prototype.setCanvasState = function (state) {
 };
 Canvas.prototype.setBackgroundColor = function (color) {
     if(color) {
-        this.focusableBox.style.backgroundColor = color.toRGBString();
+        this.element.style.backgroundColor = color.toRGBString();
     } else {
-        this.focusableBox.style.backgroundColor = "";
+        this.element.style.backgroundColor = "";
     }
 
 
