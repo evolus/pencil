@@ -840,7 +840,9 @@ Controller.prototype.swapIn = function (page, canvas) {
 
 
     if (!page.invalidatedAfterLoad) {
-        this.invalidatePageContent(page);
+        this.invalidatePageContent(page, function () {
+            canvas.careTaker.reset();
+        });
         page.invalidatedAfterLoad = true;
     }
 } ;
@@ -879,24 +881,29 @@ Controller.prototype.ensurePageCanvasBackground = function (page) {
         page.canvas.setBackgroundImageData(null, false);
     }
 };
-Controller.prototype.invalidatePageContent = function (page) {
-    if (!page || !page.canvas) return;
-
-    page.canvas.invalidateAll();
-
-    var children = [];
-    while (page.canvas.drawingLayer.hasChildNodes()) {
-        var c = page.canvas.drawingLayer.firstChild;
-        children.push(c);
-        page.canvas.drawingLayer.removeChild(c);
+Controller.prototype.invalidatePageContent = function (page, callback) {
+    if (!page || !page.canvas) {
+        if (callback) callback();
+        return;
     }
 
-    Dom.empty(page.canvas.drawingLayer);
+    page.canvas.invalidateAll(function () {
+        var children = [];
+        while (page.canvas.drawingLayer.hasChildNodes()) {
+            var c = page.canvas.drawingLayer.firstChild;
+            children.push(c);
+            page.canvas.drawingLayer.removeChild(c);
+        }
 
-    while (children.length > 0) {
-        var c = children.shift();
-        page.canvas.drawingLayer.appendChild(c);
-    }
+        Dom.empty(page.canvas.drawingLayer);
+
+        while (children.length > 0) {
+            var c = children.shift();
+            page.canvas.drawingLayer.appendChild(c);
+        }
+
+        if (callback) callback();
+    });
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {

@@ -38,6 +38,7 @@ addons:
       - clang-3.7
       - graphicsmagick
       - xz-utils
+      - rpm
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
@@ -54,7 +55,7 @@ install:
   - nvm install $NODE_VERSION
   - npm install npm -g
   - npm install
-  - npm install git+https://github.com/mbrainiac/electron-builder.git#v3.26.1.1
+  - npm install git+https://github.com/mbrainiac/electron-builder.git#v3.26.1.2
   - npm prune
 
 script:

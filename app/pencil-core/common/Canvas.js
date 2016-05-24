@@ -140,8 +140,6 @@ function Canvas(element) {
 
     this.onScreenEditors = [];
 
-    this.menu = new CanvasMenu(this);
-
     // register event handler
     this.svg.addEventListener("click", function (event) {
         thiz.handleClick(event);
@@ -175,7 +173,7 @@ function Canvas(element) {
 
     this.svg.addEventListener("mousemove", function (event) {
         thiz.lastMouse = {x: event.offsetX / thiz.zoom, y: event.offsetY / thiz.zoom};
-    }, false);
+    }.bind(this), false);
     this.focusableBox.addEventListener("keydown", function (event) {
         thiz.handleKeyPress(event);
     }, false);
@@ -388,20 +386,26 @@ Canvas.prototype.selectSibling = function (next) {
     this.selectShape(sibling);
 
 };
-Canvas.prototype.invalidateAll = function () {
+Canvas.prototype.invalidateAll = function (callback) {
     if (this.element.clientWidth <= 0) {
-        setTimeout(this.invalidateAll.bind(this), 10);
+        setTimeout(function () {
+            this.invalidateAll(callback);
+        }.bind(this), 10);
         return;
     }
 
-    Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
-        try {
-            var controller = this.createControllerFor(node);
-            if (controller && controller.validateAll) controller.validateAll();
-        } catch (e) {
-            console.error(e);
-        }
-    }.bind(this));
+    try {
+        Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
+            try {
+                var controller = this.createControllerFor(node);
+                if (controller && controller.validateAll) controller.validateAll();
+            } catch (e) {
+                console.error(e);
+            }
+        }.bind(this));
+    } finally {
+        if (callback) callback();
+    }
 };
 Canvas.prototype.selectAll = function () {
 
@@ -879,14 +883,25 @@ Canvas.prototype.finishMoving = function (event) {
 
 };
 Canvas.prototype.handleMouseWheel = function(event) {
-    var thiz = this;
     if (event.ctrlKey) {
         Dom.cancelEvent(event);
+
+        const padding = 0;
+
+        var drawingX = this.lastMouse.x;
+        var drawingY = this.lastMouse.y;
+        console.log("drawing pos", [drawingX, drawingY]);
+        var dx = drawingX * this.zoom + padding - this._scrollPane.scrollLeft;
+        var dy = drawingY * this.zoom + padding - this._scrollPane.scrollTop;
+
         if (event.deltaY < 0) {
-            thiz.zoomTo(thiz.zoom * 1.25);
+            this.zoomTo(this.zoom * 1.25);
         } else {
-            thiz.zoomTo(thiz.zoom / 1.25);
+            this.zoomTo(this.zoom / 1.25);
         }
+
+        this._scrollPane.scrollLeft = drawingX * this.zoom + padding - dx;
+        this._scrollPane.scrollTop = drawingY * this.zoom + padding - dy;
     }
 }
 Canvas.prototype.handleMouseUp = function (event) {
@@ -1413,7 +1428,7 @@ Canvas.prototype.handleContextMenuShow = function (event) {
         }
     }
 
-    this.menu.showMenuAt(event.clientX, event.clientY);
+    ApplicationPane._instance.canvasMenu.showMenuAt(event.clientX, event.clientY);
 };
 /*
     try {
@@ -2131,9 +2146,9 @@ Canvas.prototype.setCanvasState = function (state) {
 };
 Canvas.prototype.setBackgroundColor = function (color) {
     if(color) {
-        this.focusableBox.style.backgroundColor = color.toRGBString();
+        this.element.style.backgroundColor = color.toRGBString();
     } else {
-        this.focusableBox.style.backgroundColor = "";
+        this.element.style.backgroundColor = "";
     }
 
 

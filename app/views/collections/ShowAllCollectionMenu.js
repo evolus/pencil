@@ -7,7 +7,7 @@ function ShowAllCollectionMenu (onDone) {
 __extend(Menu, ShowAllCollectionMenu);
 
 ShowAllCollectionMenu.prototype.getTemplatePath = function () {
-    return this.getTemplatePrefix() + "Menu.xhtml";
+    return this.getTemplatePrefix() + "menus/Menu.xhtml";
 };
 
 ShowAllCollectionMenu.prototype.setup = function () {
