@@ -51,8 +51,8 @@ TemplateManagementDialog.prototype.initializePreferenceTable = function () {
              },
              handler: function (item) {
                 Dialog.confirm(
-                    "Are you sure you really want to delete this template?", null,
-                    "Delete", function () {
+                    "Are you sure you really want to uninstall this template?", null,
+                    "Uninstall", function () {
                         ExportTemplateManager.uninstallTemplate(item.template);
                         thiz.loadTemplates(thiz.templateTypeSelector.getSelectedItem().value);
                     },

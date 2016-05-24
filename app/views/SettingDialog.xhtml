@@ -40,28 +40,28 @@
                     <strong>Canvas</strong>
                     <hbox>
                         <hbox class="Entry">
-                            <input type="checkbox" anon-id="checkboxEnableGrid" label="Show grid" preference="pencil-gridEnabled" configName="pencil.config.grid.enabled"/>
+                            <input type="checkbox" anon-id="checkboxEnableGrid" label="Show grid" preference="pencil-gridEnabled" configName="grid.enabled"/>
                             <label for="checkboxEnableGrid">Show grid</label>
                         </hbox>
                         <hbox class="Entry Disabled">
                             <label>Grid size</label>
-                            <input anon-id="textboxGridSize" size="1" type="number" min="1" max="256" preference="pencil-gridSize" configName="pencil.config.edit.gridSize"/>
+                            <input anon-id="textboxGridSize" size="1" type="number" min="1" max="256" preference="pencil-gridSize" configName="edit.gridSize"/>
                         </hbox>
                     </hbox>
                     <hbox class="Entry">
-                        <input type="checkbox" anon-id="snapToGrid" label="Show grid" preference="pencil-snapToGrid" configName="pencil.config.edit.snap.grid"/>
+                        <input type="checkbox" anon-id="snapToGrid" label="Show grid" preference="pencil-snapToGrid" configName="edit.snap.grid"/>
                         <label for="snapToGrid">Snap objects to grid.</label>
                     </hbox>
                     <hbox class="Entry">
-                        <input type="checkbox" anon-id="enableSnapping" label="Show grid" preference="pencil-objectSnappingEnabled" configName="pencil.config.object.snapping.enabled"/>
+                        <input type="checkbox" anon-id="enableSnapping" label="Show grid" preference="pencil-objectSnappingEnabled" configName="object.snapping.enabled"/>
                         <label for="enableSnapping">Snap objects to objects.</label>
                     </hbox>
                     <hbox class="Entry" style="padding-left:2em;">
-                        <input type="checkbox" anon-id="enableSnappingBackground" label="Show grid" preference="pencil-objectSnappingBackground" configName="pencil.config.object.snapping.background"/>
+                        <input type="checkbox" anon-id="enableSnappingBackground" label="Show grid" preference="pencil-objectSnappingBackground" configName="object.snapping.background"/>
                         <label for="enableSnappingBackground">Snap objects to objects in background page.</label>
                     </hbox>
                     <hbox class="Entry">
-                        <input type="checkbox" anon-id="embedImages" label="Show grid" preference="pencil-embedImages" configName="pencil.config.document.EmbedImages"/>
+                        <input type="checkbox" anon-id="embedImages" label="Show grid" preference="pencil-embedImages" configName="document.EmbedImages"/>
                         <label for="embedImages">Embed images when drag &amp; drog.</label>
                     </hbox>
 
@@ -69,21 +69,21 @@
                 <vbox>
                     <strong>Edit</strong>
                     <hbox class="Entry">
-                        <input type="checkbox" anon-id="quickEditting" label="Show grid" preference="pencil-quickEditting" configName="pencil.config.quick.editting"/>
+                        <input type="checkbox" anon-id="quickEditting" label="Show grid" preference="pencil-quickEditting" configName="quick.editting"/>
                         <label for="quickEditting">Start editing after dropping shapes into canvas.</label>
                     </hbox>
                     <hbox class="Entry">
-                        <input type="checkbox" anon-id="cutAndPasteAtTheSamePlace" label="Show grid" preference="pencil-cutAndPasteAtTheSamePlace" configName="pencil.config.edit.cutAndPasteAtTheSamePlace"/>
+                        <input type="checkbox" anon-id="cutAndPasteAtTheSamePlace" label="Show grid" preference="pencil-cutAndPasteAtTheSamePlace" configName="edit.cutAndPasteAtTheSamePlace"/>
                         <label for="cutAndPasteAtTheSamePlace">Cut and Paste at the same place.</label>
                     </hbox >
                     <hbox align="center">
                         <hbox class="Entry">
-                            <input type="checkbox" anon-id="undoEnabled" preference="pencil-gridEnabled" configName="pencil.config.view.undo.enabled"/>
+                            <input type="checkbox" anon-id="undoEnabled" preference="pencil-gridEnabled" configName="view.undo.enabled"/>
                             <label for="undoEnabled">Enable Undo/Redo</label>
                         </hbox>
                         <hbox class="Entry">
                             <label>Undo level</label>
-                            <input anon-id="textboxUndoLevel" size="1" type="number" min="1" max="256" preference="pencil-viewUndoLevel" configName="pencil.config.view.undoLevel"/>
+                            <input anon-id="textboxUndoLevel" size="1" type="number" min="1" max="256" preference="pencil-viewUndoLevel" configName="view.undoLevel"/>
                         </hbox>
                     </hbox>
                 </vbox>
@@ -92,16 +92,16 @@
                 <strong>Clipart Browser</strong>
                 <hbox align="center">
                     <hbox class="Entry">
-                        <input type="checkbox" anon-id="checkboxScaleImage" label="Show grid" preference="pencil-clipartBrowserScale" configName="pencil.config.clipartbrowser.scale"/>
+                        <input type="checkbox" anon-id="checkboxScaleImage" label="Show grid" preference="pencil-clipartBrowserScale" configName="clipartbrowser.scale"/>
                         <label for="checkboxScaleImage">Scale images to smaller size before inserting.</label>
                     </hbox>
                     <hbox class="Entry">
                         <label>Width</label>
-                        <input anon-id="textboxClipartBrowserScaleWidth" size="1" type="number" min="1" max="256" preference="pencil-clipartBrowserScaleWidth" configName="pencil.config.clipartbrowser.scale.width"/>
+                        <input anon-id="textboxClipartBrowserScaleWidth" size="1" type="number" min="1" max="256" preference="pencil-clipartBrowserScaleWidth" configName="clipartbrowser.scale.width"/>
                     </hbox>
                     <hbox class="Entry">
                         <label>Heigth</label>
-                        <input anon-id="textboxClipartBrowserScaleHeight" size="1" type="number" min="1" max="256" preference="pencil-clipartBrowserScaleHeight" configName="pencil.config.clipartbrowser.scale.height"/>
+                        <input anon-id="textboxClipartBrowserScaleHeight" size="1" type="number" min="1" max="256" preference="pencil-clipartBrowserScaleHeight" configName="clipartbrowser.scale.height"/>
                     </hbox>
                 </hbox>
             </vbox>
@@ -109,11 +109,11 @@
                 <strong>External Editor</strong>
                 <hbox align="center" id="svgBox" class="Entry">
                     <label>Path to external SVG editor</label>
-                    <input type="text" anon-id="svgEditorUrl" width="350" value="/usr/bin/inkscape" preference="pencil-svgEditorUrl"  configName="pencil.config.external.editor.bitmap.path"/>
+                    <input type="text" anon-id="svgEditorUrl" width="350" value="/usr/bin/inkscape" preference="pencil-svgEditorUrl"  configName="external.editor.bitmap.path"/>
                 </hbox>
                 <hbox align="center" id="bitmapBox" class="Entry">
                     <label>Path to Bitmap editor</label>
-                    <input type="text"  anon-id="bitmapEditorUrl" width="350" value="/usr/bin/gimp" preference="pencil-bitmapEditorUrl"  configName="pencil.config.external.editor.vector.path"/>
+                    <input type="text"  anon-id="bitmapEditorUrl" width="350" value="/usr/bin/gimp" preference="pencil-bitmapEditorUrl"  configName="external.editor.vector.path"/>
                 </hbox>
             </vbox>
             <vbox anon-id="advanceTab" flex="1" tab-title="Advance">

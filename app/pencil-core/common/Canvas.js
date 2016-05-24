@@ -173,7 +173,7 @@ function Canvas(element) {
 
     this.svg.addEventListener("mousemove", function (event) {
         thiz.lastMouse = {x: event.offsetX / thiz.zoom, y: event.offsetY / thiz.zoom};
-    }, false);
+    }.bind(this), false);
     this.focusableBox.addEventListener("keydown", function (event) {
         thiz.handleKeyPress(event);
     }, false);
@@ -883,14 +883,25 @@ Canvas.prototype.finishMoving = function (event) {
 
 };
 Canvas.prototype.handleMouseWheel = function(event) {
-    var thiz = this;
     if (event.ctrlKey) {
         Dom.cancelEvent(event);
+
+        const padding = 0;
+
+        var drawingX = this.lastMouse.x;
+        var drawingY = this.lastMouse.y;
+        console.log("drawing pos", [drawingX, drawingY]);
+        var dx = drawingX * this.zoom + padding - this._scrollPane.scrollLeft;
+        var dy = drawingY * this.zoom + padding - this._scrollPane.scrollTop;
+
         if (event.deltaY < 0) {
-            thiz.zoomTo(thiz.zoom * 1.25);
+            this.zoomTo(this.zoom * 1.25);
         } else {
-            thiz.zoomTo(thiz.zoom / 1.25);
+            this.zoomTo(this.zoom / 1.25);
         }
+
+        this._scrollPane.scrollLeft = drawingX * this.zoom + padding - dx;
+        this._scrollPane.scrollTop = drawingY * this.zoom + padding - dy;
     }
 }
 Canvas.prototype.handleMouseUp = function (event) {
