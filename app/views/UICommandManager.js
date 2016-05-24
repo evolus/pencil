@@ -234,6 +234,8 @@ UICommandManager.handleKeyEvent = function (event) {
         app.mainWindow.openDevTools();
     }
 
+    if (Dialog.hasOpenDialog()) return;
+
     for (var i = 0; i < UICommandManager.commands.length; i ++) {
         var command = UICommandManager.commands[i];
         if (!command.parsedShortcut) continue;

@@ -166,6 +166,8 @@ Dialog.prototype.show = function () {
         thiz.dialogFrame.style.visibility = "visible";
         thiz.dialogFrame.style.opacity = "1";
 
+        thiz.dialogFrame.focus();
+
         if (thiz.onShown) thiz.onShown();
     }, 100);
 
@@ -290,6 +292,13 @@ BuilderBasedDialog.prototype.quit = function () {
     this.close();
 };
 
+Dialog.hasOpenDialog = function () {
+    for (var closable of BaseWidget.closables) {
+        if (__isSubClassOf(closable.constructor, Dialog)) return true;
+    }
+
+    return false;
+};
 Dialog.alert = function (message, extra, onClose) {
     var builder = {
         title: "Information",

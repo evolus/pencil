@@ -29,6 +29,9 @@
             z-index: 2;
             overflow: hidden;
         }
+        body @dialogFrame:focus {
+            outline: none;
+        }
 
         body @dialogFrame @dialogClose {
             @iconify();
@@ -131,7 +134,7 @@
         }
 
     </style>
-    <vbox anon-id="dialogFrame" class="DialogFrame">
+    <vbox anon-id="dialogFrame" class="DialogFrame" tabindex="0">
         <hbox anon-id="dialogHeaderPane">
             <strong anon-id="dialogTitle" flex="1">Dialog Title</strong>
             <i anon-id="dialogClose">close</i>
