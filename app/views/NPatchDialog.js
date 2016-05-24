@@ -21,10 +21,13 @@ function NPatchDialog() {
                     _name: "img",
                     src: filenames + "?time=" + new Date().getTime()
                 });
-                thiz.sourceImageContainer.appendChild(img);
-                window.setTimeout(function () {
+                img.onload = function () {
                     thiz.handleImageLoad(img);
-                }, 100);
+                };
+                thiz.sourceImageContainer.appendChild(img);
+                // window.setTimeout(function () {
+                //     thiz.handleImageLoad(img);
+                // }, 100);
             });
     },this.browse)
 

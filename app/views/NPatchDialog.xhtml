@@ -1,9 +1,14 @@
 <vbox class="Form">
     <style>
         @imagePane {
-            min-width: 20em;
+            min-width: 25em;
+            max-width: 30em;
         }
-        @imagePane .imageContainer {
+        @imagePane > * + *,
+        @selectFileBox > * + * {
+            margin-top: 1em;
+        }
+        @imagePane .ImageContainer {
             min-width: 10em;
         }
         @resultPane {
@@ -31,12 +36,13 @@
         @Guide {
             max-width: 20em;
         }
+
     </style>
     <hbox>
         <vbox anon-id="imagePane">
-            <vbox>
+            <vbox anon-id="selectFileBox">
                 <strong>Source .9.png:</strong>
-                Please select the n-patch image file to start parsing into JavaScript.
+                <span>Please select the n-patch image file to start parsing into JavaScript.</span>
                 <hbox>
                     <button anon-id="browse">Browse Android n-Patch file...</button>
                 </hbox>
@@ -48,15 +54,15 @@
             <hbox>
                 <fieldset>
                     <legend>Source image:</legend>
-                    <div class="imageContainer" anon-id="sourceImageContainer"></div>
+                    <div class="ImageContainer" anon-id="sourceImageContainer"></div>
                 </fieldset>
                 <fieldset>
                     <legend>Parsed image:</legend>
-                    <div class="imageContainer" anon-id="parsedImageContainer"></div>
+                    <div class="ImageContainer" anon-id="parsedImageContainer"></div>
                 </fieldset>
             </hbox>
-            <vbox anon-id="path"> </vbox>
-            <vbox anon-id="Guide">
+            <vbox anon-id="path" flex="1"></vbox>
+            <vbox anon-id="guide">
                 Pencil supports parsing and embedding scalable n-Patch format that is used in the Google Android OS. More information:<br/>
                 <ul>
                     <li anon-id="aboutNPatchLink"><a href="#">About Android n-Patch format</a></li>
@@ -67,7 +73,7 @@
 
         <vbox anon-id="resultPane">
             <strong>Result:</strong>
-            <textarea anon-id="result" style="resize:none;" rows="30" cols="60" readonly="true"></textarea>
+            <textarea anon-id="result" style="resize:none;" rows="30" cols="80" readonly="true"></textarea>
             <div style="width: 1px; height: 1px; overflow: hidden;">
                 <canvas anon-id="canvas" width="400" height="400"></canvas>
             </div>
