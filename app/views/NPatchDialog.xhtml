@@ -31,10 +31,6 @@
         @Guide {
             max-width: 20em;
         }
-
-        @parsedImageContainer br {
-            line-height: 1px;
-        }
     </style>
     <hbox>
         <vbox anon-id="imagePane">
@@ -71,7 +67,7 @@
 
         <vbox anon-id="resultPane">
             <strong>Result:</strong>
-            <textarea anon-id="result" rows="30" cols="60" readonly="true"></textarea>
+            <textarea anon-id="result" style="resize:none;" rows="30" cols="60" readonly="true"></textarea>
             <div style="width: 1px; height: 1px; overflow: hidden;">
                 <canvas anon-id="canvas" width="400" height="400"></canvas>
             </div>

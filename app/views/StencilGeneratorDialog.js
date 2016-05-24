@@ -73,6 +73,9 @@ function StencilGeneratorDialog() {
 
 __extend(WizardDialog, StencilGeneratorDialog);
 
+StencilGeneratorDialog.prototype.onFinish = function () {
+
+};
 StencilGeneratorDialog.prototype.invalidateSelection = function () {
     if(this.activePane == this.collectionDefinition) {
         if(this.collectionName.value == ""){
@@ -112,6 +115,7 @@ StencilGeneratorDialog.prototype.onSelectionChanged = function () {
     } else {
         this.stepTitle.innerHTML = "Completing the Stencil Generator";
         this.stepInfo.innerHTML = "Stencil information";
+
         if(this.imagePaths.length > 0) {
             this.initStencils();
         }
@@ -119,50 +123,49 @@ StencilGeneratorDialog.prototype.onSelectionChanged = function () {
 };
 
 StencilGeneratorDialog.prototype.initStencils = function () {
-    var checkPreload = true;
-    for (i in this.imagePaths) {
-        if (this.imagePaths[i].checked != null) {
-            checkPreload = false;
-            continue;
+    this.preloadStencils(function() {
+        for (i in this.imagePaths) {
+            if (this.imagePaths[i].checked != null) {
+                checkPreload = false;
+                continue;
+            }
+            this.imagePaths[i].checked = true;
+
+            var holder={};
+
+            var item = Dom.newDOMElement({
+                _name: "div",
+                class: "imageItem",
+                _children: [
+                    {
+                        _name:"div",
+                        class:"iconContainer",
+                        _children:[
+                            {
+                                _name:"img",
+                                _id:"iconImage"
+                            }
+                        ]
+                    },
+                    {
+                        _name:"span",
+                        _text: this.imagePaths[i].name
+                    },
+                    {
+                        _name:"input",
+                        type:"checkbox",
+                        checked:"true",
+                    }
+                ]
+            },null, holder);
+            item._item = this.imagePaths[i];
+            this.stencilSelected.appendChild(item);
+            Util.setupImage(holder.iconImage, this.imagePaths[i].path, "center-inside");
         }
-        this.imagePaths[i].checked = true;
-
-        var holder={};
-
-        var item = Dom.newDOMElement({
-            _name: "div",
-            class: "imageItem",
-            _children: [
-                {
-                    _name:"div",
-                    class:"iconContainer",
-                    _children:[
-                        {
-                            _name:"img",
-                            _id:"iconImage"
-                        }
-                    ]
-                },
-                {
-                    _name:"span",
-                    _text: this.imagePaths[i].name
-                },
-                {
-                    _name:"input",
-                    type:"checkbox",
-                    checked:"true",
-                }
-            ]
-        },null, holder);
-        item._item = this.imagePaths[i];
-        this.stencilSelected.appendChild(item);
-        Util.setupImage(holder.iconImage, this.imagePaths[i].path, "center-inside");
-        this.imagePaths[i].img = holder.iconImage;
-    }
-    if (checkPreload == false) this.preloadStencils();
+    });
 };
 
-StencilGeneratorDialog.prototype.preloadStencils = function () {
+StencilGeneratorDialog.prototype.preloadStencils = function (callback) {
     var thiz = this;
     var result = [];
     var stencils = [];
@@ -171,7 +174,7 @@ StencilGeneratorDialog.prototype.preloadStencils = function () {
         var image = this.imagePaths[i];
         if (image.checked == true) stencils.push(image);
     }
-    thiz.loadStencil(result, stencils, 0);
+    thiz.loadStencil(result, stencils, 0, callback);
 
 };
 
@@ -188,34 +191,43 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
     try {
         if (index < stencils.length) {
             if ("png|jpg|gif|bmp".indexOf(stencils[index]._ext) != -1) {
-                try {
+                var img = new Image();
+
+                img._stencils = stencils;
+                img._result = result;
+                img._index = index;
+
+                img.onload = function () {
+                    var _index = img._index;
+                    var _stencils = img._stencils;
+                    var _result = img._result;
                     var box = {
                         width: img.naturalWidth,
                         height: img.naturalHeight
                     };
-                    var onDone = function (filedata) {
-                        var data = Base64.encode(filedata, true);
+                    try {
+                        var fileData = this.getImageFileData(_stencils[_index].path);
+                        var data = Base64.encode(fileData, true);
                         var st = {
-                            id: "img_" + index,
-                            label: stencils[index]._label,
-                            type: stencils[index]._ext.toUpperCase(),
-                            img: stencils[index].img,
+                            id: "img_" + _index,
+                            label: _stencils[_index]._label,
+                            type: _stencils[_index]._ext.toUpperCase(),
+                            img: _stencils[_index],
                             iconData: "data:image/png;base64," + data,
                             data: data,
                             box: box
                         };
-                        result = result.concat(st);
-                        if (index + 1 >= stencils.length) {
-                            thiz.stencils = result;
-                            console.log(thiz.Stencils);
+                        _result = _result.concat(st);
+                        if (_index + 1 >= _stencils.length) {
+                            console.log(_result);
                         } else {
-                            this.loadStencil(result, stencils, index + 1);
+                            this.loadStencil(_result, _stencils, _index + 1);
                         }
+                    } catch(e) {
+                        Console.dumpError(e);
                     }
-                    this.getImageFileData(stencils[index].path, onDone);
-                } catch(e) {
-                    Console.dumpError(e);
-                }
+                };
+                img.src = stencils[index].path;
             }
         }
     } catch(e) {

@@ -42,11 +42,14 @@
         background-color: #1aa3ff;
         color:white;
     }
+    @stencilSelector {
+        margin: -2ex 0ex 0ex 0ex;
+    }
     @stencilSelected {
         width: 100%;
         background-color: #fff;
         height: 19em;
-        overflow-y: scroll;
+        overflow-y: auto;
     }
 
     @stencilSelected .imageItem{
@@ -65,6 +68,7 @@
         white-space: nowrap;
         display: block;
         overflow: hidden;
+        text-align: center;
     }
     @stencilSelected input{
         width:100%;
