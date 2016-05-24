@@ -8,7 +8,7 @@ function PrivateCollectionMenu(collectionPane, collection, shapeDef) {
 __extend(Menu, PrivateCollectionMenu);
 
 PrivateCollectionMenu.prototype.getTemplatePath = function () {
-    return this.getTemplatePrefix() + "Menu.xhtml";
+    return this.getTemplatePrefix() + "menus/Menu.xhtml";
 };
 PrivateCollectionMenu.prototype.setup = function () {
     var thiz = this;

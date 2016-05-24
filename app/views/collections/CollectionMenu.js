@@ -7,7 +7,7 @@ function CollectionMenu(collection, collectionPane) {
 __extend(Menu, CollectionMenu);
 
 CollectionMenu.prototype.getTemplatePath = function () {
-    return this.getTemplatePrefix() + "Menu.xhtml";
+    return this.getTemplatePrefix() + "menus/Menu.xhtml";
 };
 
 CollectionMenu.prototype.setup = function () {

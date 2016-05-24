@@ -28,7 +28,7 @@ Dialog.prototype.canCloseNow = function () {
     return false;
 }
 Dialog.prototype.getFrameTemplate = function () {
-    return this.getTemplatePrefix() + "Dialog.xhtml";
+    return this.getTemplatePrefix() + "common/Dialog.xhtml";
 };
 Dialog.prototype.buildDOMNode = function () {
     var frameTemplate = this.getFrameTemplate();

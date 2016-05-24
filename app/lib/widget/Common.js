@@ -14,6 +14,11 @@ function __extend() {
 
     __widgetClasses.push(sub);
 
+    var templatePath = path.dirname(document.currentScript.src);
+    if (templatePath && /views\/(.*)$/ig.exec(templatePath)) {
+        sub.__templatePath = RegExp.$1;
+    }
+
     return sub;
 }
 
@@ -808,8 +813,8 @@ BaseTemplatedWidget.prototype.getTemplatePrefix = function () {
     return "views/";
 };
 BaseTemplatedWidget.getTemplatePathForViewClass = function (clazz) {
-    return "views/" + clazz.name + ".xhtml";
+    return "views/" + (clazz.__templatePath ? clazz.__templatePath + '/' : '') + clazz.name + ".xhtml";
 };
 BaseTemplatedWidget.prototype.getTemplatePath = function () {
-    return this.getTemplatePrefix() + this.constructor.name + ".xhtml";
+    return this.getTemplatePrefix() + (this.constructor.__templatePath ? this.constructor.__templatePath + '/' : '') + this.constructor.name + ".xhtml";
 };
