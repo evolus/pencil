@@ -4,7 +4,7 @@ function CollectionManagementDialog (collectionPanel) {
     this.collectionPanel = collectionPanel;
     this.title = "Manage Collections";
 
-    this.setupCollectionList();
+    this.loadCollectionList();
 
     this.bind("click", this.handleItemClick, this.collectionContainer);
 
@@ -141,26 +141,34 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
     return view;
 }
 
-CollectionManagementDialog.prototype.setupCollectionList = function () {
+CollectionManagementDialog.prototype.loadCollectionList = function () {
+    Dom.empty(this.collectionContainer);
     var collections = CollectionManager.shapeDefinition.collections;
     for( var i = 0; i < collections.length; i++) {
         this.collectionContainer.appendChild(this.createCollectionView(collections[i]));
     }
 }
 CollectionManagementDialog.prototype.getDialogActions = function () {
+    var thiz = this;
     return [
+        Dialog.ACTION_CLOSE,
         {
-            type: "cancel", title: "Close",
+            type: "extra1", title: "Install From File...",
             run: function () {
-                return true;
-            }
-        },
-        {
-            type: "extra1", title: "Install New Collection...",
-            run: function () {
-                CollectionManager.installNewCollection();
+                CollectionManager.installNewCollection(function () {
+                    thiz.loadCollectionList();
+                });
                 return false;
             }
-        }
+        }/*,
+        {
+            type: "extra1", title: "Install From URL...",
+            run: function () {
+                CollectionManager.installCollectionFromUrl("https://github.com/Craig-Fisk/BootstrapGlyph-Pencil-Stencil/archive/0.1.zip", () => {
+                    thiz.loadCollectionList();
+                });
+                return false;
+            }
+        }*/
     ]
 };

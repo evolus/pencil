@@ -1,7 +1,7 @@
 function OpenClipartPane() {
     BaseTemplatedWidget.call(this);
     var thiz = this;
-    this.backend = new OpenClipartSearch2();
+    this.backend = new OpenClipartSearch();
 
     function injectSvgInfo (svg) {
         try {

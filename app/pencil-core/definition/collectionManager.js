@@ -1,4 +1,5 @@
 var CollectionManager = {};
+
 CollectionManager.shapeDefinition = {};
 CollectionManager.shapeDefinition.collections = [];
 CollectionManager.shapeDefinition.shapeDefMap = {};
@@ -62,7 +63,11 @@ CollectionManager._loadDeveloperStencil = function () {
 			if (!fs.existsSync(stencilPath)) return;
 
 			var parser = new ShapeDefCollectionParser();
-			CollectionManager._loadStencil(stencilPath, parser, "isSystem");
+            var collection = parser.parseURL(stencilPath);
+            if (!collection) return;
+            collection.userDefined = false;
+            collection.installDirPath = path.dirname(stencilPath);
+            CollectionManager.addShapeDefCollection(collection);
 		}
 
 	} catch (e) {
@@ -252,7 +257,7 @@ CollectionManager.reloadCollectionPane = function () {
     Pencil.collectionPane.loaded = false;
     Pencil.collectionPane.reload();
 };
-CollectionManager.installNewCollection = function () {
+CollectionManager.installNewCollection = function (callback) {
     /*
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
     var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
@@ -271,11 +276,12 @@ CollectionManager.installNewCollection = function () {
 
     }, function (filenames) {
         if (!filenames || filenames.length <= 0) return;
-        CollectionManager.installCollectionFromFilePath(filenames[0]);
+        CollectionManager.installCollectionFromFilePath(filenames[0], callback);
     });
 };
 
-CollectionManager.installCollectionFromFile = function (file) {
+CollectionManager.installCollectionFromFile = function (file, callback) {
+    ApplicationPane._instance.busy();
     var filePath = file.path;
     var fileName = file.name.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime());
 
@@ -306,13 +312,16 @@ CollectionManager.installCollectionFromFile = function (file) {
 
                 CollectionManager.addShapeDefCollection(collection);
                 CollectionManager.loadStencils();
+                if (callback) callback();
+                ApplicationPane._instance.unbusy();
             } else {
                 throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
             }
         } catch (e) {
             console.log("error:", e);
             Dialog.error("Error installing collection.");
-            CollectionManager.removeCollectionDir(targetDir);
+            //CollectionManager.removeCollectionDir(targetDir);
+            ApplicationPane._instance.unbusy();
         }
     });
 
@@ -418,12 +427,12 @@ CollectionManager.installCollectionFromFile_old = function (file) {
         return;
     }
 };
-CollectionManager.installCollectionFromFilePath = function (filePath) {
+CollectionManager.installCollectionFromFilePath = function (filePath, callback) {
     var file = {
         path: filePath,
         name: path.basename(filePath)
     };
-    CollectionManager.installCollectionFromFile(file);
+    CollectionManager.installCollectionFromFile(file, callback);
 
     /*
     var file = Components.classes["@mozilla.org/file/local;1"]
@@ -433,17 +442,38 @@ CollectionManager.installCollectionFromFilePath = function (filePath) {
     CollectionManager.installCollectionFromFile(file);
     */
 };
-CollectionManager.installCollectionFromUrl = function (url) {
-    Net.downloadAsync(url, "e:\\t.txt", {
-        onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
-            var percentComplete = (aCurTotalProgress/aMaxTotalProgress)*100;
-            Util.showStatusBarInfo(percentComplete + "%");
-        },
-        onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
-            // do something
+CollectionManager.installCollectionFromUrl = function (url, callback) {
+    var nugget = require("nugget");
+    var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true }).name;
+    var filename = path.basename(url);
+
+    console.log('Downloading zip', url, 'to', tempDir, filename);
+    var nuggetOpts = {
+        target: filename,
+        dir: tempDir,
+        resume: true,
+        verbose: true
+    };
+
+    nugget(url, nuggetOpts, function (errors) {
+        if (errors) {
+            var error = errors[0] // nugget returns an array of errors but we only need 1st because we only have 1 url
+            if (error.message.indexOf('404') === -1) {
+                Dialog.error(`Error installing collection: ${error.message}`);
+                return callback(error);
+            }
+            Dialog.error(`Failed to find collection at ${url}`);
+            return callback(error);
         }
+
+        var filepath = path.join(tempDir, filename);
+        console.log('collection downloaded', filepath);
+
+        CollectionManager.installCollectionFromFilePath(filepath, () => {
+            NotificationPopup.show("Collection installed successful.");
+            callback();
+        });
     });
-    //CollectionManager.installCollectionFromFile(file);
 };
 CollectionManager.setCollectionVisible = function (collection, visible) {
     collection.visible = visible;
@@ -500,8 +530,10 @@ CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
 };
 CollectionManager.uninstallCollection = function (collection) {
     if (!collection.installDirPath || !collection.userDefined) return;
+    ApplicationPane._instance.busy();
     CollectionManager.removeCollectionDir(collection.installDirPath, function () {
         CollectionManager.loadStencils();
+        ApplicationPane._instance.unbusy();
     });
 
     /*
@@ -519,15 +551,21 @@ CollectionManager.uninstallCollection = function (collection) {
 CollectionManager.selectDeveloperStencilDir = function () {
 	//alert("Please select the directory that contains the 'Definition.xml' file of your stencil");
     dialog.showOpenDialog({
-        title: "Select Developer Stetcil 'Defination.xml' file",
-        defaultPath: Config.set("dev.stencil.path") || os.homedir(),
+        title: "Select Developer Stetcil 'Definition.xml' file",
+        defaultPath: Config.get("dev.stencil.path") || os.homedir(),
         filters: [
-            { name: "Defination.xml", extensions: ["xml"] }
+            { name: "Definition.xml", extensions: ["xml"] }
         ]
 
     }, function (filenames) {
+
         ApplicationPane._instance.unbusy();
         if (!filenames || filenames.length <= 0) return;
+        var filePath = filenames[0];
+        if (path.basename(filePath) != "Definition.xml") {
+            Dialog.error("The selected file is invalid. Please select the 'Definition.xml' file of your stencil.");
+            return;
+        }
         Config.set("dev.stencil.path", filenames[0]);
         CollectionManager.loadStencils();
     }.bind(this));
@@ -535,6 +573,5 @@ CollectionManager.selectDeveloperStencilDir = function () {
 CollectionManager.unselectDeveloperStencilDir = function () {
     Config.set("dev.stencil.path", "none");
     CollectionManager.loadStencils();
-    Dialog.alert("Developer stencil is unloaded.");
-	// alert("Developer stencil is unloaded.");
+    NotificationPopup.show("Developer stencil is unloaded.");
 };

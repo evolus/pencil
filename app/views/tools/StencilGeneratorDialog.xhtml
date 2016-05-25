@@ -103,7 +103,7 @@
                     <label for="collectionDescription">Description</label> <textarea rows="3" anon-id="collectionDescription" flex="1" style="resize:none"> </textarea>
                 </hbox>
                 <hbox class="InputRow">
-                    <label for="collectionIcon">Icon:</label> <input readonly="true" type="text" anon-id="collectionIcon" flex="1"/>
+                    <label for="collectionIcon">Icon:</label> <input disabled="true" type="text" anon-id="collectionIcon" flex="1"/>
                     <button anon-id="collectionBrowse" disabled="true">Browse...</button>
                 </hbox>
                 <hbox class="InputRow">
@@ -121,7 +121,7 @@
         <vbox>
             <vbox anon-id="stencilSelector" flex="1">
                 Stencil selected:
-                <div anon-id="stencilSelected">
+                <div anon-id="selectedStencil">
 
                 </div>
             </vbox>
@@ -131,7 +131,7 @@
                     <label for="stencilName">Name:</label> <input type="text" anon-id="stencilName" flex="1"/>
                 </hbox>
                 <hbox class="InputRow">
-                    <label for="stencilIcon">Icon:</label> <input type="text" readonly="true"  anon-id="stencilIcon" flex="1" />
+                    <label for="stencilIcon">Icon:</label> <input type="text" disabled="true"  anon-id="stencilIcon" flex="1" />
                     <button disabled="true" anon-id="stencilBrowse">Browse...</button>
                 </hbox>
             </vbox>

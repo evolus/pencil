@@ -43,7 +43,7 @@ TemplateManagementDialog.prototype.initializeTemplateTable = function () {
     }).width("1*"));
     this.templateTable.column(new DataTable.PlainTextColumn("Author", function (data) {
         return data.author;
-    }).width("10em"));
+    }).width("12em"));
     var actions = [{
              id: "remove", type: "delete", title: "Uninstall", icon: "delete",
              isApplicable: function(item) {
@@ -60,7 +60,7 @@ TemplateManagementDialog.prototype.initializeTemplateTable = function () {
                 )
              }
      }];
-    this.templateTable.column(new DataTable.ActionColumn(actions).width("5em"));
+    this.templateTable.column(new DataTable.ActionColumn(actions).width("7em"));
     this.templateTable.selector(false);
 
     var thiz = this;

@@ -128,7 +128,7 @@ Popup.prototype.showAt = function (x, y, skipEvent, autoFlip) {
     }
 
     if (x + w > screenW) {
-        x = x - w;
+        x = autoFlip ? x - w : screenW - w;
     }
 
     this.popupContainer.style.position = "absolute";
