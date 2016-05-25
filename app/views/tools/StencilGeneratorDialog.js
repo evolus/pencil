@@ -148,7 +148,7 @@ StencilGeneratorDialog.prototype.initStencils = function () {
                 continue;
             }
             thiz.imagePaths[i].checked = true;
-            var holder={};
+            var holder = {};
             var item = Dom.newDOMElement({
                 _name: "div",
                 class: "imageItem",
