@@ -115,6 +115,7 @@ function TextToolOverlay() {
 __extend(BaseTemplatedWidget, TextToolOverlay);
 
 TextToolOverlay.prototype.updateListByCommandValue = function (commandName, control) {
+    console.log("updateListByCommandValue");
     var value = null;
     try {
         value = window.document.queryCommandValue(commandName);
@@ -122,7 +123,12 @@ TextToolOverlay.prototype.updateListByCommandValue = function (commandName, cont
         Console.dumpError(e, "stdout");
     }
 
-    if (value && control == this.fontCombo) value = {family: value.replace(/[']/g,'')};
+    if (value && control == this.fontCombo) {
+        value = value.replace(/[']/g,'');
+        if (value.split(",")/length > 0) value = value.split(",")[0];
+        value = {family: value.replace(/[']/g,'')};
+        console.log("value:", value);
+    }
     control.selectItem(value);
 };
 
