@@ -194,11 +194,10 @@ StencilGeneratorDialog.prototype.preloadStencils = function (callback) {
     processDialog.open({
         starter: starter
     });
-
 };
 
 StencilGeneratorDialog.prototype.getImageFileData = function (path,onDone) {
-    onDone(fs.readFileSync(path, 'utf8'));
+    onDone(fs.readFileSync(path));
 };
 
 StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index, callback, listener) {
@@ -223,8 +222,8 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
                     try {
                         var readOnDone = function (fileData){
                             console.log(fileData);
-                            var data = Base64.encode(fileData, true);
-                            //  var data = new Buffer(fileData).toString("base64");
+                            //var data = Base64.encode(fileData, true);
+                            var data = new Buffer(fileData).toString("base64");
                             var st = {
                                 id: "img_" + _index,
                                 label: _stencils[_index]._label,
