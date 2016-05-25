@@ -4,8 +4,8 @@ function StencilGeneratorDialog() {
     this.collectionDefinition = this.wizardPanes[0];
     this.stencilDefinition = this.wizardPanes[1];
     this.stencils=[];
+    this.activeStencil;
     var thiz = this;
-
     this.bind("click", thiz.browseIconFile, this.collectionBrowse);
     this.bind("click", thiz.browseIconFile, this.stencilBrowse);
     this.imagePaths = [];
@@ -17,10 +17,10 @@ function StencilGeneratorDialog() {
         });
         item._path = file.path;
         file._ext = Util.getFileExtension(file.name);
-        var index = file.name.lastIndexOf(".");
-        if (index != -1) {
-            file._label = file.name.substring(0 ,index);
-        }
+        var Name = file.name.substring(0,file.name.indexOf("."));
+        Name = Name.replace(/ /gi,"%");
+        file._label = Name;
+
         thiz.imageList.appendChild(item);
         thiz.imagePaths.push(file);
         console.log(item.node);
@@ -64,17 +64,33 @@ function StencilGeneratorDialog() {
             var top = Dom.findUpwardForNodeWithData(event.target, "_item");
             var item = top._item;
             item.checked = value;
-            // console.log(item);
         }
     }, this.stencilSelected);
 
+    var stencilNameNode ;
+
     this.bind("click", function(event){
         var top = Dom.findUpwardForNodeWithData(event.target, "_item");
-        var item = top._item;
-        var Name = item.name.substring(0,item.name.indexOf("."));
-        var fileName = Name.replace(/ /gi,"%");
-        thiz.stencilName.value = fileName;
+     if (top && top._item) {
+         var item = top._item;
+         thiz.stencilName.value = item._stencil.label;
+         thiz.activeStencil = item;
+         for(var i = 0; i < top.childNodes.length; i++) {
+             if(top.childNodes[i].className == "stencilName") {
+                 stencilNameNode = top.childNodes[i];
+             }
+         }
+     }
+
     }, this.stencilSelected);
+
+    this.bind("change",function (event) {
+        var index = thiz.imagePaths.indexOf(this.activeStencil);
+        if (thiz.imagePaths[index]) {
+            thiz.imagePaths[index]._stencil.label = thiz.stencilName.value;
+            stencilNameNode.innerHTML = thiz.stencilName.value;
+        }
+    }, this.stencilName);
 }
 
 __extend(WizardDialog, StencilGeneratorDialog);
@@ -157,7 +173,8 @@ StencilGeneratorDialog.prototype.initStencils = function () {
                     },
                     {
                         _name:"span",
-                        _text: thiz.imagePaths[i].name
+                        class:"stencilName",
+                        _text: thiz.imagePaths[i]._stencil.label
                     },
                     {
                         _name:"input",
