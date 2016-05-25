@@ -1,0 +1,53 @@
+<vbox class="Form">
+    <style>
+        @collectionContainer {
+            flex-wrap: wrap;
+            overflow: auto;
+            width: 70em;
+            min-height: 40em;
+            padding: 0em 1em 1em 0em;
+        }
+        @collectionContainer > .CollectionView {
+            display: inline-flex;
+            width: 13em;
+            height: 13em;
+            margin: 1em 0em 0em 1em;
+            padding: 1em;
+            box-shadow: @card_shadow;
+            text-align: left;
+        }
+        @collectionContainer > .CollectionView i.Icon {
+            @iconify();
+            font-size: 2em;
+        }
+        @collectionContainer > .CollectionView .Name {
+            padding-left: 0.5em;
+        }
+        @collectionContainer > .CollectionView .Name strong,
+        @collectionContainer > .CollectionView .Name span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        @collectionContainer > .CollectionView .Name span {
+            opacity: 0.6;
+            font-size: 0.9em;
+        }
+        @collectionContainer > button[selected="true"] {
+            background-color: @selected_button_bg;
+        }
+        .CollectionView .Controls {
+            padding-top: 1em;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .CollectionView .Controls button {
+            height: 1.8em;
+            line-height: 1.8em;
+        }
+        .CollectionView .Controls button:not(:hover),
+        .CollectionView .Controls button[disabled] {
+        }
+    </style>
+    <hbox anon-id="collectionContainer" flex="1">
+    </hbox>
+</vbox>
