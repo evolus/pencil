@@ -6,13 +6,11 @@ function TextToolOverlay() {
         thiz.selector._control = null;
     };
     this.bind("click", function (event) {
-        console.log("text tool overlay click");
         var node = Dom.findUpward(event.target, function (n) {
             return n.getAttribute && n.getAttribute("command");
         });
 
         if (!node) return;
-        console.log("node:", node);
         var command = node.getAttribute("command");
         var arg = node.hasAttribute("arg") ? node.getAttribute("arg") : undefined;
         thiz.runEditorCommand(command, arg);
@@ -27,6 +25,7 @@ function TextToolOverlay() {
     }, this.popupContainer);
 
     var selectListener = function (event) {
+        console.log("selectListener");
         // var temp = OnScreenTextEditor.isEditing;
         // OnScreenTextEditor.isEditing = false;
 
@@ -115,7 +114,6 @@ function TextToolOverlay() {
 __extend(BaseTemplatedWidget, TextToolOverlay);
 
 TextToolOverlay.prototype.updateListByCommandValue = function (commandName, control) {
-    console.log("updateListByCommandValue");
     var value = null;
     try {
         value = window.document.queryCommandValue(commandName);
@@ -125,9 +123,8 @@ TextToolOverlay.prototype.updateListByCommandValue = function (commandName, cont
 
     if (value && control == this.fontCombo) {
         value = value.replace(/[']/g,'');
-        if (value.split(",")/length > 0) value = value.split(",")[0];
+        if (value.split(",").length > 0) value = value.split(",")[0];
         value = {family: value.replace(/[']/g,'')};
-        console.log("value:", value);
     }
     control.selectItem(value);
 };

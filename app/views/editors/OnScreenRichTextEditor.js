@@ -44,7 +44,6 @@ OnScreenRichTextEditor.prototype.install = function (canvas) {
     }, false);
 
     this.popup.addEventListener("p:PopupHidden", function (event) {
-        console.log("saasdasdasd");
         thiz.commitChange(event);
     }, false);
 
@@ -73,7 +72,7 @@ OnScreenRichTextEditor.prototype.handleShapeDoubleClicked = function (event) {
 
     if (this.textEditingInfo.type == RichText) {
         //setup
-        console.log("currentTarget", this.currentTarget);
+        // console.log("currentTarget", this.currentTarget);
         this._lastTarget = this.currentTarget;
         try {
             this._setupEditor();
@@ -81,13 +80,6 @@ OnScreenRichTextEditor.prototype.handleShapeDoubleClicked = function (event) {
             Console.dumpError(e, "stdout");
             alert(e);
         }
-    // } else if (this.textEditingInfo.type == RichText) {
-    //     OnScreenRichTextEditor.currentInstance = this;
-    //     try {
-    //         this._setupRichTextEditor(event);
-    //     } catch (e) {
-    //         Console.dumpError(e, "stdout");
-    //     }
     }
 };
 OnScreenRichTextEditor.prototype._setupEditor = function () {
