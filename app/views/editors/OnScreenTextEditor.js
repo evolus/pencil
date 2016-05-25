@@ -157,7 +157,6 @@ OnScreenTextEditor.prototype._setupEditor = function () {
     if (this.textEditingInfo.font) {
         this.textEditor.style.fontFamily = this.textEditingInfo.font.family;
         this.textEditor.style.fontSize = this.textEditingInfo.font.size;
-        this.textEditor.style.lineHeight = this.textEditingInfo.font.size;
         this.textEditor.style.fontWeight = this.textEditingInfo.font.weight;
         this.textEditor.style.fontStyle = this.textEditingInfo.font.style;
     }
