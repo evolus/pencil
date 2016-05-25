@@ -10,6 +10,7 @@
 <xsl:param name="cols" select="2" />
 <xsl:param name="rows" select="2" />
 <xsl:param name="space" select="5" />
+<xsl:param name="marginType" select="'normal'" />
 <xsl:param name="withPageName" select="'true'" />
 <xsl:param name="withHeaderFooter" select="'true'" />
 <xsl:param name="withPageNote" select="'true'" />
@@ -68,13 +69,25 @@
         </xsl:when>
     </xsl:choose>
 </xsl:variable>
-<xsl:variable name="pageMargin">
+<xsl:variable name="pageMarginFactor">
     <xsl:choose>
-        <xsl:when test="$paperWidth > $paperHeight"><xsl:value-of select="round($paperHeight div 20)" /></xsl:when>
-        <xsl:otherwise><xsl:value-of select="round($paperWidth div 20)" /></xsl:otherwise>
+        <xsl:when test="$marginType = 'none'">0</xsl:when>
+        <xsl:when test="$marginType = 'large'">0.1</xsl:when>
+        <xsl:otherwise>0.05</xsl:otherwise>
     </xsl:choose>
 </xsl:variable>
-<xsl:variable name="headerFooterHeight" select="round($headerFooterFontSize * 2)" />
+<xsl:variable name="pageMargin">
+    <xsl:choose>
+        <xsl:when test="$paperWidth > $paperHeight"><xsl:value-of select="round($paperHeight * $pageMarginFactor)" /></xsl:when>
+        <xsl:otherwise><xsl:value-of select="round($paperWidth * $pageMarginFactor)" /></xsl:otherwise>
+    </xsl:choose>
+</xsl:variable>
+<xsl:variable name="headerFooterHeight">
+    <xsl:choose>
+        <xsl:when test="$withHeaderFooter = 'true'"><xsl:value-of select="round($headerFooterFontSize * 2)" /></xsl:when>
+        <xsl:otherwise>0</xsl:otherwise>
+    </xsl:choose>
+</xsl:variable>
 <xsl:variable name="pageWidth" select="$paperWidth - 2 * $pageMargin" />
 <xsl:variable name="pageHeight" select="$paperHeight - 2 * ($pageMargin - $headerFooterHeight)" />
 <xsl:variable name="sheetsPerPage" select="$cols * $rows" />
@@ -187,7 +200,7 @@
                 </style>
             </head>
             <body>
-                <pre style="display: none;">
+                <pre style="display: none; position: absolute; color: #fff; top: 10em; left: 0px;">
                     paperSize = <xsl:value-of select="$paperWidth" />mm x <xsl:value-of select="$paperHeight" />mm
                     pageSize = <xsl:value-of select="$pageWidth" />mm x <xsl:value-of select="$pageHeight" />mm
                     margin: <xsl:value-of select="$pageMargin - $headerFooterHeight"/>mm <xsl:value-of select="$pageMargin"/>mm <xsl:value-of select="$pageMargin - $headerFooterHeight"/>mm <xsl:value-of select="$pageMargin"/>mm;
@@ -256,6 +269,10 @@
         <xsl:param name="width" />
         <xsl:param name="height" />
         <xsl:choose>
+            <xsl:when test="$marginType = 'none'">
+                <xsl:attribute name="width"><xsl:value-of select="$paperWidth" />mm</xsl:attribute>
+                <xsl:attribute name="height"><xsl:value-of select="$paperHeight" />mm</xsl:attribute>
+            </xsl:when>
             <xsl:when test="($height div $imageHeight) > ($width div $imageWidth)">
                 <xsl:attribute name="width"><xsl:value-of select="floor($width div ($height div $imageHeight))" />mm</xsl:attribute>
                 <xsl:attribute name="height"><xsl:value-of select="$imageHeight" />mm</xsl:attribute>
@@ -265,6 +282,23 @@
                 <xsl:attribute name="height"><xsl:value-of select="floor($height div ($width div $imageWidth)) - $pageNotePadding" />mm</xsl:attribute>
             </xsl:otherwise>
         </xsl:choose>
+    </xsl:template>
+    <xsl:template name="debugSize">
+        <xsl:param name="width" />
+        <xsl:param name="height" />
+        <pre style="position: absolute; color: #fff; top: 20em; left: 0px;">
+            svgWidth: <xsl:value-of select="$width" />
+            svgHeight: <xsl:value-of select="$height" />
+             -
+            <xsl:choose>
+                <xsl:when test="($height div $imageHeight) > ($width div $imageWidth)">
+                    <xsl:value-of select="floor($width div ($height div $imageHeight))" />mm x <xsl:value-of select="$imageHeight" />mm
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$imageWidth" />mm x <xsl:value-of select="floor($height div ($width div $imageWidth)) - $pageNotePadding" />mm
+                </xsl:otherwise>
+            </xsl:choose>
+        </pre>
     </xsl:template>
     <xsl:template name="calculateImageSize">
         <xsl:param name="width" />
