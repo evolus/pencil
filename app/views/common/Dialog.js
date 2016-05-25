@@ -339,7 +339,7 @@ Dialog.error = function (message, extra, onClose) {
             container.appendChild(Dom.newDOMElement({
                 _name: "hbox", "class": "MessageDialog",
                 _children: [
-                    { _name: "i", "class": "DialogIcon", _text: "error" },
+                    { _name: "i", "class": "DialogIcon Error", _text: "error" },
                     {
                         _name: "vbox", flex: 1, "class": "Messages",
                         _children: [

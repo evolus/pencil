@@ -153,13 +153,22 @@ CollectionManagementDialog.prototype.getDialogActions = function () {
     return [
         Dialog.ACTION_CLOSE,
         {
-            type: "extra1", title: "Install New Collection...",
+            type: "extra1", title: "Install From File...",
             run: function () {
                 CollectionManager.installNewCollection(function () {
                     thiz.loadCollectionList();
                 });
                 return false;
             }
-        }
+        }/*,
+        {
+            type: "extra1", title: "Install From URL...",
+            run: function () {
+                CollectionManager.installCollectionFromUrl("https://github.com/Craig-Fisk/BootstrapGlyph-Pencil-Stencil/archive/0.1.zip", () => {
+                    thiz.loadCollectionList();
+                });
+                return false;
+            }
+        }*/
     ]
 };

@@ -1,4 +1,5 @@
 var CollectionManager = {};
+
 CollectionManager.shapeDefinition = {};
 CollectionManager.shapeDefinition.collections = [];
 CollectionManager.shapeDefinition.shapeDefMap = {};
@@ -319,7 +320,8 @@ CollectionManager.installCollectionFromFile = function (file, callback) {
         } catch (e) {
             console.log("error:", e);
             Dialog.error("Error installing collection.");
-            CollectionManager.removeCollectionDir(targetDir);
+            //CollectionManager.removeCollectionDir(targetDir);
+            ApplicationPane._instance.unbusy();
         }
     });
 
@@ -440,17 +442,38 @@ CollectionManager.installCollectionFromFilePath = function (filePath, callback) 
     CollectionManager.installCollectionFromFile(file);
     */
 };
-CollectionManager.installCollectionFromUrl = function (url) {
-    Net.downloadAsync(url, "e:\\t.txt", {
-        onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
-            var percentComplete = (aCurTotalProgress/aMaxTotalProgress)*100;
-            Util.showStatusBarInfo(percentComplete + "%");
-        },
-        onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
-            // do something
+CollectionManager.installCollectionFromUrl = function (url, callback) {
+    var nugget = require("nugget");
+    var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true }).name;
+    var filename = path.basename(url);
+
+    console.log('Downloading zip', url, 'to', tempDir, filename);
+    var nuggetOpts = {
+        target: filename,
+        dir: tempDir,
+        resume: true,
+        verbose: true
+    };
+
+    nugget(url, nuggetOpts, function (errors) {
+        if (errors) {
+            var error = errors[0] // nugget returns an array of errors but we only need 1st because we only have 1 url
+            if (error.message.indexOf('404') === -1) {
+                Dialog.error(`Error installing collection: ${error.message}`);
+                return callback(error);
+            }
+            Dialog.error(`Failed to find collection at ${url}`);
+            return callback(error);
         }
+
+        var filepath = path.join(tempDir, filename);
+        console.log('collection downloaded', filepath);
+
+        CollectionManager.installCollectionFromFilePath(filepath, () => {
+            NotificationPopup.show("Collection installed successful.");
+            callback();
+        });
     });
-    //CollectionManager.installCollectionFromFile(file);
 };
 CollectionManager.setCollectionVisible = function (collection, visible) {
     collection.visible = visible;
