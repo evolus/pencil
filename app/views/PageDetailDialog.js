@@ -99,12 +99,12 @@ Page.defaultPageSizes = [
         displayName: "Large Web page"
     },
     {
-        value: "774x1052",
+        value: "744x1052",
         displayName: "A4 at 90dpi"
     },
     {
         value: "2480x3508",
-        displayName: "A4 at 90dpi"
+        displayName: "A4 at 300dpi"
     }
 ];
 

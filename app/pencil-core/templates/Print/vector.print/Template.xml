@@ -10,6 +10,7 @@
     <Property name="orientation" displayName="Orientation" type="Enum" p:enumValues="['portrait|Portrait', 'landscape|Landscape']">portrait</Property>
     <Property name="cols" displayName="Columns" type="Enum" p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6']">1</Property>
     <Property name="rows" displayName="Rows" type="Enum" p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6']">1</Property>
+    <Property name="marginType" displayName="Margin" type="Enum" p:enumValues="['none|None', 'normal|Normal', 'large|Large']">normal</Property>
     <Property name="withPageName" displayName="With title" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
     <Property name="withHeaderFooter" displayName="With header/footer" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
     <Property name="withPageNote" displayName="With notes" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
