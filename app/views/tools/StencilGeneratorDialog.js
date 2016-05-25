@@ -17,6 +17,10 @@ function StencilGeneratorDialog() {
         });
         item._path = file.path;
         file._ext = Util.getFileExtension(file.name);
+        var index = file.name.lastIndexOf(".");
+        if (index != -1) {
+            file._label = file.name.substring(0 ,index);
+        }
         thiz.imageList.appendChild(item);
         thiz.imagePaths.push(file);
         console.log(item.node);
@@ -37,7 +41,7 @@ function StencilGeneratorDialog() {
         var files = event.dataTransfer.files;
         if(files.length > 0) {
             for (i = 0; i < files.length; i++) {
-                console.log(files[i]);
+                // console.log(files[i]);
                 var dblFiles = false;
                 var index = event.dataTransfer.files[i].type.indexOf("image");
                 for(var j = 0; j < thiz.imagePaths.length; j++) {
@@ -50,7 +54,7 @@ function StencilGeneratorDialog() {
                 addItem(event.dataTransfer.files[i]);
             }
         }
-        console.log(imgCount);
+        // console.log(imgCount);
         thiz.imageCount.innerHTML = thiz.imagePaths.length + " image found";
     }, false);
 
@@ -60,7 +64,7 @@ function StencilGeneratorDialog() {
             var top = Dom.findUpwardForNodeWithData(event.target, "_item");
             var item = top._item;
             item.checked = value;
-            console.log(item);
+            // console.log(item);
         }
     }, this.stencilSelected);
 
@@ -128,12 +132,12 @@ StencilGeneratorDialog.prototype.initStencils = function () {
     var thiz = this;
     this.preloadStencils(function(stencils,listener) {
         for (i in thiz.imagePaths) {
-            thiz.imagePaths[i].result = stencils[i];
+            thiz.imagePaths[i]._stencil = stencils[i];
             if (thiz.imagePaths[i].checked != null) {
                 continue;
             }
-            thiz.stencils.push(stencils[i]);
             thiz.imagePaths[i].checked = true;
+
 
             var holder={};
 
@@ -194,11 +198,7 @@ StencilGeneratorDialog.prototype.preloadStencils = function (callback) {
 };
 
 StencilGeneratorDialog.prototype.getImageFileData = function (path,onDone) {
-    var file_data = "";
-    fs.readFile(path, 'utf8', (err, data) => {
-      if (err) throw err;
-      onDone(data);
-    });
+    onDone(fs.readFileSync(path, 'utf8'));
 };
 
 StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index, callback, listener) {
@@ -221,10 +221,10 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
                         height: img.naturalHeight
                     };
                     try {
-                        var fileData;
-                        var readOnDone = function (data){
-                            fileData = data;
+                        var readOnDone = function (fileData){
+                            console.log(fileData);
                             var data = Base64.encode(fileData, true);
+                            //  var data = new Buffer(fileData).toString("base64");
                             var st = {
                                 id: "img_" + _index,
                                 label: _stencils[_index]._label,
@@ -241,7 +241,9 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
                                 thiz.loadStencil(_result, _stencils, _index + 1, callback, listener);
                             }
                         }
-                        thiz.getImageFileData(_stencils[_index].path, readOnDone);
+                        window.setTimeout(function () {
+                            thiz.getImageFileData(_stencils[_index].path, readOnDone);
+                        },10);
                     } catch(e) {
                         Console.dumpError(e);
                     }
@@ -264,6 +266,11 @@ StencilGeneratorDialog.prototype.generateId = function(s) {
 };
 StencilGeneratorDialog.prototype.createCollection = function () {
     var thiz = this;
+    for (var i in thiz.imagePaths) {
+        if(thiz.imagePaths[i].checked)
+        thiz.stencils.push(thiz.imagePaths[i]._stencil);
+    }
+
     dialog.showSaveDialog({
         title: "Save as",
         defaultPath: os.homedir(),
@@ -284,29 +291,7 @@ StencilGeneratorDialog.prototype.createCollection = function () {
                         "		author=\"" + thiz.collectionAuthor.value + "\" \n" +
                         "		url=\"" + thiz.collectionInfoUrl.value + "\">\n\n";
 
-                debug("creating collection...");
-
-                // var totalStep = StencilGenerator.gList.length + StencilGenerator.stencils.length;
                 var totalStep = thiz.stencils.length;
-                // var iconGenerated = 0;
-                // var generateIcon = function () {
-                //     try {
-                //         if (iconGenerated >= StencilGenerator.gList.length) {
-                //             debug("continue creating stencils...");
-                //             return run();
-                //         }
-                //
-                //         debug("iconGenerated: " + iconGenerated);
-                //         Util.generateIcon({svg: StencilGenerator.gList[iconGenerated].g}, 64, 64, 2, null, function (iconData) {
-                //             StencilGenerator.stencils[StencilGenerator.gList[iconGenerated++].index].iconData = iconData;
-                //             listener.onProgressUpdated(Util.getMessage("sg.creating.icon.1"), iconGenerated, totalStep);
-                //             setTimeout(generateIcon, 10);
-                //         }, StencilGenerator.rasterizer);
-                //     } catch(e) {
-                //         Console.dumpError(e);
-                //     }
-                // };
-
                 var index = -1;
                 var run = function () {
                     try {
@@ -321,73 +306,48 @@ StencilGeneratorDialog.prototype.createCollection = function () {
 
                                 fs.writeFile(file.path, s, (err) => {
                                     if (err) throw err;
-                                    console.log('It\'s saved!');
+                                    console.log(file.path);
+                                    var iconFolder = fs.mkdirSync(tempDir.name + "/" + "icon");
+
+                                    var archiver = require("archiver");
+                                    var archive = archiver("zip");
+                                    var output = fs.createWriteStream(filePath);
+                                    output.on("close", function (output) {
+                                        console.log("Done Zip and start archiver");
+                                    });
+                                    archive.pipe(output);
+                                    archive.directory(tempDir.name, "/", {});
+                                    archive.finalize();
                                 });
-                                var iconFolder = fs.mkdirSync(tempDir.name + "/" + "icon");
 
-
-
-                                var archiver = require("archiver");
-                                var archive = archiver("zip");
-                                var output = fs.createWriteStream(filePath);
-                                output.on("close", function () {
-                                    console.log("Done Zip");
-                                });
-                                archive.pipe(output);
-                                archive.directory(tempDir.name, "/", {});
-                                archive.finalize();
-
-
-                                // var stream = thiz.toInputStream(s);
-                                // var zipWriter = Components.Constructor("@mozilla.org/zipwriter;1", "nsIZipWriter");
-                                // var zipW = new zipWriter();
-                                //
-                                // zipW.open(f, 0x04 | 0x08 | 0x20 /*PR_RDWR | PR_CREATE_FILE | PR_TRUNCATE*/);
-                                // zipW.comment = "Stencil collection";
-                                // zipW.addEntryDirectory("Icons", new Date(), false);
-                                //
-                                // zipW.addEntryStream("Definition.xml", new Date(), Components.interfaces.nsIZipWriter.COMPRESSION_DEFAULT, stream, false);
-                                //
-                                // if (stream) {
-                                //     stream.close();
-                                // }
-
-                                /*for (var i = 0; i < images.length; i++) {
-                                    var theFile = FileIO.open(images[i].path);
-                                    var n = StencilGenerator._getName(images[i].path);
-                                    try {
-                                        zipW.addEntryFile("Icons/" + n, Components.interfaces.nsIZipWriter.COMPRESSION_DEFAULT, theFile, false);
-                                        listener.onProgressUpdated("", i + 1, images.length * 2);
-                                    } catch (eex) { ; }
-                                }*/
-
-                                // zipW.close();
                             } catch (e5) {
-                                Console.log(e5);
+                                console.log(e5);
+                                listener.onTaskDone();
+                                return false;
                             }
-
                             Util.info(Util.getMessage("stencil.generator.title"), Util.getMessage("collection.has.been.created", thiz.collectionName.value));
                             listener.onTaskDone();
-                            // StencilGenerator.closeDialog();
+                            console.log("stencil Create Done");
                             return true;
                         }
-                        debug("stencilCreated: " + index);
+                        console.log("stencilCreated " + index + ": " + thiz.stencils[index]);
                         if (thiz.stencils[index].box.width > 0 && thiz.stencils[index].box.height > 0) {
                             var shape = thiz.buildShape(thiz.stencils[index]);
+                            console.log(shape);
                             s += shape;
                             listener.onProgressUpdated(Util.getMessage("sg.creating.stencils.1"), index , totalStep);
                         }
                         window.setTimeout(run, 10);
 
                     } catch (e2) {
-                        Console.dumpError(e2, "stdout");
+                        console.log(e2, "stdout");
                     }
                 };
-                listener.onProgressUpdated(Util.getMessage("sg.creating.collection.1"), 0, totalStep);
-                // generateIcon();
+
                 run();
             } catch (e3) {
-                Console.dumpError(e3, "stdout");
+                listener.onTaskDone();
+                console.log(e3, "stdout");
             }
         }
 
@@ -396,121 +356,6 @@ StencilGeneratorDialog.prototype.createCollection = function () {
             starter: starter
         });
     });
-
-    //var f = StencilGenerator.pickFile(StencilGenerator.collectionName.value + ".zip");
-    // if (f) {
-        // var starter = function (listener) {
-        //     try {
-        //         var s = "<Shapes xmlns=\"http://www.evolus.vn/Namespace/Pencil\" \n" +
-        //                 "		xmlns:p=\"http://www.evolus.vn/Namespace/Pencil\" \n" +
-        //                 "		xmlns:svg=\"http://www.w3.org/2000/svg\" \n" +
-        //                 "		xmlns:xlink=\"http://www.w3.org/1999/xlink\" \n" +
-        //                 "		id=\"" + this.generateId(this.collectionName.value) + ".Icons\" \n" +
-        //                 "		displayName=\"" + this.collectionName.value + "\" \n" +
-        //                 "		description=\"" + this.collectionDescription.value + "\" \n" +
-        //                 "		author=\"" + this.collectionAuthor.value + "\" \n" +
-        //                 "		url=\"" + this.collectionInfoUrl.value + "\">\n\n";
-        //
-        //         debug("creating collection...");
-        //
-        //         var totalStep = StencilGenerator.gList.length + StencilGenerator.stencils.length;
-        //         var iconGenerated = 0;
-        //         var generateIcon = function () {
-        //             try {
-        //                 if (iconGenerated >= StencilGenerator.gList.length) {
-        //                     debug("continue creating stencils...");
-        //                     return run();
-        //                 }
-        //
-        //                 debug("iconGenerated: " + iconGenerated);
-        //                 Util.generateIcon({svg: StencilGenerator.gList[iconGenerated].g}, 64, 64, 2, null, function (iconData) {
-        //                     StencilGenerator.stencils[StencilGenerator.gList[iconGenerated++].index].iconData = iconData;
-        //                     listener.onProgressUpdated(Util.getMessage("sg.creating.icon.1"), iconGenerated, totalStep);
-        //                     setTimeout(generateIcon, 10);
-        //                 }, StencilGenerator.rasterizer);
-        //             } catch(e) {
-        //                 Console.dumpError(e);
-        //             }
-        //         };
-        //
-        //         var index = -1;
-        //         var run = function () {
-        //             try {
-        //                 index++;
-        //                 if (index >= StencilGenerator.stencils.length) {
-        //                     s += "</Shapes>";
-        //
-        //                     try {
-        //                         var stream = this.toInputStream(s);
-        //                         var zipWriter = Components.Constructor("@mozilla.org/zipwriter;1", "nsIZipWriter");
-        //                         var zipW = new zipWriter();
-        //
-        //                         zipW.open(f, 0x04 | 0x08 | 0x20 /*PR_RDWR | PR_CREATE_FILE | PR_TRUNCATE*/);
-        //                         zipW.comment = "Stencil collection";
-        //                         zipW.addEntryDirectory("Icons", new Date(), false);
-        //
-        //                         zipW.addEntryStream("Definition.xml", new Date(), Components.interfaces.nsIZipWriter.COMPRESSION_DEFAULT, stream, false);
-        //
-        //                         if (stream) {
-        //                             stream.close();
-        //                         }
-        //
-        //                         /*for (var i = 0; i < images.length; i++) {
-        //                             var theFile = FileIO.open(images[i].path);
-        //                             var n = StencilGenerator._getName(images[i].path);
-        //                             try {
-        //                                 zipW.addEntryFile("Icons/" + n, Components.interfaces.nsIZipWriter.COMPRESSION_DEFAULT, theFile, false);
-        //                                 listener.onProgressUpdated("", i + 1, images.length * 2);
-        //                             } catch (eex) { ; }
-        //                         }*/
-        //
-        //                         zipW.close();
-        //                     } catch (e5) {
-        //                         Console.dumpError(e5, "stdout");
-        //                     }
-        //
-        //                     Util.info(Util.getMessage("stencil.generator.title"), Util.getMessage("collection.has.been.created", StencilGenerator.collectionName.value));
-        //
-        //                     listener.onTaskDone();
-        //
-        //                     StencilGenerator.closeDialog();
-        //
-        //                     return true;
-        //                 }
-        //
-        //                 debug("stencilCreated: " + index);
-        //
-        //                 if (StencilGenerator.stencils[index].box.width > 0 && StencilGenerator.stencils[index].box.height > 0) {
-        //                     var shape = StencilGenerator.buildShape(StencilGenerator.stencils[index]);
-        //                     s += shape;
-        //                     listener.onProgressUpdated(Util.getMessage("sg.creating.stencils.1"), index + iconGenerated, totalStep);
-        //                 }
-        //
-        //                 window.setTimeout(run, 10);
-        //             } catch (e2) {
-        //                 Console.dumpError(e2, "stdout");
-        //             }
-        //         };
-        //
-        //         listener.onProgressUpdated(Util.getMessage("sg.creating.collection.1"), 0, totalStep);
-        //
-        //         generateIcon();
-        //     } catch (e3) {
-        //         Console.dumpError(e3, "stdout");
-        //     }
-        // }
-        //Util.beginProgressJob(Util.getMessage("sg.creating.collection"), starter);
-    // }
-};
-
-StencilGeneratorDialog.prototype.toInputStream = function(s, b) {
-    var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                            .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-    if (!b) {
-        converter.charset = "UTF-8";
-    }
-    var stream = converter.convertToInputStream(s);
-    return stream;
 };
 
 StencilGeneratorDialog.prototype.buildShape = function(shapeDef) {
