@@ -524,15 +524,21 @@ CollectionManager.uninstallCollection = function (collection) {
 CollectionManager.selectDeveloperStencilDir = function () {
 	//alert("Please select the directory that contains the 'Definition.xml' file of your stencil");
     dialog.showOpenDialog({
-        title: "Select Developer Stetcil 'Defination.xml' file",
-        defaultPath: Config.set("dev.stencil.path") || os.homedir(),
+        title: "Select Developer Stetcil 'Definition.xml' file",
+        defaultPath: Config.get("dev.stencil.path") || os.homedir(),
         filters: [
-            { name: "Defination.xml", extensions: ["xml"] }
+            { name: "Definition.xml", extensions: ["xml"] }
         ]
 
     }, function (filenames) {
+
         ApplicationPane._instance.unbusy();
         if (!filenames || filenames.length <= 0) return;
+        var filePath = filenames[0];
+        if (path.basename(filePath) != "Definition.xml") {
+            Dialog.error("The selected file is invalid. Please select a 'Definition.xml' file.");
+            return;
+        }
         Config.set("dev.stencil.path", filenames[0]);
         CollectionManager.loadStencils();
     }.bind(this));
@@ -540,6 +546,6 @@ CollectionManager.selectDeveloperStencilDir = function () {
 CollectionManager.unselectDeveloperStencilDir = function () {
     Config.set("dev.stencil.path", "none");
     CollectionManager.loadStencils();
-    Dialog.alert("Developer stencil is unloaded.");
+    NotificationPopup.show("Developer stencil is unloaded.");
 	// alert("Developer stencil is unloaded.");
 };
