@@ -141,7 +141,7 @@ StencilGeneratorDialog.prototype.onSelectionChanged = function () {
 
 StencilGeneratorDialog.prototype.initStencils = function () {
     var thiz = this;
-    this.preloadStencils(function (stencils,listener) {
+    this.preloadStencils(function (stencils, listener) {
         for (i in thiz.imagePaths) {
             thiz.imagePaths[i]._stencil = stencils[i];
             if (thiz.imagePaths[i].checked != null) {
@@ -174,7 +174,7 @@ StencilGeneratorDialog.prototype.initStencils = function () {
                         checked: "true",
                     }
                 ]
-            },null, holder);
+            }, null, holder);
             item._item = thiz.imagePaths[i];
             thiz.selectedStencil.appendChild(item);
             Util.setupImage(holder.iconImage, thiz.imagePaths[i].path, "center-inside");
@@ -203,7 +203,7 @@ StencilGeneratorDialog.prototype.preloadStencils = function (callback) {
     });
 };
 
-StencilGeneratorDialog.prototype.getImageFileData = function (path,onDone) {
+StencilGeneratorDialog.prototype.getImageFileData = function (path, onDone) {
     onDone(fs.readFileSync(path));
 };
 
@@ -248,7 +248,7 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
                         }
                         window.setTimeout(function () {
                             thiz.getImageFileData(_stencils[_index].path, readOnDone);
-                        },10);
+                        }, 10);
                     } catch(e) {
                         Console.dumpError(e);
                     }
