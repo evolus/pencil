@@ -62,7 +62,7 @@ CollectionManager._loadDeveloperStencil = function () {
 			if (!fs.existsSync(stencilPath)) return;
 
 			var parser = new ShapeDefCollectionParser();
-			CollectionManager._loadStencil(stencilPath, parser, "isSystem");
+			CollectionManager._loadStencil(path.dirname(stencilPath), parser, "isSystem");
 		}
 
 	} catch (e) {
@@ -252,7 +252,7 @@ CollectionManager.reloadCollectionPane = function () {
     Pencil.collectionPane.loaded = false;
     Pencil.collectionPane.reload();
 };
-CollectionManager.installNewCollection = function () {
+CollectionManager.installNewCollection = function (callback) {
     /*
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
     var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
@@ -271,11 +271,12 @@ CollectionManager.installNewCollection = function () {
 
     }, function (filenames) {
         if (!filenames || filenames.length <= 0) return;
-        CollectionManager.installCollectionFromFilePath(filenames[0]);
+        CollectionManager.installCollectionFromFilePath(filenames[0], callback);
     });
 };
 
-CollectionManager.installCollectionFromFile = function (file) {
+CollectionManager.installCollectionFromFile = function (file, callback) {
+    ApplicationPane._instance.busy();
     var filePath = file.path;
     var fileName = file.name.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime());
 
@@ -306,6 +307,8 @@ CollectionManager.installCollectionFromFile = function (file) {
 
                 CollectionManager.addShapeDefCollection(collection);
                 CollectionManager.loadStencils();
+                if (callback) callback();
+                ApplicationPane._instance.unbusy();
             } else {
                 throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
             }
@@ -418,12 +421,12 @@ CollectionManager.installCollectionFromFile_old = function (file) {
         return;
     }
 };
-CollectionManager.installCollectionFromFilePath = function (filePath) {
+CollectionManager.installCollectionFromFilePath = function (filePath, callback) {
     var file = {
         path: filePath,
         name: path.basename(filePath)
     };
-    CollectionManager.installCollectionFromFile(file);
+    CollectionManager.installCollectionFromFile(file, callback);
 
     /*
     var file = Components.classes["@mozilla.org/file/local;1"]
@@ -500,8 +503,10 @@ CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
 };
 CollectionManager.uninstallCollection = function (collection) {
     if (!collection.installDirPath || !collection.userDefined) return;
+    ApplicationPane._instance.busy();
     CollectionManager.removeCollectionDir(collection.installDirPath, function () {
         CollectionManager.loadStencils();
+        ApplicationPane._instance.unbusy();
     });
 
     /*
