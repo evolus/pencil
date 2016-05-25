@@ -4,7 +4,7 @@ function CollectionManagementDialog (collectionPanel) {
     this.collectionPanel = collectionPanel;
     this.title = "Manage Collections";
 
-    this.setupCollectionList();
+    this.loadCollectionList();
 
     this.bind("click", this.handleItemClick, this.collectionContainer);
 
@@ -141,24 +141,23 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
     return view;
 }
 
-CollectionManagementDialog.prototype.setupCollectionList = function () {
+CollectionManagementDialog.prototype.loadCollectionList = function () {
+    Dom.empty(this.collectionContainer);
     var collections = CollectionManager.shapeDefinition.collections;
     for( var i = 0; i < collections.length; i++) {
         this.collectionContainer.appendChild(this.createCollectionView(collections[i]));
     }
 }
 CollectionManagementDialog.prototype.getDialogActions = function () {
+    var thiz = this;
     return [
-        {
-            type: "cancel", title: "Close",
-            run: function () {
-                return true;
-            }
-        },
+        Dialog.ACTION_CLOSE,
         {
             type: "extra1", title: "Install New Collection...",
             run: function () {
-                CollectionManager.installNewCollection();
+                CollectionManager.installNewCollection(function () {
+                    thiz.loadCollectionList();
+                });
                 return false;
             }
         }
