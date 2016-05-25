@@ -42,7 +42,7 @@ FontLoader.prototype.loadFonts = function (callback) {
 
     this.allFaces = allFaces;
 
-    console.log("All faces to load", allFaces);
+    // console.log("All faces to load", allFaces);
     FontLoaderUtil.loadFontFaces(allFaces, function () {
         var data = {
             id: Util.newUUID(),

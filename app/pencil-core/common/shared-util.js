@@ -5,9 +5,14 @@ module.exports = function () {
     function buildEmbeddedFontFaceCSS(faces, callback) {
         const MIME_MAP = {
             ".ttf": "application/x-font-ttf",
-            ".wotf": "application/x-font-woff"
+            ".wotf": "application/x-font-woff",
+            ".wotf2": "application/x-font-woff2"
         };
-
+        const FORMAT_MAP = {
+            ".ttf": "truetype",
+            ".wotf": "woff",
+            ".wotf2": "woff2"
+        };
         //creating combinedCSS
         var combinedCSS = "";
         if (!faces) {
@@ -32,11 +37,16 @@ module.exports = function () {
                 if (!mime) {
                     mime = "application/octet-stream";
                 }
+                var format = FORMAT_MAP[ext];
+                if (!format) format = "truetype";
+
+                console.log("mime and format", [mime, format]);
+
                 var url = "data:" + mime + ";base64," + new Buffer(bytes).toString("base64");
 
                 combinedCSS +=  "@font-face {\n"
                                 + "    font-family: '" + installedFace.name + "';\n"
-                                + "    src: url('" + url + "');\n"
+                                + "    src: url('" + url + "') format('" + format + "');\n"
                                 + "    font-weight: " + installedFace.weight + ";\n"
                                 + "    font-style: " + installedFace.style + ";\n"
                                 + "}\n";

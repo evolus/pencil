@@ -125,6 +125,8 @@ ExportDialog.prototype.setup = function (options) {
 
     var options = options || {};
     if (options.lastParams) {
+        this.lastParams = options.lastParams;
+
         this.pageTree.setCheckedItems(options.lastParams.pages);
         if (!options.forcedExporterId) {
             this.exporterCombo.selectItem({id: options.lastParams.exporterId}, false, true);
@@ -189,20 +191,35 @@ ExportDialog.prototype.getDialogActions = function () {
                     var isFile = (exporter.getOutputType() == BaseExporter.OUTPUT_TYPE_FILE);
 
                     var dialogOptions = {
-                        title: "Select output " + (isFile ? "file" : "folder"),
-                        defaultPath: os.homedir()
+                        title: "Select output " + (isFile ? "file" : "folder")
                     };
+
+                    if (this.lastParams && this.lastParams.targetPath && this.lastParams.exporterId == result.exporterId) {
+                        dialogOptions.defaultPath = this.lastParams.targetPath;
+                    }
 
                     if (isFile) {
                         var filters = [];
+                        var firstExt = null;
                         exporter.getOutputFileExtensions().forEach(function (filter) {
+                            if (!firstExt) firstExt = filter.ext;
                             filters.push({
                                 name: filter.title || filter.ext,
                                 extensions: [filter.ext]
                             });
                         });
 
+                        if (!dialogOptions.defaultPath) {
+                            if (Pencil.controller.documentPath) {
+                                dialogOptions.defaultPath = path.join(path.dirname(Pencil.controller.documentPath),
+                                                                path.basename(Pencil.controller.documentPath, path.extname(Pencil.controller.documentPath)) + "." + firstExt);
+                            } else {
+                                dialogOptions.defaultPath = path.join(os.homedir(), "Output." + firstExt);
+                            }
+                        }
+
                         dialogOptions.filters = filters;
+                        console.log("dialogOptions", dialogOptions);
                         dialog.showSaveDialog(dialogOptions, function (filename) {
                             if (!filename) return;
                             result.targetPath = filename;
@@ -212,6 +229,15 @@ ExportDialog.prototype.getDialogActions = function () {
                         }.bind(this));
                     } else {
                         dialogOptions.properties = ["openDirectory"];
+
+                        if (!dialogOptions.defaultPath) {
+                            if (Pencil.controller.documentPath) {
+                                dialogOptions.defaultPath = path.dirname(Pencil.controller.documentPath);
+                            } else {
+                                dialogOptions.defaultPath = os.homedir();
+                            }
+                        }
+
                         dialog.showOpenDialog(dialogOptions, function (filenames) {
                             if (!filenames || filenames.length <= 0) return;
                             result.targetPath = filenames[0];

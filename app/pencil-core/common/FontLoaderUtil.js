@@ -12,7 +12,6 @@ FontLoaderUtil.filePathToURL = function (filePath, options) {
     return "file://" + encodeURI(filePath);
 };
 FontLoaderUtil.loadFontFaces = function (allFaces, callback) {
-    console.log("FontLoaderUtil.loadFontFaces");
     var removedFaces = [];
     document.fonts.forEach(function (face) {
         if (face._type) removedFaces.push(face);

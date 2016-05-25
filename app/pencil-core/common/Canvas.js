@@ -3,7 +3,7 @@ function Canvas(element) {
     this.oldElement = "";
     this.__delegate("addEventListener", "hasAttribute", "getAttribute", "setAttribute", "setAttributeNS", "removeAttribute", "removeAttributeNS", "dispatchEvent");
     this.element.setAttribute("pencil-canvas", "true");
-    this.element.setAttribute("tabindex", "0");
+    this.element.parentNode.setAttribute("tabindex", "0");
 
     this.xferHelpers = [];
     this.dragObservers = [];
@@ -14,7 +14,7 @@ function Canvas(element) {
     // building the content as: box >> svg
     var thiz = this;
 
-    this.focusableBox = this.element;
+    this.focusableBox = this.element.parentNode;
 
     this.addEventListener("mousedown", function (event) {
         var inDrawing = Dom.findUpward(event.originalTarget, function (node) {
@@ -58,24 +58,24 @@ function Canvas(element) {
     var fixTarget = this.topGroup;
     var fixRef = this.svg;
 
-    window.setTimeout(function () {
-        try {
-            var matrix = fixTarget.getScreenCTM();
-            var dx = matrix.e - Math.floor(matrix.e);
-            var dy = matrix.f - Math.floor(matrix.f);
-
-            if ((dx != 0 || dy != 0) && thiz.zoom == 1) {
-                matrix = fixRef.getScreenCTM();
-                dx = (matrix.e - Math.floor(matrix.e)) / thiz.zoom;
-                dy = (matrix.f - Math.floor(matrix.f)) / thiz.zoom;
-
-                var t = "translate(" + (0 - dx) + "," + (0 - dy) + ")";
-                fixTarget.setAttribute("transform", t);
-            }
-        } catch (e) {
-        }
-        window.setTimeout(arguments.callee, 1000);
-    }, 1000);
+    // window.setTimeout(function () {
+    //     try {
+    //         var matrix = fixTarget.getScreenCTM();
+    //         var dx = matrix.e - Math.floor(matrix.e);
+    //         var dy = matrix.f - Math.floor(matrix.f);
+    //
+    //         if ((dx != 0 || dy != 0) && thiz.zoom == 1) {
+    //             matrix = fixRef.getScreenCTM();
+    //             dx = (matrix.e - Math.floor(matrix.e)) / thiz.zoom;
+    //             dy = (matrix.f - Math.floor(matrix.f)) / thiz.zoom;
+    //
+    //             var t = "translate(" + (0 - dx) + "," + (0 - dy) + ")";
+    //            fixTarget.setAttribute("transform", t);
+    //         }
+    //     } catch (e) {
+    //     }
+    //     window.setTimeout(arguments.callee, 1000);
+    // }, 1000);
 
     this.svg.appendChild(this.topGroup);
 
@@ -140,8 +140,6 @@ function Canvas(element) {
 
     this.onScreenEditors = [];
 
-    this.menu = new CanvasMenu(this);
-
     // register event handler
     this.svg.addEventListener("click", function (event) {
         thiz.handleClick(event);
@@ -175,7 +173,7 @@ function Canvas(element) {
 
     this.svg.addEventListener("mousemove", function (event) {
         thiz.lastMouse = {x: event.offsetX / thiz.zoom, y: event.offsetY / thiz.zoom};
-    }, false);
+    }.bind(this), false);
     this.focusableBox.addEventListener("keydown", function (event) {
         thiz.handleKeyPress(event);
     }, false);
@@ -388,20 +386,26 @@ Canvas.prototype.selectSibling = function (next) {
     this.selectShape(sibling);
 
 };
-Canvas.prototype.invalidateAll = function () {
+Canvas.prototype.invalidateAll = function (callback) {
     if (this.element.clientWidth <= 0) {
-        setTimeout(this.invalidateAll.bind(this), 10);
+        setTimeout(function () {
+            this.invalidateAll(callback);
+        }.bind(this), 10);
         return;
     }
 
-    Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
-        try {
-            var controller = this.createControllerFor(node);
-            if (controller && controller.validateAll) controller.validateAll();
-        } catch (e) {
-            console.error(e);
-        }
-    }.bind(this));
+    try {
+        Dom.workOn(".//svg:g[@p:type='Shape']", this.drawingLayer, function (node) {
+            try {
+                var controller = this.createControllerFor(node);
+                if (controller && controller.validateAll) controller.validateAll();
+            } catch (e) {
+                console.error(e);
+            }
+        }.bind(this));
+    } finally {
+        if (callback) callback();
+    }
 };
 Canvas.prototype.selectAll = function () {
 
@@ -879,14 +883,25 @@ Canvas.prototype.finishMoving = function (event) {
 
 };
 Canvas.prototype.handleMouseWheel = function(event) {
-    var thiz = this;
     if (event.ctrlKey) {
         Dom.cancelEvent(event);
+
+        const padding = 0;
+
+        var drawingX = this.lastMouse.x;
+        var drawingY = this.lastMouse.y;
+        console.log("drawing pos", [drawingX, drawingY]);
+        var dx = drawingX * this.zoom + padding - this._scrollPane.scrollLeft;
+        var dy = drawingY * this.zoom + padding - this._scrollPane.scrollTop;
+
         if (event.deltaY < 0) {
-            thiz.zoomTo(thiz.zoom * 1.25);
+            this.zoomTo(this.zoom * 1.25);
         } else {
-            thiz.zoomTo(thiz.zoom / 1.25);
+            this.zoomTo(this.zoom / 1.25);
         }
+
+        this._scrollPane.scrollLeft = drawingX * this.zoom + padding - dx;
+        this._scrollPane.scrollTop = drawingY * this.zoom + padding - dy;
     }
 }
 Canvas.prototype.handleMouseUp = function (event) {
@@ -1413,7 +1428,7 @@ Canvas.prototype.handleContextMenuShow = function (event) {
         }
     }
 
-    this.menu.showMenuAt(event.clientX, event.clientY);
+    ApplicationPane._instance.canvasMenu.showMenuAt(event.clientX, event.clientY);
 };
 /*
     try {
@@ -2095,11 +2110,45 @@ Canvas.prototype.run = function (job, targetObject, actionName, args) {
     }
 
 };
+Canvas.prototype.getCanvasState = function () {
+    var state = {
+        zoom: this.zoom,
+    }
+
+    if (this._scrollPane) {
+        state.scrollTop = this._scrollPane.scrollTop;
+        state.scrollLeft = this._scrollPane.scrollLeft;
+    }
+
+    console.log("return state: " + JSON.stringify(state), state);
+
+    return state;
+};
+Canvas.prototype.setCanvasState = function (state) {
+    if (state) {
+        console.log("Setting canvas state", state);
+        this.zoomTo(state.zoom);
+        if (this._scrollPane) {
+            window.setTimeout(function () {
+                this._scrollPane.scrollTop = state.scrollTop;
+                this._scrollPane.scrollLeft = state.scrollLeft;
+            }.bind(this), 10);
+        }
+    } else {
+        this.zoomTo(1);
+        if (this._scrollPane) {
+            window.setTimeout(function () {
+                this._scrollPane.scrollTop = 0;
+                this._scrollPane.scrollLeft = 0;
+            }.bind(this), 10);
+        }
+    }
+};
 Canvas.prototype.setBackgroundColor = function (color) {
     if(color) {
-        this.focusableBox.style.backgroundColor = color.toRGBString();
+        this.element.style.backgroundColor = color.toRGBString();
     } else {
-        this.focusableBox.style.backgroundColor = "";
+        this.element.style.backgroundColor = "";
     }
 
 

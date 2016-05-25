@@ -803,6 +803,10 @@ Controller.prototype.getPageSVG = function (page) {
 Controller.prototype.swapOut = function (page) {
     if (!page.canvas) throw "Invalid page state. Unable to swap out un-attached page";
     this.serializePage(page, page.tempFilePath);
+    page.careTakerTempFile = tmp.fileSync({postfix: ".xml", keep: false});
+    page.canvas.careTaker.saveState(page.careTakerTempFile.name);
+    page.canvasState = this.canvasPool.getCanvasState(page.canvas);
+
     this.canvasPool.return(page.canvas);
     page.canvas = null;
     page.lastUsed = null;
@@ -821,13 +825,24 @@ Controller.prototype.swapIn = function (page, canvas) {
             canvas.drawingLayer.appendChild(c);
         }
     }
+    canvas.careTaker.reset();
+    if (page.careTakerTempFile) {
+        canvas.careTaker.loadState(page.careTakerTempFile.name);
+        page.careTakerTempFile.removeCallback();
+        page.careTakerTempFile = null;
+    }
+
+    canvas.setCanvasState(page.canvasState);
+
     page.canvas = canvas;
     canvas.page = page;
     canvas.setSize(page.width, page.height);
 
 
     if (!page.invalidatedAfterLoad) {
-        this.invalidatePageContent(page);
+        this.invalidatePageContent(page, function () {
+            canvas.careTaker.reset();
+        });
         page.invalidatedAfterLoad = true;
     }
 } ;
@@ -866,24 +881,29 @@ Controller.prototype.ensurePageCanvasBackground = function (page) {
         page.canvas.setBackgroundImageData(null, false);
     }
 };
-Controller.prototype.invalidatePageContent = function (page) {
-    if (!page || !page.canvas) return;
-
-    page.canvas.invalidateAll();
-
-    var children = [];
-    while (page.canvas.drawingLayer.hasChildNodes()) {
-        var c = page.canvas.drawingLayer.firstChild;
-        children.push(c);
-        page.canvas.drawingLayer.removeChild(c);
+Controller.prototype.invalidatePageContent = function (page, callback) {
+    if (!page || !page.canvas) {
+        if (callback) callback();
+        return;
     }
 
-    Dom.empty(page.canvas.drawingLayer);
+    page.canvas.invalidateAll(function () {
+        var children = [];
+        while (page.canvas.drawingLayer.hasChildNodes()) {
+            var c = page.canvas.drawingLayer.firstChild;
+            children.push(c);
+            page.canvas.drawingLayer.removeChild(c);
+        }
 
-    while (children.length > 0) {
-        var c = children.shift();
-        page.canvas.drawingLayer.appendChild(c);
-    }
+        Dom.empty(page.canvas.drawingLayer);
+
+        while (children.length > 0) {
+            var c = children.shift();
+            page.canvas.drawingLayer.appendChild(c);
+        }
+
+        if (callback) callback();
+    });
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {

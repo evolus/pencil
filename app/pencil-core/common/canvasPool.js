@@ -47,3 +47,7 @@ CanvasPool.prototype.newCanvas = function () {
 CanvasPool.prototype.show = function (canvas) {
     this.applicationPane.setActiveCanvas(canvas);
 };
+CanvasPool.prototype.getCanvasState = function (canvas) {
+    if (canvas == this.applicationPane.activeCanvas) return canvas.getCanvasState();
+    return canvas._cachedState;
+};

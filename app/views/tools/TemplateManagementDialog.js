@@ -1,22 +1,23 @@
-function TemplateManagermentDialog() {
+function TemplateManagementDialog() {
     Dialog.call(this);
-    this.title = "Export Template Managerment";
+    this.title = "Export Template Management";
 
     this.templateTypeSelector.renderer = function (items) {
-        // if (!pageSize.value) return pageSize.displayName;
         return items.displayName;
     }
     var thiz = this;
     this.templates;
     this.templateTypeSelector.addEventListener("p:ItemSelected", function (event) {
-        var templateType = thiz.templateTypeSelector.getSelectedItem();
-        thiz.loadTemplates(templateType.value);
+        thiz.invalidateTemplateList();
     }, false);
 }
 
-__extend(Dialog, TemplateManagermentDialog);
+__extend(Dialog, TemplateManagementDialog);
 
-TemplateManagermentDialog.prototype.loadTemplates = function (type) {
+TemplateManagementDialog.prototype.invalidateTemplateList = function () {
+    var templateType = this.templateTypeSelector.getSelectedItem();
+    var type = templateType.value;
+
     this.activedType = type;
     this.templates = ExportTemplateManager.getTemplatesForType(type);
     var items = [];
@@ -31,28 +32,27 @@ TemplateManagermentDialog.prototype.loadTemplates = function (type) {
         items.push(item);
     }
     this.templateTable.setItems(items);
-
 }
 
-TemplateManagermentDialog.prototype.initializePreferenceTable = function () {
+TemplateManagementDialog.prototype.initializeTemplateTable = function () {
     this.templateTable.column(new DataTable.PlainTextColumn("Template", function (data) {
         return data.templateName;
-    }).width("20em"));
+    }).width("1*"));
     this.templateTable.column(new DataTable.PlainTextColumn("Information", function (data) {
         return data.description;
-    }).width("20em"));
+    }).width("1*"));
     this.templateTable.column(new DataTable.PlainTextColumn("Author", function (data) {
         return data.author;
     }).width("10em"));
     var actions = [{
-             id: "remove", type: "delete", title: "Remove", icon: "delete",
-             isApplicable: function(tag) {
-                 return true;
+             id: "remove", type: "delete", title: "Uninstall", icon: "delete",
+             isApplicable: function(item) {
+                 return item.template.userDefine ? true : false;
              },
              handler: function (item) {
                 Dialog.confirm(
-                    "Are you sure you really want to delete this template ?", null,
-                    "Delete", function () {
+                    "Are you sure you really want to uninstall this template?", null,
+                    "Uninstall", function () {
                         ExportTemplateManager.uninstallTemplate(item.template);
                         thiz.loadTemplates(thiz.templateTypeSelector.getSelectedItem().value);
                     },
@@ -62,19 +62,20 @@ TemplateManagermentDialog.prototype.initializePreferenceTable = function () {
      }];
     this.templateTable.column(new DataTable.ActionColumn(actions).width("5em"));
     this.templateTable.selector(false);
+
     var thiz = this;
     window.setTimeout(function () {
-        thiz.templateTable.setup();
-        thiz.templateTable.setDefaultSelectionHandler({
+        this.templateTable.setup();
+        this.templateTable.setDefaultSelectionHandler({
             run: function (data) {
 
             }
         });
-        thiz.loadTemplates("HTML");
-    }, 200);
+        this.templateTable.invalidateSizing();
+        this.invalidateTemplateList();
+    }.bind(this), 200);
 }
-
-TemplateManagermentDialog.prototype.setup = function () {
+TemplateManagementDialog.prototype.setup = function () {
     var templateType = ExportTemplateManager.SUPPORTED_TYPES;
     var templateTypeName = ExportTemplateManager.SUPPORTED_TYPES_NAMES;
     var templateItems = [];
@@ -86,14 +87,10 @@ TemplateManagermentDialog.prototype.setup = function () {
         });
     }
     this.templateTypeSelector.setItems(templateItems);
-
-    //Setup table
-    this.initializePreferenceTable();
+    this.initializeTemplateTable();
 }
 
-
-
-TemplateManagermentDialog.prototype.getDialogActions = function () {
+TemplateManagementDialog.prototype.getDialogActions = function () {
     var thiz = this
     return [
         {

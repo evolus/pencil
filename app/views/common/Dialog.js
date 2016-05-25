@@ -28,7 +28,7 @@ Dialog.prototype.canCloseNow = function () {
     return false;
 }
 Dialog.prototype.getFrameTemplate = function () {
-    return this.getTemplatePrefix() + "Dialog.xhtml";
+    return this.getTemplatePrefix() + "common/Dialog.xhtml";
 };
 Dialog.prototype.buildDOMNode = function () {
     var frameTemplate = this.getFrameTemplate();
@@ -166,6 +166,8 @@ Dialog.prototype.show = function () {
         thiz.dialogFrame.style.visibility = "visible";
         thiz.dialogFrame.style.opacity = "1";
 
+        thiz.dialogFrame.focus();
+
         if (thiz.onShown) thiz.onShown();
     }, 100);
 
@@ -290,6 +292,13 @@ BuilderBasedDialog.prototype.quit = function () {
     this.close();
 };
 
+Dialog.hasOpenDialog = function () {
+    for (var closable of BaseWidget.closables) {
+        if (__isSubClassOf(closable.constructor, Dialog)) return true;
+    }
+
+    return false;
+};
 Dialog.alert = function (message, extra, onClose) {
     var builder = {
         title: "Information",

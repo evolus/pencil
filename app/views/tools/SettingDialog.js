@@ -157,7 +157,7 @@ SettingDialog.prototype.initializePreferenceTable = function () {
     }).width("7em"));
     this.preferenceTable.column(new DataTable.PlainTextColumn("Value", function (data) {
         return data.value;
-    }).width("18em"));
+    }).width("15em"));
 
     this.preferenceTable.selector(false);
     var thiz = this;
