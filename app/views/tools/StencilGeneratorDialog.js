@@ -78,7 +78,7 @@ function StencilGeneratorDialog() {
                 }
             }
         }
-    }, this.stencilSelected);
+    }, this.selectedStencil);
 
     this.bind("change", function (event) {
         var index = thiz.imagePaths.indexOf(this.activeStencil);
@@ -87,10 +87,21 @@ function StencilGeneratorDialog() {
             stencilNameNode.innerHTML = thiz.stencilName.value;
         }
     }, this.stencilName);
-
 }
 
 __extend(WizardDialog, StencilGeneratorDialog);
+
+StencilGeneratorDialog.prototype.invalidateFinish = function () {
+    for (var i in thiz.imagePaths) {
+        if (this.imagePaths[i].checked)
+        this.stencils.push(this.imagePaths[i]._stencil);
+    }
+    if (this.stencils.length == 0) {
+        Dialog.alert("Selected item is invalid! Please select at least one item on list above...",null);
+        return false;
+    }
+    return true;
+};
 
 StencilGeneratorDialog.prototype.onFinish = function () {
     this.createCollection();
@@ -101,7 +112,7 @@ StencilGeneratorDialog.prototype.invalidateSelection = function () {
             Dialog.error("Invalid Collection Name", "Please enter the valid page name.", null);
             return false;
         }
-        if (this.imageList.children.length ==0 ) {
+        if (this.imageList.children.length == 0 ) {
             Dialog.error("Invalid Select Items", "Please drag items to listbox.", null);
             return false;
         }
@@ -190,7 +201,6 @@ StencilGeneratorDialog.prototype.preloadStencils = function (callback) {
 
     for (var i = 0; i < this.imagePaths.length; i++) {
         var image = this.imagePaths[i];
-        if (image.checked == false) continue;
         stencils.push(image);
     }
 
@@ -270,10 +280,6 @@ StencilGeneratorDialog.prototype.generateId = function (s) {
 };
 StencilGeneratorDialog.prototype.createCollection = function () {
     var thiz = this;
-    for (var i in thiz.imagePaths) {
-        if (thiz.imagePaths[i].checked)
-        thiz.stencils.push(thiz.imagePaths[i]._stencil);
-    }
 
     dialog.showSaveDialog({
         title: "Save as",
