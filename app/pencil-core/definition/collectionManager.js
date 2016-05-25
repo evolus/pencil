@@ -62,7 +62,11 @@ CollectionManager._loadDeveloperStencil = function () {
 			if (!fs.existsSync(stencilPath)) return;
 
 			var parser = new ShapeDefCollectionParser();
-			CollectionManager._loadStencil(path.dirname(stencilPath), parser, "isSystem");
+            var collection = parser.parseURL(stencilPath);
+            if (!collection) return;
+            collection.userDefined = false;
+            collection.installDirPath = path.dirname(stencilPath);
+            CollectionManager.addShapeDefCollection(collection);
 		}
 
 	} catch (e) {
@@ -536,7 +540,7 @@ CollectionManager.selectDeveloperStencilDir = function () {
         if (!filenames || filenames.length <= 0) return;
         var filePath = filenames[0];
         if (path.basename(filePath) != "Definition.xml") {
-            Dialog.error("The selected file is invalid. Please select a 'Definition.xml' file.");
+            Dialog.error("The selected file is invalid. Please select the 'Definition.xml' file of your stencil.");
             return;
         }
         Config.set("dev.stencil.path", filenames[0]);
@@ -547,5 +551,4 @@ CollectionManager.unselectDeveloperStencilDir = function () {
     Config.set("dev.stencil.path", "none");
     CollectionManager.loadStencils();
     NotificationPopup.show("Developer stencil is unloaded.");
-	// alert("Developer stencil is unloaded.");
 };
