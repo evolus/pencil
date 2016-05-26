@@ -93,7 +93,6 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     var collections = this.getCollections();
 
     if (!collections || collections.length <= 0) {
-        console.log("clear myCollection pane");
         Dom.empty(this.shapeList);
         Dom.empty(this.collectionIcon);
         Dom.empty(this.collectionTitle);
@@ -241,7 +240,8 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
                             _children: [
                                 {
                                     _name: "img",
-                                    _id: "iconImage"
+                                    _id: "iconImage",
+                                    src: def.iconPath || def.iconData
                                 }
                             ]
                         },
@@ -257,7 +257,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         node._def = def;
 
         this.shapeList.appendChild(node);
-        Util.setupImage(holder.iconImage, def.iconPath || def.iconData, "center-inside");
+        // Util.setupImage(holder.iconImage, def.iconPath || def.iconData, "center-inside");
     }
 
     this.setLastUsedCollection(collection);
