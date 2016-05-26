@@ -213,6 +213,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
     this.collectionIcon.innerHTML = this.getCollectionIcon(collection);
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
     this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
+    this.collectionDescription.setAttribute("title", collection.description);
 
     this.last = collection;
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
