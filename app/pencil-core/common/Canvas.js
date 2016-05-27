@@ -10,7 +10,7 @@ function Canvas(element) {
 
     this.spaceHeld = false;
     this.painterPropertyMap = this.getPainterPropertyMap();
-
+    this.duplicateMode = false;
     // building the content as: box >> svg
     var thiz = this;
 
@@ -189,12 +189,6 @@ function Canvas(element) {
             thiz.ctrlOn = true;
         }
         thiz.handleKeyPress(event);
-    }, false);
-
-    this.focusableBox.addEventListener("keyup", function (event) {
-        if(event.keyCode == DOM_VK_CONTROL) {
-            thiz.ctrlOn = false;
-        }
     }, false);
 
     this.svg.ownerDocument.addEventListener("keydown", function (event) {
@@ -1904,11 +1898,25 @@ Canvas.prototype.handleMouseDown = function (event) {
     }
 
     if (event.shiftKey) {
+        if (!this.currentController) return;
+        console.log("current control: ",this.currentController);
+        var target =this.currentController.createTransferableData();
         var contents = [];
-        var node = top;
-        var text = Dom.serializeNode(top);
-        var dom = Canvas.domParser.parseFromString(text, "text/xml");
-        console.log("Root: " + top.localName);
+
+        target.dataNode.removeAttribute("p:parentRef");
+        var metaNode = Dom.getSingle(".//p:metadata", target.dataNode);
+        var childTargetsNode = Dom.getSingle("./p:childTargets", metaNode);
+        if (childTargetsNode) {
+            childTargetsNode.parentNode.removeChild(childTargetsNode);
+        }
+
+        // serialize to string
+        var textualData = new XMLSerializer()
+                .serializeToString(target.dataNode);
+
+        var dom = Canvas.domParser.parseFromString(textualData, "text/xml");
+        console.log("Dom is:", dom);
+        var node = dom.documentElement;
         if (node.namespaceURI == PencilNamespaces.svg) {
             if (node.localName == "g") {
                 var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
@@ -1989,7 +1997,7 @@ Canvas.prototype.handleMouseDown = function (event) {
             if (event.button == 0)
                 this.setAttributeNS(PencilNamespaces.p, "p:holding", "true");
 
-            if (top != this.lastTop || event.ctrlKey || event.button != 0 || event.shiftKey) {
+            if (top != this.lastTop || event.ctrlKey || event.button != 0) {
                 this.reClick = false;
                 this._attachEditors(controller);
             } else {
@@ -1998,7 +2006,7 @@ Canvas.prototype.handleMouseDown = function (event) {
             }
 
             this.hasMoved = false;
-            if (!event.shiftKey) this.lastTop = top;
+            if(!event.shiftKey) this.lastTop = top;
             this._sayTargetChanged();
             tick("done");
         } catch (e) {
