@@ -1288,10 +1288,14 @@ Canvas.prototype.handleKeyPress = function (event) {
         event.preventDefault();
     } else if (event.keyCode == DOM_VK_ESCAPE) {
         this.endFormatPainter();
-    } else if (event.keyCode == DOM_VK_SHIFT) {
-        this.duplicateMode = true;
-        this.mouseUp = false;
     }
+    // else if (event.keyCode == DOM_VK_SHIFT) {
+    //     var targets = this.getSelectedTargets();
+    //     if (targets.length > 0) {
+    //         this.duplicateMode = true;
+    //         this.mouseUp = false;
+    //     }
+    // }
 
 };
 Canvas.prototype.updateContextMenu = function (currentAction, prevAction) {
@@ -1907,7 +1911,7 @@ Canvas.prototype.handleMouseDown = function (event) {
     var controller = null;
 
     var targets = this.getSelectedTargets();
-    console.log("Target" + targets);
+    console.log("Target" , targets);
     var foundTarget = null;
     for (i in targets) {
         var target = targets[i];
@@ -1917,8 +1921,10 @@ Canvas.prototype.handleMouseDown = function (event) {
         }
     }
 
-    if (this.duplicateMode) {
+    if (event.shiftKey) {
         if (!this.currentController) return;
+        this.duplicateMode = true;
+        this.mouseUp = false;
         console.log("current control: ",this.currentController);
         var target =this.currentController.createTransferableData();
         var contents = [];
