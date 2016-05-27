@@ -522,6 +522,7 @@ CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
                 }
             });
             fs.rmdirSync(path);
+
             if (onRemoved) onRemoved();
         }
     };
@@ -530,8 +531,10 @@ CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
 };
 CollectionManager.uninstallCollection = function (collection) {
     if (!collection.installDirPath || !collection.userDefined) return;
+    ApplicationPane._instance.busy();
     CollectionManager.removeCollectionDir(collection.installDirPath, function () {
         CollectionManager.loadStencils();
+        ApplicationPane._instance.unbusy();
     });
 
     /*
