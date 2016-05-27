@@ -1,7 +1,8 @@
-function CollectionBrowserDialog (collectionPanel) {
+function CollectionBrowserDialog (collectionPanel, managerDialog) {
     Dialog.call(this);
 
     this.collectionPanel = collectionPanel;
+    this.managerDialog = managerDialog;
     this.title = "Browse Collections";
 
     this.bind("click", this.handleItemClick, this.collectionContainer);
@@ -38,14 +39,18 @@ CollectionBrowserDialog.prototype.handleItemClick = function (event) {
                     control.style.display = "none";
                     control._uninstallButton.style.display = "";
                     view.setAttribute("installed", "true");
+
+                    thiz.managerDialog.loadCollectionList();
                 }
                 control.removeAttribute("disabled");
             });
     } else if (control._role == "uninstall-button") {
         control.setAttribute("disabled", true);
-
+        var thiz = this;
+        
         CollectionManager.uninstallCollection(collection, () => {
             thiz.collectionPanel.reload();
+            thiz.managerDialog.loadCollectionList();
 
             collection._installed = false;
             collection.installDirPath = null;

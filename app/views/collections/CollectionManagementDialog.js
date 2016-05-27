@@ -41,9 +41,9 @@ CollectionManagementDialog.prototype.handleItemClick = function (event) {
             "Uninstalling will remove this collection completely from Pencil. Shapes created from this collection will no longer be editable.",
             "Yes, Uninstall", function () {
                 CollectionManager.uninstallCollection(collection);
-                thiz.collectionPanel.reload();
+                this.collectionPanel.reload();
                 view.parentNode.removeChild(view);
-            }.bind(thiz),
+            }.bind(this),
             "Cancel"
         );
     }
@@ -163,7 +163,7 @@ CollectionManagementDialog.prototype.getDialogActions = function () {
         {
             type: "extra1", title: "Install From Repository...",
             run: function () {
-                new CollectionBrowserDialog(thiz.collectionPanel).open();
+                new CollectionBrowserDialog(thiz.collectionPanel, thiz).open();
                 return false;
             }
         }

@@ -1,6 +1,6 @@
 'use strict';
 
-const STENCILS_REPO_URL = "http://127.0.0.1:8080/repository.xml";
+const STENCILS_REPO_URL = "https://raw.githubusercontent.com/mbrainiac/stencils-repository/master/repository.xml";
 
 var CollectionRepository = {
 };
@@ -91,7 +91,6 @@ CollectionRepository.parseCollection = function(collectionNode) {
     var collection = {};
 
     Dom.workOn("./*", collectionNode, function (node) {
-        console.log(node.localName, '=>', Dom.getText(node));
         collection[_.camelCase(node.localName)] = Dom.getText(node);
     });
 
