@@ -164,7 +164,7 @@ CollectionManagementDialog.prototype.getDialogActions = function () {
         {
             type: "extra1", title: "Install From Repository...",
             run: function () {
-                new CollectionBrowserDialog().open();
+                new CollectionBrowserDialog(thiz.collectionPanel).open();
                 return false;
             }
         }

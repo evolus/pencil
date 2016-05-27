@@ -1,12 +1,12 @@
 'use strict';
 
-const STENCILS_REPO_URL = "http://127.0.0.1:8080/collections.xml";
+const STENCILS_REPO_URL = "http://127.0.0.1:8080/repository.xml";
 
 var CollectionRepository = {
 };
 
 CollectionRepository.loadCollections = function() {
-    return new Promise(function(resolve, reject) {
+    return QP.Promise(function(resolve, reject) {
 
         var nugget = require("nugget");
         var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true }).name;
@@ -64,10 +64,24 @@ CollectionRepository.parseFile = function(url, callback) {
 CollectionRepository.parse = function(dom, url) {
     var collections = [];
 
-    console.log("parsing dom", dom.documentElement);
-    var collectionNode = dom.documentElement;
-    Dom.workOn("./p:Collection", collectionNode, function (node) {
+    var collectionsNode = dom.documentElement;
+    var metadata = {};
+
+    Dom.workOn("./p:metadata", collectionsNode, function (node) {
+        metadata[node.localName] = Dom.getText(node);
+    });
+
+    Dom.workOn("./p:collection", collectionsNode, function (node) {
         collections.push(CollectionRepository.parseCollection(node));
+    });
+
+    _.forEach(collections, function(c) {
+        var existed = _.find(CollectionManager.shapeDefinition.collections, function(e) {
+            return e.id == c.id;
+        });
+        if (existed) {
+            c._installed = true;
+        }
     });
 
     return collections;
@@ -76,10 +90,9 @@ CollectionRepository.parse = function(dom, url) {
 CollectionRepository.parseCollection = function(collectionNode) {
     var collection = {};
 
-    console.log("parsing collection");
-    Dom.workOn("./p:*", collectionNode, function (node) {
-        console.log("node", node.localName, Dom.getText(node));
-        collection[_.snakeCase(node.localName)] = Dom.getText(node);
+    Dom.workOn("./*", collectionNode, function (node) {
+        console.log(node.localName, '=>', Dom.getText(node));
+        collection[_.camelCase(node.localName)] = Dom.getText(node);
     });
 
     return collection;

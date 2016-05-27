@@ -14,7 +14,7 @@ CollectionPane.prototype.initialize = function () {
     });
     // this.loaded = false;
     Pencil.collectionPane = this;
-    CollectionManager.loadStencils();
+    //CollectionManager.loadStencils();
 };
 CollectionPane.prototype.handleCollectionContextMenu = function (collection, event) {
     var menu = new CollectionMenu(collection, this);

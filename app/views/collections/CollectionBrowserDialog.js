@@ -1,19 +1,10 @@
-function CollectionBrowserDialog () {
+function CollectionBrowserDialog (collectionPanel) {
     Dialog.call(this);
 
+    this.collectionPanel = collectionPanel;
     this.title = "Browse Collections";
 
     this.bind("click", this.handleItemClick, this.collectionContainer);
-
-    this.collectionContainer.addEventListener("click",function (event) {
-        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
-        var check = node.getAttribute("selected");
-        if(check == "true") {
-            node.setAttribute("selected", "false");
-        } else {
-            node.setAttribute("selected", "true");
-        };
-    }, false);
 }
 __extend(Dialog, CollectionBrowserDialog);
 
@@ -23,41 +14,53 @@ CollectionBrowserDialog.prototype.setup = function() {
         thiz.loadCollectionList();
     }, 500);
 };
-CollectionBrowserDialog.prototype.getCollectionIcon = function (collection) {
-    return collection.icon || BaseCollectionPane.ICON_MAP[collection.id] || "border_all";
-};
 
 CollectionBrowserDialog.prototype.handleItemClick = function (event) {
+    var thiz = this;
     var control = Dom.findUpwardForNodeWithData(event.target, "_role");
     if (!control) return;
+
     var view = control._view;
     var collection = view._collection;
 
-    if (control._role == "visible-toggle") {
-        var visible = control.checked;
-        this.collectionPanel.setVisibleCollection(collection, visible);
-        this.collectionPanel.reload();
-        view.setAttribute("visible", visible);
+    if (control._role == "install-button" && !control.hasAttribute("disabled")) {
+        control._progressbar.style.display = "";
+        control.setAttribute("disabled", true);
+        CollectionManager
+            .installCollectionFromUrl(collection.url, (err, newCollection) => {
+                control._progressbar.style.display = "none";
+
+                if (!err) {
+                    collection._installed = true;
+                    collection.installDirPath = newCollection.installDirPath;
+                    collection.userDefined = newCollection.userDefined;
+
+                    control.style.display = "none";
+                    control._uninstallButton.style.display = "";
+                    view.setAttribute("installed", "true");
+                }
+                control.removeAttribute("disabled");
+            });
     } else if (control._role == "uninstall-button") {
-        if (!collection.userDefined) return;
-        Dialog.confirm(
-            "Are you sure you want to uninstall this collection?",
-            "Uninstalling will remove this collection completely from Pencil. Shapes created from this collection will no longer be editable.",
-            "Yes, Uninstall", function () {
-                CollectionManager.uninstallCollection(collection);
-                this.collectionPanel.reload();
-                view.parentNode.removeChild(view);
-            }.bind(this),
-            "Cancel"
-        );
+        control.setAttribute("disabled", true);
+
+        CollectionManager.uninstallCollection(collection, () => {
+            thiz.collectionPanel.reload();
+
+            collection._installed = false;
+            collection.installDirPath = null;
+            collection.userDefined = null;
+
+            control.style.display = "none";
+            control._installButton.style.display = "";
+            view.setAttribute("installed", "false");
+            control.removeAttribute("disabled");
+        });
     }
 };
 
 CollectionBrowserDialog.prototype.createCollectionView = function (collection) {
     var thiz = this;
-    var icon = this.getCollectionIcon(collection);
-    var id = "check_" + Util.newUUID();
-
     var holder = {};
 
     var view = Dom.newDOMElement({
@@ -65,27 +68,35 @@ CollectionBrowserDialog.prototype.createCollectionView = function (collection) {
         "class": "CollectionView",
         _children: [
             {
-                _name: "hbox",
+                _name: "vbox",
                 flex: 1,
                 _children: [
                     {
-                        _name: "i",
-                        _text: icon,
-                        "class": "Icon"
+                        _name: "vbox",
+                        "class": "Thumb",
+                        _children: [
+                            {
+                                _id: "thumbnail",
+                                _name: "span",
+                            }
+                        ]
                     },
                     {
                         _name: "vbox",
-                        flex: 1,
-                        "class": "Name",
+                        "class": "Title",
                         _children: [
                             {
-                                _name: "strong",
-                                _text: collection.name
-                            },
+                                _text: collection.displayName
+                            }
+                        ]
+                    },
+                    {
+                        _name: "vbox",
+                        "class": "Description",
+                        _children: [
                             {
+                                _text: collection.description,
                                 _name: "span",
-                                flex: 1,
-                                _text: collection.description
                             }
                         ]
                     }
@@ -96,34 +107,58 @@ CollectionBrowserDialog.prototype.createCollectionView = function (collection) {
                 "class": "Controls",
                 _children: [
                     {
-                        _name: "button",
-                        _id: "installButton",
-                        _text: "Install",
-                        _children: [{
-                            _name: "i",
-                            _text: "save"
-                        }]
+                        _name: "div",
+                        _id: "progressBar",
+                        "class": "Progressbar",
+                        "style": "display:none"
                     },
                     {
+                        _children: [{
+                            _name: "i",
+                            _text: "file_download"
+                        }, {
+                            _name: "span",
+                            _text: "Install"
+                        }],
                         _name: "button",
-                        _id: "uninstallButton",
-                        _text: "Uninstall"
+                        _id: "installButton"
+                    },
+                    {
+                        _children: [{
+                            _name: "i",
+                            _text: "delete"
+                        }, {
+                            _name: "span",
+                            _text: "Uninstall"
+                        }],
+                        _name: "button",
+                        _id: "uninstallButton"
                     }
                 ]
             }
         ]
     }, null, holder);
 
-    holder.uninstallButton._view = view;
-    holder.uninstallButton._role = "uninstall-button";
+    holder.thumbnail.style.backgroundImage = `url(${collection.thumbnail})`;
 
-    if (!collection.userDefined) {
-        holder.uninstallButton.visible = false;
-    }
+    var installButton = holder.installButton;
+    var uninstallButton = holder.uninstallButton;
+    var progressBar = holder.progressBar;
 
-    view._id = collection.displayName;
+    installButton._view = view;
+    installButton._role = "install-button";
+    uninstallButton._view = view;
+    uninstallButton._role = "uninstall-button";
+    uninstallButton.style.display = "none";
+
+    installButton._progressbar = progressBar;
+    installButton._uninstallButton = uninstallButton;
+    uninstallButton._installButton = installButton;
+
+    view._id = collection.id;
     view._collection = collection;
-    view.setAttribute("selected", "false");
+    view.setAttribute("installed", collection._installed ? "true" : "false");
+
     return view;
 }
 
@@ -133,11 +168,11 @@ CollectionBrowserDialog.prototype.loadCollectionList = function () {
     var thiz = this;
     CollectionRepository.loadCollections()
         .then((collections) => {
-            console.log("collections", collections);
             if (collections) {
-                for (var i = 0; i < collections.length; i++) {
-                    thiz.collectionContainer.appendChild(thiz.createCollectionView(collections[i]));
-                }
+                _.forEach(collections, function(e) {
+                    if (e._installed) { return; }
+                    thiz.collectionContainer.appendChild(thiz.createCollectionView(e));
+                })
             }
         })
         .catch((ex) => {
@@ -151,9 +186,14 @@ CollectionBrowserDialog.prototype.getDialogActions = function () {
         {
             type: "extra1", title: "Install From URL...",
             run: function () {
-                CollectionManager.installCollectionFromUrl("https://github.com/Craig-Fisk/BootstrapGlyph-Pencil-Stencil/archive/0.1.zip", () => {
-                    thiz.loadCollectionList();
-                });
+                Dialog.prompt("Enter your url here", "", "OK", function (value) {
+                    let url = value;
+                    if (!url) { return; }
+
+                    CollectionManager.installCollectionFromUrl(url, () => {
+                    });
+                }, "Cancel");
+
                 return false;
             }
         }
