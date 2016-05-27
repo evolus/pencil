@@ -150,6 +150,10 @@ body {
   right: 0px;
   top: 46%;
   text-align: center;
+
+  opacity: 0;
+  animation: pulsate 1s ease-out;
+  animation-iteration-count: infinite;
 }
 body[loaded] #appView {
   visibility: visible;
@@ -181,4 +185,25 @@ icon {
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
   opacity: 0.54;
+}
+@keyframes loading {
+    from {left: -200px; width: 30%;}
+    50% {width: 30%;}
+    70% {width: 70%;}
+    80% { left: 50%;}
+    95% {left: 120%;}
+    to {left: 100%;}
+}
+@keyframes pulsate {
+    0% {
+      transform: scale(.5);
+      opacity: 0.0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.2);
+      opacity: 0;
+    }
 }

@@ -26,3 +26,12 @@ body[loaded] #appView {
 body[loaded] #bootingIndicator {
     display: none;
 }
+
+@keyframes loading {
+    from {left: -200px; width: 30%;}
+    50% {width: 30%;}
+    70% {width: 70%;}
+    80% { left: 50%;}
+    95% {left: 120%;}
+    to {left: 100%;}
+}
