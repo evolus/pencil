@@ -92,14 +92,11 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     var foundNode = null;
     var collections = this.getCollections();
 
-    if (!collections || collections.length <= 0) {
-        console.log("clear myCollection pane");
-        Dom.empty(this.shapeList);
-        Dom.empty(this.collectionIcon);
-        Dom.empty(this.collectionTitle);
-        Dom.empty(this.collectionDescription);
-        return;
-    };
+    Dom.empty(this.shapeList);
+    Dom.empty(this.collectionIcon);
+    Dom.empty(this.collectionTitle);
+    Dom.empty(this.collectionDescription);
+    this.settingButton.style.visibility = "hidden";
 
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
@@ -206,7 +203,11 @@ BaseCollectionPane.prototype.filterCollections = function () {
         });
         this.openCollection(firstNode._collection);
     } else {
+        Dom.empty(this.collectionIcon);
+        Dom.empty(this.collectionTitle);
+        Dom.empty(this.collectionDescription);
         Dom.empty(this.shapeList);
+        this.settingButton.style.visibility = "hidden";
     }
 };
 BaseCollectionPane.prototype.openCollection = function (collection) {
@@ -214,6 +215,8 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
     this.collectionIcon.innerHTML = this.getCollectionIcon(collection);
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
     this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
+    this.collectionDescription.setAttribute("title", collection.description);
+    this.settingButton.style.visibility = "inherit";
 
     this.last = collection;
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
@@ -241,7 +244,8 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
                             _children: [
                                 {
                                     _name: "img",
-                                    _id: "iconImage"
+                                    _id: "iconImage",
+                                    src: def.iconPath || def.iconData
                                 }
                             ]
                         },
@@ -257,7 +261,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         node._def = def;
 
         this.shapeList.appendChild(node);
-        Util.setupImage(holder.iconImage, def.iconPath || def.iconData, "center-inside");
+        // Util.setupImage(holder.iconImage, def.iconPath || def.iconData, "center-inside");
     }
 
     this.setLastUsedCollection(collection);

@@ -5,16 +5,20 @@ __extend(BaseCollectionPane, CollectionPane);
 
 CollectionPane.prototype.setVisibleCollection = function (collection, value) { // function Hide collection
     CollectionManager.setCollectionVisible(collection, value);
-    this.reload(collection.id);
+    this.reload(value ? collection.id : 0);
 };
 CollectionPane.prototype.initialize = function () {
     var thiz = this;
     this.collectionManagementButton.addEventListener("click", function (event) {
         new CollectionManagementDialog(thiz).open();
     });
+    this.bind("click", function (event) {
+        if (!this.last) return;
+        new CollectionSettingDialog(this.last).open();
+    }, this.settingButton);
     // this.loaded = false;
     Pencil.collectionPane = this;
-    CollectionManager.loadStencils();
+    //CollectionManager.loadStencils();
 };
 CollectionPane.prototype.handleCollectionContextMenu = function (collection, event) {
     var menu = new CollectionMenu(collection, this);

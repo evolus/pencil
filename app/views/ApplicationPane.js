@@ -195,7 +195,7 @@ ApplicationPane.prototype.getBestFitSizeObject = function () {
 ApplicationPane.prototype.showBusyIndicator = function () {
     this.currentBusyOverlay = document.createElement("div");
     document.body.appendChild(this.currentBusyOverlay);
-    this.currentBusyOverlay.style.cssText = "position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; cursor: wait;";
+    this.currentBusyOverlay.style.cssText = "position: absolute; z-index:1000; top: 0px; left: 0px; right: 0px; bottom: 0px; cursor: wait;";
 };
 ApplicationPane.prototype.hideBusyIndicator = function () {
     if (this.currentBusyOverlay) {

@@ -120,6 +120,7 @@ MainMenu.prototype.setup = function () {
     developerToolSubItems.push({
         key: "exportAsLayout",
         label: "Export as Layout...",
+        isAvailable: function () { return false; },
         run: function () {
 
         }

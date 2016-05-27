@@ -10,7 +10,7 @@
         }
         @collectionContainer > .CollectionView {
             display: inline-flex;
-            width: 13em;
+            width: 21em;
             margin: 1em 0em 0em 1em;
             padding: 1em;
             box-shadow: @card_shadow;
@@ -28,11 +28,15 @@
         }
         @collectionContainer > .CollectionView .Name {
             padding-left: 0.5em;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         @collectionContainer > .CollectionView .Name strong,
         @collectionContainer > .CollectionView .Name span {
             overflow: hidden;
             text-overflow: ellipsis;
+            display: inline-block;
+            white-space: nowrap;
         }
         @collectionContainer > .CollectionView .Name span {
             opacity: 0.6;

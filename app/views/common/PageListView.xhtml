@@ -99,7 +99,9 @@
             content: "chevron_right";
             opacity: 0.3;
         }
-        @pageBreadcrumb > hbox > span:hover,
+
+        @pageBreadcrumb > hbox > button:hover,
+        @pageBreadcrumb > hbox > button > span:hover,
         @childPageContainer > hbox:hover {
             color: @selected_bg;
         }

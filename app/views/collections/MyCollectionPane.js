@@ -17,6 +17,7 @@ MyCollectionPane.prototype.initialize = function () {
         (new PrivateCollectionMenu(this, collection, def)).showMenuAt(event.clientX, event.clientY);
     }, this.shapePane);
     this.collectionManagementButton.style.display = "none";
+    this.settingButton.style.display = "none";
     Pencil.privateCollectionPane = this;
     PrivateCollectionManager.loadPrivateCollections();
     // this.loaded = false;

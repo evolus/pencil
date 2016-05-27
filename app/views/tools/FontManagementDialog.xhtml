@@ -76,10 +76,22 @@
         background: rgba(0, 0, 0, 0.1);
         margin-top: 1em;
     }
+
+    *[anon-id='warning'] {
+        padding: 1em;
+        background: #FFD59E;
+        color: #333;
+        margin-bottom: 1em;
+    }
     </style>
     <vbox anon-id="fontContainer" flex="1">
         <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" anon-id="fontRepeater" flex="1">
-            <strong role="header">Installed fonts:</strong>
+            <vbox role="header">
+                <div anon-id="warning">
+                    Fonts installed into Pencil will be automatically embedded into the documents when needed. Please make sure you have appropriate licenses for each of the fonts in this list.
+                </div>
+                <strong>Installed fonts:</strong>
+            </vbox>
             <vbox role="item" anon-id="itemContainer">
                 <div class="FontName">
                     <span anon-id="fontName"></span>

@@ -103,6 +103,7 @@
 
         body @dialogFrame .MessageDialog .Messages {
             margin-left: 2em;
+            word-break: break-word;
         }
         body @dialogFrame .MessageDialog .Messages p {
             margin-top: 0.5em;
@@ -134,6 +135,14 @@
         }
         body @dialogFrame .DialogIcon.Error {
             color: red;
+        }
+        body @dialogFrame i.DialogIcon.Icon {
+            @iconify();
+            float: left;
+            font-size: 3em;
+            color: #428BCA;
+            opacity: 1;
+            margin-top: 10px;
         }
     </style>
     <vbox anon-id="dialogFrame" class="DialogFrame" tabindex="0">

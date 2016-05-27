@@ -36,7 +36,6 @@ CollectionManagementDialog.prototype.handleItemClick = function (event) {
         this.collectionPanel.reload();
         view.setAttribute("visible", visible);
     } else if (control._role == "uninstall-button") {
-        if (!collection.userDefined) return;
         Dialog.confirm(
             "Are you sure you want to uninstall this collection?",
             "Uninstalling will remove this collection completely from Pencil. Shapes created from this collection will no longer be editable.",
@@ -155,20 +154,21 @@ CollectionManagementDialog.prototype.getDialogActions = function () {
         {
             type: "extra1", title: "Install From File...",
             run: function () {
-                CollectionManager.installNewCollection(function () {
-                    thiz.loadCollectionList();
+                CollectionManager.installNewCollection(function (err, collection) {
+                    if (!err && collection) {
+                        NotificationPopup.show("Collection installed successful.");
+                        thiz.loadCollectionList();
+                    }
                 });
                 return false;
             }
-        }/*,
+        },
         {
-            type: "extra1", title: "Install From URL...",
+            type: "extra1", title: "Install From Repository...",
             run: function () {
-                CollectionManager.installCollectionFromUrl("https://github.com/Craig-Fisk/BootstrapGlyph-Pencil-Stencil/archive/0.1.zip", () => {
-                    thiz.loadCollectionList();
-                });
+                new CollectionBrowserDialog(thiz.collectionPanel, thiz).open();
                 return false;
             }
-        }*/
+        }
     ]
 };
