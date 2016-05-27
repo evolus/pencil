@@ -198,6 +198,15 @@
             flex-shrink: 1;
             max-height: 4em;
         }
+        @settingButton {
+            line-height: 1em;
+            padding: 0 0.3em;
+            height: 1.8em;
+        }
+        @settingButton:not(:hover) {
+            border-color: transparent;
+            background: none;
+        }
 
     </style>
     <hbox anon-id="filter">
@@ -224,6 +233,7 @@
                         <span anon-id="collectionDescription" flex="1"></span>
                     </vbox>
                 </vbox>
+                <button anon-id="settingButton"><i>settings</i></button>
             </hbox>
             <vbox flex="1" anon-id="shapeListContainer">
                 <ul anon-id="shapeList" class="ShapeList" flex="1">

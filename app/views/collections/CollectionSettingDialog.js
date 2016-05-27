@@ -66,7 +66,7 @@ CollectionSettingDialog.prototype.getDialogActions = function () {
     return [
             Dialog.ACTION_CANCEL,
             {
-                type: "accept", title: "SAVE",
+                type: "accept", title: "Apply",
                 run: function () {
                     for (propertyName in this.propertyEditors) {
                         var editor = this.propertyEditors[propertyName];
