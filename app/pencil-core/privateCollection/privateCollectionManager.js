@@ -258,12 +258,12 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
                 throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
             }
         } catch (e) {
-            Dialog.error("Error installing collection");
+            Dialog.error("Error installing collection.");
         } finally {
             tempDir.removeCallback();
         }
     }).on("error", function (error) {
-        Dialog.error("Error installing collection");
+        Dialog.error("Error installing collection.");
         tempDir.removeCallback();
     });
 

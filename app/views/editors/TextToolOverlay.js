@@ -122,9 +122,12 @@ TextToolOverlay.prototype.updateListByCommandValue = function (commandName, cont
     }
 
     if (value && control == this.fontCombo) {
-        value = value.replace(/[']/g,'');
-        if (value.split(",").length > 0) value = value.split(",")[0];
-        value = {family: value.replace(/[']/g,'')};
+        if (value.indexOf(",") >= 0) {
+            value = null;
+        } else {
+            value = {family: value.replace(/[']/g,'')};
+        }
+        // value = {family: value.replace(/[']/g,'')};
     }
     control.selectItem(value);
 };

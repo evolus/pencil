@@ -88,8 +88,8 @@ function PageListView() {
     this.bind("contextmenu", function (event) {
         var childOfListPage = Dom.isChildOf(this.pageListContainer, event.target);
         var childOfChildPage = Dom.isChildOf(this.childPageContainer, event.target);
-        var page;
-        var pageNode;
+        var page = null;
+        var pageNode = null;
         if (childOfChildPage) {
             pageNode = Dom.findUpwardForNodeWithData(event.target, "_page");
             pageNode.focus();
@@ -100,10 +100,16 @@ function PageListView() {
             if (!view) return;
             pageNode.focus();
             page = view.page;
+        } else if (Dom.isChildOf(this.pageBreadcrumb, event.target)) {
+            var node = Dom.findUpwardForNodeWithData(event.target, "_page");
+            if (node) {
+                node.focus();
+                page = node._page;
+            }
         }
         var pageMenu = new PageMenu(thiz, page);
         pageMenu.showMenuAt(event.clientX, event.clientY);
-    },this.node());
+    }, this.node());
 
     this.bind("click", function (event) {
         var dialog = new PageDetailDialog();

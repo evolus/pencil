@@ -17,7 +17,7 @@ PageMenu.prototype.setup = function () {
     this.register({
         key: "PageNewPage",
         icon: "add",
-        getLabel: function () { return "New Page..." },
+        getLabel: function () { return thiz.page ? "New Child Page..." : "New Page..." },
         isValid: function () { return true },
         run: function () {
             var dialog = new PageDetailDialog();
