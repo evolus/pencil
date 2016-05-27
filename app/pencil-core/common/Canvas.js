@@ -1922,62 +1922,70 @@ Canvas.prototype.handleMouseDown = function (event) {
     }
 
     if (event.shiftKey) {
-        if (!this.currentController) return;
-        this.duplicateMode = true;
-        this.mouseUp = false;
-        console.log("current control: ",this.currentController);
-        var target =this.currentController.createTransferableData();
-        var contents = [];
+        if (this.currentController && foundTarget)
+        {
+            this.duplicateMode = true;
+            this.mouseUp = false;
+            console.log("current control: ",this.currentController);
+            var target =this.currentController.createTransferableData();
+            var contents = [];
 
-        target.dataNode.removeAttribute("p:parentRef");
-        var metaNode = Dom.getSingle(".//p:metadata", target.dataNode);
-        var childTargetsNode = Dom.getSingle("./p:childTargets", metaNode);
-        if (childTargetsNode) {
-            childTargetsNode.parentNode.removeChild(childTargetsNode);
-        }
-
-        // serialize to string
-        var textualData = new XMLSerializer()
-                .serializeToString(target.dataNode);
-
-        var dom = Canvas.domParser.parseFromString(textualData, "text/xml");
-        console.log("Dom is:", dom);
-        var node = dom.documentElement;
-        if (node.namespaceURI == PencilNamespaces.svg) {
-            if (node.localName == "g") {
-                var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
-                contents.push({
-                    type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
-                    data: dom
-                });
-
-            } else if (node.localName == "svg") {
-                contents.push({
-                    type: SVGXferHelper.MIME_TYPE,
-                    data: dom
-                })
+            target.dataNode.removeAttribute("p:parentRef");
+            var metaNode = Dom.getSingle(".//p:metadata", target.dataNode);
+            var childTargetsNode = Dom.getSingle("./p:childTargets", metaNode);
+            if (childTargetsNode) {
+                childTargetsNode.parentNode.removeChild(childTargetsNode);
             }
-        }
 
-        for (var j = 0; j < contents.length; j ++) {
-            var content = contents[j];
-            var handled = false;
+            // serialize to string
+            var textualData = new XMLSerializer()
+                    .serializeToString(target.dataNode);
 
-            for (var i in this.xferHelpers) {
-                var helper = this.xferHelpers[i];
+            var dom = Canvas.domParser.parseFromString(textualData, "text/xml");
+            console.log("Dom is:", dom);
+            var node = dom.documentElement;
+            if (node.namespaceURI == PencilNamespaces.svg) {
+                if (node.localName == "g") {
+                    var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
+                    contents.push({
+                        type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
+                        data: dom
+                    });
 
-                if (helper.type == content.type) {
-                    console.log("Handling data by", helper);
-                    try {
-                        helper.handleData(content.data);
-                        handled = true;
-                        break;
-                    } catch (e) {
-                        console.error(e);
-                    }
+                } else if (node.localName == "svg") {
+                    contents.push({
+                        type: SVGXferHelper.MIME_TYPE,
+                        data: dom
+                    })
                 }
             }
-            if (handled) break;
+
+            for (var j = 0; j < contents.length; j ++) {
+                var content = contents[j];
+                var handled = false;
+
+                for (var i in this.xferHelpers) {
+                    var helper = this.xferHelpers[i];
+
+                    if (helper.type == content.type) {
+                        console.log("Handling data by", helper);
+                        try {
+                            helper.handleData(content.data);
+                            handled = true;
+                            break;
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+                }
+                if (handled) break;
+            }
+        } else {
+            if (!foundTarget || targets.length == 1) {
+                this.clearSelection();
+                controller = this.createControllerFor(top);
+                this.addToSelection(controller);
+            }
         }
     } else if (event.ctrlKey) {
         if (foundTarget) {
