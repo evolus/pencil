@@ -1,5 +1,3 @@
-const _ = require("lodash");
-
 function OpenClipartSearch() {
 
     this.title = "OpenClipart.org";

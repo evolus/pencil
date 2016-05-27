@@ -20,6 +20,8 @@ NotificationPopup.prototype.setup = function (message, actionTitle, actionHandle
         Dom.show(this.footer);
         this.actionButton.innerHTML = Dom.htmlEncode(actionTitle);
         this.actionHandler = actionHandler;
+    } else {
+        this.footer.style.display = "none";
     }
 };
 

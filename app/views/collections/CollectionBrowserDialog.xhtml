@@ -1,0 +1,115 @@
+<vbox class="Form">
+    <style>
+        @collectionContainer {
+            flex-wrap: wrap;
+            overflow: auto;
+            width: 56em;
+            min-height: 50em;
+            max-height: 50em;
+            padding: 0em 1em 1em 0em;
+        }
+        @collectionContainer > .CollectionView {
+            display: inline-flex;
+            width: 15em;
+            margin: 1em 0em 0em 1em;
+            padding: 1em;
+            box-shadow: @card_shadow;
+            text-align: left;
+        }
+        @collectionContainer > .CollectionView[installed="true"] > * {
+            opacity: 0.3;
+        }
+        @collectionContainer > .CollectionView[installed="true"] > .Controls {
+            opacity: 1;
+        }
+        @collectionContainer > .CollectionView i.Icon {
+            @iconify();
+            font-size: 2em;
+        }
+        @collectionContainer > .CollectionView .Name {
+            padding-left: 0.5em;
+        }
+        @collectionContainer > .CollectionView .Name strong,
+        @collectionContainer > .CollectionView .Name span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        @collectionContainer > .CollectionView .Name span {
+        }
+        @collectionContainer > .CollectionView .Thumb {
+            height: 12em;
+        }
+        @collectionContainer > .CollectionView .Thumb span {
+            background-size: cover;
+
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+        }
+        @collectionContainer > .CollectionView .Title {
+            margin: 5px 0;
+            font-weight: bold;
+            font-size: 1em;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            box-sizing: border-box;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        @collectionContainer > .CollectionView .Description {
+            font-size: 0.85em;
+
+            text-overflow: ellipsis;
+            overflow: hidden;
+            box-sizing: border-box;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+        }
+
+        @collectionContainer > button[selected="true"] {
+            background-color: @selected_button_bg;
+        }
+        .CollectionView .Controls {
+            padding-top: 1em;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .CollectionView .Controls .Progressbar {
+          height: 4px;
+          position: relative;
+          overflow: hidden;
+          background-color: #ddd;
+
+          flex-grow: 1;
+          min-width: 100px;
+          align-items: center;
+          display: flex;
+          margin-right: 10px;
+        }
+        .CollectionView .Controls .Progressbar:before{
+          display: block;
+          position: absolute;
+          content: "";
+          left: -200px;
+          width: 200px;
+          height: 4px;
+          background-color: #2980b9;
+          animation: loading 2s linear infinite;
+        }
+
+        .CollectionView .Controls button {
+            height: 1.8em;
+            line-height: 1.8em;
+            border: none;
+        }
+        .CollectionView .Controls button:not(:hover),
+        .CollectionView .Controls button[disabled] {
+        }
+
+    </style>
+    <hbox anon-id="collectionContainer" flex="1">
+    </hbox>
+</vbox>
