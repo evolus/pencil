@@ -38,15 +38,14 @@ CollectionManagementDialog.prototype.handleItemClick = function (event) {
     } else if (control._role == "uninstall-button") {
         if (!collection.userDefined) return;
         var thiz = this;
+
         Dialog.confirm(
             "Are you sure you want to uninstall this collection?",
             "Uninstalling will remove this collection completely from Pencil. Shapes created from this collection will no longer be editable.",
             "Yes, Uninstall", function () {
-                window.setTimeout(function () {
-                    CollectionManager.uninstallCollection(collection);
-                    thiz.collectionPanel.reload();
-                    view.parentNode.removeChild(view);
-                },20)
+                CollectionManager.uninstallCollection(collection);
+                thiz.collectionPanel.reload();
+                view.parentNode.removeChild(view);
             }.bind(thiz),
             "Cancel"
         );
