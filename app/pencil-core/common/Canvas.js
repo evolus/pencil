@@ -982,6 +982,9 @@ Canvas.prototype.handleClick = function (event) {
 };
 Canvas.prototype.handleMouseMove = function (event, fake) {
     try {
+        if (this.duplicateMode && !this.mouseUp) {
+            if(this.duplicateFunc) this.duplicateFunc();
+        }
         this._currentPX = event.clientX / this.zoom;
         this._currentPY = event.clientY / this.zoom;
 
@@ -1926,59 +1929,92 @@ Canvas.prototype.handleMouseDown = function (event) {
         {
             this.duplicateMode = true;
             this.mouseUp = false;
-            console.log("current control: ",this.currentController);
-            var target =this.currentController.createTransferableData();
-            var contents = [];
-
-            target.dataNode.removeAttribute("p:parentRef");
-            var metaNode = Dom.getSingle(".//p:metadata", target.dataNode);
-            var childTargetsNode = Dom.getSingle("./p:childTargets", metaNode);
-            if (childTargetsNode) {
-                childTargetsNode.parentNode.removeChild(childTargetsNode);
-            }
-
-            // serialize to string
-            var textualData = new XMLSerializer()
-                    .serializeToString(target.dataNode);
-
-            var dom = Canvas.domParser.parseFromString(textualData, "text/xml");
-            console.log("Dom is:", dom);
-            var node = dom.documentElement;
-            if (node.namespaceURI == PencilNamespaces.svg) {
-                if (node.localName == "g") {
-                    var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
-                    contents.push({
-                        type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
-                        data: dom
-                    });
-
-                } else if (node.localName == "svg") {
-                    contents.push({
-                        type: SVGXferHelper.MIME_TYPE,
-                        data: dom
-                    })
+            var thiz = this;
+            this.duplicateFunc = function () {
+                var target = thiz.currentController.createTransferableData();
+                var contents = [];
+                target.dataNode.removeAttribute("p:parentRef");
+                var metaNode = Dom.getSingle(".//p:metadata", target.dataNode);
+                var childTargetsNode = Dom.getSingle("./p:childTargets", metaNode);
+                if (childTargetsNode) {
+                    childTargetsNode.parentNode.removeChild(childTargetsNode);
                 }
-            }
 
-            for (var j = 0; j < contents.length; j ++) {
-                var content = contents[j];
-                var handled = false;
+                // serialize to string
+                var textualData = new XMLSerializer()
+                        .serializeToString(target.dataNode);
 
-                for (var i in this.xferHelpers) {
-                    var helper = this.xferHelpers[i];
+                var dom = Canvas.domParser.parseFromString(textualData, "text/xml");
+                console.log("Dom is:", dom);
+                var node = dom.documentElement;
+                if (node.namespaceURI == PencilNamespaces.svg) {
+                    if (node.localName == "g") {
+                        var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
+                        contents.push({
+                            type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
+                            data: dom
+                        });
 
-                    if (helper.type == content.type) {
-                        console.log("Handling data by", helper);
-                        try {
-                            helper.handleData(content.data);
-                            handled = true;
-                            break;
-                        } catch (e) {
-                            console.error(e);
-                        }
+                    } else if (node.localName == "svg") {
+                        contents.push({
+                            type: SVGXferHelper.MIME_TYPE,
+                            data: dom
+                        })
                     }
                 }
-                if (handled) break;
+
+                for (var j = 0; j < contents.length; j ++) {
+                    var content = contents[j];
+                    var handled = false;
+
+                    for (var i in thiz.xferHelpers) {
+                        var helper = thiz.xferHelpers[i];
+
+                        if (helper.type == content.type) {
+                            console.log("Handling data by", helper);
+                            try {
+                                helper.handleData(content.data);
+                                handled = true;
+                                break;
+                            } catch (e) {
+                                console.error(e);
+                            }
+                        }
+                    }
+                    if (handled) break;
+                }
+
+                thiz.controllerHeld = true;
+
+                thiz.oX = Math.round(event.clientX / this.zoom);
+                thiz.oY = Math.round(event.clientY / this.zoom);
+
+                thiz._lastNewX = Math.round(event.clientX / this.zoom);
+                thiz._lastNewY = Math.round(event.clientY / this.zoom);
+
+                thiz.oldPos = thiz.currentController.getGeometry();
+
+                tick("before setPositionSnapshot");
+                thiz.currentController.setPositionSnapshot();
+                tick("after setPositionSnapshot");
+
+                if (event.button == 0)
+                    this.setAttributeNS(PencilNamespaces.p, "p:holding", "true");
+
+                if (top != thiz.lastTop || event.ctrlKey || event.button != 0) {
+                    thiz.reClick = false;
+                    thiz._attachEditors(thiz.currentController);
+                } else {
+                    if (event.detail != 2)
+                        thiz.reClick = true;
+                }
+
+                thiz.hasMoved = false;
+                if(!event.shiftKey) thiz.lastTop = top;
+                thiz._sayTargetChanged();
+                tick("done");
+
+                thiz.duplicateFunc = null;
             }
         } else {
             if (!foundTarget || targets.length == 1) {
