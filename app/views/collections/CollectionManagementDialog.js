@@ -154,8 +154,11 @@ CollectionManagementDialog.prototype.getDialogActions = function () {
         {
             type: "extra1", title: "Install From File...",
             run: function () {
-                CollectionManager.installNewCollection(function () {
-                    thiz.loadCollectionList();
+                CollectionManager.installNewCollection(function (err, collection) {
+                    if (!err && collection) {
+                        NotificationPopup.show("Collection installed successful.");
+                        thiz.loadCollectionList();
+                    }
                 });
                 return false;
             }
