@@ -267,6 +267,7 @@ CollectionManager.installNewCollection = function (callback) {
 
     if (fp.show() != nsIFilePicker.returnOK) return;
     */
+
     var files = dialog.showOpenDialog({
         title: "Install from",
         defaultPath: os.homedir(),
@@ -324,7 +325,6 @@ CollectionManager.installCollectionFromFile = function (file, callback) {
             ApplicationPane._instance.unbusy();
         }
     });
-
     fs.createReadStream(filePath).pipe(extractor);
 };
 CollectionManager.installCollectionFromFile_old = function (file) {
@@ -530,10 +530,8 @@ CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
 };
 CollectionManager.uninstallCollection = function (collection) {
     if (!collection.installDirPath || !collection.userDefined) return;
-    ApplicationPane._instance.busy();
     CollectionManager.removeCollectionDir(collection.installDirPath, function () {
         CollectionManager.loadStencils();
-        ApplicationPane._instance.unbusy();
     });
 
     /*
