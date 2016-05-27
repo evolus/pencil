@@ -307,7 +307,7 @@ Dialog.alert = function (message, extra, onClose) {
             container.appendChild(Dom.newDOMElement({
                 _name: "hbox", "class": "MessageDialog",
                 _children: [
-                    { _name: "i", "class": "DialogIcon", _text: "info" },
+                    { _name: "i", "class": "DialogIcon Alert", _text: "info" },
                     {
                         _name: "vbox", flex: 1, "class": "Messages",
                         _children: [
@@ -368,9 +368,9 @@ Dialog.prompt = function (message, initialValue, acceptMessage, onInput, cancelM
         title: "Prompt",
         size: "small",
         buildContent: function (container) {
-            var i = document.createElement("p");
-            Dom.addClass(i, "fa fa-question-circle");
-            i.setAttribute("style", "float: left; font-size: 2em; color: #428BCA;");
+            var i = document.createElement("i");
+            i.appendChild(document.createTextNode("info"));
+            i.setAttribute("class", "Icon DialogIcon");
             container.appendChild(i);
 
             var div = document.createElement("div");
@@ -381,14 +381,14 @@ Dialog.prompt = function (message, initialValue, acceptMessage, onInput, cancelM
 
             this.input = Dom.newDOMElement({
                 _name: "input",
-                style: "width: 20em;",
+                style: "width: calc(100% - 10px); padding: 5px;",
                 "class": "Focusable"
             });
 
             div.appendChild(this.input);
             this.input.value = initialValue || "";
 
-            div.setAttribute("style", "margin-left: 3em;");
+            div.setAttribute("style", "margin-left: 4em;");
         },
         actions: [
                   {
