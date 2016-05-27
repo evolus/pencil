@@ -11,6 +11,7 @@ function Canvas(element) {
     this.spaceHeld = false;
     this.painterPropertyMap = this.getPainterPropertyMap();
     this.duplicateMode = false;
+    this.mouseUp = false;
     // building the content as: box >> svg
     var thiz = this;
 
@@ -24,6 +25,12 @@ function Canvas(element) {
         if (!inDrawing) {
             thiz.clearSelection();
             thiz.selectNone();
+        }
+    }, false);
+
+    this.addEventListener("mouseup", function (event) {
+        if (thiz.duplicateMode) {
+            thiz.mouseUp = true;
         }
     }, false);
 
@@ -150,13 +157,6 @@ function Canvas(element) {
         thiz.handleMouseDown(event);
     }, false);
 
-    this.svg.addEventListener("keyup", function (event) {
-        // document.commandDispatcher.advanceFocus();
-        if (event.keyCode = DOM_VK_CONTROL) {
-            thiz.ctrlOn = false;
-        }
-    }, false);
-
     this.element.addEventListener("mousewheel", function (event) {
         thiz.focus();
         thiz.handleMouseWheel(event);
@@ -185,10 +185,27 @@ function Canvas(element) {
     this.ctrlOn = false;
 
     this.focusableBox.addEventListener("keydown", function (event) {
-        if(event.keyCode == DOM_VK_CONTROL) {
-            thiz.ctrlOn = true;
-        }
         thiz.handleKeyPress(event);
+    }, false);
+
+    this.focusableBox.addEventListener("keyup", function (event) {
+        if (event.keyCode == DOM_VK_SHIFT) {
+            if(thiz.duplicateMode) {
+                thiz.duplicateMode = false;
+                console.log(thiz.mouseUp);
+                if (!thiz.mouseUp) {
+                    thiz.run(function () {
+                        thiz.currentController.deleteTarget();
+                    }, thiz, Util.getMessage("action.delete.shape",
+                            thiz.currentController.getName()));
+                    thiz.currentController = null;
+                    thiz._detachEditors();
+                    thiz.clearSelection();
+                    thiz._sayTargetChanged();
+                    event.preventDefault();
+                }
+            }
+        }
     }, false);
 
     this.svg.ownerDocument.addEventListener("keydown", function (event) {
@@ -1271,6 +1288,9 @@ Canvas.prototype.handleKeyPress = function (event) {
         event.preventDefault();
     } else if (event.keyCode == DOM_VK_ESCAPE) {
         this.endFormatPainter();
+    } else if (event.keyCode == DOM_VK_SHIFT) {
+        this.duplicateMode = true;
+        this.mouseUp = false;
     }
 
 };
@@ -1897,7 +1917,7 @@ Canvas.prototype.handleMouseDown = function (event) {
         }
     }
 
-    if (event.shiftKey) {
+    if (this.duplicateMode) {
         if (!this.currentController) return;
         console.log("current control: ",this.currentController);
         var target =this.currentController.createTransferableData();
