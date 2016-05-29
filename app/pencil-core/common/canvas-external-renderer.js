@@ -190,11 +190,10 @@ function init() {
             var css = "svg { line-height: 1.428; }";
             if (combinedCSS) css += "\n" + combinedCSS;
 
-            xml = xml.replace(/^(<svg[^>]+>)/i, function (all, one) {
+            xml = xml.replace(/^(<svg[^>\/]+>)/i, function (all, one) {
                 return one + "<style type=\"text/css\">\n" + css + "</style>";
             });
 
-            console.log("combinedCSS = ", combinedCSS.length);
             var svgNode = parser.parseFromString(xml, "text/xml");
             rasterize(svgNode, data.width, data.height, data.scale, data.processLinks, function (dataURL, objectsWithLinking) {
                 console.log("RASTER: Returning render result for " + data.id);
