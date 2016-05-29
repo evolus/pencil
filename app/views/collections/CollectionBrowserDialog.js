@@ -5,7 +5,31 @@ function CollectionBrowserDialog (collectionPanel, managerDialog) {
     this.managerDialog = managerDialog;
     this.title = "Browse Collections";
 
-    this.bind("click", this.handleItemClick, this.collectionContainer);
+    this.collectionRepeater.populator = function (collection, binding) {
+        binding.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
+        binding.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
+        binding.collectionAuthor.innerHTML = Dom.htmlEncode(collection.author);
+        binding.collectionAuthor.parentNode.setAttribute("href", collection.website);
+
+        binding.collectionVersion.innerHTML = "v" + Dom.htmlEncode(collection.version);
+        binding.collectionThumb.style.backgroundImage = `url(${collection.thumbnail})`;
+        binding._node._collection = collection;
+
+        binding.buttonInstall._progressbar = binding.progressBar;
+        binding.buttonInstall._versionLabel = binding.collectionVersion;
+        binding.buttonInstall._buttonUninstall = binding.buttonUninstall;
+        binding.buttonUninstall._buttonInstall = binding.buttonInstall;
+
+        binding.buttonInstall._role = "button-install";
+        binding.buttonUninstall._role = "button-uninstall";
+    };
+
+    this.bind("click", function (event) {
+        var node = Dom.findUpwardForNodeWithData(event.target, "_role");
+        if (!node) { return; }
+
+        this.handleItemClick(node);
+    }, this.collectionRepeater.node());
 }
 __extend(Dialog, CollectionBrowserDialog);
 
@@ -16,20 +40,24 @@ CollectionBrowserDialog.prototype.setup = function() {
     }, 500);
 };
 
-CollectionBrowserDialog.prototype.handleItemClick = function (event) {
-    var thiz = this;
-    var control = Dom.findUpwardForNodeWithData(event.target, "_role");
-    if (!control) return;
+CollectionBrowserDialog.prototype.handleItemClick = function (control) {
+    var view = Dom.findUpward(control, (node) => {
+        return Dom.hasClass(node, "CollectionView");
+    });
+    if (!view || !view._collection) { return; }
 
-    var view = control._view;
+    var thiz = this;
     var collection = view._collection;
 
-    if (control._role == "install-button" && !control.hasAttribute("disabled")) {
+    if (control._role == "button-install" && !control.hasAttribute("disabled")) {
         control._progressbar.style.display = "";
+        control._versionLabel.style.display = "none";
         control.setAttribute("disabled", true);
         CollectionManager
             .installCollectionFromUrl(collection.url, (err, newCollection) => {
                 control._progressbar.style.display = "none";
+                control._versionLabel.style.display = "";
+                control.removeAttribute("disabled");
 
                 if (!err) {
                     collection._installed = true;
@@ -37,17 +65,16 @@ CollectionBrowserDialog.prototype.handleItemClick = function (event) {
                     collection.userDefined = newCollection.userDefined;
 
                     control.style.display = "none";
-                    control._uninstallButton.style.display = "";
+                    control._buttonUninstall.style.display = "";
                     view.setAttribute("installed", "true");
 
                     thiz.managerDialog.loadCollectionList();
                 }
-                control.removeAttribute("disabled");
             });
-    } else if (control._role == "uninstall-button") {
+    } else if (control._role == "button-uninstall") {
         control.setAttribute("disabled", true);
         var thiz = this;
-        
+
         CollectionManager.uninstallCollection(collection, () => {
             thiz.collectionPanel.reload();
             thiz.managerDialog.loadCollectionList();
@@ -57,131 +84,32 @@ CollectionBrowserDialog.prototype.handleItemClick = function (event) {
             collection.userDefined = null;
 
             control.style.display = "none";
-            control._installButton.style.display = "";
+            control._buttonInstall.style.display = "";
             view.setAttribute("installed", "false");
             control.removeAttribute("disabled");
         });
     }
 };
 
-CollectionBrowserDialog.prototype.createCollectionView = function (collection) {
-    var thiz = this;
-    var holder = {};
-
-    var view = Dom.newDOMElement({
-        _name: "vbox",
-        "class": "CollectionView",
-        _children: [
-            {
-                _name: "vbox",
-                flex: 1,
-                _children: [
-                    {
-                        _name: "vbox",
-                        "class": "Thumb",
-                        _children: [
-                            {
-                                _id: "thumbnail",
-                                _name: "span",
-                            }
-                        ]
-                    },
-                    {
-                        _name: "vbox",
-                        "class": "Title",
-                        _children: [
-                            {
-                                _text: collection.displayName
-                            }
-                        ]
-                    },
-                    {
-                        _name: "vbox",
-                        "class": "Description",
-                        _children: [
-                            {
-                                _text: collection.description,
-                                _name: "span",
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                _name: "hbox",
-                "class": "Controls",
-                _children: [
-                    {
-                        _name: "div",
-                        _id: "progressBar",
-                        "class": "Progressbar",
-                        "style": "display:none"
-                    },
-                    {
-                        _children: [{
-                            _name: "i",
-                            _text: "file_download"
-                        }, {
-                            _name: "span",
-                            _text: "Install"
-                        }],
-                        _name: "button",
-                        _id: "installButton"
-                    },
-                    {
-                        _children: [{
-                            _name: "i",
-                            _text: "delete"
-                        }, {
-                            _name: "span",
-                            _text: "Uninstall"
-                        }],
-                        _name: "button",
-                        _id: "uninstallButton"
-                    }
-                ]
-            }
-        ]
-    }, null, holder);
-
-    holder.thumbnail.style.backgroundImage = `url(${collection.thumbnail})`;
-
-    var installButton = holder.installButton;
-    var uninstallButton = holder.uninstallButton;
-    var progressBar = holder.progressBar;
-
-    installButton._view = view;
-    installButton._role = "install-button";
-    uninstallButton._view = view;
-    uninstallButton._role = "uninstall-button";
-    uninstallButton.style.display = "none";
-
-    installButton._progressbar = progressBar;
-    installButton._uninstallButton = uninstallButton;
-    uninstallButton._installButton = installButton;
-
-    view._id = collection.id;
-    view._collection = collection;
-    view.setAttribute("installed", collection._installed ? "true" : "false");
-
-    return view;
-}
-
 CollectionBrowserDialog.prototype.loadCollectionList = function () {
-    Dom.empty(this.collectionContainer);
-
     var thiz = this;
     CollectionRepository.loadCollections()
         .then((collections) => {
-            if (collections) {
-                _.forEach(collections, function(e) {
-                    if (e._installed) { return; }
-                    thiz.collectionContainer.appendChild(thiz.createCollectionView(e));
-                })
-            }
+            thiz.collectionRepeater.node().style.visibility = "hidden";
+
+            window.setTimeout(function () {
+                thiz.collectionRepeater.setItems(_.filter(collections, (e) => {
+                    return !e._installed;
+                }));
+                thiz.collectionRepeater.node().style.visibility = "inherit";
+            }, 10);
         })
         .catch((ex) => {
+            Dialog.error("Could not load collections list");
             console.log(ex);
+        })
+        .finally(() => {
+            thiz.collectionContainer.setAttribute("loaded", true);
         });
 }
 CollectionBrowserDialog.prototype.getDialogActions = function () {
