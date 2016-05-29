@@ -85,6 +85,13 @@ MainMenu.prototype.setup = function () {
 
     var developerToolSubItems = [];
     developerToolSubItems.push({
+        key: "manageCollections",
+        label: "Manage Collections...",
+        run: function () {
+            new CollectionManagementDialog(Pencil.collectionPane).open();
+        }
+    });
+    developerToolSubItems.push({
         key: "manageExportTemplate",
         label: "Manage Export Template...",
         run: function () {
