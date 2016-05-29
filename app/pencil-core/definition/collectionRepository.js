@@ -17,7 +17,7 @@ CollectionRepository.loadCollections = function() {
             target: filename,
             dir: tempDir,
             resume: true,
-            verbose: true
+            quiet: true
         };
 
         nugget(STENCILS_REPO_URL, nuggetOpts, function (errors) {

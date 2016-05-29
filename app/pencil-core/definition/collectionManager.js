@@ -310,7 +310,7 @@ CollectionManager.installCollectionFromUrl = function (url, callback) {
         target: filename,
         dir: tempDir,
         resume: true,
-        verbose: true
+        quiet: true
     };
 
     nugget(url, nuggetOpts, function (errors) {
