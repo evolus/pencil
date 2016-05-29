@@ -22,6 +22,11 @@ const output = fs.createWriteStream(app.getPath("userData") + "/user.log");
 const errorOutput = fs.createWriteStream(app.getPath("userData") + "/error.log");
 const logger = new Console(output, errorOutput);
 
+var handleRedirect = (e, url) => {
+    e.preventDefault();
+    electron.shell.openExternal(url);
+}
+
 var mainWindow = null;
 function createWindow() {
     var mainWindowProperties = {
@@ -67,6 +72,9 @@ function createWindow() {
         mainWindow = null;
         app.exit(0);
     });
+
+    mainWindow.webContents.on("will-navigate", handleRedirect);
+    mainWindow.webContents.on("new-window", handleRedirect);
 
     app.mainWindow = mainWindow;
     global.mainWindow = mainWindow;
