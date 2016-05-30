@@ -1929,7 +1929,6 @@ Canvas.prototype.handleMouseDown = function (event) {
             break;
         }
     }
-
     if (event.ctrlKey) {
         if (this.currentController && foundTarget)
         {
@@ -2016,7 +2015,7 @@ Canvas.prototype.handleMouseDown = function (event) {
                 thiz.detachShape = null;
             }
         }
-        else if (this.currentController && !foundTarget) {
+        else if (!foundTarget) {
             var newController = this.createControllerFor(top);
             this.addToSelection(newController);
         }
