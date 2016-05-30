@@ -520,9 +520,9 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
     shortcut.system = shortcutNode.getAttribute("system") == "true";
     shortcut.collection = collection;
     var iconPath = shortcutNode.getAttribute("icon");
-    if (iconPath.indexOf("data:image") != 0) {
-        iconPath = collection.url.substring(0, collection.url.lastIndexOf("/") + 1) + iconPath;
-    }
+    // if (iconPath.indexOf("data:image") != 0) {
+    //     iconPath = collection.url.substring(0, collection.url.lastIndexOf("/") + 1) + iconPath;
+    // }
     shortcut.iconPath = iconPath;
 
     var to = shortcutNode.getAttribute("to");
