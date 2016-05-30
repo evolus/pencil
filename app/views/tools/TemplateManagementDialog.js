@@ -54,7 +54,7 @@ TemplateManagementDialog.prototype.initializeTemplateTable = function () {
                     "Are you sure you really want to uninstall this template?", null,
                     "Uninstall", function () {
                         ExportTemplateManager.uninstallTemplate(item.template);
-                        thiz.loadTemplates(thiz.templateTypeSelector.getSelectedItem().value);
+                        thiz.invalidateTemplateList()
                     },
                     "Cancel"
                 )
@@ -98,7 +98,7 @@ TemplateManagementDialog.prototype.getDialogActions = function () {
             isCloseHandler: true,
             run: function () {
                 var onDone = function () {
-                    thiz.loadTemplates(thiz.templateTypeSelector.getSelectedItem().value);
+                    thiz.invalidateTemplateList();
                 }
                 ExportTemplateManager.installNewTemplate(thiz.templateTypeSelector.getSelectedItem().value, onDone);
                 return false;

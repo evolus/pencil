@@ -39,7 +39,8 @@ CollectionSettingDialog.prototype.createGroupNode = function (propertyGroup) {
                     {
                         _name: "div",
                         "class": "Label Property",
-                        _text: propName + ":"
+                        _text: propName + ":",
+                        "title": propName
                     }
                 ]
             });
