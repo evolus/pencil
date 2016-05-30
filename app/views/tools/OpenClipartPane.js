@@ -124,7 +124,8 @@ OpenClipartPane.prototype.renderResult = function (result) {
                             _children: [
                                 {
                                     _name: "img",
-                                    _id: "iconImage"
+                                    _id: "iconImage",
+                                    src: def.thumb
                                 }
                             ]
                         },
@@ -142,9 +143,13 @@ OpenClipartPane.prototype.renderResult = function (result) {
         this.shapeList.appendChild(node);
 
         var thiz = this;
-        Util.setupImage(holder.iconImage, def.thumb, "center-inside", null, function () {
-            return thiz.searchAborted;
-        });
+        holder.iconImage.onload = function () {
+            if (thiz.searchAborted) return;
+        };
+        
+        // Util.setupImage(holder.iconImage, def.thumb, "center-inside", null, function () {
+        //     return thiz.searchAborted;
+        // });
         this.getSVG(node._def);
     }
 

@@ -1887,7 +1887,6 @@ Canvas.prototype.handleMouseDown = function (event) {
     if (top && this.isShapeLocked(top))
         top = null;
 
-    console.log(top);
     if (!top) {
         this.lastTop = null;
         // this.clearSelection();
