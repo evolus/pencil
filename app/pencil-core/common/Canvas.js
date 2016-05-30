@@ -189,7 +189,7 @@ function Canvas(element) {
     }, false);
 
     this.focusableBox.addEventListener("keyup", function (event) {
-        if (event.keyCode == DOM_VK_SHIFT) {
+        if (event.keyCode == DOM_VK_CONTROL) {
             if(thiz.duplicateMode) {
                 thiz.duplicateMode = false;
                 console.log(thiz.mouseUp);
@@ -807,6 +807,8 @@ Canvas.prototype.handleMouseWheel = function(event) {
 }
 Canvas.prototype.handleMouseUp = function (event) {
 
+
+
     if (this.reClick && !this.hasMoved) {
         for (editor in this.onScreenEditors)
             this.onScreenEditors[editor].nextTool();
@@ -951,7 +953,9 @@ Canvas.prototype.handleMouseUp = function (event) {
 
 };
 Canvas.prototype.handleClick = function (event) {
-
+    if (this.duplicateMode && this.mouseUp) {
+        if(this.detachShape) this.detachShape();
+    }
     // is it from an html:a?
     var a = Dom
             .findUpward(
@@ -978,6 +982,8 @@ Canvas.prototype.handleClick = function (event) {
         event.preventDefault();
         event.cancelBubble = true;
     }
+
+
 
 };
 Canvas.prototype.handleMouseMove = function (event, fake) {
@@ -1924,12 +1930,17 @@ Canvas.prototype.handleMouseDown = function (event) {
         }
     }
 
-    if (event.shiftKey) {
+    if (event.ctrlKey) {
         if (this.currentController && foundTarget)
         {
             this.duplicateMode = true;
             this.mouseUp = false;
             var thiz = this;
+            this.detachShape = function () {
+                thiz.removeFromSelection(foundTarget);
+                thiz.detachShape = null;
+                thiz.duplicateFunc = null;
+            }
             this.duplicateFunc = function () {
                 var target = thiz.currentController.createTransferableData();
                 var contents = [];
@@ -1998,35 +2009,14 @@ Canvas.prototype.handleMouseDown = function (event) {
                 thiz.currentController.setPositionSnapshot();
                 tick("after setPositionSnapshot");
 
-                if (event.button == 0)
-                    this.setAttributeNS(PencilNamespaces.p, "p:holding", "true");
-
-                if (top != thiz.lastTop || event.ctrlKey || event.button != 0) {
-                    thiz.reClick = false;
-                    thiz._attachEditors(thiz.currentController);
-                } else {
-                    if (event.detail != 2)
-                        thiz.reClick = true;
-                }
-
-                thiz.hasMoved = false;
-                if(!event.shiftKey) thiz.lastTop = top;
                 thiz._sayTargetChanged();
                 tick("done");
 
                 thiz.duplicateFunc = null;
-            }
-        } else {
-            if (!foundTarget || targets.length == 1) {
-                this.clearSelection();
-                controller = this.createControllerFor(top);
-                this.addToSelection(controller);
+                thiz.detachShape = null;
             }
         }
-    } else if (event.ctrlKey) {
-        if (foundTarget) {
-            this.removeFromSelection(foundTarget);
-        } else {
+        else if (this.currentController && !foundTarget) {
             var newController = this.createControllerFor(top);
             this.addToSelection(newController);
         }
