@@ -334,7 +334,7 @@ Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
                 var node = dom.createElementNS(PencilNamespaces.p, "p:Content");
                 node.innerHTML = document.importNode(contentNode, true).innerHTML;
                 page._contentNode = node;
-            } else page.contentNode = null;
+            } else page._contentNode = null;
 
             if (page.width) page.width = parseInt(page.width, 10);
             if (page.height) page.height = parseInt(page.height, 10);
@@ -719,7 +719,10 @@ Controller.serializePageToDom = function (page, noContent) {
         propertyNode.appendChild(dom.createTextNode(page[name] && page[name].toString() || page[name]));
     }
 
-    if (!noContent) {
+    // for old format .ep file
+    if (page._contentNode) {
+        dom.documentElement.appendChild(page._contentNode);
+    } else if (!noContent) {
         var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
         dom.documentElement.appendChild(content);
 

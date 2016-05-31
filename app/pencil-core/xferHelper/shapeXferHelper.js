@@ -21,16 +21,16 @@ ShapeXferHelper.prototype.handleData = function (dom) {
     if (Config.get("edit.cutAndPasteAtTheSamePlace") == null ){
         Config.set("edit.cutAndPasteAtTheSamePlace", false);
     }
-    if (!Config.get("edit.cutAndPasteAtTheSamePlace")) {
+    if (dom.copySamePlace && dom.copySamePlace == true || Config.get("edit.cutAndPasteAtTheSamePlace")) {
+        dx = 0;
+        dy = 0;
+    } else if (!Config.get("edit.cutAndPasteAtTheSamePlace")) {
         var grid = Pencil.getGridSize()
         var dx = Math.round(Math.random() * 50);
         dx = dx - (dx % grid.w);
 
         var dy = Math.round(Math.random() * 50);
         dy = dy - (dy % grid.h);
-    } else {
-        dx = 0;
-        dy = 0;
     }
     this.canvas.run(function() {
         this.canvas.drawingLayer.appendChild(shape);

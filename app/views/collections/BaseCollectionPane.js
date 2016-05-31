@@ -216,8 +216,11 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
     this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
     this.collectionDescription.setAttribute("title", collection.description);
-    this.settingButton.style.visibility = "inherit";
-
+    if (!collection.propertyGroups || collection.propertyGroups.length == 0) {
+        this.settingButton.disabled = true;
+    } else {
+        this.settingButton.disabled = false;
+    }
     this.last = collection;
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
     for (var i = 0; i < shapeDefs.length; i ++) {
@@ -226,7 +229,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         var icon = def.iconPath;
         if (!icon && def.shape) icon = def.shape.iconPath;
 
-        if (collection.installDirPath) {
+        if (collection.installDirPath && icon.indexOf("data:image") != 0) {
             icon = path.join(collection.installDirPath, icon);
         }
 

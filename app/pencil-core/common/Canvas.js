@@ -182,8 +182,6 @@ function Canvas(element) {
         thiz.lastMouse = {x: event.offsetX / thiz.zoom, y: event.offsetY / thiz.zoom};
     }.bind(this), false);
 
-    this.ctrlOn = false;
-
     this.focusableBox.addEventListener("keydown", function (event) {
         thiz.handleKeyPress(event);
     }, false);
@@ -203,6 +201,22 @@ function Canvas(element) {
                     thiz.clearSelection();
                     thiz._sayTargetChanged();
                     event.preventDefault();
+
+                    if (thiz.oldTargets) {
+                        if (!thiz.oldTargets.targets) {
+                            thiz.addToSelection(thiz.oldTargets);
+                            thiz.currentController = thiz.oldTargets;
+                            thiz.reClick = false;
+                            thiz._attachEditors(thiz.currentController);
+                        } else {
+                            for(i in thiz.oldTargets.targets) {
+                                thiz.addToSelection(thiz.oldTargets.targets[i]);
+                            }
+                            thiz.currentController = thiz.oldTargets;
+                        }
+                        thiz.oldTargets = null;
+                        thiz._sayTargetChanged();
+                    }
                 }
             }
         }
@@ -1915,7 +1929,8 @@ Canvas.prototype.handleMouseDown = function (event) {
     var controller = null;
 
     var targets = this.getSelectedTargets();
-    console.log("Target" , targets);
+    console.log("Target" , targets, "controller", this.currentController);
+
     var foundTarget = null;
     for (i in targets) {
         var target = targets[i];
@@ -1925,88 +1940,90 @@ Canvas.prototype.handleMouseDown = function (event) {
         }
     }
     if (event.shiftKey) {
-        if (this.currentController && foundTarget)
-        {
-            this.duplicateMode = true;
-            this.mouseUp = false;
-            var thiz = this;
-            this.duplicateFunc = function () {
-                console.log("current control: ",thiz.currentController);
-                var target =thiz.currentController.createTransferableData();
-                var contents = [];
+        if (!foundTarget && top) {
+            thiz.clearSelection();
+            thiz.addToSelection(thiz.createControllerFor(top));
+        }
+        this.duplicateMode = true;
+        this.mouseUp = false;
+        this.oldTargets = null;
+        var thiz = this;
+        this.duplicateFunc = function () {
+            console.log("current control: ",thiz.currentController);
+            if( thiz.currentController.targets) {
+                 thiz.oldTargets = thiz.currentController;
+            } else {
+                thiz.oldTargets = thiz.currentController;
+            }
+            var target =thiz.currentController.createTransferableData();
+            var contents = [];
 
-                target.dataNode.removeAttribute("p:parentRef");
-                var metaNode = Dom.getSingle(".//p:metadata", target.dataNode);
-                var childTargetsNode = Dom.getSingle("./p:childTargets", metaNode);
-                if (childTargetsNode) {
-                    childTargetsNode.parentNode.removeChild(childTargetsNode);
+            target.dataNode.removeAttribute("p:parentRef");
+            var metaNode = Dom.getSingle(".//p:metadata", target.dataNode);
+            var childTargetsNode = Dom.getSingle("./p:childTargets", metaNode);
+            if (childTargetsNode) {
+                childTargetsNode.parentNode.removeChild(childTargetsNode);
+            }
+
+            // serialize to string
+            var textualData = new XMLSerializer()
+                    .serializeToString(target.dataNode);
+
+            var dom = Canvas.domParser.parseFromString(textualData, "text/xml");
+            dom.copySamePlace = true;
+            console.log("Dom is:", dom);
+            var node = dom.documentElement;
+            if (node.namespaceURI == PencilNamespaces.svg) {
+                if (node.localName == "g") {
+                    var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
+                    contents.push({
+                        type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
+                        data: dom
+                    });
+
+                } else if (node.localName == "svg") {
+                    contents.push({
+                        type: SVGXferHelper.MIME_TYPE,
+                        data: dom
+                    })
                 }
+            }
 
-                // serialize to string
-                var textualData = new XMLSerializer()
-                        .serializeToString(target.dataNode);
+            for (var j = 0; j < contents.length; j ++) {
+                var content = contents[j];
+                var handled = false;
 
-                var dom = Canvas.domParser.parseFromString(textualData, "text/xml");
-                console.log("Dom is:", dom);
-                var node = dom.documentElement;
-                if (node.namespaceURI == PencilNamespaces.svg) {
-                    if (node.localName == "g") {
-                        var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
-                        contents.push({
-                            type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
-                            data: dom
-                        });
+                for (var i in thiz.xferHelpers) {
+                    var helper = thiz.xferHelpers[i];
 
-                    } else if (node.localName == "svg") {
-                        contents.push({
-                            type: SVGXferHelper.MIME_TYPE,
-                            data: dom
-                        })
-                    }
-                }
-
-                for (var j = 0; j < contents.length; j ++) {
-                    var content = contents[j];
-                    var handled = false;
-
-                    for (var i in thiz.xferHelpers) {
-                        var helper = thiz.xferHelpers[i];
-
-                        if (helper.type == content.type) {
-                            console.log("Handling data by", helper);
-                            try {
-                                helper.handleData(content.data);
-                                handled = true;
-                                break;
-                            } catch (e) {
-                                console.error(e);
-                            }
+                    if (helper.type == content.type) {
+                        console.log("Handling data by", helper);
+                        try {
+                            helper.handleData(content.data);
+                            handled = true;
+                            break;
+                        } catch (e) {
+                            console.error(e);
                         }
                     }
-                    if (handled) break;
                 }
-                thiz.controllerHeld = true;
-
-                thiz.oX = Math.round(event.clientX / this.zoom);
-                thiz.oY = Math.round(event.clientY / this.zoom);
-
-                thiz._lastNewX = Math.round(event.clientX / this.zoom);
-                thiz._lastNewY = Math.round(event.clientY / this.zoom);
-
-                thiz.oldPos = thiz.currentController.getGeometry();
-
-                tick("before setPositionSnapshot");
-                thiz.currentController.setPositionSnapshot();
-                tick("after setPositionSnapshot");
-
-                thiz.duplicateFunc = null;
+                if (handled) break;
             }
-        } else {
-            if (!foundTarget || targets.length == 1) {
-                this.clearSelection();
-                controller = this.createControllerFor(top);
-                this.addToSelection(controller);
-            }
+            thiz.controllerHeld = true;
+
+            thiz.oX = Math.round(event.clientX / thiz.zoom);
+            thiz.oY = Math.round(event.clientY / thiz.zoom);
+
+            thiz._lastNewX = Math.round(event.clientX / thiz.zoom);
+            thiz._lastNewY = Math.round(event.clientY / thiz.zoom);
+
+            thiz.oldPos = thiz.currentController.getGeometry();
+
+            tick("before setPositionSnapshot");
+            thiz.currentController.setPositionSnapshot();
+            tick("after setPositionSnapshot");
+
+            thiz.duplicateFunc = null;
         }
     } else if (event.ctrlKey) {
         if (foundTarget) {
@@ -2061,7 +2078,7 @@ Canvas.prototype.handleMouseDown = function (event) {
             }
 
             this.hasMoved = false;
-            if(!event.shiftKey) this.lastTop = top;
+            this.lastTop = top;
             this._sayTargetChanged();
             tick("done");
         } catch (e) {
