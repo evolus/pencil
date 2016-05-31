@@ -1948,7 +1948,6 @@ Canvas.prototype.handleMouseDown = function (event) {
         this.mouseUp = false;
         this.oldTargets = null;
         var thiz = this;
-        Config.set("edit.cutAndPasteAtTheSamePlace", true);
         this.duplicateFunc = function () {
             console.log("current control: ",thiz.currentController);
             if( thiz.currentController.targets) {
@@ -1971,6 +1970,7 @@ Canvas.prototype.handleMouseDown = function (event) {
                     .serializeToString(target.dataNode);
 
             var dom = Canvas.domParser.parseFromString(textualData, "text/xml");
+            dom.copySamePlace = true;
             console.log("Dom is:", dom);
             var node = dom.documentElement;
             if (node.namespaceURI == PencilNamespaces.svg) {
@@ -2023,7 +2023,6 @@ Canvas.prototype.handleMouseDown = function (event) {
             thiz.currentController.setPositionSnapshot();
             tick("after setPositionSnapshot");
 
-            Config.set("edit.cutAndPasteAtTheSamePlace", false);
             thiz.duplicateFunc = null;
         }
     } else if (event.ctrlKey) {
