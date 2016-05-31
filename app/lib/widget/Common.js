@@ -103,9 +103,11 @@ widget.Util = function() {
                 var css = content.replace(/([\r\n ]+)([^\{\}\$;]+)\{/g, function (zero, leading, selectors) {
                     selectors = selectors.replace(/^@this/gi, prefix);
                     selectors = selectors.replace(/(\.widget_[^\r\n\,]+ )@([a-z])/gi, "$1 .AnonId_$2");
-                    selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
+                    if (!selectors.match(/^[ \t]*@media /)) {
+                        selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
+                    }
                     selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
-                    if (!selectors.match(/^[ \t]*body /)) {
+                    if (!selectors.match(/^[ \t]*body /) && !selectors.match(/^[ \t]*@media /)) {
                         selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
                     }
 

@@ -310,7 +310,7 @@ CollectionManager.installCollectionFromUrl = function (url, callback) {
         target: filename,
         dir: tempDir,
         resume: true,
-        verbose: true
+        quiet: true
     };
 
     nugget(url, nuggetOpts, function (errors) {
@@ -329,7 +329,7 @@ CollectionManager.installCollectionFromUrl = function (url, callback) {
 
         CollectionManager.installCollectionFromFilePath(filepath, (err, collection) => {
             if (!err && collection) {
-                NotificationPopup.show("Collection installed successful.");
+                NotificationPopup.show("Collection was installed successfully.");
             }
             callback(err, collection);
         });

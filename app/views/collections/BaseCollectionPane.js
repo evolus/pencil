@@ -226,6 +226,12 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         var icon = def.iconPath;
         if (!icon && def.shape) icon = def.shape.iconPath;
 
+        if (collection.installDirPath) {
+            icon = path.join(collection.installDirPath, icon);
+        }
+
+        icon = icon || def.iconData;
+
         var holder = {};
 
         var node = Dom.newDOMElement({
@@ -245,7 +251,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
                                 {
                                     _name: "img",
                                     _id: "iconImage",
-                                    src: def.iconPath || def.iconData
+                                    src: icon
                                 }
                             ]
                         },

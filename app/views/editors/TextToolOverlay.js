@@ -25,7 +25,6 @@ function TextToolOverlay() {
     }, this.popupContainer);
 
     var selectListener = function (event) {
-        console.log("selectListener");
         // var temp = OnScreenTextEditor.isEditing;
         // OnScreenTextEditor.isEditing = false;
 

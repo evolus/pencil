@@ -983,7 +983,9 @@ Canvas.prototype.handleClick = function (event) {
 Canvas.prototype.handleMouseMove = function (event, fake) {
     try {
         if (this.duplicateMode && !this.mouseUp) {
-            if(this.duplicateFunc) this.duplicateFunc();
+            if(this.duplicateFunc) {
+                this.duplicateFunc();
+            }
         }
         this._currentPX = event.clientX / this.zoom;
         this._currentPY = event.clientY / this.zoom;
@@ -1885,7 +1887,6 @@ Canvas.prototype.handleMouseDown = function (event) {
     if (top && this.isShapeLocked(top))
         top = null;
 
-    console.log(top);
     if (!top) {
         this.lastTop = null;
         // this.clearSelection();
@@ -1923,7 +1924,6 @@ Canvas.prototype.handleMouseDown = function (event) {
             break;
         }
     }
-
     if (event.shiftKey) {
         if (this.currentController && foundTarget)
         {
@@ -1931,8 +1931,10 @@ Canvas.prototype.handleMouseDown = function (event) {
             this.mouseUp = false;
             var thiz = this;
             this.duplicateFunc = function () {
-                var target = thiz.currentController.createTransferableData();
+                console.log("current control: ",thiz.currentController);
+                var target =thiz.currentController.createTransferableData();
                 var contents = [];
+
                 target.dataNode.removeAttribute("p:parentRef");
                 var metaNode = Dom.getSingle(".//p:metadata", target.dataNode);
                 var childTargetsNode = Dom.getSingle("./p:childTargets", metaNode);
@@ -1983,7 +1985,6 @@ Canvas.prototype.handleMouseDown = function (event) {
                     }
                     if (handled) break;
                 }
-
                 thiz.controllerHeld = true;
 
                 thiz.oX = Math.round(event.clientX / this.zoom);
@@ -1997,22 +1998,6 @@ Canvas.prototype.handleMouseDown = function (event) {
                 tick("before setPositionSnapshot");
                 thiz.currentController.setPositionSnapshot();
                 tick("after setPositionSnapshot");
-
-                if (event.button == 0)
-                    this.setAttributeNS(PencilNamespaces.p, "p:holding", "true");
-
-                if (top != thiz.lastTop || event.ctrlKey || event.button != 0) {
-                    thiz.reClick = false;
-                    thiz._attachEditors(thiz.currentController);
-                } else {
-                    if (event.detail != 2)
-                        thiz.reClick = true;
-                }
-
-                thiz.hasMoved = false;
-                if(!event.shiftKey) thiz.lastTop = top;
-                thiz._sayTargetChanged();
-                tick("done");
 
                 thiz.duplicateFunc = null;
             }
