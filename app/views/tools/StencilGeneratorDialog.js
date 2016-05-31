@@ -162,22 +162,24 @@ StencilGeneratorDialog.prototype.initStencils = function () {
             var holder = {};
             var item = Dom.newDOMElement({
                 _name: "div",
-                class: "imageItem",
+                class: "ImageItem",
                 _children: [
                     {
                         _name: "div",
-                        class: "iconContainer",
+                        class: "IconContainer",
                         _children: [
                             {
                                 _name: "img",
-                                _id: "iconImage"
+                                _id: "iconImage",
+                                "title": thiz.imagePaths[i]._stencil.label
                             }
                         ]
                     },
                     {
                         _name: "span",
                         class: "stencilName",
-                        _text: thiz.imagePaths[i]._stencil.label
+                        _text: thiz.imagePaths[i]._stencil.label,
+                        "title": thiz.imagePaths[i]._stencil.label
                     },
                     {
                         _name: "input",
