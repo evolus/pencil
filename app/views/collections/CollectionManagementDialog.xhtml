@@ -1,0 +1,68 @@
+<vbox class="Form">
+    <style>
+        @collectionContainer {
+            flex-wrap: wrap;
+            justify-content: space-between;
+            overflow: auto;
+            width: 50em;
+            max-height: 40em;
+            padding: 0em 1em 1em 0em;
+        }
+        @collectionContainer > .CollectionView {
+            display: inline-flex;
+            width: 21em;
+            margin: 1em 0em 0em 1em;
+            padding: 1em;
+            box-shadow: @card_shadow;
+            text-align: left;
+        }
+        @collectionContainer > .CollectionView:not([visible="true"]) > * {
+            opacity: 0.3;
+        }
+        @collectionContainer > .CollectionView:not([visible="true"]):hover > .Controls {
+            opacity: 1;
+        }
+        @collectionContainer > .CollectionView i.Icon {
+            @iconify();
+            font-size: 2em;
+        }
+        @collectionContainer > .CollectionView .Name {
+            padding-left: 0.5em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        @collectionContainer > .CollectionView .Name strong,
+        @collectionContainer > .CollectionView .Name span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        @collectionContainer > .CollectionView .Name span {
+            opacity: 0.6;
+            font-size: 0.9em;
+        }
+        @collectionContainer > button[selected="true"] {
+            background-color: @selected_button_bg;
+        }
+        .CollectionView .Controls {
+            padding-top: 1em;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .CollectionView .Controls button {
+            height: 1.8em;
+            line-height: 1.8em;
+            margin-left: 0.5em;
+            padding-left: 0.2em;
+            padding-right: 0.2em;
+        }
+        .CollectionView .Controls button:not(:hover),
+        .CollectionView .Controls button[disabled] {
+            border-color: transparent;
+            background: none;
+        }
+    </style>
+    <hbox anon-id="collectionContainer" flex="1">
+    </hbox>
+</vbox>

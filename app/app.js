@@ -13,6 +13,10 @@ const ipcRenderer   = require('electron').ipcRenderer;
 const QueueHandler  = require("./pencil-core/common/QueueHandler");
 const shell         = require('electron').shell;
 const sharedUtil    = require("./pencil-core/common/shared-util");
+const _             = require("lodash");
+const rimraf        = require("rimraf");
+const QP            = require("q");
+
 
 tmp.setGracefulCleanup();
 

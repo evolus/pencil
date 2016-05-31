@@ -128,7 +128,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                     listener.onTaskDone();
                     if (destFile) {
                         NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
-                            shell.openItem(destFile.path);
+                            shell.openItem(destFile);
                         });
                     } else {
                         NotificationPopup.show("Document has been exported.");

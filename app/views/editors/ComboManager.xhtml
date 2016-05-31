@@ -1,0 +1,53 @@
+<hbox>
+    <style>
+        body .widget_ComboManager[flex] @selectContainer {
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+        }
+        body .widget_ComboManager[flex] @selectContainer > button {
+            flex: 1;
+            display: inline-flex;
+        }
+        body .widget_ComboManager[flex] @selectContainer > button > @buttonDisplay {
+            flex: 1;
+        }
+        @button {
+            white-space: nowrap;
+            text-align: left;
+            padding-right: 0.5em;
+        }
+
+        @buttonDisplay {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        body @list .Item {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0.3em 0.7em;
+            cursor: default;
+        }
+        body @list .Item[selected="true"] {
+            font-weight: bold;
+            background: @primary_color;
+            color: #FFF;
+        }
+        body @list .Item:hover {
+            background: @selected_bg;
+            color: @selected_fg;
+        }
+        body .AnonId_popupContainer.ComboManagerPopup {
+            padding: 0.3em;
+        }
+    </style>
+    <div anon-id="selectContainer">
+        <button anon-id="button"><span anon-id="buttonDisplay"></span><i>expand_more</i></button>
+        <ui:Popup anon-id="popup">
+            <vbox anon-id="list">
+            </vbox>
+        </ui:Popup>
+    </div>
+</hbox>

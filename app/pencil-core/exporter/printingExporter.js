@@ -1,6 +1,6 @@
 function PrintingExporter(pdfOutput) {
     this.pdfOutput = pdfOutput;
-    this.name = pdfOutput ? "Portable Document Format (PDF)" : "Send to printer";
+    this.name = pdfOutput ? "Portable Document Format (PDF)" : "Print";
     this.id = pdfOutput ? "PDFExporter" : "PrintingExporter";
 }
 PrintingExporter.HTML_FILE = "index.html";
@@ -13,7 +13,7 @@ PrintingExporter.prototype.requireRasterizedData = function (options) {
     var template = ExportTemplateManager.getTemplateById(templateId);
     if (!template) return false;
 
-    return "true" == template["useRasterizedImages"];
+    return (options && options.options && options.options.format == 'rasterized');
 };
 PrintingExporter.prototype.getRasterizedPageDestination = function (baseDir) {
     this.tempDir = Local.createTempDir("printing");
@@ -62,12 +62,28 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
 
     var xsltProcessor = new XSLTProcessor();
     xsltProcessor.importStylesheet(xsltDOM);
+
+    if (options && options.options) {
+        for (var name in options.options) {
+            var value = options.options[name];
+            xsltProcessor.setParameter(null, name, value);
+        }
+    }
+
     var result = xsltProcessor.transformToDocument(sourceDOM);
 
     //this result contains the HTML DOM of the file to print.
     //in case of using vector only data, we need to embed the font data into the stlye of this HTML DOM
 
+    var css = "svg { line-height: 1.428; }";
+
     var exportJob = function () {
+        var head = Dom.getSingle("/html/head", result);
+        var style = result.createElement("style");
+        style.setAttribute("type", "text/css");
+        style.appendChild(result.createTextNode(css));
+        head.appendChild(style);
+
         var htmlFile = path.join(destDir.name, PrintingExporter.HTML_FILE);
 
         Dom.serializeNodeToFile(result, htmlFile);
@@ -111,15 +127,11 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
 
     var fontFaces = FontLoader.instance.allFaces;
 
-    if (fontFaces && fontFaces.length > 0) {
-        sharedUtil.buildEmbeddedFontFaceCSS(fontFaces, function (css) {
-            console.log("Font faces CSS", css.length);
-            var head = Dom.getSingle("/html/head", result);
-            var style = result.createElement("style");
-            style.setAttribute("type", "text/css");
-            style.appendChild(result.createTextNode(css));
-            head.appendChild(style);
+    console.log(result.documentElement);
 
+    if (fontFaces && fontFaces.length > 0) {
+        sharedUtil.buildEmbeddedFontFaceCSS(fontFaces, function (fontFaceCSS) {
+            css += "\n" + fontFaceCSS;
             exportJob();
         });
     } else {

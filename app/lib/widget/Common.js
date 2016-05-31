@@ -14,6 +14,11 @@ function __extend() {
 
     __widgetClasses.push(sub);
 
+    var templatePath = path.dirname(document.currentScript.src);
+    if (templatePath && /views\/(.*)$/ig.exec(templatePath)) {
+        sub.__templatePath = RegExp.$1;
+    }
+
     return sub;
 }
 
@@ -98,9 +103,11 @@ widget.Util = function() {
                 var css = content.replace(/([\r\n ]+)([^\{\}\$;]+)\{/g, function (zero, leading, selectors) {
                     selectors = selectors.replace(/^@this/gi, prefix);
                     selectors = selectors.replace(/(\.widget_[^\r\n\,]+ )@([a-z])/gi, "$1 .AnonId_$2");
-                    selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
+                    if (!selectors.match(/^[ \t]*@media /)) {
+                        selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
+                    }
                     selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
-                    if (!selectors.match(/^[ \t]*body /)) {
+                    if (!selectors.match(/^[ \t]*body /) && !selectors.match(/^[ \t]*@media /)) {
                         selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
                     }
 
@@ -808,8 +815,8 @@ BaseTemplatedWidget.prototype.getTemplatePrefix = function () {
     return "views/";
 };
 BaseTemplatedWidget.getTemplatePathForViewClass = function (clazz) {
-    return "views/" + clazz.name + ".xhtml";
+    return "views/" + (clazz.__templatePath ? clazz.__templatePath + '/' : '') + clazz.name + ".xhtml";
 };
 BaseTemplatedWidget.prototype.getTemplatePath = function () {
-    return this.getTemplatePrefix() + this.constructor.name + ".xhtml";
+    return this.getTemplatePrefix() + (this.constructor.__templatePath ? this.constructor.__templatePath + '/' : '') + this.constructor.name + ".xhtml";
 };

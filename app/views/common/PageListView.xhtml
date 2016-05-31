@@ -1,0 +1,250 @@
+<vbox anon-id="listContainer">
+    <style>
+        body .widget_PageListView {
+            border: solid 1px;
+            border-color: lighten(@app_bg, 5%) darken(@app_bg, 10%) darken(@app_bg, 10%) lighten(@app_bg, 5%);
+        }
+        @header {
+            background: @app_bg;
+            align-items: center;
+            padding-right: 0.3em;
+            position: relative;
+            overflow: visible;
+            min-height: 2.8em;
+        }
+        @header .widget_ScrollableView > button,
+        @header button {
+            line-height: 1.4em;
+            height: 1.4em;
+            padding: 0em 0.3em;
+            height: auto;
+        }
+
+        @pageBreadcrumb button:not(:hover),
+        @actionButtonContainer button:not(:hover),
+        @pageBreadcrumb > hbox:last-child button {
+            background: none;
+            border-color: transparent;
+        }
+        @pageBreadcrumb > hbox:last-child button {
+            font-weight: bold;
+        }
+
+        @header button i {
+            font-size: 1em;
+        }
+        @header button span {
+            line-height: 1.555555556;
+            font-size: 0.9em;
+        }
+        @pageListContainer {
+            padding: 1em;
+            overflow-y: none;
+            overflow-x: none;
+            height: 6em;
+            align-items: center;
+        }
+        @pageListContainer > .widget_PageThumbnailView + .widget_PageThumbnailView {
+            margin-left: 1em;
+        }
+
+        @pageListContainer > .widget_PageThumbnailView[dragged] {
+            opacity: 0.1 !important;
+        }
+
+        @pageListContainer > .widget_PageThumbnailView[will-drop='left'] {
+            margin-left: 0.4em;
+            padding-left: 0.4em;
+            border-left: solid 0.2em @selected_bg;
+        }
+        @pageListContainer > .widget_PageThumbnailView[will-drop='right'] {
+            padding-right: 0.4em;
+            border-right: solid 0.2em @selected_bg;
+        }
+        @pageListContainer > .widget_PageThumbnailView[will-drop='right'] + .widget_PageThumbnailView {
+            margin-left: 0.4em;
+        }
+
+        @pageBreadcrumb {
+            white-space: nowrap;
+        }
+
+        @pageBreadcrumb,
+        @childPageContainer {
+            cursor: default;
+        }
+        @childPageSrollView {
+            background: #FFF;
+            border: solid 1px darken(@app_bg, 15%);
+        }
+        @childPageSrollViewContainer {
+            padding: 3px;
+        }
+        @pageBreadcrumb i {
+            @iconify();
+        }
+        @pageBreadcrumb > hbox,
+        @childPageContainer > hbox {
+            line-height: 1.6em;
+            position: relative;
+        }
+        @childPageContainer > hbox {
+            background: #F7F7F7;
+        }
+        @pageBreadcrumb > hbox {
+
+        }
+        @pageBreadcrumb > hbox + hbox:before {
+            @iconify();
+            content: "chevron_right";
+            opacity: 0.3;
+        }
+
+        @pageBreadcrumb > hbox > button:hover,
+        @pageBreadcrumb > hbox > button > span:hover,
+        @childPageContainer > hbox:hover {
+            color: @selected_bg;
+        }
+        @pageBreadcrumb > hbox > span {
+            padding: 0em 0.5em;
+            cursor: pointer;
+        }
+        @pageBreadcrumb > hbox:first-child {
+            margin-left: 0.3em;
+        }
+        @pageBreadcrumb > hbox > span:hover {
+            text-decoration: underline;
+        }
+        @pageBreadcrumb > hbox,
+        @childPageContainer > hbox {
+            align-items: center;
+
+        }
+        @pageBreadcrumb i {
+            padding-right: 0.3em;
+            font-size: 1em;
+        }
+        @pageBreadcrumb hbox span,
+        @childPageContainer hbox span {
+            text-align: center;
+        }
+
+        @childPageContainer {
+            padding: 3px;
+        }
+
+        @childPageContainer > hbox {
+            border: 1px solid #CCC;
+            padding: 0px 0.5em;
+            cursor: pointer;
+            align-items: center;
+        }
+        @childPageContainer > hbox + hbox {
+            margin-left: 0.2em;
+        }
+        @childPageContainer > hbox[selected="true"] {
+            background: @selected_bg;
+            color: @selected_fg;
+            border-color: @selected_fg;
+        }
+
+        @childPageContainer > hbox[dragged] {
+            opacity: 0.5 !important;
+        }
+
+        @childPageContainer > hbox[will-drop='left'] {
+            border-left: solid 1px @selected_bg;
+        }
+        @childPageContainer > hbox[will-drop='right'] {
+            border-right: solid 1px @selected_bg;
+        }
+
+        @childPageContainer > hbox:focus {
+            outline: dashed 1px fadeout(@selected_bg, 40%);
+            outline-offset: 0px;
+        }
+        @childPageContainer .button_Down {
+            padding: 0em 0.3em;
+            border: none;
+            border-radius: 0em;
+            background: transparent;
+            margin-left: 0.4em;
+        }
+        @childPageContainer .button_Down > i {
+            line-height: 1.5em;
+        }
+
+        hbox > .button_Down:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        hbox[selected="true"] > .button_Down:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        hbox[selected="true"] > .button_Down {
+            color: #fff;
+        }
+        .widget_ScrollableView {
+            width: 100%;
+            height: 100%;
+        }
+
+        @childPageContainer .nodeHasChild {
+            padding-right: 0em;
+        }
+
+        @childPageSrollView,
+        @pageListSrollView {
+            background: #FFF;
+            box-shadow: inset 0px 0px 0.3em rgba(0, 0, 0, 0.2);
+        }
+
+        @toggleButton > i + i {
+            margin-left: 0px;
+        }
+
+        body .widget_PageListView:not(.Collapsed) @toggleButton > i + i,
+        body .widget_PageListView.Collapsed @toggleButton > i:first-child {
+            display: none;
+        }
+
+        body .widget_PageListView:not(.Collapsed) @childPageSrollView {
+            visibility: hidden;
+        }
+        body .widget_PageListView.Collapsed @pageListSrollView {
+            display: none;
+        }
+
+        @pageBreadcrumb:not([overflow="true"]) > .OverflowIndicator {
+            display: none;
+        }
+        body .widget_PageListView:not(.Collapsed) @pageBreadcrumb > .OverflowIndicator {
+            display: none;
+        }
+
+        body .widget_PageListView.Collapsed @pageBreadcrumb > .Overflow {
+            display: none;
+        }
+
+    </style>
+    <hbox anon-id="header">
+        <hbox flex="1">
+            <hbox anon-id="pageBreadcrumb">
+                <hbox><i>description</i><span>Untitled.epz</span></hbox>
+                <hbox><span>Untitled Page</span></hbox>
+            </hbox>
+            <hbox anon-id="childPageSrollViewContainer" flex="1">
+                <ui:ScrollableView anon-id="childPageSrollView" flex="1">
+                    <hbox anon-id="childPageContainer">
+                    </hbox>
+                </ui:ScrollableView>
+            </hbox>
+        </hbox>
+        <hbox anon-id="actionButtonContainer">
+            <hbox><button anon-id="addPageButton"><i>note_add</i> <span>Add Page...</span></button></hbox>
+            <hbox><button anon-id="toggleButton"><i>expand_more</i><i>expand_less</i></button></hbox>
+        </hbox>
+    </hbox>
+    <ui:ScrollableView anon-id="pageListSrollView">
+        <hbox anon-id="pageListContainer" flex="1"></hbox>
+    </ui:ScrollableView>
+</vbox>

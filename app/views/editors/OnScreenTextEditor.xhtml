@@ -1,0 +1,40 @@
+<hbox>
+    <style>
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] {
+            border: none;
+            border-radius: 0px;
+            background: @popup_bg;
+            padding: 0em;
+            box-shadow: @card_shadow;
+            transition: opacity 0.4s;
+            box-sizing: border-box;
+            line-height: 1.4;
+        }
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] @singleTextEditor {
+            border: solid 1px #336699;
+            box-sizing: border-box;
+            width: 100%;
+            line-height: 1.4;
+            height: 100%;
+            box-sizing: border-box;
+            background: #fff;
+            padding: 0px 1px;
+            box-shadow: @card_shadow;
+            outline: none;
+        }
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] @multiLineTextEditor {
+            border: solid 1px #336699;
+            box-sizing: border-box;
+            box-shadow: @card_shadow;
+            line-height: 1.4;
+            outline: none;
+            padding: 1px;
+        }
+    </style>
+    <ui:Popup anon-id="popup" mode="OnScreenTextEditor">
+        <div anon-id="container">
+            <input type="text" anon-id="singleTextEditor" />
+            <textarea anon-id="multiLineTextEditor"/>
+        </div>
+    </ui:Popup>
+</hbox>

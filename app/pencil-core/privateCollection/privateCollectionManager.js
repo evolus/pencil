@@ -124,11 +124,17 @@ PrivateCollectionManager.deleteCollection = function (collection) {
     Dialog.confirm("Are you sure you want to delete '" + collection.displayName + "'?",
     "Warning: deleting a collection makes shapes created by that collection uneditable.",
     "OK", function () {
+        window.setTimeout(function() {
+            ApplicationPane._instance.busy();
+        }, 10)
         for (var i = 0; i < PrivateCollectionManager.privateShapeDef.collections.length; i++) {
             if (PrivateCollectionManager.privateShapeDef.collections[i].id == collection.id) {
                 PrivateCollectionManager.privateShapeDef.collections.splice(i, 1);
                 PrivateCollectionManager.savePrivateCollections();
                 PrivateCollectionManager.reloadCollectionPane();
+                window.setTimeout(function() {
+                    ApplicationPane._instance.unbusy();
+                }, 10)
                 return;
             }
         }
@@ -206,6 +212,7 @@ PrivateCollectionManager.importNewCollection = function () {
     });
 };
 PrivateCollectionManager.installCollectionFromFile = function (file) {
+    ApplicationPane._instance.busy();
     var filePath = file.path;
     var fileName = file.name.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime());
 
@@ -258,12 +265,13 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
                 throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
             }
         } catch (e) {
-            Dialog.error("Error installing collection");
+            Dialog.error("Error installing collection.");
         } finally {
+            ApplicationPane._instance.unbusy();
             tempDir.removeCallback();
         }
     }).on("error", function (error) {
-        Dialog.error("Error installing collection");
+        Dialog.error("Error installing collection.");
         tempDir.removeCallback();
     });
 

@@ -334,7 +334,7 @@ Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
                 var node = dom.createElementNS(PencilNamespaces.p, "p:Content");
                 node.innerHTML = document.importNode(contentNode, true).innerHTML;
                 page._contentNode = node;
-            } else page.contentNode = null;
+            } else page._contentNode = null;
 
             if (page.width) page.width = parseInt(page.width, 10);
             if (page.height) page.height = parseInt(page.height, 10);
@@ -719,7 +719,10 @@ Controller.serializePageToDom = function (page, noContent) {
         propertyNode.appendChild(dom.createTextNode(page[name] && page[name].toString() || page[name]));
     }
 
-    if (!noContent) {
+    // for old format .ep file
+    if (page._contentNode) {
+        dom.documentElement.appendChild(page._contentNode);
+    } else if (!noContent) {
         var content = dom.createElementNS(PencilNamespaces.p, "p:Content");
         dom.documentElement.appendChild(content);
 
@@ -803,6 +806,10 @@ Controller.prototype.getPageSVG = function (page) {
 Controller.prototype.swapOut = function (page) {
     if (!page.canvas) throw "Invalid page state. Unable to swap out un-attached page";
     this.serializePage(page, page.tempFilePath);
+    page.careTakerTempFile = tmp.fileSync({postfix: ".xml", keep: false});
+    page.canvas.careTaker.saveState(page.careTakerTempFile.name);
+    page.canvasState = this.canvasPool.getCanvasState(page.canvas);
+
     this.canvasPool.return(page.canvas);
     page.canvas = null;
     page.lastUsed = null;
@@ -821,13 +828,24 @@ Controller.prototype.swapIn = function (page, canvas) {
             canvas.drawingLayer.appendChild(c);
         }
     }
+    canvas.careTaker.reset();
+    if (page.careTakerTempFile) {
+        canvas.careTaker.loadState(page.careTakerTempFile.name);
+        page.careTakerTempFile.removeCallback();
+        page.careTakerTempFile = null;
+    }
+
+    canvas.setCanvasState(page.canvasState);
+
     page.canvas = canvas;
     canvas.page = page;
     canvas.setSize(page.width, page.height);
 
 
     if (!page.invalidatedAfterLoad) {
-        this.invalidatePageContent(page);
+        this.invalidatePageContent(page, function () {
+            canvas.careTaker.reset();
+        });
         page.invalidatedAfterLoad = true;
     }
 } ;
@@ -866,24 +884,29 @@ Controller.prototype.ensurePageCanvasBackground = function (page) {
         page.canvas.setBackgroundImageData(null, false);
     }
 };
-Controller.prototype.invalidatePageContent = function (page) {
-    if (!page || !page.canvas) return;
-
-    page.canvas.invalidateAll();
-
-    var children = [];
-    while (page.canvas.drawingLayer.hasChildNodes()) {
-        var c = page.canvas.drawingLayer.firstChild;
-        children.push(c);
-        page.canvas.drawingLayer.removeChild(c);
+Controller.prototype.invalidatePageContent = function (page, callback) {
+    if (!page || !page.canvas) {
+        if (callback) callback();
+        return;
     }
 
-    Dom.empty(page.canvas.drawingLayer);
+    page.canvas.invalidateAll(function () {
+        var children = [];
+        while (page.canvas.drawingLayer.hasChildNodes()) {
+            var c = page.canvas.drawingLayer.firstChild;
+            children.push(c);
+            page.canvas.drawingLayer.removeChild(c);
+        }
 
-    while (children.length > 0) {
-        var c = children.shift();
-        page.canvas.drawingLayer.appendChild(c);
-    }
+        Dom.empty(page.canvas.drawingLayer);
+
+        while (children.length > 0) {
+            var c = children.shift();
+            page.canvas.drawingLayer.appendChild(c);
+        }
+
+        if (callback) callback();
+    });
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {
@@ -1351,6 +1374,10 @@ Controller.prototype.getRootPages = function () {
 Controller.prototype.exportCurrentDocument = function () {
     Pencil.documentExportManager.exportDocument(this.doc);
 };
+Controller.prototype.printCurrentDocument = function () {
+    Pencil.documentExportManager.exportDocument(this.doc, "PrintingExporter");
+};
+
 
 window.onbeforeunload = function (event) {
     var remote = require("electron").remote;

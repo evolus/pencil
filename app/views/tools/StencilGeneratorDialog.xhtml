@@ -1,0 +1,155 @@
+<vbox class="Form">
+    <style>
+    @wizardContent {
+        width: 65em;
+    }
+
+    @wizardContent .Space + .Space {
+        margin-left: 2em;
+    }
+
+    @wizardContent .Space > * + * {
+        margin-top: 1em;
+    }
+
+    @wizardContent .Space > strong + * {
+        margin-top: 0.5em;
+    }
+
+    @wizardContent .Space .InputRow label {
+        min-width: 5em;
+    }
+
+    @imageSelector {
+        border: solid 1px #CCCCCC;
+        border-radius: 0.5ex;
+        height: 15em;
+        width: 15em;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background-color: #FFFFFF;
+    }
+
+    @imageList {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        height: 100%;
+    }
+
+    @imageList li {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+        overflow: hidden;
+        padding: 0.5ex;
+    }
+
+    @imageList li:hover {
+        background-color: #99ceff;
+        color: white;
+    }
+
+    @imageList li[active="true"] {
+        background-color: #1aa3ff;
+        color: white;
+    }
+    @selectedImageInfo > * + * {
+        margin-top: 1.5em;
+    }
+    @selectedStencil {
+        margin-top: 1em;
+    }
+    @selectedStencil {
+        width: 100%;
+        background-color: #fff;
+        height: auto;
+        overflow-y: auto;
+        border: solid 1px #CCCCCC;
+    }
+
+    @selectedStencil .ImageItem {
+        width: 6em;
+        height: 7em;
+        display: inline-block;
+        margin-left: 3ex;
+    }
+
+    @selectedStencil .ImageItem img {
+        position: block;
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    @selectedStencil span {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+        overflow: hidden;
+        text-align: center;
+    }
+    @selectedStencil input {
+        width:100%;
+    }
+    @selectedStencil .IconContainer {
+        position: relative;
+        width: 100%;
+        height: 80%;
+    }
+    </style>
+    <vbox>
+        <strong anon-id="stepTitle">Wellcome to the Stencil Generator</strong>
+        <p anon-id="stepInfo">Enter collection information and click Next to continue</p>
+    </vbox>
+    <div anon-id="wizardContent">
+        <hbox>
+            <vbox class="Space" flex="1">
+                <span>Select images</span>
+                <vbox anon-id="imageSelector" flex="1">
+                    <ul anon-id="imageList" flex="1"></ul>
+                </vbox>
+                <span anon-id="imageCount">Drag images into the listbox above.</span>
+            </vbox>
+            <vbox class="Space">
+                <strong>Collection definition </strong>
+                <hbox class="InputRow">
+                    <label for="collectionName">Name:</label> <input type="text" anon-id="collectionName" flex="1"/>
+                </hbox>
+                <hbox class="InputRow">
+                    <label for="collectionDescription">Description:</label> <textarea rows="3" anon-id="collectionDescription" flex="1" style="resize:none"> </textarea>
+                </hbox>
+                <hbox class="InputRow">
+                    <label for="collectionIcon">Icon:</label> <input disabled="true" type="text" anon-id="collectionIcon" flex="1"/>
+                    <button anon-id="collectionBrowse" disabled="true">Browse...</button>
+                </hbox>
+                <hbox class="InputRow">
+                    <label for="collectionAuthor">Author:</label> <input type="text" anon-id="collectionAuthor" flex="1"/>
+                </hbox>
+                <hbox class="InputRow">
+                    <label for="collectionInfoUrl">Website:</label> <input type="text" anon-id="collectionInfoUrl" value="http://www.evolus.vn/Pencil" flex="1"/>
+                </hbox>
+                <strong>Option</strong>
+                <hbox class="InputRow">
+                    <input type="checkbox" checked="true" anon-id="optionCheck" /><label for="optionCheck" style="min-width:20em"> Detect inkscape groups </label>
+                </hbox>
+            </vbox>
+        </hbox>
+        <vbox anon-id="selectedImageInfo">
+            <vbox anon-id="stencilSelector" flex="1">
+                <strong>Stencil selected:</strong>
+                <div anon-id="selectedStencil" flex="1">
+                </div>
+            </vbox>
+            <vbox>
+                <strong>Stencil information </strong>
+                <hbox class="InputRow">
+                    <label for="stencilName">Name:</label> <input type="text" anon-id="stencilName" flex="1"/>
+                </hbox>
+                <hbox class="InputRow">
+                    <label for="stencilIcon">Icon:</label> <input type="text" disabled="true"  anon-id="stencilIcon" flex="1" />
+                    <button disabled="true" anon-id="stencilBrowse">Browse...</button>
+                </hbox>
+            </vbox>
+        </vbox>
+    </div>
+</vbox>

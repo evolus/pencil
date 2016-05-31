@@ -16,10 +16,10 @@ init:
   - git config --global core.autocrlf input
 
 install:
-  - ps: Install-Product node 5.10.0 x64
+  - ps: Install-Product node 5 x64
   - git reset --hard HEAD
   - npm install npm -g
-  - npm install electron-builder@next
+  - npm install electron-builder@3.26.1
   - npm prune
   - npm install
 

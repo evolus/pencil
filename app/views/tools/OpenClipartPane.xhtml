@@ -1,0 +1,137 @@
+<vbox>
+    <style>
+        $selector_item_width: 3em;
+        $selector_item_height: 12em;
+
+        @filter {
+            background: #D3DADE;
+            position: relative;
+        }
+        @filter .fa-search {
+            position: absolute;
+            right: 1.5em;
+            top: 50%;
+            margin-top: -0.5em;
+        }
+        @filter @form {
+            padding: 1em;
+        }
+        @filter @logo {
+            display: none;
+        }
+        @contentPane {
+            overflow: hidden;
+        }
+        @shapePane {
+            background: @app_bg;
+            overflow: auto;
+        }
+        @shapeListContainer {
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 1em;
+        }
+        .ShapeList {
+            list-style: none;
+            padding: 0em 0.5em;
+            margin: 0px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-content: flex-start;
+            overflow: auto;
+            -webkit-flex-shrink: 0;
+            -webkit-flex-basis: fill;
+        }
+        .ShapeList li {
+            padding: 0px;
+            display: block;
+            margin: 0.2em 0em;
+        }
+        .ShapeList li .Shape {
+            width: 6.6em;
+            padding: 0.5em;
+            box-sizing: content-box;
+            color: #333;
+            cursor: default;
+        }
+        .ShapeList li .Shape:hover {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 0.2em;
+        }
+
+        .ShapeList li .Shape .Icon {
+            width: 6.6em;
+            height: 6.6em;
+            text-align: center;
+        }
+        .ShapeList li .Shape img {
+            max-width: 90%;
+            max-height: 100%;
+            -webkit-filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4));
+        }
+
+        .ShapeList li .Shape span {
+            display: block;
+        }
+        .ShapeList li .Shape span {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            height: 1.2em;
+            line-height: 1.2em;
+            font-size: 0.9em;
+            text-align: center;
+            opacity: 0.5;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
+        }
+        @navigation {
+            padding-top: 0.5em;
+        }
+        @navigation > * + * {
+            margin-top: 0.3em;
+        }
+        @scaleImageContainer > label > input {
+            vertical-align: middle;
+        }
+        @navigation a {
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        @navigation > hbox > button:not(:hover),
+        @navigation > hbox > button[disabled] {
+            border-color: transparent;
+            background: transparent;
+        }
+        @navigation > hbox > button + button {
+            margin-left: 1em;
+        }
+        @goPrevious.Disabled,
+        @goNext.Disabled {
+            color: gray;
+            cursor: default;
+        }
+
+    </style>
+    <hbox anon-id="filter">
+        <hbox anon-id="logo">
+        </hbox>
+        <hbox flex="1" anon-id="form">
+            <input type="text" flex="1" class="form-control" placeholder="Search OpenClipart.org" anon-id="searchInput"/>
+            <i class="fa fa-search"></i>
+        </hbox>
+    </hbox>
+    <vbox flex="1" anon-id="contentPane">
+        <vbox flex="1" anon-id="shapeListContainer">
+            <ul anon-id="shapeList" class="ShapeList" flex="1">
+            </ul>
+        </vbox>
+        <vbox anon-id="navigation">
+            <hbox style="align-items: center;">
+                <input type="checkbox" anon-id="scaleImageCheckbox" value="1" checked="checked" /><label for="scaleImageCheckbox" flex="1">&#160;Scale to fit</label>
+                <button anon-id="goPrevious"><i>chevron_left</i> Previous</button>
+                <button anon-id="goNext">Next <i>chevron_right</i></button>
+            </hbox>
+        </vbox>
+    </vbox>
+</vbox>

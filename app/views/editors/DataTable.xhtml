@@ -1,0 +1,432 @@
+<vbox>
+    <style>
+    table.DataTable {
+        border-spacing:0 !important;
+        min-width: 0;
+        display: table;
+        empty-cells: show;
+        box-sizing: border-box;
+    }
+    table.DataTable th {
+        text-align: left;
+    }
+    table.DataTable tbody tr {
+        height: 1.5em;
+    }
+
+    table.DataTable > thead > tr > th,
+    table.DataTable thead tr th {
+        vertical-align: middle !important;
+    }
+
+    table.DataTable thead tr th.AscSort, table.DataTable thead tr th.DescSort, table.DataTable thead tr th.BothSort {
+        cursor: pointer;
+    }
+
+    table.DataTable thead tr th.Sortable div {
+        padding-left: 10px !important;
+    }
+    table.DataTable thead tr th.AscSort div {
+        background: url('../images/sort_asc.png') no-repeat right center;
+    }
+
+    table.DataTable thead tr th.DescSort div {
+        background: url('../images/sort_desc.png') no-repeat right center;
+    }
+
+    table.DataTable thead tr th.BothSort div {
+        background: url('../images/sort_both.png') no-repeat right center;
+    }
+
+    .widget_DataTable {
+        position: relative;
+        overflow: hidden;
+    }
+    .widget_DataTable:hover {
+        overflow-x: auto;
+    }
+    .DataTableColumSettingContainer .ColumnSetting {
+        text-align: center;
+        width: 20px;
+        height: 40px;
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        overflow: hidden;
+        opacity: 0.5;
+    }
+    .DataTableColumSettingContainer .ColumnSetting span {
+        background: #C7C7C7;
+        position: absolute;
+        display: block;
+        width: 40px;
+        height: 40px;
+        top: -20px;
+        left: 0px;
+        border-radius: 20px;
+        text-align: left;
+        cursor: pointer;
+    }
+    .DataTableColumSettingContainer .ColumnSetting span i {
+        font-size: 10px;
+        line-height: 10px;
+        margin-top: 23px;
+        margin-left: 7px;
+        color: #999;
+        text-shadow: 1px 1px 0px #E7E7E7;
+    }
+    .DataTableColumSettingContainer:hover .ColumnSetting {
+        opacity: 0.8;
+    }
+    .DataTableColumSettingContainer:hover .ColumnSetting i {
+        color: #888;
+    }
+    .DataTableColumSettingContainer:hover .ColumnSetting span:hover i {
+        color: #369;
+    }
+    .SelectionInfoPane {
+        width: 240px;
+        height: 45%;
+        position: absolute;
+        left: 45px;
+        top: 10px;
+        -webkit-box-shadow: 10px 10px 20px -9px rgba(0,0,0,0.8);
+        -moz-box-shadow: 10px 10px 20px -9px rgba(0,0,0,0.8);
+        box-shadow: 10px 10px 20px -9px rgba(0,0,0,0.8);
+        border: solid 1px #CCC;
+        background: #FFF;
+
+    }
+    .SelectionInfoPane .SelectionBodyPane {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 40px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    .SelectionInfoPane .ActionInfoPane {
+       width: 100%;
+    }
+    table.DataTable th.DTCheckboxAll {
+        position: relative;
+        overflow: hidden;
+    }
+    table.DataTable th.DTCheckboxAll .DataTableCheckInfo {
+        position: absolute;
+        top: -0.2em;
+        right: -0.2em;
+        opacity: 0.2;
+        width: 1.2em;
+        height: 1.2em;
+        text-align: center;
+        background: #999;
+        border-radius: 0.6em;
+        transition: top 0.1s ease, right 0.1s ease;
+        display: none;
+    }
+    .HasSelectionInfo table th.DTCheckboxAll .DataTableCheckInfo {
+        display: block;
+    }
+    table.DataTable th.DTCheckboxAll:hover .DataTableCheckInfo {
+        top: 0em;
+        right: 0em;
+        opacity: 1;
+    }
+    table.DataTable th.DTCheckboxAll .DataTableCheckInfo i {
+        display: inline-block;
+        width: 1em;
+    }
+    .ActionInfoPane .btn-group {
+        width:100%;
+    }
+    table.DataTable thead th {
+        color: #3e3e3e;
+    }
+
+    table.DataTable tbody tr.odd td {
+        background: #FFF;
+    }
+
+    table.DataTable tbody tr.even td {
+        background: #F4F4F4;
+    }
+
+    table.DataTable tbody tr td {
+        white-space: nowrap;
+        overflow: hidden;
+        padding: 0px;
+        vertical-align: middle;
+    }
+    table.DataTable td .CellContentWrapper {
+        padding: 0.5em 1em;
+        box-sizing: border-box;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+    }
+    table.DataTable td.DTCheckBoxBody .CellContentWrapper {
+        padding: 0.5em 0px;
+        box-sizing: border-box;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: visible;
+        text-align: center !important;
+    }
+
+    table.DataTable td .CellContentWrapper .IconicLabel img {
+        height: 1em;
+        width: 1em;
+        margin-right: 3px;
+    }
+    table.DataTable td .CellContentWrapper .IconicLabel .Extra {
+        opacity: 0.5;
+    }
+
+    .DTOverflowIndicator {
+        position: absolute;
+        top: 0px;
+        width: 15px;
+        bottom: 25px;
+        display: none;
+        opacity: 0.5;
+    }
+    .DTOverflowIndicatorLeft {
+        left: 0px;
+        background: -moz-linear-gradient(left, rgba(114,114,114,0.48) 0%, rgba(114,114,114,0) 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(114,114,114,0.48)), color-stop(100%,rgba(114,114,114,0))); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(left, rgba(114,114,114,0.48) 0%,rgba(114,114,114,0) 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(left, rgba(114,114,114,0.48) 0%,rgba(114,114,114,0) 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(left, rgba(114,114,114,0.48) 0%,rgba(114,114,114,0) 100%); /* IE10+ */
+        background: linear-gradient(to right, rgba(114,114,114,0.48) 0%,rgba(114,114,114,0) 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7a727272', endColorstr='#00727272',GradientType=1 ); /* IE6-9 */
+    }
+    .DTOverflowIndicatorRight {
+        right: 0px;
+        background: -moz-linear-gradient(left, rgba(114,114,114,0) 0%, rgba(114,114,114,0.48) 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(114,114,114,0)), color-stop(100%,rgba(114,114,114,0.48))); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(left, rgba(114,114,114,0) 0%,rgba(114,114,114,0.48) 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(left, rgba(114,114,114,0) 0%,rgba(114,114,114,0.48) 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(left, rgba(114,114,114,0) 0%,rgba(114,114,114,0.48) 100%); /* IE10+ */
+        background: linear-gradient(to right, rgba(114,114,114,0) 0%,rgba(114,114,114,0.48) 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00727272', endColorstr='#7a727272',GradientType=1 ); /* IE6-9 */    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00727272', endColorstr='#727272',GradientType=1 ); /* IE6-9 */
+    }
+    .DTOverflowLeft .DTOverflowIndicatorLeft {
+        display: block;
+    }
+    .DTOverflowRight .DTOverflowIndicatorRight {
+        display: block;
+    }
+
+    table tbody tr td.DTCheckBoxBody {
+        text-align: center;
+    }
+    table.DataTable thead tr th {
+        border-bottom: 1px solid #E7E5E6;
+        padding: 0px !important;
+        overflow: hidden;
+    }
+    table.DataTable thead tr th div {
+        padding: 5px 10px !important;
+        line-height: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    table.DataTable thead tr th div.DTCheckBox {
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+        text-align: center !important;
+        text-overflow: visible;
+    }
+    /*table.DataTable thead tr th,
+    table.DataTable thead tr th div {
+        height: 25px !important;
+    }*/
+
+    table.DataTable tbody tr.Selected td {
+        background: #FFF8EB;
+    }
+
+    table.DataTable thead tr th.DTCheckBox {
+        width: 10px;
+        text-align: center !important;
+    }
+    table.DataTable thead tr th.DTCheckBox input {
+        margin: 0px !important;
+        position: relative !important;
+    }
+    table.DataTable thead tr th.Actions {
+        width: 4em;
+    }
+    table.DataTable td.Actions {
+        text-align: center;
+    }
+
+    .SplitViewSplitter {
+        cursor: ew-resize;
+    }
+    .SplitViewSplitter div {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        width: 4px;
+        bottom: -20px;
+        margin-left: -2px;
+    }
+    .SplitViewSplitter div.Kept,
+    .SplitViewSplitter:hover div,
+    .SplitViewSplitter:active div {
+        background: rgba(0, 0, 0, 0.1);
+    }
+    .SplitViewHeld .SplitViewSplitter div {
+        background: rgba(33, 66, 99, 0.6);
+    }
+
+    table.DataTable tbody tr td {
+        border-bottom: 1px solid #E7E5E6;
+        border-right: 1px solid #E7E5E6;
+    }
+    table.DataTable tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+    table.DataTable tbody tr td:last-child {
+        border-right: none !important;
+    }
+
+    table.DataTable tbody tr td span.fa {
+        font-size: 1.25em;
+        color: #8E8E8E;
+        display: inline;
+    }
+
+    table.DataTable tbody tr td.Actions span:hover {
+        color: #222222;
+        cursor: pointer;
+    }
+
+    table.DataTable thead tr th.Actions {
+        text-align: center;
+    }
+
+    table.DataTable tbody tr td.Action {
+        text-align: center;
+    }
+    table.DataTable th {
+        cursor: default;
+    }
+    table.DataTable th.Sortable {
+        cursor: pointer;
+    }
+    table.DataTable thead th.Sortable:hover {
+        text-decoration: underline;
+    }
+
+    table.DataTable {
+        border: 1px solid #DDD;
+        background: #F7F7F7;
+        clear: both;
+        margin: 0px !important;
+    }
+
+    table.DataTable thead.Hidden {
+        display: none;
+    }
+
+    table.DataTable th {
+        /* background: #E3E3E3; */
+        background-image: -webkit-linear-gradient(top,#fff 0,#e0e0e0 100%);
+        background-image: -o-linear-gradient(top,#fff 0,#e0e0e0 100%);
+        background-image: -webkit-gradient(linear,left top,left bottom,from(#fff),to(#e0e0e0));
+        background-image: linear-gradient(to bottom,#fff 0,#e0e0e0 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe0e0e0', GradientType=0);
+        filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+        background-repeat: repeat-x;
+
+        text-shadow: 1px 1px 0px #F0F0F0;
+        margin: 0px !important;
+    }
+
+    table.DataTable th,
+    table.DataTable td {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    table.DataTable tbody tr td span.fa-star {
+        color: #FFDC0A;
+        padding-right: 10px;
+    }
+
+    table.DataTable thead tr th.Icon {
+        padding-left: 42px;
+    }
+    table.DataTable tbody tr td span.fa-info-circle {
+        color: #4F9ADD;
+    }
+    table.DataTable tbody tr td span.fa-cog {
+        font-size: 1.3em;
+    }
+
+    table.DataTable tbody tr td span.fa {
+        cursor: pointer;
+        margin-right: 5px;
+    }
+
+    table.DataTable tbody tr td span.mi i {
+        line-height: 1em;
+        font-family: 'Material Icons';
+        font-weight: normal;
+        font-style: normal;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+        opacity: 0.54;
+        font-size: 1.4em;
+        width: 1.2em;
+    }
+
+    table.WithSelectionHandler tbody tr {
+        cursor: pointer;
+    }
+    table.WithSelectionHandler tbody tr:hover td {
+        background: rgba(77, 77, 77, 0.05) !important;
+    }
+    .widget_DataTable.DataTableContainerPaginated {
+        overflow-y: hidden;
+    }
+
+    .BusyOverlay {
+        background: #fff;
+        opacity: 0.5;
+        display: none;
+    }
+    .DataTableContainerBusy {
+        position: relative;
+    }
+    .DataTableContainerBusy .BusyOverlay {
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        position: absolute;
+        display: block;
+    }
+    .DataTableContainerBusy table {
+        opacity: 0.3;
+    }
+
+    table.DataTable > thead > tr > th > div,
+    table.DataTable > tbody > tr > td > div {
+        box-sizing: border-box;
+    }
+
+    </style>
+</vbox>

@@ -1,0 +1,14 @@
+<Template xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <Property name="id">Evolus:Print:Brochure</Property>
+    <Property name="name">Brochure Export Template</Property>
+    <Property name="author">Evolus</Property>
+    <Property name="description">A simple brochure printing template</Property>
+
+    <Property name="styleSheet">StyleSheet.xslt</Property>
+    <Property name="format" displayName="Image format" type="Enum" p:enumValues="['vector|Scalable/Vector', 'rasterized|Bitmap/Rasterized']">vector</Property>
+    <Property name="pageSize" displayName="Page size" type="Enum" p:enumValues="['a3|A3', 'a4|A4', 'a5|A5', 'letter|Letter', 'legal|Legal', 'tabloid|Tabloid']">a4</Property>
+    <Property name="orientation" displayName="Orientation" type="Enum" p:enumValues="['portrait|Portrait', 'landscape|Landscape']">portrait</Property>
+    <Property name="cols" displayName="Columns" type="Enum" p:enumValues="['1|1', '2|2']">1</Property>
+    <Property name="rows" displayName="Rows" type="Enum" p:enumValues="['1|1', '2|2']">1</Property>
+    <Property name="background" displayName="Background" type="Color">#FFFFFF</Property>
+</Template>

@@ -1,0 +1,19 @@
+<vbox class="Form">
+    <style>
+        @templateTable {
+            height: 25em;
+            width: 55em;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+    </style>
+    <vbox anon-id="templateFrame">
+        <hbox class="InputRow">
+            <label for="templateTypeSelector">Template for:  </label>
+             <ui:ComboManager anon-id="templateTypeSelector" flex="1" ></ui:ComboManager>
+        </hbox>
+        <hbox class="InputRow" >
+            <ui:DataTable flex="1" anon-id="templateTable"> </ui:DataTable>
+        </hbox>
+    </vbox>
+</vbox>

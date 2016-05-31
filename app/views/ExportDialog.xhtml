@@ -9,12 +9,12 @@
 
         @pageTree {
             width: 20em;
-            height: 25em;
+            height: 27em;
             margin-right: 2em;
             border: solid 1px darken(@app_bg, 10%);
         }
 
-        @optionPane .widget_ComboManager @buttonDisplay {
+        @optionPane > .widget_ComboManager @buttonDisplay {
             width: 18em;
         }
         @warningBox {
@@ -34,13 +34,40 @@
         @warningContent {
             font-size: 0.9em;
         }
+
+        .NoExtraOptions @optionEditorTitle,
+        .NoExtraOptions @optionEditorPane {
+            display: none;
+        }
+
+        @optionEditorTitle {
+            font-weight: bold;
+            margin-top: 1em;
+        }
+
+        @optionEditorPane > hbox {
+            align-items: center;
+            margin-top: 0.3em;
+        }
+        @optionEditorPane > hbox > .Label {
+            width: 9em;
+            margin-left: 0.8em;
+        }
+        @optionEditorPane button {
+            height: 1.65em;
+            line-height: 1.65em;
+        }
+        @optionPane.ForcedExporter > @exporterLabel,
+        @optionPane.ForcedExporter > @exporterCombo {
+            display: none;
+        }
     </style>
     <vbox>
         <label>Select pages:</label>
         <ui:Tree anon-id="pageTree" />
     </vbox>
     <vbox anon-id="optionPane">
-        <label>Output type:</label>
+        <label anon-id="exporterLabel">Output type:</label>
         <ui:ComboManager anon-id="exporterCombo" />
         <label>Template:</label>
         <ui:ComboManager anon-id="templateCombo" />
@@ -48,5 +75,8 @@
             <i>warning</i>
             <div flex="1" anon-id="warningContent"></div>
         </hbox>
+        <label anon-id="optionEditorTitle">Options:</label>
+        <vbox anon-id="optionEditorPane">
+        </vbox>
     </vbox>
 </hbox>

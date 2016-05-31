@@ -1,11 +1,18 @@
-<Template xmlns="http://www.evolus.vn/Namespace/Pencil">
-    <Property name="id">Evolus:Print:Vector.Template</Property>
-    <Property name="name">Vector Export Template (A4)</Property>
+<Template xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <Property name="id">Evolus:Print:Default.Template.Unified</Property>
+    <Property name="name">Default Export Template</Property>
     <Property name="author">Evolus</Property>
-    <Property name="description">The simple/default printing template</Property>
+    <Property name="description">The default printing template with full options</Property>
 
     <Property name="styleSheet">StyleSheet.xslt</Property>
-
-    <Property name="print.paperSize">A4</Property>
-    <Property name="print.landscape">false</Property>
+    <Property name="format" displayName="Image format" type="Enum" p:enumValues="['vector|Scalable/Vector', 'rasterized|Bitmap/Rasterized']">vector</Property>
+    <Property name="pageSize" displayName="Page size" type="Enum" p:enumValues="['a3|A3', 'a4|A4', 'a5|A5', 'letter|Letter', 'legal|Legal', 'tabloid|Tabloid']">a4</Property>
+    <Property name="orientation" displayName="Orientation" type="Enum" p:enumValues="['portrait|Portrait', 'landscape|Landscape']">portrait</Property>
+    <Property name="cols" displayName="Columns" type="Enum" p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6']">1</Property>
+    <Property name="rows" displayName="Rows" type="Enum" p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6']">1</Property>
+    <Property name="marginType" displayName="Margin" type="Enum" p:enumValues="['none|None', 'normal|Normal', 'large|Large']">normal</Property>
+    <Property name="withPageName" displayName="With title" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
+    <Property name="withHeaderFooter" displayName="With header/footer" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
+    <Property name="withPageNote" displayName="With notes" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
+    <Property name="withBorder" displayName="Draw borders" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
 </Template>

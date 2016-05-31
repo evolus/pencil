@@ -99,12 +99,16 @@ Page.defaultPageSizes = [
         displayName: "Large Web page"
     },
     {
-        value: "774x1052",
-        displayName: "A4 at 90dpi"
+        value: (Math.round(8.27 * 96)) + "x" + (Math.round(11.69 * 96)),
+        displayName: "A4 at 96dpi"
     },
     {
-        value: "2480x3508",
-        displayName: "A4 at 90dpi"
+        value: (Math.round(8.27 * 150)) + "x" + (Math.round(11.69 * 150)),
+        displayName: "A4 at 150dpi"
+    },
+    {
+        value: (Math.round(8.27 * 300)) + "x" + (Math.round(11.69 * 300)),
+        displayName: "A4 at 300dpi"
     }
 ];
 

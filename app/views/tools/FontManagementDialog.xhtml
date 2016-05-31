@@ -1,0 +1,109 @@
+<vbox>
+    <style>
+    @fontContainer {
+        height: 40em;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+    @fontRepeater {
+        width: 57em;
+    }
+    @fontRepeater > strong {
+        color: #888;
+        text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
+    }
+    @fontRepeater > .ContentWrapper {
+        margin-left: -2ex;
+        flex-wrap: wrap;
+    }
+    @fontRepeater vbox[role="item"] {
+        box-shadow: 0px 0px 0.5ex rgba(0, 0, 0, 0.8);
+        margin-left: 2em;
+        margin-top: 2em;
+        width: 15em;
+        display: inline-flex;
+        padding: 1em;
+        cursor: pointer;
+        background: #FFF;
+    }
+    @fontRepeater vbox[role="item"]:hover {
+        box-shadow: 0px 0px 1ex @selected_bg;
+    }
+    @fontRepeater vbox[role="item"] .FontName {
+        background: #FFF;
+        text-align: center;
+        /*border: 1px solid #dddddd;*/
+        padding: 0.5em;
+        box-shadow: 0px 0px 0.3ex rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    @fontRepeater vbox[role="item"] .InfoPane {
+        align-items: center;
+        margin-top: 0.5em;
+    }
+    @fontRepeater vbox[role="item"] .InfoPane > * {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    @fontRepeater vbox[role="item"] .InfoPane span {
+        opacity: 0.5;
+        font-size: 0.9em;
+    }
+
+    @fontRepeater vbox[role="item"] .InfoPane button {
+        padding: 0.2em;
+        line-height: 1em;
+        height: auto;
+    }
+    @fontRepeater vbox[role="item"] .InfoPane button i {
+        font-size: 1.2em;
+    }
+    @fontRepeater vbox[role="item"] .InfoPane button:not(:hover) {
+        border-color: transparent;
+        background: none;
+    }
+
+    @fontRepeater *[anon-id='fontName'] {
+        font-size: 1.8em;
+    }
+    hr {
+        width: 100%;
+        border: none;
+        height: 1px;
+        background: rgba(0, 0, 0, 0.1);
+        margin-top: 1em;
+    }
+
+    *[anon-id='warning'] {
+        padding: 1em;
+        background: #FFD59E;
+        color: #333;
+        margin-bottom: 1em;
+    }
+    </style>
+    <vbox anon-id="fontContainer" flex="1">
+        <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" anon-id="fontRepeater" flex="1">
+            <vbox role="header">
+                <div anon-id="warning">
+                    Fonts installed into Pencil will be automatically embedded into the documents when needed. Please make sure you have appropriate licenses for each of the fonts in this list.
+                </div>
+                <strong>Installed fonts:</strong>
+            </vbox>
+            <vbox role="item" anon-id="itemContainer">
+                <div class="FontName">
+                    <span anon-id="fontName"></span>
+                </div>
+                <hbox class="InfoPane">
+                    <hbox flex="1">
+                        <span anon-id="styleNumber"></span>
+                    </hbox>
+                    <button anon-id="deleteButton" title="Uninstall"><i>delete</i></button>
+                </hbox>
+            </vbox>
+            <div role="empty">No fonts installed.</div>
+        </ui:RepeaterView>
+    </vbox>
+</vbox>

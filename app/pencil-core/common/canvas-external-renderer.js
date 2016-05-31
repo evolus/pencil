@@ -92,15 +92,10 @@ function init() {
             if (ext == ".png") mine = "image/png";
 
             fs.readFile(sourcePath, function (error, bitmap) {
-                console.time("BASE64");
                 var url = "data:" + mime + ";base64," + new Buffer(bitmap).toString("base64");
-                console.timeEnd("BASE64");
 
-                console.time("UPDATE HREF");
                 image.setAttributeNS(xlink, "href", url);
-                console.timeEnd("UPDATE HREF");
                 totalImageLength += url.length;
-                console.log("converted " + href + " -> " + url.length);
 
                 convertNext();
             });
@@ -149,15 +144,21 @@ function init() {
 
         function onConversionDone() {
             // it looks like that the bigger images embedded, the longer time we need to wait for the image to be fully painted into the canvas
-            var delay = Math.max(500, totalImageLength / 30000);
+            var cssDelay = combinedCSS ? combinedCSS.length / 120 : 0;
+            var delay = Math.max(combinedCSS ? 500 : 500, totalImageLength / 30000 + cssDelay);
             console.log("DELAY -> " + delay + " ms");
 
+            document.body.innerHTML = "";
+
             var canvas = document.createElement("canvas");
+            document.body.appendChild(canvas);
+
             canvas.setAttribute("width", width * s);
             canvas.setAttribute("height", height * s);
             var ctx = canvas.getContext("2d");
 
-            var img = new Image();
+            var img = document.createElement("img");
+            document.body.appendChild(img);
 
             img.onload = function () {
                 ctx.save();
@@ -170,14 +171,13 @@ function init() {
                     callback(canvas.toDataURL(), objectsWithLinking);
                     ctx.restore();
                     img.onload = null;
+                    document.body.innerHTML = "";
                 }, delay);
             };
 
             var svg = serializer.serializeToString(svgNode);
 
-            console.time("SETTING SRC");
             img.setAttribute("src", "data:image/svg+xml;charset=utf-8," + svg);
-            console.timeEnd("SETTING SRC");
         }
 
         convertNext();
@@ -187,13 +187,13 @@ function init() {
         return function(__callback) {
             //parse the SVG back into DOM
             var xml = data.svg;
-            if (combinedCSS) {
-                console.log(" >> about to append css", combinedCSS.length);
-                xml = xml.replace(/^(<svg[^>]+>)/i, function (all, one) {
-                    return one + "<style type=\"text/css\">\n" + combinedCSS + "</style>";
-                });
-            }
-            console.log("Rasterizing", xml.length);
+            var css = "svg { line-height: 1.428; }";
+            if (combinedCSS) css += "\n" + combinedCSS;
+
+            xml = xml.replace(/^(<svg[^>\/]+>)/i, function (all, one) {
+                return one + "<style type=\"text/css\">\n" + css + "</style>";
+            });
+
             var svgNode = parser.parseFromString(xml, "text/xml");
             rasterize(svgNode, data.width, data.height, data.scale, data.processLinks, function (dataURL, objectsWithLinking) {
                 console.log("RASTER: Returning render result for " + data.id);

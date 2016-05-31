@@ -43,7 +43,11 @@
     "archiver": "^0.21.0",
     "electron-squirrel-startup": "^0.1.4",
     "less": "~2.5.3",
+    "lodash": "^4.13.1",
     "moment": "^2.13.0",
+    "nugget": "^2.0.0",
+    "q": "^1.4.1",
+    "rimraf": "^2.5.2",
     "tmp": "0.0.28",
     "unzip2": "^0.2.5"
   },

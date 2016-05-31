@@ -134,7 +134,17 @@ module.exports = function () {
         var canvasWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         var url = "file://" + app.getAppPath() + "/renderer.xhtml";
         canvasWindow.loadURL(url);
-        // canvasWindow.webContents.openDevTools();
+
+        var devEnable = false;
+        if (process.argv.indexOf("--enable-dev") >= 0) {
+            devEnable = true;
+        } else if (process.env.PENCIL_ENV === "development") {
+            devEnable = true;
+        }
+
+        if (devEnable) {
+            canvasWindow.webContents.openDevTools();
+        }
         // canvasWindow.show();
 
         ipcMain.on("canvas-render-request", function (event, data) {

@@ -1,0 +1,81 @@
+<vbox class="Form">
+    <style>
+        @imagePane {
+            min-width: 25em;
+            max-width: 30em;
+        }
+        @imagePane > * + *,
+        @selectFileBox > * + * {
+            margin-top: 1em;
+        }
+        @imagePane .ImageContainer {
+            min-width: 10em;
+        }
+        @resultPane {
+            margin-left: 1em;
+        }
+
+        @result {
+            overflow: auto;
+            overflow-x: hidden;
+        }
+        @parsedImageContainer img {
+            margin: 1px 0px 0px 1px;
+        }
+
+        @imagePane fieldset {
+            float: left;
+            margin-right: 1em;
+            margin-bottom: 1em;
+            background: url(pencil-core/n-patch/bg.png);
+        }
+        @path {
+            margin-bottom: 1em;
+        }
+        @Guide {
+            max-width: 20em;
+        }
+
+    </style>
+    <hbox>
+        <vbox anon-id="imagePane">
+            <vbox anon-id="selectFileBox">
+                <strong>Source .9.png:</strong>
+                <span>Please select the n-patch image file to start parsing into JavaScript.</span>
+                <hbox>
+                    <button anon-id="browse">Browse Android n-Patch file...</button>
+                </hbox>
+
+                <!--
+                <button onclick="NinePatch.start('drawable-hdpi/panel_picture_frame_bg_focus_blue.9.png');">Start &gt;&gt;</button>
+                -->
+            </vbox>
+            <hbox>
+                <fieldset>
+                    <legend>Source image:</legend>
+                    <div class="ImageContainer" anon-id="sourceImageContainer"></div>
+                </fieldset>
+                <fieldset>
+                    <legend>Parsed image:</legend>
+                    <div class="ImageContainer" anon-id="parsedImageContainer"></div>
+                </fieldset>
+            </hbox>
+            <vbox anon-id="path" flex="1"></vbox>
+            <vbox anon-id="guide">
+                Pencil supports parsing and embedding scalable n-Patch format that is used in the Google Android OS. More information:<br/>
+                <ul>
+                    <li anon-id="aboutNPatchLink"><a href="#">About Android n-Patch format</a></li>
+                    <li anon-id="usageNPatchLink"><a href="#">Using n-Patches in Pencil stencils</a></li>
+                </ul>
+            </vbox>
+        </vbox>
+
+        <vbox anon-id="resultPane">
+            <strong>Result:</strong>
+            <textarea anon-id="result" style="resize:none;" rows="30" cols="80" readonly="true"></textarea>
+            <div style="width: 1px; height: 1px; overflow: hidden;">
+                <canvas anon-id="canvas" width="400" height="400"></canvas>
+            </div>
+        </vbox>
+    </hbox>
+</vbox>
