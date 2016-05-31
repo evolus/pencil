@@ -216,13 +216,11 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
     this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
     this.collectionDescription.setAttribute("title", collection.description);
-    this.settingButton.style.visibility = "inherit";
-    if (!collection.propertyGroups[0]) {
+    if (!collection.propertyGroups || collection.propertyGroups.length == 0) {
         this.settingButton.disabled = true;
     } else {
         this.settingButton.disabled = false;
     }
-
     this.last = collection;
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
     for (var i = 0; i < shapeDefs.length; i ++) {
