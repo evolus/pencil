@@ -226,7 +226,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         var icon = def.iconPath;
         if (!icon && def.shape) icon = def.shape.iconPath;
 
-        if (collection.installDirPath) {
+        if (collection.installDirPath && icon.indexOf("data:image") != 0) {
             icon = path.join(collection.installDirPath, icon);
         }
 
