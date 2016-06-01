@@ -2225,6 +2225,11 @@ Canvas.prototype.getMemento = function (actionName) {
     return new CanvasMemento(this.drawingLayer.cloneNode(true), {}, actionName);
 
 };
+
+Canvas.prototype.getFitCanvasAction = function (actionName) {
+
+}
+
 Canvas.prototype.setMemento = function (memento) {
 
     this.selectNone();
@@ -2300,8 +2305,8 @@ Canvas.prototype.setBackgroundColor = function (color) {
 
 
 };
-Canvas.prototype.setSize = function (width, height) {
 
+Canvas.prototype.setSize = function (width, height) {
     this.width = width;
     this.height = height;
 
@@ -2317,11 +2322,10 @@ Canvas.prototype.setSize = function (width, height) {
     }, 50);
 
     Dom.emitEvent("p:SizeChanged", this.element, {
-        canvas : this
+        canvas : thiz
     });
 
     this.snappingHelper.rebuildSnappingGuide();
-
 };
 Canvas.prototype.setBackgroundImageData = function (image, dimBackground) {
 
