@@ -2376,7 +2376,7 @@ Canvas.prototype.setDimBackground = function (dimBackground) {
 };
 Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
     this.run(this.sizeToContent__, this, Util.getMessage(
-            "action.canvas.resize"), [hPadding, vPaddingh]);
+            "action.canvas.resize"), [hPadding, vPadding]);
 
 };
 Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
@@ -2729,12 +2729,9 @@ Canvas.prototype.__drop = function (event) {
             var count = CollectionManager.getCollectionUsage(collections[i]);
             count++;
             CollectionManager.setCollectionUsage(collections[i], count);
-            console.log(collections[i] + "count :" + count);
         }
     }
     this.element.removeAttribute("is-dragover");
-    console.log('drop excute');
-    console.log("currentDragObserver:", this.currentDragObserver);
     if (this.canvasContentModifiedListener) {
         this.canvasContentModifiedListener(thiz);
         this.canvasContentModifiedListener = null;
