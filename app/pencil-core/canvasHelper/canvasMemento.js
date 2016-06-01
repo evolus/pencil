@@ -1,7 +1,8 @@
-function CanvasMemento(node, metadata, action) {
+function CanvasMemento(node, metadata, action, oldCanvasSize) {
     this.action = action;
     this.node = node;
     this.metadata = {};
+    this.oldCanvasSize = oldCanvasSize;
     for (var name in metadata)  this.metadata[name] = metadata[name];
 }
 CanvasMemento.prototype.serializeAsNode = function (doc) {

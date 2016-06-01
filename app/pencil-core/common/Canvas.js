@@ -12,6 +12,8 @@ function Canvas(element) {
     this.painterPropertyMap = this.getPainterPropertyMap();
     this.duplicateMode = false;
     this.mouseUp = false;
+    this.width;
+    this.height;
     // building the content as: box >> svg
     var thiz = this;
 
@@ -2093,6 +2095,7 @@ Canvas.prototype.doGroup = function () {
     this.run(this.doGroupImpl_, this, Util.getMessage("action.group.shapes"));
 
 };
+
 Canvas.prototype.doGroupImpl_ = function () {
 
     var targets = this.getSelectedTargets();
@@ -2222,13 +2225,9 @@ Canvas.prototype._saveMemento = function (actionName) {
 };
 Canvas.prototype.getMemento = function (actionName) {
 
-    return new CanvasMemento(this.drawingLayer.cloneNode(true), {}, actionName);
-
+        var oldCanvasSize = {w: this.width, h: this.height};
+        return new CanvasMemento(this.drawingLayer.cloneNode(true), {}, actionName, oldCanvasSize);
 };
-
-Canvas.prototype.getFitCanvasAction = function (actionName) {
-
-}
 
 Canvas.prototype.setMemento = function (memento) {
 
@@ -2245,7 +2244,9 @@ Canvas.prototype.setMemento = function (memento) {
 
     this.focusableBox.style.visibility = "hidden";
     this.focusableBox.style.visibility = "visible";
-
+    if (memento.oldCanvasSize) {
+        this.setSize(memento.oldCanvasSize.w, memento.oldCanvasSize.h)
+    }
     this._sayContentModified();
 
 };
@@ -2307,10 +2308,12 @@ Canvas.prototype.setBackgroundColor = function (color) {
 };
 
 Canvas.prototype.setSize = function (width, height) {
+    console.log(this);
+    var thiz = this;
+
     this.width = width;
     this.height = height;
 
-    var thiz = this;
     this.svg.setAttribute("width", 10);
     this.svg.setAttribute("height", 10);
 
@@ -2322,11 +2325,12 @@ Canvas.prototype.setSize = function (width, height) {
     }, 50);
 
     Dom.emitEvent("p:SizeChanged", this.element, {
-        canvas : thiz
+        canvas : this
     });
 
     this.snappingHelper.rebuildSnappingGuide();
 };
+
 Canvas.prototype.setBackgroundImageData = function (image, dimBackground) {
 
     if (!image) {

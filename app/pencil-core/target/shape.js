@@ -590,14 +590,15 @@ Shape.prototype.bringForward = function () {
     try {
         var next = this.svg.nextSibling;
         if (next) {
+            var thiz = this;
             this.canvas.run( function () {
-                var parentNode = this.svg.parentNode;
-                parentNode.removeChild(this.svg);
+                var parentNode = thiz.svg.parentNode;
+                parentNode.removeChild(thiz.svg);
                 var next2 = next.nextSibling;
                 if (next2) {
-                    parentNode.insertBefore(this.svg, next2);
+                    parentNode.insertBefore(thiz.svg, next2);
                 } else {
-                    parentNode.appendChild(this.svg);
+                    parentNode.appendChild(thiz.svg);
                 }
                 //this.dockingManager.invalidateChildTargets();
             }, this, Util.getMessage("action.bring.forward"));
@@ -608,10 +609,11 @@ Shape.prototype.bringToFront = function () {
     try {
         var next = this.svg.nextSibling;
         if (next) {
+            var thiz = this;
             this.canvas.run( function () {
-                var parentNode = this.svg.parentNode;
-                parentNode.removeChild(this.svg);
-                parentNode.appendChild(this.svg);
+                var parentNode = thiz.svg.parentNode;
+                parentNode.removeChild(thiz.svg);
+                parentNode.appendChild(thiz.svg);
                 //this.dockingManager.invalidateChildTargets();
             }, this, Util.getMessage("action.bring.to.front"));
         }
