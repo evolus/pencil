@@ -23,6 +23,12 @@ function BaseCollectionPane() {
         thiz.openCollection(item._collection);
     }, false);
 
+    this.bind("click", function() {
+        thiz.searchInput.value = "";
+        thiz.searchInput.focus();
+        thiz.filterCollections();
+    }, this.clearTextButton);
+
     this.shapeList.addEventListener("dragstart", function (event) {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
@@ -112,7 +118,7 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     Dom.empty(this.collectionIcon);
     Dom.empty(this.collectionTitle);
     Dom.empty(this.collectionDescription);
-    this.settingButton.style.visibility = "hidden";
+    this.settingButton.style.visibility = "inherit";
 
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
@@ -182,6 +188,7 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
 };
 BaseCollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
+    this.clearTextButton.style.display = filter != null && filter.length > 0 ? "block" : "none"
     var collectionNodes = Dom.getList(".//*[@class='Item']", this.selectorPane);
     var hasLast = false;
     var firstNode = null;
