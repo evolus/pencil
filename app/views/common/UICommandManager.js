@@ -248,7 +248,6 @@ UICommandManager.handleKeyEvent = function (event) {
             && event.altKey == command.parsedShortcut.alt
             && event.shiftKey == command.parsedShortcut.shift
             && event.keyCode == command.parsedShortcut.key.keyCode) {
-                console.log("**** command:", command);
                 command.run(event);
                 event.preventDefault();
                 return;

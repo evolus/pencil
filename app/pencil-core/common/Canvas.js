@@ -1287,7 +1287,7 @@ Canvas.prototype.handleKeyPress = function (event) {
         }
     } else if (event.keyCode == DOM_VK_F2) {
         if (this.currentController) {
-            Dom.emitEvent("p:TextEditingRequested", event.originalTarget, {
+            Dom.emitEvent("p:TextEditingRequested", this.element, {
                 controller : this.currentController
             });
         }
@@ -1295,7 +1295,7 @@ Canvas.prototype.handleKeyPress = function (event) {
         if (event.shiftKey) {
             this.selectSibling(false);
         } else {
-            this.selectSibling(true);
+            this.selectSiblOing(true);
         }
 
         event.preventDefault();
@@ -2224,9 +2224,7 @@ Canvas.prototype._saveMemento = function (actionName) {
 
 };
 Canvas.prototype.getMemento = function (actionName) {
-
-        var oldCanvasSize = {w: this.width, h: this.height};
-        return new CanvasMemento(this.drawingLayer.cloneNode(true), {}, actionName, oldCanvasSize);
+    return new CanvasMemento(this.drawingLayer.cloneNode(true), {width: this.width, height: this.height}, actionName);
 };
 
 Canvas.prototype.setMemento = function (memento) {
@@ -2244,9 +2242,14 @@ Canvas.prototype.setMemento = function (memento) {
 
     this.focusableBox.style.visibility = "hidden";
     this.focusableBox.style.visibility = "visible";
-    if (memento.oldCanvasSize) {
-        this.setSize(memento.oldCanvasSize.w, memento.oldCanvasSize.h)
+
+    var width = parseInt(memento.metadata.width, 10) || this.width;
+    var height = parseInt(memento.metadata.height, 10) || this.height;
+
+    if (this.width != width || this.height != height) {
+        this.setSizeImpl_(width, height);
     }
+
     this._sayContentModified();
 
 };
@@ -2308,9 +2311,13 @@ Canvas.prototype.setBackgroundColor = function (color) {
 };
 
 Canvas.prototype.setSize = function (width, height) {
-    console.log(this);
+    this.run(this.setSizeImpl_, this, Util.getMessage(
+            "action.canvas.resize"), [width, height]);
+};
+Canvas.prototype.setSizeImpl_ = function (width, height) {
     var thiz = this;
 
+    // this.run()
     this.width = width;
     this.height = height;
 
@@ -2368,6 +2375,11 @@ Canvas.prototype.setDimBackground = function (dimBackground) {
 
 };
 Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
+    this.run(this.sizeToContent__, this, Util.getMessage(
+            "action.canvas.resize"), [hPadding, vPaddingh]);
+
+};
+Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
 
     this.zoomTo(1.0);
 
@@ -2422,7 +2434,7 @@ Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
         }
     });
 
-    this.setSize(width, height);
+    this.setSizeImpl_(width, height);
 
     this.selectNone();
 
