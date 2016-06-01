@@ -41,6 +41,39 @@ CollectionManager.loadUserDefinedStencils = function () {
 CollectionManager.getUserStencilDirectory = function () {
     return Config.getDataFilePath(Config.STENCILS_DIR_NAME);
 };
+CollectionManager.findCollection = function (collectionId) {
+    for (var col of CollectionManager.shapeDefinition.collections) {
+        if (col.id == collectionId) return col;
+    }
+    return null;
+};
+CollectionManager.reloadDeveloperStencil = function (showNotification) {
+    ApplicationPane._instance.busy();
+
+    var collections = [];
+    for (var collection of CollectionManager.shapeDefinition.collections) {
+        if (collection.developerStencil) {
+            for (var item in collection.shapeDefs) {
+                var shapeDef = collection.shapeDefs[item];
+                if (shapeDef.constructor == Shortcut) {
+                    delete CollectionManager.shapeDefinition.shortcutMap[shapeDef.id];
+                } else {
+                    delete CollectionManager.shapeDefinition.shapeDefMap[shapeDef.id];
+                }
+            }
+            continue;
+        }
+        collections.push(collection);
+    }
+
+    CollectionManager.shapeDefinition.collections = collections;
+    this._loadDeveloperStencil();
+    ApplicationPane._instance.unbusy();
+
+    Pencil.collectionPane.reloadDeveloperCollections();
+
+    if (showNotification) NotificationPopup.show("Developer collections were reloaded.");
+};
 CollectionManager._loadDeveloperStencil = function () {
     console.log("Loading developer stencils...");
 
@@ -56,6 +89,7 @@ CollectionManager._loadDeveloperStencil = function () {
             if (!collection) return;
             collection.userDefined = false;
             collection.installDirPath = path.dirname(stencilPath);
+            collection.developerStencil = true;
             CollectionManager.addShapeDefCollection(collection);
 		}
 
@@ -72,14 +106,14 @@ CollectionManager._loadDeveloperStencil = function () {
 
 			if (!fs.existsSync(dirPath)) return;
 
-			CollectionManager._loadUserDefinedStencilsIn(dirPath, null, "isSystem");
+			CollectionManager._loadUserDefinedStencilsIn(dirPath, null, "isSystem", "isDeveloperStencil");
 		}
 	} catch (e) {
         Console.dumpError(e);
         // Util.error("Failed to load developer stencil", ex.message + "\n" + definitionFile.path, Util.getMessage("button.cancel.close"));
 	}
 };
-CollectionManager._loadStencil = function (dir, parser, isSystem) {
+CollectionManager._loadStencil = function (dir, parser, isSystem, isDeveloperStencil) {
 
     var definitionFile = CollectionManager.findDefinitionFile(dir);
     if (!definitionFile) { return null; }
@@ -90,6 +124,7 @@ CollectionManager._loadStencil = function (dir, parser, isSystem) {
 
         collection.userDefined = isSystem ? false : true;
         collection.installDirPath = dir;
+        collection.developerStencil = isDeveloperStencil ? true : false;
         CollectionManager.addShapeDefCollection(collection);
 
         return collection;
@@ -97,7 +132,7 @@ CollectionManager._loadStencil = function (dir, parser, isSystem) {
         console.error(e);
     }
 };
-CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, isSystem) {
+CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, isSystem, isDeveloperStencil) {
     console.log("Loading stencils in: " + stencilDir + "\n excluded: " + excluded);
 
     var parser = new ShapeDefCollectionParser();
@@ -114,7 +149,7 @@ CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, i
                 continue;
             }
             var folderPath = path.join(stencilDir, definitionFile);
-            if (CollectionManager._loadStencil(folderPath, parser, isSystem ? true : false)) {
+            if (CollectionManager._loadStencil(folderPath, parser, isSystem ? true : false, isDeveloperStencil ? true : false)) {
                 count++;
             }
         }
@@ -125,7 +160,9 @@ CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, i
     }
 };
 
-CollectionManager.loadStencils = function() {
+CollectionManager.loadStencils = function(showNotification) {
+    if (ApplicationPane._instance) ApplicationPane._instance.busy();
+
     CollectionManager.shapeDefinition.collections = [];
     CollectionManager.shapeDefinition.shapeDefMap = { };
 
@@ -149,8 +186,13 @@ CollectionManager.loadStencils = function() {
     	if (a.id == "Evolus.Common") return -1;
     	return a.displayName > b.displayName ? 1 : (a.displayName < b.displayName ? -1 : 0);
     });
+
     CollectionManager._loadDeveloperStencil();
+
     CollectionManager.reloadCollectionPane();
+
+    if (ApplicationPane._instance) ApplicationPane._instance.unbusy();
+    if (showNotification) NotificationPopup.show("All collections were reloaded.");
 };
 CollectionManager.reloadCollectionPane = function () {
     Pencil.collectionPane.loaded = false;

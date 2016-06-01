@@ -23,6 +23,12 @@ function BaseCollectionPane() {
         thiz.openCollection(item._collection);
     }, false);
 
+    this.bind("click", function() {
+        thiz.searchInput.value = "";
+        thiz.searchInput.focus();
+        thiz.filterCollections();
+    }, this.clearTextButton);
+
     this.shapeList.addEventListener("dragstart", function (event) {
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
@@ -44,6 +50,22 @@ function BaseCollectionPane() {
         run: function () {
             thiz.searchInput.focus();
             thiz.searchInput.select();
+        }
+    });
+
+    UICommandManager.register({
+        key: "reloadAllCollectionCommand",
+        shortcut: "Shift+F5",
+        run: function () {
+            CollectionManager.loadStencils("notify");
+        }
+    });
+
+    UICommandManager.register({
+        key: "reloadDeveloperCollectionCommand",
+        shortcut: "F5",
+        run: function () {
+            CollectionManager.reloadDeveloperStencil("notify");
         }
     });
 
@@ -166,6 +188,7 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
 };
 BaseCollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
+    this.clearTextButton.style.display = filter != null && filter.length > 0 ? "block" : "none"
     var collectionNodes = Dom.getList(".//*[@class='Item']", this.selectorPane);
     var hasLast = false;
     var firstNode = null;
@@ -216,11 +239,8 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
     this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
     this.collectionDescription.setAttribute("title", collection.description);
-    if (!collection.propertyGroups || collection.propertyGroups.length == 0) {
-        this.settingButton.disabled = true;
-    } else {
-        this.settingButton.disabled = false;
-    }
+    this.settingButton.style.visibility =  (collection.propertyGroups && collection.propertyGroups.length > 0) ? "inherit" : "hidden";
+
     this.last = collection;
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
     for (var i = 0; i < shapeDefs.length; i ++) {
@@ -312,4 +332,24 @@ BaseCollectionPane.prototype.getLastUsedCollection = function () {
     return null;
 };
 BaseCollectionPane.prototype.setLastUsedCollection = function (collection) {
+};
+BaseCollectionPane.prototype.reloadDeveloperCollections = function () {
+    Dom.doOnAllChildren(this.selectorPane, function (n) {
+        if (!n._collection || !n._collection.developerStencil) return;
+        var reloadedCollection = CollectionManager.findCollection(n._collection.id);
+        if (!reloadedCollection) n.style.display = "none";
+        n._collection = reloadedCollection;
+    }.bind(this));
+
+    if (this.last && this.last.developerStencil) {
+        var last = CollectionManager.findCollection(this.last.id);
+        if (!last) {
+            Dialog.error("Collection '" + this.last.displayName + "' has been removed.", null, "Close");
+            CollectionManager.loadStencils();
+
+            return;
+        }
+        this.last = last;
+        this.openCollection(this.last);
+    }
 };

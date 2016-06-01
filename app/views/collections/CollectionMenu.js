@@ -12,11 +12,10 @@ CollectionMenu.prototype.getTemplatePath = function () {
 
 CollectionMenu.prototype.setup = function () {
     var thiz = this;
-    console.log("show menu of collection", this.collection);
     this.register({
         getLabel: function () { return "Collection setting..." },
         icon: "tune",
-        isValid: function () { return thiz.collection.propertyGroups[0] ? true : false },
+        isValid: function () { return thiz.collection.propertyGroups },
         run: function () {
             var propertiesSettingDialog = new CollectionSettingDialog(thiz.collection);
             propertiesSettingDialog.open()
