@@ -2320,6 +2320,8 @@ Canvas.prototype.setSize = function (width, height) {
         canvas : this
     });
 
+    this.snappingHelper.rebuildSnappingGuide();
+
 };
 Canvas.prototype.setBackgroundImageData = function (image, dimBackground) {
 

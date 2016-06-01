@@ -96,7 +96,7 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     Dom.empty(this.collectionIcon);
     Dom.empty(this.collectionTitle);
     Dom.empty(this.collectionDescription);
-    this.settingButton.style.visibility = "hidden";
+    this.settingButton.style.visibility = "inherit";
 
     for (var i = 0; i < collections.length; i ++) {
         var collection = collections[i];
