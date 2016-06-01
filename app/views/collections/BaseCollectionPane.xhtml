@@ -207,14 +207,39 @@
             border-color: transparent;
             background: none;
         }
-
+        @textContainer {
+            width: 100%;
+            position: inherit;
+        }
+        @textContainer > input {
+            width: 100%
+        }
+        @clearTextButton {
+            position: absolute;
+            right: 1.5em;
+            top: 1.3em;
+            line-height: 1em;
+            height: 1.8em;
+            width: auto;
+        }
+        @clearTextButton:not(:hover) {
+            border-color: transparent;
+            background: none;
+        }
+        @searchButton {
+            margin-left: 0.5em;
+        }
     </style>
     <hbox anon-id="filter">
         <hbox anon-id="logo">
         </hbox>
         <hbox flex="1" anon-id="form">
-            <input type="text" flex="1" class="form-control" placeholder="Search for shapes" anon-id="searchInput"/>
-            <i class="fa fa-search"></i>
+            <hbox flex="1">
+                <div anon-id="textContainer">
+                    <input type="text" flex="1" class="form-control" placeholder="Search for shapes" anon-id="searchInput"/>
+                    <button anon-id="clearTextButton" style="display:none"><i>clear</i></button>
+                </div>
+            </hbox>
         </hbox>
     </hbox>
     <hbox flex="1" anon-id="contentPane">
