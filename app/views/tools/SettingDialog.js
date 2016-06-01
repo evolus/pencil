@@ -28,6 +28,10 @@ function SettingDialog() {
             Config.set(configName, node.value);
         }
 
+        if (node == this.textboxGridSize) {
+            CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
+        }
+
     }, this.settingTabPane);
 
     this.bind("click", function (event) {
@@ -72,6 +76,7 @@ function SettingDialog() {
     this.bind("input", function (event) {
         this.setPreferenceItems();
     }, this.preferenceNameInput);
+
 }
 __extend(Dialog, SettingDialog);
 
