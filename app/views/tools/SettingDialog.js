@@ -10,11 +10,20 @@ function SettingDialog() {
         var configName = node.getAttribute("configName");
 
         console.log("configName:", configName);
-
         if (node.type == "checkbox") {
-            Config.set(configName, node.checked);
+            if (configName == "grid.enabled") {
+                if (node.checked == false) {
+                    this.textboxGridSize.disabled = true;
+                } else {
+                    this.textboxGridSize.disabled = false;
+                }
+                Config.set(configName, node.checked);
+                CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
+            } else {
+                Config.set(configName, node.checked);
+            }
+            this.setPreferenceItems();
         }
-
     }, this.settingTabPane);
 
     this.bind("change", function (event) {
@@ -29,21 +38,14 @@ function SettingDialog() {
                 if (node.value == "" || parseInt(node.value) == 0) {
                     node.value = "5";
                 }
-                Config.set(configName, node.value);
+            }
+        }
+        if (node.type == "number" || node.type == "text") {
+            Config.set(configName, node.value);
+            if (configName == "edit.gridSize") {
                 CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
             }
-        } else if (configName == "grid.enabled") {
-            if (node.checked == false) {
-                this.textboxGridSize.disabled = true;
-            } else {
-                this.textboxGridSize.disabled = false;
-            }
-            Config.set(configName, node.checked);
-            CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
-        } else {
-            if (node.type == "number" || node.type == "text") {
-                Config.set(configName, node.value);
-            }
+            this.setPreferenceItems();
         }
     }, this.settingTabPane);
 
@@ -186,25 +188,34 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                 if (data.type == "boolean") {
                     Config.set(data.name, !data.value);
                     if (data.name == "grid.enabled") {
+                        thiz.checkboxEnableGrid.checked = !data.value;
+                        if (!data.value == false) {
+                            thiz.textboxGridSize.disabled = true;
+                        } else {
+                            thiz.textboxGridSize.disabled = false;
+                        }
                         CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
                     }
                     thiz.setPreferenceItems();
                 } else {
                     Dialog.prompt(data.name, data.value, "OK", function (value) {
                         data.value = value;
+                        var result = value;
+                        if (data.type != "string") {
+                            result = parseInt(value);
+                        }
                         if (data.name == "edit.gridSize") {
-                            if (parseInt(data.value) == 0 || data.value == "") {
+                            if (parseInt(result) == 0 ) {
+                                result = 5;
                                 data.value = "5";
                             }
-                            Config.set(data.name, data.value);
+                            Config.set(data.name, result);
+                            thiz.textboxGridSize.value = result;
                             CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
                         } else {
-                            if (data.type == "string") {
-                                Config.set(data.name, value);
-                            } else {
-                                Config.set(data.name, parseInt(value));
-                            }
+                            Config.set(data.name, result);
                         }
+
                         thiz.setPreferenceItems();
                     }, "Cancel");
                 }
