@@ -272,6 +272,7 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
             tempDir.removeCallback();
         }
     }).on("error", function (error) {
+        ApplicationPane._instance.unbusy();
         Dialog.error("Error installing collection.");
         tempDir.removeCallback();
     });

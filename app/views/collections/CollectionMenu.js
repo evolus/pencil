@@ -59,7 +59,6 @@ CollectionMenu.prototype.setup = function () {
 
     this.register({
         label: "Go to",
-        run: function () { },
         type: "SubMenu",
         getSubItems:  function () {
             var items = [];
