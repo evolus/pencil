@@ -24,18 +24,27 @@ function SettingDialog() {
         if (!node) return;
         var configName = node.getAttribute("configName");
 
-        if (node.type == "number" || node.type == "text") {
-            Config.set(configName, node.value);
-        }
-
-        if (node == this.textboxGridSize) {
-            if (node.value == "" || parseInt(node.value) == 0) {
-                node.value = "5";
+        if (configName == "edit.gridSize") {
+            if (this.checkboxEnableGrid.checked == true) {
+                if (node.value == "" || parseInt(node.value) == 0) {
+                    node.value = "5";
+                }
+                Config.set(configName, node.value);
+                CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
+            }
+        } else if (configName == "grid.enabled") {
+            if (node.checked == false) {
+                this.textboxGridSize.disabled = true;
+            } else {
+                this.textboxGridSize.disabled = false;
+            }
+            Config.set(configName, node.checked);
+            CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
+        } else {
+            if (node.type == "number" || node.type == "text") {
                 Config.set(configName, node.value);
             }
-            CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
         }
-
     }, this.settingTabPane);
 
     this.bind("click", function (event) {
@@ -89,11 +98,11 @@ SettingDialog.prototype.setup = function () {
     this.snapToGrid.checked = Config.get("edit.snap.grid");
     this.enableSnapping.checked = Config.get("object.snapping.enabled");
     this.enableSnappingBackground.checked = Config.get("object.snapping.background");
-    this.embedImages.checked = Config.get("document.EmbedImages");
+    // this.embedImages.checked = Config.get("document.EmbedImages");
     this.quickEditting.checked = Config.get("quick.editting");
     this.cutAndPasteAtTheSamePlace.checked = Config.get("edit.cutAndPasteAtTheSamePlace");
     this.undoEnabled.checked = Config.get("view.undo.enabled");
-    this.checkboxScaleImage.checked = Config.get("clipartbrowser.scale");
+    // this.checkboxScaleImage.checked = Config.get("clipartbrowser.scale");
 
     var gridSize = Config.get("edit.gridSize");
     if (gridSize == null) {
@@ -101,17 +110,17 @@ SettingDialog.prototype.setup = function () {
     }
     this.textboxGridSize.value = Config.get("edit.gridSize");
 
-    var w = Config.get("clipartbrowser.scale.width");
-    var h = Config.get("clipartbrowser.scale.height");
-    if (w == null) {
-        Config.set("clipartbrowser.scale.width", 200);
-    }
-    if (h == null) {
-        Config.set("clipartbrowser.scale.height", 200);
-    }
+    // var w = Config.get("clipartbrowser.scale.width");
+    // var h = Config.get("clipartbrowser.scale.height");
+    // if (w == null) {
+    //     Config.set("clipartbrowser.scale.width", 200);
+    // }
+    // if (h == null) {
+    //     Config.set("clipartbrowser.scale.height", 200);
+    // }
 
-    this.textboxClipartBrowserScaleWidth.value  = Config.get("clipartbrowser.scale.width");
-    this.textboxClipartBrowserScaleHeight.value = Config.get("clipartbrowser.scale.height");
+    // this.textboxClipartBrowserScaleWidth.value  = Config.get("clipartbrowser.scale.width");
+    // this.textboxClipartBrowserScaleHeight.value = Config.get("clipartbrowser.scale.height");
 
     var level = Config.get("view.undoLevel");
     if (level == null) {
@@ -144,13 +153,13 @@ SettingDialog.prototype.setup = function () {
         Dom.addClass(this.enableSnappingBackground.parentNode, "Disabled");
     }
 
-    if (this.checkboxScaleImage.checked) {
-        Dom.removeClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
-        Dom.removeClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
-    } else {
-        Dom.addClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
-        Dom.addClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
-    }
+    // if (this.checkboxScaleImage.checked) {
+    //     Dom.removeClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
+    //     Dom.removeClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
+    // } else {
+    //     Dom.addClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
+    //     Dom.addClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
+    // }
     this.initializePreferenceTable();
 };
 
@@ -176,18 +185,30 @@ SettingDialog.prototype.initializePreferenceTable = function () {
             run: function (data) {
                 if (data.type == "boolean") {
                     Config.set(data.name, !data.value);
+                    if (data.name == "grid.enabled") {
+                        CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
+                    }
                     thiz.setPreferenceItems();
                 } else {
                     Dialog.prompt(data.name, data.value, "OK", function (value) {
                         data.value = value;
-                        if (data.type == "string") {
-                            Config.set(data.name, value);
+                        if (data.name == "edit.gridSize") {
+                            if (parseInt(data.value) == 0 || data.value == "") {
+                                data.value = "5";
+                            }
+                            Config.set(data.name, data.value);
+                            CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
                         } else {
-                            Config.set(data.name, parseInt(value));
+                            if (data.type == "string") {
+                                Config.set(data.name, value);
+                            } else {
+                                Config.set(data.name, parseInt(value));
+                            }
                         }
                         thiz.setPreferenceItems();
                     }, "Cancel");
                 }
+
             }
         });
         thiz.setPreferenceItems();
