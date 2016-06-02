@@ -29,6 +29,10 @@ function SettingDialog() {
         }
 
         if (node == this.textboxGridSize) {
+            if (node.value == "" || parseInt(node.value) == 0) {
+                node.value = "5";
+                Config.set(configName, node.value);
+            }
             CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
         }
 
