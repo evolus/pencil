@@ -641,6 +641,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function BaseWidget(definitionNode) {
     var node = this.buildDOMNode(definitionNode);
 
+    Dom.addClass(node, "UIWidget");
     Dom.addClass(node, "widget_" + this.constructor.name);
     this.__node = node;
     node.__widget = this;
