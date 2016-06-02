@@ -197,8 +197,8 @@ CanvasMenu.prototype.setup = function () {
         }
     });
     UICommandManager.register({
-      key: "fitwithPaddingCommand",
-        label: "Fit with Padding",
+      key: "fitContentwithPaddingCommand",
+        label: "Fit Content with Padding...",
         run: function () {
             Pencil.controller.sizeToContent(null, true); // FIXME: bug
         }
@@ -281,7 +281,7 @@ CanvasMenu.prototype.setup = function () {
         label: "Resize Canvas",
         type: "SubMenu",
         subItems: [UICommandManager.getCommand("fitContentCommand"),
-                    UICommandManager.getCommand("fitwithPaddingCommand"),
+                    UICommandManager.getCommand("fitContentwithPaddingCommand"),
                     UICommandManager.getCommand("fitScreenCommand")]
     });
 

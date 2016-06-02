@@ -103,6 +103,9 @@ OnScreenTextEditor.prototype._setupEditor = function () {
 
     var bound = this.textEditingInfo.bound;
     var bbox = this.textEditingInfo.target.getBBox();
+    console.log("bound", bound);
+    console.log("box", bbox);
+
     var font = this.textEditingInfo.font;
     var align = this.textEditingInfo.align;
 
@@ -117,17 +120,19 @@ OnScreenTextEditor.prototype._setupEditor = function () {
     var x = targetCtm.e;
     var y = targetCtm.f;
 
-    var bbox = this.textEditingInfo.target.getBBox();
+    console.log("x:y (1)", [x, y]);
 
     var width = Math.max(bbox.width, 100);
     var height = Math.min(Math.max(bbox.height + 2, 50), 500);
 
-    if (this.textEditingInfo.bound) {
-        x += this.textEditingInfo.bound.x - 1;
-        y += this.textEditingInfo.bound.y - 1;
-        width = this.textEditingInfo.bound.w + 4;
-        height = this.textEditingInfo.bound.h + 4;
+    if (bound) {
+        x += this.textEditingInfo.bound.x * this.canvas.zoom - 1;
+        y += this.textEditingInfo.bound.y * this.canvas.zoom - 1;
+        width = this.textEditingInfo.bound.w * this.canvas.zoom + 4;
+        height = this.textEditingInfo.bound.h * this.canvas.zoom + 4;
     }
+
+    console.log("x:y (2)", [x, y]);
 
     if (x < 0) {
         width += x;
@@ -140,6 +145,8 @@ OnScreenTextEditor.prototype._setupEditor = function () {
 
 
     width = Math.max(width, 60);
+
+    console.log("x:y (3)", [x, y]);
 
     this.container.style.width = width + "px";
     this.container.style.height = height + "px";
@@ -156,7 +163,9 @@ OnScreenTextEditor.prototype._setupEditor = function () {
 
     if (this.textEditingInfo.font) {
         this.textEditor.style.fontFamily = this.textEditingInfo.font.family;
-        this.textEditor.style.fontSize = this.textEditingInfo.font.size;
+        this.textEditor.style.fontSize = this.textEditingInfo.font.size.replace(/^([0-9\.]+)/, function (whole, one) {
+            return (parseFloat(one) * this.canvas.zoom);
+        }.bind(this));
         this.textEditor.style.fontWeight = this.textEditingInfo.font.weight;
         this.textEditor.style.fontStyle = this.textEditingInfo.font.style;
     }
@@ -164,7 +173,7 @@ OnScreenTextEditor.prototype._setupEditor = function () {
 
     this.textEditor.value = this.textEditingInfo.value.value;   //PlainText.value
 
-    this.popup.showAt(x, y);
+    this.popup.showAt(x , y);
 
     OnScreenTextEditor._activeEditor = this;
 
