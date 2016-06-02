@@ -342,11 +342,16 @@ Canvas.prototype.setupEventHandlers = function () {
     Dom.registerEvent(this.dragOverlay, "drop", function (event) { thiz.__drop(event); }, false);
 };
 
-Canvas.prototype.getEventLocation = function (event) {
+Canvas.prototype.getEventLocation = function (event, withoutZoom) {
 
     var rect = this.svg.parentNode.getBoundingClientRect();
     var x = Math.round(event.clientX - rect.left);
     var y = Math.round(event.clientY - rect.top);
+
+    if (withoutZoom) {
+        x /= this.zoom;
+        y /= this.zoom;
+    }
 
     return {
         x : x,
@@ -645,8 +650,8 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
 
     if (bound) {
         var bbox = controller.getBoundingRect();
-        controller.moveBy((bound.x - Math.round(bbox.width / 2)) / this.zoom,
-                (bound.y - Math.round(bbox.height / 2)) / this.zoom, true);
+        controller.moveBy((bound.x - Math.round(bbox.width / (2 * this.zoom))),
+                (bound.y - Math.round(bbox.height / (2 * this.zoom))), true);
         controller.normalizePositionToGrid();
     }
 
@@ -2569,10 +2574,11 @@ Canvas.prototype.insertPrivateShapeImpl_ = function (shapeDef, bound) {
     this.selectShape(shape);
     if (bound) {
         var bbox = this.currentController.getBounding();
-        this.currentController.moveBy((bound.x - bbox.x - Math
-                .round(bbox.width / 2))
-                / this.zoom, (bound.y - bbox.y - Math.round(bbox.height / 2))
-                / this.zoom, true);
+        //note: the returned bbox is NOT zoomed
+        this.currentController.moveBy(
+                (bound.x - bbox.x - Math.round(bbox.width / 2)),
+                (bound.y - bbox.y - Math.round(bbox.height / 2)),
+                true);
     }
     shape.style.visibility = "visible";
     this.removeAttributeNS(PencilNamespaces.p, "holding");
