@@ -287,7 +287,7 @@ Controller.prototype.openDocument = function (callback) {
         ApplicationPane._instance.busy();
         dialog.showOpenDialog({
             title: "Open pencil document",
-            defaultPath: os.homedir(),
+            defaultPath: Config.get("document.open.recentlyDirPath", null) || os.homedir(),
             filters: [
                 { name: "Stencil files", extensions: ["epz", "ep"] }
             ]
@@ -295,6 +295,7 @@ Controller.prototype.openDocument = function (callback) {
         }, function (filenames) {
             ApplicationPane._instance.unbusy();
             if (!filenames || filenames.length <= 0) return;
+            Config.set("document.open.recentlyDirPath", path.dirname(filenames[0]));
             this.loadDocument(filenames[0], callback);
         }.bind(thiz));
     };
@@ -646,7 +647,8 @@ Controller.prototype.saveAsDocument = function (onSaved) {
     var thiz = this;
     dialog.showSaveDialog({
         title: "Save as",
-        defaultPath: path.join(os.homedir(), "Untitled.epz"),
+        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || Config.get("document.save.recentlyDirPath", null) || os.homedir(),
+                        this.documentPath && path.basename(this.documentPath) || "Untitled.epz"),
         filters: [
             { name: "Pencil Documents", extensions: ["epz"] }
         ]
@@ -663,12 +665,13 @@ Controller.prototype.saveDocument = function (onSaved) {
         var thiz = this;
         dialog.showSaveDialog({
             title: "Save as",
-            defaultPath: path.join(os.homedir(), "Untitled.epz"),
+            defaultPath: path.join(Config.get("document.save.recentlyDirPath", null) || os.homedir(), "Untitled.epz"),
             filters: [
                 { name: "Pencil Documents", extensions: ["epz"] }
             ]
         }, function (filePath) {
             if (!filePath) return;
+            Config.set("document.save.recentlyDirPath", path.dirname(filePath));
             thiz.documentPath = filePath;
             thiz.doc.name = thiz.getDocumentName();
             thiz.saveDocumentImpl(thiz.documentPath, onSaved);

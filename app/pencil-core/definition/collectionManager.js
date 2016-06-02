@@ -201,13 +201,14 @@ CollectionManager.reloadCollectionPane = function () {
 CollectionManager.installNewCollection = function (callback) {
     var files = dialog.showOpenDialog({
         title: "Install from",
-        defaultPath: os.homedir(),
+        defaultPath: Config.get("collection.install.recentlyDirPath", null) || os.homedir(),
         filters: [
             { name: "Stencil files", extensions: ["zip", "epc"] }
         ]
 
     }, function (filenames) {
         if (!filenames || filenames.length <= 0) return;
+        Config.set("collection.install.recentlyDirPath", path.dirname(filenames[0]));
         CollectionManager.installCollectionFromFilePath(filenames[0], callback);
     });
 };
