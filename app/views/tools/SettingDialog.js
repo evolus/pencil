@@ -2,6 +2,18 @@ function SettingDialog() {
     Dialog.call(this);
     this.title = "Setting Dialog";
 
+    this.checkBoxDetail = {
+        "grid.enabled": this.checkboxEnableGrid,
+        "edit.gridSize" : this.textboxGridSize,
+        "edit.snap.grid": this.snapToGrid,
+        "object.snapping.enabled": this.enableSnapping,
+        "object.snapping.background": this.enableSnappingBackground,
+        "quick.editting": this.quickEditting,
+        "edit.cutAndPasteAtTheSamePlace": this.cutAndPasteAtTheSamePlace,
+        "view.undo.enabled": this.undoEnabled,
+        "view.undoLevel": this.textboxUndoLevel
+    };
+
     this.bind("click", function (event) {
         var node = Dom.findUpward(event.target, function (n) {
             return n.getAttribute && n.getAttribute("configName");
@@ -11,18 +23,7 @@ function SettingDialog() {
 
         console.log("configName:", configName);
         if (node.type == "checkbox") {
-            if (configName == "grid.enabled") {
-                if (node.checked == false) {
-                    this.textboxGridSize.disabled = true;
-                } else {
-                    this.textboxGridSize.disabled = false;
-                }
-                Config.set(configName, node.checked);
-                CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
-            } else {
-                Config.set(configName, node.checked);
-            }
-            this.setPreferenceItems();
+            this.setCheckBox(configName, node.checked);
         }
     }, this.settingTabPane);
 
@@ -34,59 +35,57 @@ function SettingDialog() {
         var configName = node.getAttribute("configName");
 
         if (configName == "edit.gridSize") {
-            if (this.checkboxEnableGrid.checked == true) {
-                if (node.value == "" || parseInt(node.value) == 0) {
-                    node.value = "5";
-                }
+            if (node.value == "" || parseInt(node.value) == 0) {
+                node.value = "5";
             }
         }
         if (node.type == "number" || node.type == "text") {
             Config.set(configName, node.value);
-            if (configName == "edit.gridSize") {
+            if (configName == "edit.gridSize" && Pencil.controller.activePage.canvas) {
                 CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
             }
             this.setPreferenceItems();
         }
     }, this.settingTabPane);
 
-    this.bind("click", function (event) {
-        var checked = this.checkboxEnableGrid.checked;
-        if (checked) {
-            Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
-        } else {
-            Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
-        }
-    }, this.checkboxEnableGrid);
+    // this.bind("click", function (event) {
+    //     var checked = this.checkboxEnableGrid.checked;
+    //     if (checked) {
+    //         Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
+    //     } else {
+    //         Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
+    //     }
+    // }, this.checkboxEnableGrid);
+    //
+    // this.bind("click", function (event) {
+    //     var checked = this.enableSnapping.checked;
+    //     this.enableSnappingBackground.disabled = !this.enableSnapping.checked;
+    //     if (checked) {
+    //         Dom.removeClass(this.enableSnappingBackground.parentNode, "Disabled");
+    //     } else {
+    //         Dom.addClass(this.enableSnappingBackground.parentNode, "Disabled");
+    //     }
+    // }, this.enableSnapping);
+    //
+    // this.bind("click", function (event) {
+    //     var checked = this.undoEnabled.checked;
+    //     if (checked) {
+    //         Dom.removeClass(this.textboxUndoLevel.parentNode, "Disabled");
+    //     } else {
+    //         Dom.addClass(this.textboxUndoLevel.parentNode, "Disabled");
+    //     }
+    // }, this.undoEnabled);
 
-    this.bind("click", function (event) {
-        var checked = this.enableSnapping.checked;
-        this.enableSnappingBackground.disabled = !this.enableSnapping.checked;
-        if (checked) {
-            Dom.removeClass(this.enableSnappingBackground.parentNode, "Disabled");
-        } else {
-            Dom.addClass(this.enableSnappingBackground.parentNode, "Disabled");
-        }
-    }, this.enableSnapping);
-
-    this.bind("click", function (event) {
-        var checked = this.undoEnabled.checked;
-        if (checked) {
-            Dom.removeClass(this.textboxUndoLevel.parentNode, "Disabled");
-        } else {
-            Dom.addClass(this.textboxUndoLevel.parentNode, "Disabled");
-        }
-    }, this.undoEnabled);
-
-    this.bind("click", function (event) {
-        var checked = this.checkboxScaleImage.checked;
-        if (checked) {
-            Dom.removeClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
-            Dom.removeClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
-        } else {
-            Dom.addClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
-            Dom.addClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
-        }
-    }, this.checkboxScaleImage);
+    // this.bind("click", function (event) {
+    //     var checked = this.checkboxScaleImage.checked;
+    //     if (checked) {
+    //         Dom.removeClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
+    //         Dom.removeClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
+    //     } else {
+    //         Dom.addClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
+    //         Dom.addClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
+    //     }
+    // }, this.checkboxScaleImage);
 
     this.bind("input", function (event) {
         this.setPreferenceItems();
@@ -94,6 +93,38 @@ function SettingDialog() {
 
 }
 __extend(Dialog, SettingDialog);
+
+SettingDialog.prototype.setCheckBox = function (configName, value) {
+    Config.set(configName, value);
+    if (this.checkBoxDetail[configName]) {
+        var checkBox = this.checkBoxDetail[configName];
+        if (checkBox == this.checkboxEnableGrid) {
+            if (value) {
+                Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
+            } else {
+                Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
+            }
+            if (Pencil.controller.activePage.canvas) CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
+        }
+        if (checkBox == this.undoEnabled) {
+            if (value) {
+                Dom.removeClass(this.textboxUndoLevel.parentNode, "Disabled");
+            } else {
+                Dom.addClass(this.textboxUndoLevel.parentNode, "Disabled");
+            }
+        }
+        if (checkBox == this.enableSnapping) {
+            this.enableSnappingBackground.disabled = !this.enableSnapping.checked;
+            if (value) {
+                Dom.removeClass(this.enableSnappingBackground.parentNode, "Disabled");
+            } else {
+                Dom.addClass(this.enableSnappingBackground.parentNode, "Disabled");
+            }
+        }
+        checkBox.checked = value;
+        this.setPreferenceItems();
+    }
+}
 
 SettingDialog.prototype.setup = function () {
     this.checkboxEnableGrid.checked = Config.get("grid.enabled");
@@ -186,17 +217,7 @@ SettingDialog.prototype.initializePreferenceTable = function () {
         thiz.preferenceTable.setDefaultSelectionHandler({
             run: function (data) {
                 if (data.type == "boolean") {
-                    Config.set(data.name, !data.value);
-                    if (data.name == "grid.enabled") {
-                        thiz.checkboxEnableGrid.checked = !data.value;
-                        if (!data.value == false) {
-                            thiz.textboxGridSize.disabled = true;
-                        } else {
-                            thiz.textboxGridSize.disabled = false;
-                        }
-                        CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
-                    }
-                    thiz.setPreferenceItems();
+                    thiz.setCheckBox(data.name, !data.value);
                 } else {
                     Dialog.prompt(data.name, data.value, "OK", function (value) {
                         data.value = value;
@@ -204,18 +225,23 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                         if (data.type != "string") {
                             result = parseInt(value);
                         }
-                        if (data.name == "edit.gridSize") {
-                            if (parseInt(result) == 0 ) {
-                                result = 5;
-                                data.value = "5";
+                        if (data.name == "view.undoLevel" || data.name == "edit.gridSize" ) {
+                            if (data.name == "view.undoLevel") {
+                                if (!result || parseInt(result) == 0 ) {
+                                    result = 10;
+                                }
+                                thiz.textboxUndoLevel.value = result;
+                            } else if (data.name == "edit.gridSize" ) {
+                                if (!result || parseInt(result) == 0 ) {
+                                    result = 5;
+                                }
+                                thiz.textboxGridSize.value = result;
                             }
-                            Config.set(data.name, result);
-                            thiz.textboxGridSize.value = result;
-                            CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
-                        } else {
-                            Config.set(data.name, result);
                         }
-
+                        Config.set(data.name, result);
+                        if (data.name == "edit.gridSize" ) {
+                            if (Pencil.controller.activePage.canvas) CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
+                        }
                         thiz.setPreferenceItems();
                     }, "Cancel");
                 }
