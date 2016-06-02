@@ -219,6 +219,14 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
         if (autoFlip && (vAlign == "bottom" || vAlign == "top-inside")) {
             p = this._calculatePosition(anchor, hAlign, vAlign == "bottom" ? "top" : "bottom-inside", hPadding, vPadding);
             y = p.y;
+            if (y < 0) {
+                y += h/2;
+                y = Math.max(0, y);
+                if (y == 0 && h > screenH) {
+                    this.popupContainer.style.height = screenH + "px";
+                    this.popupContainer.style.overflow = "auto";
+                }
+            }
         } else {
             if (this.forceInside)  {
                 this.popupContainer.style.height = (screenH - y) + "px";
