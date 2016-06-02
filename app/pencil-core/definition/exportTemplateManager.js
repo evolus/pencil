@@ -131,12 +131,13 @@ ExportTemplateManager.installNewTemplate = function (type, callback) {
     // ExportTemplateManager.installTemplateFromFile(fp.file, type);
     dialog.showOpenDialog({
         title: "Open template document",
-        defaultPath: os.homedir(),
+        defaultPath: Config.get("template.install.recentlyDirPath", null) || os.homedir(),
         filters: [
             { name: "Template files", extensions: ["epxt", "zip"] }
         ]
     }, function (filenames) {
         if (!filenames || filenames.length <= 0) return;
+        Config.set("template.install.recentlyDirPath", path.dirname(filenames[0]));
         ExportTemplateManager.installTemplateFromFile(filenames, type, callback);
     });
 }
