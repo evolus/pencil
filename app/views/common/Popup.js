@@ -5,6 +5,7 @@ function Popup() {
     this.useZIndex = true;
     this.visible = false;
     this.shouldDetach = true;
+    Dom.addClass(this.popupContainer, "UIWidget");
 }
 __extend(BaseTemplatedWidget, Popup);
 Popup.Z_INDEX = 9001;
