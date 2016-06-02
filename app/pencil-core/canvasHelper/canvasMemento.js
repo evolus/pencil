@@ -8,9 +8,9 @@ CanvasMemento.prototype.serializeAsNode = function (doc) {
     var node = doc.createElementNS(PencilNamespaces.p, "Memento");
     if (this.action) node.setAttribute("action", this.action);
     if (this.node) node.appendChild(doc.importNode(this.node, true));
-    
-    for (var name in metadata) {
-        node.setAttribute(name, metadata[name]);
+
+    for (var name in this.metadata) {
+        node.setAttribute(name, this.metadata[name]);
     }
 
     return node;

@@ -45,7 +45,6 @@ function Menu() {
     }, false);
     this.checkOpenSub = false;
     this.bind("mouseover", this.handleMouseIn, this.popupContainer);
-
 }
 __extend(Popup, Menu);
 
@@ -64,6 +63,7 @@ Menu.prototype.openSubMenu = function (itemNode) {
     var item = itemNode._item;
 
     var menu = new Menu();
+    menu.forceInside = true;
     var subItems = item.subItems || item.getSubItems();
     for (var i in subItems) {
         menu.register(subItems[i]);

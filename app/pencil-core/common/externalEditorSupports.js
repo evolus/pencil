@@ -77,6 +77,7 @@ ExternalEditorSupports.checkQueue = function () {
 };
 
 ExternalEditorSupports.editImageData = function (imageData, ext, ownerObject) {
+    console.log("edit image data", [imageData, ownerObject]);
     var thiz = ownerObject;
     ExternalEditorSupports.edit({
             extension: ext,
@@ -115,7 +116,7 @@ ExternalEditorSupports.editSVGData = function (originalDim, container, ownerObje
     var svg = document.createElementNS(PencilNamespaces.svg, "svg");
     svg.setAttribute("width", originalDim.w);
     svg.setAttribute("height", originalDim.h);
-    
+
     var thiz = ownerObject;
     ExternalEditorSupports.edit({
         extension: "svg",
@@ -151,15 +152,16 @@ ExternalEditorSupports.editSVGData = function (originalDim, container, ownerObje
 
             var w = dom.documentElement.getAttribute("width");
             var h = dom.documentElement.getAttribute("height");
-            
+
             if (w && h) {
                 var originalDim = new Dimension(Math.round(parseFloat(w)), Math.round(parseFloat(h)));
                 thiz.setProperty("originalDim", originalDim);
             }
-            
+
             thiz.setProperty("svgXML", content);
         }
     });
 };
 pencilSandbox.ImageData.ExternalEditorSupports = ExternalEditorSupports;
+ImageData.ExternalEditorSupports = ExternalEditorSupports;
 window.setTimeout(ExternalEditorSupports.checkQueue, 300);
