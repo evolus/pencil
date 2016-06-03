@@ -50,7 +50,6 @@ Controller.prototype.newDocument = function () {
         this.confirmAndSaveDocument(create);
         return;
     }
-
     create();
 };
 Controller.prototype.confirmAndclose = function (onClose) {
@@ -592,13 +591,8 @@ Controller.prototype.parseDocument = function (filePath, callback) {
             FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
             FontLoader.instance.loadFonts(function () {
                 thiz.sayControllerStatusChanged();
-
                 if (thiz.doc.properties.activeId) {
-                    for (var i = 0; i < thiz.doc.pages.length; i++) {
-                        if (thiz.doc.pages[i].id == thiz.doc.properties.activeId) {
-                            thiz.activatePage(thiz.doc.pages[i]);
-                        }
-                    }
+                    thiz.activatePage(thiz.findPageById(thiz.doc.properties.activeId));
                 } else {
                     if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
                 }
@@ -1284,11 +1278,17 @@ Controller.prototype.nativeImageToRefSync = function (nativeImage) {
 
     return id;
 };
-Controller.prototype.refIdToUrl = function (id) {
+Controller.prototype.refIdToFilePath = function (id) {
     var fullPath = path.join(this.tempDir.name, Controller.SUB_REFERENCE);
     fullPath = path.join(fullPath, id);
 
-    return ImageData.filePathToURL(fullPath);
+    return fullPath;
+};
+
+Controller.prototype.refIdToUrl = function (id) {
+    var filePath = this.refIdToFilePath(id);
+    var stat = fs.statSync(filePath);
+    return ImageData.filePathToURL(filePath) + "?token=" + stat.mtime.getTime();
 };
 
 Controller.prototype._findPageIndex = function (pages, id) {
