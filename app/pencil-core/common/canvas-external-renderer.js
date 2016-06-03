@@ -57,6 +57,8 @@ function init() {
             var href = image.getAttributeNS(xlink, "href");
             if (href && href.match("^file://(.+)$")) {
                 var sourcePath = decodeURI(RegExp.$1);
+                var index = sourcePath.indexOf("?token=");
+                if (index > 0) sourcePath = sourcePath.substring(0, index);
 
                 if (process.platform === "win32") {
                     if (sourcePath.startsWith("/")) sourcePath = sourcePath.substring(1);
