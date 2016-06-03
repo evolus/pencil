@@ -201,6 +201,7 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
 };
 
 Controller.prototype.serializeDocument = function (onDone) {
+    this.doc.properties.activeId = this.activePage.id;
     var dom = this.doc.toDom();
     var xml = Controller.serializer.serializeToString(dom);
     var outputPath = path.join(this.tempDir.name, "content.xml");
@@ -514,11 +515,10 @@ Controller.prototype.loadDocument = function (filePath, callback) {
         } else {
             thiz.parseOldFormatDocument(filePath, callback);
         }
-
         fs.close(fd);
     });
-
 };
+
 Controller.prototype.parseDocument = function (filePath, callback) {
     var targetDir = this.tempDir.name;
     var thiz = this;
@@ -592,7 +592,16 @@ Controller.prototype.parseDocument = function (filePath, callback) {
             FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
             FontLoader.instance.loadFonts(function () {
                 thiz.sayControllerStatusChanged();
-                if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
+
+                if (thiz.doc.properties.activeId) {
+                    for (var i = 0; i < thiz.doc.pages.length; i++) {
+                        if (thiz.doc.pages[i].id == thiz.doc.properties.activeId) {
+                            thiz.activatePage(thiz.doc.pages[i]);
+                        }
+                    }
+                } else {
+                    if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
+                }
                 thiz.applicationPane.onDocumentChanged();
                 if (callback) callback();
                 ApplicationPane._instance.unbusy();
