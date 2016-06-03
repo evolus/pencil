@@ -421,6 +421,9 @@ Controller.prototype.getCurrentDocumentThumbnail = function () {
     return thumbPath;
 };
 Controller.prototype.addRecentFile = function (filePath, thumbPath) {
+    // Recent documents (Windows & OS X)
+    Pencil.app.addRecentDocument(filePath);
+
     var files = Config.get("recent-documents");
     if (!files) {
         files = [filePath];
@@ -482,6 +485,11 @@ Controller.prototype.removeRecentFile = function (filePath) {
         }
     }
     Config.set("recent-documents", files);
+
+    Pencil.app.clearRecentDocuments();
+    files.forEach(function(f) {
+        Pencil.app.addRecentDocument(f);
+    });
 };
 Controller.prototype.loadDocument = function (filePath, callback) {
     ApplicationPane._instance.busy();
