@@ -46,7 +46,7 @@
   "scripts": {
     "postinstall": "install-app-deps",
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
-    "start": "./node_modules/.bin/electron ./app",
+    "start": "./node_modules/.bin/electron ./app --disable-gpu",
     "start:dev":  "./node_modules/.bin/electron ./app --enable-dev --disable-gpu",
     "clean": "rimraf dist",
     "pack": "build",
