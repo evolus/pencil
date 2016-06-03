@@ -80,6 +80,8 @@ Pencil.boot = function (event) {
     try {
         if (Pencil.booted) return;
 
+        Pencil.app = require('electron').remote.app;
+        
         Pencil.booted = true;
         Pencil.window = document.documentElement;
         Pencil.rasterizer = new Rasterizer("image/png");

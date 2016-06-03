@@ -13,6 +13,7 @@ ProgressiveJobDialog.prototype.setup = function (options) {
     var listener = {
         onTaskDone: function () {
             try {
+                Pencil.app.mainWindow.setProgressBar(-1);
                 thiz.close();
             } catch (e) {
                 console.error(e);
@@ -21,11 +22,13 @@ ProgressiveJobDialog.prototype.setup = function (options) {
         onProgressUpdated: function (status, completed, total) {
             thiz.statusLabel.innerHTML = Dom.htmlEncode(status || "Please wait...");
             thiz.progressBarInner.style.width = Math.round(100 * completed / total) + "%";
+
+            Pencil.app.mainWindow.setProgressBar(Math.round(completed / total));
         }
     };
 
     listener.onProgressUpdated("Starting...", 0, 1);
-    
+
     this.starter(listener);
 }
 ProgressiveJobDialog.prototype.getDialogActions = function () {
