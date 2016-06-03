@@ -154,8 +154,7 @@ MainMenu.prototype.setup = function () {
         label: "Open Developer Tools",
         shortcut: "Ctrl+Alt+Shift+P",
         run: function () {
-            var app = require('electron').remote.app;
-            app.mainWindow.openDevTools();
+            Pencil.app.mainWindow.openDevTools();
         }
     });
 
