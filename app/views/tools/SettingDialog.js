@@ -2,7 +2,7 @@ function SettingDialog() {
     Dialog.call(this);
     this.title = "Setting Dialog";
 
-    this.checkBoxDetail = {
+    this.configElements = {
         "grid.enabled": this.checkboxEnableGrid,
         "edit.gridSize" : this.textboxGridSize,
         "edit.snap.grid": this.snapToGrid,
@@ -23,7 +23,7 @@ function SettingDialog() {
 
         console.log("configName:", configName);
         if (node.type == "checkbox") {
-            this.setCheckBox(configName, node.checked);
+            this.updateConfigAndInvalidateUI(configName, node.checked);
         }
     }, this.settingTabPane);
 
@@ -40,8 +40,18 @@ function SettingDialog() {
             }
         }
         if (node.type == "number" || node.type == "text") {
+            if (configName == "external.editor.bitmap.path")
+            {
+                if (node.value == "" ) node.value = "/usr/bin/gimp";
+
+            }
+            if (configName == "external.editor.vector.path") {
+
+                if (node.value == "" ) node.value = "/usr/bin/inkscape";
+
+            }
             Config.set(configName, node.value);
-            if (configName == "edit.gridSize" && Pencil.controller.activePage.canvas) {
+            if (configName == "edit.gridSize" && Pencil.controller.activePage) {
                 CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
             }
             this.setPreferenceItems();
@@ -94,17 +104,17 @@ function SettingDialog() {
 }
 __extend(Dialog, SettingDialog);
 
-SettingDialog.prototype.setCheckBox = function (configName, value) {
+SettingDialog.prototype.updateConfigAndInvalidateUI = function (configName, value) {
     Config.set(configName, value);
-    if (this.checkBoxDetail[configName]) {
-        var checkBox = this.checkBoxDetail[configName];
+    if (this.configElements[configName]) {
+        var checkBox = this.configElements[configName];
         if (checkBox == this.checkboxEnableGrid) {
             if (value) {
                 Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
             } else {
                 Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
             }
-            if (Pencil.controller.activePage.canvas) CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
+            if (Pencil.controller.activePage) CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
         }
         if (checkBox == this.undoEnabled) {
             if (value) {
@@ -217,35 +227,46 @@ SettingDialog.prototype.initializePreferenceTable = function () {
         thiz.preferenceTable.setDefaultSelectionHandler({
             run: function (data) {
                 if (data.type == "boolean") {
-                    thiz.setCheckBox(data.name, !data.value);
+                    thiz.updateConfigAndInvalidateUI(data.name, !data.value);
                 } else {
                     Dialog.prompt(data.name, data.value, "OK", function (value) {
                         data.value = value;
                         var result = value;
                         if (data.type != "string") {
                             result = parseInt(value);
-                        }
-                        if (data.name == "view.undoLevel" || data.name == "edit.gridSize" ) {
-                            if (data.name == "view.undoLevel") {
+                            if (data.name == "view.undoLevel" || data.name == "edit.gridSize" ) {
                                 if (!result || parseInt(result) == 0 ) {
-                                    result = 10;
+                                    if (data.name == "view.undoLevel") {
+                                        result = 10;
+                                        thiz.textboxUndoLevel.value = result;
+                                    } else if (data.name == "edit.gridSize" ) {
+                                        result = 5;
+                                        thiz.textboxGridSize.value = result;
+                                    }
                                 }
-                                thiz.textboxUndoLevel.value = result;
-                            } else if (data.name == "edit.gridSize" ) {
-                                if (!result || parseInt(result) == 0 ) {
-                                    result = 5;
+                            }
+                        } else {
+                            if (data.name == "external.editor.bitmap.path")
+                            {
+                                if (result == "" ){
+                                    result = "/usr/bin/gimp";
                                 }
-                                thiz.textboxGridSize.value = result;
+                                thiz.bitmapEditorUrl.value = result;
+                            }
+                            if (data.name == "external.editor.vector.path") {
+                                if (result == "" ){
+                                    result = "/usr/bin/inkscape";
+                                }
+                                thiz.svgEditorUrl.value = result;
                             }
                         }
                         Config.set(data.name, result);
                         if (data.name == "edit.gridSize" ) {
-                            if (Pencil.controller.activePage.canvas) CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
+                            if (Pencil.controller.activePage) CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
                         }
                         thiz.setPreferenceItems();
                     }, "Cancel");
                 }
-
             }
         });
         thiz.setPreferenceItems();
