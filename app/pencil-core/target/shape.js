@@ -223,6 +223,24 @@ Shape.prototype.setProperty = function (name, value, nested) {
     this.canvas.invalidateEditors();
     if (!nested) {
         Dom.emitEvent("p:ShapeGeometryModified", this.canvas, {setter: null});
+        let prop = this.def.getProperty(name);
+        try {
+            if (prop && (prop.type == PlainText || prop.type == RichText)) {
+                //find top most group
+                var topGroup = Dom.findTop(this.svg, function (node) {
+                    return node.getAttributeNS(PencilNamespaces.p, "type") == "Group";
+                });
+
+                if (topGroup) {
+                    var controller = this.canvas.createControllerFor(topGroup);
+                    if (controller && controller.layoutChildren) {
+                        controller.layoutChildren();
+                    }
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
     }
 };
 Shape.prototype.getProperty = function (name) {
