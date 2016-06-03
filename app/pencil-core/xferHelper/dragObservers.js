@@ -36,7 +36,7 @@ ShapeDefDragObserver.prototype = {
 
         debug("onDragEnter, defId: " + defId);
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-        var loc = this.canvas.getEventLocation(event);
+        var loc = this.canvas.getEventLocation(event, "withoutZoom");
 
         this.canvas.insertShapeImpl_(def, new Bound(loc.x, loc.y, null, null));
 
@@ -141,7 +141,7 @@ PrivateShapeDefDragObserver.prototype = {
 
         var def = PrivateCollectionManager.locateShapeDefinition(defId);
 
-        var loc = this.canvas.getEventLocation(event);
+        var loc = this.canvas.getEventLocation(event, "withoutZoom");
 
         this.canvas.insertPrivateShapeImpl_(def, new Bound(loc.x, loc.y, null, null));
 
@@ -239,7 +239,7 @@ ShapeShortcutDragObserver.prototype = {
         var overridingValueMap = shortcut.propertyMap;
         overridingValueMap._shortcut = shortcut;
 
-        var loc = this.canvas.getEventLocation(event);
+        var loc = this.canvas.getEventLocation(event, "withoutZoom");
 
         this.canvas.insertShapeImpl_(def, new Bound(loc.x, loc.y, null, null), overridingValueMap);
 
@@ -350,7 +350,7 @@ FileDragObserver.prototype = {
             if (!fileType) return;
             fileType = fileType.substring(1).toLowerCase();
 
-            var loc = this.canvas.getEventLocation(evt);
+            var loc = this.canvas.getEventLocation(evt, "withoutZoom");
 
             if (FileDragObserver.fileTypeHandler[fileType]) {
                 FileDragObserver.fileTypeHandler[fileType](this.canvas, file.path, loc);
@@ -526,7 +526,7 @@ SVGDragObserver.prototype = {
     onDragOver: function (evt, flavour, session){},
     onDrop: function (evt, transferData, session) {
         var svg = transferData.data;
-        var loc = this.canvas.getEventLocation(evt);
+        var loc = this.canvas.getEventLocation(evt, "withoutZoom");
         FileDragObserver.handleSVGData(svg, this.canvas, loc);
     }
 };
@@ -550,7 +550,7 @@ PNGDragObserver.prototype = {
 
         var url = transferData.data;
 
-        var loc = this.canvas.getEventLocation(evt);
+        var loc = this.canvas.getEventLocation(evt, "withoutZoom");
 
         this._handleImageFile(this.canvas, url, loc, "transparent");
     },

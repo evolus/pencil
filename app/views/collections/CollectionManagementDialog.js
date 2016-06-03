@@ -36,6 +36,7 @@ CollectionManagementDialog.prototype.handleItemClick = function (event) {
         this.collectionPanel.reload();
         view.setAttribute("visible", visible);
     } else if (control._role == "uninstall-button") {
+        if (!collection.userDefined) return;
         Dialog.confirm(
             "Are you sure you want to uninstall this collection?",
             "Uninstalling will remove this collection completely from Pencil. Shapes created from this collection will no longer be editable.",
@@ -156,7 +157,7 @@ CollectionManagementDialog.prototype.getDialogActions = function () {
             run: function () {
                 CollectionManager.installNewCollection(function (err, collection) {
                     if (!err && collection) {
-                        NotificationPopup.show("Collection installed successful.");
+                        NotificationPopup.show("Collection was installed successfully.");
                         thiz.loadCollectionList();
                     }
                 });

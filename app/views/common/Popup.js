@@ -5,6 +5,7 @@ function Popup() {
     this.useZIndex = true;
     this.visible = false;
     this.shouldDetach = true;
+    Dom.addClass(this.popupContainer, "UIWidget");
 }
 __extend(BaseTemplatedWidget, Popup);
 Popup.Z_INDEX = 9001;
@@ -96,7 +97,7 @@ Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding, aut
 
     var thiz = this;
     window.setTimeout(function () {
-        thiz._showImpl(anchor, hAlign, vAlign, hPadding, vPadding, autoFlip);
+        thiz._showImpl(anchor, hAlign, vAlign, hPadding, vPadding, autoFlip || true);
     }, 10);
 };
 Popup.prototype.isVisible = function () {
@@ -202,23 +203,45 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
     var p = this._calculatePosition(anchor, hAlign, vAlign, hPadding, vPadding);
     var x = p.x;
     var y = p.y;
-
+    var rect = anchor.getBoundingClientRect();
     //invalidate into view
     var screenW = p.viewportWidth - 10;
-    if (x + w > screenW) {
+    if (x + w > screenW || x < 0) {
         if (autoFlip && (hAlign == "right" || hAlign == "left-inside")) {
             p = this._calculatePosition(anchor, hAlign == "right" ? "left" : "right-inside", vAlign, hPadding, vPadding);
             x = p.x;
+            if (x + w > screenW) {
+                x = x - ((x+w) - screenW);
+            }
+            if (x < 0) {
+                x += w/2;
+                x = Math.max(rect.left + rect.width, x);
+                if (x == 0 && w > screenW) {
+                    this.popupContainer.style.width = screenW + "px";
+                    this.popupContainer.style.overflow = "auto";
+                }
+            }
         } else {
             if (this.forceInside) x = screenW - w;
         }
     }
     var screenH = p.viewportHeight - 10;
     if (y + h > screenH) {
-        var fixedY = false;
         if (autoFlip && (vAlign == "bottom" || vAlign == "top-inside")) {
             p = this._calculatePosition(anchor, hAlign, vAlign == "bottom" ? "top" : "bottom-inside", hPadding, vPadding);
             y = p.y;
+            if (y + h > screenH) {
+                y = y - ((y+h) - screenH);
+            }
+            if (y < 0) {
+                y += h/2;
+                y = Math.min(rect.top + rect.height, y);
+                y = Math.max(0, y);
+                if (y == 0 && h > screenH) {
+                    this.popupContainer.style.height = screenH + "px";
+                    this.popupContainer.style.overflow = "auto";
+                }
+            }
         } else {
             if (this.forceInside)  {
                 this.popupContainer.style.height = (screenH - y) + "px";
@@ -240,6 +263,7 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
     if (!this.skipStack) {
         BaseWidget.registerClosable(this);
     }
+    console.log("showAt X: ", x, "Y: ", y);
 };
 Popup.prototype._setPosition = function (x, y) {
     this.popupContainer.style.left = x + "px";

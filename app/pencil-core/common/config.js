@@ -29,6 +29,7 @@ Config._load = function () {
 Config.set = function (name, value) {
     Config.data[name] = value;
     Config._save();
+    window.globalEventBus.broadcast("config-change", { name: name, value: value });
     return;
 };
 
@@ -39,6 +40,9 @@ Config.get = function (name, defaultValue) {
 Config.getLocale = function () {
 };
 
+Config.registerEvent = function () {
+
+}
 
 try {
     fs.mkdirSync(Config.getDataPath());

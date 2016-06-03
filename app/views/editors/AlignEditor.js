@@ -8,6 +8,11 @@ function AlignEditor() {
                 (h == 0 ? 'Left' : (h == 1 ? 'Center' : 'Right')) +
                 '</span>';
     };
+    this.horzCombo.comparer = function (a, b) {
+        if (!a) return !b;
+        if (!b) return false;
+        return a == b;
+    };
     this.horzCombo.useHtml = true;
     this.horzCombo.setItems([0, 1, 2]);
     this.horzCombo.popup.setPopupClass("AlignEditorPopup");
@@ -18,6 +23,11 @@ function AlignEditor() {
                 '</i><span>' +
                 (h == 0 ? 'Top' : (h == 1 ? 'Middle' : 'Bottom')) +
                 '</span>';
+    };
+    this.vertCombo.comparer = function (a, b) {
+        if (!a) return !b;
+        if (!b) return false;
+        return a == b;
     };
     this.vertCombo.useHtml = true;
     this.vertCombo.setItems([0, 1, 2]);

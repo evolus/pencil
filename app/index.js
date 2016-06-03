@@ -40,7 +40,8 @@ function createWindow() {
         },
     };
 
-    mainWindowProperties.icon = path.join(__dirname, "logo-shadow.png");
+    var iconFile = process.platform == "win32" ? "app.ico" : "css/images/logo-shadow.png";
+    mainWindowProperties.icon = path.join(__dirname, iconFile);
 
     mainWindow = new BrowserWindow(mainWindowProperties);
 

@@ -42,10 +42,11 @@ ComboManager.prototype.onItemClick = function (event) {
     this.selectItem(item, true);
 };
 ComboManager.prototype.ensureSelectedItemVisible = function() {
+    var comparer = this.comparer || function (a, b) { return a == b};
     for (var i = 0; i < this.list.childNodes.length; i ++) {
         var node = this.list.childNodes[i];
-        if (!node._data) continue;
-        if (this.selectedItem == node._data) {
+        var data = Dom.findUpwardForData(node, "_data");
+        if (comparer(this.selectedItem, data)) {
             var oT = Dom.getOffsetTop(node);
             var oH = node.offsetHeight;
             var pT = Dom.getOffsetTop(this.list.parentNode) + 10;
@@ -127,17 +128,16 @@ ComboManager.prototype.selectItem = function (item, fromUserAction, whenMatched)
         Dom.emitEvent("p:ItemSelected", this.node(), {});
         this.popup.hide();
     }
+
     for (var i = 0; i < this.list.childNodes.length; i ++) {
-        var node = this.list.childNodes[i];
-        if (!node._data) continue;
-        if (node.setAttribute) {
-            node.setAttribute("selected", node._data == item);
+        var c = this.list.childNodes[i];
+        if (c.setAttribute) {
+            var item = Dom.findUpwardForData(c, "_data");
+            c.setAttribute("selected", comparer(item, this.selectedItem) ? "true" : "false");
         }
     }
-
     return matched;
 };
-
 
 ComboManager.prototype.getSelectedItem = function () {
     return this.selectedItem;

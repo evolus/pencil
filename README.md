@@ -1,3 +1,7 @@
+
+![Image of Yaktocat](screenshot.png)
+
+
 About The Next Version
 ==========
 
@@ -18,7 +22,7 @@ Setting up
 Pencil uses [Atom Electron](http://electron.atom.io/) as the runtime, follow the these steps to setup the environment:
 
   * Clone this repository
-  * Make sure you are using *nodejs 4.2+*
+  * Make sure you are using *nodejs 5+*
   * Install dependencies:
 
       ```bash
@@ -29,3 +33,24 @@ Pencil uses [Atom Electron](http://electron.atom.io/) as the runtime, follow the
       ```bash
       $ npm start
     ```
+
+
+Supported Platforms
+==================
+
+OS X
+----
+
+Only OSX 64bit 10.9 and later are supported.
+
+Windows
+------
+
+Windows 7 and later are supported, older operating systems are not supported (and do not work).
+
+Linux
+-----
+* Tested
+    * Ubuntu 12.04 and later
+    * Fedora 21+
+    * Debian 8+

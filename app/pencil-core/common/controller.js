@@ -127,6 +127,10 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     }
 
     page.canvas = null;
+    page.scrollTop = null;
+    page.scrollLeft = null;
+    page.zoom = null;
+
     page.tempFilePath = path.join(this.tempDir.name, pageFileName);
     page.invalidatedAfterLoad = true;
 
@@ -197,6 +201,7 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
 };
 
 Controller.prototype.serializeDocument = function (onDone) {
+    this.doc.properties.activeId = this.activePage.id;
     var dom = this.doc.toDom();
     var xml = Controller.serializer.serializeToString(dom);
     var outputPath = path.join(this.tempDir.name, "content.xml");
@@ -287,7 +292,7 @@ Controller.prototype.openDocument = function (callback) {
         ApplicationPane._instance.busy();
         dialog.showOpenDialog({
             title: "Open pencil document",
-            defaultPath: os.homedir(),
+            defaultPath: Config.get("document.open.recentlyDirPath", null) || os.homedir(),
             filters: [
                 { name: "Stencil files", extensions: ["epz", "ep"] }
             ]
@@ -295,6 +300,7 @@ Controller.prototype.openDocument = function (callback) {
         }, function (filenames) {
             ApplicationPane._instance.unbusy();
             if (!filenames || filenames.length <= 0) return;
+            Config.set("document.open.recentlyDirPath", path.dirname(filenames[0]));
             this.loadDocument(filenames[0], callback);
         }.bind(thiz));
     };
@@ -416,6 +422,9 @@ Controller.prototype.getCurrentDocumentThumbnail = function () {
     return thumbPath;
 };
 Controller.prototype.addRecentFile = function (filePath, thumbPath) {
+    // Recent documents (Windows & OS X)
+    Pencil.app.addRecentDocument(filePath);
+
     var files = Config.get("recent-documents");
     if (!files) {
         files = [filePath];
@@ -477,6 +486,11 @@ Controller.prototype.removeRecentFile = function (filePath) {
         }
     }
     Config.set("recent-documents", files);
+
+    Pencil.app.clearRecentDocuments();
+    files.forEach(function(f) {
+        Pencil.app.addRecentDocument(f);
+    });
 };
 Controller.prototype.loadDocument = function (filePath, callback) {
     ApplicationPane._instance.busy();
@@ -501,11 +515,10 @@ Controller.prototype.loadDocument = function (filePath, callback) {
         } else {
             thiz.parseOldFormatDocument(filePath, callback);
         }
-
         fs.close(fd);
     });
-
 };
+
 Controller.prototype.parseDocument = function (filePath, callback) {
     var targetDir = this.tempDir.name;
     var thiz = this;
@@ -579,7 +592,16 @@ Controller.prototype.parseDocument = function (filePath, callback) {
             FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
             FontLoader.instance.loadFonts(function () {
                 thiz.sayControllerStatusChanged();
-                if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
+
+                if (thiz.doc.properties.activeId) {
+                    for (var i = 0; i < thiz.doc.pages.length; i++) {
+                        if (thiz.doc.pages[i].id == thiz.doc.properties.activeId) {
+                            thiz.activatePage(thiz.doc.pages[i]);
+                        }
+                    }
+                } else {
+                    if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
+                }
                 thiz.applicationPane.onDocumentChanged();
                 if (callback) callback();
                 ApplicationPane._instance.unbusy();
@@ -646,7 +668,8 @@ Controller.prototype.saveAsDocument = function (onSaved) {
     var thiz = this;
     dialog.showSaveDialog({
         title: "Save as",
-        defaultPath: path.join(os.homedir(), "Untitled.epz"),
+        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || Config.get("document.save.recentlyDirPath", null) || os.homedir(),
+                        this.documentPath && path.basename(this.documentPath) || "Untitled.epz"),
         filters: [
             { name: "Pencil Documents", extensions: ["epz"] }
         ]
@@ -663,12 +686,13 @@ Controller.prototype.saveDocument = function (onSaved) {
         var thiz = this;
         dialog.showSaveDialog({
             title: "Save as",
-            defaultPath: path.join(os.homedir(), "Untitled.epz"),
+            defaultPath: path.join(Config.get("document.save.recentlyDirPath", null) || os.homedir(), "Untitled.epz"),
             filters: [
                 { name: "Pencil Documents", extensions: ["epz"] }
             ]
         }, function (filePath) {
             if (!filePath) return;
+            Config.set("document.save.recentlyDirPath", path.dirname(filePath));
             thiz.documentPath = filePath;
             thiz.doc.name = thiz.getDocumentName();
             thiz.saveDocumentImpl(thiz.documentPath, onSaved);
@@ -681,6 +705,7 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     if (!this.doc) throw "No document";
     if (!documentPath) throw "Path not specified";
 
+    this.updateCanvasState();
     var thiz = this;
     ApplicationPane._instance.busy();
 
@@ -835,7 +860,10 @@ Controller.prototype.swapIn = function (page, canvas) {
         page.careTakerTempFile = null;
     }
 
-    canvas.setCanvasState(page.canvasState);
+    if (page.scrollTop || page.scrollLeft || page.zoom) {
+        var canvasState = {"scrollTop": page.scrollTop ? page.scrollTop : 0, "scrollLeft": page.scrollLeft ? page.scrollLeft : 0, "zoom": page.zoom ? page.zoom : 0};
+        canvas.setCanvasState(canvasState);
+    }
 
     page.canvas = canvas;
     canvas.page = page;
@@ -849,8 +877,20 @@ Controller.prototype.swapIn = function (page, canvas) {
         page.invalidatedAfterLoad = true;
     }
 } ;
+
+Controller.prototype.updateCanvasState = function () {
+    if (this.activePage && this.activePage.canvas) {
+        var canvasStateTemp = this.activePage.canvas.getCanvasState();
+        this.activePage.scrollTop = canvasStateTemp.scrollTop;
+        this.activePage.scrollLeft = canvasStateTemp.scrollLeft;
+        this.activePage.zoom = canvasStateTemp.zoom;
+    }
+}
+
 Controller.prototype.activatePage = function (page) {
     if (page == null || this.activePage && page.id == this.activePage.id) return;
+
+    this.updateCanvasState();
 
     this.retrievePageCanvas(page);
 

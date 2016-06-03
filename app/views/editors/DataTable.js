@@ -722,7 +722,6 @@ var DataTable = function () {
             actionColum.sizingPolicy = actionColum.preferredWidth || this.defaultColWidth || "1*";
             this.actualColumns.push(actionColum);
         }
-        console.log("done createColumnDefinitions");
     };
     DataTable.prototype.setup = function (callback) {
         this.actualColumns = [];

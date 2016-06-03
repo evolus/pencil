@@ -98,14 +98,12 @@ OnMenuEditor.prototype.generateMenuItems = function () {
     //Linking
     var linkItem = null;
     if(Pencil.controller.doc && Pencil.controller.doc.pages.length > 1 && this.targetObject.getMetadata && this.targetObject.setMetadata) {
-        console.log("Create link item");
         linkItem = {
             label: "Link To",
             type: "SubMenu",
             subItems: []
         }
         var targetPageId = this.targetObject.getMetadata("RelatedPage");
-        console.log(targetPageId);
         var linkSubItem = [];
         for(var i = 0; i < Pencil.controller.doc.pages.length; i++) {
             var page = Pencil.controller.doc.pages[i];
@@ -135,7 +133,6 @@ OnMenuEditor.prototype.generateMenuItems = function () {
             }
         })
         items.push(linkItem);
-        console.log("end link items");
     }
     return items;
 

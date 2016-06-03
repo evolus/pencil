@@ -273,7 +273,8 @@ var MESSAGES = {
 "action.bring.to.front": ": Bring to front",
 "action.send.backward": ": Send backward",
 "action.send.to.back": ": Send to back",
-"action.canvas.zoom": ": Zoom"
+"action.canvas.zoom": ": Zoom",
+"action.canvas.resize": ": Resize"
 };
 
 var Messages = {
