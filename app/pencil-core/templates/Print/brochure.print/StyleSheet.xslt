@@ -202,13 +202,6 @@
                 </style>
             </head>
             <body>
-                <pre style="position: absolute; color: #fff; top: 10em; left: 0px;">
-                    background = <xsl:value-of select="substring($background,1,7)" />
-                    pageSize = <xsl:value-of select="$pageWidth" />mm x <xsl:value-of select="$pageHeight" />mm
-                    margin: <xsl:value-of select="$pageMargin - $headerFooterHeight"/>mm <xsl:value-of select="$pageMargin"/>mm <xsl:value-of select="$pageMargin - $headerFooterHeight"/>mm <xsl:value-of select="$pageMargin"/>mm;
-                    blockSize = <xsl:value-of select="$blockWidth" />mm x <xsl:value-of select="$blockHeight" />mm
-                    imageSize = <xsl:value-of select="$imageWidth" />mm x <xsl:value-of select="$imageHeight" />mm
-                </pre>
                 <xsl:apply-templates select="/p:Document/p:Pages/p:Page" />
             </body>
         </html>

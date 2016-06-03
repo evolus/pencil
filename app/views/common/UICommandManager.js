@@ -230,8 +230,7 @@ UICommandManager.handleKeyEvent = function (event) {
     var eventCtrlKey = IS_MAC ? event.metaKey : event.ctrlKey;
 
     if (eventCtrlKey && event.altKey && event.shiftKey && event.keyCode == 80) {
-        var app = require('electron').remote.app;
-        app.mainWindow.openDevTools();
+        Pencil.app.mainWindow.openDevTools();
     }
 
     if (Dialog.hasOpenDialog()) return;
@@ -248,7 +247,6 @@ UICommandManager.handleKeyEvent = function (event) {
             && event.altKey == command.parsedShortcut.alt
             && event.shiftKey == command.parsedShortcut.shift
             && event.keyCode == command.parsedShortcut.key.keyCode) {
-
                 command.run(event);
                 event.preventDefault();
                 return;

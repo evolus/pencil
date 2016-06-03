@@ -144,6 +144,7 @@ CollapseablePanel.prototype.updateTitle = function (titleElement) {
     window.setTimeout(function () {
         var w = Math.round(titleElement._button.offsetWidth);
         titleElement.style.height = w + "px";
+        titleElement._button.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
     }, 500);
 };
 

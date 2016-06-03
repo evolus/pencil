@@ -109,10 +109,10 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
     var height = Math.min(Math.max(bbox.height + 2, 50), 500);
 
     if (this.textEditingInfo.bound) {
-        x += this.textEditingInfo.bound.x - 1;
-        y += this.textEditingInfo.bound.y - 1;
-        width = this.textEditingInfo.bound.w + 4;
-        height = this.textEditingInfo.bound.h + 4;
+        x += this.textEditingInfo.bound.x * this.canvas.zoom - 1;
+        y += this.textEditingInfo.bound.y * this.canvas.zoom - 1;
+        width = this.textEditingInfo.bound.w * this.canvas.zoom + 4;
+        height = this.textEditingInfo.bound.h * this.canvas.zoom + 4;
     }
 
     if (x < 0) {
@@ -139,8 +139,12 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
     Svg.setStyle(this.textEditor, "height", this.textEditingInfo.multi ? (height + "px") : null);
 
     this.textEditor.style.fontFamily = this.textEditingInfo.font.family;
-    this.textEditor.style.fontSize = this.textEditingInfo.font.size;
-    this.textEditor.style.lineHeight = this.textEditingInfo.font.size;
+    this.textEditor.style.fontSize = this.textEditingInfo.font.size.replace(/^([0-9\.]+)/, function (whole, one) {
+        return (parseFloat(one) * this.canvas.zoom);
+    }.bind(this));;
+    this.textEditor.style.lineHeight = this.textEditingInfo.font.size.replace(/^([0-9\.]+)/, function (whole, one) {
+        return (parseFloat(one) * this.canvas.zoom);
+    }.bind(this));;
     this.textEditor.style.fontWeight = this.textEditingInfo.font.weight;
     this.textEditor.style.fontStyle = this.textEditingInfo.font.style;
     this.textEditor.style.textAlign = ["left", "center", "right"][align ? align.h : 0];

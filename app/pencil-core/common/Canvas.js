@@ -12,6 +12,8 @@ function Canvas(element) {
     this.painterPropertyMap = this.getPainterPropertyMap();
     this.duplicateMode = false;
     this.mouseUp = false;
+    this.width;
+    this.height;
     // building the content as: box >> svg
     var thiz = this;
 
@@ -299,6 +301,11 @@ function Canvas(element) {
     }, true);
 
     this.setupEventHandlers();
+    window.globalEventBus.listen("config-change", function (data) {
+        if (["grid.enabled", "edit.gridSize"].indexOf(data.name) >= 0) {
+            CanvasImpl.setupGrid.apply(this);
+        }
+    }.bind(this));
 }
 
 SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(elem) {
@@ -340,11 +347,16 @@ Canvas.prototype.setupEventHandlers = function () {
     Dom.registerEvent(this.dragOverlay, "drop", function (event) { thiz.__drop(event); }, false);
 };
 
-Canvas.prototype.getEventLocation = function (event) {
+Canvas.prototype.getEventLocation = function (event, withoutZoom) {
 
     var rect = this.svg.parentNode.getBoundingClientRect();
     var x = Math.round(event.clientX - rect.left);
     var y = Math.round(event.clientY - rect.top);
+
+    if (withoutZoom) {
+        x /= this.zoom;
+        y /= this.zoom;
+    }
 
     return {
         x : x,
@@ -643,8 +655,8 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
 
     if (bound) {
         var bbox = controller.getBoundingRect();
-        controller.moveBy((bound.x - Math.round(bbox.width / 2)) / this.zoom,
-                (bound.y - Math.round(bbox.height / 2)) / this.zoom, true);
+        controller.moveBy((bound.x - Math.round(bbox.width / (2 * this.zoom))),
+                (bound.y - Math.round(bbox.height / (2 * this.zoom))), true);
         controller.normalizePositionToGrid();
     }
 
@@ -1285,7 +1297,7 @@ Canvas.prototype.handleKeyPress = function (event) {
         }
     } else if (event.keyCode == DOM_VK_F2) {
         if (this.currentController) {
-            Dom.emitEvent("p:TextEditingRequested", event.originalTarget, {
+            Dom.emitEvent("p:TextEditingRequested", this.element, {
                 controller : this.currentController
             });
         }
@@ -1293,7 +1305,7 @@ Canvas.prototype.handleKeyPress = function (event) {
         if (event.shiftKey) {
             this.selectSibling(false);
         } else {
-            this.selectSibling(true);
+            this.selectSiblOing(true);
         }
 
         event.preventDefault();
@@ -2093,6 +2105,7 @@ Canvas.prototype.doGroup = function () {
     this.run(this.doGroupImpl_, this, Util.getMessage("action.group.shapes"));
 
 };
+
 Canvas.prototype.doGroupImpl_ = function () {
 
     var targets = this.getSelectedTargets();
@@ -2221,10 +2234,9 @@ Canvas.prototype._saveMemento = function (actionName) {
 
 };
 Canvas.prototype.getMemento = function (actionName) {
-
-    return new CanvasMemento(this.drawingLayer.cloneNode(true), {}, actionName);
-
+    return new CanvasMemento(this.drawingLayer.cloneNode(true), {width: this.width, height: this.height}, actionName);
 };
+
 Canvas.prototype.setMemento = function (memento) {
 
     this.selectNone();
@@ -2240,6 +2252,13 @@ Canvas.prototype.setMemento = function (memento) {
 
     this.focusableBox.style.visibility = "hidden";
     this.focusableBox.style.visibility = "visible";
+
+    var width = parseInt(memento.metadata.width, 10) || this.width;
+    var height = parseInt(memento.metadata.height, 10) || this.height;
+
+    if (this.width != width || this.height != height) {
+        this.setSizeImpl_(width, height);
+    }
 
     this._sayContentModified();
 
@@ -2300,12 +2319,18 @@ Canvas.prototype.setBackgroundColor = function (color) {
 
 
 };
-Canvas.prototype.setSize = function (width, height) {
 
+Canvas.prototype.setSize = function (width, height) {
+    this.run(this.setSizeImpl_, this, Util.getMessage(
+            "action.canvas.resize"), [width, height]);
+};
+Canvas.prototype.setSizeImpl_ = function (width, height) {
+    var thiz = this;
+
+    // this.run()
     this.width = width;
     this.height = height;
 
-    var thiz = this;
     this.svg.setAttribute("width", 10);
     this.svg.setAttribute("height", 10);
 
@@ -2320,7 +2345,9 @@ Canvas.prototype.setSize = function (width, height) {
         canvas : this
     });
 
+    this.snappingHelper.rebuildSnappingGuide();
 };
+
 Canvas.prototype.setBackgroundImageData = function (image, dimBackground) {
 
     if (!image) {
@@ -2358,6 +2385,11 @@ Canvas.prototype.setDimBackground = function (dimBackground) {
 
 };
 Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
+    this.run(this.sizeToContent__, this, Util.getMessage(
+            "action.canvas.resize"), [hPadding, vPadding]);
+
+};
+Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
 
     this.zoomTo(1.0);
 
@@ -2412,7 +2444,7 @@ Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
         }
     });
 
-    this.setSize(width, height);
+    this.setSizeImpl_(width, height);
 
     this.selectNone();
 
@@ -2547,10 +2579,11 @@ Canvas.prototype.insertPrivateShapeImpl_ = function (shapeDef, bound) {
     this.selectShape(shape);
     if (bound) {
         var bbox = this.currentController.getBounding();
-        this.currentController.moveBy((bound.x - bbox.x - Math
-                .round(bbox.width / 2))
-                / this.zoom, (bound.y - bbox.y - Math.round(bbox.height / 2))
-                / this.zoom, true);
+        //note: the returned bbox is NOT zoomed
+        this.currentController.moveBy(
+                (bound.x - bbox.x - Math.round(bbox.width / 2)),
+                (bound.y - bbox.y - Math.round(bbox.height / 2)),
+                true);
     }
     shape.style.visibility = "visible";
     this.removeAttributeNS(PencilNamespaces.p, "holding");
@@ -2707,12 +2740,9 @@ Canvas.prototype.__drop = function (event) {
             var count = CollectionManager.getCollectionUsage(collections[i]);
             count++;
             CollectionManager.setCollectionUsage(collections[i], count);
-            console.log(collections[i] + "count :" + count);
         }
     }
     this.element.removeAttribute("is-dragover");
-    console.log('drop excute');
-    console.log("currentDragObserver:", this.currentDragObserver);
     if (this.canvasContentModifiedListener) {
         this.canvasContentModifiedListener(thiz);
         this.canvasContentModifiedListener = null;

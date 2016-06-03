@@ -18,7 +18,6 @@ CollectionPane.prototype.initialize = function () {
     }, this.settingButton);
     // this.loaded = false;
     Pencil.collectionPane = this;
-    //CollectionManager.loadStencils();
 };
 CollectionPane.prototype.handleCollectionContextMenu = function (collection, event) {
     var menu = new CollectionMenu(collection, this);

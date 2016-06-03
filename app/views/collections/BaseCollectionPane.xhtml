@@ -126,7 +126,7 @@
             margin: 0.2em 0em;
         }
         .ShapeList li .Shape {
-            width: 3.4em;
+            width: 3.8em;
             padding: 0.5em;
             box-sizing: content-box;
             color: #333;
@@ -138,13 +138,13 @@
         }
 
         .ShapeList li .Shape .Icon {
-            width: 3.4em;
-            height: 3.4em;
+            width: 3.8em;
+            height: 3.8em;
             text-align: center;
         }
         .ShapeList li .Shape img {
-            max-width: 3em;
-            max-height: 3em;
+            max-width: 3.4em;
+            max-height: 3.4em;
             -webkit-filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4));
         }
 
@@ -154,12 +154,13 @@
         .ShapeList li .Shape span {
             text-overflow: ellipsis;
             overflow: hidden;
-            height: 1.2em;
-            line-height: 1.2em;
-            font-size: 0.9em;
+            height: 2em;
+            line-height: 1em;
+            font-size: 0.85em;
             text-align: center;
             opacity: 0.5;
             text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
+            color: #000;
         }
         @collectionInfoPane {
             padding: 1em;
@@ -207,14 +208,39 @@
             border-color: transparent;
             background: none;
         }
-
+        @textContainer {
+            width: 100%;
+            position: inherit;
+        }
+        @textContainer > input {
+            width: 100%
+        }
+        @clearTextButton {
+            position: absolute;
+            right: 1.5em;
+            top: 1.3em;
+            line-height: 1em;
+            height: 1.8em;
+            width: auto;
+        }
+        @clearTextButton:not(:hover) {
+            border-color: transparent;
+            background: none;
+        }
+        @searchButton {
+            margin-left: 0.5em;
+        }
     </style>
     <hbox anon-id="filter">
         <hbox anon-id="logo">
         </hbox>
         <hbox flex="1" anon-id="form">
-            <input type="text" flex="1" class="form-control" placeholder="Search for shapes" anon-id="searchInput"/>
-            <i class="fa fa-search"></i>
+            <hbox flex="1">
+                <div anon-id="textContainer">
+                    <input type="text" flex="1" class="form-control" placeholder="Search for shapes" anon-id="searchInput"/>
+                    <button anon-id="clearTextButton" style="display:none"><i>clear</i></button>
+                </div>
+            </hbox>
         </hbox>
     </hbox>
     <hbox flex="1" anon-id="contentPane">

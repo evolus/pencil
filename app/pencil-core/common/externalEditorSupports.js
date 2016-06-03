@@ -10,50 +10,47 @@ ExternalEditorSupports.getEditorPath = function (extension) {
 };
 ExternalEditorSupports.queue = [];
 
+var spawn = require("child_process").spawn;
 ExternalEditorSupports.handleEditRequest = function (contentProvider, contentReceiver) {
-    var tmpFile = Local.newTempFile("pencil", contentProvider.extension);
-    contentProvider.saveTo(tmpFile, function () {
+    var tmpFile = tmp.fileSync({postfix: "." + contentProvider.extension });
+    contentProvider.saveTo(tmpFile.name, function () {
 
-        var protoservice = Components.classes['@mozilla.org/uriloader/external-protocol-service;1']
-                                        .getService(Components.interfaces.nsIExternalProtocolService);
-
-
-        var localFile = tmpFile.QueryInterface(Components.interfaces.nsILocalFile);
-
-        var app = Components.classes["@mozilla.org/file/local;1"]
-                         .createInstance(Components.interfaces.nsILocalFile);
         var executablePath = ExternalEditorSupports.getEditorPath(contentProvider.extension);
-        app.initWithPath(executablePath);
+        var process = spawn(executablePath, [tmpFile.name]);
 
-        var process = Components.classes["@mozilla.org/process/util;1"]
-                            .createInstance(Components.interfaces.nsIProcess);
-        process.init(app);
+        var timeOutId = null;
+        process.on("close", function () {
+            try {
+                contentReceiver.update(tmpFile.name);
+                if (timeOutId) window.clearTimeout(timeOutId);
+                tmpFile.removeCallback();
+            } catch (e) {
+                console.error(e);
+            }
+        });
 
-        var args = [localFile.path];
-        process.runAsync(args, args.length);
-
-        var initialLastModifiedTime = localFile.lastModifiedTime;
+        var fstat = fs.statSync(tmpFile.name);
+        var initialLastModifiedTime = fstat.mtime.getTime();
 
         //track the process and file for changes
         var tracker = function () {
-            if (!localFile.exists()) return;
-
             try {
-                var lmt = localFile.lastModifiedTime;
+                fstat = fs.statSync(tmpFile.name);
+                var lmt = fstat.mtime.getTime();
+
+                console.log("tracker:", lmt);
                 if (lmt > initialLastModifiedTime) {
                     initialLastModifiedTime = lmt;
-                    contentReceiver.update(localFile);
+                    contentReceiver.update(tmpFile.name);
                 }
+            } catch (e) {
+                console.log("error:", e);
             } finally {
-                if (process.isRunning) {
-                    window.setTimeout(tracker, 1000);
-                } else {
-                    localFile.remove(true);
-                }
+                timeOutId = window.setTimeout(tracker, 1000);
             }
         };
 
-        window.setTimeout(tracker, 1000);
+        timeOutId = window.setTimeout(tracker, 1000);
     });
 };
 
@@ -70,43 +67,49 @@ ExternalEditorSupports.checkQueue = function () {
             var request = ExternalEditorSupports.queue.pop();
             ExternalEditorSupports.handleEditRequest(request.provider, request.receiver);
         } catch (e) {
-            alert(e);
+            console.error(e);
         }
     }
     window.setTimeout(ExternalEditorSupports.checkQueue, 300);
 };
 
 ExternalEditorSupports.editImageData = function (imageData, ext, ownerObject) {
+    var filePath = null;
+    var refId = null;
+    if (imageData.data.match(/^ref:\/\/.*\.(gif|jpg|png)$/)) {
+        refId = ImageData.refStringToId(imageData.data);
+        filePath = Pencil.controller.refIdToFilePath(refId);
+    }
+
+    if (filePath == null) {
+        Dialog.error("Unsupported image data.");
+        return;
+    }
+
     var thiz = ownerObject;
     ExternalEditorSupports.edit({
             extension: ext,
             saveTo: function (file, callback) {
-                var io = Components.classes["@mozilla.org/network/io-service;1"]
-                                    .getService(Components.interfaces.nsIIOService);
-                var source = io.newURI(imageData.data, "UTF8", null);
-
-                var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
-                                          .createInstance(Components.interfaces.nsIWebBrowserPersist);
-
-                persist.persistFlags = Components.interfaces.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES;
-                persist.persistFlags |= Components.interfaces.nsIWebBrowserPersist.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
-
-                persist.progressListener = new PersistProgressListener(callback);
-
-                // save the canvas data to the file
-                persist.saveURI(source, null, null, null, null, file);
+                fs.writeFileSync(file, fs.readFileSync(filePath));
+                callback();
             }
         }, {
             update: function (file) {
                 window.setTimeout(function () {
-                    var handler = function (imageData) {
-                        var dim = new Dimension(imageData.w, imageData.h);
-                        thiz.setProperty("imageData", imageData);
-                        thiz.setProperty("box", dim);
+                    var handler = function (updatedImageData) {
+                        console.log("loaded", updatedImageData);
+                        thiz.setProperty("imageData", updatedImageData);
                     };
-                    var url = Util.ios.newFileURI(file).spec + "?" + (new Date().getTime());
 
-                    ImageData.fromUrlEmbedded(url, handler);
+                    fs.writeFileSync(filePath, fs.readFileSync(file));
+                    var url = Pencil.controller.refIdToUrl(refId);
+                    var image = new Image();
+                    image.onload = function () {
+                        handler(new ImageData(image.width, image.height, ImageData.idToRefString(refId)));
+                        image.src = "";
+                    };
+                    image.src = url
+                    console.log("URL to load", url);
                 }, 1000);
             }
         });
@@ -115,7 +118,7 @@ ExternalEditorSupports.editSVGData = function (originalDim, container, ownerObje
     var svg = document.createElementNS(PencilNamespaces.svg, "svg");
     svg.setAttribute("width", originalDim.w);
     svg.setAttribute("height", originalDim.h);
-    
+
     var thiz = ownerObject;
     ExternalEditorSupports.edit({
         extension: "svg",
@@ -129,11 +132,8 @@ ExternalEditorSupports.editSVGData = function (originalDim, container, ownerObje
         }
     }, {
         update: function (file) {
-            debug("Update SVG content from file: " + file.path);
-            //parse the file
-            var fileContents = FileIO.read(file, XMLDocumentPersister.CHARSET);
-            var domParser = new DOMParser();
-            var dom = domParser.parseFromString(fileContents, "text/xml");
+            debug("Update SVG content from file: " + file);
+            var dom = Dom.parseFile(file);
 
             var node = dom.documentElement.firstChild;
 
@@ -151,15 +151,16 @@ ExternalEditorSupports.editSVGData = function (originalDim, container, ownerObje
 
             var w = dom.documentElement.getAttribute("width");
             var h = dom.documentElement.getAttribute("height");
-            
+
             if (w && h) {
                 var originalDim = new Dimension(Math.round(parseFloat(w)), Math.round(parseFloat(h)));
                 thiz.setProperty("originalDim", originalDim);
             }
-            
+
             thiz.setProperty("svgXML", content);
         }
     });
 };
 pencilSandbox.ImageData.ExternalEditorSupports = ExternalEditorSupports;
+ImageData.ExternalEditorSupports = ExternalEditorSupports;
 window.setTimeout(ExternalEditorSupports.checkQueue, 300);

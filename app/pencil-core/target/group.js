@@ -155,7 +155,7 @@ Group.prototype.scaleTo_noPolicy = function (nw, nh, group) {
     //    this.dockingManager.handleScaleTo(nw, nh, geo.dim.w, geo.dim.h, group);
     //}
 };
-Group.calculateLayout = function (ePos0, eSize0, gSize0, posPolicy, sizePolicy, size) {
+Group.calculateLayout = function (ePos0, eSize0, gSize0, posPolicy, sizePolicy, size, eSize) {
 	var layout = {};
 
 	if (sizePolicy == "relative") {
@@ -164,7 +164,7 @@ Group.calculateLayout = function (ePos0, eSize0, gSize0, posPolicy, sizePolicy, 
 		var d = gSize0 - ePos0 - eSize0;
 		layout.size = size - d - ePos0;
 	} else {
-		layout.size = eSize0;
+		layout.size = eSize;
 	}
 
 	if (posPolicy == "start") {
@@ -194,18 +194,20 @@ Group.prototype.scaleTo = function (nw, nh, group) {
         var ei = Group.getSizingOriginalInfo(target.svg);
         var policy = Group.getSizingPolicy(target);
 
-        var hLayout = Group.calculateLayout(ei.x0, ei.w0, gi.gw0, policy.xPolicy, policy.wPolicy, nw);
-        var vLayout = Group.calculateLayout(ei.y0, ei.h0, gi.gh0, policy.yPolicy, policy.hPolicy, nh);
-
-
         var bounding = target.getBounding(this.svg);
 
-        bounding = target.getBounding(this.svg);
+        var hLayout = Group.calculateLayout(ei.x0, ei.w0, gi.gw0, policy.xPolicy, policy.wPolicy, nw, bounding.width);
+        var vLayout = Group.calculateLayout(ei.y0, ei.h0, gi.gh0, policy.yPolicy, policy.hPolicy, nh, bounding.height);
+
+
         target.moveBy(Math.round(hLayout.pos - bounding.x), Math.round(vLayout.pos - bounding.y), true);
         target.scaleTo(Math.round(hLayout.size), Math.round(vLayout.size), true);
     }
 };
-
+Group.prototype.layoutChildren = function () {
+    var geo = this.getGeometry();
+    this.scaleTo(geo.dim.w, geo.dim.h);
+};
 Group.prototype.rotateBy = function (da) {
     debug("rotateBy: " + da);
     var ctm = this.svg.getTransformToElement(this.svg.parentNode);

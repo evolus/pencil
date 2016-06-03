@@ -168,8 +168,8 @@ input[type="number"]:focus {
     box-shadow: 0px 0px 0.3ex #336699;
 }
 
-input[type='checkbox'],
-input[type='radio'] {
+.UIWidget:not(.widget_ApplicationPane) input[type='checkbox'],
+.UIWidget:not(.widget_ApplicationPane) input[type='radio'] {
     -webkit-font-smoothing: subpixel-antialiased;
     text-rendering: optimizeSpeed;
     font-size: 1.4em;
@@ -183,8 +183,8 @@ input[type='radio'] {
     box-sizing: border-box;
     outline: none;
 }
-input[type='checkbox']:after,
-input[type='radio']:after {
+.UIWidget:not(.widget_ApplicationPane) input[type='checkbox']:after,
+.UIWidget:not(.widget_ApplicationPane) input[type='radio']:after {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -206,21 +206,21 @@ input[type='radio']:after {
     -webkit-font-smoothing: subpixel-antialiased;
     color: rgba(0, 0, 0, 0.54);
 }
-input[type='checkbox']:checked:after,
-input[type='radio']:checked:after {
+.UIWidget:not(.widget_ApplicationPane) input[type='checkbox']:checked:after,
+.UIWidget:not(.widget_ApplicationPane) input[type='radio']:checked:after {
     color: #039be5;
     opacity: 0.54;
 }
 
-input[type='checkbox']:after {
+.UIWidget:not(.widget_ApplicationPane) input[type='checkbox']:after {
     content: '\E835';
 }
-input[type='checkbox']:checked:after {
+.UIWidget:not(.widget_ApplicationPane) input[type='checkbox']:checked:after {
     content:'\E834';
 }
-input[type='radio']:after {
+.UIWidget:not(.widget_ApplicationPane) input[type='radio']:after {
     content: '\E836';
 }
-input[type='radio']:checked:after {
+.UIWidget:not(.widget_ApplicationPane) input[type='radio']:checked:after {
     content:'\E837';
 }

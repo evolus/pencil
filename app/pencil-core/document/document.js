@@ -69,7 +69,7 @@ function Page(doc) {
     // this.rasterizeCache = null;
     this.children = [];
 }
-Page.PROPERTIES = ["id", "fid", "name", "width", "height", "backgroundPageId", "backgroundColor", "note", "pageFileName", "parentPageId"];
+Page.PROPERTIES = ["id", "fid", "name", "width", "height", "backgroundPageId", "backgroundColor", "note", "pageFileName", "parentPageId", "scrollTop", "scrollLeft", "zoom"];
 Page.PROPERTY_MAP = {
     "id": "id",
     "fid": "fid",
@@ -77,7 +77,10 @@ Page.PROPERTY_MAP = {
     "width": "width",
     "height": "height",
     "background": "backgroundPageId",
-    "backgroundColor": "backgroundColor"
+    "backgroundColor": "backgroundColor",
+    "scrollTop": "scrollTop",
+    "scrollLeft": "scrollLeft",
+    "zoom": "zoom"
 };
 
 Page.prototype.toXml = function () {

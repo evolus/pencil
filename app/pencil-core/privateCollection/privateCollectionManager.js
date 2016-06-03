@@ -58,7 +58,7 @@ PrivateCollectionManager.savePrivateCollections = function () {
 };
 
 PrivateCollectionManager.addShapeCollection = function (collection, dontUpdate) {
-    collection.collapsed = CollectionManager.isCollectionCollapsed(collection);
+    // collection.collapsed = CollectionManager.isCollectionCollapsed(collection);
     PrivateCollectionManager.privateShapeDef.collections.push(collection);
     for (var item in collection.shapeDefs) {
         var shapeDef = collection.shapeDefs[item];
@@ -197,7 +197,7 @@ PrivateCollectionManager.exportCollection = function (collection) {
 PrivateCollectionManager.importNewCollection = function () {
     var files = dialog.showOpenDialog({
         title: "Install from",
-        defaultPath: os.homedir(),
+        defaultPath: Config.get("privateCollection.install.recentlyDirPath", null) || os.homedir(),
         filters: [
             { name: "Pencil Collection Archives (*.epc; *.zip)", extensions: ["zip", "epc"] }
         ]
@@ -208,6 +208,7 @@ PrivateCollectionManager.importNewCollection = function () {
             path: filenames[0],
             name: path.basename(filenames[0])
         };
+        Config.set("privateCollection.install.recentlyDirPath", path.dirname(filenames[0]));
         PrivateCollectionManager.installCollectionFromFile(file);
     });
 };
@@ -254,7 +255,7 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
                 Dialog.confirm("Are you sure you want to install the unsigned collection: " + collection.displayName + "?",
                     "Since a collection may contain execution code that could harm your machine. It is hightly recommanded that you should only install collections from authors whom you trust.",
                     "Install", function () {
-                        CollectionManager.setCollectionCollapsed(collection, false);
+                        // CollectionManager.setCollectionCollapsed(collection, false);
                         PrivateCollectionManager.addShapeCollection(collection);
                         tempDir.removeCallback();
                     }, "Cancel", function () {
@@ -271,6 +272,7 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
             tempDir.removeCallback();
         }
     }).on("error", function (error) {
+        ApplicationPane._instance.unbusy();
         Dialog.error("Error installing collection.");
         tempDir.removeCallback();
     });
