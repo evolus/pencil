@@ -118,6 +118,7 @@ function PageListView() {
             onDone: function (page) {
                 if (!page) return;
                 thiz.activatePage(page);
+                page.canvasState = page.canvas.getCanvasState();
             }
         });
     }, this.addPageButton);

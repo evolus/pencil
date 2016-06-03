@@ -127,6 +127,10 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     }
 
     page.canvas = null;
+    page.scrollTop = null;
+    page.scrollLeft = null;
+    page.zoom = null;
+
     page.tempFilePath = path.join(this.tempDir.name, pageFileName);
     page.invalidatedAfterLoad = true;
 
@@ -684,6 +688,7 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     if (!this.doc) throw "No document";
     if (!documentPath) throw "Path not specified";
 
+    this.updateCanvasState();
     var thiz = this;
     ApplicationPane._instance.busy();
 
@@ -838,7 +843,10 @@ Controller.prototype.swapIn = function (page, canvas) {
         page.careTakerTempFile = null;
     }
 
-    canvas.setCanvasState(page.canvasState);
+    if (page.scrollTop || page.scrollLeft || page.zoom) {
+        var canvasState = {"scrollTop": page.scrollTop ? page.scrollTop : 0, "scrollLeft": page.scrollLeft ? page.scrollLeft : 0, "zoom": page.zoom ? page.zoom : 0};
+        canvas.setCanvasState(canvasState);
+    }
 
     page.canvas = canvas;
     canvas.page = page;
@@ -852,8 +860,20 @@ Controller.prototype.swapIn = function (page, canvas) {
         page.invalidatedAfterLoad = true;
     }
 } ;
+
+Controller.prototype.updateCanvasState = function () {
+    if (this.activePage && this.activePage.canvas) {
+        var canvasStateTemp = this.activePage.canvas.getCanvasState();
+        this.activePage.scrollTop = canvasStateTemp.scrollTop;
+        this.activePage.scrollLeft = canvasStateTemp.scrollLeft;
+        this.activePage.zoom = canvasStateTemp.zoom;
+    }
+}
+
 Controller.prototype.activatePage = function (page) {
     if (page == null || this.activePage && page.id == this.activePage.id) return;
+
+    this.updateCanvasState();
 
     this.retrievePageCanvas(page);
 
