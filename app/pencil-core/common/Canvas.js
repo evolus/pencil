@@ -301,6 +301,11 @@ function Canvas(element) {
     }, true);
 
     this.setupEventHandlers();
+    window.globalEventBus.listen("config-change", function (data) {
+        if (["grid.enabled", "edit.gridSize"].indexOf(data.name) >= 0) {
+            CanvasImpl.setupGrid.apply(this);
+        }
+    }.bind(this));
 }
 
 SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(elem) {

@@ -51,9 +51,6 @@ function SettingDialog() {
 
             }
             Config.set(configName, node.value);
-            if (configName == "edit.gridSize" && Pencil.controller.activePage) {
-                CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
-            }
             this.setPreferenceItems();
         }
     }, this.settingTabPane);
@@ -114,7 +111,6 @@ SettingDialog.prototype.updateConfigAndInvalidateUI = function (configName, valu
             } else {
                 Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
             }
-            if (Pencil.controller.activePage) CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
         }
         if (checkBox == this.undoEnabled) {
             if (value) {
@@ -261,9 +257,6 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                             }
                         }
                         Config.set(data.name, result);
-                        if (data.name == "edit.gridSize" ) {
-                            if (Pencil.controller.activePage) CanvasImpl.setupGrid.apply(Pencil.controller.activePage.canvas);
-                        }
                         thiz.setPreferenceItems();
                     }, "Cancel");
                 }
