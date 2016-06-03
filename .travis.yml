@@ -15,8 +15,8 @@ language: c
 matrix:
   include:
     - os: linux
-      env: CC=clang CXX=clang++ npm_config_clang=1
-      compiler: clang
+      #env: CC=clang CXX=clang++ npm_config_clang=1
+      #compiler: clang
     - os: osx
 
 cache:
@@ -31,11 +31,11 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise-3.7
+      #- llvm-toolchain-precise-3.7
     packages:
       - libgnome-keyring-dev
       - icnsutils
-      - clang-3.7
+      #- clang-3.7
       - graphicsmagick
       - xz-utils
       - rpm
