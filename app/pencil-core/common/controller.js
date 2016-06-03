@@ -50,7 +50,6 @@ Controller.prototype.newDocument = function () {
         this.confirmAndSaveDocument(create);
         return;
     }
-
     create();
 };
 Controller.prototype.confirmAndclose = function (onClose) {
@@ -592,13 +591,8 @@ Controller.prototype.parseDocument = function (filePath, callback) {
             FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
             FontLoader.instance.loadFonts(function () {
                 thiz.sayControllerStatusChanged();
-
                 if (thiz.doc.properties.activeId) {
-                    for (var i = 0; i < thiz.doc.pages.length; i++) {
-                        if (thiz.doc.pages[i].id == thiz.doc.properties.activeId) {
-                            thiz.activatePage(thiz.doc.pages[i]);
-                        }
-                    }
+                    thiz.activatePage(thiz.findPageById(thiz.doc.properties.activeId));
                 } else {
                     if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
                 }
