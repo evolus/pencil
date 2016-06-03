@@ -910,11 +910,12 @@
                 <Impl>
                     <![CDATA[
                         var imageData = this.getProperty("imageData");
-
                         if (imageData.data.match(/^data:(image\/(gif|jpeg|png))[;\,]/)) {
                             var ext = RegExp.$2;
                             if (ext == "jpeg") ext = "jpg";
                         } else if (imageData.data.match(/^file:\/\/.*\.(gif|jpg|png)$/)) {
+                            var ext = RegExp.$1;
+                        } else if (imageData.data.match(/^ref:\/\/.*\.(gif|jpg|png)$/)) {
                             var ext = RegExp.$1;
                         } else return;
 
@@ -1281,12 +1282,13 @@
             <Action id="editExternal" displayName="Edit with external editor...">
                 <Impl>
                     <![CDATA[
+                        console.log("edit external svg 1284");
                         var originalDim = this.getProperty("originalDim");
                         var container = Pencil.findObjectByName(this.svg, "container");
 
                         var thiz = this;
 
-
+                        console.log("container:", container);
                         ImageData.ExternalEditorSupports.editSVGData(originalDim, container, thiz);
                     ]]>
                 </Impl>

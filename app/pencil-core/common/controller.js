@@ -1278,11 +1278,17 @@ Controller.prototype.nativeImageToRefSync = function (nativeImage) {
 
     return id;
 };
-Controller.prototype.refIdToUrl = function (id) {
+Controller.prototype.refIdToFilePath = function (id) {
     var fullPath = path.join(this.tempDir.name, Controller.SUB_REFERENCE);
     fullPath = path.join(fullPath, id);
 
-    return ImageData.filePathToURL(fullPath);
+    return fullPath;
+};
+
+Controller.prototype.refIdToUrl = function (id) {
+    var filePath = this.refIdToFilePath(id);
+    var stat = fs.statSync(filePath);
+    return ImageData.filePathToURL(filePath) + "?token=" + stat.mtime.getTime();
 };
 
 Controller.prototype._findPageIndex = function (pages, id) {
