@@ -124,6 +124,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 {
                     _name: "div",
                     "class": "Label Property",
+                    "flex": "2",
                     _text: propName + ":"
                 }
             ]
@@ -136,7 +137,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
         var editorWidget = new constructeur();
 
         editorWrapper.appendChild(editorWidget.node());
-        editorWidget.setAttribute("flex", "1");
+        editorWidget.setAttribute("flex", "3");
         if (editorWidget.setTypeMeta) {
             editorWidget.setTypeMeta(property.meta);
         }
