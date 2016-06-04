@@ -19,7 +19,7 @@ Pencil.behaviors.Bound = function (bound) {
 };
 Pencil.behaviors.Radius = function (rx, ry) {
     this.setAttribute("rx", rx);
-    this.setAttribute("ry", ry);
+    this.setAttribute("ry", typeof(ry) != "undefined" ? ry : rx);
 };
 Pencil.behaviors.StopColor = function (color) {
     Svg.setStyle(this, "stop-color", color.toRGBString());
