@@ -23,13 +23,25 @@ Rasterizer.ipcBasedBackend = {
     init: function () {
         ipcRenderer.send("render-init", {});
     },
-    rasterize: function (svgNode, width, height, scale, callback) {
-        ipcRenderer.once("render-response", function (event, data) {
-            callback(data);
+    rasterize: function (svgNode, width, height, scale, callback, parseLinks) {
+        var id = Util.newUUID();
+
+        ipcRenderer.once(id, function (event, data) {
+            callback(parseLinks ? data : data.url);
         });
 
+        w = width * scale;
+        h = height * scale;
+
+        if (scale != 1) {
+            svgNode.setAttribute("width", w + "px");
+            svgNode.setAttribute("height", h + "px");
+
+            svgNode.setAttribute("viewBox", "0 0 " + width + " " + height);
+        }
+
         var xml = Controller.serializer.serializeToString(svgNode);
-        ipcRenderer.send("render-request", {svg: xml, width: width, height: height, scale: scale});
+        ipcRenderer.send("render-request", {svg: xml, width: w, height: h, scale: 1, id: id, processLinks: parseLinks});
     }
 };
 Rasterizer.outProcessCanvasBasedBackend = {
@@ -136,7 +148,8 @@ Rasterizer.inProcessCanvasBasedBackend = {
 
 Rasterizer.prototype.getBackend = function () {
     //TODO: options or condition?
-    return Rasterizer.outProcessCanvasBasedBackend;
+    return Rasterizer.ipcBasedBackend;
+    // return Rasterizer.outProcessCanvasBasedBackend;
 };
 Rasterizer.prototype.rasterizeSVGNodeToUrl = function (svg, callback, scale) {
     var s = (typeof (scale) == "undefined") ? 1 : scale;

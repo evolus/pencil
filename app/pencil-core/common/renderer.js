@@ -11,12 +11,14 @@ module.exports = function () {
     const app = electron.app;
     const BrowserWindow = electron.BrowserWindow;
     var QueueHandler = require("./QueueHandler");
+    var sharedUtil = require("./shared-util");
 
     var rendererWindow = null;
     var currentRenderHandler = null;
+    var fontFaceCSS = "";
 
 
-    var queueHandler = new QueueHandler();
+    var queueHandler = new QueueHandler(100);
 
     function createRenderTask(event, data) {
         return function(__callback) {
@@ -28,31 +30,19 @@ module.exports = function () {
 
                 //path
                 svg = '<html><head>\n'
+ + '<style type="text/css">\n'
+ + 'svg { line-height: 1.428; }\n'
+ + fontFaceCSS + "\n"
+ + '</style>\n'
  + '<script type="text/javascript">\n'
  + '    var ipcRenderer = require("electron").ipcRenderer;\n'
- + '    ipcRenderer.on("render-scale", function(event, data) {\n'
- + '        var s = data.scale;\n'
- + '        var canvas = document.createElement("canvas");\n'
- + '        canvas.setAttribute("width", data.width * s);\n'
- + '        canvas.setAttribute("height", data.height * s);\n'
- + '        var ctx = canvas.getContext("2d");\n'
- + '\n'
- + '        var img = new Image();\n'
- + '\n'
- + '        img.onload = function () {\n'
- + '            ctx.scale(s, s);\n'
- + '            ctx.drawImage(img, 0, 0);\n'
- + '            ctx.setTransform(1, 0, 0, 1, 0, 0);\n'
- + '            ipcRenderer.send("render-scaled", {url: canvas.toDataURL()});\n'
- + '        };\n'
- + '        img.src = data.url;\n'
- + '    });\n'
- + '    \n'
  + '    window.addEventListener("load", function () {\n'
- + '        window.setTimeout(function() {\n'
- + '            ipcRenderer.send("render-rendered", {});\n'
- + '            console.log("Rendered signaled");\n'
- + '        }, 400);\n'
+ + '        window.requestAnimationFrame(function () {\n'
+ + '            window.requestAnimationFrame(function () {\n'
+ + '                ipcRenderer.send("render-rendered", {});\n'
+ + '                console.log("Rendered signaled");\n'
+ + '            });\n'
+ + '        })\n'
  + '    }, false);\n'
  + '</script>\n'
  + '</head>\n'
@@ -62,12 +52,10 @@ module.exports = function () {
  + '</html>\n';
                 fs.writeFileSync(path, svg, "utf8");
 
-                console.log(svg);
+                rendererWindow.setSize(Math.round(data.width), Math.round(data.height), false);
 
-                console.log("SAVED to: ", path);
-
-                rendererWindow.setContentSize(data.width, data.height, false);
-                rendererWindow.loadURL("file://" + path);
+                var url = "file://" + path;
+                rendererWindow.loadURL(url);
 
                 var capturePendingTaskId = null;
 
@@ -75,28 +63,12 @@ module.exports = function () {
                     capturePendingTaskId = null;
                     rendererWindow.capturePage(function (nativeImage) {
                         var dataURL = nativeImage.toDataURL();
-                        console.log("CAPTURED", dataURL.length);
 
                         cleanupCallback();
                         currentRenderHandler = null;
 
-                        if (data.scale != 1) {
-                            console.log("Got initial data, new request for scaling to " + data.scale);
-                            ipcMain.once("render-scaled", function (scaledEvent, renderedData) {
-                                console.log("Got scale response, size: " + renderedData.url.length);
-                                event.sender.send("render-response", renderedData.url);
-                                __callback();
-                            });
-                            renderedEvent.sender.send("render-scale", {
-                                url: dataURL,
-                                width: data.width,
-                                height: data.height,
-                                scale: data.scale
-                            });
-                        } else {
-                            event.sender.send("render-response", dataURL);
-                            __callback();
-                        }
+                        event.sender.send(data.id, {url: dataURL});
+                        __callback();
                     });
                 };
 
@@ -106,27 +78,24 @@ module.exports = function () {
 
     function init() {
 
-        rendererWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
+        rendererWindow = new BrowserWindow({x: 0, y: 0, useContentSize: true, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         rendererWindow.webContents.openDevTools();
-        // rendererWindow.webContents.on("did-finish-load", function () {
-        //     // if (currentRenderHandler) currentRenderHandler();
-        // });
-
-
-
-        // rendererWindow.webContents.beginFrameSubscription(function (frameBuffer) {
-        //     console.log("Got frameBuffer at: " + new Date().getTime() + ", frameBuffer: " + frameBuffer.length);
-        //     if (capturePendingTaskId) clearTimeout(capturePendingTaskId);
-        //     capturePendingTaskId = setTimeout(currentRenderHandler, 500);
-        // });
 
         ipcMain.on("render-request", function (event, data) {
             queueHandler.submit(createRenderTask(event, data));
         });
 
         ipcMain.on("render-rendered", function (event, data) {
-            if (currentRenderHandler) currentRenderHandler(event);
+            setTimeout(function () {
+                if (currentRenderHandler) currentRenderHandler(event);
+            }, 100);
         });
+
+        ipcMain.on("font-loading-request", function (event, data) {
+            fontFaceCSS = sharedUtil.buildFontFaceCSS(data.faces);
+            event.sender.send(data.id, {});
+        });
+
 
         console.log("RENDERER started.");
     }

@@ -1340,7 +1340,7 @@ Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) 
     this.pendingThumbnailerMap[page.id] = window.setTimeout(function () {
         thiz.pendingThumbnailerMap[page.id] = null;
         thiz.updatePageThumbnail(page);
-    }, 3000);
+    }, 1000);
 
 
     invalidatedIds.push(page.id);
