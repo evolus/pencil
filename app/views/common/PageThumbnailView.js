@@ -23,7 +23,13 @@ function PageThumbnailView() {
     this.pageThumbnail.style.visibility = "hidden";
 
     this.bind("click",function (event) {
-        if (!this.childMenu) return;
+        if (this.childMenu && this.childMenu.isVisible()) {
+            this.childMenu.hide();
+            return;
+        }
+        if (!this.childMenu) {
+            this.childMenu = new ChildPageListMenu(this.page);
+        }
         this.childMenu.showMenu(this.pageActionButton,"left-inside", "top", 0, 0, true);
         event.stopPropagation();
     }, this.pageActionButton);
@@ -33,7 +39,7 @@ __extend(BaseTemplatedWidget, PageThumbnailView);
 PageThumbnailView.prototype.setPage = function (page, childMenu) {
     if (!page) return;
     this.page = page;
-    this.childMenu = childMenu;
+    // this.childMenu = childMenu;
     this._updateUI();
 };
 PageThumbnailView.prototype._updateUI = function () {

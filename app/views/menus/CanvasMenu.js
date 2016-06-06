@@ -103,7 +103,7 @@ CanvasMenu.prototype.setup = function () {
     UICommandManager.register({
       key: "unGroupCommand",
         label: "Ungroup",
-        shortcut: "Ctrl+Alt+G",
+        shortcut: "Ctrl+Shift+G",
         isAvailable: function () {
             return Pencil.activeCanvas && Pencil.activeCanvas.currentController &&
             (Pencil.activeCanvas.currentController instanceof Group);

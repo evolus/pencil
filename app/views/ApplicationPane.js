@@ -144,6 +144,9 @@ ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageListView.currentPage = this.controller.activePage;
     this.pageListView.renderPages();
 };
+ApplicationPane.prototype.activatePage = function (page) {
+    this.pageListView.activatePage(page);
+}
 ApplicationPane.prototype.testSave = function () {
     this.controller.newDocument();
     var page = this.controller.newPage("Sample page", 1000, 1000, null, null, "");
@@ -183,10 +186,16 @@ ApplicationPane.prototype.getPreferredCanvasSize = function () {
         h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - 2
     }
 };
-
+// ApplicationPane.prototype.getScreenSize = function () {
+//     return {
+//         w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - 2,
+//         h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - 2
+//     }
+// };
 ApplicationPane.prototype.getBestFitSize = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
-    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - 2), zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - 2)].join("x");
+    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - 2),
+            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - 2)].join("x");
 };
 ApplicationPane.prototype.getBestFitSizeObject = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
