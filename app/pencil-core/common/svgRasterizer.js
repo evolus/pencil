@@ -24,7 +24,6 @@ Rasterizer.ipcBasedBackend = {
         ipcRenderer.send("render-init", {});
     },
     rasterize: function (svgNode, width, height, scale, callback, parseLinks) {
-        console.log("* Submitting backend job for rasterizing ", svgNode.getAttribute("page"));
         var id = Util.newUUID();
 
         ipcRenderer.once(id, function (event, data) {
@@ -167,9 +166,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
     };
 
     if (page.backgroundPage) {
-        console.log("Getting bitmap of the background page", page.backgroundPage.name);
-        thiz.getPageBitmapFile(page.backgroundPage, function (filePath) {
-            console.console.log("  >> bitmap generated for ", page.backgroundPage.name);
+        thiz.getPageBitmapFileWithScale(page.backgroundPage, scale, null, function (filePath) {
             var image = svg.ownerDocument.createElementNS(PencilNamespaces.svg, "image");
             image.setAttribute("x", "0");
             image.setAttribute("y", "0");
@@ -205,21 +202,40 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
     }
 };
 Rasterizer.prototype.getPageBitmapFile = function (page, callback) {
-    if (page.bitmapFilePath) {
-        callback(page.bitmapFilePath);
+    this.getPageBitmapFileWithScale(page, 1, null, callback);
+};
+Rasterizer.prototype.getPageBitmapFileWithScale = function (page, scale, configuredFilePath, callback) {
+    var key = "@" + scale;
+    if (page.bitmapCache && page.bitmapCache[key]) {
+        var existingFilePath = page.bitmapCache[key];
+        if (configuredFilePath && configuredFilePath != existingFilePath) {
+            copyFileSync(existingFilePath, configuredFilePath);
+            existingFilePath = configuredFilePath;
+        }
+
+        callback(existingFilePath);
     } else {
-        var filePath = tmp.fileSync({ postfix: ".png" }).name;
-        console.log(" >> rasterizePageToFile to create bitmap", page.name);
+        var filePath = configuredFilePath || tmp.fileSync({ postfix: ".png" }).name;
         this.rasterizePageToFile(page, filePath, function (filePath) {
-            page.bitmapFilePath = filePath;
+            if (!page.bitmapCache) page.bitmapCache = {};
+            page.bitmapCache[key] = filePath;
             callback(filePath);
-        }, 1);
+        }, scale);
     }
 };
+
+
+Rasterizer.prototype.postBitmapGeneratingTask = function (page, scale, configuredFilePath, callback) {
+    if (!this.generatingTaskQueue) this.generatingTaskQueue = new QueueHandler(100);
+    this.generatingTaskQueue.submit(function (__callback) {
+        this.getPageBitmapFileWithScale(page, scale, configuredFilePath, function (filePath) {
+            if (callback) callback(filePath);
+            __callback();
+        })
+    }.bind(this));
+};
 Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, scale, parseLinks) {
-    console.log(" >> calling rasterizePageToUrl for ", page.name);
     this.rasterizePageToUrl(page, function (data) {
-        console.log("    > rasterizePageToUrl done for ", page.name);
         var dataURI = parseLinks ? data.url : data;
 
         var actualPath = filePath ? filePath : tmp.fileSync().name;

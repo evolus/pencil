@@ -1199,6 +1199,7 @@ Controller.prototype.getBestFitSize = function () {
 Controller.prototype.handleCanvasModified = function (canvas) {
     if (!canvas || !canvas.page) return;
     this.modified = true;
+    canvas.page.lastModified = new Date();
     this.invalidateBitmapFilePath(canvas.page);
 };
 Controller.prototype.updatePageThumbnail = function (page, done) {
@@ -1207,14 +1208,12 @@ Controller.prototype.updatePageThumbnail = function (page, done) {
     if (page.height > page.width) scale = Controller.THUMBNAIL_SIZE / page.height;
 
     var thiz = this;
-    console.log("Start updating thumbnail (rasterizePageToFile) for ", page.name);
-    this.applicationPane.rasterizer.rasterizePageToFile(page, thumbPath, function (p, error) {
+    this.applicationPane.rasterizer.postBitmapGeneratingTask(page, scale, thumbPath, function (p) {
         page.thumbPath = p;
         page.thumbCreated = new Date();
         Dom.emitEvent("p:PageInfoChanged", thiz.applicationPane, {page: page});
-        console.log("Page thumbnail updated for", page.name);
         if (done) done();
-    }, scale);
+    });
 };
 
 Controller.prototype.rasterizeCurrentPage = function () {
@@ -1324,39 +1323,38 @@ Controller.prototype.scheduleUpdatePageThumbnail = function (page) {
     if (!this.pendingThumbnailerMap) this.pendingThumbnailerMap = {};
     var pending = this.pendingThumbnailerMap[page.id];
     if (pending) {
-        console.log("Clear pending thumbnail scheduling for ", page.name);
         window.clearTimeout(pending);
     }
 
     this.pendingThumbnailerMap[page.id] = window.setTimeout(function () {
-        console.log("  >> Timeout reached, update thumbnail now for ", page.name);
         this.updatePageThumbnail(page, function () {
             this.pendingThumbnailerMap[page.id] = null;
         }.bind(this));
-    }.bind(this), 1000);
+    }.bind(this), 2000);
 
-    console.log("Scheduled thumbnail update for ", page.name);
 };
 
 Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) {
-    console.log("Invalidating bit map for", page.name);
     if (!invalidatedIds) invalidatedIds = [];
     if (invalidatedIds.indexOf(page.id) >= 0) return;
 
-    if (page.bitmapFilePath) {
-        fs.unlinkSync(page.bitmapFilePath);
-        page.bitmapFilePath = null;
+    if (page.bitmapCache) {
+        for (var key in page.bitmapCache) {
+            var filePath = page.bitmapCache[key];
+            try {
+                fs.unlinkSync(page.bitmapFilePath);
+            } catch (e) {
+            }
+        }
+        page.bitmapCache = null;
     }
-
-    //update page thumbnail
-    page.lastModified = new Date();
 
     this.scheduleUpdatePageThumbnail(page);
 
     invalidatedIds.push(page.id);
-    this.doc.pages.forEach(function (p) {
+    for (let p of this.doc.pages) {
         if (p.backgroundPageId == page.id) this.invalidateBitmapFilePath(p, invalidatedIds);
-    }.bind(this));
+    }
 };
 Controller.prototype.updatePageProperties = function (page, name, backgroundColor, backgroundPageId, parentPageId, width, height) {
     page.name = name;
