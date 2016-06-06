@@ -21,7 +21,8 @@ ChildPageListMenu.prototype.setup = function () {
             key:  key,
             label: page.name,
             run: function () {
-                thiz.onDone(page);
+                // thiz.onDone(page);
+                ApplicationPane._instance.activatePage(page);
             },
         };
         return items;
@@ -33,7 +34,8 @@ ChildPageListMenu.prototype.setup = function () {
             key:  key,
             label: page.name,
             run: function () {
-                thiz.onDone(page);
+                ApplicationPane._instance.activatePage(page);
+                // thiz.onDone(page);
             },
             type: "SubMenu",
             subItems: subItems

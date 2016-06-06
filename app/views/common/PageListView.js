@@ -327,10 +327,7 @@ PageListView.prototype.renderPages = function() {
 
         var pageThumbnailView = new PageThumbnailView();
         pageThumbnailView.node()._index = i;
-        var childrenListMenu = new ChildPageListMenu(page, function (selectedPage) {
-            thiz.activatePage(selectedPage);
-        });
-        pageThumbnailView.setPage(page, childrenListMenu);
+        pageThumbnailView.setPage(page);
         this.pageListContainer.appendChild(pageThumbnailView.node());
         pageThumbnailView.setAttribute("draggable", "true");
 
