@@ -8,7 +8,7 @@
   "build": {
     "app-bundle-id": "vn.evolus.pencil",
     "app-category-type": "public.app-category.graphics-design",
-    "iconUrl": "https://raw.githubusercontent.com/mbrainiac/pencil/master/build/icon.ico",
+    "iconUrl": "https://raw.githubusercontent.com/evolus/pencil/master/build/icon.ico",
     "productName": "Pencil",
     "osx": {
       "contents": [
