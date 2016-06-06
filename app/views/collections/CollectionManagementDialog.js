@@ -157,6 +157,7 @@ CollectionManagementDialog.prototype.getDialogActions = function () {
             run: function () {
                 CollectionManager.installNewCollection(function (err, collection) {
                     if (!err && collection) {
+                        thiz.collectionPanel.reload(collection.id);
                         NotificationPopup.show("Collection was installed successfully.");
                         thiz.loadCollectionList();
                     }
