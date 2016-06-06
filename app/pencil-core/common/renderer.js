@@ -31,6 +31,7 @@ module.exports = function () {
                 //path
                 svg = '<html><head>\n'
  + '<style type="text/css">\n'
+ + 'body { background: transparent !important; }\n'
  + 'svg { line-height: 1.428; }\n'
  + fontFaceCSS + "\n"
  + '</style>\n'
@@ -78,7 +79,7 @@ module.exports = function () {
 
     function init() {
 
-        rendererWindow = new BrowserWindow({x: 0, y: 0, useContentSize: true, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
+        rendererWindow = new BrowserWindow({x: 0, y: 0, useContentSize: true, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, transparent: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         rendererWindow.webContents.openDevTools();
 
         ipcMain.on("render-request", function (event, data) {
