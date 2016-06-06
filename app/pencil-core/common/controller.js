@@ -1146,6 +1146,8 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
     var page = passedPage ? passedPage : this.activePage;
     var canvas = page.canvas;
     if (!canvas) return;
+
+    var thiz = this;
     var padding  = 0;
     var handler = function () {
         var canvas = page.canvas;
@@ -1155,7 +1157,8 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
             page.width = newSize.width;
             page.height = newSize.height;
 
-            this.invalidateBitmapFilePath(page);
+            thiz.sayDocumentChanged();
+            thiz.invalidateBitmapFilePath(page);
         }
     }.bind(this);
 
@@ -1190,6 +1193,7 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
         page.height = newSize.height;
         Config.set("lastSize", [newSize.width, newSize.height].join("x"));
         this.invalidateBitmapFilePath(page);
+        this.sayDocumentChanged();
     }
 };
 Controller.prototype.getBestFitSize = function () {

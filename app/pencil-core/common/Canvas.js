@@ -2385,9 +2385,12 @@ Canvas.prototype.setDimBackground = function (dimBackground) {
 
 };
 Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
-    this.run(this.sizeToContent__, this, Util.getMessage(
-            "action.canvas.resize"), [hPadding, vPadding]);
-
+    var newSize = null;
+    var thiz = this;
+    this.run(function () {
+        newSize = thiz.sizeToContent__ (hPadding, vPadding);
+    }, this, Util.getMessage("action.canvas.resize"));
+    return newSize;
 };
 Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
 
@@ -2452,7 +2455,6 @@ Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
         width : width,
         height : height
     };
-
 };
 Canvas.prototype.addSelectedToMyCollection = function () {
     if (!this.currentController) return;

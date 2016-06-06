@@ -23,14 +23,16 @@ function PageThumbnailView() {
     this.pageThumbnail.style.visibility = "hidden";
 
     this.bind("click",function (event) {
-        if (this.childMenu && this.childMenu.isVisible()) {
+        if (this.childMenu && this.childMenu._visible) {
             this.childMenu.hide();
+            this.childMenu._visible = false;
             return;
         }
         if (!this.childMenu) {
             this.childMenu = new ChildPageListMenu(this.page);
         }
         this.childMenu.showMenu(this.pageActionButton,"left-inside", "top", 0, 0, true);
+        this.childMenu._visible = true;
         event.stopPropagation();
     }, this.pageActionButton);
 }

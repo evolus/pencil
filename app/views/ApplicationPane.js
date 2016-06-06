@@ -75,6 +75,12 @@ function ApplicationPane() {
 
     ApplicationPane._instance = this;
 
+    this.bind("dblclick", function (event) {
+        if (event.target.nodeName == "input") {
+            event.target.select();
+        }
+    }, this.toolbarContainer)
+
     FontLoader.instance.loadFonts();
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
