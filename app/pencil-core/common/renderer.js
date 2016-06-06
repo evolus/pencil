@@ -20,27 +20,83 @@ module.exports = function () {
 
     var queueHandler = new QueueHandler(100);
 
+    var extraJS = (
+        function resolve(prefix) {
+            return {
+                p: "http://www.evolus.vn/Namespace/Pencil",
+                svg: "http://www.w3.org/2000/svg"
+            }[prefix];
+        }
+    ).toString() + "\n"
+    + (
+        function getList(xpath, node) {
+            var doc = node.ownerDocument ? node.ownerDocument : node;
+            var xpathResult = doc.evaluate(xpath, node, resolve, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+            var nodes = [];
+            var next = xpathResult.iterateNext();
+            while (next) {
+                nodes.push(next);
+                next = xpathResult.iterateNext();
+            }
+
+            return nodes;
+        }
+
+    ).toString() + "\n"
+    + (
+        function postProcess() {
+            var objects = getList("//svg:g[@p:RelatedPage]", document);
+            objects.reverse();
+            window.objectsWithLinking = [];
+
+            for (var g of objects) {
+                var dx = 0; //rect.left;
+                var dy = 0; //rect.top;
+
+                rect = g.getBoundingClientRect();
+                var linkingInfo = {
+                    pageId: g.getAttributeNS("http://www.evolus.vn/Namespace/Pencil", "RelatedPage"),
+                    geo: {
+                        x: rect.left - dx,
+                        y: rect.top - dy,
+                        w: rect.width,
+                        h: rect.height
+                    }
+                };
+                if (!linkingInfo.pageId) continue;
+
+                window.objectsWithLinking.push(linkingInfo);
+            }
+
+        }
+    ).toString();
+
     function createRenderTask(event, data) {
         return function(__callback) {
             //Save the svg
-            tmp.file({prefix: 'render-', postfix: '.html' }, function (err, path, fd, cleanupCallback) {
+            tmp.file({prefix: 'render-', postfix: '.xhtml' }, function (err, path, fd, cleanupCallback) {
                 if (err) throw err;
 
                 var svg = data.svg;
 
                 //path
-                svg = '<html><head>\n'
+                svg = '<?xml version="1.0" encoding="UTF-8"?>\n'
+ + '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n'
+ + '    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n'
+ + '<html xmlns="http://www.w3.org/1999/xhtml"><head>\n'
  + '<style type="text/css">\n'
- + 'body { background: transparent !important; }\n'
+ + 'body { background: transparent !important; overflow: hidden; }\n'
  + 'svg { line-height: 1.428; }\n'
  + fontFaceCSS + "\n"
  + '</style>\n'
  + '<script type="text/javascript">\n'
+ + extraJS + '\n'
  + '    var ipcRenderer = require("electron").ipcRenderer;\n'
  + '    window.addEventListener("load", function () {\n'
+ + '        postProcess();\n'
  + '        window.requestAnimationFrame(function () {\n'
  + '            window.requestAnimationFrame(function () {\n'
- + '                ipcRenderer.send("render-rendered", {});\n'
+ + '                ipcRenderer.send("render-rendered", {objectsWithLinking: window.objectsWithLinking});\n'
  + '                console.log("Rendered signaled");\n'
  + '            });\n'
  + '        })\n'
@@ -60,15 +116,14 @@ module.exports = function () {
 
                 var capturePendingTaskId = null;
 
-                currentRenderHandler = function (renderedEvent) {
+                currentRenderHandler = function (renderedEvent, renderedData) {
                     capturePendingTaskId = null;
                     rendererWindow.capturePage(function (nativeImage) {
                         var dataURL = nativeImage.toDataURL();
 
                         cleanupCallback();
                         currentRenderHandler = null;
-
-                        event.sender.send(data.id, {url: dataURL});
+                        event.sender.send(data.id, {url: dataURL, objectsWithLinking: renderedData.objectsWithLinking});
                         __callback();
                     });
                 };
@@ -79,7 +134,7 @@ module.exports = function () {
 
     function init() {
 
-        rendererWindow = new BrowserWindow({x: 0, y: 0, useContentSize: true, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, transparent: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
+        rendererWindow = new BrowserWindow({x: 0, y: 0, useContentSize: true, enableLargerThanScreen: true, show: true, frame: false, autoHideMenuBar: true, transparent: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         rendererWindow.webContents.openDevTools();
 
         ipcMain.on("render-request", function (event, data) {
@@ -88,7 +143,7 @@ module.exports = function () {
 
         ipcMain.on("render-rendered", function (event, data) {
             setTimeout(function () {
-                if (currentRenderHandler) currentRenderHandler(event);
+                if (currentRenderHandler) currentRenderHandler(event, data);
             }, 100);
         });
 
