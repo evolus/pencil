@@ -13,14 +13,15 @@ QueueHandler.prototype.start = function (task) {
     var next = function() {
         if (this.tasks.length <= 0) return;
         var task = this.tasks[0];
-        task(function () {
+        this._currentCallback = function () {
             this.tasks.pop();
             if (this.delay) {
                 setTimeout(next, this.delay)
             } else {
                 next();
             }
-        }.bind(this));
+        }.bind(this);
+        task(this._currentCallback);
     }.bind(this);
 
     next();

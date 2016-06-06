@@ -24,6 +24,7 @@ Rasterizer.ipcBasedBackend = {
         ipcRenderer.send("render-init", {});
     },
     rasterize: function (svgNode, width, height, scale, callback, parseLinks) {
+        console.log("* Submitting backend job for rasterizing ", svgNode.getAttribute("page"));
         var id = Util.newUUID();
 
         ipcRenderer.once(id, function (event, data) {
@@ -161,11 +162,14 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
     var thiz = this;
     var s = (typeof (scale) == "undefined") ? 1 : scale;
     var f = function () {
+        svg.setAttribute("page", page.name);
         thiz.getBackend().rasterize(svg, page.width, page.height, s, callback, parseLinks);
     };
 
     if (page.backgroundPage) {
+        console.log("Getting bitmap of the background page", page.backgroundPage.name);
         thiz.getPageBitmapFile(page.backgroundPage, function (filePath) {
+            console.console.log("  >> bitmap generated for ", page.backgroundPage.name);
             var image = svg.ownerDocument.createElementNS(PencilNamespaces.svg, "image");
             image.setAttribute("x", "0");
             image.setAttribute("y", "0");
@@ -205,6 +209,7 @@ Rasterizer.prototype.getPageBitmapFile = function (page, callback) {
         callback(page.bitmapFilePath);
     } else {
         var filePath = tmp.fileSync({ postfix: ".png" }).name;
+        console.log(" >> rasterizePageToFile to create bitmap", page.name);
         this.rasterizePageToFile(page, filePath, function (filePath) {
             page.bitmapFilePath = filePath;
             callback(filePath);
@@ -212,7 +217,9 @@ Rasterizer.prototype.getPageBitmapFile = function (page, callback) {
     }
 };
 Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, scale, parseLinks) {
+    console.log(" >> calling rasterizePageToUrl for ", page.name);
     this.rasterizePageToUrl(page, function (data) {
+        console.log("    > rasterizePageToUrl done for ", page.name);
         var dataURI = parseLinks ? data.url : data;
 
         var actualPath = filePath ? filePath : tmp.fileSync().name;

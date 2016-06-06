@@ -144,6 +144,9 @@ ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageListView.currentPage = this.controller.activePage;
     this.pageListView.renderPages();
 };
+ApplicationPane.prototype.activatePage = function (page) {
+    this.pageListView.activatePage(page);
+}
 ApplicationPane.prototype.testSave = function () {
     this.controller.newDocument();
     var page = this.controller.newPage("Sample page", 1000, 1000, null, null, "");
