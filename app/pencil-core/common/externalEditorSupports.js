@@ -13,6 +13,7 @@ ExternalEditorSupports.queue = [];
 var spawn = require("child_process").spawn;
 ExternalEditorSupports.handleEditRequest = function (contentProvider, contentReceiver) {
     var tmpFile = tmp.fileSync({postfix: "." + contentProvider.extension });
+
     contentProvider.saveTo(tmpFile.name, function () {
 
         var executablePath = ExternalEditorSupports.getEditorPath(contentProvider.extension);
@@ -38,7 +39,6 @@ ExternalEditorSupports.handleEditRequest = function (contentProvider, contentRec
                 fstat = fs.statSync(tmpFile.name);
                 var lmt = fstat.mtime.getTime();
 
-                console.log("tracker:", lmt);
                 if (lmt > initialLastModifiedTime) {
                     initialLastModifiedTime = lmt;
                     contentReceiver.update(tmpFile.name);
@@ -97,7 +97,6 @@ ExternalEditorSupports.editImageData = function (imageData, ext, ownerObject) {
             update: function (file) {
                 window.setTimeout(function () {
                     var handler = function (updatedImageData) {
-                        console.log("loaded", updatedImageData);
                         thiz.setProperty("imageData", updatedImageData);
                     };
 
