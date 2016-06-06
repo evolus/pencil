@@ -2385,11 +2385,15 @@ Canvas.prototype.setDimBackground = function (dimBackground) {
 
 };
 Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
+    var newSize;
+    var setNewSize = function (sizeData) {
+        newSize = sizeData;
+    }
     this.run(this.sizeToContent__, this, Util.getMessage(
-            "action.canvas.resize"), [hPadding, vPadding]);
-
+            "action.canvas.resize"), [hPadding, vPadding, setNewSize]);
+    return newSize;
 };
-Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
+Canvas.prototype.sizeToContent__ = function (hPadding, vPadding, setNewSize) {
 
     this.zoomTo(1.0);
 
@@ -2448,11 +2452,14 @@ Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
 
     this.selectNone();
 
-    return {
+    // return {
+    //     width : width,
+    //     height : height
+    // };
+    setNewSize({
         width : width,
         height : height
-    };
-
+    });
 };
 Canvas.prototype.addSelectedToMyCollection = function () {
     if (!this.currentController) return;
