@@ -169,7 +169,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
     if (page.backgroundPage) {
         console.log("Getting bitmap of the background page", page.backgroundPage.name);
         thiz.getPageBitmapFile(page.backgroundPage, function (filePath) {
-            console.console.log("  >> bitmap generated for ", page.backgroundPage.name);
+            console.log("  >> bitmap generated for ", page.backgroundPage.name);
             var image = svg.ownerDocument.createElementNS(PencilNamespaces.svg, "image");
             image.setAttribute("x", "0");
             image.setAttribute("y", "0");
