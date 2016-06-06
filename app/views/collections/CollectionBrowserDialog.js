@@ -69,6 +69,8 @@ CollectionBrowserDialog.prototype.handleItemClick = function (control) {
                     view.setAttribute("installed", "true");
 
                     thiz.managerDialog.loadCollectionList();
+                    thiz.collectionPanel.reload(newCollection.id);
+
                 }
             });
     } else if (control._role == "button-uninstall") {
