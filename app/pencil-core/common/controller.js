@@ -854,10 +854,8 @@ Controller.prototype.swapIn = function (page, canvas) {
         page.careTakerTempFile = null;
     }
 
-    if (page.scrollTop || page.scrollLeft || page.zoom) {
-        var canvasState = {"scrollTop": page.scrollTop ? page.scrollTop : 0, "scrollLeft": page.scrollLeft ? page.scrollLeft : 0, "zoom": page.zoom ? page.zoom : 0};
-        canvas.setCanvasState(canvasState);
-    }
+    var canvasState = {"scrollTop": page.scrollTop ? page.scrollTop : 0, "scrollLeft": page.scrollLeft ? page.scrollLeft : 0, "zoom": page.zoom ? page.zoom : 1};
+    canvas.setCanvasState(canvasState);
 
     page.canvas = canvas;
     canvas.page = page;
