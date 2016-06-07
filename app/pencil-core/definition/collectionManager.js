@@ -465,3 +465,27 @@ CollectionManager.unselectDeveloperStencilDir = function () {
     CollectionManager.loadStencils();
     NotificationPopup.show("Developer stencil is unloaded.");
 };
+
+CollectionManager.findCollectionById = function (collectionId) {
+    var result = null;
+    for (var collection in CollectionManager.shapeDefinition.collections) {
+        if (collection.id == collectionId) {
+            result = collection;
+            break;
+        }
+    }
+    return result;
+}
+
+CollectionManager.reOrderCollections = function(collectionId, toCollection) {
+    var collections = CollectionManager.shapeDefinition.collections;
+    var index1 = collections.indexOf(CollectionManager.findCollectionById(collectionId));
+    var index2 = collections.indexOf(toCollection);
+
+
+
+
+
+
+
+}
