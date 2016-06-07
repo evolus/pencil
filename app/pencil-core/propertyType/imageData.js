@@ -63,7 +63,6 @@ ImageData.fromExternalToImageData = function (filePath, callback) {
         image.src = url;
     });
 };
-
 ImageData.fromUrl = function (url, callback) {
     ImageData.win.document.body.innerHTML = "";
     var image = ImageData.win.document.createElementNS(PencilNamespaces.html, "img");
