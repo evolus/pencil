@@ -58,8 +58,15 @@ button > i {
     -webkit-font-smoothing: subpixel-antialiased;
     opacity: 0.7;
 }
-button > i[rotated="true"] {
+button > i[rotated="true"],
+button > i[rotated="right"] {
     transform: rotate(90deg);
+}
+button > i[rotated="left"] {
+    transform: rotate(-90deg);
+}
+button > i[flipped="true"] {
+    transform: rotate(180deg);
 }
 button > * {
     vertical-align: middle;
