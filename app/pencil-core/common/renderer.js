@@ -134,7 +134,7 @@ module.exports = function () {
 
     function init() {
 
-        rendererWindow = new BrowserWindow({x: 0, y: 0, useContentSize: true, enableLargerThanScreen: true, show: true, frame: false, autoHideMenuBar: true, transparent: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
+        rendererWindow = new BrowserWindow({x: 0, y: 0, useContentSize: true, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, transparent: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         rendererWindow.webContents.openDevTools();
 
         ipcMain.on("render-request", function (event, data) {
