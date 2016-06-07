@@ -2471,7 +2471,6 @@ Canvas.prototype.addSelectedToMyCollection = function () {
             data.valueHolder = data;
             run(data);
         }
-        //collection: CollectionManager.shapeDefinition.collections[0]
     });
 
     var run = function (data) {
@@ -2504,7 +2503,8 @@ Canvas.prototype.addSelectedToMyCollection = function () {
 
                 collection.shapeDefs.push(shapeDef);
             }
-
+            Config.set("PrivateCollection.lastUsedCollection.id", collection.id);
+            Config.set("PrivateCollection.lastSelectCollection.id", collection.id);
             debug("generating icon... :", valueHolder.autoGenerateIcon);
             if (valueHolder.autoGenerateIcon) {
                 Util.generateIcon(target, 64, 64, 2, null, function (icondata) {

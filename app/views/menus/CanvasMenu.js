@@ -132,7 +132,7 @@ CanvasMenu.prototype.setup = function () {
     });
     UICommandManager.register({
         key: "addSelectedToMyCollectionsCommand",
-        label: "Add to My Collections",
+        label: "Add to My Collections...",
         isAvailable: function () {
             return Pencil.activeCanvas && Pencil.activeCanvas.currentController &&
             (Pencil.activeCanvas.currentController instanceof Shape || Pencil.activeCanvas.currentController instanceof Group);
