@@ -21,7 +21,12 @@ function CollectionManagementDialog (collectionPanel) {
     var thiz = this;
     this.collectionContainer.addEventListener("dblclick",function (event) {
         var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        var visible = CollectionManager.isCollectionVisible (top._collection);
+        if (!visible) {
+            CollectionManager.setCollectionVisible (top._collection, true) ;
+        }
         thiz.collectionPanel.reload(top._collection.id);
+        thiz.close();
     }, false);
 
     this.bind("dragover", function (ev) {
