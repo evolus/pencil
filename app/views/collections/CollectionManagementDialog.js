@@ -17,6 +17,32 @@ function CollectionManagementDialog (collectionPanel) {
             node.setAttribute("selected", "true");
         };
     }, false);
+
+    var thiz = this;
+    this.collectionContainer.addEventListener("dblclick",function (event) {
+        var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        thiz.collectionPanel.reload(top._collection.id);
+    }, false);
+
+    this.bind("dragover", function (ev) {
+        if (this.hoverTop) {
+            this.hoverTop.removeAttribute("hover");
+        }
+        var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (top) {
+            top.setAttribute("hover", "true");
+            this.hoverTop = top;
+        }
+
+    }, this.collectionContainer);
+
+    this.bind("drop", function (ev) {
+        if (this.hoverTop._collection && this.hoverTop._collection.id != ev.dataTransfer.getData("collectionId") ) {
+            console.log("swap collection:" , this.hoverTop._collection, "with" + ev.dataTransfer.getData("collectionId"));
+
+        }
+    }, this.collectionContainer);
+
 }
 __extend(Dialog, CollectionManagementDialog);
 
@@ -138,6 +164,14 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
     view._id = collection.displayName;
     view._collection = collection;
     view.setAttribute("selected", "false");
+    view.setAttribute("draggable", "true");
+
+    this.bind("dragstart", function (ev) {
+        var top = ev.target;
+        ev.dataTransfer.setData("collectionId", top._collection.id);
+
+    },view);
+
     return view;
 }
 
