@@ -15,6 +15,35 @@ ImageData.fromString = function (literal) {
     return new ImageData(literal);
 };
 
+ImageData.invalidateValue = function (oldData, callback) {
+    if (oldData.data.match(/^data:/)) {
+        var image = null;
+        try {
+            image = nativeImage.createFromDataURL(oldData.data);
+        } catch (e) {
+        }
+
+        if (!image) {
+            callback(null);
+            return;
+        }
+
+        let id = Pencil.controller.nativeImageToRefSync(image);
+        callback(new ImageData(oldData.w, oldData.h, ImageData.idToRefString(id)), null);
+
+    } else if (!oldData.data.match(/^ref:\/\//)) {
+        Pencil.controller.copyAsRef(oldData.data, function (id, error) {
+            if (id) {
+                callback(new ImageData(oldData.w, oldData.h, ImageData.idToRefString(id)), null);
+            } else {
+                callback(null, error);
+            }
+        });
+    } else {
+        callback(null);
+    }
+};
+
 ImageData.filePathToURL = function (filePath, options) {
     filePath = path.resolve(filePath).replace(/\\/g, "/");
 

@@ -312,54 +312,129 @@ Controller.prototype.openDocument = function (callback) {
 
     handler();
 };
+Controller.prototype.parsePageFromNode = function (pageNode, callback) {
+    var thiz = this;
+    var page = new Page(this.doc);
+    Dom.workOn("./p:Properties/p:Property", pageNode, function (propNode) {
+        var name = propNode.getAttribute("name");
+        var value = propNode.textContent;
+        if(name == "note") {
+            value = RichText.fromString(value);
+        }
+        if (!Page.PROPERTY_MAP[name]) return;
+        page[Page.PROPERTY_MAP[name]] = value;
+    });
+
+    function invalidateAndSerializePage(page) {
+        if (page.width) page.width = parseInt(page.width, 10);
+        if (page.height) page.height = parseInt(page.height, 10);
+        if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
+
+        if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+
+        var pageFileName = "page_" + page.id + ".xml";
+        page.pageFileName = pageFileName;
+        page.tempFilePath = path.join(thiz.tempDir.name, pageFileName);
+
+        thiz.serializePage(page, page.tempFilePath);
+        delete page._contentNode;
+        thiz.doc.pages.push(page);
+    }
+
+    var contentNode = Dom.getSingle("./p:Content", pageNode);
+    if (contentNode) {
+        var node = document.importNode(contentNode.cloneNode(true), true);
+
+        var invalidateTasks = [];
+        var invalidationIndex = -1;
+
+
+        function createInvalidationTask(type, name, propertyNode) {
+            return function (__callback) {
+                var value = type.fromString(propertyNode.textContent);
+                type.invalidateValue(value, function (invalidatedValue, error) {
+                    if (invalidatedValue) {
+                        Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
+                    }
+                    __callback();
+                });
+            };
+        }
+
+        function runNextValidation(callback) {
+            invalidationIndex ++;
+            if (invalidationIndex >= invalidateTasks.length) {
+                callback();
+                return;
+            }
+            var task = invalidateTasks[invalidationIndex];
+            task(function () {
+                runNextValidation(callback);
+            });
+        }
+
+        Dom.workOn(".//svg:g[@p:type='Shape']", node, function (shapeNode) {
+            var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
+            var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+            if (!def) return;
+
+            Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
+                var name = propertyNode.getAttribute("name");
+                var propertyDef = def.propertyMap[name];
+                if (!propertyDef || !propertyDef.type.invalidateValue) return;
+                var type = propertyDef.type;
+
+                invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
+
+            });
+        });
+
+
+        runNextValidation(function () {
+            page._contentNode = node;
+            invalidateAndSerializePage(page);
+            callback();
+        });
+    } else {
+        page._contentNode = null;
+        invalidateAndSerializePage(page);
+        callback();
+    }
+};
 Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
     var targetDir = this.tempDir.name;
     var thiz = this;
+    this.pathToRefCache = null;
     try {
         if (path.extname(filePath) != ".ep" && path.extname(filePath) != ".epz") throw "Wrong format.";
+
+        this.documentPath = filePath;
+        this.oldPencilDoc = true;
         var dom = Controller.parser.parseFromString(fs.readFileSync(filePath, "utf8"), "text/xml");
 
         Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
             thiz.doc.properties[propNode.getAttribute("name")] = propNode.textContent;
         });
 
-        Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-            var page = new Page(thiz.doc);
-            Dom.workOn("./p:Properties/p:Property", pageNode, function (propNode) {
-                var name = propNode.getAttribute("name");
-                var value = propNode.textContent;
-                if(name == "note") {
-                    value = RichText.fromString(value);
-                }
-                if (!Page.PROPERTY_MAP[name]) return;
-                page[Page.PROPERTY_MAP[name]] = value;
+        var pageNodes = Dom.getList("./p:Pages/p:Page", dom.documentElement);
+
+        var pageNodeIndex = -1;
+        function parseNextPageNode(__callback) {
+            pageNodeIndex ++;
+            if (pageNodeIndex >= pageNodes.length) {
+                __callback();
+                return;
+            }
+
+            var pageNode = pageNodes[pageNodeIndex];
+            thiz.parsePageFromNode(pageNode, function () {
+                parseNextPageNode(__callback);
             });
-
-            var contentNode = Dom.getSingle("./p:Content", pageNode);
-            if (contentNode) {
-                var node = dom.createElementNS(PencilNamespaces.p, "p:Content");
-                node.innerHTML = document.importNode(contentNode, true).innerHTML;
-                page._contentNode = node;
-            } else page._contentNode = null;
-
-            if (page.width) page.width = parseInt(page.width, 10);
-            if (page.height) page.height = parseInt(page.height, 10);
-            if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
-
-            if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
-
-            var pageFileName = "page_" + page.id + ".xml";
-            page.pageFileName = pageFileName;
-            page.tempFilePath = path.join(thiz.tempDir.name, pageFileName);
-
-            thiz.serializePage(page, page.tempFilePath);
-            delete page._contentNode;
-            thiz.doc.pages.push(page);
-        });
+        }
 
         // update page thumbnails
         var index = -1;
-        function next(onDone) {
+        function generateNextThumbnail(onDone) {
             index ++;
             if (index >= thiz.doc.pages.length) {
                 if (onDone) onDone();
@@ -367,21 +442,26 @@ Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
             }
             var page = thiz.doc.pages[index];
             thiz.updatePageThumbnail(page, function () {
-                next(onDone);
+                generateNextThumbnail(onDone);
             });
         }
 
-        next(function () {
-            thiz.sayDocumentChanged();
-            thiz.sayControllerStatusChanged();
-            if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
-            if (callback) callback();
-            ApplicationPane._instance.unbusy();
+
+        parseNextPageNode(function () {
+            generateNextThumbnail(function () {
+                thiz.modified = false;
+                thiz.sayControllerStatusChanged();
+                if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
+                thiz.pathToRefCache = null;
+                if (callback) callback();
+                ApplicationPane._instance.unbusy();
+            });
         });
-        this.documentPath = filePath;
+
+        // this.documentPath = filePath;
         this.doc.name = this.getDocumentName();
     } catch (e) {
-        console.log("error:", e);
+        // console.log("error:", e);
         thiz.newDocument();
         ApplicationPane._instance.unbusy();
     }
@@ -584,6 +664,7 @@ Controller.prototype.parseDocument = function (filePath, callback) {
             }, thiz);
 
             thiz.documentPath = filePath;
+            thiz.oldPencilDoc = false;
             thiz.doc.name = thiz.getDocumentName();
             thiz.modified = false;
             //new file was loaded, update recent file list
@@ -598,6 +679,7 @@ Controller.prototype.parseDocument = function (filePath, callback) {
                     if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
                 }
                 thiz.applicationPane.onDocumentChanged();
+                thiz.modified = false;
                 if (callback) callback();
                 ApplicationPane._instance.unbusy();
             });
@@ -677,11 +759,12 @@ Controller.prototype.saveAsDocument = function (onSaved) {
     }.bind(this));
 };
 Controller.prototype.saveDocument = function (onSaved) {
-    if (!this.documentPath) {
+    if (!this.documentPath || this.oldPencilDoc) {
         var thiz = this;
         dialog.showSaveDialog({
             title: "Save as",
-            defaultPath: path.join(Config.get("document.save.recentlyDirPath", null) || os.homedir(), "Untitled.epz"),
+            defaultPath: path.join(Config.get("document.save.recentlyDirPath", null) || os.homedir(),
+                (this.documentPath && path.basename(this.documentPath).replace(path.extname(this.documentPath), "") + ".epz") || "Untitled.epz"),
             filters: [
                 { name: "Pencil Documents", extensions: ["epz"] }
             ]
@@ -701,9 +784,10 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     if (!documentPath) throw "Path not specified";
 
     this.updateCanvasState();
+    this.oldPencilDoc = false;
+
     var thiz = this;
     ApplicationPane._instance.busy();
-
 
     this.serializeDocument(function () {
         this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
@@ -1257,8 +1341,23 @@ Controller.prototype.rasterizeSelection = function () {
 };
 
 Controller.prototype.copyAsRef = function (sourcePath, callback) {
+    var originalSourcePath = sourcePath;
+
+    if (this.pathToRefCache && this.pathToRefCache[originalSourcePath]) {
+        callback(this.pathToRefCache[originalSourcePath]);
+        return;
+    }
+
+    if (!path.isAbsolute(sourcePath)) {
+        sourcePath = path.normalize(path.join(path.dirname(this.documentPath), sourcePath));
+        console.log("Resolving relative path to: ", sourcePath);
+    }
+
     var id = Util.newUUID() + path.extname(sourcePath) || ".data";
     var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+
+    if (!this.pathToRefCache) this.pathToRefCache = {};
+    this.pathToRefCache[originalSourcePath] = id;
 
     var rd = fs.createReadStream(sourcePath);
     rd.on("error", function (error) {
