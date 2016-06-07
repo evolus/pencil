@@ -21,7 +21,12 @@ function CollectionManagementDialog (collectionPanel) {
     var thiz = this;
     this.collectionContainer.addEventListener("dblclick",function (event) {
         var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        var visible = CollectionManager.isCollectionVisible (top._collection);
+        if (!visible) {
+            CollectionManager.setCollectionVisible (top._collection, true) ;
+        }
         thiz.collectionPanel.reload(top._collection.id);
+        thiz.close();
     }, false);
 
     this.bind("dragover", function (ev) {
@@ -39,7 +44,9 @@ function CollectionManagementDialog (collectionPanel) {
     this.bind("drop", function (ev) {
         if (this.hoverTop._collection && this.hoverTop._collection.id != ev.dataTransfer.getData("collectionId") ) {
             console.log("swap collection:" , this.hoverTop._collection, "with" + ev.dataTransfer.getData("collectionId"));
-
+            CollectionManager.reOrderCollections(ev.dataTransfer.getData("collectionId"),this.hoverTop._collection);
+            thiz.loadCollectionList();
+            thiz.collectionPanel.reload();
         }
     }, this.collectionContainer);
 
