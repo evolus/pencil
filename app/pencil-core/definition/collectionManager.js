@@ -468,9 +468,9 @@ CollectionManager.unselectDeveloperStencilDir = function () {
 
 CollectionManager.findCollectionById = function (collectionId) {
     var result = null;
-    for (var collection in CollectionManager.shapeDefinition.collections) {
-        if (collection.id == collectionId) {
-            result = collection;
+    for (var i in CollectionManager.shapeDefinition.collections) {
+        if (CollectionManager.shapeDefinition.collections[i].id == collectionId) {
+            result = CollectionManager.shapeDefinition.collections[i];
             break;
         }
     }
@@ -479,13 +479,11 @@ CollectionManager.findCollectionById = function (collectionId) {
 
 CollectionManager.reOrderCollections = function(collectionId, toCollection) {
     var collections = CollectionManager.shapeDefinition.collections;
-    var index1 = collections.indexOf(CollectionManager.findCollectionById(collectionId));
-    var index2 = collections.indexOf(toCollection);
-
-
-
-
-
-
-
+    var collectionTarget = CollectionManager.findCollectionById(collectionId);
+    var index = collections.indexOf(collectionTarget);
+    collections.splice(index, 1);
+    if (collectionTarget) {
+        index =  collections.indexOf(toCollection);
+        collections.splice(index, 0, collectionTarget);
+    }
 }

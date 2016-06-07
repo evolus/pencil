@@ -39,7 +39,9 @@ function CollectionManagementDialog (collectionPanel) {
     this.bind("drop", function (ev) {
         if (this.hoverTop._collection && this.hoverTop._collection.id != ev.dataTransfer.getData("collectionId") ) {
             console.log("swap collection:" , this.hoverTop._collection, "with" + ev.dataTransfer.getData("collectionId"));
-
+            CollectionManager.reOrderCollections(ev.dataTransfer.getData("collectionId"),this.hoverTop._collection);
+            thiz.loadCollectionList();
+            thiz.collectionPanel.reload();
         }
     }, this.collectionContainer);
 
