@@ -43,7 +43,7 @@ ImageData.prompt = function (callback) {
         title: "Select Image",
         defaultPath: os.homedir(),
         filters: [
-            { name: "Stencil files", extensions: ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
+            { name: "Image files", extensions: ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
         ]
 
     }, function (filenames) {
