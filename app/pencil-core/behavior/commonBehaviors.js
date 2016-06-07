@@ -409,7 +409,7 @@ Pencil.behaviors.RichTextFit = function (width) {
     Svg.setHeight(this, Math.ceil(this.firstChild.scrollHeight));
 };
 Pencil.behaviors.Image = function (imageData) {
-    var url = ImageData.refStringToUrl(imageData.data) || imageData.data;
+    var url = imageData.w > 0 ? (ImageData.refStringToUrl(imageData.data) || imageData.data) : "";
     this.setAttributeNS(PencilNamespaces.xlink, "xlink:href", url);
     Svg.setWidth(this, imageData.w);
     Svg.setHeight(this, imageData.h);
