@@ -10,10 +10,22 @@ PromptDialog.prototype.setup = function (options) {
     }
     if (options.title) this.title = options.title;
     if (options.message) this.message.innerHTML = options.message;
-    if (options.value) this.valueInput.value = options.value;
-    this.callback = options.callback;
-};
+    if (options.value != undefined) {
+        this.valueInput.value = options.value;
+    }
 
+    if (typeof(options.value) == "number" || typeof(options.defaultValue) == "number") {
+        this.valueInput.setAttribute("type", "number");
+        this.valueInput.style.width = "6em";
+    }
+
+    this.callback = options.callback;
+
+    window.setTimeout(function () {
+        this.valueInput.focus();
+        this.valueInput.select();
+    }.bind(this), 200);
+};
 PromptDialog.prototype.getDialogActions = function () {
     var thiz = this;
     return [

@@ -1167,7 +1167,7 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
         paddingDialog.open({
             title: "Fit content with padding",
             message: "Please enter the padding",
-            defaultValue: "0",
+            defaultValue: 0,
             callback: function (paddingString) {
                 if (!paddingString) return;
                 padding = parseInt(paddingString, 10);
