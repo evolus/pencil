@@ -1305,7 +1305,7 @@ Canvas.prototype.handleKeyPress = function (event) {
         if (event.shiftKey) {
             this.selectSibling(false);
         } else {
-            this.selectSiblOing(true);
+            this.selectSibling(true);
         }
 
         event.preventDefault();
