@@ -61,12 +61,12 @@ function PageDetailDialog() {
         thiz.modified = true;
     }, false);
 
-    this.widthInput.addEventListener("input", function () {
+    this.widthInput.addEventListener("change", function () {
         var value = thiz.widthInput.value;
         if (!value || parseInt(value, 10) < 24) thiz.widthInput.value = 24;
         thiz.modified = true;
     }, false);
-    this.heightInput.addEventListener("input", function () {
+    this.heightInput.addEventListener("change", function () {
         var value = thiz.heightInput.value;
         if (!value || parseInt(value, 10) < 24) thiz.heightInput.value = 24;
         thiz.modified = true;
