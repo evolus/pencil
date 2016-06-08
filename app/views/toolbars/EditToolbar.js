@@ -10,7 +10,7 @@ EditToolbar.prototype.registerCommands = function () {
         label: "Cut",
         icon: "content_cut",
         shortcut: "Ctrl+X",
-        isValid: function () { return Pencil.activeCanvas.currentController; },
+        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController; },
         run: function () {
             Pencil.activeCanvas.doCopy();
             Pencil.activeCanvas.deleteSelected();
@@ -22,7 +22,7 @@ EditToolbar.prototype.registerCommands = function () {
         label: "Copy",
         icon: "content_copy",
         shortcut: "Ctrl+C",
-        isValid: function () { return Pencil.activeCanvas.currentController; },
+        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController; },
         run: function () {
             Pencil.activeCanvas.doCopy();
         }

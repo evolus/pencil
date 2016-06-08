@@ -49,7 +49,7 @@ PageThumbnailView.prototype._updateUI = function () {
     if (!this.page.children || this.page.children.length == 0) this.pageActionButton.style.visibility = "hidden";
     if (this.page.thumbPath) this.pageThumbnail.src = this.page.thumbPath + "?time=" + (new Date().getTime());
     this.pageTitle.innerHTML = this.page.name;
-    this.node().setAttribute("title", this.page.id);
+    this.node().setAttribute("title", this.page.name);
 };
 
 PageThumbnailView.prototype.selectPage = function (active) {
