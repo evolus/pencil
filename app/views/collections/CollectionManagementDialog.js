@@ -18,6 +18,18 @@ function CollectionManagementDialog (collectionPanel) {
         };
     }, false);
 
+    this.collectionContainer.addEventListener("mouseover",function (event) {
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (node) {
+            if (this.activeTop) {
+                this.activeTop.removeAttribute("active");
+                this.activeTop = null;
+            }
+            this.activeTop = node;
+            node.setAttribute("active","true");
+        }
+    }, false);
+
     var thiz = this;
     this.collectionContainer.addEventListener("dblclick",function (event) {
         var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
@@ -32,6 +44,7 @@ function CollectionManagementDialog (collectionPanel) {
     this.bind("dragover", function (ev) {
         if (this.hoverTop) {
             this.hoverTop.removeAttribute("hover");
+            this.hoverTop = null;
         }
         var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
         if (top) {
@@ -42,11 +55,15 @@ function CollectionManagementDialog (collectionPanel) {
     }, this.collectionContainer);
 
     this.bind("drop", function (ev) {
-        if (this.hoverTop._collection && this.hoverTop._collection.id != ev.dataTransfer.getData("collectionId") ) {
-            console.log("swap collection:" , this.hoverTop._collection, "with" + ev.dataTransfer.getData("collectionId"));
-            CollectionManager.reOrderCollections(ev.dataTransfer.getData("collectionId"),this.hoverTop._collection);
+        if (this.hoverTop) {
+            this.hoverTop.removeAttribute("hover");
+            this.hoverTop = null;
+        }
+        var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (top && top._collection.id != ev.dataTransfer.getData("collectionId")) {
+            CollectionManager.reOrderCollections(ev.dataTransfer.getData("collectionId"),top._collection);
             thiz.loadCollectionList();
-            thiz.collectionPanel.reload();
+            thiz.collectionPanel.reload(ev.dataTransfer.getData("collectionId"));
         }
     }, this.collectionContainer);
 
@@ -189,6 +206,7 @@ CollectionManagementDialog.prototype.loadCollectionList = function () {
         this.collectionContainer.appendChild(this.createCollectionView(collections[i]));
     }
 }
+
 CollectionManagementDialog.prototype.getDialogActions = function () {
     var thiz = this;
     return [

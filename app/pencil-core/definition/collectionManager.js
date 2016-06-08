@@ -4,6 +4,7 @@ CollectionManager.shapeDefinition = {};
 CollectionManager.shapeDefinition.collections = [];
 CollectionManager.shapeDefinition.shapeDefMap = {};
 CollectionManager.shapeDefinition.shortcutMap = {};
+// Collectionmanager.collectionPosition = [];
 
 CollectionManager.addShapeDefCollection = function (collection) {
     if (!collection) return;
@@ -188,6 +189,24 @@ CollectionManager.loadStencils = function(showNotification) {
     });
 
     CollectionManager._loadDeveloperStencil();
+
+    CollectionManager.collectionPosition = Config.get("Collection.collectionPosition").split(",");
+
+    if (CollectionManager.collectionPosition.length > 0) {
+        var collections = CollectionManager.shapeDefinition.collections;
+        for (var i = 0; i < CollectionManager.collectionPosition.length; i++) {
+            for (var j = 0; j < CollectionManager.shapeDefinition.collections.length; j++) {
+                if (CollectionManager.shapeDefinition.collections[j].id == CollectionManager.collectionPosition[i]) {
+                    if(j != i) {
+                        var coll = CollectionManager.shapeDefinition.collections[j];
+                        CollectionManager.shapeDefinition.collections.splice(j,1);
+                        CollectionManager.shapeDefinition.collections.splice(i,0,coll);
+                    }
+                    break;
+                }
+            }
+        }
+    }
 
     CollectionManager.reloadCollectionPane();
 
@@ -466,24 +485,24 @@ CollectionManager.unselectDeveloperStencilDir = function () {
     NotificationPopup.show("Developer stencil is unloaded.");
 };
 
-CollectionManager.findCollectionById = function (collectionId) {
-    var result = null;
-    for (var i in CollectionManager.shapeDefinition.collections) {
-        if (CollectionManager.shapeDefinition.collections[i].id == collectionId) {
-            result = CollectionManager.shapeDefinition.collections[i];
-            break;
-        }
-    }
-    return result;
-}
-
 CollectionManager.reOrderCollections = function(collectionId, toCollection) {
     var collections = CollectionManager.shapeDefinition.collections;
-    var collectionTarget = CollectionManager.findCollectionById(collectionId);
+    var collectionTarget = CollectionManager.findCollection(collectionId);
     var index = collections.indexOf(collectionTarget);
     collections.splice(index, 1);
     if (collectionTarget) {
         index =  collections.indexOf(toCollection);
         collections.splice(index, 0, collectionTarget);
     }
+    CollectionManager.positionChange();
+
+}
+
+CollectionManager.positionChange = function () {
+    var positionString = "";
+    for (var i = 0; i < CollectionManager.shapeDefinition.collections.length; i++) {
+        positionString += CollectionManager.shapeDefinition.collections[i].id + ",";
+        // Collectionmanager.collectionPosition.push(CollectionManager.shapeDefinition.collections[i].id);
+    }
+    Config.set("Collection.collectionPosition", positionString);
 }
