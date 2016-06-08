@@ -138,6 +138,9 @@ module.exports = function () {
                     style = RegExp.$1;
                 }
 
+                // TODO: use default fontsize
+                size = 11;
+
                 callback({
                    family: family,
                    weight: weight,

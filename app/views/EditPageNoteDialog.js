@@ -1,6 +1,7 @@
 function EditPageNoteDialog () {
     Dialog.call(this);
-    this.title = "Edit Page Note";
+    this.title = "Page Note";
+    this.subTitle = "Edit extra note for the drawing page";
     //this.initialize();
     this.bind("p:PopupHidden", function () {
         this.selectorContainer.removePopup();
