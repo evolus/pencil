@@ -4,9 +4,7 @@ if (require('electron-squirrel-startup')) {
   return;
 }
 
-const electron = require("electron");
-const app      = electron.app;
-const Console  = require("console").Console;
+const {app, protocol, shell, BrowserWindow} = require("electron");
 const pkg      = require("./package.json");
 const fs       = require("fs");
 const path     = require("path");
@@ -14,12 +12,9 @@ const path     = require("path");
 app.commandLine.appendSwitch("allow-file-access-from-files");
 app.commandLine.appendSwitch("allow-file-access");
 
-const BrowserWindow = electron.BrowserWindow;
-
-
 var handleRedirect = (e, url) => {
     e.preventDefault();
-    electron.shell.openExternal(url);
+    shell.openExternal(url);
 }
 
 var mainWindow = null;
@@ -84,9 +79,6 @@ app.on("window-all-closed", function() {
 });
 
 app.on('ready', function() {
-    var protocol = require('protocol');
-    var fs = require('fs');
-
     protocol.registerBufferProtocol("ref", function(request, callback) {
         var path = request.url.substr(6);
         console.log("PATH", path);
