@@ -31,6 +31,13 @@ ColorPropertyEditor.prototype.setup = function () {
         thiz.onValueChanged(thiz.selector);
     }, false);
 
+    this.selector.addEventListener("p:CloseColorSelector", function (event) {
+        if (thiz.selectorContainer.isVisible()) {
+            thiz.selectorContainer.hide();
+            return;
+        }
+    }, false);
+
     this.colorText.addEventListener("change", function(event) {
         var val = thiz.colorText.value;
         var uppercaseVal = val.toRGBString ? val.toRGBString().toUpperCase() : (val.toUpperCase ? val.toUpperCase() : val);

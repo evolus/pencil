@@ -42,7 +42,18 @@ function CollectionManagementDialog (collectionPanel) {
         thiz.close();
     }, false);
 
+    this.bind("dragstart", function (ev) {
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (!node) return;
+        ev.dataTransfer.setData("collectionId", node._collection.id);
+        ev.dataTransfer.setData("dragType", "collection");
+        if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
+        this.currentDraggedObject = node;
+        this.currentDraggedObject.setAttribute("dragged", "true");
+    }, this.collectionContainer);
+
     this.bind("dragover", function (ev) {
+        if (event.dataTransfer.getData("dragType") != "collection") return;
         if (this.hoverNode) {
             this.hoverNode.removeAttribute("hover");
             this.hoverNode = null;
@@ -56,25 +67,26 @@ function CollectionManagementDialog (collectionPanel) {
     }, this.collectionContainer);
 
     this.bind("drop", function (ev) {
+        if (event.dataTransfer.getData("dragType") != "collection") return;
         if (this.hoverNode) {
             this.hoverNode.removeAttribute("hover");
             this.hoverNode = null;
         }
         var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (!node) return;
         var draggedCollectionId = ev.dataTransfer.getData("collectionId");
         var targetCollectionId = node._collection.id;
-        if (node && node._collection.id != draggedCollectionId) {
+        if (node._collection.id != draggedCollectionId) {
             CollectionManager.reorderCollections(draggedCollectionId, targetCollectionId);
             thiz.loadCollectionList();
-            thiz.collectionPanel.reload(draggedCollectionId);
+            thiz.collectionPanel.reload();
         }
+        node.removeAttribute("hover");
     }, this.collectionContainer);
 
-    this.bind("dragstart", function (ev) {
-        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
-        if (node) {
-            ev.dataTransfer.setData("collectionId", node._collection.id);
-        }
+    this.bind("dragend", function (event) {
+        if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
+        this.currentDraggedObject = null;
     }, this.collectionContainer);
 
 }

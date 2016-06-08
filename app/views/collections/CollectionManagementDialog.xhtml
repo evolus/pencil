@@ -1,13 +1,18 @@
 <vbox class="Form">
     <style>
-        @collectionContainer vbox[hover="true"] {
-            outline-color: #339933;
-            outline-style: inset;
+        @collectionContainer > vbox[hover="true"] {
+            outline: solid 2px fadeout(@selected_bg, 30%);
+            outline-offset: 0px;
         }
 
-        @collectionContainer vbox[active="true"] {
-            outline-color: #2781db;
-            outline-style: inset;
+        @collectionContainer > vbox:hover {
+            outline: solid 1px fadeout(@selected_bg, 40%);
+            outline-offset: 0px;
+        }
+
+        @collectionContainer > vbox[dragged="true"] {
+            outline: dashed 1px fadeout(@selected_bg, 40%);
+            outline-offset: 0px;
         }
 
         @collectionContainer {
