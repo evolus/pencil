@@ -130,6 +130,7 @@ Dialog.prototype.createButton = function (action) {
     return button;
 };
 Dialog.prototype.show = function () {
+    this._originalFocusedTarget = Dialog.lastFocusedTarget;
     this.dialogFrame.parentNode.removeChild(this.dialogFrame);
     if (this.overlay) {
         if (this.overlay.parentNode) this.overlay.parentNode.removeChild(this.overlay);
@@ -208,6 +209,13 @@ Dialog.prototype.close = function () {
         if (args.length > 0 && this.callback) {
             this.callback.apply(window, args);
         }
+
+        if (this._originalFocusedTarget) {
+            try {
+                this._originalFocusedTarget.focus();
+            } catch (e) {
+            }
+        }
     }.bind(this), 100);
 };
 Dialog.prototype.callback = function (callback) {
@@ -235,6 +243,23 @@ Dialog.globalMouseMoveHandler = function (event) {
 
     Dialog.heldInstance.moveBy(dx, dy);
 };
+Dialog.globalFocusHandler = function (event) {
+    Dialog.lastFocusedTarget = event.target;
+    if (!BaseWidget.closables || BaseWidget.closables.length <= 0) return;
+    var closable = BaseWidget.closables[BaseWidget.closables.length - 1];
+    if (!__isSubClassOf(closable.constructor, Dialog)) return;
+
+    var frame = Dom.findUpward(event.target, function (node) {
+        return node == closable.dialogFrame;
+    });
+
+    if (frame) return;
+    closable.dialogFrame.focus();
+};
+window.addEventListener("load", function () {
+    window.document.addEventListener("focus", Dialog.globalFocusHandler, true);
+}, false);
+
 Dialog.prototype.handleCloseClick = function () {
     if (!this.closeHandler) return;
     var returnValue = this.closeHandler.apply(this);

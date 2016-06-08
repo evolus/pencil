@@ -481,7 +481,7 @@ CollectionManager.selectDeveloperStencilDir = function () {
 };
 CollectionManager.unselectDeveloperStencilDir = function () {
     Config.set("dev.stencil.path", "none");
-    CollectionManager.loadStencils();
+    CollectionManager.reloadDeveloperStencil();
     NotificationPopup.show("Developer stencil is unloaded.");
 };
 

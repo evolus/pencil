@@ -129,9 +129,29 @@
             margin-top: -0.4ex;
         }
         @toolbarContainer > * + * {
-            margin-left: 0.4ex;
-            margin-top: 0.4ex;
+            margin-left: @toolbar_gap;
+            margin-top: @toolbar_gap;
         }
+        @toolbarContainer *[label] {
+            position: relative;
+        }
+        @toolbarContainer *[label]:after {
+            display: block;
+            content: attr(label);
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            top: -1.3em;
+            text-align: center;
+            color: darken(@app_bg, 15%);
+            text-shadow: 1px 1px 0px lighten(@app_bg, 5%);
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+        @toolbarContainer *[label]:hover:after {
+            color: darken(@app_bg, 45%);
+        }
+
     </style>
 
     <vbox flex="1" anon-id="mainArea">
@@ -146,12 +166,12 @@
                 <hbox anon-id="toolbarContainer">
                     <ui:FileToolbar />
                     <ui:EditToolbar />
-                    <ui:ZoomToolbar />
-                    <ui:AlignmentToolbar />
-                    <ui:SizeToolbar />
-                    <ui:SharedFontEditor anon-id="sharedFontEditor" />
-                    <ui:ColorEditor />
-                    <ui:SharedBorderStyleEditor />
+                    <ui:ZoomToolbar label="100%" />
+                    <ui:AlignmentToolbar label="Alignment"/>
+                    <ui:SizeToolbar label="Same sizes &amp; Spaces"/>
+                    <ui:SharedFontEditor anon-id="sharedFontEditor" label="Text style" />
+                    <ui:ColorEditor label="Colors" />
+                    <ui:SharedBorderStyleEditor label="Line style" />
                     <ui:SharedGeomtryEditor />
                 </hbox>
             </vbox>

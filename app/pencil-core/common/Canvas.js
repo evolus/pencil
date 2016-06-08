@@ -1951,7 +1951,7 @@ Canvas.prototype.handleMouseDown = function (event) {
             break;
         }
     }
-    if (event.shiftKey) {
+    if (event.ctrlKey && event.shiftKey) {
         if (!foundTarget && top) {
             thiz.clearSelection();
             thiz.addToSelection(thiz.createControllerFor(top));

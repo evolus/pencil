@@ -295,8 +295,12 @@ Shape.prototype.storeProperty = function (name, value) {
         propNode = this.metaNode.ownerDocument.createElementNS(PencilNamespaces.p, "p:property");
         propNode.setAttribute("name", name);
         this.metaNode.appendChild(propNode);
-    } else Dom.empty(propNode);
+    }
 
+    Shape.storePropertyToNode(name, value, propNode);
+};
+Shape.storePropertyToNode = function (name, value, propNode) {
+    Dom.empty(propNode);
     var attrs = propNode.attributes;
     for (var i = attrs.length - 1; i >= 0; i --) {
         if (attrs[i].namespaceURI == PencilNamespaces.p) {

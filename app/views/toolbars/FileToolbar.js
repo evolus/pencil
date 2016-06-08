@@ -44,7 +44,7 @@ FileToolbar.prototype.registerCommands = function () {
                 ApplicationPane._instance.showStartupPane();
             });
         },
-        shortcut: "Ctrl+W"
+        shortcut: "Ctrl+Shift+W"
     });
     UICommandManager.register({
         key: "saveAsDocumentCommand",

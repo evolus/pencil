@@ -1,8 +1,5 @@
 <hbox>
     <style>
-        @fontContainer > * + * {
-            margin-left: 0.2em;
-        }
         @boldButton span {
             font-weight: bold;
         }
@@ -12,36 +9,25 @@
         @underlineButton span {
             text-decoration: underline;
         }
-        @fontContainer button[checked="true"]{
-            border-color: #000000;
-
-        }
         @pixelFontSize {
             width: 4em;
         }
 
-        .widget_ComboManager button @buttonDisplay {
-            width: 10em;
+        .widget_ComboManager @buttonDisplay {
             display: inline-block;
         }
-        @fontContainer @fontCombo {
-            margin-left: @toolbar_spacing;
-            margin-right: @toolbar_spacing;
-        }
-        @fontContainer @fontCombo button {
-            width: 12em;
+        @fontContainer @button {
+            width: 10em;
         }
     </style>
     <vbox>
         <hbox anon-id="fontContainer">
             <hbox class="ButtonGroup">
-                <button anon-id="formatPainterButton" mode="icon"><i>format_paint</i></button>
-            </hbox>
-            <ui:ComboManager anon-id="fontCombo" />
-            <input anon-id="pixelFontSize" type="number" min="0" />
-            <hbox class="ButtonGroup">
-                <button anon-id="boldButton" mode="icon"><i>format_bold</i></button>
-                <button anon-id="italicButton" mode="icon"><i>format_italic</i></button>
+                <button anon-id="formatPainterButton" mode="icon" class="AdoptedOrphan" title="Copy shape format"><i>format_paint</i></button>
+                <ui:ComboManager anon-id="fontCombo" title="Text font" />
+                <input anon-id="pixelFontSize" type="number" min="0" title="Text size" />
+                <button anon-id="boldButton" mode="icon" title="Bold"><i>format_bold</i></button>
+                <button anon-id="italicButton" mode="icon" title="Italic"><i>format_italic</i></button>
             </hbox>
         </hbox>
     </vbox>

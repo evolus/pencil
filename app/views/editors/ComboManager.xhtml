@@ -1,18 +1,13 @@
-<hbox>
+<button anon-id="button">
     <style>
-        body .widget_ComboManager[flex] @selectContainer {
-            display: flex;
-            flex-direction: row;
-            flex: 1;
-        }
-        body .widget_ComboManager[flex] @selectContainer > button {
-            flex: 1;
+        @this {
             display: inline-flex;
         }
-        body .widget_ComboManager[flex] @selectContainer > button > @buttonDisplay {
+        @buttonDisplay {
             flex: 1;
+            text-align: left;
         }
-        @button {
+        @this {
             white-space: nowrap;
             text-align: left;
             padding-right: 0.5em;
@@ -45,12 +40,13 @@
         @buttonDisplay {
             padding-left: 0em !important;
         }
+        @popup {
+            display: none;
+        }
     </style>
-    <div anon-id="selectContainer">
-        <button anon-id="button"><span anon-id="buttonDisplay"></span><i>expand_more</i></button>
-        <ui:Popup anon-id="popup">
-            <vbox anon-id="list">
-            </vbox>
-        </ui:Popup>
-    </div>
-</hbox>
+    <span anon-id="buttonDisplay"></span><i>expand_more</i>
+    <ui:Popup anon-id="popup">
+        <vbox anon-id="list">
+        </vbox>
+    </ui:Popup>
+</button>

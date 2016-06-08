@@ -9,6 +9,7 @@ ZoomToolbar.prototype.registerCommands = function () {
         label: "Zoom in",
         icon: "zoom_in",
         shortcut: "Ctrl+EQUALS",
+        shortcutLabel: "Ctrl+=",
         run: function () {
             Pencil.activeCanvas.zoomTo(Pencil.activeCanvas.zoom * 1.25);
         }
@@ -16,6 +17,7 @@ ZoomToolbar.prototype.registerCommands = function () {
     UICommandManager.register({
         key: "zoomOutCommand",
         shortcut: "Ctrl+SUBTRACT",
+        shortcutLabel: "Ctrl+-",
         label: "Zoom out",
         icon: "zoom_out",
         run: function () {
