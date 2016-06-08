@@ -185,7 +185,8 @@ CollectionManager.loadStencils = function(showNotification) {
 
     CollectionManager._loadDeveloperStencil();
 
-    var collectionOrder = Config.get("Collection.collectionPosition").split(",") || [];
+    var config = Config.get("Collection.collectionPosition");
+    var collectionOrder = config ? (config.split(",") || []) : [];
 
     CollectionManager.shapeDefinition.collections = CollectionManager.shapeDefinition.collections.sort(function (a, b) {
         var indexA = collectionOrder.indexOf(a.id);
