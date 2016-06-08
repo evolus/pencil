@@ -4,16 +4,16 @@
             width: 4.5em;
         }
         > * + * {
-            margin-left: 0.4ex;
+            margin-left: @toolbar_gap;
         }
     </style>
     <hbox anon-id="locationGroup" class="ButtonGroup" label="Location">
-        <input anon-id="shapeX" type="number" min="0" /><input anon-id="shapeY" type="number" min="0" />
+        <input anon-id="shapeX" type="number" min="0" title="Left" /><input anon-id="shapeY" type="number" min="0" title="Top" />
     </hbox>
     <hbox anon-id="sizeGroup" class="ButtonGroup" label="Size">
-        <input anon-id="shapeWidth" type="number" min="0" /><input anon-id="shapeHeight" type="number" min="0" />
+        <input anon-id="shapeWidth" type="number" min="0" title="Width" /><input anon-id="shapeHeight" type="number" min="0" title="Height" />
     </hbox>
     <hbox label="Rotation">
-        <input anon-id="shapeAngle" type="number" min="-360" />
+        <input anon-id="shapeAngle" type="number" min="-360" title="Angle (degree)" />
     </hbox>
 </hbox>

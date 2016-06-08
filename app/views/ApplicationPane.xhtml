@@ -129,8 +129,8 @@
             margin-top: -0.4ex;
         }
         @toolbarContainer > * + * {
-            margin-left: 0.4ex;
-            margin-top: 0.4ex;
+            margin-left: @toolbar_gap;
+            margin-top: @toolbar_gap;
         }
         @toolbarContainer *[label] {
             position: relative;
@@ -145,7 +145,11 @@
             text-align: center;
             color: darken(@app_bg, 15%);
             text-shadow: 1px 1px 0px lighten(@app_bg, 5%);
-            font-size: 0.9em;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+        @toolbarContainer *[label]:hover:after {
+            color: darken(@app_bg, 45%);
         }
 
     </style>
