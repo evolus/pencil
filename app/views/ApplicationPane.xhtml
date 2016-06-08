@@ -116,6 +116,7 @@
         @appName {
             font-size: 2em;
             color: darken(saturate(#da8500, 20%), 0%);
+            cursor: default;
         }
         @appName * {
             vertical-align: middle;
@@ -126,7 +127,7 @@
         }
         @toolbarContainer {
             flex-wrap: wrap;
-            margin-top: -0.4ex;
+            xmargin-top: -1.2ex;
         }
         @toolbarContainer > * + * {
             margin-left: @toolbar_gap;
@@ -141,7 +142,7 @@
             position: absolute;
             left: 0px;
             right: 0px;
-            top: -1.3em;
+            top: -0.3em;
             text-align: center;
             color: darken(@app_bg, 15%);
             text-shadow: 1px 1px 0px lighten(@app_bg, 5%);
@@ -150,6 +151,10 @@
         }
         @toolbarContainer *[label]:hover:after {
             color: darken(@app_bg, 45%);
+        }
+        @toolbarContainer *[label] {
+            padding-top: 0.8em;
+            padding-bottom: 0.8em;
         }
 
     </style>
@@ -164,8 +169,8 @@
             </hbox>
             <vbox flex="1">
                 <hbox anon-id="toolbarContainer">
-                    <ui:FileToolbar />
-                    <ui:EditToolbar />
+                    <ui:FileToolbar label="" />
+                    <ui:EditToolbar label="Edit" />
                     <ui:ZoomToolbar label="100%" />
                     <ui:AlignmentToolbar label="Alignment"/>
                     <ui:SizeToolbar label="Same sizes &amp; Spaces"/>
