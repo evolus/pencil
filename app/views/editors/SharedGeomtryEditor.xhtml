@@ -1,38 +1,19 @@
 <hbox>
     <style>
-        @container > * + * {
-            margin-left: 0.2em;
-        }
-        @container input {
+        input {
             width: 4.5em;
         }
-        .Group {
-            align-items: center;
+        > * + * {
+            margin-left: 0.4ex;
         }
-        .Group input[disabled] {
-            opacity: 0.5;
-        }
-        .Group + .Group {
-            margin-left: 2em;
-        }
-        .Group span {
-            opacity: 0.3;
-            padding-left: 0.1em;
-            padding-right: 0.1em
-        }
-
     </style>
-    <vbox>
-        <hbox anon-id="container">
-            <hbox anon-id="locationGroup" class="Group">
-                <input anon-id="shapeX" type="number" min="0" /><span>:</span><input anon-id="shapeY" type="number" min="0" />
-            </hbox>
-            <hbox anon-id="sizeGroup" class="Group">
-                <input anon-id="shapeWidth" type="number" min="0" /><span>x</span><input anon-id="shapeHeight" type="number" min="0" />
-            </hbox>
-            <hbox anon-id="sizeGroup" class="Group">
-                <input anon-id="shapeAngle" type="number" min="-360" />
-            </hbox>
-        </hbox>
-    </vbox>
+    <hbox anon-id="locationGroup" class="ButtonGroup" label="Location">
+        <input anon-id="shapeX" type="number" min="0" /><input anon-id="shapeY" type="number" min="0" />
+    </hbox>
+    <hbox anon-id="sizeGroup" class="ButtonGroup" label="Size">
+        <input anon-id="shapeWidth" type="number" min="0" /><input anon-id="shapeHeight" type="number" min="0" />
+    </hbox>
+    <hbox label="Rotation">
+        <input anon-id="shapeAngle" type="number" min="-360" />
+    </hbox>
 </hbox>

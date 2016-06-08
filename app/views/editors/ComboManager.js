@@ -1,5 +1,6 @@
 function ComboManager() {
     BaseTemplatedWidget.call(this);
+    this.button = this.node();
     this.renderer = ComboManager.DEFAULT_RENDERER;
     this.bind("click", function () {
         if (this.popup.isVisible()) {
