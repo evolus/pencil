@@ -101,6 +101,8 @@ function ColorSelector() {
 
 
     this.bright.addEventListener("change", function(event) {
+        if (!thiz.bright.value) thiz.bright.value = 0;
+
         var hsv = thiz.color.getHSV();
         var a = thiz.color.a;
 
@@ -110,6 +112,8 @@ function ColorSelector() {
     }, false);
 
     this.hue.addEventListener("change", function(event) {
+        if (!thiz.hue.value) thiz.hue.value = 0;
+
         var hsv = thiz.color.getHSV();
         var a = thiz.color.a;
 
@@ -118,6 +122,8 @@ function ColorSelector() {
         thiz.onValueChanged(thiz.hue);
     }, false);
     this.sat.addEventListener("change", function(event) {
+        if (!thiz.sat.value) thiz.sat.value = 0;
+        
         var hsv = thiz.color.getHSV();
         var a = thiz.color.a;
 
