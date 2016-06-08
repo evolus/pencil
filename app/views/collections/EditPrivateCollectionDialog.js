@@ -1,6 +1,7 @@
 function EditPrivateCollectionDialog() {
     Dialog.call(this);
-    this.title="Edit Private Collection Infomation";
+    this.title="Private Collection";
+    this.subTitle = "Edit private collection properties";
     this.modified = false;
 
     this.bind("change",function(event) {this.modified = true;}, this.collectionName);

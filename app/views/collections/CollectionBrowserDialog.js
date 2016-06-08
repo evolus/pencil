@@ -3,7 +3,8 @@ function CollectionBrowserDialog (collectionPanel, managerDialog) {
 
     this.collectionPanel = collectionPanel;
     this.managerDialog = managerDialog;
-    this.title = "Browse Collections";
+    this.title = "Collection Repository";
+    this.subTitle = "Browse the user-contributed collection repository."
 
     this.collectionRepeater.populator = function (collection, binding) {
         binding.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);

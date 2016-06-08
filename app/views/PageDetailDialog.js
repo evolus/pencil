@@ -2,6 +2,7 @@ function PageDetailDialog() {
     Dialog.call(this);
     this.modified = false;
     this.title = "Add Page";
+    this.subTitle = "Configure page properties";
     this.pageCombo.renderer = function (canvas) {
         return canvas.name;
     };

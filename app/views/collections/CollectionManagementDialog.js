@@ -3,6 +3,7 @@ function CollectionManagementDialog (collectionPanel) {
 
     this.collectionPanel = collectionPanel;
     this.title = "Manage Collections";
+    this.subTitle = "Browse the list of collections installed in this system.";
 
     this.loadCollectionList();
 

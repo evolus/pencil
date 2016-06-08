@@ -1,6 +1,7 @@
 function EditPrivateShapeDialog() {
     Dialog.call(this);
-    this.title="Edit Private Shape Infomation";
+    this.title="Private Shape";
+    this.subTitle = "Edit private shape information";
     this.modified = false;
     this.bind("change", function() {
         var value = this.changeIconCheck.checked;

@@ -1,6 +1,7 @@
 function ExportDialog () {
     Dialog.call(this);
     this.title = "Export Document";
+    this.subTitle = "Select source pages and target output format with options";
 
     function sameIdComparer(a, b) {
         if (!a) return !b;
