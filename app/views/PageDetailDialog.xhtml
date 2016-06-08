@@ -26,6 +26,9 @@
         @sizeInputContainer > input + * {
             margin-left: 0.4em;
         }
+        @pageSizeCombo {
+            width: 17em;
+        }
     </style>
     <div class="Description">
         Please enter the page properties:
@@ -42,8 +45,8 @@
         <label for="pageSizeCombo">Page Size:</label>
         <ui:ComboManager flex="1" anon-id="pageSizeCombo"/>
         <hbox anon-id="sizeInputContainer">
-            <label for="widthInput">W:</label><input type="number" anon-id="widthInput" min="0"/>
-            <label for="heightInput">H:</label><input type="number" anon-id="heightInput" min="0"/>
+            <label for="widthInput">W:</label><input type="number" anon-id="widthInput" min="24" value="24"/>
+            <label for="heightInput">H:</label><input type="number" anon-id="heightInput" min="24" value="24"/>
         </hbox>
     </hbox>
     <hbox class="InputRow">
