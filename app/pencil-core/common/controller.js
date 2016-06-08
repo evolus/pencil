@@ -1269,7 +1269,9 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
     var page = passedPage ? passedPage : this.activePage;
     var canvas = page.canvas;
     if (!canvas) return;
-
+    if (canvas.zoom != 1) {
+        canvas.zoomTo(1);
+    }
     var newSize = this.applicationPane.getBestFitSizeObject();
     if (newSize) {
         canvas.setSize(newSize.width, newSize.height);
