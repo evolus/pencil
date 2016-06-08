@@ -18,8 +18,8 @@ Config._save = function () {
     fs.writeFileSync(Config.getDataFilePath(Config.CONFIG_FILE_NAME), JSON.stringify(Config.data, null, 4), "utf8");
 };
 Config._load = function () {
-    var json = fs.readFileSync(Config.getDataFilePath(Config.CONFIG_FILE_NAME), "utf8");
     try {
+        var json = fs.readFileSync(Config.getDataFilePath(Config.CONFIG_FILE_NAME), "utf8");
         Config.data = JSON.parse(json);
     } catch (e) {
         console.error(e);
@@ -29,8 +29,8 @@ Config._load = function () {
 Config.set = function (name, value) {
     Config.data[name] = value;
     Config._save();
-    window.globalEventBus.broadcast("config-change", { name: name, value: value });
-    return;
+
+    window.globalEventBus && window.globalEventBus.broadcast("config-change", { name: name, value: value });
 };
 
 Config.get = function (name, defaultValue) {
