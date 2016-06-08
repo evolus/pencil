@@ -33,6 +33,7 @@ function Canvas(element) {
     this.addEventListener("mouseup", function (event) {
         if (thiz.duplicateMode) {
             thiz.mouseUp = true;
+            thiz.duplicateMode = null;
         }
     }, false);
 
@@ -188,41 +189,41 @@ function Canvas(element) {
         thiz.handleKeyPress(event);
     }, false);
 
-    this.focusableBox.addEventListener("keyup", function (event) {
-        if (event.keyCode == DOM_VK_SHIFT) {
-            if(thiz.duplicateMode) {
-                thiz.duplicateMode = false;
-                console.log(thiz.mouseUp);
-                if (!thiz.mouseUp) {
-                    thiz.run(function () {
-                        thiz.currentController.deleteTarget();
-                    }, thiz, Util.getMessage("action.delete.shape",
-                            thiz.currentController.getName()));
-                    thiz.currentController = null;
-                    thiz._detachEditors();
-                    thiz.clearSelection();
-                    thiz._sayTargetChanged();
-                    event.preventDefault();
-
-                    if (thiz.oldTargets) {
-                        if (!thiz.oldTargets.targets) {
-                            thiz.addToSelection(thiz.oldTargets);
-                            thiz.currentController = thiz.oldTargets;
-                            thiz.reClick = false;
-                            thiz._attachEditors(thiz.currentController);
-                        } else {
-                            for(i in thiz.oldTargets.targets) {
-                                thiz.addToSelection(thiz.oldTargets.targets[i]);
-                            }
-                            thiz.currentController = thiz.oldTargets;
-                        }
-                        thiz.oldTargets = null;
-                        thiz._sayTargetChanged();
-                    }
-                }
-            }
-        }
-    }, false);
+    // this.focusableBox.addEventListener("keyup", function (event) {
+    //     if (event.keyCode == DOM_VK_SHIFT) {
+    //         if(thiz.duplicateMode) {
+    //             thiz.duplicateMode = false;
+    //             console.log(thiz.mouseUp);
+    //             if (!thiz.mouseUp) {
+    //                 thiz.run(function () {
+    //                     thiz.currentController.deleteTarget();
+    //                 }, thiz, Util.getMessage("action.delete.shape",
+    //                         thiz.currentController.getName()));
+    //                 thiz.currentController = null;
+    //                 thiz._detachEditors();
+    //                 thiz.clearSelection();
+    //                 thiz._sayTargetChanged();
+    //                 event.preventDefault();
+    //
+    //                 if (thiz.oldTargets) {
+    //                     if (!thiz.oldTargets.targets) {
+    //                         thiz.addToSelection(thiz.oldTargets);
+    //                         thiz.currentController = thiz.oldTargets;
+    //                         thiz.reClick = false;
+    //                         thiz._attachEditors(thiz.currentController);
+    //                     } else {
+    //                         for(i in thiz.oldTargets.targets) {
+    //                             thiz.addToSelection(thiz.oldTargets.targets[i]);
+    //                         }
+    //                         thiz.currentController = thiz.oldTargets;
+    //                     }
+    //                     thiz.oldTargets = null;
+    //                     thiz._sayTargetChanged();
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }, false);
 
     this.svg.ownerDocument.addEventListener("keydown", function (event) {
         if (event.keyCode == DOM_VK_SPACE && thiz.spaceHeld == false) {
@@ -1013,6 +1014,7 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                 this.duplicateFunc();
             }
         }
+
         this._currentPX = event.clientX / this.zoom;
         this._currentPY = event.clientY / this.zoom;
 
@@ -1951,22 +1953,17 @@ Canvas.prototype.handleMouseDown = function (event) {
             break;
         }
     }
-    if (event.ctrlKey && event.shiftKey) {
+    if (event.shiftKey) {
         if (!foundTarget && top) {
             thiz.clearSelection();
             thiz.addToSelection(thiz.createControllerFor(top));
         }
         this.duplicateMode = true;
         this.mouseUp = false;
-        this.oldTargets = null;
+
         var thiz = this;
         this.duplicateFunc = function () {
             console.log("current control: ",thiz.currentController);
-            if( thiz.currentController.targets) {
-                 thiz.oldTargets = thiz.currentController;
-            } else {
-                thiz.oldTargets = thiz.currentController;
-            }
             var target =thiz.currentController.createTransferableData();
             var contents = [];
 
