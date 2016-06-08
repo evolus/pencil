@@ -2737,13 +2737,13 @@ Canvas.prototype.__drop = function (event) {
     var thiz =this;
     var data = event.dataTransfer.getData("collectionId");
     var collections = CollectionManager.shapeDefinition.collections;
-    for (var i = 0; i < collections.length; i ++) {
-        if (collections[i].id == data) {
-            var count = CollectionManager.getCollectionUsage(collections[i]);
-            count++;
-            CollectionManager.setCollectionUsage(collections[i], count);
-        }
-    }
+    // for (var i = 0; i < collections.length; i ++) {
+    //     if (collections[i].id == data) {
+    //         var count = CollectionManager.getCollectionUsage(collections[i]);
+    //         count++;
+    //         CollectionManager.setCollectionUsage(collections[i], count);
+    //     }
+    // }
     this.element.removeAttribute("is-dragover");
     if (this.canvasContentModifiedListener) {
         this.canvasContentModifiedListener(thiz);

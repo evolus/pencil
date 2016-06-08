@@ -21,11 +21,11 @@ function CollectionManagementDialog (collectionPanel) {
     this.collectionContainer.addEventListener("mouseover",function (event) {
         var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
         if (node) {
-            if (this.activeTop) {
-                this.activeTop.removeAttribute("active");
-                this.activeTop = null;
+            if (this.activeNode) {
+                this.activeNode.removeAttribute("active");
+                this.activeNode = null;
             }
-            this.activeTop = node;
+            this.activeNode = node;
             node.setAttribute("active","true");
         }
     }, false);
@@ -42,28 +42,37 @@ function CollectionManagementDialog (collectionPanel) {
     }, false);
 
     this.bind("dragover", function (ev) {
-        if (this.hoverTop) {
-            this.hoverTop.removeAttribute("hover");
-            this.hoverTop = null;
+        if (this.hoverNode) {
+            this.hoverNode.removeAttribute("hover");
+            this.hoverNode = null;
         }
-        var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
-        if (top) {
-            top.setAttribute("hover", "true");
-            this.hoverTop = top;
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (node) {
+            node.setAttribute("hover", "true");
+            this.hoverNode = node;
         }
 
     }, this.collectionContainer);
 
     this.bind("drop", function (ev) {
-        if (this.hoverTop) {
-            this.hoverTop.removeAttribute("hover");
-            this.hoverTop = null;
+        if (this.hoverNode) {
+            this.hoverNode.removeAttribute("hover");
+            this.hoverNode = null;
         }
-        var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
-        if (top && top._collection.id != ev.dataTransfer.getData("collectionId")) {
-            CollectionManager.reOrderCollections(ev.dataTransfer.getData("collectionId"),top._collection);
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        var draggedCollectionId = ev.dataTransfer.getData("collectionId");
+        var targetCollectionId = node._collection.id;
+        if (node && node._collection.id != draggedCollectionId) {
+            CollectionManager.reorderCollections(draggedCollectionId, targetCollectionId);
             thiz.loadCollectionList();
-            thiz.collectionPanel.reload(ev.dataTransfer.getData("collectionId"));
+            thiz.collectionPanel.reload(draggedCollectionId);
+        }
+    }, this.collectionContainer);
+
+    this.bind("dragstart", function (ev) {
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (node) {
+            ev.dataTransfer.setData("collectionId", node._collection.id);
         }
     }, this.collectionContainer);
 
@@ -189,12 +198,6 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
     view._collection = collection;
     view.setAttribute("selected", "false");
     view.setAttribute("draggable", "true");
-
-    this.bind("dragstart", function (ev) {
-        var top = ev.target;
-        ev.dataTransfer.setData("collectionId", top._collection.id);
-
-    },view);
 
     return view;
 }
