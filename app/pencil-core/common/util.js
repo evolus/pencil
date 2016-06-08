@@ -988,8 +988,8 @@ Svg.getWidth = function (dom) {
         }
         return parseFloat(width);
     } catch (e) {
-        debug(new XMLSerializer().serializeToString(dom));
-        Console.dumpError(e);
+        console.debug(new XMLSerializer().serializeToString(dom));
+        console.error(e);
     }
     return 0;
 };
@@ -1188,11 +1188,7 @@ Console.dumpError = function (exception, toConsole) {
         "Stacktrace:\n\t" + (exception.stack ? exception.stack.replace(/\n/g, "\n\t") : "<empty stack trace>")
     ].join("\n");
 
-    if (true) {
-        debug(s);
-    } else {
-        alert(s);
-    }
+    console.error(s);
 };
 Console.alertError = function (exception, toConsole) {
     var s = [
@@ -1202,7 +1198,7 @@ Console.alertError = function (exception, toConsole) {
         "Stacktrace:\n\t" + (exception.stack ? exception.stack.replace(/\n/g, "\n\t") : "<empty stack trace>")
     ].join("\n");
 
-    alert(s);
+    console.debug(s);
 };
 
 var Util = {};

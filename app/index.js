@@ -17,11 +17,6 @@ app.commandLine.appendSwitch("allow-file-access");
 const BrowserWindow = electron.BrowserWindow;
 
 
-// logs
-const output = fs.createWriteStream(app.getPath("userData") + "/user.log");
-const errorOutput = fs.createWriteStream(app.getPath("userData") + "/error.log");
-const logger = new Console(output, errorOutput);
-
 var handleRedirect = (e, url) => {
     e.preventDefault();
     electron.shell.openExternal(url);
@@ -128,7 +123,7 @@ app.on("activate", function() {
 });
 
 process.on('uncaughtException', function (error) {
-    logger.error(error);
+    console.error(error);
 });
 
 console.log("Platform: " + process.platform.trim());
