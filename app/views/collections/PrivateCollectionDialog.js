@@ -1,6 +1,7 @@
 function PrivateCollectionDialog () {
     WizardDialog.call(this);
-    this.title = "Create Private Collection Wizard";
+    this.title = "Private Collection Wizard";
+    this.subTitle = "This wizard help you through the process of creating a private collection";
     this.myCollection;
 
     var thiz = this;
@@ -88,7 +89,7 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
             thiz.activeCollectionNode = item;
             thiz.valueHolder.collection = collection;
         }
-        
+
         if ( collection.value && collection.value == true) {
             item.setAttribute("class", "createPrivateCollection");
         }

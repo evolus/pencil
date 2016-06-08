@@ -9,7 +9,7 @@ AlignmentToolbar.prototype.registerCommands = function () {
         watchEvents: "p:TargetChanged",
         label: "Align left",
         shortcut: "L",
-        isValid: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignLeft; },
+        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignLeft; },
         run: function () {
             Pencil.activeCanvas.currentController.alignLeft();
         }
@@ -19,7 +19,7 @@ AlignmentToolbar.prototype.registerCommands = function () {
         watchEvents: "p:TargetChanged",
         shortcut: "C",
         label: "Align center horizontally",
-        isValid: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignCenter; },
+        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignCenter; },
         run: function () {
             Pencil.activeCanvas.currentController.alignCenter();
         }
@@ -29,7 +29,7 @@ AlignmentToolbar.prototype.registerCommands = function () {
         watchEvents: "p:TargetChanged",
         label: "Align right",
         shortcut: "R",
-        isValid: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignRight; },
+        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignRight; },
         run: function () {
             Pencil.activeCanvas.currentController.alignRight();
         }
@@ -39,7 +39,7 @@ AlignmentToolbar.prototype.registerCommands = function () {
         watchEvents: "p:TargetChanged",
         label: "Align top",
         shortcut: "T",
-        isValid: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignTop; },
+        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignTop; },
         run: function () {
             Pencil.activeCanvas.currentController.alignTop();
         }
@@ -50,7 +50,7 @@ AlignmentToolbar.prototype.registerCommands = function () {
         watchEvents: "p:TargetChanged",
         label: "Align middle vertically",
         shortcut: "M",
-        isValid: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignMiddle; },
+        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignMiddle; },
         run: function () {
             Pencil.activeCanvas.currentController.alignMiddle();
         }
@@ -60,7 +60,7 @@ AlignmentToolbar.prototype.registerCommands = function () {
         watchEvents: "p:TargetChanged",
         label: "Align bottom",
         shortcut: "B",
-        isValid: function () { return Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignBottom; },
+        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.alignBottom; },
         run: function () {
             Pencil.activeCanvas.currentController.alignBottom();
         }

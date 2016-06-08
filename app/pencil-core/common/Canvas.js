@@ -229,8 +229,8 @@ function Canvas(element) {
             thiz.spaceHeld = true;
             thiz._lastPX = thiz._currentPX;
             thiz._lastPY = thiz._currentPY;
-            thiz._lastScrollX = thiz.parentNode.scrollLeft;
-            thiz._lastScrollY = thiz.parentNode.scrollTop;
+            thiz._lastScrollX = thiz.parentNode && thiz.parentNode.scrollLeft || 0;
+            thiz._lastScrollY = thiz.parentNode && thiz.parentNode.scrollTop || 0;
             Dom.addClass(thiz, "PanDown");
         }
     }, false);

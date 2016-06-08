@@ -2,6 +2,7 @@ function PageDetailDialog() {
     Dialog.call(this);
     this.modified = false;
     this.title = "Add Page";
+    this.subTitle = "Configure page properties";
     this.pageCombo.renderer = function (canvas) {
         return canvas.name;
     };
@@ -32,13 +33,7 @@ function PageDetailDialog() {
     }, false);
 
     this.pageSizeCombo.addEventListener("p:ItemSelected", function (event) {
-        var pageSize = thiz.pageSizeCombo.getSelectedItem();
-        thiz.widthInput.disabled = pageSize.value;
-        thiz.heightInput.disabled = pageSize.value;
-        if (pageSize.value) {
-            thiz.setPageSizeValue(pageSize.value);
-        }
-
+        thiz.invalidatePageSizeUI();
         thiz.modified = true;
     }, false);
 
@@ -62,17 +57,19 @@ function PageDetailDialog() {
         thiz.modified = true;
     }, false);
 
-    this.pageTitle.addEventListener("change", function (event) {
+    this.pageTitle.addEventListener("input", function (event) {
         thiz.modified = true;
     }, false);
 
     this.widthInput.addEventListener("input", function () {
         var value = thiz.widthInput.value;
         if (!value || parseInt(value, 10) < 24) thiz.widthInput.value = 24;
+        thiz.modified = true;
     }, false);
     this.heightInput.addEventListener("input", function () {
         var value = thiz.heightInput.value;
         if (!value || parseInt(value, 10) < 24) thiz.heightInput.value = 24;
+        thiz.modified = true;
     }, false);
 
 }
@@ -114,26 +111,22 @@ Page.defaultPageSizes = [
     }
 ];
 
+const SIZE_RE = /^([0-9]+)x([0-9]+)$/;
+
 PageDetailDialog.prototype.onShown = function () {
     this.pageTitle.focus();
 };
-PageDetailDialog.prototype.setPageSizeValue = function (value) {
-    var index = value.indexOf("x");
-    if (index > -1) {
-        this.widthInput.value = parseInt(value.substring(0, index), 10);
-        this.heightInput.value = parseInt(value.substring(index + 1), 10);
+PageDetailDialog.prototype.invalidatePageSizeUI = function () {
+    var pageSize = this.pageSizeCombo.getSelectedItem();
+    var value = pageSize.value;
+    this.widthInput.disabled = value;
+    this.heightInput.disabled = value;
+    if (!value) return;
+    if (value.match(SIZE_RE)) {
+        this.widthInput.value = Math.max(24, parseInt(RegExp.$1, 10));
+        this.heightInput.value = Math.max(24, parseInt(RegExp.$2, 10));
     }
-}
-
-var createComboitems = function (pages, onDone, padding){
-    padding += 1;
-    for(var i = 0; i < pages.length; i++) {
-        onDone(pages[i], padding);
-        if (pages[i].children) {
-            createComboitems(pages[i].children, onDone, padding);
-        }
-    }
-}
+};
 
 PageDetailDialog.prototype.setup = function (options) {
     var thiz = this;
@@ -150,14 +143,13 @@ PageDetailDialog.prototype.setup = function (options) {
     var w = 24;
     var h = 24;
 
-    if (lastSizeConfig && lastSizeConfig.indexOf("x") >= 0) {
-        var index = lastSizeConfig.indexOf("x");
-        w = Math.max(24, Math.round(parseInt(lastSizeConfig.substring(0, index), 10)));
-        h = Math.max(24, Math.round(parseInt(lastSizeConfig.substring(index + 1), 10)));
+    if (lastSizeConfig && lastSizeConfig.match(SIZE_RE)) {
+        w = Math.max(24, parseInt(RegExp.$1, 10));
+        h = Math.max(24, parseInt(RegExp.$2, 10));
     }
 
-    var lastSize = w + "x" + h;
 
+    var lastSize = w + "x" + h;
     if (lastSize) {
         pageSizes.push({
             displayName: "Last used",
@@ -167,10 +159,9 @@ PageDetailDialog.prototype.setup = function (options) {
     }
 
     var bestFitSizeText = Pencil.controller.getBestFitSize();
-    if (bestFitSizeText && bestFitSizeText.indexOf("x") >= 0) {
-        var index = lastSizeConfig.indexOf("x");
-        w = Math.max(24, Math.round(parseInt(bestFitSizeText.substring(0, index), 10)));
-        h = Math.max(24, Math.round(parseInt(bestFitSizeText.substring(index + 1), 10)));
+    if (bestFitSizeText && bestFitSizeText.match(SIZE_RE)) {
+        w = Math.max(24, parseInt(RegExp.$1, 10));
+        h = Math.max(24, parseInt(RegExp.$2, 10));
     }
 
     var bestFitSize = w + "x" + h;
@@ -266,21 +257,22 @@ PageDetailDialog.prototype.setup = function (options) {
     this.backgroundCombo.setItems(backgroundItems);
 
     var pageSize = this.pageSizeCombo.getSelectedItem();
-    this.widthInput.disabled = pageSize.value;
-    this.heightInput.disabled = pageSize.value;
 
     if (options.parentpage) {
         this.pageCombo.selectItem(options.parentpage);
     }
 
-    if(this.originalPage) {
-        this.setPageItem(this.originalPage);
+    if (this.originalPage) {
+        this.updateUIWith(this.originalPage);
     }
+
+    this.invalidatePageSizeUI();
+
     var background = thiz.backgroundCombo.getSelectedItem();
     thiz.colorButton.disabled = background.value ? true : false;
 };
 
-PageDetailDialog.prototype.setPageItem = function (page) {
+PageDetailDialog.prototype.updateUIWith = function (page) {
     if (page.parentPage) {
         this.pageCombo.selectItem(page.parentPage);
     }
@@ -296,7 +288,6 @@ PageDetailDialog.prototype.setPageItem = function (page) {
     var thiz = this;
     if(index != null) {
         this.pageSizeCombo.selectItem(index);
-        this.setPageSizeValue(index.value);
     } else {
         this.pageSizeCombo.selectItem({
             displayName: "Custome size..."
@@ -329,8 +320,6 @@ PageDetailDialog.prototype.setPageItem = function (page) {
         this.colorButton.disabled = true;
     }
 }
-
-const SIZE_RE = /^([0-9]+)x([0-9]+)$/;
 
 PageDetailDialog.prototype.createPage = function () {
     var name = this.pageTitle.value;
@@ -433,8 +422,8 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {
             type: "accept", title: this.originalPage ? "Update" : "Create",
             run: function () {
-                if(this.pageTitle.value == "" ) {
-                    Dialog.alert("The page name is invalid. Please enter the valid page name.");
+                if (this.pageTitle.value == "" ) {
+                    Dialog.error("The page name is invalid. Please enter the valid page name.");
                     return;
                 }
                 if (thiz.isCreatePage) {
