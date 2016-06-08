@@ -185,8 +185,7 @@ CollectionManager.loadStencils = function(showNotification) {
 
     CollectionManager._loadDeveloperStencil();
 
-    var collectionOrder = [];
-    collectionOrder = Config.get("Collection.collectionPosition").split(",");
+    var collectionOrder = Config.get("Collection.collectionPosition").split(",") || [];
 
     CollectionManager.shapeDefinition.collections = CollectionManager.shapeDefinition.collections.sort(function (a, b) {
         var indexA = collectionOrder.indexOf(a.id);
@@ -469,6 +468,7 @@ CollectionManager.selectDeveloperStencilDir = function () {
 CollectionManager.unselectDeveloperStencilDir = function () {
     Config.set("dev.stencil.path", "none");
     CollectionManager.reloadDeveloperStencil();
+    CollectionManager.saveCollectionOrder();
     NotificationPopup.show("Developer stencil is unloaded.");
 };
 

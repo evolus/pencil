@@ -177,6 +177,7 @@ function ColorSelector() {
         if (!colorCell) return;
         thiz.updatingColor = false;
         thiz.selectColorCell(colorCell);
+        thiz._emitCloseEvent();
     }, false);
 
     this.recentlyUsedColor.addEventListener("click", function (event) {
@@ -185,6 +186,7 @@ function ColorSelector() {
         });
         if (!colorCell) return;
         thiz.selectColorCell(colorCell, true);
+        thiz._emitCloseEvent();
     }, false);
 }
 __extend(BaseTemplatedWidget, ColorSelector);
@@ -267,6 +269,9 @@ ColorSelector.prototype._emitChangeEvent = function () {
     var event = document.createEvent("Events");
     event.initEvent("ValueChange", false, false);
     this.dispatchEvent(event);
+};
+ColorSelector.prototype._emitCloseEvent = function () {
+    Dom.emitEvent("p:CloseColorSelector", this.node(), {});
 };
 ColorSelector.prototype._changHS = function (hue, sat) {
     this.hue.value = hue;
