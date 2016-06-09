@@ -1,19 +1,21 @@
-<hbox>
+<vbox>
     <style>
         input {
             width: 4.5em;
         }
-        > * + * {
+        @container > * + * {
             margin-left: @toolbar_gap;
         }
     </style>
-    <hbox anon-id="locationGroup" class="ButtonGroup" label="Location">
-        <input anon-id="shapeX" type="number" min="0" title="Left" /><input anon-id="shapeY" type="number" min="0" title="Top" />
+    <hbox anon-id="container">
+        <hbox anon-id="locationGroup" class="ButtonGroup" label="Location">
+            <input anon-id="shapeX" type="number" min="0" title="Left" /><input anon-id="shapeY" type="number" min="0" title="Top" />
+        </hbox>
+        <hbox anon-id="sizeGroup" class="ButtonGroup" label="Size">
+            <input anon-id="shapeWidth" type="number" min="0" title="Width" /><input anon-id="shapeHeight" type="number" min="0" title="Height" />
+        </hbox>
+        <hbox label="Rotation">
+            <input anon-id="shapeAngle" type="number" min="-360" title="Angle (degree)" />
+        </hbox>
     </hbox>
-    <hbox anon-id="sizeGroup" class="ButtonGroup" label="Size">
-        <input anon-id="shapeWidth" type="number" min="0" title="Width" /><input anon-id="shapeHeight" type="number" min="0" title="Height" />
-    </hbox>
-    <hbox label="Rotation">
-        <input anon-id="shapeAngle" type="number" min="-360" title="Angle (degree)" />
-    </hbox>
-</hbox>
+</vbox>

@@ -24,7 +24,7 @@ SharedGeomtryEditor.prototype.setup = function () {
     }, false);
 
     this.container.addEventListener("keypress", function (event) {
-        if (event.keyCode == KeyEvent.DOM_VK_UP || event.keyCode == KeyEvent.DOM_VK_DOWN) {
+        if (event.keyCode == DOM_VK_UP || event.keyCode == DOM_VK_DOWN) {
             event.stopPropagation();
         }
     }, false);
