@@ -1306,8 +1306,11 @@ Controller.prototype.updatePageThumbnail = function (page, done) {
     });
 };
 
-Controller.prototype.rasterizeCurrentPage = function () {
-    var page = this.activePage;
+Controller.prototype.rasterizeCurrentPage = function (targetPage) {
+    var page = targetPage ? targetPage : (this.activePage ? this.activePage : null);
+    if (!page) {
+        return;
+    }
     dialog.showSaveDialog({
         title: "Export page as PNG",
         defaultPath: path.join(os.homedir(), (page.name + ".png")),
@@ -1532,24 +1535,23 @@ Controller.prototype.printCurrentDocument = function () {
 
 
 window.onbeforeunload = function (event) {
+    // Due to a change of Chrome 51, returning non-empty strings or true in beforeunload handler now prevents the page to unload
     var remote = require("electron").remote;
-    if (remote.app.devEnable) return true;
+    if (remote.app.devEnable) return;
 
     if (Controller.ignoreNextClose) {
         Controller.ignoreNextClose = false;
-        return true;
+        return;
     }
 
     if (Controller._instance.doc) {
         setTimeout(function () {
             Controller._instance.confirmAndclose(function () {
-                Controller.ignoreNextClose = true;
+                Controller.ignoreNextClose = false;
                 var currentWindow = remote.getCurrentWindow();
                 currentWindow.close();
             });
         }, 10);
-        return false;
+        return true;
     }
-
-    return true;
 };
