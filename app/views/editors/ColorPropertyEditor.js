@@ -1,7 +1,6 @@
 function ColorPropertyEditor() {
     PropertyEditor.call(this);
     this.bind("p:PopupHidden", function () {
-        // this.selectorContainer.removePopup();
     }, this.selectorContainer);
     var thiz = this;
     this.selectorContainer.shouldCloseOnBlur = function(event) {
@@ -40,6 +39,10 @@ ColorPropertyEditor.prototype.setup = function () {
 
     this.colorText.addEventListener("change", function(event) {
         var val = thiz.colorText.value;
+        if (val == "") {
+            thiz.colorText.value = thiz.color.toRGBString();
+            return;
+        }
         var uppercaseVal = val.toRGBString ? val.toRGBString().toUpperCase() : (val.toUpperCase ? val.toUpperCase() : val);
         // Translate standard HTML color strings:
         if (uppercaseVal[0] != "#") {
@@ -111,8 +114,8 @@ ColorPropertyEditor.prototype.setValue = function (color) {
 ColorPropertyEditor.prototype.onValueChanged = function (element) {
     if (element != this.colorText) {
         this.colorText.value = this.color.toRGBString();
-        this.colorText.style.backgroundColor = this.color.toRGBString();
     }
+    this.colorText.style.backgroundColor = this.color.toRGBString();
     if (element) {
         this.fireChangeEvent();
     }

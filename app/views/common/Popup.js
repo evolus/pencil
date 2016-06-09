@@ -293,3 +293,6 @@ Popup.prototype.detach = function () {
         this.popupContainer.parentNode.removeChild(this.popupContainer);
     }
 };
+Popup.hasShowPopup = function () {
+    return BaseWidget.closables.length;
+};

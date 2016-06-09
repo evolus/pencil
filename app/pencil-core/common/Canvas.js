@@ -536,6 +536,9 @@ Canvas.prototype.zoomTo = function (factor) {
     Dom.emitEvent("p:SizeChanged", this.element, {
         canvas : this
     });
+    Dom.emitEvent("p:ZoomChanged", this.element, {
+        canvas : this
+    });
 
 };
 Canvas.prototype.getZoomedGeo = function (target) {

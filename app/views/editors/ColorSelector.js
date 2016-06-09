@@ -20,6 +20,10 @@ function ColorSelector() {
     // wheel selector event handler
     this.htmlCodeInput.addEventListener("change", function(event) {
         var val = thiz.htmlCodeInput.value;
+        if (val == "") {
+            thiz.htmlCodeInput.value = thiz.color.toRGBString() || "";
+            return;
+        }
         var uppercaseVal = val.toRGBString ? val.toRGBString().toUpperCase() : (val.toUpperCase ? val.toUpperCase() : val);
         // Translate standard HTML color strings:
         if (uppercaseVal[0] != "#") {
@@ -112,7 +116,7 @@ function ColorSelector() {
     }, false);
 
     this.hue.addEventListener("change", function(event) {
-        if (!thiz.hue.value) thiz.hue.value = 0;
+        if (thiz.hue.value) thiz.hue.value = 0;
 
         var hsv = thiz.color.getHSV();
         var a = thiz.color.a;
@@ -123,7 +127,7 @@ function ColorSelector() {
     }, false);
     this.sat.addEventListener("change", function(event) {
         if (!thiz.sat.value) thiz.sat.value = 0;
-        
+
         var hsv = thiz.color.getHSV();
         var a = thiz.color.a;
 

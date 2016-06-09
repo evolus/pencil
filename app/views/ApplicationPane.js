@@ -31,6 +31,10 @@ function ApplicationPane() {
     this.bind("p:ControllerStatusChanged", function (event) {
         this.invalidateUIForControllerStatus();
     });
+    this.bind("p:ZoomChanged", function (event) {
+        this.zoomToolbar.setAttribute("label", (Pencil.activeCanvas && Pencil.activeCanvas.zoom * 100 + "%") || "100%") ;
+    });
+
 
     var lastOverflowX = null;
     var lastOverflowY = null;
@@ -150,6 +154,7 @@ ApplicationPane.prototype.createCanvas = function () {
 };
 ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageListView.currentPage = this.controller.activePage;
+    this.controller.activePage.canvas._sayTargetChanged();
     this.pageListView.renderPages();
 };
 ApplicationPane.prototype.activatePage = function (page) {
@@ -176,15 +181,23 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     Pencil.activeCanvas = canvas;
     this.activeCanvas = canvas;
 
+
     if (canvas != null) {
         this.startupDocumentView.node().style.display = "none";
         canvas.focus();
+        Pencil.zoomEditor.attach();
     }
 };
 ApplicationPane.prototype.showStartupPane = function () {
+    if (Pencil.controller.activePage) {
+        Pencil.controller.activePage.canvas.selectNone();
+    }
+    Pencil.zoomEditor.detach();
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "flex";
+    // detach zoomToolBar
+
 
     this.invalidateUIForControllerStatus();
 };

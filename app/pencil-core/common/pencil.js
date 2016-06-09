@@ -18,6 +18,7 @@ Pencil.registerEditor = function (editorClass) {
 };
 
 Pencil.sharedEditors = [];
+Pencil.zoomEditor;
 Pencil.registerSharedEditor = function (sharedEditor) {
     Pencil.sharedEditors.push(sharedEditor);
 }
@@ -81,7 +82,7 @@ Pencil.boot = function (event) {
         if (Pencil.booted) return;
 
         Pencil.app = require('electron').remote.app;
-        
+
         Pencil.booted = true;
         Pencil.window = document.documentElement;
         Pencil.rasterizer = new Rasterizer("image/png");
@@ -177,6 +178,7 @@ Pencil.handleTargetChange = function (event) {
 Pencil.invalidateSharedEditor = function() {
     var canvas = Pencil.activeCanvas;
     var target = canvas ? canvas.currentController : null;
+
     if (!target) {
         for (var i in Pencil.sharedEditors) {
             try {
