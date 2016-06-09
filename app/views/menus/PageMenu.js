@@ -172,6 +172,7 @@ PageMenu.prototype.setup = function () {
         },
     });
     UICommandManager.getCommand("exportPageAsPNGButton").isEnabled = function () {return thiz.page};
+    UICommandManager.getCommand("exportPageAsPNGButton").page = thiz.page;
     this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
 
     this.separator();

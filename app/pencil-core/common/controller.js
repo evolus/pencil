@@ -1306,8 +1306,11 @@ Controller.prototype.updatePageThumbnail = function (page, done) {
     });
 };
 
-Controller.prototype.rasterizeCurrentPage = function () {
-    var page = this.activePage;
+Controller.prototype.rasterizeCurrentPage = function (targetPage) {
+    var page = targetPage ? targetPage : (this.activePage ? this.activePage : null);
+    if (!page) {
+        return;
+    }
     dialog.showSaveDialog({
         title: "Export page as PNG",
         defaultPath: path.join(os.homedir(), (page.name + ".png")),
