@@ -32,7 +32,7 @@ function ApplicationPane() {
         this.invalidateUIForControllerStatus();
     });
     this.bind("p:ZoomChanged", function (event) {
-        this.zoomToolbar.setAttribute("label", (Pencil.activeCanvas && Pencil.activeCanvas.zoom * 100 + "%") || "100%") ;
+        this.invalidateZoom();
     });
 
 
@@ -188,6 +188,11 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
         this.zoomToolbar.attach();
         this.editToolbar.attach();
     }
+
+    this.invalidateZoom();
+};
+ApplicationPane.prototype.invalidateZoom = function () {
+    this.zoomToolbar.setAttribute("label", Pencil.activeCanvas ? (Math.round(Pencil.activeCanvas.zoom * 100) + "%") : "100%") ;
 };
 ApplicationPane.prototype.showStartupPane = function () {
     if (Pencil.controller.activePage) {
