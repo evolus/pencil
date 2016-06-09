@@ -148,6 +148,7 @@ ApplicationPane.prototype.createCanvas = function () {
 };
 ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageListView.currentPage = this.controller.activePage;
+    this.controller.activePage.canvas._sayTargetChanged();
     this.pageListView.renderPages();
 };
 ApplicationPane.prototype.activatePage = function (page) {
@@ -180,6 +181,9 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     }
 };
 ApplicationPane.prototype.showStartupPane = function () {
+    if (Pencil.controller.activePage) {
+        Pencil.controller.activePage.canvas.selectNone();
+    }
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "flex";
