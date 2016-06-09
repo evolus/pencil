@@ -52,9 +52,9 @@
     "pack": "build",
     "dist": "build",
     "release": "build",
-    "dist:linux": "./node_modules/.bin/build --platform linux --arch x64",
-    "dist:win32": "./node_modules/.bin/build --platform win32 --arch x64",
-    "dist:darwin": "./node_modules/.bin/build --platform darwin"
+    "dist:linux": "./node_modules/.bin/build --linux --x64",
+    "dist:win32": "./node_modules/.bin/build --windows --x64",
+    "dist:darwin": "./node_modules/.bin/build --osx"
   },
   "private": true
 }
