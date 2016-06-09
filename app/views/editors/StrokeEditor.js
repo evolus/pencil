@@ -64,7 +64,7 @@ StrokeEditor.prototype.setup = function () {
     this.styleCombo.addEventListener("p:ItemSelected", function (event) {
         thiz.fireChangeEvent();
     }, false);
-    this.strokeWidth.addEventListener("change", function (event) {
+    this.strokeWidth.addEventListener("input", function (event) {
         if (thiz.strokeWidth.value == "") thiz.strokeWidth.value = 1;
         thiz.fireChangeEvent();
     }, false);

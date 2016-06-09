@@ -19,7 +19,7 @@ SharedGeomtryEditor.prototype.setup = function () {
     this.container.addEventListener("click", function (event) {
         thiz.handleCommandEvent();
     }, false);
-    this.container.addEventListener("change", function (event) {
+    this.container.addEventListener("input", function (event) {
         thiz.handleCommandEvent();
     }, false);
 

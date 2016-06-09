@@ -104,7 +104,7 @@ function ColorSelector() {
     }, false);
 
 
-    this.bright.addEventListener("change", function(event) {
+    this.bright.addEventListener("input", function(event) {
         if (!thiz.bright.value) thiz.bright.value = 0;
 
         var hsv = thiz.color.getHSV();
@@ -115,8 +115,8 @@ function ColorSelector() {
         thiz.onValueChanged(thiz.bright);
     }, false);
 
-    this.hue.addEventListener("change", function(event) {
-        if (thiz.hue.value) thiz.hue.value = 0;
+    this.hue.addEventListener("input", function(event) {
+        if (!thiz.hue.value) thiz.hue.value = 0;
 
         var hsv = thiz.color.getHSV();
         var a = thiz.color.a;
@@ -125,7 +125,7 @@ function ColorSelector() {
         thiz.color.a = a;
         thiz.onValueChanged(thiz.hue);
     }, false);
-    this.sat.addEventListener("change", function(event) {
+    this.sat.addEventListener("input", function(event) {
         if (!thiz.sat.value) thiz.sat.value = 0;
 
         var hsv = thiz.color.getHSV();
