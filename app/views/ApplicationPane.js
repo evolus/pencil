@@ -179,18 +179,23 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     Pencil.activeCanvas = canvas;
     this.activeCanvas = canvas;
 
+
     if (canvas != null) {
         this.startupDocumentView.node().style.display = "none";
         canvas.focus();
+        Pencil.zoomEditor.attach();
     }
 };
 ApplicationPane.prototype.showStartupPane = function () {
     if (Pencil.controller.activePage) {
         Pencil.controller.activePage.canvas.selectNone();
     }
+    Pencil.zoomEditor.detach();
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "flex";
+    // detach zoomToolBar
+
 
     this.invalidateUIForControllerStatus();
 };

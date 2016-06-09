@@ -1,7 +1,20 @@
 function ZoomToolbar() {
     ToolBar.call(this);
+    Pencil.zoomEditor = this;
 }
 __extend(ToolBar, ZoomToolbar);
+
+ZoomToolbar.prototype.detach = function () {
+    this.zoomInButton.disabled = true;
+    this.actualSizeButton.disabled = true;
+    this.zoomOutButton.disabled = true;
+}
+
+ZoomToolbar.prototype.attach = function () {
+    this.zoomInButton.disabled = false;
+    this.actualSizeButton.disabled = false;
+    this.zoomOutButton.disabled = false;
+}
 
 ZoomToolbar.prototype.registerCommands = function () {
     UICommandManager.register({
