@@ -4,6 +4,7 @@ function CollapseablePanel() {
     CollapseablePanel.ensureGlobalHandlers();
 
     this.setAttribute("closed", "true");
+    this.lastActiveId = null;
 
     var thiz = this;
     this.titleContainer.addEventListener("click", function(ev) {
@@ -17,6 +18,8 @@ function CollapseablePanel() {
             thiz.children[i].setAttribute("active", active);
             thiz.children[i]["p:title"].setAttribute("active", active);
             if (thiz.children[i].onSizeChanged) thiz.children[i].onSizeChanged();
+
+            if (active == "true") thiz.lastActiveId = thiz.children[i]._anonId;
         }
 
         thiz.setAttribute("closed", closing);
@@ -91,7 +94,10 @@ CollapseablePanel.prototype.onAttached = function () {
         this.children[i]["p:title"].setAttribute("active", active);
         if (this.children[i].onSizeChanged) this.children[i].onSizeChanged();
 
-        if (active == "true") found = true;
+        if (active == "true") {
+            found = true;
+            this.lastActiveId = activeId;
+        }
     }
 
     this.setAttribute("closed", found ? "false" : "true");
@@ -148,28 +154,33 @@ CollapseablePanel.prototype.updateTitle = function (titleElement) {
     }, 500);
 };
 
-CollapseablePanel.prototype.toogle = function() {
-    return;
-    this.expanded = !this.expanded;
-    if (this.expanded) {
-        this.panelTitleSpan.style.display = "block";
-        this.contentContainer.style.display = "block";
-        Dom.removeClass(this.collapseablePanel, "Collapsed")
-        this.toogleButton.childNodes[0].innerHTML = "expand_less";
-    } else {
-        this.contentContainer.style.display = "none";
-        Dom.addClass(this.collapseablePanel, "Collapsed")
-        this.toogleButton.childNodes[0].innerHTML = "expand_more";
-        this.panelTitleSpan.style.display = "none";
+CollapseablePanel.prototype.collapseAll = function() {
+    for (var i = 0; i < this.children.length; i ++) {
+        this.children[i].setAttribute("active", "false");
+        this.children[i]["p:title"].setAttribute("active", "false");
+        if (this.children[i].onSizeChanged) this.children[i].onSizeChanged();
     }
-    var children = this.contentContainer.childNodes;
+    this.setAttribute("closed", "true");
+};
+CollapseablePanel.prototype.open = function(activeId) {
+    var found = false;
+    for (var i = 0; i < this.children.length; i ++) {
+        var active = this.children[i]._anonId == activeId ? "true" : "false";
+        this.children[i].setAttribute("active", active);
+        this.children[i]["p:title"].setAttribute("active", active);
+        if (this.children[i].onSizeChanged) this.children[i].onSizeChanged();
 
-    for(child in children){
-        var widget = children[child].__widget;
-        if (!widget) continue;
-        if (widget.sizeChanged) {
-            widget.sizeChanged(this.expanded);
+        if (active == "true") {
+            found = true;
+            this.lastActiveId = activeId;
         }
     }
 
-}
+    this.setAttribute("closed", found ? "false" : "true");
+};
+CollapseablePanel.prototype.openLast = function() {
+    if (this.lastActiveId) this.open(this.lastActiveId);
+};
+CollapseablePanel.prototype.isOpen = function () {
+    return this.getAttribute("closed") == "false";
+};
