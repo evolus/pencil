@@ -1,6 +1,5 @@
 function ZoomToolbar() {
     ToolBar.call(this);
-    Pencil.zoomEditor = this;
 }
 __extend(ToolBar, ZoomToolbar);
 

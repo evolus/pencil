@@ -183,14 +183,16 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     if (canvas != null) {
         this.startupDocumentView.node().style.display = "none";
         canvas.focus();
-        Pencil.zoomEditor.attach();
+        this.zoomToolbar.attach();
+        this.editToolbar.attach();
     }
 };
 ApplicationPane.prototype.showStartupPane = function () {
     if (Pencil.controller.activePage) {
         Pencil.controller.activePage.canvas.selectNone();
     }
-    Pencil.zoomEditor.detach();
+    this.zoomToolbar.detach();
+    this.editToolbar.detach();
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "flex";
