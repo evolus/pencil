@@ -40,9 +40,9 @@
     "drawing"
   ],
   "dependencies": {
-    "archiver": "^0.21.0",
-    "electron-squirrel-startup": "^0.1.4",
-    "less": "~2.5.3",
+    "archiver": "^1.0.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "less": "~2.7.1",
     "lodash": "^4.13.1",
     "moment": "^2.13.0",
     "nugget": "^2.0.0",

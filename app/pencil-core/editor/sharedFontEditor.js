@@ -14,13 +14,13 @@ SharedFontEditor.prototype.setup = function () {
     this.strikeButton = document.getElementById("edStrikeButton");*/
 
     var thiz = this;
-    this.fontList.addEventListener("command", function(event) {
+    this.fontList.addEventListener("change", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
         thiz.font.family = thiz.fontList.value;
         thiz._applyValue();
     }, false);
 
-    this.pixelFontSize.addEventListener("command", function(event) {
+    this.pixelFontSize.addEventListener("input", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
         thiz.font.size = thiz.pixelFontSize.value + "px";
         thiz._applyValue();
@@ -33,29 +33,17 @@ SharedFontEditor.prototype.setup = function () {
         }
     }, false);
 
-    this.boldButton.addEventListener("command", function(event) {
+    this.boldButton.addEventListener("click", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
         thiz.font.weight = thiz.boldButton.checked ? "bold" : "normal";
         thiz._applyValue();
     }, false);
 
-    this.italicButton.addEventListener("command", function(event) {
+    this.italicButton.addEventListener("click", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
         thiz.font.style = thiz.italicButton.checked ? "italic" : "normal";
         thiz._applyValue();
     }, false);
-
-    /*this.underlineButton.addEventListener("command", function(event) {
-        if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
-        thiz.font.decor = thiz.underlineButton.checked ? "underline" : "none";
-        thiz._applyValue();
-    }, false);
-
-    this.strikeButton.addEventListener("command", function(event) {
-        if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
-        thiz.font.strike = thiz.strikeButton.checked ? "strikethrough" : "none";
-        thiz._applyValue();
-    }, false);*/
 };
 SharedFontEditor.prototype._applyValue = function () {
     var thiz = this;

@@ -31,6 +31,10 @@ function ApplicationPane() {
     this.bind("p:ControllerStatusChanged", function (event) {
         this.invalidateUIForControllerStatus();
     });
+    this.bind("p:ZoomChanged", function (event) {
+        this.zoomToolbar.setAttribute("label", (Pencil.activeCanvas && Pencil.activeCanvas.zoom * 100 + "%") || "100%") ;
+    });
+
 
     var lastOverflowX = null;
     var lastOverflowY = null;
