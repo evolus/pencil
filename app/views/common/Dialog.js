@@ -48,7 +48,7 @@ Dialog.prototype.buildContentNode = function () {
 Dialog.prototype.open = function (options) {
     if (this.setup) this.setup(options);
     this.invalidateElements();
-
+    BaseWidget.handleGlobalMouseDown();
     this.show();
 };
 const DIALOG_BUTTON_ORDER = {

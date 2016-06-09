@@ -233,7 +233,7 @@ UICommandManager.handleKeyEvent = function (event) {
         Pencil.app.mainWindow.openDevTools();
     }
 
-    if (Dialog.hasOpenDialog()) return;
+    if (Dialog.hasOpenDialog() || Popup.hasShowPopup()) return;
 
     for (var i = 0; i < UICommandManager.commands.length; i ++) {
         var command = UICommandManager.commands[i];
