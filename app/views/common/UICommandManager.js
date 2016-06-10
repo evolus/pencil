@@ -5,12 +5,12 @@ UICommandManager.commands = [];
 UICommandManager.map = {};
 UICommandManager.keyMap = {};
 
-UICommandManager.mapKey = function (name, keyCode, pcName, macName) {
+UICommandManager.mapKey = function (name, keyCode, pcName, macName, macKeyCode) {
     var key = {
         name: name,
-        keyCode: keyCode,
+        keyCode: IS_MAC ? (macKeyCode || keyCode) : keyCode,
         pcName: pcName,
-        macName: macName || pcName
+        macName: macName || pcName,
     };
 
     UICommandManager.keyMap[name] = key;
@@ -38,7 +38,7 @@ UICommandManager.mapKey("RIGHT", 39, "Right Arrow");
 UICommandManager.mapKey("DOWN", 40, "Down Arrow");
 UICommandManager.mapKey("PRINTSCREEN", 44, "Print Screen");
 UICommandManager.mapKey("INSERT", 45, "Insert");
-UICommandManager.mapKey("DELETE", 46, "Delete");
+UICommandManager.mapKey("DELETE", 46, "Delete", "Delete", 8);
 UICommandManager.mapKey("0", 48, "0");
 UICommandManager.mapKey("1", 49, "1");
 UICommandManager.mapKey("2", 50, "2");
