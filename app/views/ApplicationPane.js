@@ -44,7 +44,6 @@ function ApplicationPane() {
         }
     });
 
-
     var lastOverflowX = null;
     var lastOverflowY = null;
 
@@ -176,8 +175,8 @@ ApplicationPane.prototype.testSave = function () {
 };
 ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     if (this.activeCanvas && this.activeCanvas != canvas) {
+        this.activeCanvas.selectNone();
         this.activeCanvas._cachedState = this.activeCanvas.getCanvasState();
-
     }
 
     for (var i = 0; i < this.getCanvasContainer().childNodes.length; i ++) {
@@ -193,15 +192,12 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
         this.startupDocumentView.node().style.display = "none";
         canvas.focus();
     }
-
     Dom.emitEvent("p:CanvasActived", this.node(),{
         canvas: canvas
     });
 };
 ApplicationPane.prototype.showStartupPane = function () {
-    if (Pencil.controller.activePage) {
-        Pencil.controller.activePage.canvas.selectNone();
-    }
+
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "flex";
