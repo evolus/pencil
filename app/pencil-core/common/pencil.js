@@ -168,11 +168,6 @@ Pencil.setTitle = function (s) {
 
 Pencil.handleCanvasChange = function (event) {
     Pencil.activeCanvas = event.canvas;
-    if (!Pencil.activeCanvas) {
-        Pencil.zoomEditor.detach();
-    } else {
-        Pencil.zoomEditor.attach();
-    }
     Pencil.setupCommands();
     Pencil.invalidateSharedEditor();
 };

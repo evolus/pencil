@@ -29,7 +29,7 @@ EditToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "pasteCommand",
-        watchEvents: "p:CanvasChanged",
+        watchEvents: "p:CanvasActived",
         label: "Paste",
         icon: "content_paste",
         shortcut: "Ctrl+V",

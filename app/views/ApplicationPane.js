@@ -32,7 +32,16 @@ function ApplicationPane() {
         this.invalidateUIForControllerStatus();
     });
     this.bind("p:ZoomChanged", function (event) {
-        this.invalidateZoom();
+        this.zoomToolbar.setAttribute("label", (Pencil.activeCanvas && Pencil.activeCanvas.zoom * 100 + "%") || "100%") ;
+    });
+
+    this.bind("p:CanvasActived", function (event) {
+        var canvas = event.canvas;
+        if (canvas) {
+            Pencil.zoomEditor.attach();
+        } else {
+            Pencil.zoomEditor.detach();
+        }
     });
 
 
@@ -83,9 +92,7 @@ function ApplicationPane() {
         if (event.target.nodeName == "input") {
             event.target.select();
         }
-    }, this.toolbarContainer);
-
-    this.validateFullScreen();
+    }, this.toolbarContainer)
 
     FontLoader.instance.loadFonts();
 }
@@ -168,12 +175,9 @@ ApplicationPane.prototype.testSave = function () {
     this.controller.serializePage(page, page.tempFilePath);
 };
 ApplicationPane.prototype.setActiveCanvas = function (canvas) {
-    if (this.activeCanvas) {
-        this.activeCanvas.selectNone();
-    }
-
     if (this.activeCanvas && this.activeCanvas != canvas) {
         this.activeCanvas._cachedState = this.activeCanvas.getCanvasState();
+
     }
 
     for (var i = 0; i < this.getCanvasContainer().childNodes.length; i ++) {
@@ -185,21 +189,19 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     Pencil.activeCanvas = canvas;
     this.activeCanvas = canvas;
 
-
     if (canvas != null) {
         this.startupDocumentView.node().style.display = "none";
         canvas.focus();
     }
 
-    this.invalidateZoom();
-    Dom.emitEvent("p:CanvasChanged", this, {
+    Dom.emitEvent("p:CanvasActived", this.node(),{
         canvas: canvas
     });
 };
-ApplicationPane.prototype.invalidateZoom = function () {
-    this.zoomToolbar.setAttribute("label", Pencil.activeCanvas ? (Math.round(Pencil.activeCanvas.zoom * 100) + "%") : "100%") ;
-};
 ApplicationPane.prototype.showStartupPane = function () {
+    if (Pencil.controller.activePage) {
+        Pencil.controller.activePage.canvas.selectNone();
+    }
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "flex";
@@ -249,32 +251,5 @@ ApplicationPane.prototype.unbusy = function () {
 ApplicationPane.prototype.invalidatePropertyEditor = function () {
     if (!Pencil.activeCanvas.currentController) {
         this.sharedPropertyEditor.detach();
-    }
-};
-ApplicationPane.prototype.toggleFullscreen = function () {
-    var browserWindow = remote.getCurrentWindow();
-    var fullscreen = !browserWindow.isFullScreen();
-    if (fullscreen) {
-        this.shouldRestoreSidePane = this.leftSidePane.isOpen();
-    }
-
-    browserWindow.setFullScreen(fullscreen);
-    this.validateFullScreen();
-};
-ApplicationPane.prototype.validateFullScreen = function () {
-    var browserWindow = remote.getCurrentWindow();
-    var fullscreen = browserWindow.isFullScreen();
-    Dom.toggleClass(document.body, "Fullscreen", fullscreen);
-    if (fullscreen) {
-        this.leftSidePane.collapseAll();
-    } else {
-        if (this.shouldRestoreSidePane) this.leftSidePane.openLast();
-    }
-};
-ApplicationPane.prototype.toggleLeftPane = function () {
-    if (this.leftSidePane.isOpen()) {
-        this.leftSidePane.collapseAll();
-    } else {
-        this.leftSidePane.openLast();
     }
 };
