@@ -41,7 +41,7 @@ ZoomToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "toggleScreenCommand",
-        shortcut: IS_MAC ? "Ctrl+Cmd+F" : "F11", // use different key for MAC
+        shortcut: IS_MAC ? "Ctrl+Cmd+F" : "F11", // use different key for MAC intendedly
         label: "Toggle fullscreen mode",
         run: function () {
             ApplicationPane._instance.toggleFullscreen();
