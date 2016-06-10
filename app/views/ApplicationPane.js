@@ -83,9 +83,7 @@ function ApplicationPane() {
         if (event.target.nodeName == "input") {
             event.target.select();
         }
-    }, this.toolbarContainer);
-
-    this.validateFullScreen();
+    }, this.toolbarContainer)
 
     FontLoader.instance.loadFonts();
 }
@@ -170,6 +168,7 @@ ApplicationPane.prototype.testSave = function () {
 ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     if (this.activeCanvas && this.activeCanvas != canvas) {
         this.activeCanvas._cachedState = this.activeCanvas.getCanvasState();
+
     }
 
     for (var i = 0; i < this.getCanvasContainer().childNodes.length; i ++) {
@@ -180,7 +179,6 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
 
     Pencil.activeCanvas = canvas;
     this.activeCanvas = canvas;
-
 
     if (canvas != null) {
         this.startupDocumentView.node().style.display = "none";
@@ -202,8 +200,6 @@ ApplicationPane.prototype.showStartupPane = function () {
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "flex";
-    // detach zoomToolBar
-
 
     this.invalidateUIForControllerStatus();
 };
