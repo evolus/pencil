@@ -270,11 +270,6 @@ Walker.prototype.step = function (alpha) {
     }
 };
 
-function Point(x, y) {
-    this.x = x;
-    this.y = y;
-}
-
 function test() {
     var cases = [
         ["#off", "#on"],

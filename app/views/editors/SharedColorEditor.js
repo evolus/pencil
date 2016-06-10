@@ -43,6 +43,12 @@ SharedColorEditor.prototype.setup = function () {
         thiz.color = thiz.selector.getColor();
         thiz._applyValue();
     }, false);
+    this.selector.addEventListener("p:CloseColorSelector", function (event) {
+        if (thiz.selectorContainer.isVisible()) {
+            thiz.selectorContainer.hide();
+            return;
+        }
+    }, false);
 
 };
 

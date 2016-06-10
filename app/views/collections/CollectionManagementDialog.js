@@ -3,6 +3,7 @@ function CollectionManagementDialog (collectionPanel) {
 
     this.collectionPanel = collectionPanel;
     this.title = "Manage Collections";
+    this.subTitle = "Browse the list of collections installed in this system.";
 
     this.loadCollectionList();
 
@@ -17,6 +18,77 @@ function CollectionManagementDialog (collectionPanel) {
             node.setAttribute("selected", "true");
         };
     }, false);
+
+    this.collectionContainer.addEventListener("mouseover",function (event) {
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (node) {
+            if (this.activeNode) {
+                this.activeNode.removeAttribute("active");
+                this.activeNode = null;
+            }
+            this.activeNode = node;
+            node.setAttribute("active","true");
+        }
+    }, false);
+
+    var thiz = this;
+    this.collectionContainer.addEventListener("dblclick",function (event) {
+        var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        var visible = CollectionManager.isCollectionVisible (top._collection);
+        if (!visible) {
+            CollectionManager.setCollectionVisible (top._collection, true) ;
+        }
+        thiz.collectionPanel.reload(top._collection.id);
+        thiz.close();
+    }, false);
+
+    this.bind("dragstart", function (ev) {
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (!node) return;
+        ev.dataTransfer.setData("collectionId", node._collection.id);
+        ev.dataTransfer.setData("dragType", "collection");
+        if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
+        this.currentDraggedObject = node;
+        this.currentDraggedObject.setAttribute("dragged", "true");
+    }, this.collectionContainer);
+
+    this.bind("dragover", function (ev) {
+        if (event.dataTransfer.getData("dragType") != "collection") return;
+        if (this.hoverNode) {
+            this.hoverNode.removeAttribute("hover");
+            this.hoverNode = null;
+        }
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (node) {
+            node.setAttribute("hover", "true");
+            this.hoverNode = node;
+        }
+
+    }, this.collectionContainer);
+
+    this.bind("drop", function (ev) {
+        if (event.dataTransfer.getData("dragType") != "collection") return;
+        if (this.hoverNode) {
+            this.hoverNode.removeAttribute("hover");
+            this.hoverNode = null;
+        }
+        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (!node) return;
+        var draggedCollectionId = ev.dataTransfer.getData("collectionId");
+        var targetCollectionId = node._collection.id;
+        if (node._collection.id != draggedCollectionId) {
+            CollectionManager.reorderCollections(draggedCollectionId, targetCollectionId);
+            thiz.loadCollectionList();
+            thiz.collectionPanel.reload();
+        }
+        node.removeAttribute("hover");
+    }, this.collectionContainer);
+
+    this.bind("dragend", function (event) {
+        if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
+        this.currentDraggedObject = null;
+    }, this.collectionContainer);
+
 }
 __extend(Dialog, CollectionManagementDialog);
 
@@ -138,6 +210,8 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
     view._id = collection.displayName;
     view._collection = collection;
     view.setAttribute("selected", "false");
+    view.setAttribute("draggable", "true");
+
     return view;
 }
 
@@ -148,6 +222,7 @@ CollectionManagementDialog.prototype.loadCollectionList = function () {
         this.collectionContainer.appendChild(this.createCollectionView(collections[i]));
     }
 }
+
 CollectionManagementDialog.prototype.getDialogActions = function () {
     var thiz = this;
     return [
@@ -157,6 +232,7 @@ CollectionManagementDialog.prototype.getDialogActions = function () {
             run: function () {
                 CollectionManager.installNewCollection(function (err, collection) {
                     if (!err && collection) {
+                        thiz.collectionPanel.reload(collection.id);
                         NotificationPopup.show("Collection was installed successfully.");
                         thiz.loadCollectionList();
                     }

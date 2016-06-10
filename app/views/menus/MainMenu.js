@@ -174,4 +174,15 @@ MainMenu.prototype.setup = function () {
             dialog.open();
         }
     });
+    this.separator();
+    this.register({
+        key: "exitApplicationCommand",
+        label: "Exit",
+        isValid: function () { return true; },
+        run: function () {
+            let remote = require("electron").remote;
+            let currentWindow = remote.getCurrentWindow();
+            currentWindow.close();
+        }
+    });
 }

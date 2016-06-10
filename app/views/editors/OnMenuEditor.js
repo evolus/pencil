@@ -128,6 +128,10 @@ OnMenuEditor.prototype.generateMenuItems = function () {
         }
         linkItem.subItems.push({
             label: "Notthing",
+            type: "Selection",
+            isChecked: function() {
+                return targetPageId ? false : true;
+            },
             handleAction: function () {
                 thiz.targetObject.setMetadata("RelatedPage", "");
             }

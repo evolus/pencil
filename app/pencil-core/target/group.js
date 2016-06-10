@@ -195,6 +195,11 @@ Group.prototype.scaleTo = function (nw, nh, group) {
         var policy = Group.getSizingPolicy(target);
 
         var bounding = target.getBounding(this.svg);
+        var egeo = target.getGeometry();
+        if (egeo && egeo.dim) {
+            bounding.width = egeo.dim.w;
+            bounding.height = egeo.dim.h;
+        }
 
         var hLayout = Group.calculateLayout(ei.x0, ei.w0, gi.gw0, policy.xPolicy, policy.wPolicy, nw, bounding.width);
         var vLayout = Group.calculateLayout(ei.y0, ei.h0, gi.gh0, policy.yPolicy, policy.hPolicy, nh, bounding.height);

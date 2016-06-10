@@ -1,4 +1,5 @@
-function QueueHandler() {
+function QueueHandler(delay) {
+    this.delay = delay || 0;
     this.tasks = [];
 }
 QueueHandler.prototype.submit = function (task) {
@@ -7,13 +8,20 @@ QueueHandler.prototype.submit = function (task) {
     if (this.tasks.length == 1) this.start();
 };
 
-QueueHandler.prototype.start = function (task) {
-
+QueueHandler.prototype.start = function () {
+    var thiz = this;
     var next = function() {
-        if (this.tasks.length <= 0) return;
-        var task = this.tasks.pop();
-        task(next);
-    }.bind(this);
+        if (thiz.tasks.length <= 0) return;
+        let task = thiz.tasks[0];
+        task(function () {
+            thiz.tasks.shift();
+            if (thiz.delay) {
+                setTimeout(next, thiz.delay)
+            } else {
+                next();
+            }
+        });
+    };
 
     next();
 };

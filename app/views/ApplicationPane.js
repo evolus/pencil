@@ -31,6 +31,10 @@ function ApplicationPane() {
     this.bind("p:ControllerStatusChanged", function (event) {
         this.invalidateUIForControllerStatus();
     });
+    this.bind("p:ZoomChanged", function (event) {
+        this.invalidateZoom();
+    });
+
 
     var lastOverflowX = null;
     var lastOverflowY = null;
@@ -74,6 +78,12 @@ function ApplicationPane() {
     }, false);
 
     ApplicationPane._instance = this;
+
+    this.bind("dblclick", function (event) {
+        if (event.target.nodeName == "input") {
+            event.target.select();
+        }
+    }, this.toolbarContainer)
 
     FontLoader.instance.loadFonts();
 }
@@ -142,8 +152,12 @@ ApplicationPane.prototype.createCanvas = function () {
 };
 ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageListView.currentPage = this.controller.activePage;
+    this.controller.activePage.canvas._sayTargetChanged();
     this.pageListView.renderPages();
 };
+ApplicationPane.prototype.activatePage = function (page) {
+    this.pageListView.activatePage(page);
+}
 ApplicationPane.prototype.testSave = function () {
     this.controller.newDocument();
     var page = this.controller.newPage("Sample page", 1000, 1000, null, null, "");
@@ -154,6 +168,7 @@ ApplicationPane.prototype.testSave = function () {
 ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     if (this.activeCanvas && this.activeCanvas != canvas) {
         this.activeCanvas._cachedState = this.activeCanvas.getCanvasState();
+
     }
 
     for (var i = 0; i < this.getCanvasContainer().childNodes.length; i ++) {
@@ -169,8 +184,19 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
         this.startupDocumentView.node().style.display = "none";
         canvas.focus();
     }
+
+    this.invalidateZoom();
+    Dom.emitEvent("p:CanvasActived", this.node(), {
+        canvas: canvas
+    });
+};
+ApplicationPane.prototype.invalidateZoom = function () {
+    this.zoomToolbar.setAttribute("label", Pencil.activeCanvas ? (Math.round(Pencil.activeCanvas.zoom * 100) + "%") : "100%") ;
 };
 ApplicationPane.prototype.showStartupPane = function () {
+    if (Pencil.controller.activePage) {
+        Pencil.controller.activePage.canvas.selectNone();
+    }
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "flex";
@@ -183,10 +209,16 @@ ApplicationPane.prototype.getPreferredCanvasSize = function () {
         h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - 2
     }
 };
-
+// ApplicationPane.prototype.getScreenSize = function () {
+//     return {
+//         w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - 2,
+//         h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - 2
+//     }
+// };
 ApplicationPane.prototype.getBestFitSize = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
-    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - 2), zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - 2)].join("x");
+    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - 2),
+            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - 2)].join("x");
 };
 ApplicationPane.prototype.getBestFitSizeObject = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
@@ -214,5 +246,32 @@ ApplicationPane.prototype.unbusy = function () {
 ApplicationPane.prototype.invalidatePropertyEditor = function () {
     if (!Pencil.activeCanvas.currentController) {
         this.sharedPropertyEditor.detach();
+    }
+};
+ApplicationPane.prototype.toggleFullscreen = function () {
+    var browserWindow = remote.getCurrentWindow();
+    var fullscreen = !browserWindow.isFullScreen();
+    if (fullscreen) {
+        this.shouldRestoreSidePane = this.leftSidePane.isOpen();
+    }
+
+    browserWindow.setFullScreen(fullscreen);
+    this.validateFullScreen();
+};
+ApplicationPane.prototype.validateFullScreen = function () {
+    var browserWindow = remote.getCurrentWindow();
+    var fullscreen = browserWindow.isFullScreen();
+    Dom.toggleClass(document.body, "Fullscreen", fullscreen);
+    if (fullscreen) {
+        this.leftSidePane.collapseAll();
+    } else {
+        if (this.shouldRestoreSidePane) this.leftSidePane.openLast();
+    }
+};
+ApplicationPane.prototype.toggleLeftPane = function () {
+    if (this.leftSidePane.isOpen()) {
+        this.leftSidePane.collapseAll();
+    } else {
+        this.leftSidePane.openLast();
     }
 };

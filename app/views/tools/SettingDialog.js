@@ -27,7 +27,7 @@ function SettingDialog() {
         }
     }, this.settingTabPane);
 
-    this.bind("change", function (event) {
+    this.bind("input", function (event) {
         var node = Dom.findUpward(event.target, function (n) {
             return n.getAttribute && n.getAttribute("configName");
         });
@@ -39,60 +39,39 @@ function SettingDialog() {
                 node.value = "5";
             }
         }
+        Config.set(configName, node.value);
+        this.setPreferenceItems();
+    }, this.textboxGridSize);
+
+    this.bind("change", function (event) {
+        var node = Dom.findUpward(event.target, function (n) {
+            return n.getAttribute && n.getAttribute("configName");
+        });
+        if (!node) return;
+        var configName = node.getAttribute("configName");
+
+        if (configName == "edit.gridSize") {
+            if (node.value == "" || parseInt(node.value) == 0) {
+                node.value = "1";
+            }
+        }
+        if (configName == "view.undoLevel") {
+            if (node.value == "") {
+                node.value = "0";
+            }
+        }
         if (node.type == "number" || node.type == "text") {
-            if (configName == "external.editor.bitmap.path")
-            {
-                if (node.value == "" ) node.value = "/usr/bin/gimp";
+            // if (configName == "external.editor.bitmap.path") {
+            //     if (node.value == "" ) node.value = "/usr/bin/gimp";
+            // }
+            // if (configName == "external.editor.vector.path") {
+            //     if (node.value == "" ) node.value = "/usr/bin/inkscape";
+            // }
 
-            }
-            if (configName == "external.editor.vector.path") {
-
-                if (node.value == "" ) node.value = "/usr/bin/inkscape";
-
-            }
             Config.set(configName, node.value);
             this.setPreferenceItems();
         }
     }, this.settingTabPane);
-
-    // this.bind("click", function (event) {
-    //     var checked = this.checkboxEnableGrid.checked;
-    //     if (checked) {
-    //         Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
-    //     } else {
-    //         Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
-    //     }
-    // }, this.checkboxEnableGrid);
-    //
-    // this.bind("click", function (event) {
-    //     var checked = this.enableSnapping.checked;
-    //     this.enableSnappingBackground.disabled = !this.enableSnapping.checked;
-    //     if (checked) {
-    //         Dom.removeClass(this.enableSnappingBackground.parentNode, "Disabled");
-    //     } else {
-    //         Dom.addClass(this.enableSnappingBackground.parentNode, "Disabled");
-    //     }
-    // }, this.enableSnapping);
-    //
-    // this.bind("click", function (event) {
-    //     var checked = this.undoEnabled.checked;
-    //     if (checked) {
-    //         Dom.removeClass(this.textboxUndoLevel.parentNode, "Disabled");
-    //     } else {
-    //         Dom.addClass(this.textboxUndoLevel.parentNode, "Disabled");
-    //     }
-    // }, this.undoEnabled);
-
-    // this.bind("click", function (event) {
-    //     var checked = this.checkboxScaleImage.checked;
-    //     if (checked) {
-    //         Dom.removeClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
-    //         Dom.removeClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
-    //     } else {
-    //         Dom.addClass(this.textboxClipartBrowserScaleWidth.parentNode, "Disabled");
-    //         Dom.addClass(this.textboxClipartBrowserScaleHeight.parentNode, "Disabled");
-    //     }
-    // }, this.checkboxScaleImage);
 
     this.bind("input", function (event) {
         this.setPreferenceItems();

@@ -10,7 +10,7 @@ CollectionManager.addShapeDefCollection = function (collection) {
     CollectionManager.shapeDefinition.collections.push(collection);
     collection.visible = CollectionManager.isCollectionVisible(collection);
     collection.collapsed = CollectionManager.isCollectionCollapsed(collection);
-    collection.usage = CollectionManager.getCollectionUsage(collection);
+    //collection.usage = CollectionManager.getCollectionUsage(collection);
 
     for (var item in collection.shapeDefs) {
         var shapeDef = collection.shapeDefs[item];
@@ -164,7 +164,7 @@ CollectionManager.loadStencils = function(showNotification) {
     if (ApplicationPane._instance) ApplicationPane._instance.busy();
 
     CollectionManager.shapeDefinition.collections = [];
-    CollectionManager.shapeDefinition.shapeDefMap = { };
+    CollectionManager.shapeDefinition.shapeDefMap = {};
 
     console.log("Loading system stencils...");
     //load all system stencils
@@ -181,13 +181,18 @@ CollectionManager.loadStencils = function(showNotification) {
     // CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Windows7/Definition.xml"));
 
     CollectionManager._loadUserDefinedStencilsIn(Config.getDataFilePath(Config.STENCILS_DIR_NAME));
-    CollectionManager.shapeDefinition.collections = CollectionManager.shapeDefinition.collections.sort(function (a, b) {
-        if (a.usage != b.usage) return a.usage > b.usage ? -1 : (a.usage < b.usage ? 1 : 0);
-    	if (a.id == "Evolus.Common") return -1;
-    	return a.displayName > b.displayName ? 1 : (a.displayName < b.displayName ? -1 : 0);
-    });
+
 
     CollectionManager._loadDeveloperStencil();
+
+    var config = Config.get("Collection.collectionPosition");
+    var collectionOrder = config ? (config.split(",") || []) : [];
+
+    CollectionManager.shapeDefinition.collections = CollectionManager.shapeDefinition.collections.sort(function (a, b) {
+        var indexA = collectionOrder.indexOf(a.id);
+        var indexB = collectionOrder.indexOf(b.id);
+        return indexA - indexB;
+    });
 
     CollectionManager.reloadCollectionPane();
 
@@ -332,6 +337,7 @@ CollectionManager.installCollectionFromFile = function (file, callback) {
             }
         })
         .finally(() => {
+            CollectionManager.saveCollectionOrder();
             ApplicationPane._instance.unbusy();
         });
 };
@@ -396,16 +402,16 @@ CollectionManager.isCollectionCollapsed = function (collection) {
     if (collapsed == null) collapsed = false;
     return collapsed;
 };
-CollectionManager.setCollectionUsage = function (collection, value) {
-    collection.usage = value;
-    Config.set("Collection." + collection.id + ".usage", value);
-};
-CollectionManager.getCollectionUsage = function (collection) {
-    collection.usage = value;
-    var value = Config.get("Collection." + collection.id + ".usage");
-    if (value) return parseInt(value, 10);
-    return 0;
-};
+// CollectionManager.setCollectionUsage = function (collection, value) {
+//     collection.usage = value;
+//     Config.set("Collection." + collection.id + ".usage", value);
+// };
+// CollectionManager.getCollectionUsage = function (collection) {
+//     collection.usage = value;
+//     var value = Config.get("Collection." + collection.id + ".usage");
+//     if (value) return parseInt(value, 10);
+//     return 0;
+// };
 CollectionManager.setLastUsedCollection = function (collection) {
     Config.set("Collection.lastUsedCollection.id", collection.id);
 };
@@ -434,7 +440,7 @@ CollectionManager.uninstallCollection = function (collection, callback) {
         if (!err) {
             CollectionManager.loadStencils();
         }
-
+        CollectionManager.saveCollectionOrder();
         callback(err);
     });
 };
@@ -462,6 +468,28 @@ CollectionManager.selectDeveloperStencilDir = function () {
 };
 CollectionManager.unselectDeveloperStencilDir = function () {
     Config.set("dev.stencil.path", "none");
-    CollectionManager.loadStencils();
+    CollectionManager.reloadDeveloperStencil();
+    CollectionManager.saveCollectionOrder();
     NotificationPopup.show("Developer stencil is unloaded.");
 };
+
+CollectionManager.reorderCollections = function(collectionId, targetCollectionId) {
+    var collections = CollectionManager.shapeDefinition.collections;
+
+    var collection = CollectionManager.findCollection(collectionId);
+    var targetCollection = CollectionManager.findCollection(targetCollectionId);
+    var index = collections.indexOf(collection);
+    collections.splice(index, 1);
+    index =  collections.indexOf(targetCollection);
+    collections.splice(index, 0, collection);
+
+    CollectionManager.saveCollectionOrder();
+}
+
+CollectionManager.saveCollectionOrder = function () {
+    var positionString = "";
+    for (var i = 0; i < CollectionManager.shapeDefinition.collections.length; i++) {
+        positionString += CollectionManager.shapeDefinition.collections[i].id + ",";
+    }
+    Config.set("Collection.collectionPosition", positionString);
+}

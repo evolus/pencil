@@ -23,13 +23,25 @@ Rasterizer.ipcBasedBackend = {
     init: function () {
         ipcRenderer.send("render-init", {});
     },
-    rasterize: function (svgNode, width, height, scale, callback) {
-        ipcRenderer.once("render-response", function (event, data) {
-            callback(data);
+    rasterize: function (svgNode, width, height, scale, callback, parseLinks) {
+        var id = Util.newUUID();
+
+        ipcRenderer.once(id, function (event, data) {
+            callback(parseLinks ? data : data.url);
         });
 
+        w = width * scale;
+        h = height * scale;
+
+        if (scale != 1) {
+            svgNode.setAttribute("width", w + "px");
+            svgNode.setAttribute("height", h + "px");
+
+            svgNode.setAttribute("viewBox", "0 0 " + width + " " + height);
+        }
+
         var xml = Controller.serializer.serializeToString(svgNode);
-        ipcRenderer.send("render-request", {svg: xml, width: width, height: height, scale: scale});
+        ipcRenderer.send("render-request", {svg: xml, width: w, height: h, scale: 1, id: id, processLinks: parseLinks});
     }
 };
 Rasterizer.outProcessCanvasBasedBackend = {
@@ -136,7 +148,8 @@ Rasterizer.inProcessCanvasBasedBackend = {
 
 Rasterizer.prototype.getBackend = function () {
     //TODO: options or condition?
-    return Rasterizer.outProcessCanvasBasedBackend;
+    return Rasterizer.ipcBasedBackend;
+    // return Rasterizer.outProcessCanvasBasedBackend;
 };
 Rasterizer.prototype.rasterizeSVGNodeToUrl = function (svg, callback, scale) {
     var s = (typeof (scale) == "undefined") ? 1 : scale;
@@ -148,11 +161,12 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
     var thiz = this;
     var s = (typeof (scale) == "undefined") ? 1 : scale;
     var f = function () {
+        svg.setAttribute("page", page.name);
         thiz.getBackend().rasterize(svg, page.width, page.height, s, callback, parseLinks);
     };
 
     if (page.backgroundPage) {
-        thiz.getPageBitmapFile(page.backgroundPage, function (filePath) {
+        thiz.getPageBitmapFileWithScale(page.backgroundPage, scale, null, function (filePath) {
             var image = svg.ownerDocument.createElementNS(PencilNamespaces.svg, "image");
             image.setAttribute("x", "0");
             image.setAttribute("y", "0");
@@ -188,15 +202,37 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
     }
 };
 Rasterizer.prototype.getPageBitmapFile = function (page, callback) {
-    if (page.bitmapFilePath) {
-        callback(page.bitmapFilePath);
+    this.getPageBitmapFileWithScale(page, 1, null, callback);
+};
+Rasterizer.prototype.getPageBitmapFileWithScale = function (page, scale, configuredFilePath, callback) {
+    var key = "@" + scale;
+    if (page.bitmapCache && page.bitmapCache[key]) {
+        var existingFilePath = page.bitmapCache[key];
+        if (configuredFilePath && configuredFilePath != existingFilePath) {
+            copyFileSync(existingFilePath, configuredFilePath);
+            existingFilePath = configuredFilePath;
+        }
+
+        callback(existingFilePath);
     } else {
-        var filePath = tmp.fileSync({ postfix: ".png" }).name;
+        var filePath = configuredFilePath || tmp.fileSync({ postfix: ".png" }).name;
         this.rasterizePageToFile(page, filePath, function (filePath) {
-            page.bitmapFilePath = filePath;
+            if (!page.bitmapCache) page.bitmapCache = {};
+            page.bitmapCache[key] = filePath;
             callback(filePath);
-        }, 1);
+        }, scale);
     }
+};
+
+
+Rasterizer.prototype.postBitmapGeneratingTask = function (page, scale, configuredFilePath, callback) {
+    if (!this.generatingTaskQueue) this.generatingTaskQueue = new QueueHandler(100);
+    this.generatingTaskQueue.submit(function (__callback) {
+        this.getPageBitmapFileWithScale(page, scale, configuredFilePath, function (filePath) {
+            if (callback) callback(filePath);
+            __callback();
+        })
+    }.bind(this));
 };
 Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, scale, parseLinks) {
     this.rasterizePageToUrl(page, function (data) {

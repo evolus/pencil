@@ -1,5 +1,13 @@
 function CollectionPane() {
     BaseCollectionPane.call(this);
+    UICommandManager.register({
+        key: "openCollectionManagementDialog",
+        label: "Open Collection Management Dialog",
+        run: function () {
+            new CollectionManagementDialog(Pencil.collectionPane).open();
+        },
+        shortcut: "F3"
+    });
 }
 __extend(BaseCollectionPane, CollectionPane);
 

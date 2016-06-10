@@ -107,7 +107,7 @@ widget.Util = function() {
                         selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
                     }
                     selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
-                    if (!selectors.match(/^[ \t]*body /) && !selectors.match(/^[ \t]*@media /)) {
+                    if (!selectors.match(/^[ \t]*body[ \.\[:]/) && !selectors.match(/^[ \t]*@media /)) {
                         selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
                     }
 
@@ -767,19 +767,23 @@ BaseWidget.handleGlobalMouseDown = function (event) {
 };
 
 BaseWidget.tryCloseClosableOnBlur = function (closable, event) {
-    var container = closable.getClosableContainer ? closable.getClosableContainer() : closable;
-    var found = Dom.findUpward(event.target, function (node) {
-        return node == container;
-    });
-    if (found) return;
+    if (event) {
+        var container = closable.getClosableContainer ? closable.getClosableContainer() : closable;
+        var found = Dom.findUpward(event.target, function (node) {
+            return node == container;
+        });
+        if (found) return;
+    }
 
-    var shouldClose = closable.shouldCloseOnBlur ? closable.shouldCloseOnBlur(event) : false;
+    var shouldClose = closable.shouldCloseOnBlur ? (!event || closable.shouldCloseOnBlur(event)) : false;
     if (!shouldClose) return;
 
     BaseWidget.unregisterClosable(closable);
     closable.close("onBlur", event);
-    event.preventDefault();
-    Dom.cancelEvent(event);
+    if (event) {
+        event.preventDefault();
+        Dom.cancelEvent(event);
+    }
 
 };
 

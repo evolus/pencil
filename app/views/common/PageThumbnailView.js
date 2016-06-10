@@ -23,8 +23,16 @@ function PageThumbnailView() {
     this.pageThumbnail.style.visibility = "hidden";
 
     this.bind("click",function (event) {
-        if (!this.childMenu) return;
+        if (this.childMenu && this.childMenu._visible) {
+            this.childMenu.hide();
+            this.childMenu._visible = false;
+            return;
+        }
+        if (!this.childMenu) {
+            this.childMenu = new ChildPageListMenu(this.page);
+        }
         this.childMenu.showMenu(this.pageActionButton,"left-inside", "top", 0, 0, true);
+        this.childMenu._visible = true;
         event.stopPropagation();
     }, this.pageActionButton);
 }
@@ -33,7 +41,7 @@ __extend(BaseTemplatedWidget, PageThumbnailView);
 PageThumbnailView.prototype.setPage = function (page, childMenu) {
     if (!page) return;
     this.page = page;
-    this.childMenu = childMenu;
+    // this.childMenu = childMenu;
     this._updateUI();
 };
 PageThumbnailView.prototype._updateUI = function () {
@@ -41,7 +49,7 @@ PageThumbnailView.prototype._updateUI = function () {
     if (!this.page.children || this.page.children.length == 0) this.pageActionButton.style.visibility = "hidden";
     if (this.page.thumbPath) this.pageThumbnail.src = this.page.thumbPath + "?time=" + (new Date().getTime());
     this.pageTitle.innerHTML = this.page.name;
-    this.node().setAttribute("title", this.page.id);
+    this.node().setAttribute("title", this.page.name);
 };
 
 PageThumbnailView.prototype.selectPage = function (active) {

@@ -6,7 +6,7 @@ dist: trusty
 
 env:
   global:
-    - NODE_VERSION=5
+    - NODE_VERSION=6
     - USE_SYSTEM_FPM=true
     - secure: E0ghqUHn8cFewr+wYJgnLSpn/e+3RPhnoLNAYMuhpGhPtpVgmlTqb7oqHHLVOjQtfDEp495tMolYeaJZaqGAC4RnEPtn664wrgoEI+FLegNV3SJx+oFF53LmT3zZnwVhbF6J3ZwF8QLYPKad5PcCqVo8SMvMMyWD5m6TzJFJ+1caNi6wJrKkQBqHtCkKOkazp0ZXwpl1SVQl24bofCZfGn7zbmRJ0+VXvfeg1GqkF1GFqkDKc2SkGQn9VUH1d2ejahWxV3dH+VPuyqUuTlPIrv7TjUU4OH9hr3mjQPtWMOnvK0BzOQKu2B9tpAUHbuT5z74TSc7TYQjDA0zQG02h1ALll0Fm+9UOYJQZMidNNiawCDXx1a0Fu+SLWNK9KX/R3FD2ip4wVKKjl/DyTy5Nnw/BsWX4UkYijW3IuegV7a0UokISD6OJqLeo+gmmNon2ngxum+Av1veB/z9c/zZanQwx+CumeqAD7eHCbxZv+bwMAFfsoC6Bv6CtTlU+uBeu7wSUyMxVzaW8qF+MbeMboG3ht12+K6Xxdp+C26eGbkQr7YlITumy5glhd4jlCAxI+DT1uZAWPnIfdOtRWUPd78ABy9G3y98ppnlqCNPbxShI3Tgtp8mTDEpM0znVnZOXcQFzrEX7r2IsGmnIuoUf77lmdpuDTYPq6KAbAOtkjCE=
 
@@ -15,8 +15,8 @@ language: c
 matrix:
   include:
     - os: linux
-      env: CC=clang CXX=clang++ npm_config_clang=1
-      compiler: clang
+      #env: CC=clang CXX=clang++ npm_config_clang=1
+      #compiler: clang
     - os: osx
 
 cache:
@@ -31,11 +31,11 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise-3.7
+      #- llvm-toolchain-precise-3.7
     packages:
       - libgnome-keyring-dev
       - icnsutils
-      - clang-3.7
+      #- clang-3.7
       - graphicsmagick
       - xz-utils
       - rpm
@@ -48,14 +48,12 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git-lfs-1.2.0/git-lfs pull; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y ruby-dev gcc make; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then gem install --no-ri --no-rdoc fpm; fi
-  # https://github.com/electron-userland/electron-builder/issues/398
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then security import "certs/sca.code2.crt" -k ~/Library/Keychains/login.keychain -T /usr/bin/codesign; fi
 
 install:
   - nvm install $NODE_VERSION
   - npm install npm -g
   - npm install
-  - npm install git+https://github.com/mbrainiac/electron-builder.git#v3.26.1.2
+  - npm install electron-builder@4.2.6
   - npm prune
 
 script:

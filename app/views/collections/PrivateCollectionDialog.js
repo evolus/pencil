@@ -1,6 +1,7 @@
 function PrivateCollectionDialog () {
     WizardDialog.call(this);
-    this.title = "Create Private Collection Wizard";
+    this.title = "Private Collection Wizard";
+    this.subTitle = "This wizard help you through the process of creating a private collection";
     this.myCollection;
 
     var thiz = this;
@@ -13,8 +14,26 @@ function PrivateCollectionDialog () {
         this.activeCollectionNode = top;
         if(top.collection.id) {
             this.valueHolder.collection = top.collection;
+        } else {
+            this.valueHolder.collection = null;
         }
      }, this.collectionList)
+
+     this.bind("dblclick", function(event) {
+         var top = Dom.findUpwardForNodeWithData(event.target, "collection");
+         if(thiz.activeCollectionNode) {
+             thiz.activeCollectionNode.removeAttribute("active");
+         }
+         top.setAttribute("active", "true");
+         this.activeCollectionNode = top;
+         if(top.collection.id) {
+             this.valueHolder.collection = top.collection;
+         } else {
+             this.valueHolder.collection = null;
+         }
+         this.onNext();
+
+      }, this.collectionList)
 
      this.bind("change", function() {
          var value = this.generateIconCheck.checked;
@@ -53,15 +72,27 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
     var collectionItems = [
         {
             displayName: "Create new private collection...",
+            value: true
         }
     ];
     collectionItems = collectionItems.concat(PrivateCollectionManager.privateShapeDef.collections);
     var thiz = this;
+    var lastSelectCollectionId = Config.get("PrivateCollection.lastSelectCollection.id");
+
     var addItem = function(collection) {
         var item = Dom.newDOMElement({
             _name: "li",
             _text: collection.displayName
         });
+        if (lastSelectCollectionId && collection.id == lastSelectCollectionId) {
+            item.setAttribute("active", "true");
+            thiz.activeCollectionNode = item;
+            thiz.valueHolder.collection = collection;
+        }
+
+        if ( collection.value && collection.value == true) {
+            item.setAttribute("class", "createPrivateCollection");
+        }
         item.collection = collection;
         item.collectionId = collection.id;
         thiz.collectionList.appendChild(item);
@@ -69,7 +100,6 @@ PrivateCollectionDialog.prototype.setupUI = function (options) {
     for (i in collectionItems) {
        addItem(collectionItems[i]);
     }
-
 }
 
 PrivateCollectionDialog.prototype.invalidateFinish = function () {
@@ -118,15 +148,20 @@ PrivateCollectionDialog.prototype.onSelectionChanged = function (activePane) {
     if(activePane == this.collectionsDefinePane) {
         thiz.stepTitle.innerHTML = "Completing the create private collection wizard";
         thiz.stepInfo.innerHTML = "Please enter collection or shape information";
+
         if(thiz.activeCollectionNode.collectionId) {
             thiz.collectionDefinition.style.display = "none";
             thiz.mycollection = thiz.activeCollectionNode.collections;
+            thiz.shapeName.focus();
         } else {
             thiz.collectionDefinition.style.display = "block";
+            thiz.collectionName.focus();
         }
+
     } else if (activePane == this.collectionsListPane) {
         thiz.stepTitle.innerHTML = "Wellcome to create collection wizard";
         thiz.stepInfo.innerHTML = "Select an existing private collection or create new private collection";
+
     }
 }
 

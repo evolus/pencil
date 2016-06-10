@@ -64,7 +64,8 @@ StrokeEditor.prototype.setup = function () {
     this.styleCombo.addEventListener("p:ItemSelected", function (event) {
         thiz.fireChangeEvent();
     }, false);
-    this.strokeWidth.addEventListener("change", function (event) {
+    this.strokeWidth.addEventListener("input", function (event) {
+        if (thiz.strokeWidth.value == "") thiz.strokeWidth.value = 1;
         thiz.fireChangeEvent();
     }, false);
 
@@ -72,10 +73,6 @@ StrokeEditor.prototype.setup = function () {
 
 StrokeEditor.prototype.setValue  = function (stroke) {
     this.strokeWidth.value = stroke.w;
-    // if (stroke.array) {
-    //     this.styleCombo.selectItem(stroke.array);
-    // }
-
     var item = null;
     for (var i = 0; i < this.items.length; i++) {
         if (this.items[i].value == stroke.array) {

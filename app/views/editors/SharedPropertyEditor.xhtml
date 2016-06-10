@@ -33,8 +33,10 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            width: 6em;
             font-size: 0.9em;
+        }
+        @propertyContainer > .Group > .Wrapper > * {
+            flex-basis: 2em;
         }
 
         @propertyContainer input[type='text'],
@@ -48,7 +50,6 @@
         }
         @propertyContainer button {
             min-width: 1.8em;
-            border: solid 1px rgba(0, 0, 0, 0.2);
         }
         @propertyContainer button > i {
             font-size: 1.4em;

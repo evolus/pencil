@@ -3,6 +3,9 @@ function AboutCollectionDialog(collection) {
     this.title = function () {
         return collection.displayName;
     };
+    this.subTitle = function () {
+        return collection.description || "Information about this shape collection";
+    };
 
     //this.title = collection.displayName;
     var node = Dom.newDOMElement({
@@ -33,7 +36,8 @@ function AboutCollectionDialog(collection) {
                         _children :[
                             {
                                 _name: "h4",
-                                _text: "More Information: "
+                                _text: "More Information:",
+                                "class": "MoreInfor"
                             },
                             {
                                 _name: "a",

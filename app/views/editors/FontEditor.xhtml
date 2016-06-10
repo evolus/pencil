@@ -9,15 +9,15 @@
             border-top-right-radius:  0px !important;
             border-bottom-right-radius:  0px !important;
         }
-        @fontCombo button {
+        @fontCombo {
             border-top-right-radius: 0px;
             border-bottom-right-radius: 0px;
         }
         @pixelFontSize {
-            width: 5ex;
+            width: 3.8em;
         }
-        @fontCombo button {
-            width: 2em;
+        @fontCombo {
+            flex-basis: 2em;
         }
         @fontCombo .AnonId_buttonDisplay {
             width: 100%;
@@ -26,7 +26,7 @@
         }
     </style>
     <ui:ComboManager anon-id="fontCombo" flex="1"/>
-    <input anon-id="pixelFontSize" type="number" />
+    <input anon-id="pixelFontSize" type="number" min="5" max="100"/>
     <button anon-id="boldButton"><span>B</span></button>
     <button anon-id="italicButton"><span>I</span></button>
 </hbox>

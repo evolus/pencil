@@ -73,13 +73,14 @@ Controller.prototype.confirmAndclose = function (onClose) {
 Controller.prototype.resetDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
-
+    
     this.doc = new PencilDocument();
     this.doc.name = "";
     this.documentPath = null;
     this.canvasPool.reset();
     this.activePage = null;
     this.documentPath = null;
+    this.pendingThumbnailerMap = null;
 
     this.applicationPane.pageListView.currentParentPage = null;
     FontLoader.instance.setDocumentRepoDir(path.join(this.tempDir.name, "fonts"));
@@ -311,54 +312,129 @@ Controller.prototype.openDocument = function (callback) {
 
     handler();
 };
+Controller.prototype.parsePageFromNode = function (pageNode, callback) {
+    var thiz = this;
+    var page = new Page(this.doc);
+    Dom.workOn("./p:Properties/p:Property", pageNode, function (propNode) {
+        var name = propNode.getAttribute("name");
+        var value = propNode.textContent;
+        if(name == "note") {
+            value = RichText.fromString(value);
+        }
+        if (!Page.PROPERTY_MAP[name]) return;
+        page[Page.PROPERTY_MAP[name]] = value;
+    });
+
+    function invalidateAndSerializePage(page) {
+        if (page.width) page.width = parseInt(page.width, 10);
+        if (page.height) page.height = parseInt(page.height, 10);
+        if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
+
+        if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+
+        var pageFileName = "page_" + page.id + ".xml";
+        page.pageFileName = pageFileName;
+        page.tempFilePath = path.join(thiz.tempDir.name, pageFileName);
+
+        thiz.serializePage(page, page.tempFilePath);
+        delete page._contentNode;
+        thiz.doc.pages.push(page);
+    }
+
+    var contentNode = Dom.getSingle("./p:Content", pageNode);
+    if (contentNode) {
+        var node = document.importNode(contentNode.cloneNode(true), true);
+
+        var invalidateTasks = [];
+        var invalidationIndex = -1;
+
+
+        function createInvalidationTask(type, name, propertyNode) {
+            return function (__callback) {
+                var value = type.fromString(propertyNode.textContent);
+                type.invalidateValue(value, function (invalidatedValue, error) {
+                    if (invalidatedValue) {
+                        Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
+                    }
+                    __callback();
+                });
+            };
+        }
+
+        function runNextValidation(callback) {
+            invalidationIndex ++;
+            if (invalidationIndex >= invalidateTasks.length) {
+                callback();
+                return;
+            }
+            var task = invalidateTasks[invalidationIndex];
+            task(function () {
+                runNextValidation(callback);
+            });
+        }
+
+        Dom.workOn(".//svg:g[@p:type='Shape']", node, function (shapeNode) {
+            var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
+            var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+            if (!def) return;
+
+            Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
+                var name = propertyNode.getAttribute("name");
+                var propertyDef = def.propertyMap[name];
+                if (!propertyDef || !propertyDef.type.invalidateValue) return;
+                var type = propertyDef.type;
+
+                invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
+
+            });
+        });
+
+
+        runNextValidation(function () {
+            page._contentNode = node;
+            invalidateAndSerializePage(page);
+            callback();
+        });
+    } else {
+        page._contentNode = null;
+        invalidateAndSerializePage(page);
+        callback();
+    }
+};
 Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
     var targetDir = this.tempDir.name;
     var thiz = this;
+    this.pathToRefCache = null;
     try {
         if (path.extname(filePath) != ".ep" && path.extname(filePath) != ".epz") throw "Wrong format.";
+
+        this.documentPath = filePath;
+        this.oldPencilDoc = true;
         var dom = Controller.parser.parseFromString(fs.readFileSync(filePath, "utf8"), "text/xml");
 
         Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
             thiz.doc.properties[propNode.getAttribute("name")] = propNode.textContent;
         });
 
-        Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-            var page = new Page(thiz.doc);
-            Dom.workOn("./p:Properties/p:Property", pageNode, function (propNode) {
-                var name = propNode.getAttribute("name");
-                var value = propNode.textContent;
-                if(name == "note") {
-                    value = RichText.fromString(value);
-                }
-                if (!Page.PROPERTY_MAP[name]) return;
-                page[Page.PROPERTY_MAP[name]] = value;
+        var pageNodes = Dom.getList("./p:Pages/p:Page", dom.documentElement);
+
+        var pageNodeIndex = -1;
+        function parseNextPageNode(__callback) {
+            pageNodeIndex ++;
+            if (pageNodeIndex >= pageNodes.length) {
+                __callback();
+                return;
+            }
+
+            var pageNode = pageNodes[pageNodeIndex];
+            thiz.parsePageFromNode(pageNode, function () {
+                parseNextPageNode(__callback);
             });
-
-            var contentNode = Dom.getSingle("./p:Content", pageNode);
-            if (contentNode) {
-                var node = dom.createElementNS(PencilNamespaces.p, "p:Content");
-                node.innerHTML = document.importNode(contentNode, true).innerHTML;
-                page._contentNode = node;
-            } else page._contentNode = null;
-
-            if (page.width) page.width = parseInt(page.width, 10);
-            if (page.height) page.height = parseInt(page.height, 10);
-            if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
-
-            if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
-
-            var pageFileName = "page_" + page.id + ".xml";
-            page.pageFileName = pageFileName;
-            page.tempFilePath = path.join(thiz.tempDir.name, pageFileName);
-
-            thiz.serializePage(page, page.tempFilePath);
-            delete page._contentNode;
-            thiz.doc.pages.push(page);
-        });
+        }
 
         // update page thumbnails
         var index = -1;
-        function next(onDone) {
+        function generateNextThumbnail(onDone) {
             index ++;
             if (index >= thiz.doc.pages.length) {
                 if (onDone) onDone();
@@ -366,21 +442,26 @@ Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
             }
             var page = thiz.doc.pages[index];
             thiz.updatePageThumbnail(page, function () {
-                next(onDone);
+                generateNextThumbnail(onDone);
             });
         }
 
-        next(function () {
-            thiz.sayDocumentChanged();
-            thiz.sayControllerStatusChanged();
-            if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
-            if (callback) callback();
-            ApplicationPane._instance.unbusy();
+
+        parseNextPageNode(function () {
+            generateNextThumbnail(function () {
+                thiz.modified = false;
+                thiz.sayControllerStatusChanged();
+                if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
+                thiz.pathToRefCache = null;
+                if (callback) callback();
+                ApplicationPane._instance.unbusy();
+            });
         });
-        this.documentPath = filePath;
+
+        // this.documentPath = filePath;
         this.doc.name = this.getDocumentName();
     } catch (e) {
-        console.log("error:", e);
+        // console.log("error:", e);
         thiz.newDocument();
         ApplicationPane._instance.unbusy();
     }
@@ -583,6 +664,7 @@ Controller.prototype.parseDocument = function (filePath, callback) {
             }, thiz);
 
             thiz.documentPath = filePath;
+            thiz.oldPencilDoc = false;
             thiz.doc.name = thiz.getDocumentName();
             thiz.modified = false;
             //new file was loaded, update recent file list
@@ -597,6 +679,7 @@ Controller.prototype.parseDocument = function (filePath, callback) {
                     if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
                 }
                 thiz.applicationPane.onDocumentChanged();
+                thiz.modified = false;
                 if (callback) callback();
                 ApplicationPane._instance.unbusy();
             });
@@ -676,11 +759,12 @@ Controller.prototype.saveAsDocument = function (onSaved) {
     }.bind(this));
 };
 Controller.prototype.saveDocument = function (onSaved) {
-    if (!this.documentPath) {
+    if (!this.documentPath || this.oldPencilDoc) {
         var thiz = this;
         dialog.showSaveDialog({
             title: "Save as",
-            defaultPath: path.join(Config.get("document.save.recentlyDirPath", null) || os.homedir(), "Untitled.epz"),
+            defaultPath: path.join(Config.get("document.save.recentlyDirPath", null) || os.homedir(),
+                (this.documentPath && path.basename(this.documentPath).replace(path.extname(this.documentPath), "") + ".epz") || "Untitled.epz"),
             filters: [
                 { name: "Pencil Documents", extensions: ["epz"] }
             ]
@@ -700,9 +784,10 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     if (!documentPath) throw "Path not specified";
 
     this.updateCanvasState();
+    this.oldPencilDoc = false;
+
     var thiz = this;
     ApplicationPane._instance.busy();
-
 
     this.serializeDocument(function () {
         this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
@@ -854,10 +939,8 @@ Controller.prototype.swapIn = function (page, canvas) {
         page.careTakerTempFile = null;
     }
 
-    if (page.scrollTop || page.scrollLeft || page.zoom) {
-        var canvasState = {"scrollTop": page.scrollTop ? page.scrollTop : 0, "scrollLeft": page.scrollLeft ? page.scrollLeft : 0, "zoom": page.zoom ? page.zoom : 0};
-        canvas.setCanvasState(canvasState);
-    }
+    var canvasState = {"scrollTop": page.scrollTop ? page.scrollTop : 0, "scrollLeft": page.scrollLeft ? page.scrollLeft : 0, "zoom": page.zoom ? page.zoom : 1};
+    canvas.setCanvasState(canvasState);
 
     page.canvas = canvas;
     canvas.page = page;
@@ -1147,6 +1230,8 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
     var page = passedPage ? passedPage : this.activePage;
     var canvas = page.canvas;
     if (!canvas) return;
+
+    var thiz = this;
     var padding  = 0;
     var handler = function () {
         var canvas = page.canvas;
@@ -1156,7 +1241,8 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
             page.width = newSize.width;
             page.height = newSize.height;
 
-            this.invalidateBitmapFilePath(page);
+            thiz.sayDocumentChanged();
+            thiz.invalidateBitmapFilePath(page);
         }
     }.bind(this);
 
@@ -1165,7 +1251,7 @@ Controller.prototype.sizeToContent = function (passedPage, askForPadding) {
         paddingDialog.open({
             title: "Fit content with padding",
             message: "Please enter the padding",
-            defaultValue: "0",
+            defaultValue: 0,
             callback: function (paddingString) {
                 if (!paddingString) return;
                 padding = parseInt(paddingString, 10);
@@ -1183,7 +1269,9 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
     var page = passedPage ? passedPage : this.activePage;
     var canvas = page.canvas;
     if (!canvas) return;
-
+    if (canvas.zoom != 1) {
+        canvas.zoomTo(1);
+    }
     var newSize = this.applicationPane.getBestFitSizeObject();
     if (newSize) {
         canvas.setSize(newSize.width, newSize.height);
@@ -1191,6 +1279,7 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
         page.height = newSize.height;
         Config.set("lastSize", [newSize.width, newSize.height].join("x"));
         this.invalidateBitmapFilePath(page);
+        this.sayDocumentChanged();
     }
 };
 Controller.prototype.getBestFitSize = function () {
@@ -1200,6 +1289,7 @@ Controller.prototype.getBestFitSize = function () {
 Controller.prototype.handleCanvasModified = function (canvas) {
     if (!canvas || !canvas.page) return;
     this.modified = true;
+    canvas.page.lastModified = new Date();
     this.invalidateBitmapFilePath(canvas.page);
 };
 Controller.prototype.updatePageThumbnail = function (page, done) {
@@ -1208,16 +1298,19 @@ Controller.prototype.updatePageThumbnail = function (page, done) {
     if (page.height > page.width) scale = Controller.THUMBNAIL_SIZE / page.height;
 
     var thiz = this;
-    this.applicationPane.rasterizer.rasterizePageToFile(page, thumbPath, function (p, error) {
+    this.applicationPane.rasterizer.postBitmapGeneratingTask(page, scale, thumbPath, function (p) {
         page.thumbPath = p;
         page.thumbCreated = new Date();
         Dom.emitEvent("p:PageInfoChanged", thiz.applicationPane, {page: page});
         if (done) done();
-    }, scale);
+    });
 };
 
-Controller.prototype.rasterizeCurrentPage = function () {
-    var page = this.activePage;
+Controller.prototype.rasterizeCurrentPage = function (targetPage) {
+    var page = targetPage ? targetPage : (this.activePage ? this.activePage : null);
+    if (!page) {
+        return;
+    }
     dialog.showSaveDialog({
         title: "Export page as PNG",
         defaultPath: path.join(os.homedir(), (page.name + ".png")),
@@ -1253,8 +1346,23 @@ Controller.prototype.rasterizeSelection = function () {
 };
 
 Controller.prototype.copyAsRef = function (sourcePath, callback) {
+    var originalSourcePath = sourcePath;
+
+    if (this.pathToRefCache && this.pathToRefCache[originalSourcePath]) {
+        callback(this.pathToRefCache[originalSourcePath]);
+        return;
+    }
+
+    if (!path.isAbsolute(sourcePath)) {
+        sourcePath = path.normalize(path.join(path.dirname(this.documentPath), sourcePath));
+        console.log("Resolving relative path to: ", sourcePath);
+    }
+
     var id = Util.newUUID() + path.extname(sourcePath) || ".data";
     var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+
+    if (!this.pathToRefCache) this.pathToRefCache = {};
+    this.pathToRefCache[originalSourcePath] = id;
 
     var rd = fs.createReadStream(sourcePath);
     rd.on("error", function (error) {
@@ -1319,35 +1427,42 @@ Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
 
     this.sayDocumentChanged();
 };
-Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) {
-    if (!invalidatedIds) invalidatedIds = [];
-    if (invalidatedIds.indexOf(page.id) >= 0) return;
-
-    if (page.bitmapFilePath) {
-        fs.unlinkSync(page.bitmapFilePath);
-        page.bitmapFilePath = null;
-    }
-
-    //update page thumbnail
-    page.lastModified = new Date();
+Controller.prototype.scheduleUpdatePageThumbnail = function (page) {
     if (!this.pendingThumbnailerMap) this.pendingThumbnailerMap = {};
     var pending = this.pendingThumbnailerMap[page.id];
     if (pending) {
         window.clearTimeout(pending);
     }
 
-    var thiz = this;
     this.pendingThumbnailerMap[page.id] = window.setTimeout(function () {
-        thiz.pendingThumbnailerMap[page.id] = null;
-        thiz.updatePageThumbnail(page);
-    }, 3000);
+        this.updatePageThumbnail(page, function () {
+            this.pendingThumbnailerMap[page.id] = null;
+        }.bind(this));
+    }.bind(this), 2000);
 
+};
+
+Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) {
+    if (!invalidatedIds) invalidatedIds = [];
+    if (invalidatedIds.indexOf(page.id) >= 0) return;
+
+    if (page.bitmapCache) {
+        for (var key in page.bitmapCache) {
+            var filePath = page.bitmapCache[key];
+            try {
+                fs.unlinkSync(page.bitmapFilePath);
+            } catch (e) {
+            }
+        }
+        page.bitmapCache = null;
+    }
+
+    this.scheduleUpdatePageThumbnail(page);
 
     invalidatedIds.push(page.id);
-
-    this.doc.pages.forEach(function (p) {
+    for (let p of this.doc.pages) {
         if (p.backgroundPageId == page.id) this.invalidateBitmapFilePath(p, invalidatedIds);
-    }.bind(this));
+    }
 };
 Controller.prototype.updatePageProperties = function (page, name, backgroundColor, backgroundPageId, parentPageId, width, height) {
     page.name = name;
@@ -1420,24 +1535,23 @@ Controller.prototype.printCurrentDocument = function () {
 
 
 window.onbeforeunload = function (event) {
+    // Due to a change of Chrome 51, returning non-empty strings or true in beforeunload handler now prevents the page to unload
     var remote = require("electron").remote;
-    if (remote.app.devEnable) return true;
+    if (remote.app.devEnable) return;
 
     if (Controller.ignoreNextClose) {
         Controller.ignoreNextClose = false;
-        return true;
+        return;
     }
 
     if (Controller._instance.doc) {
         setTimeout(function () {
             Controller._instance.confirmAndclose(function () {
-                Controller.ignoreNextClose = true;
+                Controller.ignoreNextClose = false;
                 var currentWindow = remote.getCurrentWindow();
                 currentWindow.close();
             });
         }, 10);
-        return false;
+        return true;
     }
-
-    return true;
 };

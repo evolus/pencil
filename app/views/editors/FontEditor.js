@@ -41,14 +41,28 @@ FontEditor.prototype.setup = function () {
     });
 
     this.pixelFontSize.addEventListener("click", function(event) {
-        if (!thiz.font || OnScreenTextEditor.isEditing) return;
+        if (!thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) return;
         thiz.fireChangeEvent();
     }, false);
     this.pixelFontSize.addEventListener("keyup", function(event) {
         if (event.keyCode == 13 || event.keyCode == 10) {
-            if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
+            if (!thiz.font || OnScreenTextEditor.isEditing) return;
+            if (thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) {
+                thiz.pixelFontSize.value = 5;
+            }
             thiz.fireChangeEvent();
         }
+    }, false);
+    this.pixelFontSize.addEventListener("wheel", function(event) {
+        if (!thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) return;
+        thiz.fireChangeEvent();
+    });
+    this.pixelFontSize.addEventListener("change", function(event) {
+        if (!thiz.font || OnScreenTextEditor.isEditing) return;
+        if (thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) {
+            thiz.pixelFontSize.value = 5;
+        }
+        thiz.fireChangeEvent();
     }, false);
 
     this.boldButton.addEventListener("click", function(event) {
@@ -76,20 +90,6 @@ FontEditor.prototype.setup = function () {
         thiz.fireChangeEvent();
     }, false);
 
-
-    /*
-    this.underlineButton.addEventListener("command", function(event) {
-        if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
-        thiz.font.decor = thiz.underlineButton.checked ? "underline" : "none";
-        thiz.fireEvent();
-    }, false);
-
-    this.strikeButton.addEventListener("command", function(event) {
-        if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
-        thiz.font.strike = thiz.strikeButton.checked ? "strikethrough" : "none";
-        thiz.fireEvent();
-    }, false);*/
-
 };
 
 
@@ -112,6 +112,7 @@ FontEditor.prototype.setValue = function (font) {
     //
     if (this.font.size.match(/^([0-9]+)[^0-9]*$/)) {
         this.pixelFontSize.value = RegExp.$1;
+        this.fontSize = RegExp.$1;
     }
 
     if (this.font.weight == "bold") {
@@ -133,6 +134,6 @@ FontEditor.prototype.getValue = function () {
     font.size = this.pixelFontSize.value + "px";
     font.weight = (this.boldButton.getAttribute("checked") == "true") ? "bold" : "normal";
     font.style = (this.italicButton.getAttribute("checked") == "true") ? "italic" : "normal";
-
+    this.fontSize = this.pixelFontSize.value;
     return font;
 };

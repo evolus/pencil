@@ -30,6 +30,10 @@ button {
     display: inline-flex;
     align-items: center;
 }
+button:focus {
+    outline: dotted 1px rgba(0, 0, 0, 0.3);
+    outline-offset: -0.3em;
+}
 button[disabled] {
     background: rgba(255, 255, 255, 0.2);
     cursor: default;
@@ -54,8 +58,15 @@ button > i {
     -webkit-font-smoothing: subpixel-antialiased;
     opacity: 0.7;
 }
-button > i[rotated="true"] {
+button > i[rotated="true"],
+button > i[rotated="right"] {
     transform: rotate(90deg);
+}
+button > i[rotated="left"] {
+    transform: rotate(-90deg);
+}
+button > i[flipped="true"] {
+    transform: rotate(180deg);
 }
 button > * {
     vertical-align: middle;
@@ -73,43 +84,48 @@ button[mode='icon'] {
 hbox.ButtonGroup > button {
     box-shadow: none !important;
 }
-hbox.ButtonGroup > button:first-child,
-hbox.ButtonGroup > button + button {
+hbox.ButtonGroup > *:first-child:not(:last-child),
+hbox.ButtonGroup > * + input[type]:not(:last-child),
+hbox.ButtonGroup > * + *:not(:last-child) {
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
     border-right-width: 0px;
 }
-hbox.ButtonGroup > button:first-child > i,
-hbox.ButtonGroup > button + button > i {
+hbox.ButtonGroup > *:first-child > i,
+hbox.ButtonGroup > * + * > i {
     padding-right: 1px;
 }
-hbox.ButtonGroup > button + button {
+hbox.ButtonGroup > * + input[type],
+hbox.ButtonGroup > * + button {
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     border-left-width: 0px;
 }
-hbox.ButtonGroup > button + button > i {
+hbox.ButtonGroup > * + * > i {
     padding-left: 1px;
 }
-hbox.ButtonGroup > button:last-child {
-    border-top-right-radius: 0.3ex;
-    border-bottom-right-radius: 0.3ex;
-    border-right-width: 1px;
-}
-hbox.ButtonGroup > button:last-child > i {
+hbox.ButtonGroup > *:last-child > i {
     padding-right: 0px;
 }
-hbox.ButtonGroup > button[disabled] + button:not([disabled]),
-hbox.ButtonGroup > button:not([disabled]) + button[disabled] {
+hbox.ButtonGroup > *[disabled] + *:not([disabled]),
+hbox.ButtonGroup > *:not([disabled]) + *[disabled] {
     border-left-width: 1px;
 }
-hbox.ButtonGroup > button[disabled] + button:not([disabled]) > i,
-hbox.ButtonGroup > button:not([disabled]) + button[disabled] > i {
+hbox.ButtonGroup > *[disabled] + *:not([disabled]) > i,
+hbox.ButtonGroup > *:not([disabled]) + *[disabled] > i {
     padding-left: 0px;
+}
+hbox.ButtonGroup > input[type]:not(:last-child) {
+    border-right: solid 1px rgba(0, 0, 0, 0.1); !important;
+}
+hbox.ButtonGroup > button + input[type],
+hbox.ButtonGroup > .AdoptedOrphan + * {
+    border-left: solid 1px rgba(0, 0, 0, 0.1); !important;
 }
 hbox.ButtonGroup {
     display: inline-flex;
 }
+
 button[selected='true'],
 button[checked='true'] {
     background: #C8C8C8;

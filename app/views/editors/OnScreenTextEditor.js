@@ -193,7 +193,6 @@ OnScreenTextEditor.prototype.handleTextBlur = function (event) {
     }, 100);
 };
 OnScreenTextEditor.prototype.handleKeyPress = function (event) {
-    console.log("event.keyCode == DOM_VK_ESCAPE", event.keyCode, DOM_VK_ESCAPE);
     if (event.keyCode == DOM_VK_RETURN && !event.shiftKey && !event.accelKey && !event.ctrlKey) {
         this.commitChange(event);
     } else if (event.keyCode == DOM_VK_ESCAPE) {

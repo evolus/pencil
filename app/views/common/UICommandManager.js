@@ -5,12 +5,12 @@ UICommandManager.commands = [];
 UICommandManager.map = {};
 UICommandManager.keyMap = {};
 
-UICommandManager.mapKey = function (name, keyCode, pcName, macName) {
+UICommandManager.mapKey = function (name, keyCode, pcName, macName, macKeyCode) {
     var key = {
         name: name,
-        keyCode: keyCode,
+        keyCode: IS_MAC ? (macKeyCode || keyCode) : keyCode,
         pcName: pcName,
-        macName: macName || pcName
+        macName: macName || pcName,
     };
 
     UICommandManager.keyMap[name] = key;
@@ -38,7 +38,7 @@ UICommandManager.mapKey("RIGHT", 39, "Right Arrow");
 UICommandManager.mapKey("DOWN", 40, "Down Arrow");
 UICommandManager.mapKey("PRINTSCREEN", 44, "Print Screen");
 UICommandManager.mapKey("INSERT", 45, "Insert");
-UICommandManager.mapKey("DELETE", 46, "Delete");
+UICommandManager.mapKey("DELETE", 46, "Delete", "Delete", 8);
 UICommandManager.mapKey("0", 48, "0");
 UICommandManager.mapKey("1", 49, "1");
 UICommandManager.mapKey("2", 50, "2");
@@ -178,6 +178,7 @@ UICommandManager.installControl = function (commandKey, control) {
     }, false);
 };
 UICommandManager.invalidateCommand = function (command) {
+    console.log("invalidateCommand:", command);
     if (!command.controls) return;
     var valid = command.isValid ? command.isValid() : !command.disabled;
     for (var i = 0; i < command.controls.length; i ++) {
@@ -193,7 +194,7 @@ UICommandManager.invalidateCommands = function () {
     }
 };
 UICommandManager.parseShortcut = function (command) {
-    const RE = /^(Ctrl\+)?(Alt\+)?(Shift\+)?([a-z0-9_]+)$/i;
+    const RE = /^(Ctrl\+)?(Alt\+)?(Shift\+)?(Cmd\+)?([a-z0-9_]+)$/i;
     command.parsedShortcut = null;
 
     if (!command.shortcut || !command.shortcut.match(RE)) return;
@@ -201,18 +202,20 @@ UICommandManager.parseShortcut = function (command) {
     var shortcut = {
         ctrl: RegExp.$1 ? true : false,
         alt: RegExp.$2 ? true : false,
-        shift: RegExp.$3 ? true : false
+        shift: RegExp.$3 ? true : false,
+        command: RegExp.$4 ? true : false
     };
-    var keyName = RegExp.$4.toUpperCase();
+    var keyName = RegExp.$5.toUpperCase();
     var key = UICommandManager.keyMap[keyName];
     if (!key) return;
 
     shortcut.key = key;
 
     shortcut.displayName = "";
-    if (shortcut.ctrl) shortcut.displayName += (IS_MAC ? "⌘" : "Ctrl+");
+    if (shortcut.ctrl) shortcut.displayName += (IS_MAC ? (shortcut.command ? "^" : "⌘") : "Ctrl+");
     if (shortcut.alt) shortcut.displayName += (IS_MAC ? "⌥" : "Alt+");
     if (shortcut.shift) shortcut.displayName += (IS_MAC ? "⇪" : "Shift+");
+    if (shortcut.command) shortcut.displayName += "⌘";
 
     shortcut.displayName += IS_MAC ? key.macName : key.pcName;
 
@@ -227,13 +230,11 @@ UICommandManager.isValidFunction = function (event) {
     return UICommandManager.isApplicable(this, UICommandManager.currentFocusedElement) && (!this._isValid || this._isValid());
 };
 UICommandManager.handleKeyEvent = function (event) {
-    var eventCtrlKey = IS_MAC ? event.metaKey : event.ctrlKey;
-
-    if (eventCtrlKey && event.altKey && event.shiftKey && event.keyCode == 80) {
+    if ((IS_MAC ? event.metaKey : event.ctrlKey) && event.altKey && event.shiftKey && event.keyCode == 80) {
         Pencil.app.mainWindow.openDevTools();
     }
 
-    if (Dialog.hasOpenDialog()) return;
+    if (Dialog.hasOpenDialog() || Popup.hasShowPopup()) return;
 
     for (var i = 0; i < UICommandManager.commands.length; i ++) {
         var command = UICommandManager.commands[i];
@@ -243,10 +244,14 @@ UICommandManager.handleKeyEvent = function (event) {
             continue;
         }
 
-        if (eventCtrlKey == command.parsedShortcut.ctrl
+        var eventCmdKey = command.parsedShortcut.command ? event.metaKey : false;
+        var eventCtrlKey = !command.parsedShortcut.command && IS_MAC ? event.metaKey : event.ctrlKey;
+        if (eventCmdKey == command.parsedShortcut.command
+            && eventCtrlKey == command.parsedShortcut.ctrl
             && event.altKey == command.parsedShortcut.alt
             && event.shiftKey == command.parsedShortcut.shift
             && event.keyCode == command.parsedShortcut.key.keyCode) {
+
                 command.run(event);
                 event.preventDefault();
                 return;

@@ -20,6 +20,10 @@ function ColorSelector() {
     // wheel selector event handler
     this.htmlCodeInput.addEventListener("change", function(event) {
         var val = thiz.htmlCodeInput.value;
+        if (val == "") {
+            thiz.htmlCodeInput.value = thiz.color.toRGBString() || "";
+            return;
+        }
         var uppercaseVal = val.toRGBString ? val.toRGBString().toUpperCase() : (val.toUpperCase ? val.toUpperCase() : val);
         // Translate standard HTML color strings:
         if (uppercaseVal[0] != "#") {
@@ -100,7 +104,9 @@ function ColorSelector() {
     }, false);
 
 
-    this.bright.addEventListener("change", function(event) {
+    this.bright.addEventListener("input", function(event) {
+        if (!thiz.bright.value) thiz.bright.value = 0;
+
         var hsv = thiz.color.getHSV();
         var a = thiz.color.a;
 
@@ -109,7 +115,9 @@ function ColorSelector() {
         thiz.onValueChanged(thiz.bright);
     }, false);
 
-    this.hue.addEventListener("change", function(event) {
+    this.hue.addEventListener("input", function(event) {
+        if (!thiz.hue.value) thiz.hue.value = 0;
+
         var hsv = thiz.color.getHSV();
         var a = thiz.color.a;
 
@@ -117,7 +125,9 @@ function ColorSelector() {
         thiz.color.a = a;
         thiz.onValueChanged(thiz.hue);
     }, false);
-    this.sat.addEventListener("change", function(event) {
+    this.sat.addEventListener("input", function(event) {
+        if (!thiz.sat.value) thiz.sat.value = 0;
+
         var hsv = thiz.color.getHSV();
         var a = thiz.color.a;
 
@@ -154,11 +164,8 @@ function ColorSelector() {
         thiz.color = Color.fromHSV(h, s, value);
         thiz.color.a = a;
         thiz.onValueChanged(thiz.wheelImage);
+        thiz.clearSelectedColor(thiz.recentlyUsedColor);
     }, false);
-    // this.clearSatButton.addEventListener("command", function(event) {
-    //     thiz.sat.value = 0;
-    //     thiz._handleHueSatNumberChange(true);
-    // }, false)
 
     if (this.hasAttribute("color")) {
         this.setColor(Color.fromString(this.getAttribute("color")));
@@ -166,10 +173,6 @@ function ColorSelector() {
         this.setColor(new Color());
     }
 
-    // grid selector event handler
-    // this.gridSelectorContainer.addEventListener("mouseover", function (event) {
-    //     this.hoverCell(event.originalTarget);
-    // }, false);
     this.gridSelectorContainer.addEventListener("click", function (event) {
         var colorCell = Dom.findUpward(event.target, function (n) {
             return n.hasAttribute("color");
@@ -177,6 +180,7 @@ function ColorSelector() {
         if (!colorCell) return;
         thiz.updatingColor = false;
         thiz.selectColorCell(colorCell);
+        thiz._emitCloseEvent();
     }, false);
 
     this.recentlyUsedColor.addEventListener("click", function (event) {
@@ -185,6 +189,7 @@ function ColorSelector() {
         });
         if (!colorCell) return;
         thiz.selectColorCell(colorCell, true);
+        thiz._emitCloseEvent();
     }, false);
 }
 __extend(BaseTemplatedWidget, ColorSelector);
@@ -268,14 +273,31 @@ ColorSelector.prototype._emitChangeEvent = function () {
     event.initEvent("ValueChange", false, false);
     this.dispatchEvent(event);
 };
+ColorSelector.prototype._emitCloseEvent = function () {
+    Dom.emitEvent("p:CloseColorSelector", this.node(), {});
+};
 ColorSelector.prototype._changHS = function (hue, sat) {
     this.hue.value = hue;
     this.sat.value = sat;
     this._emitChangeEvent();
 };
 ColorSelector.prototype.setColor = function (color) {
+    this.selectedCell = null;
     this.color = color;
     this.onValueChanged();
+    if (!this.selectedCell) {
+        var uppercaseVal = this.color.toRGBString().toUpperCase();
+        Dom.doOnAllChildRecursively(this.recentlyUsedColor, function (n) {
+            if (n.getAttribute) {
+                if (n.getAttribute("color") == uppercaseVal) {
+                    n.setAttribute("selected", "true");
+                    this.selectedCell = n;
+                } else {
+                    n.removeAttribute("selected");
+                }
+            }
+        });
+    }
 };
 ColorSelector.prototype.setGridSelectorColor = function () {
     if (!this._initialized) this.initializeGridSelector();
@@ -284,7 +306,7 @@ ColorSelector.prototype.setGridSelectorColor = function () {
 
     var thiz = this;
     Dom.doOnAllChildRecursively(this.gridSelectorContainer, function (n) {
-        if (thiz.isColorCell(n)) {
+        if (n.getAttribute) {
             if (n.getAttribute("color") == uppercaseVal) {
                 n.setAttribute("selected", "true");
                 thiz.selectedCell = n;
@@ -293,10 +315,8 @@ ColorSelector.prototype.setGridSelectorColor = function () {
             }
         }
     });
-
 };
 ColorSelector.prototype.initializeGridSelector = function () {
-
     if (this._initialized) return;
     this._initialized = true;
 
@@ -310,8 +330,6 @@ ColorSelector.prototype.initializeGridSelector = function () {
     if (this._timer) clearInterval(this._timer);
     this._timer = setInterval(function () {
         var colors = Config.get("gridcolorpicker.recentlyUsedColors");
-        //debug("color: " + [colors, thiz._lastColors]);
-        //debug("color: " + colors);
 
         if (colors != thiz._lastUsedColors) {
             thiz._lastUsedColors = colors;
@@ -348,11 +366,7 @@ ColorSelector.prototype.updateRecentlyUsedColors = function () {
     var colors = this.recentlyUsedColors.join(",");
     Config.set("gridcolorpicker.recentlyUsedColors", colors);
     this.updatingColor = false;
-    Dom.doOnAllChildren(this.recentlyUsedColors, function (n) {
-        if (thiz.isColorCell(n)) {
-            n.removeAttribute("selected");
-        }
-    });
+    this.clearSelectedColor(this.recentlyUsedColor);
 };
 ColorSelector.prototype.reloadRecentlyUsedColors = function () {
     var thiz = this;
@@ -377,10 +391,12 @@ ColorSelector.prototype.reloadRecentlyUsedColors = function () {
         e[i].setAttribute("color", color);
         e[i].setAttribute("style", "background-color: " + color);
     }
-    Dom.doOnAllChildren(this.recentlyUsedColors, function (n) {
-        if (thiz.isColorCell(n)) {
-            n.removeAttribute("selected");
-        }
+
+    this.clearSelectedColor(this.recentlyUsedColor);
+};
+ColorSelector.prototype.clearSelectedColor = function (parentNode) {
+    Dom.doOnAllChildren(parentNode, function (n) {
+        if (n.removeAttribute) n.removeAttribute("selected");
     });
 };
 ColorSelector.prototype.selectColorCell = function (cell, selectFromRecentlyUsedColors) {
@@ -441,5 +457,6 @@ ColorSelector.prototype.onValueChanged = function (source) {
         this.updateRecentlyUsedColors();
     }
     this.invalidateUI(source);
+    this.clearSelectedColor(this.recentlyUsedColor);
     this._emitChangeEvent();
 };

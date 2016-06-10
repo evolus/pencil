@@ -13,7 +13,7 @@
         @styleCombo {
             width: 6ex;
         }
-        @styleCombo button {
+        @styleCombo {
             border-top-right-radius: 0px;
             border-bottom-right-radius: 0px;
             border-right: none;
@@ -24,6 +24,6 @@
             display: block;
         }
     </style>
-    <ui:ComboManager anon-id="styleCombo" flex="1"/>
-    <input type="number" min="0" max="30" anon-id="strokeWidth" size="2"/>
+    <ui:ComboManager anon-id="styleCombo" flex="1" title="Line style"/>
+    <input type="number" min="0" max="30" anon-id="strokeWidth" size="2" title="Line width"/>
 </hbox>

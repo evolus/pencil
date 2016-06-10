@@ -8,6 +8,7 @@ module.exports = function () {
                                 "cinamon": [{command: "dconf", params: ["read", "/org/cinnamon/desktop/interface/font-name"]},
                                             {command: "gsettings", params: ["get", "org.cinnamon.desktop.interface", "font-name"]}],
                                 "gnome": [{command: "gsettings", params: ["get", "org.gnome.desktop.interface", "font-name"]}],
+                                "ubuntu": [{command: "gsettings", params: ["get", "org.gnome.desktop.interface", "font-name"]}]
                             }
     var fontNameReader = function(registry, callback, index) {
         var child = spawn(registry.command, registry.params);
@@ -62,6 +63,9 @@ module.exports = function () {
     var platformHandlers = {
         linux: function (callback) {
             var d = process.env.DESKTOP_SESSION;
+            if (/ubuntu/ig.exec(d)) {
+                d = "ubuntu";
+            }
             var fontRegistry = fontCommandRegistry[d];
             if (!fontRegistry) {
                 console.error("Coud not found font command registry for ", d);
@@ -137,6 +141,9 @@ module.exports = function () {
                 if (/FontStyle:\s?(.*)/i.exec(data)) {
                     style = RegExp.$1;
                 }
+
+                // TODO: use default fontsize
+                size = 11;
 
                 callback({
                    family: family,

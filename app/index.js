@@ -4,9 +4,7 @@ if (require('electron-squirrel-startup')) {
   return;
 }
 
-const electron = require("electron");
-const app      = electron.app;
-const Console  = require("console").Console;
+const {app, protocol, shell, BrowserWindow} = require("electron");
 const pkg      = require("./package.json");
 const fs       = require("fs");
 const path     = require("path");
@@ -14,17 +12,17 @@ const path     = require("path");
 app.commandLine.appendSwitch("allow-file-access-from-files");
 app.commandLine.appendSwitch("allow-file-access");
 
-const BrowserWindow = electron.BrowserWindow;
+// Disable hardware acceleration by default for Linux
+// TODO: implement a setting for this one and requires a restart after changing that value
+if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAcceleration) {
+    console.log("Hardware acceleration disabled for Linux.");
+    app.disableHardwareAcceleration();
+}
 
-
-// logs
-const output = fs.createWriteStream(app.getPath("userData") + "/user.log");
-const errorOutput = fs.createWriteStream(app.getPath("userData") + "/error.log");
-const logger = new Console(output, errorOutput);
 
 var handleRedirect = (e, url) => {
     e.preventDefault();
-    electron.shell.openExternal(url);
+    shell.openExternal(url);
 }
 
 var mainWindow = null;
@@ -89,9 +87,6 @@ app.on("window-all-closed", function() {
 });
 
 app.on('ready', function() {
-    var protocol = require('protocol');
-    var fs = require('fs');
-
     protocol.registerBufferProtocol("ref", function(request, callback) {
         var path = request.url.substr(6);
         console.log("PATH", path);
@@ -128,7 +123,7 @@ app.on("activate", function() {
 });
 
 process.on('uncaughtException', function (error) {
-    logger.error(error);
+    console.error(error);
 });
 
 console.log("Platform: " + process.platform.trim());

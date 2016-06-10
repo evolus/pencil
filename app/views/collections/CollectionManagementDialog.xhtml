@@ -1,5 +1,20 @@
 <vbox class="Form">
     <style>
+        @collectionContainer > vbox[hover="true"] {
+            outline: solid 2px fadeout(@selected_bg, 30%);
+            outline-offset: 0px;
+        }
+
+        @collectionContainer > vbox:hover {
+            outline: solid 1px fadeout(@selected_bg, 40%);
+            outline-offset: 0px;
+        }
+
+        @collectionContainer > vbox[dragged="true"] {
+            outline: dashed 1px fadeout(@selected_bg, 40%);
+            outline-offset: 0px;
+        }
+
         @collectionContainer {
             flex-wrap: wrap;
             justify-content: space-between;

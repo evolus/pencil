@@ -33,6 +33,7 @@ function Canvas(element) {
     this.addEventListener("mouseup", function (event) {
         if (thiz.duplicateMode) {
             thiz.mouseUp = true;
+            thiz.duplicateMode = null;
         }
     }, false);
 
@@ -188,49 +189,49 @@ function Canvas(element) {
         thiz.handleKeyPress(event);
     }, false);
 
-    this.focusableBox.addEventListener("keyup", function (event) {
-        if (event.keyCode == DOM_VK_SHIFT) {
-            if(thiz.duplicateMode) {
-                thiz.duplicateMode = false;
-                console.log(thiz.mouseUp);
-                if (!thiz.mouseUp) {
-                    thiz.run(function () {
-                        thiz.currentController.deleteTarget();
-                    }, thiz, Util.getMessage("action.delete.shape",
-                            thiz.currentController.getName()));
-                    thiz.currentController = null;
-                    thiz._detachEditors();
-                    thiz.clearSelection();
-                    thiz._sayTargetChanged();
-                    event.preventDefault();
-
-                    if (thiz.oldTargets) {
-                        if (!thiz.oldTargets.targets) {
-                            thiz.addToSelection(thiz.oldTargets);
-                            thiz.currentController = thiz.oldTargets;
-                            thiz.reClick = false;
-                            thiz._attachEditors(thiz.currentController);
-                        } else {
-                            for(i in thiz.oldTargets.targets) {
-                                thiz.addToSelection(thiz.oldTargets.targets[i]);
-                            }
-                            thiz.currentController = thiz.oldTargets;
-                        }
-                        thiz.oldTargets = null;
-                        thiz._sayTargetChanged();
-                    }
-                }
-            }
-        }
-    }, false);
+    // this.focusableBox.addEventListener("keyup", function (event) {
+    //     if (event.keyCode == DOM_VK_SHIFT) {
+    //         if(thiz.duplicateMode) {
+    //             thiz.duplicateMode = false;
+    //             console.log(thiz.mouseUp);
+    //             if (!thiz.mouseUp) {
+    //                 thiz.run(function () {
+    //                     thiz.currentController.deleteTarget();
+    //                 }, thiz, Util.getMessage("action.delete.shape",
+    //                         thiz.currentController.getName()));
+    //                 thiz.currentController = null;
+    //                 thiz._detachEditors();
+    //                 thiz.clearSelection();
+    //                 thiz._sayTargetChanged();
+    //                 event.preventDefault();
+    //
+    //                 if (thiz.oldTargets) {
+    //                     if (!thiz.oldTargets.targets) {
+    //                         thiz.addToSelection(thiz.oldTargets);
+    //                         thiz.currentController = thiz.oldTargets;
+    //                         thiz.reClick = false;
+    //                         thiz._attachEditors(thiz.currentController);
+    //                     } else {
+    //                         for(i in thiz.oldTargets.targets) {
+    //                             thiz.addToSelection(thiz.oldTargets.targets[i]);
+    //                         }
+    //                         thiz.currentController = thiz.oldTargets;
+    //                     }
+    //                     thiz.oldTargets = null;
+    //                     thiz._sayTargetChanged();
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }, false);
 
     this.svg.ownerDocument.addEventListener("keydown", function (event) {
         if (event.keyCode == DOM_VK_SPACE && thiz.spaceHeld == false) {
             thiz.spaceHeld = true;
             thiz._lastPX = thiz._currentPX;
             thiz._lastPY = thiz._currentPY;
-            thiz._lastScrollX = thiz.parentNode.scrollLeft;
-            thiz._lastScrollY = thiz.parentNode.scrollTop;
+            thiz._lastScrollX = thiz.parentNode && thiz.parentNode.scrollLeft || 0;
+            thiz._lastScrollY = thiz.parentNode && thiz.parentNode.scrollTop || 0;
             Dom.addClass(thiz, "PanDown");
         }
     }, false);
@@ -533,6 +534,9 @@ Canvas.prototype.zoomTo = function (factor) {
     this.invalidateEditors();
 
     Dom.emitEvent("p:SizeChanged", this.element, {
+        canvas : this
+    });
+    Dom.emitEvent("p:ZoomChanged", this.element, {
         canvas : this
     });
 
@@ -1013,6 +1017,7 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                 this.duplicateFunc();
             }
         }
+
         this._currentPX = event.clientX / this.zoom;
         this._currentPY = event.clientY / this.zoom;
 
@@ -1305,7 +1310,7 @@ Canvas.prototype.handleKeyPress = function (event) {
         if (event.shiftKey) {
             this.selectSibling(false);
         } else {
-            this.selectSiblOing(true);
+            this.selectSibling(true);
         }
 
         event.preventDefault();
@@ -1958,15 +1963,10 @@ Canvas.prototype.handleMouseDown = function (event) {
         }
         this.duplicateMode = true;
         this.mouseUp = false;
-        this.oldTargets = null;
+
         var thiz = this;
         this.duplicateFunc = function () {
             console.log("current control: ",thiz.currentController);
-            if( thiz.currentController.targets) {
-                 thiz.oldTargets = thiz.currentController;
-            } else {
-                thiz.oldTargets = thiz.currentController;
-            }
             var target =thiz.currentController.createTransferableData();
             var contents = [];
 
@@ -2385,9 +2385,12 @@ Canvas.prototype.setDimBackground = function (dimBackground) {
 
 };
 Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
-    this.run(this.sizeToContent__, this, Util.getMessage(
-            "action.canvas.resize"), [hPadding, vPadding]);
-
+    var newSize = null;
+    var thiz = this;
+    this.run(function () {
+        newSize = thiz.sizeToContent__ (hPadding, vPadding);
+    }, this, Util.getMessage("action.canvas.resize"));
+    return newSize;
 };
 Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
 
@@ -2452,7 +2455,6 @@ Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
         width : width,
         height : height
     };
-
 };
 Canvas.prototype.addSelectedToMyCollection = function () {
     if (!this.currentController) return;
@@ -2469,7 +2471,6 @@ Canvas.prototype.addSelectedToMyCollection = function () {
             data.valueHolder = data;
             run(data);
         }
-        //collection: CollectionManager.shapeDefinition.collections[0]
     });
 
     var run = function (data) {
@@ -2502,7 +2503,8 @@ Canvas.prototype.addSelectedToMyCollection = function () {
 
                 collection.shapeDefs.push(shapeDef);
             }
-
+            Config.set("PrivateCollection.lastUsedCollection.id", collection.id);
+            Config.set("PrivateCollection.lastSelectCollection.id", collection.id);
             debug("generating icon... :", valueHolder.autoGenerateIcon);
             if (valueHolder.autoGenerateIcon) {
                 Util.generateIcon(target, 64, 64, 2, null, function (icondata) {
@@ -2735,13 +2737,13 @@ Canvas.prototype.__drop = function (event) {
     var thiz =this;
     var data = event.dataTransfer.getData("collectionId");
     var collections = CollectionManager.shapeDefinition.collections;
-    for (var i = 0; i < collections.length; i ++) {
-        if (collections[i].id == data) {
-            var count = CollectionManager.getCollectionUsage(collections[i]);
-            count++;
-            CollectionManager.setCollectionUsage(collections[i], count);
-        }
-    }
+    // for (var i = 0; i < collections.length; i ++) {
+    //     if (collections[i].id == data) {
+    //         var count = CollectionManager.getCollectionUsage(collections[i]);
+    //         count++;
+    //         CollectionManager.setCollectionUsage(collections[i], count);
+    //     }
+    // }
     this.element.removeAttribute("is-dragover");
     if (this.canvasContentModifiedListener) {
         this.canvasContentModifiedListener(thiz);

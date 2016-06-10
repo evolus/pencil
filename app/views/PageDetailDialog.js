@@ -2,6 +2,7 @@ function PageDetailDialog() {
     Dialog.call(this);
     this.modified = false;
     this.title = "Add Page";
+    this.subTitle = "Configure page properties";
     this.pageCombo.renderer = function (canvas) {
         return canvas.name;
     };
@@ -32,13 +33,7 @@ function PageDetailDialog() {
     }, false);
 
     this.pageSizeCombo.addEventListener("p:ItemSelected", function (event) {
-        var pageSize = thiz.pageSizeCombo.getSelectedItem();
-        thiz.widthInput.disabled = pageSize.value;
-        thiz.heightInput.disabled = pageSize.value;
-        if (pageSize.value) {
-            thiz.setPageSizeValue(pageSize.value);
-        }
-
+        thiz.invalidatePageSizeUI();
         thiz.modified = true;
     }, false);
 
@@ -62,14 +57,18 @@ function PageDetailDialog() {
         thiz.modified = true;
     }, false);
 
-    this.pageTitle.addEventListener("change", function (event) {
+    this.pageTitle.addEventListener("input", function (event) {
         thiz.modified = true;
     }, false);
 
     this.widthInput.addEventListener("change", function () {
+        var value = thiz.widthInput.value;
+        if (!value || parseInt(value, 10) < 24) thiz.widthInput.value = 24;
         thiz.modified = true;
     }, false);
     this.heightInput.addEventListener("change", function () {
+        var value = thiz.heightInput.value;
+        if (!value || parseInt(value, 10) < 24) thiz.heightInput.value = 24;
         thiz.modified = true;
     }, false);
 
@@ -112,26 +111,22 @@ Page.defaultPageSizes = [
     }
 ];
 
+const SIZE_RE = /^([0-9]+)x([0-9]+)$/;
+
 PageDetailDialog.prototype.onShown = function () {
     this.pageTitle.focus();
 };
-PageDetailDialog.prototype.setPageSizeValue = function (value) {
-    var index = value.indexOf("x");
-    if (index > -1) {
-        this.widthInput.value = value.substring(0, index);
-        this.heightInput.value = value.substring(index + 1);
+PageDetailDialog.prototype.invalidatePageSizeUI = function () {
+    var pageSize = this.pageSizeCombo.getSelectedItem();
+    var value = pageSize.value;
+    this.widthInput.disabled = value;
+    this.heightInput.disabled = value;
+    if (!value) return;
+    if (value.match(SIZE_RE)) {
+        this.widthInput.value = Math.max(24, parseInt(RegExp.$1, 10));
+        this.heightInput.value = Math.max(24, parseInt(RegExp.$2, 10));
     }
-}
-
-var createComboitems = function (pages, onDone, padding){
-    padding += 1;
-    for(var i = 0; i < pages.length; i++) {
-        onDone(pages[i], padding);
-        if (pages[i].children) {
-            createComboitems(pages[i].children, onDone, padding);
-        }
-    }
-}
+};
 
 PageDetailDialog.prototype.setup = function (options) {
     var thiz = this;
@@ -144,24 +139,43 @@ PageDetailDialog.prototype.setup = function (options) {
 
     var pageSizes = [];
 
-    var lastSize = Config.get("lastSize");
+    var lastSizeConfig = Config.get("lastSize");
+    var w = 24;
+    var h = 24;
+
+    if (lastSizeConfig && lastSizeConfig.match(SIZE_RE)) {
+        w = Math.max(24, parseInt(RegExp.$1, 10));
+        h = Math.max(24, parseInt(RegExp.$2, 10));
+    }
+
+
+    var lastSize = w + "x" + h;
     if (lastSize) {
         pageSizes.push({
             displayName: "Last used",
-            value: lastSize
+            value: lastSize,
+            dontCheckValue: true
         });
     }
 
-    var bestFitSize = Pencil.controller.getBestFitSize();
+    var bestFitSizeText = Pencil.controller.getBestFitSize();
+    if (bestFitSizeText && bestFitSizeText.match(SIZE_RE)) {
+        w = Math.max(24, parseInt(RegExp.$1, 10));
+        h = Math.max(24, parseInt(RegExp.$2, 10));
+    }
+
+    var bestFitSize = w + "x" + h;
     if (bestFitSize) {
         pageSizes.push({
             displayName: "Best fit",
-            value: bestFitSize
+            value: bestFitSize,
+            dontCheckValue: true
         });
     }
 
     pageSizes.push({
-        displayName: "Custome size..."
+        displayName: "Custome size...",
+        dontCheckValue: true
     });
 
     pageSizes = pageSizes.concat(Page.defaultPageSizes);
@@ -243,37 +257,37 @@ PageDetailDialog.prototype.setup = function (options) {
     this.backgroundCombo.setItems(backgroundItems);
 
     var pageSize = this.pageSizeCombo.getSelectedItem();
-    this.widthInput.disabled = pageSize.value;
-    this.heightInput.disabled = pageSize.value;
 
     if (options.parentpage) {
         this.pageCombo.selectItem(options.parentpage);
     }
 
-    if(this.originalPage) {
-        this.setPageItem(this.originalPage);
+    if (this.originalPage) {
+        this.updateUIWith(this.originalPage);
     }
+
+    this.invalidatePageSizeUI();
+
     var background = thiz.backgroundCombo.getSelectedItem();
     thiz.colorButton.disabled = background.value ? true : false;
 };
 
-PageDetailDialog.prototype.setPageItem = function (page) {
-    if(page.parentPage) {
+PageDetailDialog.prototype.updateUIWith = function (page) {
+    if (page.parentPage) {
         this.pageCombo.selectItem(page.parentPage);
     }
     this.pageTitle.value = page.name;
 
     var pageSizeValue = page.width + "x" + page.height;
-    var index;
+    var index = null;
     for (var i in this.pageSizeCombo.items ) {
-        if(this.pageSizeCombo.items[i].value == pageSizeValue) {
+        if (!this.pageSizeCombo.items[i].dontCheckValue && this.pageSizeCombo.items[i].value == pageSizeValue) {
             index = this.pageSizeCombo.items[i];
         }
     }
     var thiz = this;
     if(index != null) {
         this.pageSizeCombo.selectItem(index);
-        this.setPageSizeValue(index.value);
     } else {
         this.pageSizeCombo.selectItem({
             displayName: "Custome size..."
@@ -284,7 +298,7 @@ PageDetailDialog.prototype.setPageItem = function (page) {
         this.heightInput.value = page.height;
     }
 
-    if(page.backgroundColor) {
+    if (page.backgroundColor) {
         this.backgroundCombo.selectItem({
              name: "Background Color"
         });
@@ -306,8 +320,6 @@ PageDetailDialog.prototype.setPageItem = function (page) {
         this.colorButton.disabled = true;
     }
 }
-
-const SIZE_RE = /^([0-9]+)x([0-9]+)$/;
 
 PageDetailDialog.prototype.createPage = function () {
     var name = this.pageTitle.value;
@@ -380,37 +392,38 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {   type: "cancel", title: "Cancel",
             isCloseHandler: true,
             run: function () {
-                if (this.modified) {
-                    Dialog.confirm(
-                        "Do you want to save your changes before closing?", null,
-                        "Save", function () {
-                            if (thiz.pageTitle.value == "" ) {
-                                Dialog.alert("The page name is invalid. Please enter the valid page name.");
-                                return;
-                            }
-                            if (thiz.isCreatePage) {
-                                var page = thiz.createPage();
-                                if (thiz.onDone) thiz.onDone(page);
-                            } else {
-                                var page = thiz.updatePage();
-                                if (thiz.onDone) thiz.onDone(page);
-                            }
-                            thiz.close();
-                        },
-                        "No", function () {
-                            thiz.close();
-                        }
-                    );
-                } else {
-                    return true;
-                }
+                return true;
+                // if (this.modified) {
+                //     Dialog.confirm(
+                //         "Do you want to save your changes before closing?", null,
+                //         "Save", function () {
+                //             if (thiz.pageTitle.value == "" ) {
+                //                 Dialog.alert("The page name is invalid. Please enter the valid page name.");
+                //                 return;
+                //             }
+                //             if (thiz.isCreatePage) {
+                //                 var page = thiz.createPage();
+                //                 if (thiz.onDone) thiz.onDone(page);
+                //             } else {
+                //                 var page = thiz.updatePage();
+                //                 if (thiz.onDone) thiz.onDone(page);
+                //             }
+                //             thiz.close();
+                //         },
+                //         "No", function () {
+                //             thiz.close();
+                //         }
+                //     );
+                // } else {
+                //     return true;
+                // }
             }
         },
         {
             type: "accept", title: this.originalPage ? "Update" : "Create",
             run: function () {
-                if(this.pageTitle.value == "" ) {
-                    Dialog.alert("The page name is invalid. Please enter the valid page name.");
+                if (this.pageTitle.value == "" ) {
+                    Dialog.error("The page name is invalid. Please enter the valid page name.");
                     return;
                 }
                 if (thiz.isCreatePage) {

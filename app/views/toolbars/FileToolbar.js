@@ -44,7 +44,7 @@ FileToolbar.prototype.registerCommands = function () {
                 ApplicationPane._instance.showStartupPane();
             });
         },
-        shortcut: "Ctrl+W"
+        shortcut: "Ctrl+Shift+W"
     });
     UICommandManager.register({
         key: "saveAsDocumentCommand",
@@ -83,7 +83,9 @@ FileToolbar.prototype.registerCommands = function () {
         label: "Export page as PNG...",
         isValid: function () { return true; },
         run: function () {
-            Pencil.controller.rasterizeCurrentPage();
+            if (this.page) {
+                Pencil.controller.rasterizeCurrentPage(this.page);
+            }
         },
         shortcut: "Ctrl+E"
     });
