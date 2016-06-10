@@ -26,8 +26,7 @@
             cursor: default;
         }
         body @list .Item[selected="true"] {
-            font-weight: bold;
-            background: @primary_color;
+            background: darken(@selected_bg, 10%);
             color: #FFF;
         }
         body @list .Item:hover {
