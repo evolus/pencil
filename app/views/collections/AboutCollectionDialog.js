@@ -36,7 +36,8 @@ function AboutCollectionDialog(collection) {
                         _children :[
                             {
                                 _name: "h4",
-                                _text: "More Information: "
+                                _text: "More Information:",
+                                "class": "MoreInfor"
                             },
                             {
                                 _name: "a",
