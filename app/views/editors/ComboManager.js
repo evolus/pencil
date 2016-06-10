@@ -4,11 +4,40 @@ function ComboManager() {
     this.renderer = ComboManager.DEFAULT_RENDERER;
     this.bind("click", function () {
         if (this.popup.isVisible()) {
+            if (thiz.selectingIndex) {
+                thiz.selectItem(thiz.items[thiz.selectingIndex], true);
+                return;
+            }
             this.popup.close();
             return;
         }
         this.button.setAttribute("active", true);
         this.popup.show(this.button, "left-inside", "bottom", 0, 5);
+    }, this.button);
+    var thiz = this;
+    this.bind("keydown", function (event) {
+        if (event.keyCode == DOM_VK_UP || event.keyCode == DOM_VK_DOWN) {
+            if (thiz.selectedNode) {
+                thiz.selectedNode.removeAttribute("selected");
+            }
+            if (thiz.selectingIndex) {
+                thiz.list.childNodes[thiz.selectingIndex].removeAttribute("selected");
+            }
+            if (event.keyCode == DOM_VK_UP) {
+                thiz.selectingIndex--;
+                if (thiz.selectingIndex < 0) {
+                    thiz.selectingIndex = thiz.items.length -1;
+                }
+            } else if (event.keyCode == DOM_VK_DOWN){
+                thiz.selectingIndex++;
+                if (thiz.selectingIndex > thiz.items.length -1) {
+                    thiz.selectingIndex = 0;
+                }
+            }
+            thiz.list.childNodes[thiz.selectingIndex].setAttribute("selected", "true");
+            thiz.scrollTo(thiz.selectingIndex);
+        }
+
     }, this.button);
     this.bind("click", this.onItemClick, this.list);
     this.bind("p:PopupShown", function () {
@@ -20,7 +49,6 @@ function ComboManager() {
         // this.popup.removePopup();
         // this.popup.popupContainer.scrollTop = 0;
     }, this.popup);
-    var thiz = this;
     this.popup.shouldCloseOnBlur = function (event) {
         var found = Dom.findUpward(event.target, function (node) {
             return node == thiz.button;
@@ -48,18 +76,25 @@ ComboManager.prototype.ensureSelectedItemVisible = function() {
         var node = this.list.childNodes[i];
         var data = Dom.findUpwardForData(node, "_data");
         if (comparer(this.selectedItem, data)) {
-            var oT = Dom.getOffsetTop(node);
-            var oH = node.offsetHeight;
-            var pT = Dom.getOffsetTop(this.list.parentNode) + 10;
-            var pH = this.list.parentNode.offsetHeight - 20;
-
-            if (oT < pT) {
-                this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop - (pT - oT));
-            } else if (oT + oH > pT + pH) {
-                this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop + (oT + oH - pT - pH));
-            }
-            break;
+            node.setAttribute("selected", "true");
+            this.scrollTo(i);
+            this.selectingIndex = i;
+        } else {
+            node.removeAttribute("selected");
         }
+    }
+}
+ComboManager.prototype.scrollTo = function(index) {
+    var node = this.list.childNodes[index];
+    var oT = Dom.getOffsetTop(node);
+    var oH = node.offsetHeight;
+    var pT = Dom.getOffsetTop(this.list.parentNode) + 10;
+    var pH = this.list.parentNode.offsetHeight - 20;
+
+    if (oT < pT) {
+        this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop - (pT - oT));
+    } else if (oT + oH > pT + pH) {
+        this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop + (oT + oH - pT - pH));
     }
 }
 ComboManager.prototype.setItems = function (items) {
@@ -127,14 +162,21 @@ ComboManager.prototype.selectItem = function (item, fromUserAction, whenMatched)
     this.selectedItem = item;
     if (fromUserAction) {
         Dom.emitEvent("p:ItemSelected", this.node(), {});
-        this.popup.hide();
+        if (this.popup.isVisible()) {
+            this.popup.hide();
+        }
     }
 
     for (var i = 0; i < this.list.childNodes.length; i ++) {
         var c = this.list.childNodes[i];
         if (c.setAttribute) {
             var item = Dom.findUpwardForData(c, "_data");
-            c.setAttribute("selected", comparer(item, this.selectedItem) ? "true" : "false");
+            var selected =  comparer(item, this.selectedItem);
+            c.setAttribute("selected", selected);
+            if (selected) {
+                this.selectingIndex = i;
+                this.selectedNode = c;
+            }
         }
     }
     return matched;

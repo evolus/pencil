@@ -217,7 +217,8 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
                 x += w/2;
                 x = Math.max(rect.left + rect.width, x);
                 if (x == 0 && w > screenW) {
-                    this.popupContainer.style.width = screenW + "px";
+                    x = rect.left + rect.width;
+                    this.popupContainer.style.width = ((screenW -x) * 0.9) + "px";
                     this.popupContainer.style.overflow = "auto";
                 }
             }
@@ -238,7 +239,8 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
                 y = Math.min(rect.top + rect.height, y);
                 y = Math.max(0, y);
                 if (y == 0 && h > screenH) {
-                    this.popupContainer.style.height = screenH + "px";
+                    y = rect.top + rect.height;
+                    this.popupContainer.style.height = ((screenH - y) * 0.9)  + "px";
                     this.popupContainer.style.overflow = "auto";
                 }
             }
