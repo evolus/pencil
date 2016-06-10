@@ -1,20 +1,7 @@
 function ZoomToolbar() {
     ToolBar.call(this);
-    Pencil.zoomEditor = this;
 }
 __extend(ToolBar, ZoomToolbar);
-
-ZoomToolbar.prototype.detach = function () {
-    this.zoomInButton.disabled = true;
-    this.actualSizeButton.disabled = true;
-    this.zoomOutButton.disabled = true;
-}
-
-ZoomToolbar.prototype.attach = function () {
-    this.zoomInButton.disabled = false;
-    this.actualSizeButton.disabled = false;
-    this.zoomOutButton.disabled = false;
-}
 
 ZoomToolbar.prototype.registerCommands = function () {
     UICommandManager.register({
@@ -22,6 +9,8 @@ ZoomToolbar.prototype.registerCommands = function () {
         label: "Zoom in",
         icon: "zoom_in",
         shortcut: "Ctrl+EQUALS",
+        watchEvents: "p:CanvasActived",
+        isValid: function () {return Pencil.activeCanvas},
         shortcutLabel: "Ctrl+=",
         run: function () {
             Pencil.activeCanvas.zoomTo(Pencil.activeCanvas.zoom * 1.25);
@@ -33,6 +22,8 @@ ZoomToolbar.prototype.registerCommands = function () {
         shortcutLabel: "Ctrl+-",
         label: "Zoom out",
         icon: "zoom_out",
+        watchEvents: "p:CanvasActived",
+        isValid: function () {return Pencil.activeCanvas},
         run: function () {
             Pencil.activeCanvas.zoomTo(Pencil.activeCanvas.zoom / 1.25);
         }
@@ -42,13 +33,15 @@ ZoomToolbar.prototype.registerCommands = function () {
         shortcut: "Ctrl+1",
         label: "Actual size",
         icon: "fullscreen",
+        watchEvents: "p:CanvasActived",
+        isValid: function () {return Pencil.activeCanvas},
         run: function () {
             Pencil.activeCanvas.zoomTo(1);
         }
     });
     UICommandManager.register({
         key: "toggleScreenCommand",
-        shortcut: "F11",
+        shortcut: IS_MAC ? "Ctrl+Cmd+F" : "F11",
         label: "Toggle fullscreen mode",
         run: function () {
             ApplicationPane._instance.toggleFullscreen();

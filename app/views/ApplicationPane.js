@@ -35,16 +35,6 @@ function ApplicationPane() {
         this.zoomToolbar.setAttribute("label", (Pencil.activeCanvas && Pencil.activeCanvas.zoom * 100 + "%") || "100%") ;
     });
 
-    this.bind("p:CanvasActived", function (event) {
-        var canvas = event.canvas;
-        if (canvas) {
-            Pencil.zoomEditor.attach();
-        } else {
-            Pencil.zoomEditor.detach();
-        }
-    });
-
-
     var lastOverflowX = null;
     var lastOverflowY = null;
 
@@ -194,10 +184,11 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
         canvas.focus();
     }
 
-    Dom.emitEvent("p:CanvasActived", this.node(),{
+    Dom.emitEvent("p:CanvasActived", this.node(), {
         canvas: canvas
     });
 };
+
 ApplicationPane.prototype.showStartupPane = function () {
     if (Pencil.controller.activePage) {
         Pencil.controller.activePage.canvas.selectNone();

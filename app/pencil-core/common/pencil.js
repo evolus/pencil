@@ -17,7 +17,6 @@ Pencil.registerEditor = function (editorClass) {
     Pencil.editorClasses.push(editorClass);
 };
 Pencil.sharedEditors = [];
-Pencil.zoomEditor = null;
 
 Pencil.registerSharedEditor = function (sharedEditor) {
     Pencil.sharedEditors.push(sharedEditor);
