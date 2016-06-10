@@ -4,12 +4,19 @@ function ComboManager() {
     this.renderer = ComboManager.DEFAULT_RENDERER;
     this.bind("click", function () {
         if (this.popup.isVisible()) {
+            if (thiz.selectingIndex) {
+                thiz.selectItem(thiz.items[thiz.selectingIndex], true);
+                return;
+            }
             this.popup.close();
             return;
         }
         this.button.setAttribute("active", true);
         this.popup.show(this.button, "left-inside", "bottom", 0, 5);
     }, this.button);
+    var thiz = this;
+    this.bind("keydown", this.handleKeyDown, this.button);
+    this.bind("keypress", this.handleKeyPress, this.button);
     this.bind("click", this.onItemClick, this.list);
     this.bind("p:PopupShown", function () {
         thiz.ensureSelectedItemVisible();
@@ -20,7 +27,6 @@ function ComboManager() {
         // this.popup.removePopup();
         // this.popup.popupContainer.scrollTop = 0;
     }, this.popup);
-    var thiz = this;
     this.popup.shouldCloseOnBlur = function (event) {
         var found = Dom.findUpward(event.target, function (node) {
             return node == thiz.button;
@@ -48,18 +54,25 @@ ComboManager.prototype.ensureSelectedItemVisible = function() {
         var node = this.list.childNodes[i];
         var data = Dom.findUpwardForData(node, "_data");
         if (comparer(this.selectedItem, data)) {
-            var oT = Dom.getOffsetTop(node);
-            var oH = node.offsetHeight;
-            var pT = Dom.getOffsetTop(this.list.parentNode) + 10;
-            var pH = this.list.parentNode.offsetHeight - 20;
-
-            if (oT < pT) {
-                this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop - (pT - oT));
-            } else if (oT + oH > pT + pH) {
-                this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop + (oT + oH - pT - pH));
-            }
-            break;
+            node.setAttribute("selected", "true");
+            this.scrollTo(i);
+            this.selectingIndex = i;
+        } else {
+            node.removeAttribute("selected");
         }
+    }
+}
+ComboManager.prototype.scrollTo = function(index) {
+    var node = this.list.childNodes[index];
+    var oT = Dom.getOffsetTop(node);
+    var oH = node.offsetHeight;
+    var pT = Dom.getOffsetTop(this.list.parentNode) + 10;
+    var pH = this.list.parentNode.offsetHeight - 20;
+
+    if (oT < pT) {
+        this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop - (pT - oT));
+    } else if (oT + oH > pT + pH) {
+        this.popup.popupContainer.scrollTop = Math.max(0, this.popup.popupContainer.scrollTop + (oT + oH - pT - pH));
     }
 }
 ComboManager.prototype.setItems = function (items) {
@@ -127,14 +140,21 @@ ComboManager.prototype.selectItem = function (item, fromUserAction, whenMatched)
     this.selectedItem = item;
     if (fromUserAction) {
         Dom.emitEvent("p:ItemSelected", this.node(), {});
-        this.popup.hide();
+        if (this.popup.isVisible()) {
+            this.popup.hide();
+        }
     }
 
     for (var i = 0; i < this.list.childNodes.length; i ++) {
         var c = this.list.childNodes[i];
         if (c.setAttribute) {
             var item = Dom.findUpwardForData(c, "_data");
-            c.setAttribute("selected", comparer(item, this.selectedItem) ? "true" : "false");
+            var selected =  comparer(item, this.selectedItem);
+            c.setAttribute("selected", selected);
+            if (selected) {
+                this.selectingIndex = i;
+                this.selectedNode = c;
+            }
         }
     }
     return matched;
@@ -148,5 +168,60 @@ ComboManager.prototype.setDisabled = function (disabled) {
         this.button.setAttribute("disabled", "true");
     } else {
         this.button.removeAttribute("disabled");
+    }
+};
+ComboManager.prototype.handleKeyDown = function (event) {
+    if (event.keyCode == DOM_VK_UP || event.keyCode == DOM_VK_DOWN) {
+        if (this.selectedNode) {
+            this.selectedNode.removeAttribute("selected");
+        }
+        if (this.selectingIndex) {
+            this.list.childNodes[this.selectingIndex].removeAttribute("selected");
+        }
+        if (event.keyCode == DOM_VK_UP) {
+            this.selectingIndex--;
+            if (this.selectingIndex < 0) {
+                this.selectingIndex = this.items.length -1;
+            }
+        } else if (event.keyCode == DOM_VK_DOWN){
+            this.selectingIndex++;
+            if (this.selectingIndex > this.items.length -1) {
+                this.selectingIndex = 0;
+            }
+        }
+        this.list.childNodes[this.selectingIndex].setAttribute("selected", "true");
+        this.scrollTo(this.selectingIndex);
+    }
+};
+ComboManager.prototype.handleKeyPress = function (event) {
+    var keyCode = event.keyCode;
+    if (
+        (keyCode > 47 && keyCode < 58)
+        || (keyCode > 64 && keyCode < 91)
+        || (keyCode > 95 && keyCode < 122)
+    ) {
+        let now = new Date().getTime();
+        let delta = now - (this.lastKeyPressTime || 0);
+        if (!this.prefix || delta > 1000) {
+            this.prefix = String.fromCharCode(event.charCode);
+        } else {
+            this.prefix += String.fromCharCode(event.charCode);
+        }
+
+        this.lastKeyPressTime = now;
+
+        var found = false;
+        for (var i = 0; i < this.list.childNodes.length; i ++) {
+            var node = this.list.childNodes[i];
+            if (!found && node.textContent && node.textContent.trim().toLowerCase().indexOf(this.prefix.trim().toLowerCase()) == 0) {
+                this.selectingIndex = i;
+                node.setAttribute("selected", "true");
+                this.scrollTo(this.selectingIndex);
+                found = true;
+            } else {
+                node.removeAttribute("selected");
+            }
+        }
+
     }
 };
