@@ -39,7 +39,7 @@ ZoomToolbar.prototype.registerCommands = function () {
     });
     UICommandManager.register({
         key: "zoom1Command",
-        shortcut: "Ctrl+1",
+        shortcut: "Ctrl+0",
         label: "Actual size",
         icon: "fullscreen",
         run: function () {
