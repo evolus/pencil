@@ -1,5 +1,6 @@
 function EditToolbar() {
     ToolBar.call(this);
+    Pencil.toolBarEditor = this;
 }
 __extend(ToolBar, EditToolbar);
 
