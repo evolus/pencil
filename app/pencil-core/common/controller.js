@@ -74,6 +74,12 @@ Controller.prototype.resetDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
 
+    if (this.activePage) {
+        Dom.emitEvent("p:CanvasChanged", this.activePage.canvas, {
+            canvas : null
+        });
+    }
+
     this.doc = new PencilDocument();
     this.doc.name = "";
     this.documentPath = null;

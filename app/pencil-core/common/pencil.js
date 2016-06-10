@@ -16,9 +16,9 @@ Pencil.editorClasses = [];
 Pencil.registerEditor = function (editorClass) {
     Pencil.editorClasses.push(editorClass);
 };
-
 Pencil.sharedEditors = [];
-Pencil.zoomEditor;
+Pencil.zoomEditor = null;
+
 Pencil.registerSharedEditor = function (sharedEditor) {
     Pencil.sharedEditors.push(sharedEditor);
 }
@@ -168,6 +168,11 @@ Pencil.setTitle = function (s) {
 
 Pencil.handleCanvasChange = function (event) {
     Pencil.activeCanvas = event.canvas;
+    if (!Pencil.activeCanvas) {
+        Pencil.zoomEditor.detach();
+    } else {
+        Pencil.zoomEditor.attach();
+    }
     Pencil.setupCommands();
     Pencil.invalidateSharedEditor();
 };
@@ -178,6 +183,18 @@ Pencil.handleTargetChange = function (event) {
 Pencil.invalidateSharedEditor = function() {
     var canvas = Pencil.activeCanvas;
     var target = canvas ? canvas.currentController : null;
+
+    if (!canvas) {
+        for (var i in Pencil.sharedCanvasEditor) {
+            try {
+                Pencil.sharedCanvasEditor[i].detach();
+            } catch (e) {
+                Console.dumpError(e, "stdout");
+            }
+        }
+    } else {
+
+    }
 
     if (!target) {
         for (var i in Pencil.sharedEditors) {

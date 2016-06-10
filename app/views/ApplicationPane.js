@@ -168,6 +168,10 @@ ApplicationPane.prototype.testSave = function () {
     this.controller.serializePage(page, page.tempFilePath);
 };
 ApplicationPane.prototype.setActiveCanvas = function (canvas) {
+    if (this.activeCanvas) {
+        this.activeCanvas.selectNone();
+    }
+
     if (this.activeCanvas && this.activeCanvas != canvas) {
         this.activeCanvas._cachedState = this.activeCanvas.getCanvasState();
     }
@@ -185,26 +189,20 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
     if (canvas != null) {
         this.startupDocumentView.node().style.display = "none";
         canvas.focus();
-        this.zoomToolbar.attach();
-        this.editToolbar.attach();
     }
 
     this.invalidateZoom();
+    Dom.emitEvent("p:CanvasChanged", this, {
+        canvas: canvas
+    });
 };
 ApplicationPane.prototype.invalidateZoom = function () {
     this.zoomToolbar.setAttribute("label", Pencil.activeCanvas ? (Math.round(Pencil.activeCanvas.zoom * 100) + "%") : "100%") ;
 };
 ApplicationPane.prototype.showStartupPane = function () {
-    if (Pencil.controller.activePage) {
-        Pencil.controller.activePage.canvas.selectNone();
-    }
-    this.zoomToolbar.detach();
-    this.editToolbar.detach();
     this.setActiveCanvas(null);
     this.startupDocumentView.reload();
     this.startupDocumentView.node().style.display = "flex";
-    // detach zoomToolBar
-
 
     this.invalidateUIForControllerStatus();
 };
