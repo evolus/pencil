@@ -4,6 +4,14 @@ function EditToolbar() {
 }
 __extend(ToolBar, EditToolbar);
 
+EditToolbar.prototype.detach = function () {
+    this.pasteButton.disabled = true;
+}
+
+EditToolbar.prototype.attach = function () {
+    this.pasteButton.disabled = false;
+}
+
 EditToolbar.prototype.registerCommands = function () {
     UICommandManager.register({
         key: "cutCommand",

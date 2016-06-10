@@ -44,17 +44,19 @@ FontEditor.prototype.setup = function () {
         if (!thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) return;
         thiz.fireChangeEvent();
     }, false);
-    // this.pixelFontSize.addEventListener("keyup", function(event) {
-    //     if (event.keyCode == 13 || event.keyCode == 10) {
-    //         console.log("keyup");
-    //         if (!thiz.font || OnScreenTextEditor.isEditing) return;
-    //         if (thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) {
-    //             thiz.pixelFontSize.value = 5;
-    //         }
-    //         thiz.fontSize = thiz.pixelFontSize.value;
-    //         thiz.fireChangeEvent();
-    //     }
-    // }, false);
+    this.pixelFontSize.addEventListener("keyup", function(event) {
+        if (event.keyCode == 13 || event.keyCode == 10) {
+            if (!thiz.font || OnScreenTextEditor.isEditing) return;
+            if (thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) {
+                thiz.pixelFontSize.value = 5;
+            }
+            thiz.fireChangeEvent();
+        }
+    }, false);
+    this.pixelFontSize.addEventListener("wheel", function(event) {
+        if (!thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) return;
+        thiz.fireChangeEvent();
+    });
     this.pixelFontSize.addEventListener("change", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
         if (thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) {
@@ -62,6 +64,7 @@ FontEditor.prototype.setup = function () {
         }
         thiz.fireChangeEvent();
     }, false);
+
     this.boldButton.addEventListener("click", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
         var checked = false;

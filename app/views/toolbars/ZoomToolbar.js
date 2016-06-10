@@ -1,6 +1,5 @@
 function ZoomToolbar() {
     ToolBar.call(this);
-    Pencil.zoomEditor = this;
 }
 __extend(ToolBar, ZoomToolbar);
 
@@ -44,6 +43,22 @@ ZoomToolbar.prototype.registerCommands = function () {
         icon: "fullscreen",
         run: function () {
             Pencil.activeCanvas.zoomTo(1);
+        }
+    });
+    UICommandManager.register({
+        key: "toggleScreenCommand",
+        shortcut: "F11",
+        label: "Toggle fullscreen mode",
+        run: function () {
+            ApplicationPane._instance.toggleFullscreen();
+        }
+    });
+    UICommandManager.register({
+        key: "toggleLeftPaneCommand",
+        shortcut: "BACK_QUOTE",
+        label: "Toggle left pane",
+        run: function () {
+            ApplicationPane._instance.toggleLeftPane();
         }
     });
 };

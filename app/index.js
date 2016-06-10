@@ -12,6 +12,14 @@ const path     = require("path");
 app.commandLine.appendSwitch("allow-file-access-from-files");
 app.commandLine.appendSwitch("allow-file-access");
 
+// Disable hardware acceleration by default for Linux
+// TODO: implement a setting for this one and requires a restart after changing that value
+if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAcceleration) {
+    console.log("Hardware acceleration disabled for Linux.");
+    app.disableHardwareAcceleration();
+}
+
+
 var handleRedirect = (e, url) => {
     e.preventDefault();
     shell.openExternal(url);

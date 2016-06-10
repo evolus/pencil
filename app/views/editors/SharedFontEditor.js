@@ -26,6 +26,11 @@ SharedFontEditor.prototype.setup = function () {
         thiz.font.size = thiz.pixelFontSize.value + "px";
         thiz._applyValue();
     }, false);
+    this.pixelFontSize.addEventListener("wheel", function(event) {
+        if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "") return;
+        thiz.font.size = thiz.pixelFontSize.value + "px";
+        thiz._applyValue();
+    });
     this.pixelFontSize.addEventListener("keyup", function(event) {
         if (event.keyCode == 13 || event.keyCode == 10) {
             if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "") return;
