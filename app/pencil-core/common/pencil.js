@@ -178,19 +178,7 @@ Pencil.handleTargetChange = function (event) {
 Pencil.invalidateSharedEditor = function() {
     var canvas = Pencil.activeCanvas;
     var target = canvas ? canvas.currentController : null;
-
-    if (!canvas) {
-        for (var i in Pencil.sharedCanvasEditor) {
-            try {
-                Pencil.sharedCanvasEditor[i].detach();
-            } catch (e) {
-                Console.dumpError(e, "stdout");
-            }
-        }
-    } else {
-
-    }
-
+    
     if (!target) {
         for (var i in Pencil.sharedEditors) {
             try {
