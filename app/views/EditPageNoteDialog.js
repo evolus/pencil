@@ -162,10 +162,19 @@ EditPageNoteDialog.prototype.setup = function (options) {
 
     FontEditor._setupFontCombo(this.fontCombo, function () {
         thiz.editor.setAttribute("contenteditable", "true");
+        if (thiz.currentRange) {
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(thiz.currentRange);
+            thiz.currentRange = null;
+        }
+
         thiz.runEditorCommand("fontname", thiz.fontCombo.getSelectedItem().family);
     }, true);
 
     this.fontCombo.bind("keydown", function (event) {
+        if(!thiz.currentRange) {
+            thiz.currentRange = window.getSelection().getRangeAt(0);
+        }
         thiz.editor.removeAttribute("contenteditable");
     }, this.fontCombo);
 
