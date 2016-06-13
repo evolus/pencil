@@ -73,7 +73,7 @@ Controller.prototype.confirmAndclose = function (onClose) {
 Controller.prototype.resetDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
-    
+
     this.doc = new PencilDocument();
     this.doc.name = "";
     this.documentPath = null;
@@ -1311,9 +1311,10 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
     if (!page) {
         return;
     }
+
     dialog.showSaveDialog({
         title: "Export page as PNG",
-        defaultPath: path.join(os.homedir(), (page.name + ".png")),
+        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), (page.name + ".png")),
         filters: [
             { name: "PNG Image (*.png)", extensions: ["png"] }
         ]
@@ -1335,7 +1336,7 @@ Controller.prototype.rasterizeSelection = function () {
 
     dialog.showSaveDialog({
         title: "Export selection as PNG",
-        defaultPath: path.join(os.homedir(), ""),
+        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), ""),
         filters: [
             { name: "PNG Image (*.png)", extensions: ["png"] }
         ]
