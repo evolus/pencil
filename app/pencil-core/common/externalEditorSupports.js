@@ -16,8 +16,18 @@ ExternalEditorSupports.handleEditRequest = function (contentProvider, contentRec
 
     contentProvider.saveTo(tmpFile.name, function () {
 
-        var executablePath = ExternalEditorSupports.getEditorPath(contentProvider.extension);
-        var process = spawn(executablePath, [tmpFile.name]);
+        var executableConfig = ExternalEditorSupports.getEditorPath(contentProvider.extension);
+        var executablePath = executableConfig;
+        var params = [tmpFile.name];
+        if (executableConfig.match(/(.[a-z0-9\/\._\$\+]+) ([a-z0-9\- ]+)?/g)) {
+            executablePath = RegExp.$1;
+            var p = RegExp.$2;
+            if (p) {
+                params = params.concat(p.split(" "));
+            }
+        }
+
+        var process = spawn(executablePath, params);
 
         var timeOutId = null;
         process.on("close", function () {
