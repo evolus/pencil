@@ -24,6 +24,7 @@ function TextToolOverlay() {
         // }
     }, this.popupContainer);
 
+
     var selectListener = function (event) {
         // var temp = OnScreenTextEditor.isEditing;
         // OnScreenTextEditor.isEditing = false;
@@ -76,6 +77,7 @@ function TextToolOverlay() {
 
     }, this.malignContainer);
 
+
     FontEditor._setupFontCombo(this.fontCombo, function () {
         if (thiz.currentRange) {
             thiz.editor.setAttribute("contenteditable", "true");
@@ -95,6 +97,19 @@ function TextToolOverlay() {
         window.setTimeout(function () {
             thiz.fontCombo.button.focus();
         }, 10);
+    }, false)
+
+    this.fontCombo.popup.addEventListener("p:PopupHidden", function() {
+        if (thiz.currentRange) {
+            thiz.editor.setAttribute("contenteditable", "true");
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(thiz.currentRange);
+            thiz.currentRange = null;
+
+        }
+        if (thiz.settingFont) {
+            thiz.settingFont = null;
+        }
     }, false)
 
     this.fontSizeCombo.setItems([1, 2, 3, 4, 5, 6, 7]);
