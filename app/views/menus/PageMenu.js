@@ -186,10 +186,10 @@ PageMenu.prototype.setup = function () {
             var dialog = new EditPageNoteDialog();
             dialog.open({
                 defaultPage : thiz.page,
-                onDone: function (editor) {
-                    console.log("Complete note");
-                    thiz.page.note = editor;
-                }
+                // onDone: function (editor) {
+                //     console.log("Complete note");
+                //     thiz.page.note = editor;
+                // }
             });
         },
     });

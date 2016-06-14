@@ -2,10 +2,10 @@ function EditPageNoteDialog () {
     Dialog.call(this);
     this.title = "Page Note";
     this.subTitle = "Edit extra note for the drawing page";
-    //this.initialize();
-    this.bind("p:PopupHidden", function () {
-        this.selectorContainer.removePopup();
-    }, this.selectorContainer);
+    // this.initialize();
+    // this.bind("p:PopupHidden", function () {
+    //     this.selectorContainer.close();
+    // }, this.selectorContainer);
 
 
     this.bind("click", function (event) {
@@ -161,8 +161,21 @@ EditPageNoteDialog.prototype.setup = function (options) {
     }, this.popupContainer);
 
     FontEditor._setupFontCombo(this.fontCombo, function () {
-        thiz.runEditorCommand("fontname", thiz.fontCombo.getSelectedItem());
+        thiz.editor.setAttribute("contenteditable", "true");
+        if (thiz.currentRange) {
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(thiz.currentRange);
+            thiz.currentRange = null;
+        }
+        thiz.runEditorCommand("fontname", thiz.fontCombo.getSelectedItem().family);
     }, true);
+
+    this.fontCombo.bind("keydown", function (event) {
+        if(!thiz.currentRange) {
+            thiz.currentRange = window.getSelection().getRangeAt(0);
+        }
+        thiz.editor.removeAttribute("contenteditable");
+    }, this.fontCombo);
 
     this.fontSizeCombo.addEventListener("p:ItemSelected", function(event) {
         thiz.runEditorCommand("fontsize", thiz.fontSizeCombo.getSelectedItem());
@@ -233,7 +246,13 @@ EditPageNoteDialog.prototype.updateListByCommandValue = function (commandName, c
         Console.dumpError(e, "stdout");
     }
 
-    if (value && control == this.fontCombo) value = value.replace(/[']/g,'');
+    if (value && control == this.fontCombo) {
+        value = value.replace(/[']/g,'');
+        var item = {};
+        item.family = value;
+        control.selectItem(item);
+        return;
+    }
     control.selectItem(value);
 };
 
@@ -280,23 +299,11 @@ EditPageNoteDialog.prototype.updateButtonByCommandState = function (commandName,
 
 EditPageNoteDialog.prototype.getDialogActions = function () {
     return [
-        {   type: "cancel", title: "Cancel",
-            isCloseHandler: true,
-            run: function () {
-                var thiz = this;
-                var newEditor = RichText.fromString(this.editor.innerHTML);
-                if (this.defaultEditor && newEditor.html != this.defaultEditor.html || !this.defaultEditor && this.editor.innerHTML != " ") {
-                    Dialog.confirm("Do you want to save changes before closing?", null, "Save", function () {
-                        thiz.onDone(newEditor);
-                    }, "Close");
-                }
-                return true;
-            }
-        },
+        Dialog.ACTION_CANCEL,
         {   type: "accept", title: "Apply",
             run: function () {
-                var newEditor = RichText.fromString(this.editor.innerHTML);
-                this.onDone(newEditor);
+                //var newEditor = RichText.fromString(this.editor.innerHTML);
+                //this.onDone(newEditor);
                 return true;
             }
         }

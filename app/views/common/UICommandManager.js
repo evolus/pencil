@@ -178,7 +178,6 @@ UICommandManager.installControl = function (commandKey, control) {
     }, false);
 };
 UICommandManager.invalidateCommand = function (command) {
-    console.log("invalidateCommand:", command);
     if (!command.controls) return;
     var valid = command.isValid ? command.isValid() : !command.disabled;
     for (var i = 0; i < command.controls.length; i ++) {
