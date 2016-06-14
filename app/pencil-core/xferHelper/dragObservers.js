@@ -66,8 +66,8 @@ ShapeDefDragObserver.prototype = {
             }
             console.log("loc: ", loc);
             console.log("rect: ", rec);
-            if (loc.x >= rec.x && loc.x <= rec.x + rec.w
-                && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
+            if (loc.x >= rec.x && loc.x <= rec.w
+                && loc.y >= rec.y && loc.y <= rec.h) {
 
                 console.log("finishMoving: ", loc);
 
@@ -76,6 +76,16 @@ ShapeDefDragObserver.prototype = {
             } else {
                 this.canvas.deleteSelected();
             }
+            // if (loc.x >= rec.x && loc.x <= rec.x + rec.w
+            //     && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
+            //
+            //     console.log("finishMoving: ", loc);
+            //
+            //     this.commited = true;
+            //     this.canvas.finishMoving(event);
+            // } else {
+            //     this.canvas.deleteSelected();
+            // }
         }
 
         this.hasDrag = false;
