@@ -30,19 +30,8 @@ function BaseCollectionPane() {
     }, this.clearTextButton);
 
     this.shapeList.addEventListener("dragstart", function (event) {
-        // var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
-        // var def = n._def;
-        // thiz.addDefDataToDataTransfer(def, event);
-        // event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
-        // event.target.collection = def;
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
-        var def;
-        if (n._def.shape)
-        {
-            def = n._def.shape;
-        } else {
-            def = n._def;
-        }
+        var def = n._def;
         thiz.addDefDataToDataTransfer(def, event);
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
         event.target.collection = def;
