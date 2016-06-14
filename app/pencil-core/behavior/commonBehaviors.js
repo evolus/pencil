@@ -364,6 +364,22 @@ Pencil.behaviors.PlainTextContent = function (text, bound, alignment) {
 
     Pencil.behaviors.BoxFit.apply(this, [bound, alignment]);
 };
+Pencil.behaviors.RichTextContent = function (text, bound, alignment) {
+    var renderer = new SVGHTMLRenderer();
+
+    renderer.importDefaultStyleFromNode(this);
+    renderer.hAlign = alignment.h;
+    renderer.vAlign = alignment.v;
+    renderer.height = bound.h;
+
+    this.setAttribute("dominant-baseline", "auto");
+    renderer.renderHTML(text.html, this, {
+        x: bound.x,
+        y: bound.y,
+        width: bound.w,
+        height: bound.h
+    });
+};
 Pencil.behaviors.DomContent = function (xmlText) {
     Dom.empty(this);
 
