@@ -167,7 +167,6 @@ EditPageNoteDialog.prototype.setup = function (options) {
             window.getSelection().addRange(thiz.currentRange);
             thiz.currentRange = null;
         }
-
         thiz.runEditorCommand("fontname", thiz.fontCombo.getSelectedItem().family);
     }, true);
 
@@ -300,23 +299,11 @@ EditPageNoteDialog.prototype.updateButtonByCommandState = function (commandName,
 
 EditPageNoteDialog.prototype.getDialogActions = function () {
     return [
-        {   type: "cancel", title: "Cancel",
-            isCloseHandler: true,
-            run: function () {
-                var thiz = this;
-                var newEditor = RichText.fromString(this.editor.innerHTML);
-                if (this.defaultEditor && newEditor.html != this.defaultEditor.html || !this.defaultEditor && this.editor.innerHTML != " ") {
-                    Dialog.confirm("Do you want to save changes before closing?", null, "Save", function () {
-                        thiz.onDone(newEditor);
-                    }, "Close");
-                }
-                return true;
-            }
-        },
+        Dialog.ACTION_CANCEL,
         {   type: "accept", title: "Apply",
             run: function () {
-                var newEditor = RichText.fromString(this.editor.innerHTML);
-                this.onDone(newEditor);
+                //var newEditor = RichText.fromString(this.editor.innerHTML);
+                //this.onDone(newEditor);
                 return true;
             }
         }

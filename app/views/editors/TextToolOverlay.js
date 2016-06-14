@@ -77,8 +77,25 @@ function TextToolOverlay() {
     }, this.malignContainer);
 
     FontEditor._setupFontCombo(this.fontCombo, function () {
+        if (thiz.currentRange) {
+            thiz.editor.setAttribute("contenteditable", "true");
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(thiz.currentRange);
+            thiz.currentRange = null;
+        }
         thiz.runEditorCommand("fontname", thiz.fontCombo.getSelectedItem().family);
     }, true);
+
+    this.fontCombo.addEventListener("keydown", function(event) {
+        if (!thiz.currentRange) {
+            thiz.currentRange = window.getSelection().getRangeAt(0);
+            thiz.editor.removeAttribute("contenteditable");
+            thiz.settingFont = true;
+        }
+        window.setTimeout(function () {
+            thiz.fontCombo.button.focus();
+        }, 10);
+    }, false)
 
     this.fontSizeCombo.setItems([1, 2, 3, 4, 5, 6, 7]);
     this.fontSizeCombo.addEventListener("p:ItemSelected", function(event) {
@@ -197,11 +214,14 @@ TextToolOverlay.prototype.onHide = function () {
 
 TextToolOverlay.prototype.runEditorCommand = function (command, arg) {
     try {
+        this.editor.focus();
+        this.settingFont = null;
         if (typeof(arg) != "undefined") {
             window.document.execCommand(command, false, arg);
         } else {
             window.document.execCommand(command, false, null);
         }
+
     } catch (e) {
         alert(e);
     }
