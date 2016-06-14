@@ -56,7 +56,7 @@ ShapeDefDragObserver.prototype = {
         if (!this.commited && this.hasDrag) {
             console.log("event: ", event);
             var loc = this.canvas.getEventLocation(event);
-            var cRect = this.canvas.svg.parentNode.getBoundingClientRect();
+            var cRect = this.canvas.svg.getBoundingClientRect();
             console.log("cRect: ", cRect);
             var rec = {
                 x: Math.round(cRect.left),
