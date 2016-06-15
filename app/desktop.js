@@ -10,6 +10,12 @@ module.exports = function () {
                                 "gnome": [{command: "gsettings", params: ["get", "org.gnome.desktop.interface", "font-name"]}],
                                 "ubuntu": [{command: "gsettings", params: ["get", "org.gnome.desktop.interface", "font-name"]}]
                             }
+
+    var defaultFamily = "Sans";
+    var defaultWeight = 400;
+    var defaultStyle = "normal";
+    var defaultSize = "10pt";
+
     var fontNameReader = function(registry, callback, index) {
         var child = spawn(registry.command, registry.params);
         var tmp = "";
@@ -24,10 +30,10 @@ module.exports = function () {
         if (fontName) {
             fontName = fontName.trim();
         }
-        var family = "sans-serif";
-        var weight = 400;
-        var style = "normal";
-        var size = "1em";
+        var family = defaultFamily;
+        var weight = defaultWeight;
+        var style = defaultStyle;
+        var size = defaultSize;
 
         if (fontName.match(/^'(.+)'$/)) fontName = RegExp.$1;
 
@@ -70,10 +76,10 @@ module.exports = function () {
             if (!fontRegistry) {
                 console.error("Coud not found font command registry for ", d);
                 callback({
-                    family: "sans-serif",
-                    weight: 400,
-                    style: "normal",
-                    size: "1em"
+                    family: defaultFamily,
+                    weight: defaultWeight,
+                    style: defaultStyle,
+                    size: defaultSize
                 });
             } else {
                 var fontNames = [];
@@ -81,10 +87,10 @@ module.exports = function () {
 
                     if (finish && fontNames.length == 0) {
                         callback({
-                            family: family,
-                            weight: weight,
-                            style: style,
-                            size: size
+                            family: defaultFamily,
+                            weight: defaultWeight,
+                            style: defaultStyle,
+                            size: defaultSize
                         });
                         return;
                     }
@@ -168,10 +174,10 @@ module.exports = function () {
         var handler = platformHandlers[platform];
         if (!handler) {
             callback({
-                family: "sans-serif",
-                weight: "400",
-                style: "normal",
-                size: "12pt"
+                family: defaultFamily,
+                weight: defaultWeight,
+                style: defaultStyle,
+                size: defaultSize
             });
             return;
         }
