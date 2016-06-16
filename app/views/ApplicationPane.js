@@ -63,6 +63,7 @@ function ApplicationPane() {
     };
     //overflowChecker();
 
+
     this.pageListView.setController(this.controller);
 
     //preventing drag and drop
@@ -147,7 +148,13 @@ ApplicationPane.prototype.createCanvas = function () {
         container.style.height = h + "px";
         container.parentNode.style.width = w + "px";
         container.parentNode.style.height = h + "px";
+
+        scrollPane.style.overflow = "hidden";
+        window.setTimeout(function () {
+            scrollPane.style.overflow = "auto";
+        }, 10);
     }, false);
+
     return canvas;
 };
 ApplicationPane.prototype.onDocumentChanged = function () {
