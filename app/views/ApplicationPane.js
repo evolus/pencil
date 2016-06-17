@@ -35,6 +35,21 @@ function ApplicationPane() {
         this.invalidateZoom();
     });
 
+    this.bind("click", function() {
+        Dom.emitEvent("p:ScrollPaneResize", this, {canvas : this.activeCanvas});
+    }, this.leftSidePane)
+
+    this.bind("click", function() {
+        Dom.emitEvent("p:ScrollPaneResize", this, {canvas : this.activeCanvas});
+    }, this.rightSidePane)
+
+    this.bind("p:ScrollPaneResize", function (ev) {
+        var scroll = ev.canvas._scrollPane;
+        scroll.style.overflow = "hidden";
+        window.setTimeout(function () {
+           scroll.style.overflow = "auto";
+        }, 10);
+   });
 
     var lastOverflowX = null;
     var lastOverflowY = null;
@@ -149,12 +164,14 @@ ApplicationPane.prototype.createCanvas = function () {
         container.parentNode.style.width = w + "px";
         container.parentNode.style.height = h + "px";
 
-        scrollPane.style.overflow = "hidden";
-        window.setTimeout(function () {
-            scrollPane.style.overflow = "auto";
-        }, 10);
+        Dom.emitEvent("p:ScrollPaneResize", this, {canvas: canvas});
+        // console.log("scroll pane size: ", scrollPane.offsetWidth, scrollPane.offsetHeight);
+        // console.log("canvas wrapper size: ", container.parentNode.offsetWidth, container.parentNode.offsetHeight, container.parentNode);
+        // scrollPane.style.overflow = "hidden";
+        // window.setTimeout(function () {
+        //     scrollPane.style.overflow = "auto";
+        // }, 10);
     }, false);
-
     return canvas;
 };
 ApplicationPane.prototype.onDocumentChanged = function () {

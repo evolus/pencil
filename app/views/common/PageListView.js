@@ -128,6 +128,8 @@ function PageListView() {
         this.pageListSrollView.invalidate();
         this.childPageSrollView.invalidate();
         Config.set("pageListViewExpanded.enabled", this.expanded);
+
+        Dom.emitEvent("p:ScrollPaneResize", this, {canvas : Pencil.controller.activePage.canvas});
     }, this.toggleButton);
 
     this.pageListContainer._isDropZone = true;
