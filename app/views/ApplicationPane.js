@@ -35,7 +35,6 @@ function ApplicationPane() {
         this.invalidateZoom();
     });
 
-
     var lastOverflowX = null;
     var lastOverflowY = null;
 
@@ -142,16 +141,13 @@ ApplicationPane.prototype.createCanvas = function () {
     scrollPane.style.display = "none";
 
     canvas.element.addEventListener("p:SizeChanged", function () {
-        console.log("canvas:", [canvas.width, canvas.height]);
         var w = Math.ceil(canvas.width * canvas.zoom);
         var h = Math.ceil(canvas.height * canvas.zoom);
-        console.log("container:", [w, h]);
         container.style.width = w + "px";
         container.style.height = h + "px";
         container.parentNode.style.width = w + "px";
         container.parentNode.style.height = h + "px";
     }, false);
-
     return canvas;
 };
 ApplicationPane.prototype.onDocumentChanged = function () {

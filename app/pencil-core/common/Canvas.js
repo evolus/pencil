@@ -307,6 +307,8 @@ function Canvas(element) {
             CanvasImpl.setupGrid.apply(this);
         }
     }.bind(this));
+
+
 }
 
 SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(elem) {
