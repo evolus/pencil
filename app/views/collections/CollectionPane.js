@@ -37,7 +37,7 @@ CollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
     } else {
         event.dataTransfer.setData("pencil/def", def.id);
     }
-    event.dataTransfer.setData("pencil/def", def.id);
+    // event.dataTransfer.setData("pencil/def", def.id);
     event.dataTransfer.setData("collectionId", def.collection ? def.collection.id : 0);
 };
 CollectionPane.prototype.getCollections = function () {
