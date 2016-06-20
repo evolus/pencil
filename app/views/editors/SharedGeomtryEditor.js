@@ -19,9 +19,18 @@ SharedGeomtryEditor.prototype.setup = function () {
     this.container.addEventListener("click", function (event) {
         thiz.handleCommandEvent();
     }, false);
-    this.container.addEventListener("input", function (event) {
+    this.container.addEventListener("change", function (event) {
+        if (event.target != thiz.shapeAngle) {
+            if (event.target.value < 0) {
+                event.target.value = 0;
+            }
+        }
         thiz.handleCommandEvent();
     }, false);
+
+    this.container.addEventListener("wheel", function(event) {
+        thiz.handleCommandEvent();
+    }, false)
 
     this.container.addEventListener("keypress", function (event) {
         if (event.keyCode == DOM_VK_UP || event.keyCode == DOM_VK_DOWN) {
