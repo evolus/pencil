@@ -120,7 +120,7 @@ SharedFontEditor.prototype.attach = function (target) {
     this.target = target;
     this.font = target.getProperty(SharedFontEditor.PROPERTY_NAME, "any");
     var type = target.getProperty("textContent");
-    if (!this.font || type.html != null)  {
+    if (!this.font || (type && type.html != null) ) {
         this.detach();
         return;
     }
