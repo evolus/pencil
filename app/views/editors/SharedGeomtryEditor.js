@@ -16,19 +16,22 @@ SharedGeomtryEditor.prototype.setup = function () {
     this.shapeAngle.disabled = true;
 
     var thiz = this;
-    this.container.addEventListener("click", function (event) {
-        thiz.handleCommandEvent();
-    }, false);
-    this.container.addEventListener("change", function (event) {
-        if (event.target != thiz.shapeAngle) {
-            if (event.target.value < 0) {
-                event.target.value = 0;
-            }
-        }
+
+
+    this.container.addEventListener("input", function (event) {
+        if (event.target != thiz.shapeAngle)
         thiz.handleCommandEvent();
     }, false);
 
-    this.container.addEventListener("wheel", function(event) {
+    this.shapeAngle.addEventListener("click", function (event) {
+        thiz.handleCommandEvent();
+    }, false);
+
+    this.shapeAngle.addEventListener("change", function (event) {
+        thiz.handleCommandEvent();
+    }, false);
+
+    this.shapeAngle.addEventListener("wheel", function(event) {
         thiz.handleCommandEvent();
     }, false)
 
