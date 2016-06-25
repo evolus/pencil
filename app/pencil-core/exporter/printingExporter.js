@@ -78,7 +78,7 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
     var css = "svg { line-height: 1.428; }";
 
     var exportJob = function () {
-        var head = Dom.getSingle("/html/head", result);
+        var head = Dom.getSingle("/html:html/html:head", result);
         var style = result.createElement("style");
         style.setAttribute("type", "text/css");
         style.appendChild(result.createTextNode(css));

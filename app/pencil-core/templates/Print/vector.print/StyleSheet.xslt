@@ -2,7 +2,7 @@
     xmlns:p="http://www.evolus.vn/Namespace/Pencil"
     xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns="http://www.w3.org/1999/xhtml">
-<xsl:output method="html"/>
+<xsl:output method="xml"/>
 
 <xsl:param name="format" select="'vector'" />
 <xsl:param name="pageSize" select="'a4'" />
