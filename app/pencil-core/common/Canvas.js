@@ -307,6 +307,7 @@ function Canvas(element) {
             CanvasImpl.setupGrid.apply(this);
         }
     }.bind(this));
+
 }
 
 SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(elem) {
@@ -669,7 +670,6 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
     this.snappingHelper.updateSnappingGuide(this.currentController);
     DockingManager.enableDocking(this.currentController);
 
-
 };
 Canvas.prototype.selectShape = function (shape) {
 
@@ -811,7 +811,6 @@ Canvas.prototype.finishMoving = function (event) {
             clientY : event.clientY
         });
     }
-
 };
 Canvas.prototype.handleMouseWheel = function(event) {
     if (event.ctrlKey) {
@@ -2265,6 +2264,7 @@ Canvas.prototype.setMemento = function (memento) {
 };
 Canvas.prototype.run = function (job, targetObject, actionName, args) {
 
+    console.log("add undo", actionName);
     try {
         // console.log();
         job.apply(targetObject, args);
@@ -2687,8 +2687,6 @@ Canvas.prototype.__dragenter = function (event) {
     }
 };
 Canvas.prototype.__dragleave = function (event) {
-    this.element.removeAttribute("is-dragover");
-    this.element.removeAttribute("p:holding");
     // this.element.removeAttribute("p:selection");
     if (!this.currentDragObserver)
         return;
@@ -2697,6 +2695,8 @@ Canvas.prototype.__dragleave = function (event) {
     } catch (e) {
         Console.dumpError(e);
     }
+    this.element.removeAttribute("is-dragover");
+    this.element.removeAttribute("p:holding");
 };
 Canvas.prototype.__dragend = function (event) {
     this.element.removeAttribute("is-dragover");

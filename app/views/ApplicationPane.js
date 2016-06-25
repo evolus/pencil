@@ -35,7 +35,6 @@ function ApplicationPane() {
         this.invalidateZoom();
     });
 
-
     var lastOverflowX = null;
     var lastOverflowY = null;
 
@@ -62,6 +61,7 @@ function ApplicationPane() {
         window.setTimeout(overflowChecker, 100);
     };
     //overflowChecker();
+
 
     this.pageListView.setController(this.controller);
 
@@ -203,26 +203,21 @@ ApplicationPane.prototype.showStartupPane = function () {
 
     this.invalidateUIForControllerStatus();
 };
+const NO_CONTENT_VALUE = 22;
 ApplicationPane.prototype.getPreferredCanvasSize = function () {
     return {
-        w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - 2,
-        h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - 2
+        w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - NO_CONTENT_VALUE,
+        h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - NO_CONTENT_VALUE
     }
 };
-// ApplicationPane.prototype.getScreenSize = function () {
-//     return {
-//         w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - 2,
-//         h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - 2
-//     }
-// };
 ApplicationPane.prototype.getBestFitSize = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
-    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - 2),
-            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - 2)].join("x");
+    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE),
+            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE)].join("x");
 };
 ApplicationPane.prototype.getBestFitSizeObject = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
-    return {width: zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - 2), height: zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - 2)};
+    return {width: zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE), height: zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE)};
 };
 ApplicationPane.prototype.showBusyIndicator = function () {
     this.currentBusyOverlay = document.createElement("div");

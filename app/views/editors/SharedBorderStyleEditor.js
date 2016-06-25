@@ -15,7 +15,7 @@ SharedBorderStyleEditor.prototype.setup = function () {
     this.editor.addEventListener("p:ItemSelected", function (event) {
         thiz.handleCommandEvent();
     }, false);
-    this.editor.addEventListener("change", function (event) {
+    this.editor.addEventListener("input", function (event) {
         thiz.handleCommandEvent();
     }, false);
 

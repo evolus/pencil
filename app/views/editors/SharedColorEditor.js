@@ -57,7 +57,8 @@ SharedColorEditor.prototype.attach = function (targetObject) {
 
     this.targetObject = targetObject;
     this.color = this.targetObject.getProperty(this.propertyName);
-    if (!this.color)  {
+    var type = this.targetObject.getProperty("textContent");
+    if (!this.color || (type && type.html != null && this.node().getAttribute("propertyName") == "textColor"))  {
         this.detach();
         return;
     }

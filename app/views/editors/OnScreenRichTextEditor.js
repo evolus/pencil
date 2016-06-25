@@ -15,7 +15,7 @@ OnScreenRichTextEditor.prototype.initialize = function () {
 OnScreenRichTextEditor.prototype.install = function (canvas) {
     this.canvas = canvas;
     this.canvas.onScreenEditors.push(this);
-
+    this.textToolOverlay.editor = this.textEditor;
     this.initialize();
 
     var thiz = this;
@@ -46,6 +46,7 @@ OnScreenRichTextEditor.prototype.install = function (canvas) {
     this.popup.addEventListener("p:PopupHidden", function (event) {
         thiz.commitChange(event);
     }, false);
+    var thiz = this;
 
     this.bind("keypress", this.handleKeyPress, this.container);
     this.bind("keyup", this.handleKeyPress, this.container);
@@ -166,7 +167,11 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
         thiz.textToolOverlay.node().style.visibility = "visible";
     }, 10);
 };
+
 OnScreenRichTextEditor.prototype.handleKeyPress = function (event) {
+    if (this.textToolOverlay.settingFont) {
+        return;
+    }
     if (event.keyCode == DOM_VK_RETURN && !event.shiftKey && !event.accelKey && !event.ctrlKey) {
         this.commitChange(event);
     } else if (event.keyCode == DOM_VK_ESCAPE) {
@@ -175,6 +180,7 @@ OnScreenRichTextEditor.prototype.handleKeyPress = function (event) {
         event.preventDefault();
     }
 };
+
 OnScreenRichTextEditor.prototype.commitChange = function (event) {
     if (!this._lastTarget || !this.textEditingInfo) return;
     try {

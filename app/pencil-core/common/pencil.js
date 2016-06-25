@@ -177,7 +177,7 @@ Pencil.handleTargetChange = function (event) {
 Pencil.invalidateSharedEditor = function() {
     var canvas = Pencil.activeCanvas;
     var target = canvas ? canvas.currentController : null;
-    
+
     if (!target) {
         for (var i in Pencil.sharedEditors) {
             try {
