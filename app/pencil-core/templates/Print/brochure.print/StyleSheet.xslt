@@ -223,6 +223,11 @@
                                 <xsl:with-param name="width" select="p:Properties/p:Property[@name='width']/text()" />
                                 <xsl:with-param name="height" select="p:Properties/p:Property[@name='height']/text()" />
                             </xsl:call-template>
+                            <rect x="0" y="0"
+                                    width="{p:Properties/p:Property[@name='width']/text()}"
+                                    height="{p:Properties/p:Property[@name='height']/text()}"
+                                    stroke="none" fill="{p:Properties/p:Property[@name='backgroundColorRGBA']/text()}">
+                            </rect>
                             <xsl:apply-templates select="p:BackgroundPages/p:Page" mode="copyBackground"/>
                             <g inkscape:label="{p:Properties/p:Property[@name='name']/text()}"
                                inkscape:groupmode="layer" id="layer_{p:Properties/p:Property[@name='fid']/text()}">
