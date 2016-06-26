@@ -37,6 +37,32 @@
             overflow-x: hidden;
             height: 30em;
         }
+
+        .Info {
+            padding: 2em;
+            opacity: 0.6;
+        }
+        .Info > i {
+            font-size: 2em;
+            margin-right: 1em;
+            @iconify();
+        }
+
+        @advanceTab table {
+            border: 1px solid #DDD;
+            border-top: none;
+            margin-top: 2em !important;
+        }
+        @advanceTab table thead {
+            position: fixed;
+            margin-top: -2em;
+            margin-left: -1px;
+            border: 1px solid #DDD;
+            border-bottom: none;
+        }
+        @advanceTab table thead th {
+            height: 2em !important;
+        }
     </style>
     <hbox flex="1">
         <ui:TabPane anon-id="settingTabPane">
@@ -110,15 +136,22 @@
                     </hbox>
                 </hbox>
             </vbox> -->
-            <vbox anon-id="externalEditorTab" flex="1" tab-title="External Editor">
-                <strong>External Editor</strong>
+            <vbox anon-id="externalEditorTab" flex="1" tab-title="External Editors">
+                <strong>External Editors</strong>
                 <hbox align="center" id="svgBox" class="Entry">
-                    <label>Path to external SVG editor:</label>
-                    <input type="text" anon-id="svgEditorUrl" width="350" value="/usr/bin/inkscape" preference="pencil-svgEditorUrl"  configName="external.editor.vector.path"/>
+                    <label>SVG editor command:</label>
+                    <input type="text" anon-id="svgEditorUrl" style="width: 20em;" value="/usr/bin/inkscape" preference="pencil-svgEditorUrl"  configName="external.editor.vector.path"/>
                 </hbox>
                 <hbox align="center" id="bitmapBox" class="Entry">
-                    <label>Path to Bitmap editor:</label>
-                    <input type="text"  anon-id="bitmapEditorUrl" width="350" value="/usr/bin/gimp" preference="pencil-bitmapEditorUrl" configName="external.editor.bitmap.path" />
+                    <label>Bitmap editor command:</label>
+                    <input type="text"  anon-id="bitmapEditorUrl" style="width: 20em;" value="/usr/bin/gimp" preference="pencil-bitmapEditorUrl" configName="external.editor.bitmap.path" />
+                </hbox>
+                <hbox class="Info">
+                    <i>info</i>
+                    <div flex="1">
+                        You can specify extra command line arguments in these settings after the executable paths. Use the <strong>%f</strong> macro as a placeholder for the image file path, otherwise it will be
+                        added automatically at the end of the command.
+                    </div>
                 </hbox>
             </vbox>
             <vbox anon-id="advanceTab" flex="1" tab-title="Advanced">
