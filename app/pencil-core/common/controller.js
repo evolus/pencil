@@ -978,6 +978,7 @@ Controller.prototype.activatePage = function (page) {
     page.canvas.setSize(page.width, page.height);
     page.lastUsed = new Date();
     this.activePage = page;
+    page.canvas._sayTargetChanged();
     // this.sayDocumentChanged();
 };
 Controller.prototype.ensurePageCanvasBackground = function (page) {
