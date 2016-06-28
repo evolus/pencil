@@ -54,14 +54,8 @@ SharedColorEditor.prototype.setup = function () {
 
 SharedColorEditor.prototype.attach = function (targetObject) {
     if (!targetObject) return;
-
     this.targetObject = targetObject;
     this.color = this.targetObject.getProperty(this.propertyName);
-    var type = this.targetObject.getProperty("textContent");
-    if (!this.color || (type && type.html != null && this.node().getAttribute("propertyName") == "textColor"))  {
-        this.detach();
-        return;
-    }
     this.node().disabled = false;
     this.updateDisplayColor();
 };

@@ -22,7 +22,7 @@ EditToolbar.prototype.registerCommands = function () {
         label: "Copy",
         icon: "content_copy",
         shortcut: "Ctrl+C",
-        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController; },
+        isValid: function (event) { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Dom.findParentWithClass(event.target, "Canvas"); },
         run: function () {
             Pencil.activeCanvas.doCopy();
         }

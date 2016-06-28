@@ -124,51 +124,41 @@ SharedFontEditor.prototype.attach = function (target) {
         this.detach();
         return;
     }
-    var type = target.getProperty("textContent");
-    if (type && type.html !=null) {
-        this.fontCombo.setDisabled(true);
-        this.pixelFontSize.disabled = true;
-        this.boldButton.disabled = true;
-        this.italicButton.disabled = true;
-        this.disabledEditor = true;
-    } else {
-        this.fontCombo.setDisabled(false);
-        this.pixelFontSize.disabled = false;
-        this.boldButton.disabled = false;
-        this.italicButton.disabled = false;
-        this.disabledEditor = false;
+    this.fontCombo.setDisabled(false);
+    this.pixelFontSize.disabled = false;
+    this.boldButton.disabled = false;
+    this.italicButton.disabled = false;
+    this.disabledEditor = false;
 
-        // //set the value
-        var matched = this.fontCombo.selectItem(this.font);
+    // //set the value
+    var matched = this.fontCombo.selectItem(this.font);
 
-        console.log("Selecting", this.font);
-        console.log(" >> Matching " + matched);
-        if (!matched) {
-            var families = this.font.getFamilies();
-            for (var i = 0; i < families.length; i ++) {
-                var f = families[i];
-                if (Local.isFontExisting(f)) {
-                    this.fontCombo.selectItem({family: f});
-                    break;
-                }
+    console.log("Selecting", this.font);
+    console.log(" >> Matching " + matched);
+    if (!matched) {
+        var families = this.font.getFamilies();
+        for (var i = 0; i < families.length; i ++) {
+            var f = families[i];
+            if (Local.isFontExisting(f)) {
+                this.fontCombo.selectItem({family: f});
+                break;
             }
         }
+    }
+    if (this.font.size.match(/^([0-9]+)[^0-9]*$/)) {
+        this.pixelFontSize.value = RegExp.$1;
+    }
 
-        if (this.font.size.match(/^([0-9]+)[^0-9]*$/)) {
-            this.pixelFontSize.value = RegExp.$1;
-        }
+    if (this.font.weight == "bold") {
+        this.boldButton.setAttribute("checked", "true");
+    } else {
+        this.boldButton.removeAttribute("checked");
+    }
 
-        if (this.font.weight == "bold") {
-            this.boldButton.setAttribute("checked", "true");
-        } else {
-            this.boldButton.removeAttribute("checked");
-        }
-
-        if (this.font.style == "italic") {
-            this.italicButton.setAttribute("checked", "true");
-        } else {
-            this.italicButton.removeAttribute("checked");
-        }
+    if (this.font.style == "italic") {
+        this.italicButton.setAttribute("checked", "true");
+    } else {
+        this.italicButton.removeAttribute("checked");
     }
     var formatPainter = Pencil.activeCanvas && target && (target.constructor == Group || target.constructor == Shape);
     this.formatPainterButton.disabled = !formatPainter;
