@@ -326,8 +326,14 @@ Controller.prototype.parsePageFromNode = function (pageNode, callback) {
     });
 
     function invalidateAndSerializePage(page) {
-        if (page.width) page.width = parseInt(page.width, 10);
-        if (page.height) page.height = parseInt(page.height, 10);
+        if (page.width) {
+            page.width = parseInt(page.width, 10);
+        } else page.width = 0;
+
+        if (page.height) {
+            page.height = parseInt(page.height, 10);
+        } else page.height = 0;
+
         if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
         if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
@@ -635,8 +641,14 @@ Controller.prototype.parseDocument = function (filePath, callback) {
                     page[propNode.getAttribute("name")] = value;
                 });
 
-                if (page.width) page.width = parseInt(page.width, 10);
-                if (page.height) page.height = parseInt(page.height, 10);
+                if (page.width) {
+                    page.width = parseInt(page.width, 10);
+                } else page.width = 0;
+
+                if (page.height) {
+                    page.height = parseInt(page.height, 10);
+                } else page.height = 0;
+
                 if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
 

@@ -163,7 +163,7 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
     window.setTimeout(function () {
         thiz.textEditor.focus();
         thiz.textToolOverlay.runEditorCommand("selectAll");
-        thiz.textToolOverlay.node().style.top = "-" + (thiz.textToolOverlay.node().offsetHeight + 3) + "px";
+        thiz.textToolOverlay.node().style.top = "-" + (thiz.textToolOverlay.node().offsetHeight + 8) + "px";
         thiz.textToolOverlay.node().style.visibility = "visible";
     }, 10);
 };
