@@ -21,7 +21,6 @@
             border: none;
             border-radius: 0.35ex;
             background: @popup_bg;
-            padding: 0.3em;
             box-shadow: 0px 0px 1em rgba(0, 0, 0, 0.5);
             transition: opacity 0.4s;
             box-sizing: border-box;
@@ -53,11 +52,11 @@
             background: rgba(0, 0, 0, 0.05);
         }
         body @dialogFrame @dialogTitle {
-            color: #FFF;
+            color: #000;
             display: block;
         }
         body @dialogFrame @dialogSubTitle {
-            color: #FFF;
+            color: #000;
             display: block;
             opacity: 0.5;
         }
@@ -65,9 +64,8 @@
             padding: 1.2em;
         }
         body @dialogFrame @dialogHeaderPane {
-            margin: -0.3em;
             margin-bottom: 0em;
-            background: lighten(@selected_bg, 10%);
+            background: darken(@app_bg, 15%);
             border-top-left-radius: 0.35ex;
             border-top-right-radius: 0.35ex;
         }
@@ -82,7 +80,7 @@
         }
         body @dialogFrame @dialogFooter {
             padding: 0.9em;
-            margin: 1.4em -0.3em -0.3em -0.3em;
+            margin-top: 1.4em;
             background: darken(@app_bg, 2%);
             border-bottom-left-radius: 0.35ex;
             border-bottom-right-radius: 0.35ex;
