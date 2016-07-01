@@ -120,10 +120,11 @@ SharedFontEditor.prototype.attach = function (target) {
     this.target = target;
     this.font = target.getProperty(SharedFontEditor.PROPERTY_NAME, "any");
 
-    if (!this.font ) {
+    if (!this.font) {
         this.detach();
         return;
     }
+    
     this.fontCombo.setDisabled(false);
     this.pixelFontSize.disabled = false;
     this.boldButton.disabled = false;
