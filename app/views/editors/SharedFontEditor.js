@@ -1,6 +1,8 @@
 function SharedFontEditor() {
     BaseTemplatedWidget.call(this);
     Pencil.registerSharedEditor(this);
+
+    ToolBar.setupFocusHandling(this.node());
 }
 __extend(BaseTemplatedWidget, SharedFontEditor);
 SharedFontEditor.PROPERTY_NAME = "textFont";
@@ -124,7 +126,7 @@ SharedFontEditor.prototype.attach = function (target) {
         this.detach();
         return;
     }
-    
+
     this.fontCombo.setDisabled(false);
     this.pixelFontSize.disabled = false;
     this.boldButton.disabled = false;

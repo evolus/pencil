@@ -1,6 +1,7 @@
 function SharedBorderStyleEditor() {
     BaseTemplatedWidget.call(this);
     Pencil.registerSharedEditor(this);
+    ToolBar.setupFocusHandling(this.node());
 }
 __extend(BaseTemplatedWidget, SharedBorderStyleEditor);
 

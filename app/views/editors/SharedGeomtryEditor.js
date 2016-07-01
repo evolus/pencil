@@ -2,6 +2,7 @@ function SharedGeomtryEditor() {
     BaseTemplatedWidget.call(this);
     Pencil.registerSharedEditor(this);
     this.target = null;
+    ToolBar.setupFocusHandling(this.node());
 }
 __extend(BaseTemplatedWidget, SharedGeomtryEditor);
 SharedGeomtryEditor.PROPERTY_NAME = "box";

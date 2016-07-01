@@ -645,6 +645,7 @@ function BaseWidget(definitionNode) {
     Dom.addClass(node, "widget_" + this.constructor.name);
     this.__node = node;
     node.__widget = this;
+    node["__is_" + this.constructor.name] = true;
 
     var thiz = this;
     node.addEventListener("DOMNodeInsertedIntoDocument", function () {

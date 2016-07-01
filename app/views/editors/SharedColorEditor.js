@@ -8,6 +8,7 @@ function SharedColorEditor() {
     }, this.selectorContainer.node());
     this.bind("p:PopupHidden", function () {
         this.removeAttribute("active");
+        Dom.emitEvent("p:PopupClosed", this.node(), {});
     }, this.selectorContainer.node());
 
     this.selectorContainer.setPopupClass("SharedColorEditorPopup");
@@ -18,6 +19,7 @@ function SharedColorEditor() {
         });
         return !found;
     };
+    ToolBar.setupFocusHandling(this.node());
 }
 __extend(BaseTemplatedWidget, SharedColorEditor);
 
