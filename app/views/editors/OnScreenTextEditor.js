@@ -44,6 +44,10 @@ OnScreenTextEditor.prototype.install = function (canvas) {
     }, false);
 
     this.popup.addEventListener("p:PopupHidden", function (event) {
+        if (thiz.textEditingInfo.target.style.visibility && thiz.textEditingInfo.target.style.visibility == "hidden")
+        {
+            thiz.textEditingInfo.target.style.visibility = "visible";
+        }
         thiz.commitChange(event);
     }, false);
 
@@ -75,6 +79,7 @@ OnScreenTextEditor.prototype.handleShapeDoubleClicked = function (event) {
     if (this.textEditingInfo.type == PlainText) {
         //setup
         console.log("currentTarget", this.currentTarget);
+        this.textEditingInfo.target.style.visibility = "hidden";
         this._lastTarget = this.currentTarget;
         try {
             this._setupEditor();

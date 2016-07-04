@@ -43,7 +43,7 @@
                     new SnappingData("Right", box.w, "Right", true, shape.id).makeLocal(true)
                     ]
             };
-            
+
             collection.buildConnectorOutletsWith = function (box, overridingOutlets) {
                 var definedOutlets = [];
                 var outlets = [];
@@ -54,7 +54,7 @@
                         if (outlet.classes) outlets.push(outlet);
                     }
                 }
-                
+
                 var systemOutlets = [
                     new Outlet("top-left", "FCInput", 0, 0),
                     new Outlet("top-center", "FCInput", box.w / 2, 0),
@@ -66,19 +66,18 @@
                     new Outlet("bottom-center", "FCInput", box.w / 2, box.h),
                     new Outlet("bottom-right", "FCInput", box.w, box.h)
                 ];
-                
+
                 for (var i in systemOutlets) {
                     var outlet = systemOutlets[i];
                     stencilDebug("checking: " + outlet.id);
                     if (definedOutlets.indexOf(outlet.id) >= 0) continue;
                     stencilDebug("\tadding: " + outlet.id);
-                    
+
                     outlets.push(outlet);
                 }
-                
+
                 return outlets;
             };
-
         ]]>
     </Script>
     <Shortcut displayName="Straight Connector" icon="Icons/straight-connector.png" to="Evolus.Common:arrow">
@@ -128,7 +127,7 @@
                 <![CDATA[
                     var a = 5;
                     var b = 5;
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-right", "FCInput", a * Math.cos(0 - Math.PI / 4) + a, b * Math.sin( - Math.PI / 4) + b),
                         new Outlet("top-left", "FCInput", a * Math.cos(0 - 3 * Math.PI / 4) + a, b * Math.sin(0 - 3 * Math.PI / 4) + b),
@@ -179,6 +178,43 @@
                 </Property>
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
+            <PropertyGroup name="Option Texts">
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text1');
+                    var sizeBox = F.textSize('text1');
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text1', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
+                ><![CDATA[]]></Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text2');
+                    var sizeBox = F.textSize('text2');
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text2', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"             ><![CDATA[]]></Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text3');
+                    var sizeBox = F.textSize('text3');
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text3', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"              ><![CDATA[]]></Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text4');
+                    var sizeBox = F.textSize('text4');
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text4', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"                ><![CDATA[]]></Property>
+                <Property displayName="Text Font" name="optionTextFont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property displayName="Text Font" name="optionTextColor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+            </PropertyGroup>
         </Properties>
         <Behaviors>
             <For ref="path">
@@ -187,6 +223,74 @@
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <Fill>$fillColor</Fill>
                 <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <!-- -->
+            <For ref="text1">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin1.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan1">
+                <InnerText>$optionText1</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
+            </For>
+
+            <For ref="text2">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin2.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan2">
+                <InnerText>$optionText2</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
+            </For>
+
+            <For ref="text3">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin3.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan3">
+                <InnerText>$optionText3</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
+            </For>
+
+            <For ref="text4">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin4.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan4">
+                <InnerText>$optionText4</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
             </For>
             <For ref="text">
                 <Font>$textFont</Font>
@@ -197,6 +301,7 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
+
             <For ref="outputArrrow1">
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
@@ -225,6 +330,28 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <rect id="path" style="stroke-linejoin: round;" />
+
+            <text id="text1">
+                <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan1" dy="-5"></tspan>
+                </textPath>
+            </text>
+            <text id="text2">
+                <textPath xlink:href="#outputArrrow2" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan2" dy="-5"></tspan>
+                </textPath>
+            </text>
+            <text id="text3">
+                <textPath xlink:href="#outputArrrow3" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan3" dy="-5"></tspan>
+                </textPath>
+            </text>
+            <text id="text4">
+                <textPath xlink:href="#outputArrrow4" startOffset="50%" text-anchor="middle" alignment-baseline="middle-left">
+                    <tspan id="textSpan4" dy="-5"></tspan>
+                </textPath>
+            </text>
+
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -269,6 +396,39 @@
                 </Property>
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
+            <PropertyGroup name="Option Texts">
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text1');
+                    var newBox = new Bound(targetBox.x, targetBox.y, targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text1', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
+                ><![CDATA[]]></Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text2');
+                    var newBox = new Bound(targetBox.x, targetBox.y, targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text2', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"             ><![CDATA[]]></Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text3');
+                    var newBox = new Bound(targetBox.x, targetBox.y, targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text3', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"              ><![CDATA[]]></Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text4');
+                    var newBox = new Bound(targetBox.x, targetBox.y, targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text4', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"                ><![CDATA[]]></Property>
+                <Property displayName="Text Font" name="optionTextFont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property displayName="Text Font" name="optionTextColor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+            </PropertyGroup>
         </Properties>
         <Behaviors>
             <For ref="path">
@@ -284,6 +444,74 @@
                 <Attr>
                     <Arg>"ry"</Arg>
                     <Arg>Math.min($box.w/8, $box.h/8)</Arg>
+                </Attr>
+            </For>
+
+            <For ref="text1">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin1.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan1">
+                <InnerText>$optionText1</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
+            </For>
+
+            <For ref="text2">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin2.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan2">
+                <InnerText>$optionText2</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
+            </For>
+
+            <For ref="text3">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin3.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan3">
+                <InnerText>$optionText3</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
+            </For>
+
+            <For ref="text4">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin4.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan4">
+                <InnerText>$optionText4</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
                 </Attr>
             </For>
 
@@ -339,6 +567,27 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <rect id="path" style="stroke-linejoin: round;" />
+            <text id="text1">
+                <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan1" dy="-5"></tspan>
+                </textPath>
+            </text>
+            <text id="text2">
+                <textPath xlink:href="#outputArrrow2" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan2" dy="-5"></tspan>
+                </textPath>
+            </text>
+            <text id="text3">
+                <textPath xlink:href="#outputArrrow3" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan3" dy="-5"></tspan>
+                </textPath>
+            </text>
+            <text id="text4">
+                <textPath xlink:href="#outputArrrow4" startOffset="50%" text-anchor="middle" alignment-baseline="middle-left">
+                    <tspan id="textSpan4" dy="-5"></tspan>
+                </textPath>
+            </text>
+
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -424,11 +673,11 @@
                     var size = F.textSize("text1");
                     size.w += 8;
                     size.h += 8;
-                    
+
                     new Bound($box.w / 2, 0 - size.h, size.w, size.h);
                 </Bound>
             </For>
-            
+
             <For ref="text2">
                 <TextContent>$optionText2</TextContent>
                 <Font>$optionTextFont</Font>
@@ -445,11 +694,11 @@
                     var size = F.textSize("text2");
                     size.w += 8;
                     size.h += 8;
-                    
+
                     new Bound($box.w, $box.h / 2 - size.h, size.w, size.h);
                 </Bound>
             </For>
-            
+
             <For ref="text3">
                 <TextContent>$optionText3</TextContent>
                 <Font>$optionTextFont</Font>
@@ -466,11 +715,11 @@
                     var size = F.textSize("text3");
                     size.w += 8;
                     size.h += 8;
-                    
+
                     new Bound($box.w / 2, $box.h, size.w, size.h);
                 </Bound>
             </For>
-            
+
             <For ref="text4">
                 <TextContent>$optionText4</TextContent>
                 <Font>$optionTextFont</Font>
@@ -487,11 +736,11 @@
                     var size = F.textSize("text4");
                     size.w += 8;
                     size.h += 8;
-                    
+
                     new Bound(0 - size.w, $box.h / 2 - size.h, size.w, size.h);
                 </Bound>
             </For>
-            
+
 
             <For ref="text">
                 <Font>$textFont</Font>
@@ -543,12 +792,12 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-            
+
             <text id="text1" />
             <text id="text2" />
             <text id="text3" />
             <text id="text4" />
-            
+
             <rect id="bg1" style="fill: #FF0000; fill-opacity: 0; stroke: none;"/>
             <rect id="bg2" style="fill: #FF0000; fill-opacity: 0; stroke: none;"/>
             <rect id="bg3" style="fill: #FF0000; fill-opacity: 0; stroke: none;"/>
@@ -708,6 +957,39 @@
                 </Property>
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
+            <PropertyGroup name="Option Texts">
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text1');
+                    var newBox = new Bound(targetBox.x, targetBox.y, targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text1', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
+                ><![CDATA[]]></Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text2');
+                    var newBox = new Bound(targetBox.x, targetBox.y, targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text2', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"             ><![CDATA[]]></Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text3');
+                    var newBox = new Bound(targetBox.x, targetBox.y, targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text3', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"              ><![CDATA[]]></Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
+                    p:editInfo="
+                    var targetBox = F.getObjectBoundingBox('text4');
+                    var newBox = new Bound(targetBox.x, targetBox.y, targetBox.w + targetBox.h + 4, 20);
+                    ({targetName: 'text4', bound: newBox
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"                ><![CDATA[]]></Property>
+                <Property displayName="Text Font" name="optionTextFont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property displayName="Text Font" name="optionTextColor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+            </PropertyGroup>
         </Properties>
         <Behaviors>
             <For ref="path">
@@ -718,6 +1000,74 @@
                 <D>
                     [M(0, 0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), L(0, 0), M($box.w/8, 0), L($box.w/8, $box.h), M(7*$box.w/8, 0), L(7*$box.w/8, $box.h)]
                 </D>
+            </For>
+
+            <For ref="text1">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin1.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan1">
+                <InnerText>$optionText1</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
+            </For>
+
+            <For ref="text2">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin2.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan2">
+                <InnerText>$optionText2</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
+            </For>
+
+            <For ref="text3">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin3.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan3">
+                <InnerText>$optionText3</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
+            </For>
+
+            <For ref="text4">
+                <Font>$optionTextFont</Font>
+                <Fill>$optionTextColor</Fill>
+                <Visibility>$outputPin4.isConnected()</Visibility>
+            </For>
+            <For ref="textSpan4">
+                <InnerText>$optionText4</InnerText>
+                <Attr>
+                    <Arg>"dy"</Arg>
+                    <Arg>0 - $optionTextFont.getPixelHeight() / 3</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"dx"</Arg>
+                    <Arg> 0 </Arg>
+                </Attr>
             </For>
 
             <For ref="text">
@@ -758,6 +1108,26 @@
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
 
+            <text id="text1">
+                <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan1" dy="-5"></tspan>
+                </textPath>
+            </text>
+            <text id="text2">
+                <textPath xlink:href="#outputArrrow2" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan2" dy="-5"></tspan>
+                </textPath>
+            </text>
+            <text id="text3">
+                <textPath xlink:href="#outputArrrow3" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                    <tspan id="textSpan3" dy="-5"></tspan>
+                </textPath>
+            </text>
+            <text id="text4">
+                <textPath xlink:href="#outputArrrow4" startOffset="50%" text-anchor="middle" alignment-baseline="middle-left">
+                    <tspan id="textSpan4" dy="-5"></tspan>
+                </textPath>
+            </text>
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -1572,7 +1942,7 @@
                     var a = 50 * Math.PI / 180;
                     var x = (Math.cos(a) + 1) * $box.w / 2;
                     var y = (Math.sin(a) + 1) * $box.h / 2;
-                    
+
                     [M(x, y), A($box.w / 2, $box.h / 2, 1, 1, 0, $box.w/2, $box.h), L($box.w, $box.h),
                     L($box.w, y), L(x, y), z]
                 </D>
@@ -1625,7 +1995,7 @@
                     var y = box.h * (3 + Math.sin(angle)) / 4;
                     var a = box.w / 2;
                     var b = box.h / 2;
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-right", "FCInput", a * Math.cos(0 - Math.PI / 4) + a, b * Math.sin( - Math.PI / 4) + b),
                         new Outlet("top-left", "FCInput", a * Math.cos(0 - 3 * Math.PI / 4) + a, b * Math.sin(0 - 3 * Math.PI / 4) + b),
@@ -1827,7 +2197,7 @@
                 <Impl>
                 <![CDATA[
                     var box = this.getProperty("box");
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-right", "FCInput", 0, box.h / 10),
                         new Outlet("top-left", "FCInput", box.w, box.h / 10),
@@ -1937,7 +2307,7 @@
                 <Impl>
                 <![CDATA[
                     var box = this.getProperty("box");
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("bottom-right", "FCInput", 4 * box.w / 5, box.h),
                         new Outlet("bottom-left", "FCInput", box.w / 5, box.h),
@@ -2048,7 +2418,7 @@
                 <Impl>
                 <![CDATA[
                     var box = this.getProperty("box");
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-left", "FCInput", box.w / 6, 0),
                         new Outlet("bottom-left", "FCInput", box.w / 6, box.h),
@@ -2158,7 +2528,7 @@
                     var box = this.getProperty("box");
                     var a = box.w / 2;
                     var b = box.h / 2;
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-right", "FCInput", a * Math.cos(0 - Math.PI / 4) + a, b * Math.sin(0 - Math.PI / 4) + b),
                         new Outlet("bottom-right", "FCInput", a * Math.cos(Math.PI / 4) + a, b * Math.sin(Math.PI / 4) + b),
@@ -2268,7 +2638,7 @@
                 <Impl>
                 <![CDATA[
                     var box = this.getProperty("box");
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-left", "FCInput", box.w / 7, 0),
                         new Outlet("bottom-left", "FCInput", box.w / 7, box.h),
@@ -2839,7 +3209,7 @@
                     var y = box.h * (3 + Math.sin(angle)) / 4;
                     var a = box.w / 2;
                     var b = box.h / 2;
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-right", "FCInput", a * Math.cos(0 - Math.PI / 4) + a, b * Math.sin( - Math.PI / 4) + b),
                         new Outlet("top-left", "FCInput", a * Math.cos(0 - 3 * Math.PI / 4) + a, b * Math.sin(0 - 3 * Math.PI / 4) + b),
@@ -2966,7 +3336,7 @@
                     var y = box.h * (3 + Math.sin(angle)) / 4;
                     var a = box.w / 2;
                     var b = box.h / 2;
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-right", "FCInput", a * Math.cos(0 - Math.PI / 4) + a, b * Math.sin( - Math.PI / 4) + b),
                         new Outlet("top-left", "FCInput", a * Math.cos(0 - 3 * Math.PI / 4) + a, b * Math.sin(0 - 3 * Math.PI / 4) + b),
@@ -3109,7 +3479,7 @@
                     var y = box.h * (3 + Math.sin(angle)) / 4;
                     var a = box.w / 2;
                     var b = box.h / 2;
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-right", "FCInput", a * Math.cos(0 - Math.PI / 4) + a, b * Math.sin( - Math.PI / 4) + b),
                         new Outlet("top-left", "FCInput", a * Math.cos(0 - 3 * Math.PI / 4) + a, b * Math.sin(0 - 3 * Math.PI / 4) + b),
@@ -3221,7 +3591,7 @@
                 <Impl>
                 <![CDATA[
                     var box = this.getProperty("box");
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-left", "FCInput", box.w / 10, box.h / 10),
                     ]);
@@ -3326,7 +3696,7 @@
                 <Impl>
                 <![CDATA[
                     var box = this.getProperty("box");
-                    
+
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("bottom-left", null),
                         new Outlet("bottom-right", null),
