@@ -1027,7 +1027,8 @@
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property displayName="Text Content" name="textContent" p:editInfo="({targetName: 'text', bound: new Bound($startPin.x, $startPin.y, 100, 20), font: $textFont, align: $textAlign, multi: false})" type="PlainText" />
+                <Property displayName="Text Content" name="textContent"
+                    p:editInfo="({targetName: 'text', bound: new Bound($startPin.x, $startPin.y, 100, 20), font: $textFont, align: $textAlign, multi: false})" type="PlainText" />
                 <Property displayName="Text Font" name="textFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -1197,7 +1198,6 @@
                     <tspan id="textSpan" dy="-5">Text along a curved path</tspan>
                 </textPath>
             </text>
-
         </p:Content>
     </Shape>
     <Shape id="2pointline" displayName="Free Line" icon="Icons/free-line.png" system="true">

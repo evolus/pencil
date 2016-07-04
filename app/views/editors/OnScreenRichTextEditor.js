@@ -44,10 +44,6 @@ OnScreenRichTextEditor.prototype.install = function (canvas) {
     }, false);
 
     this.popup.addEventListener("p:PopupHidden", function (event) {
-        if (thiz.textEditingInfo.target.style.visibility && thiz.textEditingInfo.target.style.visibility == "hidden")
-        {
-            thiz.textEditingInfo.target.style.visibility = "visible";
-        }
         thiz.commitChange(event);
     }, false);
     var thiz = this;
@@ -82,7 +78,6 @@ OnScreenRichTextEditor.prototype.handleShapeDoubleClicked = function (event) {
         this._lastTarget = this.currentTarget;
         try {
             this._setupEditor();
-            this.textEditingInfo.target.style.visibility = "hidden";
         } catch (e) {
             Console.dumpError(e, "stdout");
             alert(e);
