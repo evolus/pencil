@@ -183,7 +183,7 @@
                     p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
-                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), targetBox.w + targetBox.h + 4, 20);
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h) + 16)  , 20);
                     ({targetName: 'text1', bound: newBox
                     , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
                 ><![CDATA[]]></Property>
@@ -191,21 +191,21 @@
                     p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
-                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), targetBox.w + targetBox.h + 4, 20);
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h) + 16)  , 20);
                     ({targetName: 'text2', bound: newBox
                     , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"             ><![CDATA[]]></Property>
                 <Property displayName="Option Text 3" name="optionText3" type="PlainText"
                     p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
-                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), targetBox.w + targetBox.h + 4, 20);
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h) + 16)  , 20);
                     ({targetName: 'text3', bound: newBox
                     , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"              ><![CDATA[]]></Property>
                 <Property displayName="Option Text 4" name="optionText4" type="PlainText"
                     p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
-                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), targetBox.w + targetBox.h + 4, 20);
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h) + 16)  , 20);
                     ({targetName: 'text4', bound: newBox
                     , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"                ><![CDATA[]]></Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
