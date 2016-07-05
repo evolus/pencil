@@ -1084,10 +1084,6 @@
                         endVia = {x: parseFloat($endPin.meta.viax), y: parseFloat($endPin.meta.viay)};
                         endVia = geo_getRotatedPoint(endVia, $endPin, viaLength, 0);
 
-                        stencilDebug("startPine: " + $startPin.toSource());
-                        stencilDebug("endPin: " + $endPin.toSource());
-
-                        stencilDebug("endVia: " + endVia.toSource());
                         var i = geo_findIntersection($startPin, startVia, $endPin, endVia);
                         //check if intersection is in the same direction with the vias
                         if (i != null
