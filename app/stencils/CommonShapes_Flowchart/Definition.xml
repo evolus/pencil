@@ -670,7 +670,7 @@
                         size.h += 8;
                         new Bound($box.w / 2, -size.h , size.w, size.h);
                     </Arg>
-                    <Arg>new Alignment(0,0)</Arg>
+                    <Arg>new Alignment(2,2)</Arg>
                 </BoxFit>
                 <Visibility>$outputPin1.isConnected()</Visibility>
             </For>
@@ -719,7 +719,7 @@
                         var size = F.textSize("text3");
                         size.w += 8;
                         size.h += 8;
-                        new Bound($box.w / 2, $box.h, size.w, size.h);
+                        new Bound(($box.w / 2) + 4, $box.h, size.w, size.h);
                     </Arg>
                     <Arg>new Alignment(0,0)</Arg>
                 </BoxFit>
@@ -732,10 +732,9 @@
                     size.w += 8;
                     size.h += 8;
 
-                    new Bound($box.w / 2, $box.h, size.w, size.h);
+                    new Bound(($box.w / 2) + 4, $box.h, size.w, size.h);
                 </Bound>
             </For>
-
             <For ref="text4">
                 <TextContent>$optionText4</TextContent>
                 <Font>$optionTextFont</Font>
@@ -761,7 +760,6 @@
                     new Bound(-size.w, ($box.h + size.h) / 2, size.w, size.h);
                 </Bound>
             </For>
-
 
             <For ref="text">
                 <Font>$textFont</Font>

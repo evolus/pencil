@@ -1028,7 +1028,11 @@
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property displayName="Text Content" name="textContent"
-                    p:editInfo="({targetName: 'text', bound: new Bound($startPin.x, $startPin.y, 100, 20), font: $textFont, align: $textAlign, multi: false})" type="PlainText" />
+                    p:editInfo="var targetBox = F.getObjectBoundingBox('text');
+                    var sizeBox = F.textSize('text');
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
+                    ({targetName: 'text', bound: newBox
+                     , font: $textFont, align: $textAlign, multi: false})" type="PlainText" />
                 <Property displayName="Text Font" name="textFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -1085,7 +1089,6 @@
 
                         stencilDebug("endVia: " + endVia.toSource());
                         var i = geo_findIntersection($startPin, startVia, $endPin, endVia);
-
                         //check if intersection is in the same direction with the vias
                         if (i != null
                                 && (i.x - $startPin.x) * (startVia.x - $startPin.x) >= 0
