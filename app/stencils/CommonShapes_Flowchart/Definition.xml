@@ -680,7 +680,7 @@
                     var size = F.textSize("text1");
                     size.w += 8;
                     size.h += 8;
-                    new Bound($box.w / 2, 0 - size.h , size.w, size.h);
+                    new Bound(($box.w / 2) + 4, 0 - size.h , size.w, size.h);
                 </Bound>
             </For>
 
@@ -693,9 +693,9 @@
                         var size = F.textSize("text2");
                         size.w += 8;
                         size.h += 8;
-                        new Bound($box.w + 4, ($box.h + size.h) / 2, size.w, size.h);
+                        new Bound($box.w + 4, ($box.h - size.h - 4) / 2, size.w, size.h);
                     </Arg>
-                    <Arg>new Alignment(0,0)</Arg>
+                    <Arg>new Alignment(0, 0)</Arg>
                 </BoxFit>
                 <Visibility>$outputPin2.isConnected()</Visibility>
             </For>
@@ -705,7 +705,7 @@
                     var size = F.textSize("text2");
                     size.w += 8;
                     size.h += 8;
-                    new Bound($box.w + 4, ($box.h + size.h) / 2, size.w, size.h);
+                    new Bound($box.w + 4, ($box.h - size.h - 4) / 2, size.w, size.h);
                 </Bound>
             </For>
             <For ref="text3">
@@ -741,7 +741,7 @@
                         var size = F.textSize("text4");
                         size.w += 8;
                         size.h += 8;
-                        new Bound(0-size.w, ($box.h + size.h) / 2, size.w, size.h);
+                        new Bound(0-size.w, ($box.h - size.h - 4) / 2, size.w, size.h);
                     </Arg>
                     <Arg>new Alignment(0,0)</Arg>
                 </BoxFit>
@@ -753,8 +753,7 @@
                     var size = F.textSize("text4");
                     size.w += 8;
                     size.h += 8;
-
-                    new Bound(0-size.w, ($box.h + size.h) / 2, size.w, size.h);
+                    new Bound(0-size.w, ($box.h - size.h - 4) / 2, size.w, size.h);
                 </Bound>
             </For>
 
