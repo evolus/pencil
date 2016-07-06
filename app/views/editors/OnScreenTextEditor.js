@@ -210,7 +210,7 @@ OnScreenTextEditor.prototype.commitChange = function (event) {
     } finally {
         this.popup.hide("silent");
         this.textEditingInfo = null;
-        this.canvas.focus();
+        //this.canvas.focus();
     }
 };
 OnScreenTextEditor.prototype.cancelChange = function () {
