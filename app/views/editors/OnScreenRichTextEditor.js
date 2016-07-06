@@ -61,6 +61,7 @@ OnScreenRichTextEditor.prototype.invalidate = function () {
 OnScreenRichTextEditor.prototype.nextTool = function () {
 };
 OnScreenRichTextEditor.prototype.dettach = function () {
+
 };
 
 OnScreenRichTextEditor.prototype.handleShapeDoubleClicked = function (event) {
