@@ -569,6 +569,147 @@
             </foreignObject>
         </p:Content>
     </Shape>
+    <Shape id="RoundedRectV2" displayName="RectangleV2" icon="Icons/rectangle.png">
+        <Properties>
+
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,80</Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Handles">
+                <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2">0,0</Property>
+                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,10</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"
+                     p:editInfo="({targetName: 'text', bound: Bound.fromBox($box, $textPadding.y), font: $textFont, align: $textAlign, multi: true})"><![CDATA[]]>
+                </Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="Text Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="rrRect">
+                <Box>$box.narrowed($strokeStyle.w)</Box>
+                <Transform>[translate(($strokeStyle.w / 2), ($strokeStyle.w / 2))]</Transform>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Radius>
+                    <Arg>$radius.x</Arg>
+                    <Arg>$radius.x</Arg>
+                </Radius>
+            </For>
+            <For ref="textClipPathRect">
+                <Bound>Bound.fromBox($box, $textPadding.y)</Bound>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <RichTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>Bound.fromBox($box, $textPadding.y)</Arg>
+                    <Arg>$textAlign</Arg>
+                </RichTextContent>
+            </For>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="removeBorder" displayName="Remove Border">
+                <Impl>
+                        <![CDATA[
+                            var strokeStyle = this.getProperty("strokeStyle");
+                            strokeStyle.w = 0;
+                            this.setProperty("strokeStyle", strokeStyle);
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="makeSquares" displayName="Make Squared">
+                <Impl>
+                        <![CDATA[
+                            var box = this.getProperty("box");
+                            box.w = Math.max(box.w, box.h);
+                            box.h = box.w;
+                            this.setProperty("box", box);
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var sw = this.getProperty("strokeStyle").w;
+                        var w = this.getProperty("box").w;
+                        var h = this.getProperty("box").h;
+                        return [
+                            new SnappingData("Left", b.x - sw / 2, "Left", true, this.id),
+                            new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
+                            new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
+                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="getConnectorOutlets">
+                <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        return [
+                            new Outlet("top-left", "Bounding", 0, 0),
+                            new Outlet("top-center", "Bounding", box.w / 2, 0),
+                            new Outlet("top-right", "Bounding", box.w, 0),
+                            new Outlet("middle-left", "Bounding", 0, box.h / 2),
+                            new Outlet("middle-center", "Bounding", box.w / 2, box.h / 2),
+                            new Outlet("middle-right", "Bounding", box.w, box.h / 2),
+                            new Outlet("bottom-left", "Bounding", 0, box.h),
+                            new Outlet("bottom-center", "Bounding", box.w / 2, box.h),
+                            new Outlet("bottom-right", "Bounding", box.w, box.h)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <rect width="61" height="24" rx="3" ry="3" x="0" y="0" style="stroke-width: 1px;" id="rrRect" />
+                <filter id="shadingFilter" height="1.2558399" y="-0.12792" width="1.06396" x="-0.03198">
+                    <feGaussianBlur stdDeviation="1" in="SourceAlpha" />
+                </filter>
+                <clipPath id="textClipPath">
+                    <rect id="textClipPathRect" />
+                </clipPath>
+            </defs>
+            <use xlink:href="#rrRect" id="bgCopy" transform="translate(2, 2)" p:filter="url(#shadingFilter)" style="opacity:0.5;" p:heavy="true" />
+            <use xlink:href="#rrRect" />
+            <g id="text" clip-path="url(#textClipPath)" />
+        </p:Content>
+    </Shape>
 
     <Shape id="RectWithGradient" displayName="Gradient Rectangle" icon="Icons/rectangle-grad.png">
         <Properties>
