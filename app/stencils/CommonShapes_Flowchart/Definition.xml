@@ -665,10 +665,7 @@
                 <Fill>$optionTextColor</Fill>
                 <BoxFit>
                     <Arg>
-                        var size = F.textSize("text1");
-                        size.w += 8;
-                        size.h += 8;
-                        new Bound(($box.w / 2) + 4, 0 - size.h , size.w, size.h);
+                        new Bound(($box.w / 2) + 4, 0 - 12 , 35, 12);
                     </Arg>
                     <Arg>new Alignment(0,0)</Arg>
                 </BoxFit>
@@ -690,10 +687,7 @@
                 <Fill>$optionTextColor</Fill>
                 <BoxFit>
                     <Arg>
-                        var size = F.textSize("text2");
-                        size.w += 8;
-                        size.h += 8;
-                        new Bound($box.w + 4, ($box.h - size.h - 4) / 2, size.w, size.h);
+                        new Bound($box.w + 4, ($box.h / 2) - 12, 35, 12);
                     </Arg>
                     <Arg>new Alignment(0, 0)</Arg>
                 </BoxFit>
@@ -705,7 +699,7 @@
                     var size = F.textSize("text2");
                     size.w += 8;
                     size.h += 8;
-                    new Bound($box.w + 4, ($box.h - size.h - 4) / 2, size.w, size.h);
+                    new Bound($box.w + 4, ($box.h / 2) - size.h, size.w, size.h);
                 </Bound>
             </For>
             <For ref="text3">
@@ -717,7 +711,7 @@
                         var size = F.textSize("text3");
                         size.w += 8;
                         size.h += 8;
-                        new Bound(($box.w / 2) + 4, $box.h, size.w, size.h);
+                        new Bound(($box.w / 2) + 4, $box.h, 35, 12);
                     </Arg>
                     <Arg>new Alignment(0,0)</Arg>
                 </BoxFit>
@@ -738,10 +732,7 @@
                 <Fill>$optionTextColor</Fill>
                 <BoxFit>
                     <Arg>
-                        var size = F.textSize("text4");
-                        size.w += 8;
-                        size.h += 8;
-                        new Bound(0-size.w, ($box.h - size.h - 4) / 2, size.w, size.h);
+                        new Bound(0-35, ($box.h / 2)-12, 35, 12);
                     </Arg>
                     <Arg>new Alignment(0,0)</Arg>
                 </BoxFit>
@@ -753,7 +744,7 @@
                     var size = F.textSize("text4");
                     size.w += 8;
                     size.h += 8;
-                    new Bound(0-size.w, ($box.h - size.h - 4) / 2, size.w, size.h);
+                    new Bound(0-size.w, ($box.h / 2) - size.h, size.w, size.h);
                 </Bound>
             </For>
 
