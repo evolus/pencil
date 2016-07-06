@@ -17,9 +17,12 @@ ExternalEditorSupports.handleEditRequest = function (contentProvider, contentRec
     contentProvider.saveTo(tmpFile.name, function () {
 
         var executableConfig = ExternalEditorSupports.getEditorPath(contentProvider.extension);
+        executableConfig = executableConfig.replace(/^(.+)\.exe/, function (zero, one) {
+            return one.replace(/[ ]/g, "@space@") + ".exe";
+        });
         var args = executableConfig.split(/[ ]+/);
 
-        var executablePath = args[0];
+        var executablePath = args[0].replace(/@space@/g, " ");
         var params = [];
         var hasFileArgument = false;
         for (var i = 1; i < args.length; i ++) {
