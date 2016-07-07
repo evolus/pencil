@@ -144,9 +144,7 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
     this.textEditor.style.fontSize = this.textEditingInfo.font.size.replace(/^([0-9\.]+)/, function (whole, one) {
         return (parseFloat(one) * this.canvas.zoom);
     }.bind(this));;
-    this.textEditor.style.lineHeight = this.textEditingInfo.font.size.replace(/^([0-9\.]+)/, function (whole, one) {
-        return (parseFloat(one) * this.canvas.zoom);
-    }.bind(this));;
+    this.textEditor.style.lineHeight = "1.1";
     this.textEditor.style.fontWeight = this.textEditingInfo.font.weight;
     this.textEditor.style.fontStyle = this.textEditingInfo.font.style;
     this.textEditor.style.textAlign = ["left", "center", "right"][align ? align.h : 0];
@@ -163,6 +161,7 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
     var thiz = this;
     window.setTimeout(function () {
         thiz.textEditor.focus();
+        thiz.textToolOverlay.runEditorCommand("styleWithCSS", true);
         thiz.textToolOverlay.runEditorCommand("selectAll");
         thiz.textToolOverlay.node().style.top = "-" + (thiz.textToolOverlay.node().offsetHeight + 8) + "px";
         thiz.textToolOverlay.node().style.visibility = "visible";

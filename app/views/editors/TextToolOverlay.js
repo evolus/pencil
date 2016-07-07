@@ -114,7 +114,7 @@ function TextToolOverlay() {
 
     this.fontSizeCombo.setItems([1, 2, 3, 4, 5, 6, 7]);
     this.fontSizeCombo.addEventListener("p:ItemSelected", function(event) {
-        thiz.runEditorCommand("fontsize", thiz.fontSizeCombo.getSelectedItem());
+        thiz.runEditorCommand("fontsize", (thiz.fontSizeCombo.getSelectedItem() * 3) + "pt");
     }, false);
 
     var changeColorListener = function (control, commandName) {
