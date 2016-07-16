@@ -15,7 +15,7 @@ function SVGHTMLRenderer() {
 }
 SVGHTMLRenderer.prototype.isInline = function (node) {
     var display = node.ownerDocument.defaultView.getComputedStyle(node).display;
-    return (display == "inline" || display == "inline-block") && ["br"].indexOf(node.localName) < 0;
+    return (display == "inline" || display == "inline-block");
 };
 SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
     var layouts = [];
@@ -133,7 +133,8 @@ SVGHTMLRenderer.HANDLERS = {
     h5: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
     h6: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
     br: function (node, view) {
-        return new BlankLayout(view.x, view.y, 0, 0);
+        var size = SVGTextLayout.measure(node, "x", this.defaultStyle);
+        return new BlankLayout(view.x, view.y, 0, size.h);
     },
     blockquote: function (node, view, preceedingLayouts) {
         var size = SVGTextLayout.measure(node, "x", this.defaultStyle);
@@ -580,7 +581,21 @@ SVGTextLayout.prototype.appendNodeList = function (nodes) {
             var respectNewlines = computedStyle.whiteSpace && computedStyle.whiteSpace.indexOf("pre") == 0;
             this.add(text, styles, respectNewlines);
         } else if (node.nodeType == Node.ELEMENT_NODE) {
-            this.appendNodeList(node.childNodes);
+            if (node.localName.toLowerCase() == "br") {
+                var height = SVGTextLayout.measure(node, "x", this.defaultStyle).h;
+
+                if (this.currentRow && this.currentRow.height == 0) {
+                    this.currentRow.height = height;
+                }
+                
+                this.newLine();
+
+                if (i == 0) {
+                    this.currentRow.height = height;
+                }
+            } else {
+                this.appendNodeList(node.childNodes);
+            }
         }
     }
 };

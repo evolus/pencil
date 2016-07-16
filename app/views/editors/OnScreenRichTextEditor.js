@@ -184,9 +184,45 @@ OnScreenRichTextEditor.prototype.handleKeyPress = function (event) {
     }
 };
 
+OnScreenRichTextEditor.prototype.fixEditorContentStructure = function () {
+    for (var i = 0; i < this.textEditor.childNodes.length; i ++) this.fixStructure(this.textEditor.childNodes[i]);
+}
+OnScreenRichTextEditor.prototype.fixStructure = function (e) {
+    if (e.nodeType != Node.ELEMENT_NODE || e.localName.toLowerCase() != "span") return;
+    if (this.isInline(e) && this.containsNonInline(e)) {
+        var div = e.ownerDocument.createElementNS(PencilNamespaces.html, "div");
+        if (e.hasAttribute("style")) div.setAttribute("style", e.getAttribute("style"));
+
+        while (e.firstChild) {
+            var c = e.firstChild;
+            e.removeChild(c);
+            div.appendChild(c);
+        }
+
+        e.parentNode.replaceChild(div, e);
+    }
+
+    for (var i = 0; i < e.childNodes.length; i ++) this.fixStructure(e.childNodes[i]);
+};
+OnScreenRichTextEditor.prototype.containsNonInline = function (e) {
+    if (!e || !e.childNodes || e.childNodes.length <= 0) return false;
+    for (var i = 0; i < e.childNodes.length; i ++) {
+        var child = e.childNodes[i];
+        if (child.nodeType != Node.ELEMENT_NODE) continue;
+        if (!this.isInline(child)) return true;
+        if (this.containsNonInline(child)) return true;
+    }
+
+    return false;
+};
+OnScreenRichTextEditor.prototype.isInline = function (node) {
+    var display = node.ownerDocument.defaultView.getComputedStyle(node).display;
+    return (display == "inline" || display == "inline-block") && ["br"].indexOf(node.localName) < 0;
+};
 OnScreenRichTextEditor.prototype.commitChange = function (event) {
     if (!this._lastTarget || !this.textEditingInfo) return;
     try {
+        this.fixEditorContentStructure();
         var richText = new RichText(this.textEditor.innerHTML);
         this._lastTarget.setProperty(this.textEditingInfo.prop.name, richText);
         this.canvas.invalidateEditors(this);
