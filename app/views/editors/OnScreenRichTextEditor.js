@@ -137,17 +137,18 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
     //setup font
     //this.textEditor.style.marginLeft = "" + dx + "px";
     //this.textEditor.style.marginTop = "" + dy + "px";
-    this.textEditor.style.width = "" + width + "px";
+    this.textEditorWrapper.style.width = "" + width + "px";
+    Svg.setStyle(this.textEditorWrapper, "height", this.textEditingInfo.multi ? (height + "px") : null);
     Svg.setStyle(this.textEditor, "height", this.textEditingInfo.multi ? (height + "px") : null);
 
-    this.textEditor.style.fontFamily = this.textEditingInfo.font.family;
-    this.textEditor.style.fontSize = this.textEditingInfo.font.size.replace(/^([0-9\.]+)/, function (whole, one) {
+    this.textEditorWrapper.style.fontFamily = this.textEditingInfo.font.family;
+    this.textEditorWrapper.style.fontSize = this.textEditingInfo.font.size.replace(/^([0-9\.]+)/, function (whole, one) {
         return (parseFloat(one) * this.canvas.zoom);
     }.bind(this));;
-    this.textEditor.style.lineHeight = "1.1";
-    this.textEditor.style.fontWeight = this.textEditingInfo.font.weight;
-    this.textEditor.style.fontStyle = this.textEditingInfo.font.style;
-    this.textEditor.style.textAlign = ["left", "center", "right"][align ? align.h : 0];
+    this.textEditorWrapper.style.lineHeight = "1.1";
+    this.textEditorWrapper.style.fontWeight = this.textEditingInfo.font.weight;
+    this.textEditorWrapper.style.fontStyle = this.textEditingInfo.font.style;
+    this.textEditorWrapper.style.textAlign = ["left", "center", "right"][align ? align.h : 0];
 
     this.textEditor.innerHTML = this.textEditingInfo.value.value;   //PlainText.value
 
@@ -174,7 +175,7 @@ OnScreenRichTextEditor.prototype.handleKeyPress = function (event) {
     }
     if (event.keyCode == DOM_VK_RETURN && !event.shiftKey && !event.accelKey && !event.ctrlKey) {
         this.commitChange(event);
-    } else if (event.keyCode == DOM_VK_ESCAPE) {
+    } else if (event.keyCode == DOM_VK_ESCAPE && this.popup == BaseWidget.getTopClosable()) {
         this.cancelChange();
         event.stopPropagation();
         event.preventDefault();
