@@ -1,5 +1,7 @@
 function OnScreenRichTextEditor() {
     BaseTemplatedWidget.call(this);
+
+    this.popup.allowMouseDragging = true;
 }
 __extend(BaseTemplatedWidget, OnScreenRichTextEditor);
 
