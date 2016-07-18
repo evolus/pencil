@@ -96,7 +96,8 @@ SharedPropertyEditor.prototype.attach = function (target) {
     }
 
     var definedGroups = target.getPropertyGroups();
-
+    if (this.parentProp) this.parentProp = null;
+    if (this.childProp) this.childProp = null;
     this.target = target;
 
     this.propertyEditor = {};
@@ -162,6 +163,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
             thiz.propertyContainer.style.display = "flex";
             thiz.propertyContainer.style.opacity = "1";
             thiz.renderPropertyUI();
+            console.log(thiz.childProp);
             return;
         }
 
@@ -222,6 +224,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
         editorWrapper._property = property;
 
         if (property.childName) {
+            console.log("Child Property:" + property);
             if (!thiz.childProp) thiz.childProp = {};
             if (!thiz.childProp[property.childName]) {
                 var child = [];
@@ -230,6 +233,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 thiz.childProp[property.childName].push(editorWrapper);
             }
             editorWrapper.style.display = "none";
+
         }
         currentGroupNode.appendChild(editorWrapper);
         window.setTimeout(executor(), 40);
@@ -243,7 +247,6 @@ SharedPropertyEditor.prototype.detach = function () {
     this.noTargetMessagePane.style.display = "flex";
     this.propertyContainer.innerHTML = "";
     this.target = null;
-    if (this.parentProp) this.parentProp = null;
     Dom.emitEvent("p:TitleChanged", this.node(), {});
 };
 SharedPropertyEditor.prototype.invalidate = function () {
