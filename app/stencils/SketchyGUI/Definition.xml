@@ -1438,7 +1438,7 @@ MenuItem]]></Property>
         </p:Content>
     </Shape>
 
-    <Shape id="winframe" displayName="Windown Frame" icon="Icons/winframe.png">
+    <Shape id="winframe" displayName="Window Frame" icon="Icons/winframe.png">
         <Properties>
             <PropertyGroup>
                 <Property name="box" displayName="Size" type="Dimension">300,200</Property>
