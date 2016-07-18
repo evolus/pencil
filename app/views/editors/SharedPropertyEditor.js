@@ -224,14 +224,12 @@ SharedPropertyEditor.prototype.attach = function (target) {
         editorWrapper._property = property;
 
         if (property.childName) {
-            console.log("Child Property:" + property);
             if (!thiz.childProp) thiz.childProp = {};
             if (!thiz.childProp[property.childName]) {
                 var child = [];
                 thiz.childProp[property.childName] = child;
-            } else {
-                thiz.childProp[property.childName].push(editorWrapper);
             }
+            thiz.childProp[property.childName].push(editorWrapper);
             editorWrapper.style.display = "none";
 
         }
