@@ -28,6 +28,10 @@ Popup.registerGlobalListeners = function () {
         var closable = BaseWidget.closables[BaseWidget.closables.length - 1];
         if (!__isAssignableFrom(closable.constructor, Popup)) return;
         if (closable.allowMouseDragging) return;
+        var input = Dom.findUpward(event.target, function (n) {
+            return n.localName == "input" || n.localName == "select" || n.localName == "textarea";
+        });
+        if (input) return;
 
         Dom.cancelEvent(event);
     }, false);
