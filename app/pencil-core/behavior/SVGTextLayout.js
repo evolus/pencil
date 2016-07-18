@@ -82,7 +82,20 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
 };
 SVGHTMLRenderer.prototype.createInlineLayout = function (nodes, view) {
     var layout = new SVGTextLayout(view.width);
-    layout.hAlign = 0;
+    var hAlign = 0;
+    if (nodes.length > 0) {
+        var parentNode = nodes[0].parentNode;
+        if (parentNode) {
+            var align = parentNode.ownerDocument.defaultView.getComputedStyle(parentNode).textAlign;
+            if (align == "center") {
+                hAlign = 1;
+            } else if (align == "right") {
+                hAlign = 2;
+            }
+        }
+    }
+
+    layout.hAlign = hAlign;
     layout.vAlign = 0;
     layout.x = view.x;
     layout.y = view.y;
@@ -104,7 +117,6 @@ SVGHTMLRenderer.COMMON_HEADING_HANDLER = function (node, view, preceedingLayouts
         y: SVGHTMLRenderer._findBottom(preceedingLayouts, view.y, margin),
         width: view.width
     }
-    console.log("contentView", view, contentView, node);
     var layouts = this.layout(node.childNodes, contentView);
 
     var blank = new BlankLayout(view.x, SVGHTMLRenderer._findBottom(layouts, view.y), 0, 0);
@@ -121,6 +133,87 @@ SVGHTMLRenderer._findBottom = function (layouts, defaultValue, marginTop) {
 
     return bottom;
 };
+SVGHTMLRenderer.LIST_HANDLER = function (node, view) {
+    var parentComputedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
+    var marginTop  = parseFloat(parentComputedStyle.marginTop);
+    var marginBottom  = parseFloat(parentComputedStyle.marginBottom);
+    console.log("marginTop, marginBottom", marginTop, marginBottom);
+    var layouts = [new BlankLayout(view.x, view.y, marginTop, marginTop)];
+
+    var itemIndex = 0;
+
+    for (var i = 0; i < node.childNodes.length; i ++) {
+        var c = node.childNodes[i];
+        if (c.nodeType == Node.TEXT_NODE) continue;
+        computedStyle = node.ownerDocument.defaultView.getComputedStyle(c);
+        size = SVGTextLayout.measure(c, "x", computedStyle);
+        var bottom = SVGHTMLRenderer._findBottom(layouts, view.y);
+        var listStyleType = computedStyle.listStyleType;
+
+        var padding = size.w * 4;
+
+        var childView = {
+            x: view.x + padding,
+            y: bottom,
+            width: view.width - padding
+        }
+
+        if (c.localName != "li") {
+            if (c.nodeType == Node.ELEMENT_NODE) {
+                layouts = layouts.concat(this.layout([c], childView))
+            }
+            continue;
+        };
+
+        var bulletSize = size.h / 3;
+        if (!c.firstElementChild || (c.firstElementChild.localName != "ul" && c.firstElementChild.localName != "ol")) {
+            if (listStyleType == "decimal") {
+                var bulletWidth = size.w * 3.5;
+                var layout = new SVGTextLayout(bulletWidth);
+                layout.hAlign = 2;
+                layout.vAlign = 0;
+                layout.x = view.x;
+                layout.y = bottom;
+                layout.defaultStyle = this.defaultStyle;
+
+                var span = c.ownerDocument.createElementNS(PencilNamespaces.html, "span");
+                span.appendChild(c.ownerDocument.createTextNode("" + (++ itemIndex) + "."));
+
+                for (var name in this.defaultStyle) {
+                    var value = parentComputedStyle[name];
+                    if (value) span.style[name] = value;
+                }
+
+                layout.appendNodeList([span]);
+                layouts.push(layout);
+            } else {
+                var circle = (listStyleType == "circle");
+                layouts.push({
+                    x: view.x + size.w * 2, y: bottom + (size.h - bulletSize) / 2, height: bulletSize,
+                    renderInto: function (container) {
+                        var rect = container.ownerDocument.createElementNS(PencilNamespaces.svg, "rect");
+                        rect.setAttribute("x", this.x);
+                        rect.setAttribute("y", this.y);
+                        rect.setAttribute("width", this.height);
+                        rect.setAttribute("rx", this.height / 2);
+                        rect.setAttribute("ry", this.height / 2);
+                        rect.setAttribute("height", this.height);
+                        rect.setAttribute("stroke", circle ? computedStyle.color : "none");
+                        rect.setAttribute("fill", circle ? "none" : computedStyle.color);
+                        if (circle) rect.setAttribute("stroke-width", "1px");
+                        container.appendChild(rect);
+                    }
+                });
+            }
+        }
+        layouts = layouts.concat(this.layout(c.childNodes, childView));
+    }
+
+    layouts.push(new BlankLayout(view.x, SVGHTMLRenderer._findBottom(layouts, view.y), marginBottom, marginBottom));
+
+    return layouts;
+};
+
 SVGHTMLRenderer.HANDLERS = {
     div: function (node, view) {
         return this.layout(node.childNodes, view);
@@ -132,10 +225,6 @@ SVGHTMLRenderer.HANDLERS = {
     h4: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
     h5: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
     h6: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
-    br: function (node, view) {
-        var size = SVGTextLayout.measure(node, "x", this.defaultStyle);
-        return new BlankLayout(view.x, view.y, 0, size.h);
-    },
     blockquote: function (node, view, preceedingLayouts) {
         var size = SVGTextLayout.measure(node, "x", this.defaultStyle);
 
@@ -144,7 +233,6 @@ SVGHTMLRenderer.HANDLERS = {
             y: SVGHTMLRenderer._findBottom(preceedingLayouts, view.y, size.h),
             width: view.width - size.w * 4
         }
-        console.log("contentView", view, contentView, node);
         var layouts = this.layout(node.childNodes, contentView);
 
         if (layouts && layouts.length > 0) {
@@ -154,88 +242,8 @@ SVGHTMLRenderer.HANDLERS = {
 
         return layouts;
     },
-    ul: function (node, view) {
-        var layouts = [];
-        for (var i = 0; i < node.childNodes.length; i ++) {
-            var c = node.childNodes[i];
-            if (c.nodeType == Node.TEXT_NODE) continue;
-            var computedStyle = node.ownerDocument.defaultView.getComputedStyle(c);
-            var size = SVGTextLayout.measure(c, "x", computedStyle);
-            var bottom = SVGHTMLRenderer._findBottom(layouts, view.y);
-            var childView = {
-                x: view.x + size.w * 4,
-                y: bottom,
-                width: view.width - size.w * 4
-            }
-
-            if (c.localName != "li") {
-                if (c.nodeType == Node.ELEMENT_NODE) {
-                    layouts = layouts.concat(this.layout([c], childView))
-                }
-                continue;
-            };
-
-            var bulletSize = size.h / 3;
-            if (!c.firstElementChild || (c.firstElementChild.localName != "ul" && c.firstElementChild.localName != "ol")) {
-                layouts.push({
-                    x: view.x + size.w * 2, y: bottom + (size.h - bulletSize) / 2, height: bulletSize,
-                    renderInto: function (container) {
-                        var rect = container.ownerDocument.createElementNS(PencilNamespaces.svg, "rect");
-                        rect.setAttribute("x", this.x);
-                        rect.setAttribute("y", this.y);
-                        rect.setAttribute("width", this.height);
-                        rect.setAttribute("rx", this.height / 2);
-                        rect.setAttribute("ry", this.height / 2);
-                        rect.setAttribute("height", this.height);
-                        rect.setAttribute("stroke", "none");
-                        rect.setAttribute("fill", computedStyle.color);
-                        container.appendChild(rect);
-                    }
-                });
-            }
-            layouts = layouts.concat(this.layout(c.childNodes, childView));
-        }
-
-        return layouts;
-    },
-    ol: function (node, view) {
-        var layouts = [];
-        for (var i = 0; i < node.childNodes.length; i ++) {
-            var c = node.childNodes[i];
-            if (c.localName != "li") continue;
-            var computedStyle = node.ownerDocument.defaultView.getComputedStyle(c);
-            var size = SVGTextLayout.measure(c, "x", computedStyle);
-            var bottom = SVGHTMLRenderer._findBottom(layouts, view.y);
-            var childView = {
-                x: view.x + size.w * 4,
-                y: bottom,
-                width: view.width - size.w * 4
-            }
-
-            var bulletSize = size.h / 3;
-            var childLayouts = [
-                {
-                    x: view.x + size.w * 2, y: bottom + (size.h - bulletSize) / 2, height: bulletSize,
-                    renderInto: function (container) {
-                        var rect = container.ownerDocument.createElementNS(PencilNamespaces.svg, "rect");
-                        rect.setAttribute("x", this.x);
-                        rect.setAttribute("y", this.y);
-                        rect.setAttribute("width", this.height);
-                        rect.setAttribute("rx", this.height / 2);
-                        rect.setAttribute("ry", this.height / 2);
-                        rect.setAttribute("height", this.height);
-                        rect.setAttribute("stroke", "none");
-                        rect.setAttribute("fill", computedStyle.color);
-                        container.appendChild(rect);
-                    }
-                }
-            ].concat(this.layout(c.childNodes, childView));
-
-            layouts = layouts.concat(childLayouts);
-        }
-
-        return layouts;
-    },
+    ul: SVGHTMLRenderer.LIST_HANDLER,
+    ol: SVGHTMLRenderer.LIST_HANDLER,
     hr: function (node, view, preceedingLayouts) {
         var size = SVGTextLayout.measure(node, "x", this.defaultStyle);
         var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
@@ -385,7 +393,6 @@ SVGTextLayout.measure = function (node, text, defaultStyle) {
     Dom.empty(SVGTextLayout.tspan);
     SVGTextLayout.tspan.appendChild(SVGTextLayout.tspan.ownerDocument.createTextNode(text));
     var box = SVGTextLayout.textNode.getBBox();
-    console.log("computed", box);
 
     return {
         w: box.width,
@@ -587,7 +594,7 @@ SVGTextLayout.prototype.appendNodeList = function (nodes) {
                 if (this.currentRow && this.currentRow.height == 0) {
                     this.currentRow.height = height;
                 }
-                
+
                 this.newLine();
 
                 if (i == 0) {

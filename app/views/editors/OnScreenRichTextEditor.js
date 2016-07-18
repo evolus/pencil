@@ -175,8 +175,18 @@ OnScreenRichTextEditor.prototype.handleKeyPress = function (event) {
     if (this.textToolOverlay.settingFont) {
         return;
     }
-    if (event.keyCode == DOM_VK_RETURN && !event.shiftKey && !event.accelKey && !event.ctrlKey) {
-        this.commitChange(event);
+
+    if (event.keyCode == DOM_VK_RETURN && !event.shiftKey && !event.accelKey) {
+        var insideList = null;
+        try {
+            var node = window.getSelection().anchorNode;
+            insideList = Dom.findUpward(node, function (n) {
+                return n.localName == "li";
+            });
+        } catch (e) {}
+
+        if (!insideList || event.ctrlKey) this.commitChange(event);
+
     } else if (event.keyCode == DOM_VK_ESCAPE && this.popup == BaseWidget.getTopClosable()) {
         this.cancelChange();
         event.stopPropagation();
@@ -217,7 +227,7 @@ OnScreenRichTextEditor.prototype.containsNonInline = function (e) {
 };
 OnScreenRichTextEditor.prototype.isInline = function (node) {
     var display = node.ownerDocument.defaultView.getComputedStyle(node).display;
-    return (display == "inline" || display == "inline-block") && ["br"].indexOf(node.localName) < 0;
+    return (display == "inline" || display == "inline-block");
 };
 OnScreenRichTextEditor.prototype.commitChange = function (event) {
     if (!this._lastTarget || !this.textEditingInfo) return;
