@@ -1,28 +1,40 @@
 <div>
     <style>
-        body @popupContainer {
+        @popupContainer {
             font-size: 0.85em;
             background: #F0F0F0;
             margin: 0;
             padding: 0em;
             border: none;
-            box-shadow: 0em 0.1ex 0.25em rgba(0, 0, 0, 0.15);
+            box-shadow: 0em 0em 1em rgba(0, 0, 0, 0.3);
         }
-        body @popupContainer button,
-        body @popupContainer hbox.ButtonGroup {
-            box-shadow: 0em 0.1ex 0.25em rgba(0, 0, 0, 0.15);
+        @popupContainer button,
+        @popupContainer hbox.ButtonGroup {
+            box-shadow: none;
         }
-        body @popupContainer button {
+        @popupContainer button {
             padding-left: 0.7em;
             padding-right: 0.7em;
         }
-        body @popupContainer .widget_ComboManager @selectContainer > button {
+        @popupContainer .widget_ComboManager @selectContainer > button {
             padding-right: 0.3em;
+        }
+        @popupToolbar button {
+            border-radius: 0px;
+        }
+        @popupToolbar button:not(:first-child) {
+            border-left: none;
+        }
+        @popupToolbar .ButtonGroup:not(:last-child) > button:last-child {
+            border-right: none;
+        }
+        @popupToolbar .Row:not(:first-child) button {
+            border-top: none;
         }
     </style>
     <div anon-id="popupContainer">
-         <vbox>
-            <hbox>
+         <vbox anon-id="popupToolbar">
+            <hbox class="Row">
                 <hbox class="ButtonGroup" anon-id="textFormatContainer">
                     <button mode="icon" anon-id="medBoldButton" tooltiptext="toolbar.bold.tooltiptext;" command="bold" group="TextFormatGroup"><i>format_bold</i></button>
                     <button mode="icon" anon-id="medItalicButton" tooltiptext="toolbar.italic.tooltiptext;" command="italic" group="TextFormatGroup"><i>format_italic</i></button>
@@ -42,22 +54,30 @@
                     <button mode="icon" anon-id="medIndentButton" tooltiptext="toolbar.indent.tooltiptext;" command="indent"><i>format_indent_increase</i></button>
                     <button mode="icon" anon-id="medOutdentButton" tooltiptext="toolbar.outdent.tooltiptext;" command="outdent"><i>format_indent_decrease</i></button>
                 </hbox>
-                <button mode="icon" anon-id="medCleanUpButton" tooltiptext="Clean Up" command="removeformat"><i>clear</i></button>
+                <hbox class="ButtonGroup">
+                    <button mode="icon" anon-id="medCleanUpButton" tooltiptext="Clean Up" command="removeformat"><i>clear</i></button>
+                </hbox>
             </hbox>
 
-            <hbox>
-                <ui:ComboManager anon-id="fontCombo" flex="1"/>
-                <ui:ComboManager anon-id="fontSizeCombo" />
+            <hbox class="Row">
+                <hbox class="ButtonGroup" flex="1">
+                    <ui:ComboManager anon-id="fontCombo" flex="1"/>
+                </hbox>
+                <hbox class="ButtonGroup">
+                    <ui:ComboManager anon-id="fontSizeCombo" />
+                </hbox>
                 <hbox class="ButtonGroup">
                     <button mode="icon" anon-id="medIncreaseFontButton" tooltiptext="toolbar.inc.font.size.tooltiptext;" command="increaseFontSize"><i>format_size</i></button>
                     <button mode="icon" anon-id="medDecreaseFontButton" tooltiptext="toolbar.dec.font.size.tooltiptext;" command="decreaseFontSize"><i>text_fields</i></button>
                 </hbox>
-                <button anon-id="mtextColorButton" tooltiptext="pcolorbutton.text.color.tooltip;">AB</button>
-                <button anon-id="mhilightColorButton" tooltiptext="pcolorbutton.bgr.color.tooltip;"><span anon-id="colorDisplay" class="ColorDisplay"></span></button>
-                <ui:Popup anon-id="selectorContainer">
-                    <ui:ColorSelector anon-id="selector" />
-                </ui:Popup>
+                <hbox class="ButtonGroup">
+                    <button anon-id="mtextColorButton" tooltiptext="pcolorbutton.text.color.tooltip;">AB</button>
+                    <button anon-id="mhilightColorButton" tooltiptext="pcolorbutton.bgr.color.tooltip;"><span anon-id="colorDisplay" class="ColorDisplay"></span></button>
+                </hbox>
             </hbox>
+            <ui:Popup anon-id="selectorContainer">
+                <ui:ColorSelector anon-id="selector" />
+            </ui:Popup>
        </vbox>
     </div>
 </div>

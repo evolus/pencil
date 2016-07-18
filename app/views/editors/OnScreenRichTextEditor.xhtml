@@ -9,11 +9,22 @@
             transition: opacity 0.4s;
             box-sizing: border-box;
         }
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] @textEditorWrapper,
         body .AnonId_popupContainer[mode='OnScreenTextEditor'] @textEditor {
             width: 100%;
             height: 100%;
+        }
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] @textEditorWrapper {
+            overflow: hidden;
+        }
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] @textEditor {
             background: #FFF;
             overflow: auto;
+        }
+        body .AnonId_popupContainer[mode='OnScreenTextEditor'] @textEditorWrapper.ChoosingColor *::selection {
+            border: solid 1px red !important;
+            outline-offset: 1px;
+            background: rgba(33, 66, 99, 0.1);
         }
         body .AnonId_popupContainer[mode='OnScreenTextEditor'] @container {
             position: relative;
@@ -26,7 +37,9 @@
     <ui:Popup anon-id="popup" mode="OnScreenTextEditor">
         <div anon-id="container">
             <ui:TextToolOverlay anon-id="textToolOverlay" />
-            <div anon-id="textEditor" contenteditable="true"></div>
+            <div anon-id="textEditorWrapper">
+                <div anon-id="textEditor" contenteditable="true"></div>
+            </div>
         </div>
     </ui:Popup>
 </hbox>
