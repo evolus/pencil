@@ -49,7 +49,6 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
 
                 inlines = [];
             }
-
             var handler = this.getHandler(node.localName) || this.defaultBlockHandler;
             var blockLayouts = handler.call(this, node, childView, layouts);
             if (blockLayouts && blockLayouts.length > 0) {
@@ -65,6 +64,7 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
             y: view.y,
             width: view.width
         }
+
         if (layouts.length > 0) {
             var previous = layouts[layouts.length - 1];
             childView.y = previous.y + previous.height;
@@ -94,7 +94,9 @@ SVGHTMLRenderer.prototype.createInlineLayout = function (nodes, view) {
             }
         }
     }
-
+    if (hAlign != 0) {
+        this.canUpdate = false;
+    }
     layout.hAlign = hAlign;
     layout.vAlign = 0;
     layout.x = view.x;
@@ -102,7 +104,7 @@ SVGHTMLRenderer.prototype.createInlineLayout = function (nodes, view) {
     layout.defaultStyle = this.defaultStyle;
 
     layout.appendNodeList(nodes);
-
+    console.log(layout);
     return [layout];
 }
 SVGHTMLRenderer.prototype.getHandler = function (nodeName) {
@@ -302,15 +304,22 @@ SVGHTMLRenderer.prototype.render = function (nodes, container, view) {
     if (vAlign > 0) {
         var last = layouts[layouts.length - 1];
         var height = last.y + last.height;
-
         dy = Math.round((this.height - height) * vAlign / 2);
         var target = container.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
         target.setAttribute("transform", "translate(0," + dy + ")");
         container.appendChild(target);
     }
-
+    var checkHAlign = false;
     for (var layout of layouts) {
-        layout.renderInto(target);
+        if (this.canUpdate == false) {
+            layout.renderInto(target);
+        } else {
+            var align = {
+                vAlign: this.vAlign,
+                hAlign: this.hAlign
+            }
+            layout.renderInto(target, align);
+        }
     }
 };
 
@@ -496,9 +505,12 @@ SVGTextLayout.prototype._appendSegment = function (text, styles, bbox) {
     this.currentRow.baselineShift = Math.max(this.currentRow.baselineShift, 0 - segment.dy);
 };
 
-SVGTextLayout.prototype.renderInto = function (container) {
+SVGTextLayout.prototype.renderInto = function (container, align) {
     var x = this.x;
     var y = this.y;
+    if (align) {
+        this.hAlign = align.hAlign;
+    }
     var hAlign = this.hAlign || 0;
     var vAlign = (typeof(this.height) == "number") ? this.vAlign || 0 : 0;
     var dy = 0;
@@ -507,7 +519,6 @@ SVGTextLayout.prototype.renderInto = function (container) {
         for (var row of this.rows) {
             height += row.height;
         }
-
         dy = Math.round((this.height - height) * vAlign / 2);
     }
 
@@ -538,14 +549,11 @@ SVGTextLayout.prototype.renderInto = function (container) {
                     tspan.style[this.styleNameMap[styleName] || styleName] = value;
                 }
             }
-
             tspan.setAttribute("style", tspan.style.cssText);
             text.appendChild(tspan);
         }
     }
-
     container.appendChild(text);
-
 };
 SVGTextLayout.prototype.addHTML = function (html) {
     var div = document.createElement("div");
