@@ -93,7 +93,7 @@ SVGHTMLRenderer.prototype.createInlineLayout = function (nodes, view) {
             }
         }
     }
-    if (hAlign != 0) {
+    if (hAlign != 0 && !this.canUpdate) {
         this.canUpdate = false;
     }
     layout.hAlign = hAlign;
