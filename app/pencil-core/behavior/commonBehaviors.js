@@ -221,6 +221,21 @@ const ROTATED_ANGLE = 10;
 const SKETCHY_ANGLE = 4;
 const SKETCHY_ANGLE_LEN_REF = 50;
 
+function skline(x1, y1, x2, y2, d, noMove) {
+	var result = [];
+    if (!noMove) result.push(M(x1, y1));
+
+    var p1 = {x: x1, y: y1,};
+    var p2 = {x: x2, y: y2,};
+
+	result.push(L(x2, y2));
+
+	Pencil.behaviors.D._setLastLocation(x2, y2);
+
+	return result.join(" ");
+}
+
+
 function sk(x1, y1, x2, y2, d, noMove) {
 	var result = [];
     if (!noMove) result.push(M(x1, y1));
@@ -268,7 +283,6 @@ function sk_old(x1, y1, x2, y2, d, noMove) {
     var l = Math.sqrt(dx * dx + dy * dy);
     var segment = d ? d : DEFAULT_SKETCHY_SEG_SIZE;
 
-    segment = Math.min(segment, l / 2);
 
     var count = Math.floor(l / segment);
     var segmentRandom = segment / 3;
@@ -299,6 +313,27 @@ function skTo(x, y, d) {
     return sk(Pencil.behaviors.D._lastX, Pencil.behaviors.D._lastY, x, y,
         d ? d : DEFAULT_SKETCHY_SEG_SIZE, "noMove");
 }
+function sklineTo(x,y,d) {
+    return skline(Pencil.behaviors.D._lastX, Pencil.behaviors.D._lastY, x, y,
+        d ? d : DEFAULT_SKETCHY_SEG_SIZE, "noMove");
+}
+function calendarDraw(left, top, boxW, boxH, rows, cols) {
+    var result = [];
+    result.push(skline(left + 5,top + 5,(left+boxW) - 5,top + 5));
+    result.push(sklineTo((left+boxW) - 5, (top + boxH)-5));
+    result.push(sklineTo(left + 5, (top + boxH)-5));
+    result.push(z);
+    rows--;
+    if (rows > 0) {
+        result.push(calendarDraw(left, top+boxH, boxW, boxH, rows, cols));
+    }
+    cols--;
+    if (cols > 0) {
+        result.push(calendarDraw(left+boxW, top, boxW, boxH, rows, cols));
+    }
+    return result.join(" ");
+}
+
 var z = "z";
 pencilSandbox.z = z;
 

@@ -18,6 +18,7 @@ SVGHTMLRenderer.prototype.isInline = function (node) {
     return (display == "inline" || display == "inline-block");
 };
 SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
+    console.log("NODES" , nodes);
     var layouts = [];
     var inlines = [];
     for (var i = 0; i < nodes.length; i ++) {
@@ -30,15 +31,14 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
                 node._combinedValue = node.nodeValue || "";
                 inlines.push(node)
             }
-        } else if (this.isInline(node)) {
-            inlines.push(node)
+        } else if (this.isInline(node) && node.childNodes.length <= 1) {
+            inlines.push(node);
         } else {
             var childView = {
                 x: view.x,
                 y: SVGHTMLRenderer._findBottom(layouts, view.y, 0),
                 width: view.width
             }
-
             //flush current pending inlines
             if (inlines.length > 0) {
                 var inlineLayouts = this.createInlineLayout(inlines, childView);
@@ -49,7 +49,6 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
 
                 inlines = [];
             }
-
             var handler = this.getHandler(node.localName) || this.defaultBlockHandler;
             var blockLayouts = handler.call(this, node, childView, layouts);
             if (blockLayouts && blockLayouts.length > 0) {
@@ -57,7 +56,6 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
             }
         }
     }
-
     //if there are still pending inlines to commit
     if (inlines.length > 0) {
         childView = {
@@ -65,6 +63,7 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
             y: view.y,
             width: view.width
         }
+
         if (layouts.length > 0) {
             var previous = layouts[layouts.length - 1];
             childView.y = previous.y + previous.height;
@@ -77,7 +76,6 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
 
         inlines = [];
     }
-
     return layouts;
 };
 SVGHTMLRenderer.prototype.createInlineLayout = function (nodes, view) {
@@ -94,7 +92,6 @@ SVGHTMLRenderer.prototype.createInlineLayout = function (nodes, view) {
             }
         }
     }
-
     layout.hAlign = hAlign;
     layout.vAlign = 0;
     layout.x = view.x;
@@ -102,7 +99,6 @@ SVGHTMLRenderer.prototype.createInlineLayout = function (nodes, view) {
     layout.defaultStyle = this.defaultStyle;
 
     layout.appendNodeList(nodes);
-
     return [layout];
 }
 SVGHTMLRenderer.prototype.getHandler = function (nodeName) {
@@ -218,6 +214,9 @@ SVGHTMLRenderer.HANDLERS = {
     div: function (node, view) {
         return this.layout(node.childNodes, view);
     },
+    span: function (node, view) {
+        return this.layout(node.childNodes, view);
+    },
     p: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
     h1: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
     h2: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
@@ -287,8 +286,9 @@ SVGHTMLRenderer.prototype.renderHTML = function (html, container, view) {
     }
 
     div.innerHTML = html;
-
+    console.log("IMPORT HTML:", div);
     this.render(div.childNodes, container, view);
+
     div.parentNode.removeChild(div);
 };
 SVGHTMLRenderer.prototype.render = function (nodes, container, view) {
@@ -302,13 +302,11 @@ SVGHTMLRenderer.prototype.render = function (nodes, container, view) {
     if (vAlign > 0) {
         var last = layouts[layouts.length - 1];
         var height = last.y + last.height;
-
         dy = Math.round((this.height - height) * vAlign / 2);
         var target = container.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
         target.setAttribute("transform", "translate(0," + dy + ")");
         container.appendChild(target);
     }
-
     for (var layout of layouts) {
         layout.renderInto(target);
     }
@@ -507,7 +505,6 @@ SVGTextLayout.prototype.renderInto = function (container) {
         for (var row of this.rows) {
             height += row.height;
         }
-
         dy = Math.round((this.height - height) * vAlign / 2);
     }
 
@@ -538,14 +535,11 @@ SVGTextLayout.prototype.renderInto = function (container) {
                     tspan.style[this.styleNameMap[styleName] || styleName] = value;
                 }
             }
-
             tspan.setAttribute("style", tspan.style.cssText);
             text.appendChild(tspan);
         }
     }
-
     container.appendChild(text);
-
 };
 SVGTextLayout.prototype.addHTML = function (html) {
     var div = document.createElement("div");
