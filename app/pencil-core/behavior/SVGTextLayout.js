@@ -93,9 +93,6 @@ SVGHTMLRenderer.prototype.createInlineLayout = function (nodes, view) {
             }
         }
     }
-    if (hAlign != 0 && !this.canUpdate) {
-        this.canUpdate = false;
-    }
     layout.hAlign = hAlign;
     layout.vAlign = 0;
     layout.x = view.x;
@@ -216,6 +213,7 @@ SVGHTMLRenderer.LIST_HANDLER = function (node, view) {
 
 SVGHTMLRenderer.HANDLERS = {
     div: function (node, view) {
+        if (!this.canUpdate) this.canUpdate = false;
         return this.layout(node.childNodes, view);
     },
     span: function (node, view) {
@@ -510,10 +508,12 @@ SVGTextLayout.prototype._appendSegment = function (text, styles, bbox) {
 SVGTextLayout.prototype.renderInto = function (container, align) {
     var x = this.x;
     var y = this.y;
+    var hAlign;
     if (align) {
-        this.hAlign = align.hAlign;
+        hAlign = align.hAlign || 0;
+    } else {
+        hAlign = this.hAlign || 0;
     }
-    var hAlign = this.hAlign || 0;
     var vAlign = (typeof(this.height) == "number") ? this.vAlign || 0 : 0;
     var dy = 0;
     if (vAlign > 0) {
