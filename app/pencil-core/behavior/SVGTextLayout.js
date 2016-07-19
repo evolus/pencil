@@ -271,7 +271,6 @@ SVGHTMLRenderer.prototype.importDefaultStyleFromNode = function (node) {
     }
 };
 SVGHTMLRenderer.prototype.renderHTML = function (html, container, view) {
-    // console.log("IMPORT HTML:", html);
     var doc = container.ownerDocument;
     if (!doc.body) doc = document;
     var div = doc.createElementNS(PencilNamespaces.html, "div");

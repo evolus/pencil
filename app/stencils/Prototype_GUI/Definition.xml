@@ -823,12 +823,12 @@
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property name="textContent" displayName="Text Content"
-                    p:editInfo="({targetName: 'textClipPathRect', bound: new Bound(10, 10, $box.w - 20, $box.h ), font: $textFont, align: $textAlign, multi: false})"
+                    p:editInfo="({targetName: 'textClipPathRect', bound: new Bound(10, 10, $box.w - 20, $box.h - 20 ), font: $textFont, align: new Alignment(0,0), multi: false})"
                     type="RichText"><![CDATA[<font xmlns="http://www.w3.org/1999/xhtml" size="3">Secrevit  fontes liquidum locoque pronaque?
 <br xmlns="http://www.w3.org/1999/xhtml" /><br xmlns="http://www.w3.org/1999/xhtml" /><span style="font-weight: normal;">Illas semine campoque declivia oppida corpora nam inter fuit discordia tellus solidumque iunctarum erat: quae terrenae ubi rerum recessit iudicis aestu fixo</span></font>]]></Property>
                 <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
                 <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
-                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,0</Property>
+
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -860,7 +860,7 @@
             </For>
 
             <For ref="textClipPathRect">
-                <Bound>new Bound(10, 10, $box.w - 20, $box.h )</Bound>
+                <Bound>new Bound(10, 10, $box.w - 20, $box.h - 20)</Bound>
             </For>
             <For ref="text">
                 <Font>$textFont</Font>
@@ -868,8 +868,8 @@
                 <Color>$textColor</Color>
                 <RichTextContent>
                     <Arg>$textContent</Arg>
-                    <Arg>new Bound(10, 10, $box.w - 20, $box.h )</Arg>
-                    <Arg>$textAlign</Arg>
+                    <Arg>new Bound(10, 10, $box.w - 20, $box.h - 20 )</Arg>
+                    <Arg>new Alignment(0,0)</Arg>
                 </RichTextContent>
             </For>
         </Behaviors>
