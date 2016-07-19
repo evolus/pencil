@@ -51,7 +51,6 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
             }
             var handler = this.getHandler(node.localName) || this.defaultBlockHandler;
             var blockLayouts = handler.call(this, node, childView, layouts);
-            // console.log("BLOCK" , blockLayouts);
             if (blockLayouts && blockLayouts.length > 0) {
                 layouts = layouts.concat(blockLayouts);
             }
@@ -213,7 +212,6 @@ SVGHTMLRenderer.LIST_HANDLER = function (node, view) {
 
 SVGHTMLRenderer.HANDLERS = {
     div: function (node, view) {
-        if (!this.canUpdate) this.canUpdate = false;
         return this.layout(node.childNodes, view);
     },
     span: function (node, view) {
@@ -311,15 +309,7 @@ SVGHTMLRenderer.prototype.render = function (nodes, container, view) {
         container.appendChild(target);
     }
     for (var layout of layouts) {
-        if (this.canUpdate == false) {
-            layout.renderInto(target);
-        } else {
-            var align = {
-                vAlign: this.vAlign,
-                hAlign: this.hAlign
-            }
-            layout.renderInto(target, align);
-        }
+        layout.renderInto(target);
     }
 };
 
@@ -505,15 +495,10 @@ SVGTextLayout.prototype._appendSegment = function (text, styles, bbox) {
     this.currentRow.baselineShift = Math.max(this.currentRow.baselineShift, 0 - segment.dy);
 };
 
-SVGTextLayout.prototype.renderInto = function (container, align) {
+SVGTextLayout.prototype.renderInto = function (container) {
     var x = this.x;
     var y = this.y;
-    var hAlign;
-    if (align) {
-        hAlign = align.hAlign || 0;
-    } else {
-        hAlign = this.hAlign || 0;
-    }
+    var hAlign = this.hAlign || 0;
     var vAlign = (typeof(this.height) == "number") ? this.vAlign || 0 : 0;
     var dy = 0;
     if (vAlign > 0) {

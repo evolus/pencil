@@ -349,10 +349,9 @@
             </PropertyGroup>
             <PropertyGroup name="Message Texts">
                 <Property name="messageContent" displayName="Message Content"
-                     p:editInfo="({targetName: 'messageClipPathRect', bound: new Bound(100, 60, $box.w - 105, ($box.h / 2) - 30), font: $textFont, align: $messageTextAlign, multi: true})"
+                     p:editInfo="({targetName: 'messageClipPathRect', bound: new Bound(100, 60, $box.w - 105, ($box.h / 2) - 30), font: $textFont, align: new Alignment(0,0), multi: true})"
                      type="RichText"><![CDATA[Secrevit  fontes liquidum locoque pronaque?
 <br xmlns="http://www.w3.org/1999/xhtml" /><br xmlns="http://www.w3.org/1999/xhtml" /><span style="font-weight: normal;">Illas semine campoque declivia oppida corpora nam inter fuit discordia tellus solidumque iunctarum erat: quae terrenae ubi rerum recessit iudicis aestu fixo</span>]]></Property>
-                <Property name="messageTextAlign" displayName="Message Text Align" type="Alignment">0,0</Property>
             </PropertyGroup>
             <PropertyGroup name="Button">
                 <Property name="btnStrokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
@@ -452,7 +451,7 @@
                     <Arg>
                         new Bound(100, 60, $box.w - 105, $box.h - 150)
                     </Arg>
-                    <Arg>$messageTextAlign</Arg>
+                    <Arg>new Alignment(0,0)</Arg>
                 </RichTextContent>
             </For>
 
