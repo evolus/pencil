@@ -326,7 +326,6 @@
                 <Property name="withCloseButton" displayName="With Close Button" type="Bool">true</Property>
                 <Property name="disabled" displayName="Inactive" type="Bool">false</Property>
                 <Property name="type" displayName="Type"
-                    parent="question|btn1,question|btn2,warning|btn1,info|btn1"
                     type="Enum" p:enumValues="['question|Question','warning|Warning','info|Info']">question</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
@@ -350,19 +349,19 @@
             <PropertyGroup name="Message Texts">
                 <Property name="messageContent" displayName="Message Content"
                      p:editInfo="({targetName: 'messageClipPathRect', bound: new Bound(100, 60, $box.w - 105, ($box.h / 2) - 30), font: $textFont, align: new Alignment(0,0), multi: true})"
-                     type="RichText"><![CDATA[Secrevit  fontes liquidum locoque pronaque?
-<br xmlns="http://www.w3.org/1999/xhtml" /><br xmlns="http://www.w3.org/1999/xhtml" /><span style="font-weight: normal;">Illas semine campoque declivia oppida corpora nam inter fuit discordia tellus solidumque iunctarum erat: quae terrenae ubi rerum recessit iudicis aestu fixo</span>]]></Property>
+                     type="RichText"><![CDATA[<div>Secrevit  fontes liquidum locoque pronaque?
+<br xmlns="http://www.w3.org/1999/xhtml" /><br xmlns="http://www.w3.org/1999/xhtml" /><span style="font-weight: normal;">Illas semine campoque declivia oppida corpora nam inter fuit discordia tellus solidumque iunctarum erat: quae terrenae ubi rerum recessit iudicis aestu fixo</span></div>]]></Property>
             </PropertyGroup>
             <PropertyGroup name="Button">
-                <Property name="btnStrokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
-                <Property name="btnStrokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
-                <Property name="btnAlign" displayName="Button Text Alignment" type="Alignment">1,1</Property>
-
-                <Property name="btn2FillColor" childName="btn2" displayName="Button Background Color #2" type="Color"><E>$$fillColor.shaded(0)</E></Property>
-                <Property name="btn2Text" childName="btn2" displayName="Button Content #2" type="PlainText"><![CDATA[Cancel]]></Property>
-
-                <Property name="btn1FillColor" childName="btn1" displayName="Button Background Color #1" type="Color"><E>$$fillColor.shaded(0.2)</E></Property>
-                <Property name="btn1Text" childName="btn1" displayName="Button Content #1" type="PlainText"><![CDATA[OK]]></Property>
+                <Property name="primaryButton" displayName="Primary Button"
+                    reload="true"
+                    p:disabled="!($type.value == 'question')"
+                    type="Enum" p:enumValues="['btn2|Button #2','btn1|Button #1']">btn1</Property>
+                <Property name="btn2Text"
+                    reload="true"
+                    p:disabled="!($type.value == 'question')"
+                    displayName="Button Content #2" type="PlainText"><![CDATA[Cancel]]></Property>
+                <Property name="btn1Text" displayName="Button Content #1" type="PlainText"><![CDATA[OK]]></Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -475,9 +474,11 @@
                 </D>
              </For>
             <For ref="rectBtn1">
-                <Fill>$btn1FillColor</Fill>
-                <StrokeColor>$btnStrokeColor</StrokeColor>
-                <StrokeStyle>$btnStrokeStyle</StrokeStyle>
+                <Fill>
+                    $primaryButton.value == "btn1" ? $fillColor.shaded(0.2) : $fillColor.shaded(0);
+                </Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
              </For>
              <For ref="btnText1">
                  <TextContent>$btn1Text</TextContent>
@@ -485,7 +486,7 @@
                  <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
                  <BoxFit>
                      <Arg>new Bound($box.w - 150, $box.h - 65, 117, 40)</Arg>
-                     <Arg>$btnAlign</Arg>
+                     <Arg>new Alignment(1,1)</Arg>
                  </BoxFit>
              </For>
              <For ref="line1">
@@ -510,9 +511,11 @@
                   </D>
                </For>
              <For ref="rectBtn2">
-                 <Fill>$btn2FillColor</Fill>
-                 <StrokeColor>$btnStrokeColor</StrokeColor>
-                 <StrokeStyle>$btnStrokeStyle</StrokeStyle>
+                 <Fill>
+                     $primaryButton.value == "btn2" ? $fillColor.shaded(0.2) : $fillColor.shaded(0);
+                 </Fill>
+                 <StrokeColor>$strokeColor</StrokeColor>
+                 <StrokeStyle>$strokeStyle</StrokeStyle>
                  <Visibility>$type.value == "question"</Visibility>
               </For>
               <For ref="btnText2">
@@ -526,7 +529,7 @@
                   <Visibility>$type.value == "question"</Visibility>
                   <BoxFit>
                       <Arg>new Bound($box.w - 300, $box.h - 65, 117, 40)</Arg>
-                      <Arg>$btnAlign</Arg>
+                      <Arg>new Alignment(1,1)</Arg>
                   </BoxFit>
               </For>
         </Behaviors>
@@ -887,6 +890,8 @@
         <Properties>
             <PropertyGroup>
                 <Property name="box" displayName="Size" type="Dimension">20,428</Property>
+                <Property name="thumbBegin" displayName="Thumb start position" type="Handle" p:lockX="true" p:minY="20" p:maxY="$thumbEnd.y - 20" p:disabled="$disabled.value">10,20</Property>
+                <Property name="thumbEnd" displayName="Thumb end position" type="Handle" p:lockX="true" p:minY="$thumbBegin.y + 20" p:maxY="$box.h - 23.5" p:disabled="$disabled.value">10,100</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
                 <Property name="fillColor" displayName="Background Color" type="Color">#F5F5F5</Property>
@@ -918,9 +923,9 @@
                     var w = parseInt(strokeW);
                     w/=2;
                   [
-                    skline(w,30, $box.w - w ,30),
-                    sklineTo( $box.w - w, $box.h / 3),
-                    sklineTo( w,$box.h / 3),
+                    skline(w,$thumbBegin.y, $box.w - w ,$thumbBegin.y),
+                    sklineTo( $box.w - w, $thumbEnd.y),
+                    sklineTo( w,$thumbEnd.y),
                     z
                   ]
                 </D>
@@ -957,6 +962,8 @@
         <Properties>
             <PropertyGroup>
                 <Property name="box" displayName="Size" type="Dimension">428,20</Property>
+                <Property name="thumbBegin" displayName="Thumb start position" type="Handle" p:lockY="true" p:minX="15" p:maxX="$thumbEnd.x">15,10</Property>
+                <Property name="thumbEnd" displayName="Thumb end position" type="Handle" p:lockY="true" p:minX="$thumbBegin.x" p:maxX="$box.w - 20">100,10</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
                 <Property name="fillColor" displayName="Background Color" type="Color">#F5F5F5</Property>
@@ -987,9 +994,9 @@
                     var w = parseInt(strokeW);
                     w/=2;
                   [
-                    skline(30,w, $box.w / 3 ,w),
-                    sklineTo( $box.w / 3, $box.h - w),
-                    sklineTo( 30,$box.h - w),
+                    skline($thumbBegin.x,w, $thumbEnd.x ,w),
+                    sklineTo( $thumbEnd.x, $box.h - w),
+                    sklineTo( $thumbBegin.x,$box.h - w),
                     z
                   ]
                 </D>

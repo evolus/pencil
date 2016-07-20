@@ -345,8 +345,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
             property.name = propNode.getAttribute("name");
             property.displayName = propNode.getAttribute("displayName");
 
-			if(propNode.getAttribute("parent")) property.parent = propNode.getAttribute("parent");
-			if(propNode.getAttribute("childName")) property.childName = propNode.getAttribute("childName");
+			if(propNode.getAttribute("reload")) property.reload = propNode.getAttribute("reload");
 
             var type = propNode.getAttribute("type");
             try {

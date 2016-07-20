@@ -31,7 +31,7 @@ SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
                 node._combinedValue = node.nodeValue || "";
                 inlines.push(node)
             }
-        } else if (this.isInline(node) && node.childNodes.length <= 1) {
+        } else if (this.isInline(node)) {
             inlines.push(node);
         } else {
             var childView = {
@@ -214,9 +214,9 @@ SVGHTMLRenderer.HANDLERS = {
     div: function (node, view) {
         return this.layout(node.childNodes, view);
     },
-    span: function (node, view) {
-        return this.layout(node.childNodes, view);
-    },
+    // span: function (node, view) {
+    //     return this.layout(node.childNodes, view);
+    // },
     p: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
     h1: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
     h2: SVGHTMLRenderer.COMMON_HEADING_HANDLER,
