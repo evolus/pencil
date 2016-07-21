@@ -20,7 +20,8 @@ SharedPropertyEditor.prototype.setup = function () {
 
         var propertyName = editor._property.name;
         thiz.target.setProperty(propertyName, thiz.propertyEditor[propertyName].getValue());
-        thiz.renderPropertyUI();
+
+        thiz.validationEditorUI();
     }, false);
     this.propertyContainer.style.display = "none";
 };
@@ -37,16 +38,16 @@ SharedPropertyEditor.prototype.sizeChanged = function (expanded) {
 		this.pendingTarget = null;
 	}
 }
-SharedPropertyEditor.prototype.renderPropertyUI = function() {
-    if (!this.reloadProp) return ;
+SharedPropertyEditor.prototype.validationEditorUI = function() {
+    if (!this.validationEditor) return ;
 
-    for (var i = 0; i < this.reloadProp.length; i++) {
-        this.reloadProp[i].style.display = "none";
-        var name = this.reloadProp[i]._property.name;
+    for (var i = 0; i < this.validationEditor.length; i++) {
+        this.validationEditor[i].style.display = "none";
+        var name = this.validationEditor[i]._property.name;
         var meta = this.target.def.propertyMap[name].meta["disabled"];
         var value = this.target.evalExpression(meta, true);
-        
-        if (!value) this.reloadProp[i].style.display = "inherit";
+
+        if (!value) this.validationEditor[i].style.display = "inherit";
     }
 }
 
@@ -65,7 +66,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
     }
 
     var definedGroups = target.getPropertyGroups();
-    if (this.reloadProp) this.reloadProp = null;
+    if (this.validationEditor) this.validationEditor = null;
 
     this.target = target;
 
@@ -130,7 +131,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
         if (properties.length == 0) {
             thiz.propertyContainer.style.display = "flex";
             thiz.propertyContainer.style.opacity = "1";
-            thiz.renderPropertyUI();
+            thiz.validationEditorUI();
             return;
         }
 
@@ -186,8 +187,8 @@ SharedPropertyEditor.prototype.attach = function (target) {
         editorWrapper._property = property;
 
         if (property.reload) {
-            if (!thiz.reloadProp) thiz.reloadProp = [];
-            thiz.reloadProp.push(editorWrapper);
+            if (!thiz.validationEditor) thiz.validationEditor = [];
+            thiz.validationEditor.push(editorWrapper);
             editorWrapper.style.display = "none";
         }
         currentGroupNode.appendChild(editorWrapper);
