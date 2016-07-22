@@ -1055,7 +1055,7 @@
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property displayName="Mounth Content" name="monthContent"
-                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0,$box.w - 60,(($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: true})" type="PlainText"><![CDATA[AUG - 2016]]></Property>
+                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0,$box.w - 60,(($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: false})" type="PlainText"><![CDATA[AUG - 2016]]></Property>
                 <Property name="textFont" displayName="Default Font" type="Font">'Arial'|normal|normal|15px</Property>
                 <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
                 <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
