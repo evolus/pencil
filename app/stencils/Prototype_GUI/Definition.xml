@@ -356,7 +356,7 @@
                 <Property name="primaryButton" displayName="Primary Button"
                     reload="true"
                     p:disabled="!($type.value == 'question')"
-                    type="Enum" p:enumValues="['btn2|Button #2','btn1|Button #1']">btn1</Property>
+                    type="Enum" p:enumValues="['btn1|Button #1','btn2|Button #2']">btn1</Property>
 
                 <Property name="btn1Text" displayName="Button Content #1" type="PlainText"><![CDATA[OK]]></Property>
                 <Property name="btn2Text"
@@ -1048,64 +1048,34 @@
                 <Property name="pickDay" displayName="Selected Day" type="Enum"
                     p:enumValues="['1 | 1', '2 | 2', '3|3', '4|4', '5|5', '6|6', '7|7', '8|8', '9|9', '10|10',
                      '11 | 11', '12|12', '13|13', '14|14', '15|15', '16|16', '17|17', '18|18', '19|19', '20|20',
-                     '21 | 21', '22|22', '23|23', '24|24', '25|25', '26|26', '27|27', '28|28', '29|29', '30|30']">7</Property>
+                     '21 | 21', '22|22', '23|23', '24|24', '25|25', '26|26', '27|27', '28|28', '29|29', '30|30', '31|31']">7</Property>
                 <Property name="dayFillColor" displayName="Background Color" type="Color">#000</Property>
                 <Property name="dayStrokeStyle" displayName="Border Style" type="StrokeStyle">1|</Property>
                 <Property name="dayStrokeColor" displayName="Border Color" type="Color">#000</Property>
-                <Property displayName="Day Content #1" name="day1" type="PlainText"><![CDATA[29]]></Property>
-                <Property displayName="Day Content #2" name="day2" type="PlainText"><![CDATA[30]]></Property>
-                <Property displayName="Day Content #3" name="day3" type="PlainText"><![CDATA[31]]></Property>
-                <Property displayName="Day Content #4" name="day4" type="PlainText"><![CDATA[1]]></Property>
-                <Property displayName="Day Content #5" name="day5" type="PlainText"><![CDATA[2]]></Property>
-                <Property displayName="Day Content #6" name="day6" type="PlainText"><![CDATA[3]]></Property>
-                <Property displayName="Day Content #7" name="day7" type="PlainText"><![CDATA[4]]></Property>
-                <Property displayName="Day Content #8" name="day8" type="PlainText"><![CDATA[5]]></Property>
-                <Property displayName="Day Content #9" name="day9" type="PlainText"><![CDATA[6]]></Property>
-                <Property displayName="Day Content #10" name="day10" type="PlainText"><![CDATA[7]]></Property>
-                <Property displayName="Day Content #11" name="day11" type="PlainText"><![CDATA[8]]></Property>
-                <Property displayName="Day Content #12" name="day12" type="PlainText"><![CDATA[9]]></Property>
-                <Property displayName="Day Content #13" name="day13" type="PlainText"><![CDATA[10]]></Property>
-                <Property displayName="Day Content #14" name="day14" type="PlainText"><![CDATA[11]]></Property>
-                <Property displayName="Day Content #15" name="day15" type="PlainText"><![CDATA[12]]></Property>
-                <Property displayName="Day Content #16" name="day16" type="PlainText"><![CDATA[13]]></Property>
-                <Property displayName="Day Content #17" name="day17" type="PlainText"><![CDATA[14]]></Property>
-                <Property displayName="Day Content #18" name="day18" type="PlainText"><![CDATA[15]]></Property>
-                <Property displayName="Day Content #19" name="day19" type="PlainText"><![CDATA[16]]></Property>
-                <Property displayName="Day Content #20" name="day20" type="PlainText"><![CDATA[17]]></Property>
-                <Property displayName="Day Content #21" name="day21" type="PlainText"><![CDATA[18]]></Property>
-                <Property displayName="Day Content #22" name="day22" type="PlainText"><![CDATA[19]]></Property>
-                <Property displayName="Day Content #23" name="day23" type="PlainText"><![CDATA[20]]></Property>
-                <Property displayName="Day Content #24" name="day24" type="PlainText"><![CDATA[21]]></Property>
-                <Property displayName="Day Content #25" name="day25" type="PlainText"><![CDATA[22]]></Property>
-                <Property displayName="Day Content #26" name="day26" type="PlainText"><![CDATA[23]]></Property>
-                <Property displayName="Day Content #27" name="day27" type="PlainText"><![CDATA[24]]></Property>
-                <Property displayName="Day Content #28" name="day28" type="PlainText"><![CDATA[25]]></Property>
-                <Property displayName="Day Content #29" name="day29" type="PlainText"><![CDATA[26]]></Property>
-                <Property displayName="Day Content #30" name="day30" type="PlainText"><![CDATA[27]]></Property>
-                <Property displayName="Day Content #31" name="day31" type="PlainText"><![CDATA[28]]></Property>
-                <Property displayName="Day Content #32" name="day32" type="PlainText"><![CDATA[29]]></Property>
-                <Property displayName="Day Content #33" name="day33" type="PlainText"><![CDATA[30]]></Property>
-                <Property displayName="Day Content #34" name="day34" type="PlainText"><![CDATA[1]]></Property>
-                <Property displayName="Day Content #35" name="day35" type="PlainText"><![CDATA[2]]></Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property displayName="Text Content" name="textContent"
-                    p:editInfo="({targetName: 'month', bound: new bound(20, 0,$box.w - 30,(($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: true})" type="PlainText"><![CDATA[Jun - 2016]]></Property>
+                <Property displayName="Mounth Content" name="monthContent"
+                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0,$box.w - 60,(($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: true})" type="PlainText"><![CDATA[AUG - 2016]]></Property>
                 <Property name="textFont" displayName="Default Font" type="Font">'Arial'|normal|normal|15px</Property>
                 <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
                 <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Date Style">
+                <Property name="start" displayName="Start Date" type="Enum"
+                    p:enumValues="['monday|Monday','sunday|Sunday']">sunday</Property>
                 <Property name="dateTextColor" displayName="Date Color" type="Color"><E>$$textColor</E></Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
             <For ref="shadownBox">
                 <D>
+                    var index = ($strokeStyle.toString()).indexOf("|");
+                    var w = parseInt(($strokeStyle.toString()).substring(0,index));
+                    w/=2;
                   [
-                    skline(5, 5, $box.w + 5, 5),
-                    sklineTo($box.w + 5 , $box.h + 5),
-                    sklineTo(5, $box.h + 5),
+                    skline(5, 5, $box.w + 5 + w, 5),
+                    sklineTo($box.w + 5 + w, $box.h + 5 + w),
+                    sklineTo(5, $box.h + 5 + w),
                     z
                   ]
                 </D>
@@ -1143,26 +1113,17 @@
                 </D>
             </For>
             <For ref="month">
-                <TextContent>$textContent</TextContent>
+                <TextContent>$monthContent</TextContent>
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
                 <BoxFit>
-                    <Arg>new Bound(30, 0,$box.w - 60,(($box.h - 6) / 7))</Arg>
+                    <Arg>
+                        new Bound(30, 0,$box.w - 60,(($box.h - 6) / 7))
+                    </Arg>
                     <Arg>$textAlign</Arg>
                 </BoxFit>
             </For>
 
-            <For ref="date">
-                <D>
-                     var arr = new Array();
-                     var boxW = ($box.w - 20) / 7;
-                     var boxH = (($box.h - 12) / 7);
-                     var left = 10;
-                     var top = boxH;
-                     calendarDraw(left, top, boxW, boxH, 1,7);
-                </D>
-            </For>
-
             <For ref="Sun">
                 <Font>
                     var fontString = $textFont.toString();
@@ -1173,8 +1134,13 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10, boxH,boxW, boxH);
+                        var boxH =($box.h - 12) / 7;
+                        var x = 10;
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 6);
+                        }
+                        new Bound(x, boxH,boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
@@ -1189,8 +1155,13 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + boxW, boxH,boxW, boxH);
+                        var boxH = ($box.h - 12) / 7;
+                        var x = (10 + boxW);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10;
+                        }
+                        new Bound(x, boxH,boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
@@ -1205,8 +1176,13 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 2), boxH,boxW, boxH);
+                        var boxH = ($box.h - 12) / 7;
+                        var x = 10 + (boxW * 2);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + boxW;
+                        }
+                        new Bound(x, boxH,boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
@@ -1221,8 +1197,13 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 3), boxH,boxW, boxH);
+                        var boxH = ($box.h - 12) / 7;
+                        var x = 10 + (boxW * 3);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 2);
+                        }
+                        new Bound(x, boxH,boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
@@ -1237,8 +1218,13 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 4), boxH,boxW, boxH);
+                        var boxH = ($box.h - 12) / 7;
+                        var x = 10 + (boxW * 4);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 3);
+                        }
+                        new Bound(x, boxH,boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
@@ -1253,8 +1239,13 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 5), boxH,boxW, boxH);
+                        var boxH = ($box.h - 12) / 7;
+                        var x = 10 + (boxW * 5);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 4);
+                        }
+                        new Bound(x, boxH,boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
@@ -1269,130 +1260,47 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 6), boxH,boxW, boxH);
+                        var boxH = ($box.h - 12) / 7;
+                        var x = 10 + (boxW * 6);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 5);
+                        }
+                        new Bound(x, boxH,boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-
-            <For ref="Sun">
-                <Font>
-                    var fontString = $textFont.toString();
-                    var font = fontString.replace("normal|normal","bold|normal").replace("normal|italic","bold|italic");
-                    Font.fromString(font);
-                </Font>
-                <Color>$dateTextColor</Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10, boxH,boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="Mon">
-                <Font>
-                    var fontString = $textFont.toString();
-                    var font = fontString.replace("normal|normal","bold|normal").replace("normal|italic","bold|italic");
-                    Font.fromString(font);
-                </Font>
-                <Color>$dateTextColor</Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + boxW, boxH,boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="Thu">
-                <Font>
-                    var fontString = $textFont.toString();
-                    var font = fontString.replace("normal|normal","bold|normal").replace("normal|italic","bold|italic");
-                    Font.fromString(font);
-                </Font>
-                <Color>$dateTextColor</Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 2), boxH,boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="Wed">
-                <Font>
-                    var fontString = $textFont.toString();
-                    var font = fontString.replace("normal|normal","bold|normal").replace("normal|italic","bold|italic");
-                    Font.fromString(font);
-                </Font>
-                <Color>$dateTextColor</Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 3), boxH,boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="Thi">
-                <Font>
-                    var fontString = $textFont.toString();
-                    var font = fontString.replace("normal|normal","bold|normal").replace("normal|italic","bold|italic");
-                    Font.fromString(font);
-                </Font>
-                <Color>$dateTextColor</Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 4), boxH,boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="Fri">
-                <Font>
-                    var fontString = $textFont.toString();
-                    var font = fontString.replace("normal|normal","bold|normal").replace("normal|italic","bold|italic");
-                    Font.fromString(font);
-                </Font>
-                <Color>$dateTextColor</Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 5), boxH,boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="Sat">
-                <Font>
-                    var fontString = $textFont.toString();
-                    var font = fontString.replace("normal|normal","bold|normal").replace("normal|italic","bold|italic");
-                    Font.fromString(font);
-                </Font>
-                <Color>$dateTextColor</Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 7);
-                        new Bound(10 + (boxW * 6), boxH,boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-
             <For ref="1">
-                <TextContent>$day1</TextContent>
+                <TextContent>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color>Color.fromString("#CC0000").hollowed(0.5)</Color>
+                <Color>
+                    var color;
+                    if ($start.value == "sunday") {
+                        color = Color.fromString("#CC0000");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay = 1;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1402,10 +1310,70 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
+            <For ref="Con1">
+                <D>
+                    var boxW =(($box.w - 20) / 7);
+                    var boxH = (($box.h - 12) / 7);
+                    var x = 13;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x , y, x + boxW - 6 , y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay = 1;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                     $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay = 1;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
             <For ref="2">
-                <TextContent>$day2</TextContent>
+                <TextContent>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color>Color.fromString("#000").hollowed(0.5)</Color>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1415,10 +1383,70 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
+            <For ref="Con2">
+                <D>
+                    var boxW =(($box.w - 20) / 7);
+                    var boxH = (($box.h - 12) / 7);
+                    var x = (10 + boxW) + 3;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x , y, x + boxW - 6 , y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                    $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
             <For ref="3">
-                <TextContent>$day3</TextContent>
+                <TextContent>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color>Color.fromString("#000").hollowed(0.5)</Color>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1428,8 +1456,70 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
+            <For ref="Con3">
+                <D>
+                    var boxW =(($box.w - 20) / 7);
+                    var boxH = (($box.h - 12) / 7);
+                    var x = (10 + (boxW * 2)) + 3;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x , y, x + boxW - 6 , y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                    $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+
             <For ref="4">
-                <TextContent>$day4</TextContent>
+                <TextContent>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -1453,14 +1543,58 @@
                         z
                     ]
                 </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 1 ? 0.77 : 0.97)</Fill>
+                <StrokeColor>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                 $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="5">
-                <TextContent>$day5</TextContent>
+                <TextContent>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1483,14 +1617,63 @@
                         z
                     ]
                 </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 2 ? 0.77 : 0.97)</Fill>
+                <StrokeColor>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                    $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="6">
-                <TextContent>$day6</TextContent>
+                <TextContent>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    var color;
+                    if ($start.value == "monday") {
+                        color = Color.fromString("#4166B5");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1513,15 +1696,55 @@
                         z
                     ]
                 </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 3 ? 0.77 : 0.97)</Fill>
+                <StrokeColor>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                     $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,1)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="7">
-                <TextContent>$day7</TextContent>
+                <TextContent>
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,2);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,1);
+                    }
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color> Color.fromString("#4166B5")</Color>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#4166B5");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1546,13 +1769,41 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 4 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,2);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,1);
+                    }
+
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="8">
-                <TextContent>$day8</TextContent>
+                <TextContent>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color>Color.fromString("#CC0000")</Color>
+                <Color>
+                    if ($start.value == "sunday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1577,11 +1828,25 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 5 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="9">
-                <TextContent>$day9</TextContent>
+                <TextContent>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -1607,11 +1872,25 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 6 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="10">
-                <TextContent>$day10</TextContent>
+                <TextContent>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -1637,11 +1916,26 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 7 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="11">
-                <TextContent>$day11</TextContent>
+                <TextContent>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -1667,11 +1961,26 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 8 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+
+                </Fill>
             </For>
 
             <For ref="12">
-                <TextContent>$day12</TextContent>
+                <TextContent>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -1697,12 +2006,34 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 9 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+
+                </Fill>
             </For>
 
             <For ref="13">
-                <TextContent>$day13</TextContent>
+                <TextContent>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#4166B5");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1727,13 +2058,37 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 10 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,2)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+
+                </Fill>
             </For>
 
             <For ref="14">
-                <TextContent>$day14</TextContent>
+                <TextContent>
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,3);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,2);
+                    }
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color> Color.fromString("#4166B5")</Color>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#4166B5");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1758,13 +2113,41 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 11 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,3);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,2);
+                    }
+
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="15">
-                <TextContent>$day15</TextContent>
+                <TextContent>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color>Color.fromString("#CC0000")</Color>
+                <Color>
+                    if ($start.value == "sunday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1789,11 +2172,25 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 12 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="16">
-                <TextContent>$day16</TextContent>
+                <TextContent>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3);
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -1819,11 +2216,25 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 13 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="17">
-                <TextContent>$day17</TextContent>
+                <TextContent>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3);
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -1849,10 +2260,24 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 14 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
             <For ref="18">
-                <TextContent>$day18</TextContent>
+                <TextContent>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3);
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -1878,11 +2303,25 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 15 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+            </Fill>
             </For>
 
             <For ref="19">
-                <TextContent>$day19</TextContent>
+                <TextContent>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3);
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -1908,12 +2347,33 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 16 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+            </Fill>
             </For>
 
             <For ref="20">
-                <TextContent>$day20</TextContent>
+                <TextContent>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3);
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#4166B5");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1938,13 +2398,36 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 17 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,3);
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="21">
-                <TextContent>$day21</TextContent>
+                <TextContent>
+                    var block ;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,4);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,3);
+                    }
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color> Color.fromString("#4166B5")</Color>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#4166B5");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -1969,13 +2452,41 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 18 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,4);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,3);
+                    }
+
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="22">
-                <TextContent>$day22</TextContent>
+                <TextContent>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color>Color.fromString("#CC0000")</Color>
+                <Color>
+                    if ($start.value == "sunday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -2000,11 +2511,25 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 19 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="23">
-                <TextContent>$day23</TextContent>
+                <TextContent>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -2030,11 +2555,25 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 20 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="24">
-                <TextContent>$day24</TextContent>
+                <TextContent>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -2060,11 +2599,25 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 21 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="25">
-                <TextContent>$day25</TextContent>
+                <TextContent>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -2090,11 +2643,25 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 22 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="26">
-                <TextContent>$day26</TextContent>
+                <TextContent>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -2120,12 +2687,33 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 23 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="27">
-                <TextContent>$day27</TextContent>
+                <TextContent>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#4166B5");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -2150,13 +2738,36 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 24 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,4)
+                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
             </For>
 
             <For ref="28">
-                <TextContent>$day28</TextContent>
+                <TextContent>
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,5);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,4);
+                    }
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color> Color.fromString("#4166B5")</Color>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#4166B5");
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -2181,13 +2792,52 @@
                 </D>
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 25 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,5);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,4);
+                    }
+
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="29">
-                <TextContent>$day29</TextContent>
+                <TextContent>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
-                <Color>Color.fromString("#CC0000")</Color>
+                <Color>
+                    var color;
+                    if ($start.value == "sunday") {
+                        color = Color.fromString("#CC0000");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -2210,14 +2860,56 @@
                         z
                     ]
                 </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeColor>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 26 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 0;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="30">
-                <TextContent>$day30</TextContent>
+                <TextContent>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -2240,14 +2932,56 @@
                         z
                     ]
                 </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeColor>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 27 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 1;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="31">
-                <TextContent>$day31</TextContent>
+                <TextContent>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -2270,14 +3004,56 @@
                         z
                     ]
                 </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeColor>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 28 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 2;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="32">
-                <TextContent>$day32</TextContent>
+                <TextContent>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -2300,14 +3076,56 @@
                         z
                     ]
                 </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeColor>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 29 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 3;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="33">
-                <TextContent>$day33</TextContent>
+                <TextContent>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -2330,14 +3148,62 @@
                         z
                     ]
                 </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeColor>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>$dayFillColor.hollowed($pickDay.value == 30 ? 0.77 : 0.97)</Fill>
+                <Fill>
+                    var tDay = 4;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
             </For>
 
             <For ref="34">
-                <TextContent>$day34</TextContent>
+                <TextContent>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
+                <Color>
+                    var color;
+                    if ($start.value == "monday") {
+                        color = Color.fromString("#4166B5");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
@@ -2346,11 +3212,59 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-                <Color>Color.fromString("#000").hollowed(0.5)</Color>
             </For>
 
+            <For ref="Con34">
+                <D>
+                    var boxW =(($box.w - 20) / 7);
+                    var boxH = (($box.h - 12) / 7);
+                    var x = (10 + (boxW * 5)) + 3;
+                    var y = (boxH * 6) + 3;
+                    [
+                        skline(x , y, x + boxW - 6 , y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block = dayReturn($monthContent.toString(),tDay,5)
+                    if (block["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
             <For ref="35">
-                <TextContent>$day35</TextContent>
+                <TextContent>
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,6);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,5);
+                    }
+                    PlainText.fromString(block["value"]);
+                </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
                     <Arg>
@@ -2360,7 +3274,76 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-                <Color> Color.fromString("#4166B5").hollowed(0.5)</Color>
+                <Color>
+                    var color;
+                    if ($start.value == "monday") {
+                        color = Color.fromString("#CC0000");
+                    } else {
+                        color = Color.fromString("#4166B5");
+                    }
+                    var tDay = 5;
+                    if ($start.value == "monday") {
+                        tDay++;
+                    }
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,6);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,5);
+                    }
+
+                    if (block["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+            </For>
+            <For ref="Con35">
+                <D>
+                    var boxW =(($box.w - 20) / 7);
+                    var boxH = (($box.h - 12) / 7);
+                    var x = (10 + (boxW * 6)) + 3;
+                    var y = (boxH * 6) + 3;
+                    [
+                        skline(x , y, x + boxW - 6 , y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var block;
+                    if ($start.value == "monday") {
+                        var tDay = 0;
+                        block = dayReturn($monthContent.toString(),tDay,6);
+                    }else {
+                        var tDay = 6;
+                        block = dayReturn($monthContent.toString(),tDay,5);
+                    }
+                    if ( block["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>var block;
+                if ($start.value == "monday") {
+                    var tDay = 0;
+                    block = dayReturn($monthContent.toString(),tDay,6);
+                }else {
+                    var tDay = 6;
+                    block = dayReturn($monthContent.toString(),tDay,5);
+                }
+
+                if (block["disabled"]) {
+                    $dayFillColor.hollowed(1);
+                } else {
+                    $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                }</Fill>
             </For>
         </Behaviors>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
@@ -2369,7 +3352,6 @@
             <path id="arrowLeft" style="fill: #686868; stroke:#686868; stroke-linejoin: round;" />
             <path id="arrowRight" style="fill: #686868; stroke:#686868; stroke-linejoin: round;" />
             <text id="month" />
-            <path id="date" style="fill:none"/>
 
             <text id="Sun">S</text>
             <text id="Mon">M</text>
@@ -2377,11 +3359,13 @@
             <text id="Wed">W</text>
             <text id="Thi">T</text>
             <text id="Fri">F</text>
-            <text id="Sat">S</text>
+            <text id="Sat">Sa</text>
 
-
+            <path id="Con1"/>
             <text id="1"></text>
+            <path id="Con2"/>
             <text id="2"></text>
+            <path id="Con3"/>
             <text id="3"></text>
             <path id="Con4"/>
             <text id="4"></text>
@@ -2443,7 +3427,9 @@
             <text id="32"></text>
             <path id="Con33"/>
             <text id="33"></text>
+            <path id="Con34"/>
             <text id="34"></text>
+            <path id="Con35"/>
             <text id="35"></text>
         </p:Content>
     </Shape>
