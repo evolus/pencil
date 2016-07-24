@@ -107,8 +107,8 @@ SettingDialog.prototype.updateConfigAndInvalidateUI = function (configName, valu
             }
         }
         checkBox.checked = value;
-        this.setPreferenceItems();
     }
+    this.setPreferenceItems();
 }
 
 SettingDialog.prototype.setup = function () {

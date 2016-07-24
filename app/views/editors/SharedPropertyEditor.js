@@ -2,6 +2,7 @@ function SharedPropertyEditor() {
     BaseTemplatedWidget.call(this);
     Pencil.registerSharedEditor(this);
     this.canAttach = true;
+    //ToolBar.setupFocusHandling(this.node());
 }
 __extend(BaseTemplatedWidget, SharedPropertyEditor);
 

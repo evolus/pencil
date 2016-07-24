@@ -4,6 +4,7 @@
 @import "bootstrap-fix.less";
 @import "../lib/font-awesome-4.4.0/less/font-awesome.less";
 */
+@import "../lib/mdi/css/materialdesignicons.min.css";
 .hbox {
   flex-direction: row;
   display: flex;
@@ -150,7 +151,6 @@ body {
   right: 0px;
   top: 46%;
   text-align: center;
-
   opacity: 0;
   animation: pulsate 1s ease-out;
   animation-iteration-count: infinite;
@@ -160,6 +160,40 @@ body[loaded] #appView {
 }
 body[loaded] #bootingIndicator {
   display: none;
+}
+@keyframes loading {
+  from {
+    left: -100px;
+    width: 30%;
+  }
+  50% {
+    width: 30%;
+  }
+  70% {
+    width: 70%;
+  }
+  80% {
+    left: 50%;
+  }
+  95% {
+    left: 120%;
+  }
+  to {
+    left: 100%;
+  }
+}
+@keyframes pulsate {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
 }
 html {
   user-select: none;
@@ -185,25 +219,4 @@ icon {
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
   opacity: 0.54;
-}
-@keyframes loading {
-    from {left: -100px; width: 30%;}
-    50% {width: 30%;}
-    70% {width: 70%;}
-    80% { left: 50%;}
-    95% {left: 120%;}
-    to {left: 100%;}
-}
-@keyframes pulsate {
-    0% {
-      transform: scale(.7);
-      opacity: 0.0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1.1);
-      opacity: 0;
-    }
 }

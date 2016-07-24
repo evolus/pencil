@@ -39,8 +39,19 @@ __extend(Dialog, ExportDialog);
 ExportDialog.prototype.invalidateUIByExporter = function () {
     var exporter = this.exporterCombo.getSelectedItem();
     if (exporter.supportTemplating()) {
-        this.templateCombo.setItems(exporter.getTemplates());
+        var templates = exporter.getTemplates();
+        this.templateCombo.setItems(templates);
         this.templateCombo.setDisabled(false);
+
+        var defaultTemplate = null;
+        for (var template of templates) {
+            if (template.systemDefault) {
+                defaultTemplate = template;
+                break;
+            }
+        }
+
+        if (defaultTemplate) this.templateCombo.selectItem(defaultTemplate);
     } else {
         this.templateCombo.setItems([]);
         this.templateCombo.selectedItem = null;

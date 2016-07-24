@@ -269,6 +269,19 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
             }
         }
 
+        var backgroundColor = page.backgroundColor;
+        if (!backgroundColor) {
+            backgroundColor = "rgba(255, 255, 255, 0)";
+        } else {
+            backgroundColor = Color.fromString(backgroundColor.toString()).toRGBAString();
+        }
+
+        var propertyNode = pageNode.ownerDocument.createElementNS(PencilNamespaces.p, "p:Property");
+        Dom.getSingle("./p:Properties", pageNode).appendChild(propertyNode);
+
+        propertyNode.setAttribute("name", "backgroundColorRGBA");
+        propertyNode.appendChild(dom.createTextNode(backgroundColor));
+
         //ugly walkarround for Gecko d-o-e bug (https://bugzilla.mozilla.org/show_bug.cgi?id=98168)
         //we have to reparse the provided notes as XHTML and append it directly to the dom
         if (page.note) {

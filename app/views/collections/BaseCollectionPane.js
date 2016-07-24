@@ -44,6 +44,19 @@ function BaseCollectionPane() {
         thiz.filterCollections();
     }, false);
 
+
+    var ensureVisibleShapeIconsFunction = function() {
+        this.revealTimeout = null;
+        this.ensureVisibleShapeIcons();
+    }.bind(this);
+
+    this.bind("scroll", function() {
+        if (this.revealTimeout) {
+            clearTimeout(this.revealTimeout);
+        }
+        this.revealTimeout = setTimeout(ensureVisibleShapeIconsFunction, 100);
+    }, this.shapeListContainer);
+
     UICommandManager.register({
         key: "searchFocusCommand",
         shortcut: "Ctrl+F",
@@ -233,6 +246,21 @@ BaseCollectionPane.prototype.filterCollections = function () {
         this.settingButton.style.visibility = "hidden";
     }
 };
+BaseCollectionPane.prototype.ensureVisibleShapeIcons = function () {
+    var pr = this.shapeListContainer.getBoundingClientRect();
+    console.log("PR:", pr);
+    for (var i = 0; i < this.shapeList.childNodes.length; i ++) {
+        var node = this.shapeList.childNodes[i];
+        if (node._loaded) continue;
+        var cr = node.getBoundingClientRect();
+        // console.log(cr, pr);
+        if ((pr.top <= cr.top && cr.top <= (pr.top + pr.height))
+            || pr.top <= (cr.top + cr.height) && (cr.top + cr.height) <= (pr.top + pr.height)) {
+                node._iconNode.src = node._iconNode.getAttribute("data-src");
+                node._loaded = true;
+            }
+    }
+};
 BaseCollectionPane.prototype.openCollection = function (collection) {
     Dom.empty(this.shapeList);
     this.collectionIcon.innerHTML = this.getCollectionIcon(collection);
@@ -274,7 +302,8 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
                                 {
                                     _name: "img",
                                     _id: "iconImage",
-                                    src: icon
+                                    //src: "data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
+                                    "data-src": icon
                                 }
                             ]
                         },
@@ -288,17 +317,22 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         }, null, holder);
 
         node._def = def;
+        node._iconNode = holder.iconImage;
 
         this.shapeList.appendChild(node);
         // Util.setupImage(holder.iconImage, def.iconPath || def.iconData, "center-inside");
     }
 
     this.setLastUsedCollection(collection);
+    this.ensureVisibleShapeIcons();
 
     var thiz = this;
     window.setTimeout(function () {
         thiz.ensureSelectedCollectionVisible(collection);
     }, 10);
+    window.setTimeout(function () {
+        thiz.ensureVisibleShapeIcons();
+    }, 200);
 };
 
 BaseCollectionPane.prototype.ensureSelectedCollectionVisible = function (collection) {

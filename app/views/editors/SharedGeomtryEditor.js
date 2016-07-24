@@ -2,6 +2,7 @@ function SharedGeomtryEditor() {
     BaseTemplatedWidget.call(this);
     Pencil.registerSharedEditor(this);
     this.target = null;
+    ToolBar.setupFocusHandling(this.node());
 }
 __extend(BaseTemplatedWidget, SharedGeomtryEditor);
 SharedGeomtryEditor.PROPERTY_NAME = "box";
@@ -16,12 +17,24 @@ SharedGeomtryEditor.prototype.setup = function () {
     this.shapeAngle.disabled = true;
 
     var thiz = this;
-    this.container.addEventListener("click", function (event) {
-        thiz.handleCommandEvent();
-    }, false);
+
+
     this.container.addEventListener("input", function (event) {
+        if (event.target != thiz.shapeAngle)
         thiz.handleCommandEvent();
     }, false);
+
+    this.shapeAngle.addEventListener("click", function (event) {
+        thiz.handleCommandEvent();
+    }, false);
+
+    this.shapeAngle.addEventListener("change", function (event) {
+        thiz.handleCommandEvent();
+    }, false);
+
+    this.shapeAngle.addEventListener("wheel", function(event) {
+        thiz.handleCommandEvent();
+    }, false)
 
     this.container.addEventListener("keypress", function (event) {
         if (event.keyCode == DOM_VK_UP || event.keyCode == DOM_VK_DOWN) {

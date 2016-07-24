@@ -26,6 +26,10 @@ function __isSubClassOf(sub, base) {
     if (!sub.__base) return false;
     return sub.__base === base || __isSubClassOf(sub.__base, base);
 }
+function __isAssignableFrom(sub, base) {
+    return sub === base || __isSubClassOf(sub, base);
+}
+
 
 var less = require("less");
 
@@ -645,6 +649,7 @@ function BaseWidget(definitionNode) {
     Dom.addClass(node, "widget_" + this.constructor.name);
     this.__node = node;
     node.__widget = this;
+    node["__is_" + this.constructor.name] = true;
 
     var thiz = this;
     node.addEventListener("DOMNodeInsertedIntoDocument", function () {
@@ -758,6 +763,10 @@ BaseWidget.handleClosableEscapeKey = function (event) {
         event.preventDefault();
         Dom.cancelEvent(event);
     }
+};
+BaseWidget.getTopClosable = function (event) {
+    if (BaseWidget.closables.length == 0) return null;
+    return BaseWidget.closables[BaseWidget.closables.length - 1];
 };
 BaseWidget.handleGlobalMouseDown = function (event) {
     if (BaseWidget.closables.length == 0) return;

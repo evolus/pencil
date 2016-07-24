@@ -73,7 +73,7 @@ Controller.prototype.confirmAndclose = function (onClose) {
 Controller.prototype.resetDocument = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
-    
+
     this.doc = new PencilDocument();
     this.doc.name = "";
     this.documentPath = null;
@@ -326,8 +326,14 @@ Controller.prototype.parsePageFromNode = function (pageNode, callback) {
     });
 
     function invalidateAndSerializePage(page) {
-        if (page.width) page.width = parseInt(page.width, 10);
-        if (page.height) page.height = parseInt(page.height, 10);
+        if (page.width) {
+            page.width = parseInt(page.width, 10);
+        } else page.width = 0;
+
+        if (page.height) {
+            page.height = parseInt(page.height, 10);
+        } else page.height = 0;
+
         if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
         if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
@@ -635,8 +641,14 @@ Controller.prototype.parseDocument = function (filePath, callback) {
                     page[propNode.getAttribute("name")] = value;
                 });
 
-                if (page.width) page.width = parseInt(page.width, 10);
-                if (page.height) page.height = parseInt(page.height, 10);
+                if (page.width) {
+                    page.width = parseInt(page.width, 10);
+                } else page.width = 0;
+
+                if (page.height) {
+                    page.height = parseInt(page.height, 10);
+                } else page.height = 0;
+
                 if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
 
@@ -978,6 +990,7 @@ Controller.prototype.activatePage = function (page) {
     page.canvas.setSize(page.width, page.height);
     page.lastUsed = new Date();
     this.activePage = page;
+    page.canvas._sayTargetChanged();
     // this.sayDocumentChanged();
 };
 Controller.prototype.ensurePageCanvasBackground = function (page) {
@@ -1311,9 +1324,10 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
     if (!page) {
         return;
     }
+
     dialog.showSaveDialog({
         title: "Export page as PNG",
-        defaultPath: path.join(os.homedir(), (page.name + ".png")),
+        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), (page.name + ".png")),
         filters: [
             { name: "PNG Image (*.png)", extensions: ["png"] }
         ]
@@ -1335,7 +1349,7 @@ Controller.prototype.rasterizeSelection = function () {
 
     dialog.showSaveDialog({
         title: "Export selection as PNG",
-        defaultPath: path.join(os.homedir(), ""),
+        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), ""),
         filters: [
             { name: "PNG Image (*.png)", extensions: ["png"] }
         ]

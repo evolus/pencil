@@ -1,6 +1,8 @@
 function SharedFontEditor() {
     BaseTemplatedWidget.call(this);
     Pencil.registerSharedEditor(this);
+
+    ToolBar.setupFocusHandling(this.node());
 }
 __extend(BaseTemplatedWidget, SharedFontEditor);
 SharedFontEditor.PROPERTY_NAME = "textFont";
@@ -119,7 +121,8 @@ SharedFontEditor.prototype._applyValue = function () {
 SharedFontEditor.prototype.attach = function (target) {
     this.target = target;
     this.font = target.getProperty(SharedFontEditor.PROPERTY_NAME, "any");
-    if (!this.font)  {
+
+    if (!this.font) {
         this.detach();
         return;
     }
@@ -128,8 +131,6 @@ SharedFontEditor.prototype.attach = function (target) {
     this.pixelFontSize.disabled = false;
     this.boldButton.disabled = false;
     this.italicButton.disabled = false;
-    var formatPainter = Pencil.activeCanvas && target && (target.constructor == Group || target.constructor == Shape);
-    this.formatPainterButton.disabled = !formatPainter;
     this.disabledEditor = false;
 
     // //set the value
@@ -147,7 +148,6 @@ SharedFontEditor.prototype.attach = function (target) {
             }
         }
     }
-
     if (this.font.size.match(/^([0-9]+)[^0-9]*$/)) {
         this.pixelFontSize.value = RegExp.$1;
     }
@@ -163,6 +163,8 @@ SharedFontEditor.prototype.attach = function (target) {
     } else {
         this.italicButton.removeAttribute("checked");
     }
+    var formatPainter = Pencil.activeCanvas && target && (target.constructor == Group || target.constructor == Shape);
+    this.formatPainterButton.disabled = !formatPainter;
 };
 SharedFontEditor.prototype.detach = function () {
     this.fontCombo.setDisabled(true);

@@ -52,32 +52,47 @@ ShapeDefDragObserver.prototype = {
         if (this.deleteDiscarded) {
             return;
         }
-
         if (!this.commited && this.hasDrag) {
-            console.log("event: ", event);
-            var loc = this.canvas.getEventLocation(event);
-            var cRect = this.canvas.svg.parentNode.getBoundingClientRect();
-            console.log("cRect: ", cRect);
-            var rec = {
-                x: Math.round(cRect.left),
-                y: Math.round(cRect.top),
-                w: Math.round(cRect.width),
-                h: Math.round(cRect.height)
+            var loc = {
+                x: event.clientX,
+                y: event.clientY
             }
-            console.log("loc: ", loc);
-            console.log("rect: ", rec);
-            if (loc.x >= rec.x && loc.x <= rec.x + rec.w
-                && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
-
-                console.log("finishMoving: ", loc);
-
+            if (loc.x == 0 && loc.y == 0 ) {
                 this.commited = true;
                 this.canvas.finishMoving(event);
             } else {
                 this.canvas.deleteSelected();
             }
+            console.log("event: ", event);
+            // var loc = this.canvas.locDrag;
+            // var cRect = this.canvas.svg.getBoundingClientRect();
+            // var aPane = Pencil.controller.applicationPane.contentBody.getBoundingClientRect();
+            // var pane = {
+            //     x: Math.round(aPane.left),
+            //     y: Math.round(aPane.top),
+            //     w: Math.round(aPane.width),
+            //     h: Math.round(aPane.height)
+            // }
+            // //console.log("cRect: ", cRect);
+            // var rec = {
+            //     x: Math.round(cRect.left),
+            //     y: Math.round(cRect.top),
+            //     w: Math.round(cRect.width),
+            //     h: Math.round(cRect.height)
+            // }
+            // console.log("rect", rec);
+            // console.log("pane", pane);
+            // console.log("location: ", loc);
+            // if (loc.x >= rec.x && loc.x <= rec.w
+            //     && loc.y >= rec.y && loc.y <= rec.h
+            //     && loc.x >= pane.x && loc.x <= pane.w
+            //     && loc.y >= pane.y && loc.y <= pane.h) {
+            //     this.commited = true;
+            //     this.canvas.finishMoving(event);
+            // } else {
+            //     this.canvas.deleteSelected();
+            // }
         }
-
         this.hasDrag = false;
     },
     onDragStart: function (evt, transferData, action) {
@@ -87,6 +102,7 @@ ShapeDefDragObserver.prototype = {
         this.exit(event);
     },
     onDragOver: function (event, flavour, session) {
+        // console.log("drag over", event);
         if (!this.commited && this.hasDrag) {
             if (event.clientX != this._lastScreenX || event.clientY != this._lastScreenY) {
                 this.canvas.handleMouseMove(event, "fake");
@@ -159,25 +175,38 @@ PrivateShapeDefDragObserver.prototype = {
 
 
         if (!this.commited && this.hasDrag) {
-            var loc = this.canvas.getEventLocation(event);
-            var cRect = this.canvas.svg.parentNode.getBoundingClientRect();
-            var rec = {
-                x: Math.round(0 - cRect.left),
-                y: Math.round(0 - cRect.top),
-                w: cRect.width,
-                h: cRect.height
+            console.log("event: ", event);
+            var loc = {
+                x: event.clientX,
+                y: event.clientY
             }
-            console.log("loc: ", loc);
-            console.log("rect: ", rec);
-            if (loc.x >= rec.x && loc.x <= rec.x + rec.w
-                && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
-
-                console.log("finishMoving: ", loc);
+            if (loc.x == 0 && loc.y == 0 ) {
                 this.commited = true;
                 this.canvas.finishMoving(event);
             } else {
                 this.canvas.deleteSelected();
             }
+            // var loc = this.canvas.getEventLocation(event);
+            // var cRect = this.canvas.svg.getBoundingClientRect();
+            // //console.log("cRect: ", cRect);
+            // var rec = {
+            //     x: Math.round(cRect.left),
+            //     y: Math.round(cRect.top),
+            //     w: Math.round(cRect.width),
+            //     h: Math.round(cRect.height)
+            // }
+            // console.log("loc: ", loc);
+            // console.log("rect: ", rec);
+            // if (loc.x >= rec.x && loc.x <= rec.w
+            //     && loc.y >= rec.y && loc.y <= rec.h) {
+            //     console.log("finishMoving: ", loc);
+            //     this.commited = true;
+            //     this.canvas.finishMoving(event);
+            //     this.canvas.leaveTarget = this.canvas.currentController;
+            //
+            // } else {
+            //     this.canvas.deleteSelected();
+            // }
         }
 
 
@@ -256,18 +285,33 @@ ShapeShortcutDragObserver.prototype = {
         }
 
         if (!this.commited && this.hasDrag) {
-            var loc = this.canvas.getEventLocation(event);
-            var cRect = this.canvas.svg.parentNode.getBoundingClientRect();
-            var rec = {
-                x: Math.round(0 - cRect.left),
-                y: Math.round(0 - cRect.top),
-                w: cRect.width,
-                h: cRect.height
+            // console.log("event: ", event);
+            // var loc = this.canvas.getEventLocation(event);
+            // var cRect = this.canvas.svg.getBoundingClientRect();
+            // //console.log("cRect: ", cRect);
+            // var rec = {
+            //     x: Math.round(cRect.left),
+            //     y: Math.round(cRect.top),
+            //     w: Math.round(cRect.width),
+            //     h: Math.round(cRect.height)
+            // }
+            // console.log("loc: ", loc);
+            // console.log("rect: ", rec);
+            // if (loc.x >= rec.x && loc.x <= rec.w
+            //     && loc.y >= rec.y && loc.y <= rec.h) {
+            //     console.log("finishMoving: ", loc);
+            //     this.commited = true;
+            //     this.canvas.finishMoving(event);
+            //     this.canvas.leaveTarget = this.canvas.currentController;
+            //
+            // } else {
+            //     this.canvas.deleteSelected();
+            // }
+            var loc = {
+                x: event.clientX,
+                y: event.clientY
             }
-            //console.log("loc: ", loc);
-            //console.log("rect: ", rec);
-            if (loc.x >= rec.x && loc.x <= rec.x + rec.w
-                && loc.y >= rec.y && loc.y <= rec.y + rec.h) {
+            if (loc.x == 0 && loc.y == 0 ) {
                 this.commited = true;
                 this.canvas.finishMoving(event);
             } else {
@@ -486,9 +530,8 @@ FileDragObserver.handleSVGDOM = function (dom, canvas, loc) {
     dom.replaceChild(g0, dom.documentElement);
 
     var def = CollectionManager.shapeDefinition.locateDefinition(FileDragObserver.SVG_SHAPE_DEF_ID);
-    if (!def) return;
-
     canvas.insertShape(def, new Bound(loc.x - width / 2, loc.y - height / 2, null, null));
+
     if (canvas.currentController) {
         var controller = canvas.currentController;
         var w = width;

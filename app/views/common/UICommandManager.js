@@ -178,7 +178,6 @@ UICommandManager.installControl = function (commandKey, control) {
     }, false);
 };
 UICommandManager.invalidateCommand = function (command) {
-    console.log("invalidateCommand:", command);
     if (!command.controls) return;
     var valid = command.isValid ? command.isValid() : !command.disabled;
     for (var i = 0; i < command.controls.length; i ++) {
@@ -240,7 +239,7 @@ UICommandManager.handleKeyEvent = function (event) {
         var command = UICommandManager.commands[i];
         if (!command.parsedShortcut) continue;
         if (command.disabled) continue;
-        if (command.isValid && !command.isValid()) {
+        if (command.isValid && !command.isValid(event)) {
             continue;
         }
 

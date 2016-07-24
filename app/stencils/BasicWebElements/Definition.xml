@@ -825,7 +825,7 @@
             <PropertyGroup name="Sizing">
                 <Property name="box" displayName="Size" type="Dimension">350,100</Property>
                 <Property name="useHtmlContent" displayName="Use HTML Content" type="Bool">false</Property>
-                <Property name="fixedHeaderHeight" noScale="true" displayName="Fixed Header Height" type="Bool">false</Property>
+                <Property name="fixedHeaderHeight" noScale="true" displayName="Fixed Header Height" type="Bool">true</Property>
                 <Property name="padding" displayName="Cell Padding" type="Handle" p:noScale="true" p:lockX="true" p:minY="0">0,4</Property>
                 <Property name="headerHeight" p:disabled="!$fixedHeaderHeight.value" p:noScale="true" displayName="Header Height" type="Handle" p:lockX="true" p:minY="10" p:maxY="$box.h">0,30</Property>
             </PropertyGroup>
@@ -1114,13 +1114,13 @@
                     new Dimension($box.w + $strokeStyle.w % 2, Math.max($box.h + $strokeStyle.w % 2, F.elementSize("textDiv").h))
                 </Box>
             </For>
+	    
         </Behaviors>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
-
             <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
                 <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="padding: 5px;">
                 </div>
-                <div xmlns="http://www.w3.org/1999/xhtml" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+		<!-- <div xmlns="http://www.w3.org/1999/xhtml" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/> -->
             </foreignObject>
         </p:Content>
     </Shape>

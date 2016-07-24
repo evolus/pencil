@@ -129,10 +129,39 @@
         body .widget_CollapseablePanel[closed='true'] @splitter {
             display: none;
         }
+        @pinButton {
+            margin: 0.4em;
+            padding: 0.3em;
+            text-align: center;
+            height: auto;
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+        @pinButton:hover {
+            opacity: 1;
+        }
+        @pinButton i {
+            font-size: 1em;
+            opacity: 0.6;
+        }
+        @pinButton:not(:hover) {
+            border-color: transparent;
+            background: transparent;
+        }
+        body .widget_CollapseablePanel:not([float='true']) @pinButton {
+            background: darken(@app_bg, 20%);
+        }
+        body .widget_CollapseablePanel:not([float='true']) @pinButton i {
+            opacity: 1;
+        }
+        body .widget_CollapseablePanel[closed='true'] @pinButton {
+            display: none;
+        }
     </style>
-    <hbox anon-id="controlContainer">
+    <vbox anon-id="controlContainer">
         <box flex="1" anon-id="titleContainer"></box>
-    </hbox>
+        <hbox style="justify-content: center;"><button anon-id="pinButton" title="Pin panel"><i class="mdi mdi-pin"></i></button></hbox>
+    </vbox>
     <hbox anon-id="contentContainer" flex="1">
     </hbox>
     <div anon-id="splitter"><div></div></div>

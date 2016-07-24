@@ -24,6 +24,7 @@ function ComboManager() {
     this.bind("p:PopupHidden", function () {
         this.button.removeAttribute("active");
         this.popup.popupContainer.scrollTop = 0;
+        Dom.emitEvent("p:PopupClosed", this.node(), {});
         // this.popup.removePopup();
         // this.popup.popupContainer.scrollTop = 0;
     }, this.popup);

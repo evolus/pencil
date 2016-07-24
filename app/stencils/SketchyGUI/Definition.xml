@@ -155,11 +155,11 @@
     		</g>
         </p:Content>
     </Shape>
-    <Shortcut displayName="Horizontal Line" icon="Icons/hline.png" to="line">
+    <Shortcut displayName="Horizontal Line" icon="Icons/line.png" to="line">
         <PropertyValue name="b">100,0</PropertyValue>
         <PropertyValue name="mode" p:readonly="true">horizontal</PropertyValue>
     </Shortcut>
-    <Shortcut displayName="Vertical Line" icon="Icons/hline.png" to="line">
+    <Shortcut displayName="Vertical Line" icon="Icons/vertical_line.png" to="line">
         <PropertyValue name="b">0,100</PropertyValue>
         <PropertyValue name="mode" p:readonly="true">vertical</PropertyValue>
     </Shortcut>
@@ -1438,7 +1438,7 @@ MenuItem]]></Property>
         </p:Content>
     </Shape>
 
-    <Shape id="winframe" displayName="Windown Frame" icon="Icons/winframe.png">
+    <Shape id="winframe" displayName="Window Frame" icon="Icons/winframe.png">
         <Properties>
             <PropertyGroup>
                 <Property name="box" displayName="Size" type="Dimension">300,200</Property>
@@ -1765,7 +1765,12 @@ MenuItem]]></Property>
                                 style: tableStyle.toString()
                             };
 
+                            var height = 0;
+
+                            var contentHeight = $box.h - $strokeStyle.w;
+
                             if (a.length > 0) {
+                                height = Math.floor(contentHeight / a.length);
                                 headers = a[0];
 
                                 var tr = {
@@ -1776,8 +1781,11 @@ MenuItem]]></Property>
                                 if ($fixedHeaderHeight.value) {
                                     tr.style = new CSS();
                                     tr.style.set("height", $headerHeight.y + "px");
+                                } else {
+                                    var headerHeight = contentHeight - (a.length - 1) * height;
+                                    tr.style = new CSS();
+                                    tr.style.set("height", headerHeight + "px");
                                 }
-
 
                                 table._children.push({
                                     _name: "thead",
@@ -1920,7 +1928,7 @@ MenuItem]]></Property>
             <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
                 <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="padding: 5px;">
                 </div>
-                <div xmlns="http://www.w3.org/1999/xhtml" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                <!-- <div xmlns="http://www.w3.org/1999/xhtml" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/> -->
             </foreignObject>
         </p:Content>
     </Shape>
@@ -2032,7 +2040,7 @@ MenuItem]]></Property>
             <text id="text"/>
         </p:Content>
     </Shape>
-    <Shape id="Pointer1" displayName="Pointer 1" icon="Icons/pointer1.png">
+    <Shape id="Pointer1" displayName="Pointer 1" icon="Icons/pointer.png">
         <Properties>
             <PropertyGroup name="Common">
                 <Property name="box" type="Dimension" p:lockRatio="true">38,28</Property>

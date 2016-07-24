@@ -6,9 +6,36 @@ function Popup() {
     this.visible = false;
     this.shouldDetach = true;
     Dom.addClass(this.popupContainer, "UIWidget");
+
+    Popup.registerGlobalListeners();
 }
 __extend(BaseTemplatedWidget, Popup);
 Popup.Z_INDEX = 9001;
+
+Popup.registerGlobalListeners = function () {
+    if (Popup._globalListenersRegistered) return;
+    Popup._globalListenersRegistered = true;
+
+    document.addEventListener("mousedown", function () {
+        Popup.mouseHeld = true;
+    }, false);
+    document.addEventListener("mouseup", function () {
+        Popup.mouseHeld = false;
+    }, false);
+    document.addEventListener("mousemove", function (event) {
+        if (!Popup.mouseHeld) return;
+        if (BaseWidget.closables.length == 0) return;
+        var closable = BaseWidget.closables[BaseWidget.closables.length - 1];
+        if (!__isAssignableFrom(closable.constructor, Popup)) return;
+        if (closable.allowMouseDragging) return;
+        var input = Dom.findUpward(event.target, function (n) {
+            return n.localName == "input" || n.localName == "select" || n.localName == "textarea";
+        });
+        if (input) return;
+
+        Dom.cancelEvent(event);
+    }, false);
+};
 
 Popup.prototype.onAttached = function () {
     if (this.popupContainer) {

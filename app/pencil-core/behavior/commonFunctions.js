@@ -39,6 +39,9 @@ F.textSize = function (name) {
     var dim = new Dimension(bbox.width, bbox.height);
     return dim;
 };
+
+F.findObjectByName = Pencil.findObjectByName;
+
 F.getObjectBoundingBox = function (name) {
     var target = Pencil.findObjectByName(this._target, name);
     if (!target) return new {x:0, y: 0, w: 0, h: 0};
@@ -46,6 +49,8 @@ F.getObjectBoundingBox = function (name) {
     var bbox = target.getBBox();
     return {x: bbox.x, y: bbox.y, w: bbox.width, h: bbox.height};
 };
+
+
 F.elementSize = function (name) {
     var target = Pencil.findObjectByName(this._target, name);
     if (!target || target.namespaceURI != PencilNamespaces.html) return new Dimension(0, 0);

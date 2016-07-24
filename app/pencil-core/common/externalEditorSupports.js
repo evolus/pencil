@@ -1,10 +1,10 @@
 var ExternalEditorSupports = {};
 
 ExternalEditorSupports.getEditorPath = function (extension) {
-    if (extension == "svg") return Config.get("external.editor.vector.path", "/usr/bin/inkscape");
+    if (extension == "svg") return Config.get("external.editor.vector.path", "/usr/bin/inkscape %f");
     if (extension == "jpg"
         || extension == "gif"
-        || extension == "png") return Config.get("external.editor.bitmap.path", "/usr/bin/gimp");
+        || extension == "png") return Config.get("external.editor.bitmap.path", "/usr/bin/gimp -n %f");
 
     throw Util.getMessage("unsupported.type", extension);
 };
@@ -16,8 +16,30 @@ ExternalEditorSupports.handleEditRequest = function (contentProvider, contentRec
 
     contentProvider.saveTo(tmpFile.name, function () {
 
-        var executablePath = ExternalEditorSupports.getEditorPath(contentProvider.extension);
-        var process = spawn(executablePath, [tmpFile.name]);
+        var executableConfig = ExternalEditorSupports.getEditorPath(contentProvider.extension);
+        executableConfig = executableConfig.replace(/^(.+)\.exe/, function (zero, one) {
+            return one.replace(/[ ]/g, "@space@") + ".exe";
+        });
+        var args = executableConfig.split(/[ ]+/);
+
+        var executablePath = args[0].replace(/@space@/g, " ");
+        var params = [];
+        var hasFileArgument = false;
+        for (var i = 1; i < args.length; i ++) {
+            var arg = args[i].trim();
+            if (arg == "%f") {
+                params.push(tmpFile.name);
+                hasFileArgument = true;
+            } else {
+                params.push(arg);
+            }
+        }
+
+        if (!hasFileArgument) {
+            params.push(tmpFile.name);
+        }
+
+        var process = spawn(executablePath, params);
 
         var timeOutId = null;
         process.on("close", function () {

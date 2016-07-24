@@ -3,6 +3,8 @@
     <Property name="name">Default Export Template</Property>
     <Property name="author">Evolus</Property>
     <Property name="description">The default printing template with full options</Property>
+    <Property name="systemDefault">true</Property>
+
 
     <Property name="styleSheet">StyleSheet.xslt</Property>
     <Property name="format" displayName="Image format" type="Enum" p:enumValues="['vector|Scalable/Vector', 'rasterized|Bitmap/Rasterized']">vector</Property>

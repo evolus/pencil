@@ -171,13 +171,14 @@ CollectionManager.loadStencils = function(showNotification) {
     var parser = new ShapeDefCollectionParser();
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Common/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/BasicWebElements/Definition.xml"));
+    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Gtk.GUI/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/SketchyGUI/Definition.xml"));
+    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/WindowsXP-GUI/Definition.xml"));
 
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/CommonShapes_BasicShapes/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/CommonShapes_BlockArrow/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/CommonShapes_Flowchart/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/ExtJSKitchenSink_Neptune/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/iOS7/Definition.xml"));
+    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Android.GUI/Definition.xml"));
+    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/iOS.GUI/Definition.xml"));
+    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/iOS-Wireframe/Definition.xml"));
     // CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Windows7/Definition.xml"));
 
     CollectionManager._loadUserDefinedStencilsIn(Config.getDataFilePath(Config.STENCILS_DIR_NAME));

@@ -151,7 +151,7 @@ CanvasMenu.prototype.setup = function () {
         shortcut: "Ctrl+X",
         isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController; },
         applyWhenClass: "CanvasScrollPane",
-        run: function () {
+        run: function (event) {
             Pencil.activeCanvas.doCopy();
             Pencil.activeCanvas.deleteSelected();
         }
@@ -161,9 +161,11 @@ CanvasMenu.prototype.setup = function () {
         label: "Copy",
         icon: "content_copy",
         shortcut: "Ctrl+C",
-        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController; },
+        isValid: function () {
+            return Pencil.activeCanvas && Pencil.activeCanvas.currentController;
+        },
         applyWhenClass: "CanvasScrollPane",
-        run: function () {
+        run: function (event) {
             Pencil.activeCanvas.doCopy();
         }
     });
