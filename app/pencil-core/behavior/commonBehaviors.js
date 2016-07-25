@@ -317,70 +317,23 @@ function sklineTo(x,y,d) {
     return skline(Pencil.behaviors.D._lastX, Pencil.behaviors.D._lastY, x, y,
         d ? d : DEFAULT_SKETCHY_SEG_SIZE, "noMove");
 }
-function getCalendarDate(dateStr, dayNum, weekNum) {
+
+function getCalendarDate(dateStr, dayIndex, startWeekBySunday) {
     var date = new Date(dateStr);
     if (date == "Invalid Date") date = new Date("AUG - 2016");
     var month = date.getMonth();
     var year = date.getFullYear();
-
+    if (startWeekBySunday) dayIndex--;
     var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
-    var firstDayOfWeek = 1;
-    var lastDayOfWeek;
     var result = {};
-
-    var loopCount = 1;
-    var findLastWeekDay = function (pFirstDayOfWeek) {
-        if (loopCount > weekNum) return;
-        var day = new Date(year, month, pFirstDayOfWeek).getDay();
-        lastDayOfWeek = pFirstDayOfWeek + (6 - day);
-        if (loopCount < weekNum) {
-            firstDayOfWeek = lastDayOfWeek + 1;
-        }
-        loopCount++;
-        findLastWeekDay(firstDayOfWeek);
-    }
-    findLastWeekDay(firstDayOfWeek);
-
-    for (var i = firstDayOfWeek; i <= lastDayOfWeek; i++) {
-        var day = new Date(year, month, i).getDay();
-        if (day == dayNum && i <= lastDayOfMonth) {
-            result["value"] = i;
-            return result;
-        }
-    }
-
-    if (weekNum <= 1) {
-        var preMonthLastDay = new Date(year, month , 0).getDate();
-        var day = new Date(year, month, 1).getDay();
-        var dayBefore = day - dayNum;
-        dayBefore = preMonthLastDay - dayBefore;
-        dayBefore ++;
-        result["value"] = dayBefore;
-    } else {
-        var day = new Date(year, month, lastDayOfMonth).getDay()
-        var dayAfter = (dayNum == 0 ? 7 : dayNum) - day;
-        result["value"] = dayAfter;
-    }
-    result["disabled"] = true;
+    var firstDayOfWeek = new Date(year, month, 1).getDay();
+    var space = dayIndex - firstDayOfWeek;
+    space++;
+    var dayValue = new Date(year, month, space).getDate();
+    result["value"] = dayValue;
+    if (dayIndex < firstDayOfWeek || space > lastDayOfMonth) result["disabled"] = true;
     return result;
 }
-function calendarDraw(left, top, boxW, boxH, rows, cols) {
-    var result = [];
-    result.push(skline(left + 5,top + 5,(left+boxW) - 5,top + 5));
-    result.push(sklineTo((left+boxW) - 5, (top + boxH)-5));
-    result.push(sklineTo(left + 5, (top + boxH)-5));
-    result.push(z);
-    rows--;
-    if (rows > 0) {
-        result.push(calendarDraw(left, top+boxH, boxW, boxH, rows, cols));
-    }
-    cols--;
-    if (cols > 0) {
-        result.push(calendarDraw(left+boxW, top, boxW, boxH, rows, cols));
-    }
-    return result.join(" ");
-}
-
 var z = "z";
 pencilSandbox.z = z;
 
