@@ -317,52 +317,52 @@ function sklineTo(x,y,d) {
     return skline(Pencil.behaviors.D._lastX, Pencil.behaviors.D._lastY, x, y,
         d ? d : DEFAULT_SKETCHY_SEG_SIZE, "noMove");
 }
-function dayReturn (str, dayValue, weekNum) {
-    var date = new Date(str);
-    if (date == "Invalid Date") {
-        date = new Date("AUG - 2016")
-    }
+function getCalendarDate(dateStr, dayNum, weekNum) {
+    var date = new Date(dateStr);
+    if (date == "Invalid Date") date = new Date("AUG - 2016");
     var month = date.getMonth();
     var year = date.getFullYear();
-    var countDay = new Date(year, month  + 1,0).getDate();
-    var firstDay = 1;
-    var lastDay;
-    var blockReturn = {};
-    var CountLastDay = function (pfirstDay) {
-        var day = new Date(year, month, pfirstDay).getDay();
-        var weekDay = 6 - day;
-        pfirstDay += weekDay;
-        return pfirstDay;
-    }
-    for (var i = 1; i <= weekNum; i++) {
-        lastDay = CountLastDay(firstDay);
-        if ( i < weekNum) {
-            firstDay = lastDay + 1;
+
+    var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    var firstDayOfWeek = 1;
+    var lastDayOfWeek;
+    var result = {};
+
+    var loopCount = 1;
+    var findLastWeekDay = function (pFirstDayOfWeek) {
+        if (loopCount > weekNum) return;
+        var day = new Date(year, month, pFirstDayOfWeek).getDay();
+        lastDayOfWeek = pFirstDayOfWeek + (6 - day);
+        if (loopCount < weekNum) {
+            firstDayOfWeek = lastDayOfWeek + 1;
         }
+        loopCount++;
+        findLastWeekDay(firstDayOfWeek);
     }
-    for (var i = firstDay; i <= lastDay; i++) {
+    findLastWeekDay(firstDayOfWeek);
+
+    for (var i = firstDayOfWeek; i <= lastDayOfWeek; i++) {
         var day = new Date(year, month, i).getDay();
-        if (day == dayValue && i <= countDay) {
-            blockReturn["value"] = i;
-            return blockReturn;
+        if (day == dayNum && i <= lastDayOfMonth) {
+            result["value"] = i;
+            return result;
         }
     }
 
-    var preMonth = new Date(year, month , 0).getDate();
-    var space;
     if (weekNum <= 1) {
+        var preMonthLastDay = new Date(year, month , 0).getDate();
         var day = new Date(year, month, 1).getDay();
-         space = day - dayValue;
-         space = preMonth - space;
-         space ++;
+        var dayBefore = day - dayNum;
+        dayBefore = preMonthLastDay - dayBefore;
+        dayBefore ++;
+        result["value"] = dayBefore;
     } else {
-        var day = new Date(year, month, countDay).getDay()
-        space = (dayValue == 0 ? 7 : dayValue) - day;
-
+        var day = new Date(year, month, lastDayOfMonth).getDay()
+        var dayAfter = (dayNum == 0 ? 7 : dayNum) - day;
+        result["value"] = dayAfter;
     }
-    blockReturn["value"] = space;
-    blockReturn["disabled"] = true;
-    return blockReturn;
+    result["disabled"] = true;
+    return result;
 }
 function calendarDraw(left, top, boxW, boxH, rows, cols) {
     var result = [];
