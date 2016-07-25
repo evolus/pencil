@@ -1282,8 +1282,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -1298,8 +1298,8 @@
                     if ($start.value == "monday") {
                         dayNum = 1;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -1333,8 +1333,8 @@
                     if ($start.value == "monday") {
                         dayNum = 1;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -1348,11 +1348,11 @@
                     if ($start.value == "monday") {
                         dayNum = 1;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -1362,8 +1362,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -1372,8 +1372,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -1406,8 +1406,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -1421,11 +1421,11 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -1435,8 +1435,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -1445,8 +1445,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -1479,8 +1479,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -1494,11 +1494,11 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -1509,8 +1509,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Color>
                     var color = Color.fromString("#000");
@@ -1518,8 +1518,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -1553,8 +1553,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -1568,11 +1568,11 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -1583,8 +1583,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -1593,8 +1593,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -1627,8 +1627,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -1642,11 +1642,11 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -1657,8 +1657,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -1672,8 +1672,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -1706,8 +1706,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -1721,26 +1721,26 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 1)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 1)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
 
             <For ref="7">
                 <TextContent>
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,2);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 2);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,1);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 1);
                     }
-                    PlainText.fromString(block["value"]);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -1775,19 +1775,19 @@
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
                 <Fill>
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,2);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 2);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,1);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 1);
                     }
 
-                    if (block["disabled"]) {
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -1798,8 +1798,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -1838,8 +1838,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -1849,8 +1849,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -1882,8 +1882,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -1893,8 +1893,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -1926,8 +1926,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -1937,8 +1937,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -1970,8 +1970,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
 
                 </Fill>
             </For>
@@ -1982,8 +1982,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -2015,8 +2015,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
 
                 </Fill>
             </For>
@@ -2027,8 +2027,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2067,23 +2067,23 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 2)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 2)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
 
                 </Fill>
             </For>
 
             <For ref="14">
                 <TextContent>
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,3);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 3);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,2);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 2);
                     }
-                    PlainText.fromString(block["value"]);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2118,19 +2118,19 @@
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
                 <Fill>
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,3);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 3);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,2);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 2);
                     }
 
-                    if (block["disabled"]) {
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -2141,8 +2141,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2181,8 +2181,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -2192,8 +2192,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3);
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -2225,8 +2225,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -2236,8 +2236,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3);
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -2269,8 +2269,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
             <For ref="18">
@@ -2279,8 +2279,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3);
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -2312,8 +2312,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
             </Fill>
             </For>
 
@@ -2323,8 +2323,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3);
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -2356,8 +2356,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
             </Fill>
             </For>
 
@@ -2367,8 +2367,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3);
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2407,8 +2407,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 3);
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 3);
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -2417,12 +2417,12 @@
                     var block ;
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,4);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 4);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,3);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 3);
                     }
-                    PlainText.fromString(block["value"]);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2457,19 +2457,19 @@
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
                 <Fill>
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,4);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 4);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,3);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 3);
                     }
 
-                    if (block["disabled"]) {
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -2480,8 +2480,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2520,8 +2520,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -2531,8 +2531,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -2564,8 +2564,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -2575,8 +2575,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -2608,8 +2608,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -2619,8 +2619,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -2652,8 +2652,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -2663,8 +2663,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -2696,8 +2696,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
@@ -2707,8 +2707,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2747,22 +2747,22 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 4)
-                    $dayFillColor.hollowed( block["value"] == $pickDay.value ? 0.77 : 0.97)
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 4)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
 
             <For ref="28">
                 <TextContent>
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,5);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 5);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,4);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 4);
                     }
-                    PlainText.fromString(block["value"]);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2797,19 +2797,19 @@
                 <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
                 <Fill>
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,5);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 5);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,4);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 4);
                     }
 
-                    if (block["disabled"]) {
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -2820,8 +2820,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2835,8 +2835,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -2869,8 +2869,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -2882,11 +2882,11 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -2897,8 +2897,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2907,8 +2907,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -2941,8 +2941,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -2954,11 +2954,11 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -2969,8 +2969,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -2979,8 +2979,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -3013,8 +3013,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -3026,11 +3026,11 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -3041,8 +3041,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -3051,8 +3051,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -3085,8 +3085,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -3098,11 +3098,11 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -3113,8 +3113,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -3123,8 +3123,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -3157,8 +3157,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -3170,11 +3170,11 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
@@ -3185,8 +3185,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    PlainText.fromString(block["value"]);
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
@@ -3201,8 +3201,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -3236,8 +3236,8 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
@@ -3249,25 +3249,25 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block = getCalendarDate($monthContent.toString(), dayNum, 5)
-                    if (block["disabled"]) {
+                    var date = getCalendarDate($monthContent.toString(), dayNum, 5)
+                    if (date["disabled"]) {
                         $dayFillColor.hollowed(1);
                     } else {
-                        $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                     }
                 </Fill>
             </For>
             <For ref="35">
                 <TextContent>
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,6);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 6);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,5);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 5);
                     }
-                    PlainText.fromString(block["value"]);
+                    PlainText.fromString(date["value"]);
                 </TextContent>
                 <Font>$textFont</Font>
                 <BoxFit>
@@ -3289,16 +3289,16 @@
                     if ($start.value == "monday") {
                         dayNum++;
                     }
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,6);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 6);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,5);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 5);
                     }
 
-                    if (block["disabled"]) {
+                    if (date["disabled"]) {
                         color.hollowed(0.5);
                     } else {
                         color.hollowed(0);
@@ -3319,34 +3319,34 @@
                     ]
                 </D>
                 <StrokeColor>
-                    var block;
+                    var date
                     if ($start.value == "monday") {
                         var dayNum = 0;
-                        block = getCalendarDate($monthContent.toString(),dayNum,6);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 6);
                     }else {
                         var dayNum = 6;
-                        block = getCalendarDate($monthContent.toString(),dayNum,5);
+                        date = getCalendarDate($monthContent.toString(), dayNum, 5);
                     }
-                    if (block["disabled"]) {
+                    if (date["disabled"]) {
                         $dayStrokeColor.hollowed(1);
                     } else {
                         $dayStrokeColor.hollowed(0.9);
                     }
                 </StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>var block;
+                <Fill>var date
                 if ($start.value == "monday") {
                     var dayNum = 0;
-                    block = getCalendarDate($monthContent.toString(),dayNum,6);
+                    date = getCalendarDate($monthContent.toString(), dayNum, 6);
                 }else {
                     var dayNum = 6;
-                    block = getCalendarDate($monthContent.toString(),dayNum,5);
+                    date = getCalendarDate($monthContent.toString(), dayNum, 5);
                 }
 
-                if (block["disabled"]) {
+                if (date["disabled"]) {
                     $dayFillColor.hollowed(1);
                 } else {
-                    $dayFillColor.hollowed(block["value"] == $pickDay.value ? 0.77 : 0.97);
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
                 }</Fill>
             </For>
         </Behaviors>
