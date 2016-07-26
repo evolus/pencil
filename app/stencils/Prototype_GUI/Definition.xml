@@ -1672,12 +1672,19 @@
                 </TextContent>
                 <Font>$textFont</Font>
                 <Color>
+                    var color;
                     if (parseInt($start.value) == 0) {
-                        Color.fromString("#CC0000");
+                        color = Color.fromString("#CC0000");
                     } else if (parseInt($start.value) == 2) {
-                        Color.fromString("#000");
+                        color = Color.fromString("#000");
                     } else {
-                        Color.fromString("#4166B5");
+                        color = Color.fromString("#4166B5");
+                    }
+                    var date = collection.getCalendarDate($monthContent.toString(), 7, parseInt($start.value));
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
                     }
                 </Color>
                 <BoxFit>
@@ -1701,7 +1708,14 @@
                         z
                     ]
                 </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeColor>
+                    var date = collection.getCalendarDate($monthContent.toString(), 7, parseInt($start.value));
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
                 <StrokeStyle>$dayStrokeStyle</StrokeStyle>
                 <Fill>
                     var date = collection.getCalendarDate($monthContent.toString(), 7, parseInt($start.value))
@@ -3361,7 +3375,7 @@
             </For>
         </Behaviors>
         <Actions>
-            <Action id="getCurrentDay" displayName="Get Current Day">
+            <Action id="selectToday" displayName="Select Today">
                 <Impl>
                         <![CDATA[
                             var currentDate = new Date();
