@@ -1054,12 +1054,12 @@
                 <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
                 <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
-            <PropertyGroup name="Day Style">
+            <PropertyGroup name="Day Of Week">
                 <Property name="start" displayName="Start Week By" type="Enum"
                     p:enumValues="['monday|Monday','sunday|Sunday']">sunday</Property>
-                <Property name="dateTextColor" displayName="Date Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="dateTextColor" displayName="Color" type="Color"><E>$$textColor</E></Property>
             </PropertyGroup>
-            <PropertyGroup name="Date style">
+            <PropertyGroup name="Day Of Month">
                 <Property name="pickDay" displayName="Selected Day" type="Enum"
                     p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6', '7|7', '8|8', '9|9', '10|10',
                      '11|11', '12|12', '13|13', '14|14', '15|15', '16|16', '17|17', '18|18', '19|19', '20|20',
@@ -3272,7 +3272,7 @@
             </For>
         </Behaviors>
         <Actions>
-            <Action id="getCurrentDay" displayName="Get Current Day">
+            <Action id="selectToday" displayName="Select Today ">
                 <Impl>
                         <![CDATA[
                             var currentDate = new Date();
