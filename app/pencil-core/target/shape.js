@@ -949,10 +949,6 @@ Shape.prototype.canDetach = function () {
     }
     return false;
 };
-Shape.prototype.setCurrentDate = function () {
-    if (this.def.actionMap["setCurrentDate"])
-        var currentMonth = this.performAction("setCurrentDate");
-}
 Shape.prototype.getConnectorOutlets = function () {
     var outlets = this.performAction("getConnectorOutlets");
     if (outlets == null) {

@@ -666,10 +666,7 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
                 (bound.y - Math.round(bbox.height / (2 * this.zoom))), true);
         controller.normalizePositionToGrid();
     }
-    if (shapeDef.actionMap["setCurrentDate"]) controller.setCurrentDate();
-
     this.selectShape(shape);
-
     this.snappingHelper.updateSnappingGuide(this.currentController);
     DockingManager.enableDocking(this.currentController);
 
