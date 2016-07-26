@@ -92,7 +92,7 @@
                 <D>
                     var str = $strokeStyle.toString();
                     var index = str.indexOf("|");
-                    var strokeW = str.substring(0,index);
+                    var strokeW = str.substring(0, index);
                     var a = parseInt(strokeW);
                     a/=2;
                   [
@@ -131,9 +131,9 @@
             </For>
         </Behaviors>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
-            <path  id="body" style="fill:white;stroke:black"/>
-            <path  id="menu"/>
-            <text  id="text"/>
+            <path id="body" style="fill:white;stroke:black"/>
+            <path id="menu"/>
+            <text id="text"/>
         </p:Content>
     </Shape>
 
@@ -178,15 +178,15 @@
                     //close button
                     if($withCloseButton.value)
                     {
-                        arr.push(skline($box.w - size - padding + 4, padding + 4, $box.w - padding - 4, a - padding - 4 ));
-                        arr.push(skline($box.w - padding - 4, padding + 4, $box.w - padding - size + 4, a - padding - 4 ));
+                        arr.push(skline($box.w - size - padding + 4, padding + 4, $box.w - padding - 4, a - padding - 4));
+                        arr.push(skline($box.w - padding - 4, padding + 4, $box.w - padding - size + 4, a - padding - 4));
                         i++;
                     }
 
                     //restore button
                     if($withRestoreButton.value)
                     {
-                        arr.push(skline($box.w - i * (size + padding) + space, padding + space, $box.w - (i - 1)*(size + padding) - padding - space, padding + space ));
+                        arr.push(skline($box.w - i * (size + padding) + space, padding + space, $box.w - (i - 1)*(size + padding) - padding - space, padding + space));
                         arr.push(sklineTo($box.w - (i - 1)*(size + padding) - padding - space, a - padding - space));
                         arr.push(sklineTo($box.w - i * (size + padding) + space, a - padding - space));
                         arr.push(z);
@@ -196,7 +196,7 @@
                     //min button
                     if($withMinButton.value)
                     {
-                        arr.push(skline($box.w - i * (size + padding) + space, a - padding - space,  $box.w - (i - 1)*(size + padding) - padding - space, a - padding - space ));
+                        arr.push(skline($box.w - i * (size + padding) + space, a - padding - space,  $box.w - (i - 1)*(size + padding) - padding - space, a - padding - space));
                     }
                     arr
                 </D>
@@ -207,8 +207,8 @@
 
         </Behaviors>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
-            <path  id="button" style="fill:none;"/>
-            <path  id="box"/>
+            <path id="button" style="fill:none;"/>
+            <path id="box"/>
         </p:Content>
     </Shape>
     <Shape id="buttonPrimary" displayName="Button Primary" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAaCAYAAAAOl/o1AAACMUlEQVRYhe2YMUgqcRzHP/f8E6hREGjW5uTiIAgtLg4H4aJBcAiBLuINQtRwDi6OTUFBQ4ODS0NTUzS41FChziKYg3DLGywIXPTV3zc8CDyXx+PCHv0/2x1/fv/v/8PvjvudViwWp3xzJpPJRr1e/wkgAHK53NTn82mLjbUYzs/PZ64FgNfrxe/3LyTQV+PHogN8NZQQB0qIAyXEgRLiQAlxoIQ4cEVIr9cjEomQSCSIx+MUCgUmk8nMmsvLSyzLcmO7T0W4Vcjj8XB/f49t2+i6jm3bHB0d8fLywtraGslkkvF4TLPZpFwuE4vF6HQ6bG1t0e120XWdUqnE4eEhT09PjMdjzs7OuLu74+rqire3N9LpNP1+n9PTU/b29jAMg0wm49YRABcfmff3dxKJBIZhsLu7SzgcBkDXdWq12sxaKSUnJycEAgGi0SiWZXF9fY2Ukp2dHUzTRAhBq9UCIBgM0mg0yOfzPD4+0m63GQwGpFIpt+J/4HqHOFlfX5+75/f70TQNIQSrq6t4PB6klAyHQyzLolqtsrm5iZQSgFAoBMDKygqZTIaDgwMMw2Bpacmt+B98+ktV0/5+ZvR6vQSDQW5ubhgOhzw/P8/V2N7e5vX1lWw263pWAK1YLE5N05wuLy9/+Wn39vaWSqVCNptlf3/flZrHx8fz4///QjKZ5OHh4VP3UN8hDpQQB0qIAyXEgQAYjUZMp9/+XzPwR8ivi4uL79wpUgihukGh+Dd+Ay8KsRStK0MmAAAAAElFTkSuQmCC">
@@ -373,7 +373,7 @@
                 <D>
                     var str = $strokeStyle.toString();
                     var index = str.indexOf("|");
-                    var strokeW = str.substring(0,index);
+                    var strokeW = str.substring(0, index);
                     var a = parseInt(strokeW);
                     a/=2;
                   [
@@ -412,15 +412,15 @@
                     //close button
                     if($withCloseButton.value)
                     {
-                        arr.push(skline($box.w - size - padding + 4, padding + 4, $box.w - padding - 4, a - padding - 4 ));
-                        arr.push(skline($box.w - padding - 4, padding + 4, $box.w - padding - size + 4, a - padding - 4 ));
+                        arr.push(skline($box.w - size - padding + 4, padding + 4, $box.w - padding - 4, a - padding - 4));
+                        arr.push(skline($box.w - padding - 4, padding + 4, $box.w - padding - size + 4, a - padding - 4));
                         i++;
                     }
 
                     //restore button
                     if($withRestoreButton.value)
                     {
-                        arr.push(skline($box.w - i * (size + padding) + space, padding + space, $box.w - (i - 1)*(size + padding) - padding - space, padding + space ));
+                        arr.push(skline($box.w - i * (size + padding) + space, padding + space, $box.w - (i - 1)*(size + padding) - padding - space, padding + space));
                         arr.push(sklineTo($box.w - (i - 1)*(size + padding) - padding - space, a - padding - space));
                         arr.push(sklineTo($box.w - i * (size + padding) + space, a - padding - space));
                         arr.push(z);
@@ -430,7 +430,7 @@
                     //min button
                     if($withMinButton.value)
                     {
-                        arr.push(skline($box.w - i * (size + padding) + space, a - padding - space,  $box.w - (i - 1)*(size + padding) - padding - space, a - padding - space ));
+                        arr.push(skline($box.w - i * (size + padding) + space, a - padding - space,  $box.w - (i - 1)*(size + padding) - padding - space, a - padding - space));
                     }
                     arr
                 </D>
@@ -533,10 +533,10 @@
               </For>
         </Behaviors>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
-            <path  id="body"/>
-            <path  id="menu"/>
-            <path  id="button" style="fill:none;"/>
-            <text  id="headerText"/>
+            <path id="body"/>
+            <path id="menu"/>
+            <path id="button" style="fill:none;"/>
+            <text id="headerText"/>
 
             <clipPath id="messageClipPath">
                 <rect id="messageClipPathRect" />
@@ -740,13 +740,13 @@
                 <Font>$textFont</Font>
                 <Fill>$textColor</Fill>
                 <BoxFit>
-                    <Arg>new Bound(10, 0, $box.w - 20, $box.h )</Arg>
+                    <Arg>new Bound(10, 0, $box.w - 20, $box.h)</Arg>
                     <Arg>$textAlign</Arg>
                 </BoxFit>
             </For>
         </Behaviors>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
-            <path  id="textBox" style="stroke:black"/>
+            <path id="textBox" style="stroke:black"/>
             <text id="text"/>
         </p:Content>
     </Shape>
@@ -802,7 +802,7 @@
                 <Font>$textFont</Font>
                 <Fill>$textColor</Fill>
                 <BoxFit>
-                    <Arg>new Bound(10, 0, $box.w - 36, $box.h )</Arg>
+                    <Arg>new Bound(10, 0, $box.w - 36, $box.h)</Arg>
                     <Arg>$textAlign</Arg>
                 </BoxFit>
             </For>
@@ -827,7 +827,7 @@
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property name="textContent" displayName="Text Content"
-                    p:editInfo="({targetName: 'textClipPathRect', bound: new Bound(10, 10, $box.w - 20, $box.h - 20 ), font: $textFont, align: new Alignment(0, 0), multi: false})"
+                    p:editInfo="({targetName: 'textClipPathRect', bound: new Bound(10, 10, $box.w - 20, $box.h - 20), font: $textFont, align: new Alignment(0, 0), multi: false})"
                     type="RichText"><![CDATA[<font xmlns="http://www.w3.org/1999/xhtml" size="3">Secrevit  fontes liquidum locoque pronaque?
 <br xmlns="http://www.w3.org/1999/xhtml" /><br xmlns="http://www.w3.org/1999/xhtml" /><span style="font-weight: normal;">Illas semine campoque declivia oppida corpora nam inter fuit discordia tellus solidumque iunctarum erat: quae terrenae ubi rerum recessit iudicis aestu fixo</span></font>]]></Property>
                 <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
@@ -872,7 +872,7 @@
                 <Color>$textColor</Color>
                 <RichTextContent>
                     <Arg>$textContent</Arg>
-                    <Arg>new Bound(10, 10, $box.w - 20, $box.h - 20 )</Arg>
+                    <Arg>new Bound(10, 10, $box.w - 20, $box.h - 20)</Arg>
                     <Arg>new Alignment(0, 0)</Arg>
                 </RichTextContent>
             </For>
@@ -908,8 +908,8 @@
                 <D>
                   [
                     skline(0, 0, $box.w, 0),
-                    sklineTo($box.w, $box.h ),
-                    sklineTo(0, $box.h ),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
                     z
                   ]
                 </D>
@@ -922,7 +922,7 @@
                 <D>
                     var str = $strokeStyle.toString();
                     var index = str.indexOf("|");
-                    var strokeW = str.substring(0,index);
+                    var strokeW = str.substring(0, index);
                     var w = parseInt(strokeW);
                     w/=2;
                   [
@@ -982,8 +982,8 @@
                 <D>
                   [
                     skline(0, 0, $box.w, 0),
-                    sklineTo($box.w, $box.h ),
-                    sklineTo(0, $box.h ),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
                     z
                   ]
                 </D>
@@ -995,7 +995,7 @@
                 <D>
                     var str = $strokeStyle.toString();
                     var index = str.indexOf("|");
-                    var strokeW = str.substring(0,index);
+                    var strokeW = str.substring(0, index);
                     var w = parseInt(strokeW);
                     w/=2;
                   [
@@ -1073,7 +1073,7 @@
             <For ref="shadownBox">
                 <D>
                     var index = ($strokeStyle.toString()).indexOf("|");
-                    var w = parseInt(($strokeStyle.toString()).substring(0,index));
+                    var w = parseInt(($strokeStyle.toString()).substring(0, index));
                     w/=2;
                   [
                     skline(5, 5, $box.w + 5 + w, 5),
@@ -1137,7 +1137,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH =($box.h - 12) / 7;
+                        var boxH = ($box.h - 12) / 7;
                         var x = 10;
                         var startValue = $start.value;
                         if (startValue == "monday") {
@@ -1305,7 +1305,7 @@
             </For>
             <For ref="Con1">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = 13;
                     var y = (boxH * 2) + 3;
@@ -1363,7 +1363,7 @@
             </For>
             <For ref="Con2">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 2) + 3;
@@ -1420,7 +1420,7 @@
             </For>
             <For ref="Con3">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 2) + 3;
@@ -1478,7 +1478,7 @@
             </For>
             <For ref="Con4">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 2) + 3;
@@ -1536,7 +1536,7 @@
             </For>
             <For ref="Con5">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 2) + 3;
@@ -1599,7 +1599,7 @@
             </For>
             <For ref="Con6">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 2) + 3;
@@ -1655,7 +1655,7 @@
             </For>
             <For ref="Con7">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 2) + 3;
@@ -1703,7 +1703,7 @@
             </For>
             <For ref="Con8">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = 13;
                     var y = (boxH * 3) + 3;
@@ -1739,7 +1739,7 @@
             </For>
             <For ref="Con9">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 3) + 3;
@@ -1775,7 +1775,7 @@
             </For>
             <For ref="Con10">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 3) + 3;
@@ -1811,7 +1811,7 @@
             </For>
             <For ref="Con11">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 3) + 3;
@@ -1848,7 +1848,7 @@
             </For>
             <For ref="Con12">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 3) + 3;
@@ -1892,7 +1892,7 @@
             </For>
             <For ref="Con13">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 3) + 3;
@@ -1936,7 +1936,7 @@
             </For>
             <For ref="Con14">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 3) + 3;
@@ -1984,7 +1984,7 @@
             </For>
             <For ref="Con15">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = 13;
                     var y = (boxH * 4) + 3;
@@ -2020,7 +2020,7 @@
             </For>
             <For ref="Con16">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 4) + 3;
@@ -2056,7 +2056,7 @@
             </For>
             <For ref="Con17">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 4) + 3;
@@ -2091,7 +2091,7 @@
             </For>
             <For ref="Con18">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 4) + 3;
@@ -2127,7 +2127,7 @@
             </For>
             <For ref="Con19">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 4) + 3;
@@ -2170,7 +2170,7 @@
             </For>
             <For ref="Con20">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 4) + 3;
@@ -2213,7 +2213,7 @@
             </For>
             <For ref="Con21">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 4) + 3;
@@ -2260,7 +2260,7 @@
             </For>
             <For ref="Con22">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = 13;
                     var y = (boxH * 5) + 3;
@@ -2296,7 +2296,7 @@
             </For>
             <For ref="Con23">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 5) + 3;
@@ -2332,7 +2332,7 @@
             </For>
             <For ref="Con24">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW*2)) + 3;
                     var y = (boxH * 5) + 3;
@@ -2368,7 +2368,7 @@
             </For>
             <For ref="Con25">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 5) + 3;
@@ -2404,7 +2404,7 @@
             </For>
             <For ref="Con26">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 5) + 3;
@@ -2447,7 +2447,7 @@
             </For>
             <For ref="Con27">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 5) + 3;
@@ -2490,7 +2490,7 @@
             </For>
             <For ref="Con28">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 5) + 3;
@@ -2544,7 +2544,7 @@
             </For>
             <For ref="Con29">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = 13;
                     var y = (boxH * 6) + 3;
@@ -2601,7 +2601,7 @@
             </For>
             <For ref="Con30">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 6) + 3;
@@ -2657,7 +2657,7 @@
             </For>
             <For ref="Con31">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 6) + 3;
@@ -2713,7 +2713,7 @@
             </For>
             <For ref="Con32">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 6) + 3;
@@ -2768,7 +2768,7 @@
             </For>
             <For ref="Con33">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 6) + 3;
@@ -2829,7 +2829,7 @@
 
             <For ref="Con34">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 6) + 3;
@@ -2890,7 +2890,7 @@
             </For>
             <For ref="Con35">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 6) + 3;
@@ -2950,7 +2950,7 @@
             </For>
             <For ref="Con36">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = 13;
                     var y = (boxH * 7) + 3;
@@ -3007,7 +3007,7 @@
             </For>
             <For ref="Con37">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 7) + 3;
@@ -3063,7 +3063,7 @@
             </For>
             <For ref="Con38">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 7) + 3;
@@ -3119,7 +3119,7 @@
             </For>
             <For ref="Con39">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 7) + 3;
@@ -3175,7 +3175,7 @@
             </For>
             <For ref="Con40">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = ($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 7) + 3;
@@ -3236,7 +3236,7 @@
             </For>
             <For ref="Con41">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 7) + 3;
@@ -3296,7 +3296,7 @@
             </For>
             <For ref="Con42">
                 <D>
-                    var boxW =(($box.w - 20) / 7);
+                    var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 7) + 3;
