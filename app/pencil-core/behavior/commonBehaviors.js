@@ -320,20 +320,21 @@ function sklineTo(x,y,d) {
 
 function getCalendarDate(dateStr, dayIndex, startWeekBySunday) {
     var date = new Date(dateStr);
-    if (date == "Invalid Date") date = new Date("AUG - 2016");
+    if (date == "Invalid Date") date = new Date();
     var month = date.getMonth();
     var year = date.getFullYear();
     if (startWeekBySunday) dayIndex--;
     var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
     var result = {};
-    var firstDayOfWeek = new Date(year, month, 1).getDay();
-    var space = dayIndex - firstDayOfWeek;
+    var firstDayOfMonth = new Date(year, month, 1).getDay();
+    var space = dayIndex - firstDayOfMonth;
     space++;
     var dayValue = new Date(year, month, space).getDate();
     result["value"] = dayValue;
-    if (dayIndex < firstDayOfWeek || space > lastDayOfMonth) result["disabled"] = true;
+    if (dayIndex < firstDayOfMonth || space > lastDayOfMonth) result["disabled"] = true;
     return result;
 }
+
 var z = "z";
 pencilSandbox.z = z;
 

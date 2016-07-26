@@ -621,6 +621,8 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
     var shape = this.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
     shape.setAttributeNS(PencilNamespaces.p, "p:type", "Shape");
     shape.setAttributeNS(PencilNamespaces.p, "p:def", shapeDef.id);
+
+
     if (overridingValueMap && overridingValueMap._shortcut) {
         shape.setAttributeNS(PencilNamespaces.p, "p:sc",
                 overridingValueMap._shortcut.displayName);
@@ -664,6 +666,7 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
                 (bound.y - Math.round(bbox.height / (2 * this.zoom))), true);
         controller.normalizePositionToGrid();
     }
+    if (shapeDef.actionMap["setCurrentDate"]) controller.setCurrentDate();
 
     this.selectShape(shape);
 
