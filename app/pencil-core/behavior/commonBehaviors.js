@@ -235,7 +235,6 @@ function skline(x1, y1, x2, y2, d, noMove) {
 	return result.join(" ");
 }
 
-
 function sk(x1, y1, x2, y2, d, noMove) {
 	var result = [];
     if (!noMove) result.push(M(x1, y1));
@@ -316,23 +315,6 @@ function skTo(x, y, d) {
 function sklineTo(x,y,d) {
     return skline(Pencil.behaviors.D._lastX, Pencil.behaviors.D._lastY, x, y,
         d ? d : DEFAULT_SKETCHY_SEG_SIZE, "noMove");
-}
-
-function getCalendarDate(dateStr, dayIndex, startWeekBySunday) {
-    var date = new Date(dateStr);
-    if (date == "Invalid Date") date = new Date();
-    var month = date.getMonth();
-    var year = date.getFullYear();
-    if (startWeekBySunday) dayIndex--;
-    var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
-    var result = {};
-    var firstDayOfMonth = new Date(year, month, 1).getDay();
-    var space = dayIndex - firstDayOfMonth;
-    space++;
-    var dayValue = new Date(year, month, space).getDate();
-    result["value"] = dayValue;
-    if (dayIndex < firstDayOfMonth || space > lastDayOfMonth) result["disabled"] = true;
-    return result;
 }
 
 var z = "z";
