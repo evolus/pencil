@@ -27,7 +27,6 @@ function Shape(canvas, svg) {
         }
         this.targetMap[name] = target;
     }
-
     //this.dockingManager = new DockingManager(this);
 }
 Shape.prototype.getName = function () {

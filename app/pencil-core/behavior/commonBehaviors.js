@@ -221,6 +221,21 @@ const ROTATED_ANGLE = 10;
 const SKETCHY_ANGLE = 4;
 const SKETCHY_ANGLE_LEN_REF = 50;
 
+function skline(x1, y1, x2, y2, d, noMove) {
+	var result = [];
+    if (!noMove) result.push(M(x1, y1));
+
+    var p1 = {x: x1, y: y1,};
+    var p2 = {x: x2, y: y2,};
+
+	result.push(L(x2, y2));
+
+	Pencil.behaviors.D._setLastLocation(x2, y2);
+
+	return result.join(" ");
+}
+
+
 function sk(x1, y1, x2, y2, d, noMove) {
 	var result = [];
     if (!noMove) result.push(M(x1, y1));
@@ -268,7 +283,6 @@ function sk_old(x1, y1, x2, y2, d, noMove) {
     var l = Math.sqrt(dx * dx + dy * dy);
     var segment = d ? d : DEFAULT_SKETCHY_SEG_SIZE;
 
-    segment = Math.min(segment, l / 2);
 
     var count = Math.floor(l / segment);
     var segmentRandom = segment / 3;
@@ -299,6 +313,28 @@ function skTo(x, y, d) {
     return sk(Pencil.behaviors.D._lastX, Pencil.behaviors.D._lastY, x, y,
         d ? d : DEFAULT_SKETCHY_SEG_SIZE, "noMove");
 }
+function sklineTo(x,y,d) {
+    return skline(Pencil.behaviors.D._lastX, Pencil.behaviors.D._lastY, x, y,
+        d ? d : DEFAULT_SKETCHY_SEG_SIZE, "noMove");
+}
+
+function getCalendarDate(dateStr, dayIndex, startWeekBySunday) {
+    var date = new Date(dateStr);
+    if (date == "Invalid Date") date = new Date();
+    var month = date.getMonth();
+    var year = date.getFullYear();
+    if (startWeekBySunday) dayIndex--;
+    var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    var result = {};
+    var firstDayOfMonth = new Date(year, month, 1).getDay();
+    var space = dayIndex - firstDayOfMonth;
+    space++;
+    var dayValue = new Date(year, month, space).getDate();
+    result["value"] = dayValue;
+    if (dayIndex < firstDayOfMonth || space > lastDayOfMonth) result["disabled"] = true;
+    return result;
+}
+
 var z = "z";
 pencilSandbox.z = z;
 
