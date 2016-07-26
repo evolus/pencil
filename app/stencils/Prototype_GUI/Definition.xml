@@ -1047,26 +1047,26 @@
                 <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
                 <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
             </PropertyGroup>
-            <PropertyGroup name="Date style">
-                <Property name="pickDay" displayName="Selected Day" type="Enum"
-                    p:enumValues="['1 | 1', '2 | 2', '3|3', '4|4', '5|5', '6|6', '7|7', '8|8', '9|9', '10|10',
-                     '11 | 11', '12|12', '13|13', '14|14', '15|15', '16|16', '17|17', '18|18', '19|19', '20|20',
-                     '21 | 21', '22|22', '23|23', '24|24', '25|25', '26|26', '27|27', '28|28', '29|29', '30|30', '31|31']">1</Property>
-                <Property name="dayFillColor" displayName="Background Color" type="Color">#000</Property>
-                <Property name="dayStrokeStyle" displayName="Border Style" type="StrokeStyle">1|</Property>
-                <Property name="dayStrokeColor" displayName="Border Color" type="Color">#000</Property>
-            </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property displayName="Month Content" name="monthContent"
                     p:editInfo="({targetName: 'month', bound: new Bound(30, 0, $box.w - 60, (($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: false})" type="PlainText"><![CDATA[AUG - 2016]]></Property>
-                <Property name="textFont" displayName="Default Font" type="Font">'Arial'|normal|normal|15px</Property>
+                <Property name="textFont" displayName="Default Font" type="Font">'Arial'|normal|normal|14px</Property>
                 <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
                 <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Day Style">
                 <Property name="start" displayName="Start Week By" type="Enum"
-                    p:enumValues="['monday|Monday','sunday|Sunday']">monday</Property>
+                    p:enumValues="['monday|Monday','sunday|Sunday']">sunday</Property>
                 <Property name="dateTextColor" displayName="Date Color" type="Color"><E>$$textColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Date style">
+                <Property name="pickDay" displayName="Selected Day" type="Enum"
+                    p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6', '7|7', '8|8', '9|9', '10|10',
+                     '11|11', '12|12', '13|13', '14|14', '15|15', '16|16', '17|17', '18|18', '19|19', '20|20',
+                     '21|21', '22|22', '23|23', '24|24', '25|25', '26|26', '27|27', '28|28', '29|29', '30|30', '31|31']">1</Property>
+                <Property name="dayFillColor" displayName="Background Color" type="Color">#000</Property>
+                <Property name="dayStrokeStyle" displayName="Border Style" type="StrokeStyle">1|</Property>
+                <Property name="dayStrokeColor" displayName="Border Color" type="Color">#000</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -1082,7 +1082,7 @@
                     z
                   ]
                 </D>
-                <Fill>$shadowFillColor.hollowed(0.8)</Fill>
+                <Fill>$shadowFillColor.hollowed(0.9)</Fill>
             </For>
             <For ref="box">
                 <D>
@@ -1100,8 +1100,8 @@
             <For ref="arrowLeft">
                 <D>
                   [
-                      skline(10, (($box.h - 6) / 7) / 2, 20, ((($box.h - 6) / 7) / 2) - 8),
-                      sklineTo(20, ((($box.h - 6) / 7) / 2) + 8),
+                      skline(10, (($box.h - 13) / 8) / 2, 20, ((($box.h - 13) / 8) / 2) - 8),
+                      sklineTo(20, ((($box.h - 13) / 8) / 2) + 8),
                       z
                   ]
                 </D>
@@ -1109,8 +1109,8 @@
             <For ref="arrowRight">
                 <D>
                   [
-                      skline($box.w - 10, (($box.h - 6) / 7) / 2, $box.w - 20, ((($box.h - 6) / 7) / 2) - 8),
-                      sklineTo($box.w - 20, ((($box.h - 6) / 7) / 2) + 8),
+                      skline($box.w - 10, (($box.h - 13) / 8) / 2, $box.w - 20, ((($box.h - 13) / 8) / 2) - 8),
+                      sklineTo($box.w - 20, ((($box.h - 13) / 8) / 2) + 8),
                       z
                   ]
                 </D>
@@ -1121,7 +1121,7 @@
                 <Color>$textColor</Color>
                 <BoxFit>
                     <Arg>
-                        new Bound(30, 0, $box.w - 60, (($box.h - 6) / 7))
+                        new Bound(30, 0, $box.w - 60, (($box.h - 13) / 8))
                     </Arg>
                     <Arg>$textAlign</Arg>
                 </BoxFit>
@@ -1137,7 +1137,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = ($box.h - 12) / 7;
+                        var boxH = ($box.h - 7) / 8;
                         var x = 10;
                         var startValue = $start.value;
                         if (startValue == "monday") {
@@ -1158,7 +1158,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = ($box.h - 12) / 7;
+                        var boxH = ($box.h - 7) / 8;
                         var x = (10 + boxW);
                         var startValue = $start.value;
                         if (startValue == "monday") {
@@ -1179,7 +1179,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = ($box.h - 12) / 7;
+                        var boxH = ($box.h - 7) / 8;
                         var x = 10 + (boxW * 2);
                         var startValue = $start.value;
                         if (startValue == "monday") {
@@ -1200,7 +1200,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = ($box.h - 12) / 7;
+                        var boxH = ($box.h - 7) / 8;
                         var x = 10 + (boxW * 3);
                         var startValue = $start.value;
                         if (startValue == "monday") {
@@ -1221,7 +1221,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = ($box.h - 12) / 7;
+                        var boxH = ($box.h - 7) / 8;
                         var x = 10 + (boxW * 4);
                         var startValue = $start.value;
                         if (startValue == "monday") {
@@ -1242,7 +1242,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = ($box.h - 12) / 7;
+                        var boxH = ($box.h - 7) / 8;
                         var x = 10 + (boxW * 5);
                         var startValue = $start.value;
                         if (startValue == "monday") {
@@ -1263,7 +1263,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = ($box.h - 12) / 7;
+                        var boxH = ($box.h - 7) / 8;
                         var x = 10 + (boxW * 6);
                         var startValue = $start.value;
                         if (startValue == "monday") {
@@ -1297,7 +1297,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10, boxH*2, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1306,7 +1306,7 @@
             <For ref="Con1">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = 13;
                     var y = (boxH * 2) + 3;
                     [
@@ -1355,7 +1355,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + boxW, boxH*2, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1364,7 +1364,7 @@
             <For ref="Con2">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 2) + 3;
                     [
@@ -1412,7 +1412,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 2), boxH*2, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1421,7 +1421,7 @@
             <For ref="Con3">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 2) + 3;
                     [
@@ -1470,7 +1470,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 3), boxH*2, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1479,7 +1479,7 @@
             <For ref="Con4">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 2) + 3;
                     [
@@ -1528,7 +1528,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 4), boxH*2, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1537,7 +1537,7 @@
             <For ref="Con5">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 2) + 3;
                     [
@@ -1591,7 +1591,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 5), boxH*2, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1600,7 +1600,7 @@
             <For ref="Con6">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 2) + 3;
                     [
@@ -1646,7 +1646,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 6), boxH*2, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1654,7 +1654,7 @@
             </For>            <For ref="Con7">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 2) + 3;
                     [
@@ -1692,7 +1692,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10, boxH*3, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1700,7 +1700,7 @@
             </For>            <For ref="Con8">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = 13;
                     var y = (boxH * 3) + 3;
                     [
@@ -1726,7 +1726,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + boxW, boxH*3, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1734,7 +1734,7 @@
             </For>            <For ref="Con9">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 3) + 3;
                     [
@@ -1760,7 +1760,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 2), boxH*3, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1768,7 +1768,7 @@
             </For>            <For ref="Con10">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 3) + 3;
                     [
@@ -1794,7 +1794,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 3), boxH*3, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1802,7 +1802,7 @@
             </For>            <For ref="Con11">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 3) + 3;
                     [
@@ -1829,7 +1829,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 4), boxH*3, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1838,7 +1838,7 @@
             <For ref="Con12">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 3) + 3;
                     [
@@ -1872,7 +1872,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 5), boxH*3, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1880,7 +1880,7 @@
             </For>            <For ref="Con13">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 3) + 3;
                     [
@@ -1914,7 +1914,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 6), boxH*3, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1922,7 +1922,7 @@
             </For>            <For ref="Con14">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 3) + 3;
                     [
@@ -1960,7 +1960,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10, boxH*4, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -1968,7 +1968,7 @@
             </For>            <For ref="Con15">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = 13;
                     var y = (boxH * 4) + 3;
                     [
@@ -1994,7 +1994,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + boxW, boxH*4, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2002,7 +2002,7 @@
             </For>            <For ref="Con16">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 4) + 3;
                     [
@@ -2028,7 +2028,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 2), boxH*4, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2036,7 +2036,7 @@
             </For>            <For ref="Con17">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 4) + 3;
                     [
@@ -2061,7 +2061,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 3), boxH*4, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2069,7 +2069,7 @@
             </For>            <For ref="Con18">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 4) + 3;
                     [
@@ -2095,7 +2095,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 4), boxH*4, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2103,7 +2103,7 @@
             </For>            <For ref="Con19">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 4) + 3;
                     [
@@ -2136,7 +2136,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 5), boxH*4, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2144,7 +2144,7 @@
             </For>            <For ref="Con20">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 4) + 3;
                     [
@@ -2177,7 +2177,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 6), boxH*4, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2185,7 +2185,7 @@
             </For>            <For ref="Con21">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 4) + 3;
                     [
@@ -2222,7 +2222,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10, boxH*5, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2230,7 +2230,7 @@
             </For>            <For ref="Con22">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = 13;
                     var y = (boxH * 5) + 3;
                     [
@@ -2256,7 +2256,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + boxW, boxH*5, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2264,7 +2264,7 @@
             </For>            <For ref="Con23">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 5) + 3;
                     [
@@ -2290,7 +2290,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 2), boxH*5, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2298,7 +2298,7 @@
             </For>            <For ref="Con24">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW*2)) + 3;
                     var y = (boxH * 5) + 3;
                     [
@@ -2324,7 +2324,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 3), boxH*5, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2332,7 +2332,7 @@
             </For>            <For ref="Con25">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 5) + 3;
                     [
@@ -2358,7 +2358,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 4), boxH*5, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2366,7 +2366,7 @@
             </For>            <For ref="Con26">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 5) + 3;
                     [
@@ -2399,7 +2399,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 5), boxH*5, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2407,7 +2407,7 @@
             </For>            <For ref="Con27">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 5) + 3;
                     [
@@ -2440,7 +2440,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 6), boxH*5, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2448,7 +2448,7 @@
             </For>            <For ref="Con28">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 5) + 3;
                     [
@@ -2492,7 +2492,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10, boxH*6, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2501,7 +2501,7 @@
             <For ref="Con29">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = 13;
                     var y = (boxH * 6) + 3;
                     [
@@ -2548,7 +2548,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + boxW, boxH*6, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2556,7 +2556,7 @@
             </For>            <For ref="Con30">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 6) + 3;
                     [
@@ -2602,7 +2602,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 2), boxH*6, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2610,7 +2610,7 @@
             </For>            <For ref="Con31">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 6) + 3;
                     [
@@ -2656,7 +2656,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 3), boxH*6, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2664,7 +2664,7 @@
             </For>            <For ref="Con32">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 6) + 3;
                     [
@@ -2710,7 +2710,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 4), boxH*6, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2719,7 +2719,7 @@
             <For ref="Con33">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 6) + 3;
                     [
@@ -2770,7 +2770,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 5), boxH*6, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2779,7 +2779,7 @@
             <For ref="Con34">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 6) + 3;
                     [
@@ -2816,7 +2816,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 6), boxH*6, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2840,7 +2840,7 @@
             <For ref="Con35">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 6) + 3;
                     [
@@ -2891,7 +2891,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10, boxH*7, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2900,7 +2900,7 @@
             <For ref="Con36">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = 13;
                     var y = (boxH * 7) + 3;
                     [
@@ -2947,7 +2947,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + boxW, boxH*7, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -2956,7 +2956,7 @@
             <For ref="Con37">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + boxW) + 3;
                     var y = (boxH * 7) + 3;
                     [
@@ -3002,7 +3002,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 2), boxH*7, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -3011,7 +3011,7 @@
             <For ref="Con38">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 2)) + 3;
                     var y = (boxH * 7) + 3;
                     [
@@ -3057,7 +3057,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 3), boxH*7, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -3066,7 +3066,7 @@
             <For ref="Con39">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 3)) + 3;
                     var y = (boxH * 7) + 3;
                     [
@@ -3112,7 +3112,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 4), boxH*7, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -3121,7 +3121,7 @@
             <For ref="Con40">
                 <D>
                     var boxW = ($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 4)) + 3;
                     var y = (boxH * 7) + 3;
                     [
@@ -3173,7 +3173,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 5), boxH*7, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -3182,7 +3182,7 @@
             <For ref="Con41">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 5)) + 3;
                     var y = (boxH * 7) + 3;
                     [
@@ -3219,7 +3219,7 @@
                 <BoxFit>
                     <Arg>
                         var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 12) / 8);
+                        var boxH = (($box.h - 7) / 8);
                         new Bound(10 + (boxW * 6), boxH*7, boxW, boxH);
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
@@ -3242,7 +3242,7 @@
             <For ref="Con42">
                 <D>
                     var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 12) / 8);
+                    var boxH = (($box.h - 7) / 8);
                     var x = (10 + (boxW * 6)) + 3;
                     var y = (boxH * 7) + 3;
                     [
@@ -3271,6 +3271,33 @@
                 </Fill>
             </For>
         </Behaviors>
+        <Actions>
+            <Action id="getCurrentDay" displayName="Get Current Day">
+                <Impl>
+                        <![CDATA[
+                            var currentDate = new Date();
+                            var monthValue = currentDate.getMonth();
+                            var year = currentDate.getFullYear().toString();
+                            var date = currentDate.getDate();
+                            var month = new Array();
+                            month[0] = "January";
+                            month[1] = "February";
+                            month[2] = "March";
+                            month[3] = "April";
+                            month[4] = "May";
+                            month[5] = "June";
+                            month[6] = "July";
+                            month[7] = "August";
+                            month[8] = "September";
+                            month[9] = "October";
+                            month[10] = "November";
+                            month[11] = "December";
+                            this.setProperty("monthContent", PlainText.fromString(month[monthValue] + "-" + year));
+                            this.setProperty("pickDay", date);
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
             <path id="shadownBox"/>
             <path id="box"/>

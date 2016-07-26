@@ -169,7 +169,7 @@ CollectionManager.loadStencils = function(showNotification) {
     console.log("Loading system stencils...");
     //load all system stencils
     var parser = new ShapeDefCollectionParser();
-      CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Common/Definition.xml"));
+    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Common/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/BasicWebElements/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Gtk.GUI/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/SketchyGUI/Definition.xml"));
@@ -180,7 +180,7 @@ CollectionManager.loadStencils = function(showNotification) {
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/iOS.GUI/Definition.xml"));
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/iOS-Wireframe/Definition.xml"));
     // CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Windows7/Definition.xml"));
-	    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Prototype_GUI/Definition.xml"));
+	CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Prototype_GUI/Definition.xml"));
     CollectionManager._loadUserDefinedStencilsIn(Config.getDataFilePath(Config.STENCILS_DIR_NAME));
 
 
