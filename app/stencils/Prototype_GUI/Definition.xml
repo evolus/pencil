@@ -1058,7 +1058,7 @@
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property displayName="Month Content" name="monthContent"
-                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0, $box.w - 60,(($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: false})" type="PlainText"><![CDATA[AUG - 2016]]></Property>
+                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0, $box.w - 60, (($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: false})" type="PlainText"><![CDATA[AUG - 2016]]></Property>
                 <Property name="textFont" displayName="Default Font" type="Font">'Arial'|normal|normal|15px</Property>
                 <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
                 <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
@@ -1100,8 +1100,8 @@
             <For ref="arrowLeft">
                 <D>
                   [
-                      skline(10,(($box.h - 6) / 7) / 2,20,((($box.h - 6) / 7) / 2) - 8),
-                      sklineTo(20,((($box.h - 6) / 7) / 2) + 8),
+                      skline(10, (($box.h - 6) / 7) / 2, 20, ((($box.h - 6) / 7) / 2) - 8),
+                      sklineTo(20, ((($box.h - 6) / 7) / 2) + 8),
                       z
                   ]
                 </D>
@@ -1109,7 +1109,7 @@
             <For ref="arrowRight">
                 <D>
                   [
-                      skline($box.w - 10,(($box.h - 6) / 7) / 2, $box.w - 20, ((($box.h - 6) / 7) / 2) - 8),
+                      skline($box.w - 10, (($box.h - 6) / 7) / 2, $box.w - 20, ((($box.h - 6) / 7) / 2) - 8),
                       sklineTo($box.w - 20, ((($box.h - 6) / 7) / 2) + 8),
                       z
                   ]
@@ -1121,7 +1121,7 @@
                 <Color>$textColor</Color>
                 <BoxFit>
                     <Arg>
-                        new Bound(30, 0, $box.w - 60,(($box.h - 6) / 7))
+                        new Bound(30, 0, $box.w - 60, (($box.h - 6) / 7))
                     </Arg>
                     <Arg>$textAlign</Arg>
                 </BoxFit>
@@ -1630,7 +1630,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="7">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 7, $start.value == "sunday" ? true : false)
@@ -1652,8 +1651,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con7">
+            </For>            <For ref="Con7">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -1678,7 +1676,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="8">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 8, $start.value == "sunday" ? true : false)
@@ -1700,8 +1697,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con8">
+            </For>            <For ref="Con8">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -1721,7 +1717,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="9">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 9, $start.value == "sunday" ? true : false)
@@ -1736,8 +1731,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con9">
+            </For>            <For ref="Con9">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -1757,7 +1751,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="10">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 10, $start.value == "sunday" ? true : false)
@@ -1772,8 +1765,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con10">
+            </For>            <For ref="Con10">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -1793,7 +1785,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="11">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 11, $start.value == "sunday" ? true : false)
@@ -1808,8 +1799,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con11">
+            </For>            <For ref="Con11">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -1830,7 +1820,6 @@
 
                 </Fill>
             </For>
-
             <For ref="12">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 12, $start.value == "sunday" ? true : false)
@@ -1867,7 +1856,6 @@
 
                 </Fill>
             </For>
-
             <For ref="13">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 13, $start.value == "sunday" ? true : false);
@@ -1889,8 +1877,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con13">
+            </For>            <For ref="Con13">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -1911,7 +1898,6 @@
 
                 </Fill>
             </For>
-
             <For ref="14">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 14, $start.value == "sunday" ? true : false)
@@ -1933,8 +1919,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con14">
+            </For>            <For ref="Con14">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -1959,7 +1944,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="15">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 15, $start.value == "sunday" ? true : false)
@@ -1981,8 +1965,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con15">
+            </For>            <For ref="Con15">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2002,7 +1985,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="16">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 16, $start.value == "sunday" ? true : false)
@@ -2017,8 +1999,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con16">
+            </For>            <For ref="Con16">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2038,7 +2019,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="17">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 17, $start.value == "sunday" ? true : false)
@@ -2053,8 +2033,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con17">
+            </For>            <For ref="Con17">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2073,8 +2052,7 @@
                     var date = getCalendarDate($monthContent.toString(), 17, $start.value == "sunday" ? true : false)
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
-            </For>
-            <For ref="18">
+            </For>            <For ref="18">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 18, $start.value == "sunday" ? true : false)
                     PlainText.fromString(date["value"]);
@@ -2088,8 +2066,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con18">
+            </For>            <For ref="Con18">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2109,7 +2086,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
             </Fill>
             </For>
-
             <For ref="19">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 19, $start.value == "sunday" ? true : false);
@@ -2124,8 +2100,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con19">
+            </For>            <For ref="Con19">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2145,7 +2120,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
             </Fill>
             </For>
-
             <For ref="20">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 20, $start.value == "sunday" ? true : false)
@@ -2167,8 +2141,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con20">
+            </For>            <For ref="Con20">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2188,7 +2161,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="21">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 21, $start.value == "sunday" ? true : false);
@@ -2210,8 +2182,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con21">
+            </For>            <For ref="Con21">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2235,7 +2206,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="22">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 22, $start.value == "sunday" ? true : false);
@@ -2257,8 +2227,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con22">
+            </For>            <For ref="Con22">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2278,7 +2247,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="23">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 23, $start.value == "sunday" ? true : false);
@@ -2293,8 +2261,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con23">
+            </For>            <For ref="Con23">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2314,7 +2281,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="24">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 24, $start.value == "sunday" ? true : false);
@@ -2329,8 +2295,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con24">
+            </For>            <For ref="Con24">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2350,7 +2315,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="25">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 25, $start.value == "sunday" ? true : false);
@@ -2365,8 +2329,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con25">
+            </For>            <For ref="Con25">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2386,7 +2349,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="26">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 26, $start.value == "sunday" ? true : false);
@@ -2401,8 +2363,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con26">
+            </For>            <For ref="Con26">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2422,7 +2383,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="27">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 27, $start.value == "sunday" ? true : false);
@@ -2444,8 +2404,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con27">
+            </For>            <For ref="Con27">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2465,7 +2424,6 @@
                     $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
                 </Fill>
             </For>
-
             <For ref="28">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 28, $start.value == "sunday" ? true : false);
@@ -2487,8 +2445,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con28">
+            </For>            <For ref="Con28">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2512,7 +2469,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="29">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 29, $start.value == "sunday" ? true : false);
@@ -2573,7 +2529,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="30">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 30, $start.value == "sunday" ? true : false);
@@ -2598,8 +2553,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con30">
+            </For>            <For ref="Con30">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2630,7 +2584,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="31">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 31, $start.value == "sunday" ? true : false);
@@ -2654,8 +2607,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con31">
+            </For>            <For ref="Con31">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2686,7 +2638,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="32">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 32, $start.value == "sunday" ? true : false);
@@ -2710,8 +2661,7 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con32">
+            </For>            <For ref="Con32">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 12) / 8);
@@ -2826,7 +2776,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-
             <For ref="Con34">
                 <D>
                     var boxW = (($box.w - 20) / 7);
@@ -2979,7 +2928,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="37">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 37, $start.value == "sunday" ? true : false);
@@ -3036,7 +2984,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="38">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 38, $start.value == "sunday" ? true : false);
@@ -3092,7 +3039,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="39">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 39, $start.value == "sunday" ? true : false);
@@ -3148,7 +3094,6 @@
                     }
                 </Fill>
             </For>
-
             <For ref="40">
                 <TextContent>
                     var date = getCalendarDate($monthContent.toString(), 40, $start.value == "sunday" ? true : false);
