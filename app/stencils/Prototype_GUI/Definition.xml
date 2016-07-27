@@ -1750,7 +1750,8 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con8">
+            </For>
+            <For ref="Con8">
                 <D>
                     var boxW = (($box.w - 20) / 7);
                     var boxH = (($box.h - 8) / 8);
