@@ -69,16 +69,26 @@
                 if (date == "Invalid Date") date = new Date();
                 var month = date.getMonth();
                 var year = date.getFullYear();
-                dayIndex -= startDayNum;
                 var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
                 var result = {};
                 var firstDayOfMonth = new Date(year, month, 1).getDay();
+                switch (startDayNum) {
+                    case 0:
+                        if (firstDayOfMonth == 0) {
+                            space-= 7;
+                            firstDayOfMonth += 7;
+                        }
+                        break;
+                    case 2:
+                        if (firstDayOfMonth == 6) {
+                            space+= 7;
+                            firstDayOfMonth -= 7;
+                        }
+                        break;
+                }
+                dayIndex -= startDayNum;
                 var space = dayIndex - firstDayOfMonth;
                 space++;
-                if (firstDayOfMonth == 6 && startDayNum == 2) {
-                    space+= 7;
-                    firstDayOfMonth -= 7;
-                }
                 var dayValue = new Date(year, month, space).getDate();
                 result["value"] = dayValue;
                 if (dayIndex < firstDayOfMonth || space > lastDayOfMonth)
@@ -111,11 +121,7 @@
         <Behaviors>
             <For ref="menu">
                 <D>
-                    var str = $strokeStyle.toString();
-                    var index = str.indexOf("|");
-                    var strokeW = str.substring(0, index);
-                    var a = parseInt(strokeW);
-                    a/=2;
+                    var a = $strokeStyle.w / 2;
                   [
                     skline(a, a, $box.w - a, a),
                     sklineTo($box.w - a, 31),
@@ -136,6 +142,7 @@
                     sklineTo($box.w, 32)
                   ]
                 </D>
+                <Transform>[translate(($strokeStyle.w / 2), ($strokeStyle.w / 2))]</Transform>
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <Fill>$fillColor</Fill>
@@ -146,15 +153,21 @@
                 <Color>$textColor.hollowed($disabled.value ? 0.5 : 0)</Color>
                 <PlainTextContent>
                     <Arg>$textContent</Arg>
-                    <Arg>new Bound(10, 0, $box.w - 20, 32)</Arg>
+                    <Arg>
+                        var a = $strokeStyle.w / 2;
+                        new Bound(10, 0, $box.w - 20, 32)
+                    </Arg>
                     <Arg>$textAlign</Arg>
                 </PlainTextContent>
             </For>
         </Behaviors>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
-            <path id="body" style="fill:white;stroke:black"/>
-            <path id="menu"/>
-            <text id="text"/>
+            <defs>
+                <rect id="rectBox" />
+                <path id="body"/>
+                <path id="menu"/>
+                <text id="text"/>
+            </defs>
         </p:Content>
     </Shape>
 
@@ -1070,7 +1083,7 @@
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property displayName="Month Content" name="monthContent"
-                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0, $box.w - 60, (($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: false})" type="PlainText"><![CDATA[OCT - 2016]]></Property>
+                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0, $box.w - 60, (($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: false})" type="PlainText"><![CDATA[Jan - 2017]]></Property>
                 <Property name="textFont" displayName="Default Font" type="Font">'Arial'|normal|normal|14px</Property>
                 <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
                 <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
