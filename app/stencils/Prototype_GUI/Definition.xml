@@ -75,9 +75,14 @@
                 var firstDayOfMonth = new Date(year, month, 1).getDay();
                 var space = dayIndex - firstDayOfMonth;
                 space++;
+                if (firstDayOfMonth == 6 && startDayNum == 2) {
+                    space+= 7;
+                    firstDayOfMonth -= 7;
+                }
                 var dayValue = new Date(year, month, space).getDate();
                 result["value"] = dayValue;
-                if (dayIndex < firstDayOfMonth || space > lastDayOfMonth) result["disabled"] = true;
+                if (dayIndex < firstDayOfMonth || space > lastDayOfMonth)
+                result["disabled"] = true;
                 return result;
             };
         ]]>
@@ -1065,7 +1070,7 @@
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property displayName="Month Content" name="monthContent"
-                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0, $box.w - 60, (($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: false})" type="PlainText"><![CDATA[AUG - 2016]]></Property>
+                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0, $box.w - 60, (($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: false})" type="PlainText"><![CDATA[OCT - 2016]]></Property>
                 <Property name="textFont" displayName="Default Font" type="Font">'Arial'|normal|normal|14px</Property>
                 <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
                 <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
