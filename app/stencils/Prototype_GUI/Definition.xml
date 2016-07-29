@@ -65,20 +65,57 @@
                 return i >= cols - 1;
             };
             collection.calendarArray;
-            collection.getCalendarArray = function (index, monthStr, startDayNum) {
-                if (this.calendarArray && this.calendarArray["month"]) {
-                    var selectedMonth = this.calendarArray["month"];
-                    if (selectedMonth.monthStr == monthStr && selectedMonth.startNum == startDayNum) {
-                        console.log("INDEX DATE:", index, this.calendarArray[index.toString()])
-                        return this.calendarArray[index.toString()];
-                    } else {
-                        this.updateCalendarDate(monthStr, startDayNum);
-                        return this.getCalendarArray(index, monthStr, startDayNum);
+            collection.selectedDate;
+            collection.getCalendarArray = function (index, month, startDateBy) {
+                if (this.calendarArray) {
+                  if (month) {
+                    if (new Date(month).getMonth() != new Date(this.selectedDate.date).getMonth() ||
+                        new Date(month).getFullYear() != new Date(this.selectedDate.date).getFullYear() ) {
+                        this.updateCalendarDate(month, startDateBy);
+                    }
+                  }
+                  if (startDateBy) {
+                    if (startDateBy != this.selectedDate.startDayOfWeek) {
+                        console.log("INDEX UPDATE", startDateBy);
+                        this.updateCalendarDate(month, startDateBy);
+                    }
+                  }
+                  return this.calendarArray[index];
+                }
+            };
+            collection.drawSelectedContainer = function(dateValue) {
+                for (var i = 1; i <=42; i++) {
+                    if (!this.calendarArray[i].disabled) {
+                        if (this.calendarArray[i].value == dateValue) {
+                            return this.calendarArray[i].container;
+                        }
                     }
                 }
-            }
+            };
+            collection.drawCalendarContainer = function (boxW, boxH) {
+                var results = [];
+                var dateCount = 1;
+                for (var i = 0; i < 6; i++) {
+                    for (var ii = 0; ii < 7; ii++) {
+                        var date = this.calendarArray[dateCount];
+                        if (!date.disabled) {
+                            var x = 13 + (boxW * ii);
+                            var y = (boxH * (i + 2)) + 3;
+                            var result = [
+                                skline(x, y, x + boxW - 6, y),
+                                sklineTo(x + boxW - 6, y + boxH - 6),
+                                sklineTo(x, y + boxH - 6),
+                                z
+                            ]
+                            this.calendarArray[dateCount].container = result;
+                            results = results.concat(result);
+                        }
+                        dateCount++;
+                    }
+                }
+                return results;
+            };
             collection.updateCalendarDate = function (dateStr, startDayNum) {
-                console.log("UPDATE CALENDAR");
                 var date = new Date(dateStr);
                 if (date == "Invalid Date") date = new Date();
                 var month = date.getMonth();
@@ -98,10 +135,9 @@
                         break;
                 }
                 this.calendarArray = [];
-                var monthType = {};
-                monthType["monthStr"] = dateStr;
-                monthType["startNum"] = startDayNum;
-                this.calendarArray["month"] = monthType;
+                this.selectedDate = [];
+                this.selectedDate.date = dateStr;
+                this.selectedDate.startDayOfWeek = startDayNum;
                 for (var i = 1; i <= 42; i++) {
                     var result = {};
                     var dayIndex = i - startDayNum;
@@ -111,7 +147,7 @@
                     result["value"] = dayValue;
                     if (dayIndex < firstDayOfMonth || space > lastDayOfMonth)
                     result["disabled"] = true;
-                    this.calendarArray[i.toString()] = result;
+                    this.calendarArray[i] = result;
                 }
             };
         ]]>
@@ -1108,7 +1144,7 @@
             </PropertyGroup>
             <PropertyGroup name="Day Style">
                 <Property name="start" displayName="Start Week By" type="Enum"
-                    p:enumValues="['0|Monday', '1|Sunday', '2|Saturday']">2</Property>
+                    p:enumValues="['0|Monday', '1|Sunday', '2|Saturday']">0</Property>
                 <Property name="dateTextColor" displayName="Date Color" type="Color"><E>$$textColor</E></Property>
             </PropertyGroup>
             <PropertyGroup name="Date style">
@@ -1342,6 +1378,31 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
+
+            <For ref="containerForDay">
+                <D>
+                    var month = $monthContent.toString();
+                    var startDayOfWeek = $start.value;
+                    var pickDay = $pickDay.value;
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    collection.drawCalendarContainer(boxW, boxH);
+                </D>
+                <StrokeColor> $dayStrokeColor.hollowed(0.9) </StrokeColor>
+                <StrokeStyle> $dayStrokeStyle </StrokeStyle>
+                <Fill> $dayFillColor.hollowed(0.97) </Fill>
+            </For>
+            <For ref="selectedContainerDay">
+                <D>
+                  var month = $monthContent.toString();
+                  var startDayOfWeek = $start.value;
+                  var pickDay = $pickDay.value;
+                  collection.drawSelectedContainer(parseInt($pickDay.value))
+                </D>
+                <StrokeColor> $dayStrokeColor.hollowed(1) </StrokeColor>
+                <StrokeStyle> $dayStrokeStyle </StrokeStyle>
+                <Fill> $dayFillColor.hollowed(0.77) </Fill>
+            </For>
             <For ref="1">
                 <TextContent>
                     var date = collection.getCalendarArray(1, $monthContent.toString(), parseInt($start.value));
@@ -1373,40 +1434,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con1">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = 13;
-                    var y = (boxH * 2) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(1, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>
-                     $dayStrokeStyle
-                </StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(1, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-
-                </Fill>
-            </For>
             <For ref="2">
                 <TextContent>
                     var date = collection.getCalendarArray(2, $monthContent.toString(), parseInt($start.value));
@@ -1436,39 +1463,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con2">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + boxW) + 3;
-                    var y = (boxH * 2) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(2, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>
-                    $dayStrokeStyle
-                </StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(2, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
             <For ref="3">
                 <TextContent>
                     var date = collection.getCalendarArray(3, $monthContent.toString(), parseInt($start.value));
@@ -1493,40 +1487,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con3">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 2)) + 3;
-                    var y = (boxH * 2) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(3, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>
-                    $dayStrokeStyle
-                </StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(3, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
-
             <For ref="4">
                 <TextContent>
                     var date = collection.getCalendarArray(4, $monthContent.toString(), parseInt($start.value));
@@ -1551,40 +1511,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con4">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 3)) + 3;
-                    var y = (boxH * 2) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(4, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>
-                    $dayStrokeStyle
-                </StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(4, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
-
             <For ref="5">
                 <TextContent>
                     var date = collection.getCalendarArray(5, $monthContent.toString(), parseInt($start.value));
@@ -1609,40 +1535,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con5">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 4)) + 3;
-                    var y = (boxH * 2) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(5, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>
-                    $dayStrokeStyle
-                </StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(5, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
-
             <For ref="6">
                 <TextContent>
                     var date = collection.getCalendarArray(6, $monthContent.toString(), parseInt($start.value));
@@ -1671,39 +1563,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con6">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 5)) + 3;
-                    var y = (boxH * 2) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(6, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>
-                     $dayStrokeStyle
-                </StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(6, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="7">
                 <TextContent>
@@ -1736,37 +1595,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con7">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 6)) + 3;
-                    var y = (boxH * 2) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(7, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(7, $monthContent.toString(), $start.value);
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
             <For ref="8">
                 <TextContent>
                     var date = collection.getCalendarArray(8, $monthContent.toString(), parseInt($start.value));
@@ -1791,26 +1619,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con8">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = 13;
-                    var y = (boxH * 3) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(8, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
-            </For>
             <For ref="9">
                 <TextContent>
                     var date = collection.getCalendarArray(9, $monthContent.toString(), parseInt($start.value));
@@ -1833,26 +1641,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con9">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + boxW) + 3;
-                    var y = (boxH * 3) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(9, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
-            </For>
             <For ref="10">
                 <TextContent>
                     var date = collection.getCalendarArray(10, $monthContent.toString(), parseInt($start.value));
@@ -1867,25 +1655,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con10">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 2)) + 3;
-                    var y = (boxH * 3) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                var date = collection.getCalendarArray(10, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
             </For>
             <For ref="11">
                 <TextContent>
@@ -1901,26 +1670,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con11">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 3)) + 3;
-                    var y = (boxH * 3) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(11, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-
-                </Fill>
             </For>
             <For ref="12">
                 <TextContent>
@@ -1936,27 +1685,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con12">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 4)) + 3;
-                    var y = (boxH * 3) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(12, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-
-                </Fill>
             </For>
             <For ref="13">
                 <TextContent>
@@ -1979,26 +1707,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con13">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 5)) + 3;
-                    var y = (boxH * 3) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(13, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-
-                </Fill>
             </For>
             <For ref="14">
                 <TextContent>
@@ -2023,30 +1731,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con14">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 6)) + 3;
-                    var y = (boxH * 3) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(14, $monthContent.toString(), parseInt($start.value));
-
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="15">
                 <TextContent>
@@ -2071,25 +1755,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con15">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = 13;
-                    var y = (boxH * 4) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(15, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
             </For>
             <For ref="16">
                 <TextContent>
@@ -2114,26 +1779,6 @@
                 </BoxFit>
 
             </For>
-            <For ref="Con16">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + boxW) + 3;
-                    var y = (boxH * 4) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(16, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
-            </For>
             <For ref="17">
                 <TextContent>
                     var date = collection.getCalendarArray(17, $monthContent.toString(), parseInt($start.value));
@@ -2148,26 +1793,8 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con17">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 2)) + 3;
-                    var y = (boxH * 4) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(17, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
-            </For>            <For ref="18">
+            </For>
+            <For ref="18">
                 <TextContent>
                     var date = collection.getCalendarArray(18, $monthContent.toString(), parseInt($start.value));
                     PlainText.fromString(date["value"]);
@@ -2181,25 +1808,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con18">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 3)) + 3;
-                    var y = (boxH * 4) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(18, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-            </Fill>
             </For>
             <For ref="19">
                 <TextContent>
@@ -2215,26 +1823,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con19">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 4)) + 3;
-                    var y = (boxH * 4) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(19, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-            </Fill>
             </For>
             <For ref="20">
                 <TextContent>
@@ -2257,25 +1845,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con20">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 5)) + 3;
-                    var y = (boxH * 4) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(20, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
             </For>
             <For ref="21">
                 <TextContent>
@@ -2300,29 +1869,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con21">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 6)) + 3;
-                    var y = (boxH * 4) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(21, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="22">
                 <TextContent>
@@ -2347,25 +1893,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con22">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = 13;
-                    var y = (boxH * 5) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(22, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
             </For>
             <For ref="23">
                 <TextContent>
@@ -2389,26 +1916,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con23">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + boxW) + 3;
-                    var y = (boxH * 5) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(23, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
-            </For>
             <For ref="24">
                 <TextContent>
                     var date = collection.getCalendarArray(24, $monthContent.toString(), parseInt($start.value));
@@ -2423,25 +1930,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con24">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW*2)) + 3;
-                    var y = (boxH * 5) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(24, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
             </For>
             <For ref="25">
                 <TextContent>
@@ -2457,25 +1945,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con25">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 3)) + 3;
-                    var y = (boxH * 5) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(25, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
             </For>
             <For ref="26">
                 <TextContent>
@@ -2491,25 +1960,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con26">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 4)) + 3;
-                    var y = (boxH * 5) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(26, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
             </For>
             <For ref="27">
                 <TextContent>
@@ -2532,25 +1982,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con27">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 5)) + 3;
-                    var y = (boxH * 5) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(27, $monthContent.toString(), parseInt($start.value));
-                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
-                </Fill>
             </For>
             <For ref="28">
                 <TextContent>
@@ -2575,29 +2006,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con28">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 6)) + 3;
-                    var y = (boxH * 5) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(28, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="29">
                 <TextContent>
@@ -2630,37 +2038,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con29">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = 13;
-                    var y = (boxH * 6) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(29, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(29, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
             <For ref="30">
                 <TextContent>
                     var date = collection.getCalendarArray(30, $monthContent.toString(), parseInt($start.value));
@@ -2689,36 +2066,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con30">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + boxW) + 3;
-                    var y = (boxH * 6) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(30, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(30, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="31">
                 <TextContent>
@@ -2743,36 +2090,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con31">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 2)) + 3;
-                    var y = (boxH * 6) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(31, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(31, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="32">
                 <TextContent>
@@ -2797,36 +2114,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>            <For ref="Con32">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 3)) + 3;
-                    var y = (boxH * 6) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(32, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(32, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="33">
                 <TextContent>
@@ -2851,37 +2138,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con33">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 4)) + 3;
-                    var y = (boxH * 6) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(33, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(33, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="34">
                 <TextContent>
@@ -2911,37 +2167,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con34">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 5)) + 3;
-                    var y = (boxH * 6) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                var date = collection.getCalendarArray(34, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(34, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="35">
                 <TextContent>
@@ -2975,37 +2200,6 @@
                     }
                 </Color>
             </For>
-            <For ref="Con35">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 6)) + 3;
-                    var y = (boxH * 6) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(35, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(35, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
             <For ref="36">
                 <TextContent>
                     var date = collection.getCalendarArray(36, $monthContent.toString(), parseInt($start.value));
@@ -3037,37 +2231,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con36">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = 13;
-                    var y = (boxH * 7) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(36, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(36, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
             <For ref="37">
                 <TextContent>
                     var date = collection.getCalendarArray(37, $monthContent.toString(), parseInt($start.value));
@@ -3097,37 +2260,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con37">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + boxW) + 3;
-                    var y = (boxH * 7) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(37, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(37, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
             <For ref="38">
                 <TextContent>
                     var date = collection.getCalendarArray(38, $monthContent.toString(), parseInt($start.value));
@@ -3151,37 +2283,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con38">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 2)) + 3;
-                    var y = (boxH * 7) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(38, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(38, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="39">
                 <TextContent>
@@ -3207,37 +2308,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="Con39">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 3)) + 3;
-                    var y = (boxH * 7) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(39, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(39, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
-            </For>
             <For ref="40">
                 <TextContent>
                     var date = collection.getCalendarArray(40, $monthContent.toString(), parseInt($start.value));
@@ -3261,37 +2331,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con40">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 4)) + 3;
-                    var y = (boxH * 7) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(40, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(40, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="41">
                 <TextContent>
@@ -3321,37 +2360,6 @@
                     </Arg>
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
-            </For>
-            <For ref="Con41">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 5)) + 3;
-                    var y = (boxH * 7) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                var date = collection.getCalendarArray(41, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(41, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
             <For ref="42">
                 <TextContent>
@@ -3383,37 +2391,6 @@
                         color.hollowed(0);
                     }
                 </Color>
-            </For>
-            <For ref="Con42">
-                <D>
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    var x = (10 + (boxW * 6)) + 3;
-                    var y = (boxH * 7) + 3;
-                    [
-                        skline(x, y, x + boxW - 6, y),
-                        sklineTo(x + boxW - 6, y + boxH - 6),
-                        sklineTo(x, y + boxH - 6),
-                        z
-                    ]
-                </D>
-                <StrokeColor>
-                    var date = collection.getCalendarArray(42, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayStrokeColor.hollowed(1);
-                    } else {
-                        $dayStrokeColor.hollowed(0.9);
-                    }
-                </StrokeColor>
-                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
-                <Fill>
-                    var date = collection.getCalendarArray(42, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        $dayFillColor.hollowed(1);
-                    } else {
-                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
-                    }
-                </Fill>
             </For>
         </Behaviors>
         <Actions>
@@ -3458,89 +2435,49 @@
             <text id="Fri">F</text>
             <text id="Sat">Sa</text>
 
-            <path id="Con1"/>
+            <path id="containerForDay"/>
+            <path id="selectedContainerDay"/>
             <text id="1"></text>
-            <path id="Con2"/>
             <text id="2"></text>
-            <path id="Con3"/>
             <text id="3"></text>
-            <path id="Con4"/>
             <text id="4"></text>
-            <path id="Con5"/>
             <text id="5"></text>
-            <path id="Con6"/>
             <text id="6"></text>
-            <path id="Con7"/>
             <text id="7"></text>
-            <path id="Con8"/>
             <text id="8"></text>
-            <path id="Con9"/>
             <text id="9"></text>
-            <path id="Con10"/>
             <text id="10"></text>
-            <path id="Con11"/>
             <text id="11"></text>
-            <path id="Con12"/>
             <text id="12"></text>
-            <path id="Con13"/>
             <text id="13"></text>
-            <path id="Con14"/>
             <text id="14"></text>
-            <path id="Con15"/>
             <text id="15"></text>
-            <path id="Con16"/>
-            <text id="16"/>
-            <path id="Con17"/>
+            <text id="16"></text>
             <text id="17"></text>
-            <path id="Con18"/>
             <text id="18"></text>
-            <path id="Con19"/>
             <text id="19"></text>
-            <path id="Con20"/>
             <text id="20"></text>
-            <path id="Con21"/>
             <text id="21"></text>
-            <path id="Con22"/>
             <text id="22"></text>
-            <path id="Con23"/>
             <text id="23"></text>
-            <path id="Con24"/>
             <text id="24"></text>
-            <path id="Con25"/>
             <text id="25"></text>
-            <path id="Con26"/>
             <text id="26"></text>
-            <path id="Con27"/>
             <text id="27"></text>
-            <path id="Con28"/>
             <text id="28"></text>
-            <path id="Con29"/>
             <text id="29"></text>
-            <path id="Con30"/>
             <text id="30"></text>
-            <path id="Con31"/>
             <text id="31"></text>
-            <path id="Con32"/>
             <text id="32"></text>
-            <path id="Con33"/>
             <text id="33"></text>
-            <path id="Con34"/>
             <text id="34"></text>
-            <path id="Con35"/>
             <text id="35"></text>
-            <path id="Con36"/>
             <text id="36"></text>
-            <path id="Con37"/>
             <text id="37"></text>
-            <path id="Con38"/>
             <text id="38"></text>
-            <path id="Con39"/>
             <text id="39"></text>
-            <path id="Con40"/>
             <text id="40"></text>
-            <path id="Con41"/>
             <text id="41"></text>
-            <path id="Con42"/>
             <text id="42"></text>
         </p:Content>
     </Shape>
