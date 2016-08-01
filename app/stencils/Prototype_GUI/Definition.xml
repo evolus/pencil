@@ -64,25 +64,6 @@
                 var cols = this.getMaxColumns(properties["content"].value);
                 return i >= cols - 1;
             };
-            collection.calendarArray;
-            collection.selectedDate;
-            collection.getCalendarArray = function (index, month, startDateBy) {
-                if (this.calendarArray) {
-                  if (month) {
-                    if (new Date(month).getMonth() != new Date(this.selectedDate.date).getMonth() ||
-                        new Date(month).getFullYear() != new Date(this.selectedDate.date).getFullYear() ) {
-                        this.updateCalendarDate(month, startDateBy);
-                    }
-                  }
-                  if (startDateBy) {
-                    if (startDateBy != this.selectedDate.startDayOfWeek) {
-                        console.log("INDEX UPDATE", startDateBy);
-                        this.updateCalendarDate(month, startDateBy);
-                    }
-                  }
-                  return this.calendarArray[index];
-                }
-            };
             collection.drawSelectedContainer = function(dateValue) {
                 for (var i = 1; i <=42; i++) {
                     if (!this.calendarArray[i].disabled) {
@@ -92,64 +73,38 @@
                     }
                 }
             };
-            collection.drawCalendarContainer = function (boxW, boxH) {
-                var results = [];
-                var dateCount = 1;
-                for (var i = 0; i < 6; i++) {
-                    for (var ii = 0; ii < 7; ii++) {
-                        var date = this.calendarArray[dateCount];
-                        if (!date.disabled) {
-                            var x = 13 + (boxW * ii);
-                            var y = (boxH * (i + 2)) + 3;
-                            var result = [
-                                skline(x, y, x + boxW - 6, y),
-                                sklineTo(x + boxW - 6, y + boxH - 6),
-                                sklineTo(x, y + boxH - 6),
-                                z
-                            ]
-                            this.calendarArray[dateCount].container = result;
-                            results = results.concat(result);
-                        }
-                        dateCount++;
-                    }
-                }
-                return results;
-            };
+            collection.calendarArray;
+            collection.selectedDate;
             collection.updateCalendarDate = function (dateStr, startDayNum) {
-                var date = new Date(dateStr);
-                if (date == "Invalid Date") date = new Date();
-                var month = date.getMonth();
-                var year = date.getFullYear();
-                var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
-                var firstDayOfMonth = new Date(year, month, 1).getDay();
-                switch (startDayNum) {
-                    case 0:
-                        if (firstDayOfMonth == 0) {
-                            firstDayOfMonth += 7;
-                        }
-                        break;
-                    case 2:
-                        if (firstDayOfMonth == 6) {
-                            firstDayOfMonth -= 7;
-                        }
-                        break;
-                }
-                this.calendarArray = [];
-                this.selectedDate = [];
-                this.selectedDate.date = dateStr;
-                this.selectedDate.startDayOfWeek = startDayNum;
-                for (var i = 1; i <= 42; i++) {
-                    var result = {};
-                    var dayIndex = i - startDayNum;
-                    var space = dayIndex - firstDayOfMonth;
-                    space++;
-                    var dayValue = new Date(year, month, space).getDate();
-                    result["value"] = dayValue;
-                    if (dayIndex < firstDayOfMonth || space > lastDayOfMonth)
-                    result["disabled"] = true;
-                    this.calendarArray[i] = result;
-                }
-            };
+               var date = new Date(dateStr);
+               if (date == "Invalid Date") date = new Date();
+               var month = date.getMonth();
+               var year = date.getFullYear();
+               var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+               var firstDayOfMonth = new Date(year, month, 1).getDay();
+               this.calendarArray = [];
+               this.selectedDate = [];
+               this.selectedDate.date = dateStr;
+               this.selectedDate.startDayOfWeek = startDayNum;
+               if (startDayNum == 2) {
+                if (firstDayOfMonth != 6) firstDayOfMonth += 7;
+               }
+               if (startDayNum == 0) firstDayOfMonth = (firstDayOfMonth == 0 ? 7 : firstDayOfMonth);
+               var dayCount = 1;
+               var firstIndex = 0;
+               if (startDayNum == 0) firstIndex = 1;
+               if (startDayNum == 2) firstIndex = 6
+               for (var i = firstIndex; i < 42 + firstIndex; i++) {
+                   var result = {};
+                   var space = i - firstDayOfMonth;
+                   space++;
+                   var dayValue = new Date(year, month, space).getDate();
+                   result["value"] = dayValue;
+                   if (i < firstDayOfMonth || space > lastDayOfMonth) result["disabled"] = true;
+                   this.calendarArray[dayCount] = result;
+                   dayCount++;
+               }
+           };
         ]]>
     </Script>
     <Shape id="frame" displayName="Frame" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAA0CAYAAAAzMZ5zAAABS0lEQVRoge3VMYqDQBjF8W9d7bZJPEAglpJz2FpMMa2XsLEMpPASCrmArd4g2C2kF2wDUy4ja9hqw+bBts4uvl8jTPX44+hLnuefSZK8ygq1bTuXZen/PPO32+09juNVBun7/o5nnoshfxmDgMf9uV6vUhSFKKVkt9uJtVY2m42M4yhpmrrcuKjHGxLHsRwOB9FaS9d1Ute1GGNkmibRWsv5fHa5czG/XpkoimSeZ/E8T8IwlCAIltzlzNMv53g8Pj2/KaWWW+QYP6qAQYBvjLFN06zjAwGMMRbP/P1+f8uy7M3FINeqqrrhGa8MYBDAIIBBAIMABgEMAhgEMAhgEMAggEEAgwAGAQwCGAQwCGAQwCCAQQCDAAYBDAIYBDAIYBDAIIBBAIMABgEMAhgEMAhgEMAggEGAPwzD5XQ6vbse4oK19sP1BqJ/7guJB0ilpditCwAAAABJRU5ErkJggg==">
@@ -1205,7 +1160,6 @@
             </For>
             <For ref="month">
                 <TextContent>
-                    collection.updateCalendarDate($monthContent.toString(),parseInt($start.value));
                     $monthContent
                 </TextContent>
                 <Font>$textFont</Font>
@@ -1378,20 +1332,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-
-            <For ref="containerForDay">
-                <D>
-                    var month = $monthContent.toString();
-                    var startDayOfWeek = $start.value;
-                    var pickDay = $pickDay.value;
-                    var boxW = (($box.w - 20) / 7);
-                    var boxH = (($box.h - 8) / 8);
-                    collection.drawCalendarContainer(boxW, boxH);
-                </D>
-                <StrokeColor> $dayStrokeColor.hollowed(0.9) </StrokeColor>
-                <StrokeStyle> $dayStrokeStyle </StrokeStyle>
-                <Fill> $dayFillColor.hollowed(0.97) </Fill>
-            </For>
             <For ref="selectedContainerDay">
                 <D>
                   var month = $monthContent.toString();
@@ -1403,994 +1343,107 @@
                 <StrokeStyle> $dayStrokeStyle </StrokeStyle>
                 <Fill> $dayFillColor.hollowed(0.77) </Fill>
             </For>
-            <For ref="1">
-                <TextContent>
-                    var date = collection.getCalendarArray(1, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 1) {
-                        color = Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        color = Color.fromString("#4166B5");
-                    } else {
-                        color = Color.fromString("#000");
+            <For ref="dateContext">
+                <DomContent>
+                    var month = $monthContent.toString();
+                    var start = parseInt($start.value);
+                    collection.updateCalendarDate(month,start);
+                    var gElement = F._target;
+                    var bBox = [];
+                    for (var i = 1; i &lt; 43; i++) {
+                        var date = collection.calendarArray[i];
+                        Dom.empty(gElement);
+                        var nodeTemp = Dom.newDOMElement({
+                            _name: "text",
+                            _uri: "http://www.w3.org/2000/svg",
+                            _text : date.value
+                        })
+                        gElement.appendChild(nodeTemp);
+                        bBox.push(gElement.getBBox());
                     }
-                    var date = collection.getCalendarArray(1, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10, boxH*2, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="2">
-                <TextContent>
-                    var date = collection.getCalendarArray(2, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 2) {
-                        color = Color.fromString("#CC0000");
-                    } else {
-                        color = Color.fromString("#000");
-                    }
-                    var date = collection.getCalendarArray(2, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + boxW, boxH*2, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="3">
-                <TextContent>
-                    var date = collection.getCalendarArray(3, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color = Color.fromString("#000");
-                    var date = collection.getCalendarArray(3, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 2), boxH*2, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="4">
-                <TextContent>
-                    var date = collection.getCalendarArray(4, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Color>
-                    var color = Color.fromString("#000");
-                    var date = collection.getCalendarArray(4, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 3), boxH*2, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="5">
-                <TextContent>
-                    var date = collection.getCalendarArray(5, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color = Color.fromString("#000");
-                    var date = collection.getCalendarArray(5, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 4), boxH*2, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="6">
-                <TextContent>
-                    var date = collection.getCalendarArray(6, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 0) {
-                        color = Color.fromString("#4166B5");
-                    } else {
-                        color = Color.fromString("#000");
-                    }
-                    var date = collection.getCalendarArray(6, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 5), boxH*2, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="7">
-                <TextContent>
-                    var date = collection.getCalendarArray(7, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 0) {
-                        color = Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        color = Color.fromString("#000");
-                    } else {
-                        color = Color.fromString("#4166B5");
-                    }
-                    var date = collection.getCalendarArray(7, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 6), boxH*2, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="8">
-                <TextContent>
-                    var date = collection.getCalendarArray(8, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 1) {
-                        Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        Color.fromString("#4166B5");
-                    } else {
-                        Color.fromString("#000");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10, boxH*3, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="9">
-                <TextContent>
-                    var date = collection.getCalendarArray(9, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 2) {
-                        Color.fromString("#CC0000");
-                    } else {
-                        Color.fromString("#000");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + boxW, boxH*3, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="10">
-                <TextContent>
-                    var date = collection.getCalendarArray(10, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 2), boxH*3, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="11">
-                <TextContent>
-                    var date = collection.getCalendarArray(11, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 3), boxH*3, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="12">
-                <TextContent>
-                    var date = collection.getCalendarArray(12, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 4), boxH*3, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="13">
-                <TextContent>
-                    var date = collection.getCalendarArray(13, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 0) {
-                        Color.fromString("#4166B5");
-                    } else {
-                        Color.fromString("#000");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 5), boxH*3, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="14">
-                <TextContent>
-                    var date = collection.getCalendarArray(14, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 0) {
-                        Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        Color.fromString("#000");
-                    } else {
-                        Color.fromString("#4166B5");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 6), boxH*3, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="15">
-                <TextContent>
-                    var date = collection.getCalendarArray(15, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 1) {
-                        Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        Color.fromString("#4166B5");
-                    } else {
-                        Color.fromString("#000");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10, boxH*4, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="16">
-                <TextContent>
-                    var date = collection.getCalendarArray(16, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 2) {
-                        Color.fromString("#CC0000");
-                    } else {
-                        Color.fromString("#000");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + boxW, boxH*4, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
+                    Dom.empty(gElement);
+                    var specs =[];
+                    var boxW = ($box.w - 20) / 7;
+                    var boxH = (($box.h - 8) / 8);
+                    var dateCount = 1;
+                    for (var i = 0; i &lt; 6; i++) {
+                        for (var ii = 0 ; ii &lt; 7; ii++) {
+                            var x = 10 + (boxW * ii);
+                            var y = boxH * (i + 2);
+                            var date = collection.calendarArray[dateCount];
+                            var css = new CSS();
+                            css.set("font-size",$textFont.size);
+                            css.set("font-family",$textFont.family);
+                            css.set("font-style",$textFont.style);
+                            css.set("font-weight",$textFont.weight);
+                            css.set("font-decor",$textFont.decor);
+                            var fillColor = Color.fromString("#000");
+                            if (start == 0) {
+                                if (ii == 6) {
+                                    fillColor = Color.fromString("#ff3333");
+                                } else if (ii == 5) {
+                                    fillColor = Color.fromString("#0099ff");
+                                }
+                            } else if (start == 1) {
+                                if (ii == 0) {
+                                    fillColor = Color.fromString("#ff3333");
+                                } else if (ii == 6) {
+                                    fillColor = Color.fromString("#0099ff");
+                                }
+                            } else {
+                                if (ii == 1) {
+                                    fillColor = Color.fromString("#ff3333");
+                                } else if (ii == 0) {
+                                    fillColor = Color.fromString("#0099ff");
+                                }
+                            }
+                            if (date.disabled) {
+                                css.set("fill", fillColor.hollowed(0.5).toRGBAString());
+                            } else {
+                                css.set("fill", fillColor.hollowed(0).toRGBAString());
+                            }
 
-            </For>
-            <For ref="17">
-                <TextContent>
-                    var date = collection.getCalendarArray(17, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 2), boxH*4, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="18">
-                <TextContent>
-                    var date = collection.getCalendarArray(18, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 3), boxH*4, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="19">
-                <TextContent>
-                    var date = collection.getCalendarArray(19, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 4), boxH*4, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="20">
-                <TextContent>
-                    var date = collection.getCalendarArray(20, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 0) {
-                        Color.fromString("#4166B5");
-                    } else {
-                        Color.fromString("#000");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 5), boxH*4, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="21">
-                <TextContent>
-                    var date = collection.getCalendarArray(21, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 0) {
-                        Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        Color.fromString("#000");
-                    } else {
-                        Color.fromString("#4166B5");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 6), boxH*4, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="22">
-                <TextContent>
-                    var date = collection.getCalendarArray(22, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 1) {
-                        Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        Color.fromString("#4166B5");
-                    } else {
-                        Color.fromString("#000");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10, boxH*5, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="23">
-                <TextContent>
-                    var date = collection.getCalendarArray(23, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 2) {
-                        Color.fromString("#CC0000");
-                    } else {
-                        Color.fromString("#000");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + boxW, boxH*5, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="24">
-                <TextContent>
-                    var date = collection.getCalendarArray(24, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 2), boxH*5, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="25">
-                <TextContent>
-                    var date = collection.getCalendarArray(25, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 3), boxH*5, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="26">
-                <TextContent>
-                    var date = collection.getCalendarArray(26, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 4), boxH*5, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="27">
-                <TextContent>
-                    var date = collection.getCalendarArray(27, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 0) {
-                        Color.fromString("#4166B5");
-                    } else {
-                        Color.fromString("#000");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 5), boxH*5, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="28">
-                <TextContent>
-                    var date = collection.getCalendarArray(28, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    if (parseInt($start.value) == 0) {
-                        Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        Color.fromString("#000");
-                    } else {
-                        Color.fromString("#4166B5");
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 6), boxH*5, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="29">
-                <TextContent>
-                    var date = collection.getCalendarArray(29, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 1) {
-                        color = Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        color = Color.fromString("#4166B5");
-                    } else {
-                        color = Color.fromString("#000");
-                    }
-                    var date = collection.getCalendarArray(29, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10, boxH*6, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="30">
-                <TextContent>
-                    var date = collection.getCalendarArray(30, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 2) {
-                        color = Color.fromString("#CC0000");
-                    } else {
-                        color = Color.fromString("#000");
-                    }
-                    var date = collection.getCalendarArray(30, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + boxW, boxH*6, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="31">
-                <TextContent>
-                    var date = collection.getCalendarArray(31, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color = Color.fromString("#000");
-                    var date = collection.getCalendarArray(31, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 2), boxH*6, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="32">
-                <TextContent>
-                    var date = collection.getCalendarArray(32, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color = Color.fromString("#000");
-                    var date = collection.getCalendarArray(32, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 3), boxH*6, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="33">
-                <TextContent>
-                    var date = collection.getCalendarArray(33, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color = Color.fromString("#000");
-                    var date = collection.getCalendarArray(33, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 4), boxH*6, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="34">
-                <TextContent>
-                    var date = collection.getCalendarArray(34, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 0) {
-                        color = Color.fromString("#4166B5");
-                    } else {
-                        color = Color.fromString("#000");
-                    }
-                    var date = collection.getCalendarArray(34, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 5), boxH*6, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="35">
-                <TextContent>
-                    var date = collection.getCalendarArray(35, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 6), boxH*6, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 0) {
-                        color = Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        color = Color.fromString("#000");
-                    } else {
-                        color = Color.fromString("#4166B5");
-                    }
-                    var date = collection.getCalendarArray(35, $monthContent.toString(), parseInt($start.value));
+                            var node = {
+                                _name: "text",
+                                _uri: "http://www.w3.org/2000/svg",
+                                _text : date.value,
+                                x: x,
+                                y: y,
+                                dx: (boxW - bBox[(dateCount - 1)].width) / 2,
+                                dy: (((boxH - 6) - bBox[(dateCount - 1)].height) / 2) + bBox[(dateCount - 1)].height,
+                                style: css
+                            }
+                            specs.push(node);
+                            if (!date.disabled) {
+                                x = 13 + (boxW * ii);
+                                y = (boxH * (i + 2)) + 3;
+                                var css = new CSS();
+                                css.set("stroke-width", $dayStrokeStyle.w);
+                                css.set("stroke", $dayStrokeColor.hollowed(0.9).toRGBAString());
+                                css.set("stroke-opacity", $dayStrokeColor.a);
+                                css.set("Fill", $dayFillColor.hollowed(0.97).toRGBAString());
+                                css.set("Fill-opacity", $dayFillColor.a);
 
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
+                                var node = {
+                                    _name: "path",
+                                    _uri: "http://www.w3.org/2000/svg",
+                                    d: " M "+ x +","+ y +" L "+ (x + boxW - 6) +" , "+ y +" L "+ (x + boxW - 6) +" , "+ (y + boxH - 6) +" L "+ x +" , "+ (y + boxH - 6) +" L "+ x +" , "+ y +" ",
+                                    style: css
+                                }
+                                var container = [
+                                    skline(x, y, x + boxW - 6, y),
+                                    sklineTo(x + boxW - 6, y + boxH - 6),
+                                    sklineTo(x, y + boxH - 6),
+                                    z
+                                ]
+                                collection.calendarArray[dateCount].container = container;
+                                specs.push(node);
+                            }
+                            dateCount++;
+                        }
                     }
-                </Color>
-            </For>
-            <For ref="36">
-                <TextContent>
-                    var date = collection.getCalendarArray(36, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 1) {
-                        color = Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        color = Color.fromString("#4166B5");
-                    } else {
-                        color = Color.fromString("#000");
-                    }
-                    var date = collection.getCalendarArray(36, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10, boxH*7, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="37">
-                <TextContent>
-                    var date = collection.getCalendarArray(37, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 2) {
-                        color = Color.fromString("#CC0000");
-                    } else {
-                        color = Color.fromString("#000");
-                    }
-                    var date = collection.getCalendarArray(37, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + boxW, boxH*7, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="38">
-                <TextContent>
-                    var date = collection.getCalendarArray(38, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color = Color.fromString("#000");
-                    var date = collection.getCalendarArray(38, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 2), boxH*7, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="39">
-                <TextContent>
-                    var date = collection.getCalendarArray(39, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color = Color.fromString("#000");
-                    var date = collection.getCalendarArray(39, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 3), boxH*7, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="40">
-                <TextContent>
-                    var date = collection.getCalendarArray(40, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color = Color.fromString("#000");
-                    var date = collection.getCalendarArray(40, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 4), boxH*7, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="41">
-                <TextContent>
-                    var date = collection.getCalendarArray(41, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 0) {
-                        color = Color.fromString("#4166B5");
-                    } else {
-                        color = Color.fromString("#000");
-                    }
-                    var date = collection.getCalendarArray(41, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 5), boxH*7, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-            </For>
-            <For ref="42">
-                <TextContent>
-                    var date = collection.getCalendarArray(42, $monthContent.toString(), parseInt($start.value));
-                    PlainText.fromString(date["value"]);
-                </TextContent>
-                <Font>$textFont</Font>
-                <BoxFit>
-                    <Arg>
-                        var boxW = ($box.w - 20) / 7;
-                        var boxH = (($box.h - 8) / 8);
-                        new Bound(10 + (boxW * 6), boxH*7, boxW, boxH);
-                    </Arg>
-                    <Arg>new Alignment(1,1)</Arg>
-                </BoxFit>
-                <Color>
-                    var color;
-                    if (parseInt($start.value) == 0) {
-                        color = Color.fromString("#CC0000");
-                    } else if (parseInt($start.value) == 2) {
-                        color = Color.fromString("#000");
-                    } else {
-                        color = Color.fromString("#4166B5");
-                    }
-                    var date = collection.getCalendarArray(42, $monthContent.toString(), parseInt($start.value));
-                    if (date["disabled"]) {
-                        color.hollowed(0.5);
-                    } else {
-                        color.hollowed(0);
-                    }
-                </Color>
+                    Dom.newDOMFragment(specs);
+                </DomContent>
             </For>
         </Behaviors>
         <Actions>
@@ -2426,7 +1479,6 @@
             <path id="arrowLeft" style="fill: #686868; stroke:#686868; stroke-linejoin: round;"/>
             <path id="arrowRight" style="fill: #686868; stroke:#686868; stroke-linejoin: round;"/>
             <text id="month" />
-
             <text id="Sun">S</text>
             <text id="Mon">M</text>
             <text id="Thu">T</text>
@@ -2434,51 +1486,8 @@
             <text id="Thi">T</text>
             <text id="Fri">F</text>
             <text id="Sat">Sa</text>
-
-            <path id="containerForDay"/>
             <path id="selectedContainerDay"/>
-            <text id="1"></text>
-            <text id="2"></text>
-            <text id="3"></text>
-            <text id="4"></text>
-            <text id="5"></text>
-            <text id="6"></text>
-            <text id="7"></text>
-            <text id="8"></text>
-            <text id="9"></text>
-            <text id="10"></text>
-            <text id="11"></text>
-            <text id="12"></text>
-            <text id="13"></text>
-            <text id="14"></text>
-            <text id="15"></text>
-            <text id="16"></text>
-            <text id="17"></text>
-            <text id="18"></text>
-            <text id="19"></text>
-            <text id="20"></text>
-            <text id="21"></text>
-            <text id="22"></text>
-            <text id="23"></text>
-            <text id="24"></text>
-            <text id="25"></text>
-            <text id="26"></text>
-            <text id="27"></text>
-            <text id="28"></text>
-            <text id="29"></text>
-            <text id="30"></text>
-            <text id="31"></text>
-            <text id="32"></text>
-            <text id="33"></text>
-            <text id="34"></text>
-            <text id="35"></text>
-            <text id="36"></text>
-            <text id="37"></text>
-            <text id="38"></text>
-            <text id="39"></text>
-            <text id="40"></text>
-            <text id="41"></text>
-            <text id="42"></text>
+            <g id="dateContext"/>
         </p:Content>
     </Shape>
 </Shapes>
