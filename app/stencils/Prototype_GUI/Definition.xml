@@ -64,28 +64,16 @@
                 var cols = this.getMaxColumns(properties["content"].value);
                 return i >= cols - 1;
             };
-            collection.drawSelectedContainer = function(dateValue) {
-                for (var i = 1; i <=42; i++) {
-                    if (!this.calendarArray[i].disabled) {
-                        if (this.calendarArray[i].value == dateValue) {
-                            return this.calendarArray[i].container;
-                        }
-                    }
-                }
-            };
-            collection.calendarArray;
-            collection.selectedDate;
-            collection.updateCalendarDate = function (dateStr, startDayNum) {
+        
+            collection.getCalendarDate = function (dateStr, startDayNum) {
                var date = new Date(dateStr);
                if (date == "Invalid Date") date = new Date();
                var month = date.getMonth();
                var year = date.getFullYear();
                var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
                var firstDayOfMonth = new Date(year, month, 1).getDay();
-               this.calendarArray = [];
-               this.selectedDate = [];
-               this.selectedDate.date = dateStr;
-               this.selectedDate.startDayOfWeek = startDayNum;
+               var calendarArray = [];
+
                if (startDayNum == 2) {
                 if (firstDayOfMonth != 6) firstDayOfMonth += 7;
                }
@@ -101,9 +89,10 @@
                    var dayValue = new Date(year, month, space).getDate();
                    result["value"] = dayValue;
                    if (i < firstDayOfMonth || space > lastDayOfMonth) result["disabled"] = true;
-                   this.calendarArray[dayCount] = result;
+                   calendarArray[dayCount] = result;
                    dayCount++;
                }
+               return calendarArray;
            };
         ]]>
     </Script>
@@ -1332,26 +1321,16 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-            <For ref="selectedContainerDay">
-                <D>
-                  var month = $monthContent.toString();
-                  var startDayOfWeek = $start.value;
-                  var pickDay = $pickDay.value;
-                  collection.drawSelectedContainer(parseInt($pickDay.value))
-                </D>
-                <StrokeColor> $dayStrokeColor.hollowed(1) </StrokeColor>
-                <StrokeStyle> $dayStrokeStyle </StrokeStyle>
-                <Fill> $dayFillColor.hollowed(0.77) </Fill>
-            </For>
             <For ref="dateContext">
                 <DomContent>
                     var month = $monthContent.toString();
                     var start = parseInt($start.value);
-                    collection.updateCalendarDate(month,start);
+                    var pickDay = parseInt($pickDay.value);
+                    var calendarArray = collection.getCalendarDate(month,start);
                     var gElement = F._target;
                     var bBox = [];
                     for (var i = 1; i &lt; 43; i++) {
-                        var date = collection.calendarArray[i];
+                        var date = calendarArray[i];
                         Dom.empty(gElement);
                         var nodeTemp = Dom.newDOMElement({
                             _name: "text",
@@ -1370,7 +1349,7 @@
                         for (var ii = 0 ; ii &lt; 7; ii++) {
                             var x = 10 + (boxW * ii);
                             var y = boxH * (i + 2);
-                            var date = collection.calendarArray[dateCount];
+                            var date = calendarArray[dateCount];
                             var css = new CSS();
                             css.set("font-size",$textFont.size);
                             css.set("font-family",$textFont.family);
@@ -1421,7 +1400,13 @@
                                 css.set("stroke-width", $dayStrokeStyle.w);
                                 css.set("stroke", $dayStrokeColor.hollowed(0.9).toRGBAString());
                                 css.set("stroke-opacity", $dayStrokeColor.a);
-                                css.set("Fill", $dayFillColor.hollowed(0.97).toRGBAString());
+
+                                if (date.value == pickDay) {
+                                    css.set("Fill", $dayFillColor.hollowed(0.77).toRGBAString());
+                                } else {
+                                    css.set("Fill", $dayFillColor.hollowed(0.97).toRGBAString());
+                                }
+
                                 css.set("Fill-opacity", $dayFillColor.a);
 
                                 var node = {
@@ -1430,13 +1415,6 @@
                                     d: " M "+ x +","+ y +" L "+ (x + boxW - 6) +" , "+ y +" L "+ (x + boxW - 6) +" , "+ (y + boxH - 6) +" L "+ x +" , "+ (y + boxH - 6) +" L "+ x +" , "+ y +" ",
                                     style: css
                                 }
-                                var container = [
-                                    skline(x, y, x + boxW - 6, y),
-                                    sklineTo(x + boxW - 6, y + boxH - 6),
-                                    sklineTo(x, y + boxH - 6),
-                                    z
-                                ]
-                                collection.calendarArray[dateCount].container = container;
                                 specs.push(node);
                             }
                             dateCount++;
@@ -1486,7 +1464,6 @@
             <text id="Thi">T</text>
             <text id="Fri">F</text>
             <text id="Sat">Sa</text>
-            <path id="selectedContainerDay"/>
             <g id="dateContext"/>
         </p:Content>
     </Shape>
