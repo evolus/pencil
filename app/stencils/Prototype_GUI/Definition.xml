@@ -219,9 +219,10 @@
                             new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
                             new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
                             new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id),
+                            new SnappingData("IconVCenter", b.x + sw + 50, "VCenter", true, this.id),
+                            new SnappingData("IconHCenter", b.y + sw + 82, "HCenter", false, this.id),
                             new SnappingData("ContentRight", b.x + (w - sw - 20), "Right", true, this.id),
-                            new SnappingData("IconLeft", b.x + sw + 20, "Left", true, this.id),
-                            new SnappingData("IconTop", b.y + sw + 55, "Top", false, this.id),
+                            new SnappingData("ContentLeft", b.x + sw + 100, "Left", true, this.id),
                             new SnappingData("ButtonCenter", (b.y + h) - (45 + sw) ,"HCenter", false, this.id)
                         ]
                     ]]>
@@ -546,15 +547,17 @@
                     <Arg>new Alignment(0, 0)</Arg>
                 </RichTextContent>
             </For>
-
             <For ref="question">
                 <Fill>$strokeColor</Fill>
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>2|</StrokeStyle>
                 <Visibility>$type.value == "question"</Visibility>
                 <Transform>
+                    var targetBox = F.getObjectBoundingBox("question");
                     var a = $strokeStyle.w;
-                    [translate(20 + a, 55 + a)]
+                    var y = 82 + a;
+                    var x = 50 + a;
+                    [translate(x - (targetBox.w / 2), y - (targetBox.h / 2))]
                 </Transform>
             </For>
             <For ref="warning">
@@ -563,8 +566,11 @@
                 <StrokeStyle>2|</StrokeStyle>
                 <Visibility>$type.value == "warning"</Visibility>
                 <Transform>
+                    var targetBox = F.getObjectBoundingBox("question");
                     var a = $strokeStyle.w;
-                    [translate(20 + a, 55 + a),scale(0.09533073929961089, 0.0949367088607595)]
+                    var y = 82 + a;
+                    var x = 50 + a;
+                    [translate(x - (targetBox.w / 2), y - (targetBox.h / 2)), ,scale(0.09533073929961089, 0.0949367088607595)]
                 </Transform>
             </For>
             <For ref="info">
@@ -573,8 +579,11 @@
                 <StrokeStyle>2|</StrokeStyle>
                 <Visibility>$type.value == "info"</Visibility>
                 <Transform>
+                    var targetBox = F.getObjectBoundingBox("question");
                     var a = $strokeStyle.w;
-                    [translate(20 + a, 55 + a)]
+                    var y = 82 + a;
+                    var x = 50 + a;
+                    [translate(x - (targetBox.w / 2), y - (targetBox.h / 2))]
                 </Transform>
             </For>
             <For ref="rectBtn1">
@@ -1010,13 +1019,13 @@
 
             <For ref="collapse">
                 <D>
-                  var a = $strokeStyle.w;
-                  var h = $box.h;
-                  var col = $box.h / 2;
-                  var x = $box.w - (a + 4) ;
+                  var w = $strokeStyle.w;
+                  var h = $box.h / 3;
+                  var y = ($box.h / 2) - (h / 2);
+                  var x = (($box.w - $box.h) + ($box.h /2)) ;
                   [
-                    skline(x, ($box.h / 2) - (col / 2), x - col, ($box.h / 2) - (col / 2)),
-                    sklineTo(x - (col/2), ($box.h / 2) + (col / 2)),
+                    skline(x - (h / 2), y, x + (h/2), y),
+                    sklineTo(x , y + h),
                     z
                   ]
                 </D>
@@ -1205,14 +1214,14 @@
             <For ref="arrowUp">
                 <D>
                     var w = $strokeStyle.w;
-                    var boxW = $box.w - w;
-                    var x = $box.w / 2;
-                    var y = w;
-                  [
-                    skline(x, 5 + y, w + 5, 10 + y),
-                    sklineTo(boxW - 5, 10 + y),
-                    z
-                  ]
+                    var h = $box.w / 3;
+                    var y = (($box.w / 2) - (h / 2));
+                    var x = ($box.w / 2);
+                    [
+                      skline(x, y, x - (h / 2), y + h),
+                      sklineTo(x + (h / 2), y + h),
+                      z
+                    ]
                 </D>
                 <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
                 <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
@@ -1221,14 +1230,14 @@
             <For ref="arrowDown">
                 <D>
                     var w = $strokeStyle.w;
-                    var x = $box.w / 2;
-                    var y = $box.h - w;
-                    var boxW = $box.w - w;
-                  [
-                    skline(x, y - 5, w + 5, y - 10),
-                    sklineTo(boxW - 5, y - 10),
-                    z
-                  ]
+                    var h = $box.w / 3;
+                    var y = (($box.h - $box.w) + ($box.w / 2)) - (h / 2);
+                    var x = ($box.w / 2);
+                    [
+                      skline(x - (h / 2), y, x + (h / 2), y),
+                      sklineTo(x, y + h),
+                      z
+                    ]
                 </D>
                 <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
                 <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
@@ -1309,14 +1318,14 @@
             <For ref="arrowLeft">
                 <D>
                     var w = $strokeStyle.w;
-                    var boxH = $box.h - w;
-                    var x = 5;
-                    var y = $box.h / 2;
-                  [
-                    skline(5 + w, $box.h / 2, 10 + w, 5 + w),
-                    sklineTo(10 + w, boxH - 5),
-                    z
-                  ]
+                    var h = $box.h / 3;
+                    var y = ($box.h / 2) - (h / 2);
+                    var x = ($box.h / 2) ;
+                    [
+                      skline(x + (h / 2), y, x + (h / 2), y + h),
+                      sklineTo(x - (h / 2), $box.h / 2),
+                      z
+                    ]
                 </D>
                 <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
                 <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
@@ -1326,14 +1335,14 @@
             <For ref="arrowRight">
                 <D>
                     var w = $strokeStyle.w;
-                    var boxH = $box.h - w;
-                    var x = 5;
-                    var y = $box.h / 2;
-                  [
-                      skline(($box.w - w) - 5, $box.h / 2, ($box.w - w) - 10, 5 + w),
-                      sklineTo(($box.w - w) - 10, boxH - 5),
+                    var h = $box.h / 3;
+                    var y = ($box.h / 2) - (h / 2);
+                    var x = (($box.w - $box.h) + ($box.h /2)) ;
+                    [
+                      skline(x - (h / 2), y, x - (h / 2), y + h),
+                      sklineTo(x + (h / 2) , $box.h / 2),
                       z
-                  ]
+                    ]
                 </D>
                 <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
                 <StrokeColor> $strokeColor.hollowed($disabled.value ? 0.5 : 0) </StrokeColor>
@@ -1430,33 +1439,37 @@
             </For>
             <For ref="arrowLeft">
                 <D>
-                  var a = $strokeStyle.w;
-                  var boxH = (($box.h - 7) / 16);
-                  var boxW = $box.w - 2*a;
-                  [
-                      skline(10 + a, boxH + a, 20 + a, (boxH - 8) + a),
-                      sklineTo(20 + a, (boxH + 8) + a),
+                    var a = $strokeStyle.w;
+                    var boxH = (($box.h - 7) / 8);
+                    var h = boxH / 2;
+                    var y = ((boxH / 2) + a) - (h / 2);
+                    var x = (boxH / 2) + a;
+                    [
+                      skline(x + (h / 2), y, x + (h / 2), y + h),
+                      sklineTo(x - (h / 2), y + (h / 2)),
                       z
-                  ]
+                    ]
                 </D>
                 <Fill>$strokeColor</Fill>
                 <StrokeColor>$strokeColor</StrokeColor>
-                <StrokeStyle>1|</StrokeStyle>
+                <StrokeStyle>2|</StrokeStyle>
             </For>
             <For ref="arrowRight">
                 <D>
                     var a = $strokeStyle.w;
-                    var boxH = (($box.h - 7) / 16);
-                    var boxW = $box.w - a;
-                  [
-                      skline(boxW - 10, boxH + a, boxW - 20, (boxH - 8) + a),
-                      sklineTo(boxW - 20, (boxH + 8) + a),
+                    var boxH = (($box.h - 7) / 8);
+                    var h = boxH / 2;
+                    var y = ((boxH / 2) + a) - (h / 2);
+                    var x = (($box.w - boxH) + (boxH /2)) - a;
+                    [
+                      skline(x - (h / 2), y, x - (h / 2), y + h),
+                      sklineTo(x + (h / 2) , y + (h/2)),
                       z
-                  ]
+                    ]
                 </D>
                 <Fill>$strokeColor</Fill>
                 <StrokeColor>$strokeColor</StrokeColor>
-                <StrokeStyle>1|</StrokeStyle>
+                <StrokeStyle>2|</StrokeStyle>
             </For>
             <For ref="month">
                 <TextContent>
