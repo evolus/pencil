@@ -1432,13 +1432,18 @@
         <Behaviors>
             <For ref="shadownBox">
                 <D>
+
                   [
-                    skline(5, 5, $box.w + 5, 5),
-                    sklineTo($box.w + 5, $box.h + 5),
-                    sklineTo(5, $box.h + 5),
+                    skline(0, 0, $box.w, 0),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
                     z
                   ]
                 </D>
+                <Transform>
+                    var a = $strokeStyle.w;
+                    [translate(5 + a, 5 + a)]
+                </Transform>
                 <Fill>$shadowFillColor.hollowed(0.9)</Fill>
             </For>
             <For ref="box">
@@ -1814,7 +1819,7 @@
                         var h = this.getProperty("box").h;
                         return [
                             new SnappingData("Left", b.x - sw / 2, "Left", true, this.id),
-                            new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
+                            new SnappingData("Top", b.y - sw / 2, "Top", false, this.id),
                             new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
                             new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id)
                         ]
