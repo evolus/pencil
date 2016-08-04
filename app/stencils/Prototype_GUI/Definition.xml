@@ -594,10 +594,6 @@
                      resultFont;
                  </Font>
                  <Fill>$textColor</Fill>
-                 <Transform>
-                     var a = $strokeStyle.w;
-                     [translate( a / 2, a / 2)];
-                 </Transform>
                  <BoxFit>
                      <Arg>
                          var a = $strokeStyle.w;
@@ -609,25 +605,37 @@
              <For ref="line1">
                  <D>
                      var a = $strokeStyle.w;
+                     var x = $box.w - (137 + a);
+                     var y = $box.h - (65 + a);
                      [
-                         skline($box.w - (137 + a), $box.h - (65 + a), $box.w - (20 + a), $box.h - (65 + a)),
-                         sklineTo($box.w - (20 + a), $box.h - (25 + a)),
-                         sklineTo($box.w - (137 + a), $box.h - (25 + a)),
+                         skline(x, y, x + 117 - a, y ),
+                         sklineTo(x + 117 - a, y + 40 - a),
+                         sklineTo(x, y + 40 - a),
                          z
                      ]
                  </D>
+                 <Transform>
+                     var a = $strokeStyle.w;
+                     [translate( a / 2, a / 2)];
+                 </Transform>
               </For>
 
               <For ref="line2">
                   <D>
                       var a = $strokeStyle.w;
+                      var x = $box.w - (300 + a);
+                      var y = $box.h - (65 + a);
                       [
-                          skline($box.w - (300 + a), $box.h - (65 + a), $box.w - (183 + a), $box.h - (65 + a)),
-                          sklineTo($box.w - (183 + a), $box.h - (25 + a) ),
-                          sklineTo($box.w - (300 + a), $box.h -(25 + a)),
+                          skline(x, y, x + 117 - a, y ),
+                          sklineTo(x + 117 - a, y + 40 - a),
+                          sklineTo(x, y + 40 - a),
                           z
                       ]
                   </D>
+                  <Transform>
+                      var a = $strokeStyle.w;
+                      [translate( a / 2, a / 2)];
+                  </Transform>
                </For>
              <For ref="rectBtn2">
                  <Fill>
