@@ -942,7 +942,8 @@
                 <Fill>$textColor</Fill>
                 <BoxFit>
                     <Arg>
-                        new Bound(10 , 0, $box.w - 20, $box.h )
+                        var a = $strokeStyle.w;
+                        new Bound(10 + a, a, $box.w - (20 + 2*a), $box.h - 2*a)
                     </Arg>
                     <Arg>$textAlign</Arg>
                 </BoxFit>
@@ -1214,9 +1215,9 @@
                   ]
                 </D>
                 <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
-                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>2|</StrokeStyle>
             </For>
-
             <For ref="arrowDown">
                 <D>
                     var w = $strokeStyle.w;
@@ -1230,7 +1231,8 @@
                   ]
                 </D>
                 <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
-                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>2|</StrokeStyle>
             </For>
         </Behaviors>
         <Actions>
@@ -1317,7 +1319,8 @@
                   ]
                 </D>
                 <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
-                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>2|</StrokeStyle>
             </For>
 
             <For ref="arrowRight">
@@ -1333,7 +1336,8 @@
                   ]
                 </D>
                 <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
-                <StrokeColor> $strokeColor </StrokeColor>
+                <StrokeColor> $strokeColor.hollowed($disabled.value ? 0.5 : 0) </StrokeColor>
+                <StrokeStyle>2|</StrokeStyle>
             </For>
         </Behaviors>
         <Actions>
