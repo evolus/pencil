@@ -219,11 +219,9 @@
                             new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
                             new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
                             new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id),
-                            new SnappingData("IconVCenter", b.x + sw + 50, "VCenter", true, this.id),
-                            new SnappingData("IconHCenter", b.y + sw + 82, "HCenter", false, this.id),
-                            new SnappingData("ContentRight", b.x + (w - sw - 20), "Right", true, this.id),
-                            new SnappingData("ContentLeft", b.x + sw + 100, "Left", true, this.id),
-                            new SnappingData("ButtonCenter", (b.y + h) - (45 + sw) ,"HCenter", false, this.id)
+                            new SnappingData("ContentRight", (b.x - sw / 2) + (w - sw - 20), "Right", true, this.id),
+                            new SnappingData("ContentLeft", b.x - sw / 2 + (20 + sw), "Left", true, this.id),
+                            new SnappingData("ButtonBottom", (b.y - sw / 2 + h) - (20 + sw) ,"Bottom", false, this.id)
                         ]
                     ]]>
                 </Impl>
@@ -606,7 +604,7 @@
                  <BoxFit>
                      <Arg>
                          var a = $strokeStyle.w;
-                         new Bound($box.w - (137 + a), $box.h - (65 + a), 117, 40)
+                         new Bound($box.w - (137 + a), $box.h - (60 + a), 117, 40)
                      </Arg>
                      <Arg>new Alignment(1,1)</Arg>
                  </BoxFit>
@@ -615,7 +613,7 @@
                  <D>
                      var a = $strokeStyle.w;
                      var x = $box.w - (137 + a);
-                     var y = $box.h - (65 + a);
+                     var y = $box.h - (60 + a);
                      [
                          skline(x, y, x + 117 - a, y ),
                          sklineTo(x + 117 - a, y + 40 - a),
@@ -632,8 +630,8 @@
               <For ref="line2">
                   <D>
                       var a = $strokeStyle.w;
-                      var x = $box.w - (300 + a);
-                      var y = $box.h - (65 + a);
+                      var x = $box.w - (274 + a);
+                      var y = $box.h - (60 + a);
                       [
                           skline(x, y, x + 117 - a, y ),
                           sklineTo(x + 117 - a, y + 40 - a),
@@ -670,7 +668,7 @@
                   <BoxFit>
                       <Arg>
                           var a = $strokeStyle.w;
-                          new Bound($box.w - (300 + a), $box.h - (65 + a), 117, 40)
+                          new Bound($box.w - (274 + a), $box.h - (60 + a), 117, 40)
                       </Arg>
                       <Arg>new Alignment(1,1)</Arg>
                   </BoxFit>
@@ -688,7 +686,8 @@
                             new SnappingData("Left", b.x - sw / 2, "Left", true, this.id),
                             new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
                             new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
-                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id)
+                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id),
+                            new SnappingData("ButtonHCenter", (b.y - sw / 2 + h) - 40, "HCenter", false, this.id),
                         ]
                     ]]>
                 </Impl>
@@ -1047,6 +1046,24 @@
                 </BoxFit>
             </For>
         </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var sw = this.getProperty("strokeStyle").w;
+                        var w = this.getProperty("box").w;
+                        var h = this.getProperty("box").h;
+                        return [
+                            new SnappingData("Left", b.x - sw / 2, "Left", true, this.id),
+                            new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
+                            new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
+                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
             <path id="textBox" style="stroke:black"/>
             <path id="collapse" style="stroke-linejoin: round;"/>
@@ -1149,7 +1166,9 @@
                             new SnappingData("Left", b.x - sw / 2, "Left", true, this.id),
                             new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
                             new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
-                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id)
+                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id),
+                            new SnappingData("ScrollRight", (b.x - sw / 2 + w) - sw, "Right", true, this.id),
+                            new SnappingData("ScrollBottom", (b.y - sw / 2 + h) - sw, "Bottom", false, this.id)
                         ]
                     ]]>
                 </Impl>
