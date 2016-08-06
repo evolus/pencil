@@ -127,7 +127,7 @@ OnMenuEditor.prototype.generateMenuItems = function () {
             linkItem.subItems.push(item);
         }
         linkItem.subItems.push({
-            label: "Notthing",
+            label: "Nothing",
             type: "Selection",
             isChecked: function() {
                 return targetPageId ? false : true;
