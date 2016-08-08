@@ -50,20 +50,19 @@
                 if (i < cols - 2) {
                     return properties["h" + (i + 1)].x - this.MIN_COL_WIDTH;
                 }
-
                 return properties["box"].w - this.MIN_COL_WIDTH;
             };
             collection.getMinXForColumnHandle = function (i, properties) {
                 if (i > 0) {
                     return properties["h" + (i - 1)].x + this.MIN_COL_WIDTH;
                 }
-
                 return this.MIN_COL_WIDTH;
             };
             collection.isColumnHandleDisabled = function (i, properties) {
                 var cols = this.getMaxColumns(properties["content"].value);
                 return i >= cols - 1;
             };
+
         ]]>
     </Script>
     <Shape id="box" displayName="Box" icon="Icons/box.png">
@@ -1614,6 +1613,10 @@ MenuItem]]></Property>
                     <Arg>"width"</Arg>
                     <Arg>$box.w + "px"</Arg>
                 </CustomStyle>
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
                 <Color>$textColor</Color>
                 <Font>$textFont</Font>
                 <CustomStyle>
@@ -1623,12 +1626,13 @@ MenuItem]]></Property>
                 <DomContent>
                     <![CDATA[
                         var gen = function (isHeader, content, colIndex, colCount) {
+                            var a = F.parseTextArray($content.value);
                             var style = new CSS();
                             content = content.replace("\r", "<br />");
 
                             //style.set("border", "solid " + $strokeStyle.w + "px " + $strokeColor.toRGBAString());
                             //style.set("border-image", "url('http://www.webdeveloper.com/forum/attachment.php?attachmentid=6300&d=1135355737') 27 round stretch;");
-                            style.set("padding", "0px");
+                            style.set("padding", "0");
 
                             if (isHeader) {
                                 //style.set("background-color", $headerBackground.toRGBAString());
@@ -1654,7 +1658,6 @@ MenuItem]]></Property>
 
                             w -= $strokeStyle.w + ($strokeStyle.w % 2);
                             style.set("width", w + "px");
-
                             var index = content.indexOf("@@");
                             if (index >= 0) {
                                 style.importRaw(content.substring(index + 2));
@@ -1662,7 +1665,6 @@ MenuItem]]></Property>
                             }
 
                             content = content.replace(/\\n/gi, "\n");
-
                             var cell = {
                                 _name: isHeader ? "th" : "td",
                                 _uri: "http://www.w3.org/1999/xhtml",
@@ -1675,12 +1677,16 @@ MenuItem]]></Property>
                                         style: new CSS()
                                                 .set("overflow", "hidden")
                                                 .set("min-width", "0px")
+                                                .set("width", w + "px")
                                                 .set("-moz-box-sizing", "border-box")
                                                 .set("box-sizing", "border-box")
                                                 .set("padding", $padding.y + "px")
-                                                .set("width", w + "px")
-                                                .set("line-height", "0px")
+                                                .set("height", ($box.h - $strokeStyle.w) / a.length + "px")
+                                                .set("line-height", $textFont.size)
                                                 .set("text-align", "center")
+                                                .set("display", "table-cell")
+                                                .set("word-break", "break-all")
+                                                .set("vertical-align", "middle")
                                     }
                                 ]
                             };
@@ -1728,7 +1734,7 @@ MenuItem]]></Property>
                                     }
                                 );
                             } else {
-                                div.style.unset("line-height");
+
                                 div.style.unset("text-align");
                                 if ($useHtmlContent.value) {
                                     div._html = content;
@@ -1755,6 +1761,8 @@ MenuItem]]></Property>
 
                             tableStyle.set("width",  ($box.w - $strokeStyle.w) + "px");
                             tableStyle.set("height",  ($box.h - $strokeStyle.w) + "px");
+
+                            tableStyle.set("table-layout",  "fixed");
                             tableStyle.set("margin-left",  Math.ceil($strokeStyle.w / 2) + "px");
                             tableStyle.set("margin-top",  Math.ceil($strokeStyle.w / 2) + "px");
 
@@ -1762,7 +1770,7 @@ MenuItem]]></Property>
                                 _name: "table",
                                 _uri: "http://www.w3.org/1999/xhtml",
                                 _children: [],
-                                style: tableStyle.toString()
+                                style: tableStyle
                             };
 
                             var height = 0;
@@ -1782,9 +1790,8 @@ MenuItem]]></Property>
                                     tr.style = new CSS();
                                     tr.style.set("height", $headerHeight.y + "px");
                                 } else {
-                                    var headerHeight = contentHeight - (a.length - 1) * height;
                                     tr.style = new CSS();
-                                    tr.style.set("height", headerHeight + "px");
+                                    tr.style.set("height", height + "px");
                                 }
 
                                 table._children.push({
@@ -1795,10 +1802,9 @@ MenuItem]]></Property>
 
                                 for (var i = 0; i < headers.length; i ++) {
                                     var header = headers[i];
-                                    tr._children.push(gen(true, header, i, cols));
+                                    tr._children.push(gen(true, header, i, cols)); // return th
                                 }
-                            }
-                            if (a.length > 1) {
+
                                 var tbody = {
                                     _name: "tbody",
                                     _uri: "http://www.w3.org/1999/xhtml",
@@ -1812,12 +1818,14 @@ MenuItem]]></Property>
                                         _uri: "http://www.w3.org/1999/xhtml",
                                         _children: []
                                     };
-
+                                    tr.style = new CSS();
+                                    tr.style.set("height", height + "px");
+                                    tr.style.set("overflow", "hidden");
                                     tbody._children.push(tr);
 
                                     for (var i = 0; i < cells.length; i ++) {
                                         var cell = cells[i];
-                                        tr._children.push(gen(false, cell, i, cols));
+                                        tr._children.push(gen(false, cell, i, cols)); // return td
                                     }
                                 }
 
@@ -1848,23 +1856,19 @@ MenuItem]]></Property>
                     //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
                     //depends also: $textFont, $customStyle, $padding
                     var a = F.parseTextArray($content.value);
-                    var row = a.length;
-                    var minHeight = F.textSize("htmlObject").h;
-                    var h = Math.max(minHeight, $box.h)
-                    var fh = (h / row);
-                    if ($fixedHeaderHeight.value) {
-                        fh = $headerHeight.y;
-                        row -= 1;
-                        h -= $headerHeight.y;
-                        fh += (h / row);
-                    }
+                    var ch = $box.h / a.length;
 
-                    var da = [sk(0, fh, $box.w, fh)];
-                    for (var i = 1; i < row; i++) {
-                        da.push(M(0, fh + (h / row) * i));
-                        da.push(skTo($box.w, fh + (h / row) * i));
+                    if ($box.h > ch) {
+                        var chCount = $box.h / ch;
+                        var y = ch;
+                        var da =  [sk(0, y, $box.w, y)];
+                        for (var i = 1; i < chCount; i++) {
+                            y += ch;
+                            da.push(M(0, y));
+                            da.push(skTo($box.w, y));
+                        }
+                        da;
                     }
-                    da;
                 ]]>
                 </D>
             </For>
@@ -1881,12 +1885,10 @@ MenuItem]]></Property>
                     var a = F.parseTextArray($content.value);
                     if (a.length > 0) {
                         col = a[0].length;
-                        //debug("c: " + col);
                         var w = $box.w;
                         var da = [sk(0, 0, 0, h)];
                         for (var i = 0; i < col - 1; i++) {
                             var cw = properties["h" + i].x;
-                            //debug(cw);
                             da.push(M(cw, 0));
                             da.push(skTo(cw, h));
                         }
@@ -1921,13 +1923,31 @@ MenuItem]]></Property>
                 </D>
             </For>
         </Behaviors>
+        <Actions>
+            <Action id="validateColumns" displayName="Validate Columns">
+                <Impl>
+                    <![CDATA[
+                        var a = F.parseTextArray(this.getProperty("content").toString());
+                        var cw = a[0].length;
+                        var box = this.getProperty("box");
+                        var cellWidth = box.w / cw;
+                        var start = 0;
+                        for (var i = 0; i < cw; i++) {
+                            var hd = this.getProperty("h" + i);
+                            hd.x = start + cellWidth;
+                            this.setProperty("h" + i, hd);
+                            start = hd.x;
+                        }
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
             <path id="header" style="stroke-linejoin:round" />
             <path id="horizontal-line" style="fill:none;stroke-linejoin:round" />
             <path id="vertical-line" style="fill:none;stroke-linejoin:round" />
             <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
-                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="padding: 5px;">
-                </div>
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="padding: 5px;"></div>
                 <!-- <div xmlns="http://www.w3.org/1999/xhtml" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/> -->
             </foreignObject>
         </p:Content>

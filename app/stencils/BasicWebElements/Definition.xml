@@ -1012,6 +1012,9 @@
                         //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
                         var fragment = null;
                         try {
+                            $h0;
+                            $h1;
+                            $box;
                             var a = F.parseTextArray($content.value);
                             var cols = collection.getMaxColumns($content.value);
 
@@ -1114,8 +1117,26 @@
                     new Dimension($box.w + $strokeStyle.w % 2, Math.max($box.h + $strokeStyle.w % 2, F.elementSize("textDiv").h))
                 </Box>
             </For>
-	    
         </Behaviors>
+        <Actions>
+            <Action id="validateColumns" displayName="Validate Columns">
+                <Impl>
+                    <![CDATA[
+                        var a = F.parseTextArray(this.getProperty("content").toString());
+                        var cw = a[0].length;
+                        var box = this.getProperty("box");
+                        var cellWidth = box.w / cw;
+                        var start = 0;
+                        for (var i = 0; i < cw; i++) {
+                            var hd = this.getProperty("h" + i);
+                            hd.x = start + cellWidth;
+                            this.setProperty("h" + i, hd);
+                            start = hd.x;
+                        }
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
             <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
                 <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="padding: 5px;">
