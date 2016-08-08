@@ -1685,7 +1685,6 @@ MenuItem]]></Property>
                                                 .set("line-height", $textFont.size)
                                                 .set("text-align", "center")
                                                 .set("display", "table-cell")
-                                                .set("word-break", "break-all")
                                                 .set("vertical-align", "middle")
                                     }
                                 ]
