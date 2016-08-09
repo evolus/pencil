@@ -956,7 +956,7 @@
                                 ]
                             };
                             var div = cell._children[0];
-                            if (height) div.style.set("height", height + "px");
+                            if (height && !isHeader) div.style.set("height", height + "px");
                             if (content.match(/^[ \t]*\[\][ \t]*$/)) {
                                 div._children.push(
                                     {

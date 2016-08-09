@@ -98,6 +98,7 @@ function EditPageNoteDialog () {
     };
 
     window.document.body.addEventListener("mouseup", selectListener, false);
+    this.setup();
 }
 __extend(Dialog, EditPageNoteDialog);
 
@@ -302,8 +303,8 @@ EditPageNoteDialog.prototype.getDialogActions = function () {
         Dialog.ACTION_CANCEL,
         {   type: "accept", title: "Apply",
             run: function () {
-                //var newEditor = RichText.fromString(this.editor.innerHTML);
-                //this.onDone(newEditor);
+                var newEditor = RichText.fromString(this.editor.innerHTML);
+                this.onDone(newEditor);
                 return true;
             }
         }

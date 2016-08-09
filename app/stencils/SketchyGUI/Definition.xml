@@ -1622,7 +1622,7 @@ MenuItem]]></Property>
                 </CustomStyle>
                 <DomContent>
                     <![CDATA[
-                        var gen = function (isHeader, content, colIndex, colCount) {
+                        var gen = function (isHeader, content, colIndex, colCount, height) {
                             var a = F.parseTextArray($content.value);
                             var style = new CSS();
                             content = content.replace("\r", "<br />");
@@ -1641,6 +1641,7 @@ MenuItem]]></Property>
                             style.set("min-width", "0px");
                             style.set("min-height", "0px");
                             style.set("overflow", "hidden");
+                            style.set("height", height + "px");
 
                             var w = 0;
                             if (colIndex < colCount - 1) {
@@ -1677,8 +1678,8 @@ MenuItem]]></Property>
                                                 .set("width", w + "px")
                                                 .set("-moz-box-sizing", "border-box")
                                                 .set("box-sizing", "border-box")
+                                                .set("height", height + "px")
                                                 .set("padding", $padding.y + "px")
-                                                .set("height", ($box.h - $strokeStyle.w) / a.length + "px")
                                                 .set("line-height", $textFont.size)
                                                 .set("text-align", "center")
                                                 .set("display", "table-cell")
@@ -1687,8 +1688,8 @@ MenuItem]]></Property>
                                     }
                                 ]
                             };
-
                             var div = cell._children[0];
+
                             if (isHeader) {
                                 div.style.set("font-family", $headerFont.family);
                                 div.style.set("font-weight", $headerFont.weight);
@@ -1751,7 +1752,7 @@ MenuItem]]></Property>
                             return cell;
                         };
 
-                        //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                        //depends $headerHeight $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
                         var fragment = null;
                         try {
                             var a = F.parseTextArray($content.value);
@@ -1790,12 +1791,15 @@ MenuItem]]></Property>
                                     _uri: "http://www.w3.org/1999/xhtml",
                                     _children: []
                                 };
+                                var headerHeight;
                                 if ($fixedHeaderHeight.value) {
                                     tr.style = new CSS();
                                     tr.style.set("height", $headerHeight.y + "px");
+                                    headerHeight = $headerHeight.y;
                                 } else {
                                     tr.style = new CSS();
                                     tr.style.set("height", height + "px");
+                                    headerHeight = height;
                                 }
 
                                 table._children.push({
@@ -1806,8 +1810,10 @@ MenuItem]]></Property>
 
                                 for (var i = 0; i < headers.length; i ++) {
                                     var header = headers[i];
-                                    tr._children.push(gen(true, header, i, cols)); // return th
+                                    tr._children.push(gen(true, header, i, cols, headerHeight)); // return th
                                 }
+
+                                height = (contentHeight - headerHeight) / (a.length - 1);
 
                                 var tbody = {
                                     _name: "tbody",
@@ -1829,7 +1835,7 @@ MenuItem]]></Property>
 
                                     for (var i = 0; i < cells.length; i ++) {
                                         var cell = cells[i];
-                                        tr._children.push(gen(false, cell, i, cols)); // return td
+                                        tr._children.push(gen(false, cell, i, cols, height));
                                     }
                                 }
                                 table._children.push(tbody);
@@ -1855,7 +1861,7 @@ MenuItem]]></Property>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <D>
                 <![CDATA[
-                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box $headerHeight
                     //depends also: $textFont, $customStyle, $padding
                     var a = F.parseTextArray($content.value);
                     var row = a.length;
@@ -1884,7 +1890,7 @@ MenuItem]]></Property>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <D>
                 <![CDATA[
-                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box $headerHeight
                     //depends also: $textFont, $customStyle, $padding
                     var minHeight = F.textSize("htmlObject").h;
                     var h = Math.max(minHeight, $box.h)
