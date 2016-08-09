@@ -43,6 +43,23 @@ ImageData.invalidateValue = function (oldData, callback) {
         callback(null);
     }
 };
+ImageData.prepareForEmbedding = function (oldData, callback) {
+    console.log("prepareForEmbedding, oldData = ", oldData)
+    if (oldData.data.match(/^ref:\/\//)) {
+        var id = ImageData.refStringToId(oldData.data);
+        if (!id) {
+            callback(null);
+            return;
+        }
+
+        var filePath = Pencil.controller.refIdToFilePath(id);
+        console.log("converted file path: ", filePath);
+        var image = nativeImage.createFromPath(filePath);
+        callback(new ImageData(oldData.w, oldData.h, image.toDataURL()), null);
+    } else {
+        callback(null);
+    }
+};
 
 ImageData.filePathToURL = function (filePath, options) {
     filePath = path.resolve(filePath).replace(/\\/g, "/");
