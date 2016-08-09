@@ -156,7 +156,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
 Controller.prototype.duplicatePage = function (pageIn, onDone) {
     var page = pageIn;
-    var name = page.name;
+    var name = page.name + " (1)";
     var width = page.width;
     var height = page.height;
     var backgroundPageId;
@@ -169,6 +169,13 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     }
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
+
+    var seed = 2;
+    while (this.findPageByName(name)) {
+        name = page.name  + " (" + seed + ")";
+        seed ++;
+    };
+
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
     newPage.canvas = null;
 

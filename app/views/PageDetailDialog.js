@@ -434,20 +434,39 @@ PageDetailDialog.prototype.getDialogActions = function () {
         {
             type: "accept", title: this.originalPage ? "Update" : "Create",
             run: function () {
-                if (this.pageTitle.value == "" ) {
+                var pageName = this.pageTitle.value;
+                if (pageName == "" ) {
                     Dialog.error("The page name is invalid. Please enter the valid page name.");
                     return;
                 }
-                if (thiz.isCreatePage) {
-                    var page = thiz.createPage();
-                    if (thiz.onDone) thiz.onDone(page);
-                } else {
-                    if (this.modified) {
-                        var page = thiz.updatePage();
-                        if (thiz.onDone) thiz.onDone(page);
+
+                if (this.originalPage && this.originalPage.name != pageName || !this.originalPage) {
+                    if (Pencil.controller.findPageByName(pageName)) {
+                        Dialog.confirm("The page name '" + pageName + "' has existed. Do you want to continue " + (this.originalPage ? "updating the" : "creating a") + " page with this name?",
+                                null,
+                                "Yes, continue",
+                                function () {
+                                    handleAccept();
+                                    thiz.close();
+                                },
+                                "Cancel");
+                        return;
                     }
                 }
 
+                function handleAccept() {
+                    if (thiz.isCreatePage) {
+                        var page = thiz.createPage();
+                        if (thiz.onDone) thiz.onDone(page);
+                    } else {
+                        if (thiz.modified) {
+                            var page = thiz.updatePage();
+                            if (thiz.onDone) thiz.onDone(page);
+                        }
+                    }
+                }
+
+                handleAccept();
                 return true;
             }
         }
