@@ -1585,6 +1585,7 @@ MenuItem]]></Property>
 [*] | Cell Content 1
 () | Cell content 2
 (*) | Cell content 3]]></Property>
+                <Property name="headerFont" displayName="Header Font" type="Font"><E>$$textFont</E></Property>
                 <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
                 <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
                 <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
@@ -1612,10 +1613,6 @@ MenuItem]]></Property>
                 <CustomStyle>
                     <Arg>"width"</Arg>
                     <Arg>$box.w + "px"</Arg>
-                </CustomStyle>
-                <CustomStyle>
-                    <Arg>"height"</Arg>
-                    <Arg>$box.h + "px"</Arg>
                 </CustomStyle>
                 <Color>$textColor</Color>
                 <Font>$textFont</Font>
@@ -1686,12 +1683,19 @@ MenuItem]]></Property>
                                                 .set("text-align", "center")
                                                 .set("display", "table-cell")
                                                 .set("vertical-align", "middle")
+                                                .set("word-break", "keep-all")
                                     }
                                 ]
                             };
 
                             var div = cell._children[0];
-
+                            if (isHeader) {
+                                div.style.set("font-family", $headerFont.family);
+                                div.style.set("font-weight", $headerFont.weight);
+                                div.style.set("font-size", $headerFont.size);
+                                div.style.set("font-style", $headerFont.style);
+                                div.style.set("line-height", $headerFont.size);
+                            }
                             if (content.match(/^[ \t]*\[\][ \t]*$/)) {
                                 div._children.push(
                                     {
@@ -1735,14 +1739,15 @@ MenuItem]]></Property>
                             } else {
 
                                 div.style.unset("text-align");
+                                if (content == null || content == "") {
+                                    div.style.set("height", "10px");
+                                }
                                 if ($useHtmlContent.value) {
                                     div._html = content;
                                 } else {
                                     div._text = content;
                                 }
                             }
-
-
                             return cell;
                         };
 
@@ -1827,10 +1832,8 @@ MenuItem]]></Property>
                                         tr._children.push(gen(false, cell, i, cols)); // return td
                                     }
                                 }
-
                                 table._children.push(tbody);
                             }
-
                             fragment = Dom.newDOMFragment([table]);
                         } catch (e) {
                             Console.dumpError(e);
@@ -1855,19 +1858,23 @@ MenuItem]]></Property>
                     //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
                     //depends also: $textFont, $customStyle, $padding
                     var a = F.parseTextArray($content.value);
-                    var ch = $box.h / a.length;
-
-                    if ($box.h > ch) {
-                        var chCount = $box.h / ch;
-                        var y = ch;
-                        var da =  [sk(0, y, $box.w, y)];
-                        for (var i = 1; i < chCount; i++) {
-                            y += ch;
-                            da.push(M(0, y));
-                            da.push(skTo($box.w, y));
-                        }
-                        da;
+                    var row = a.length;
+                    var minHeight = F.textSize("htmlObject").h;
+                    var h = Math.max(minHeight, $box.h)
+                    var fh = (h / row);
+                    if ($fixedHeaderHeight.value) {
+                        fh = $headerHeight.y;
+                        row -= 1;
+                        h -= $headerHeight.y;
+                        fh += (h / row);
                     }
+
+                    var da = [sk(0, fh, $box.w, fh)];
+                    for (var i = 1; i < row; i++) {
+                        da.push(M(0, fh + (h / row) * i));
+                        da.push(skTo($box.w, fh + (h / row) * i));
+                    }
+                    da;
                 ]]>
                 </D>
             </For>
@@ -1882,12 +1889,15 @@ MenuItem]]></Property>
                     var minHeight = F.textSize("htmlObject").h;
                     var h = Math.max(minHeight, $box.h)
                     var a = F.parseTextArray($content.value);
+
                     if (a.length > 0) {
                         col = a[0].length;
+                        //debug("c: " + col);
                         var w = $box.w;
                         var da = [sk(0, 0, 0, h)];
                         for (var i = 0; i < col - 1; i++) {
                             var cw = properties["h" + i].x;
+                            //debug(cw);
                             da.push(M(cw, 0));
                             da.push(skTo(cw, h));
                         }
@@ -1906,7 +1916,9 @@ MenuItem]]></Property>
                 <D>
                 <![CDATA[
                     var r = F.parseTextArray($content.value).length;
-                    var h = $box.h / r;
+                    var minHeight = F.textSize("htmlObject").h;
+                    var h = Math.max(minHeight, $box.h)
+                    h = h / r;
                     if ($fixedHeaderHeight.value) {
                         h = $headerHeight.y;
                     }
@@ -1927,11 +1939,23 @@ MenuItem]]></Property>
                 <Impl>
                     <![CDATA[
                         var a = F.parseTextArray(this.getProperty("content").toString());
+                        var cellLenght = [];
+                        for (var i = 0; i < a.length; i++) {
+                            for (var ii = 0; ii < a[i].length; ii++) {
+                                if (cellLenght[ii] == null) cellLenght[ii] = a[i][ii].length;
+                                else cellLenght[ii] = Math.max(cellLenght[ii], a[i][ii].length);
+                            }
+                        }
+                        var maxCellLength = 0;
+                        for (var i = 0; i < cellLenght.length; i++) {
+                            maxCellLength += cellLenght[i];
+                        }
+
                         var cw = a[0].length;
                         var box = this.getProperty("box");
-                        var cellWidth = box.w / cw;
                         var start = 0;
                         for (var i = 0; i < cw; i++) {
+                            var cellWidth = (cellLenght[i] / maxCellLength) * box.w;
                             var hd = this.getProperty("h" + i);
                             hd.x = start + cellWidth;
                             this.setProperty("h" + i, hd);

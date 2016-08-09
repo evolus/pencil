@@ -951,12 +951,12 @@
                                                 .set("width", w + "px")
                                                 .set("line-height", "0px")
                                                 .set("text-align", "center")
+
                                     }
                                 ]
                             };
-
                             var div = cell._children[0];
-
+                            if (height) div.style.set("height", height + "px");
                             if (content.match(/^[ \t]*\[\][ \t]*$/)) {
                                 div._children.push(
                                     {
@@ -1093,10 +1093,16 @@
 
                                     tbody._children.push(tr);
 
+                                    var emptyRow = true;
                                     for (var i = 0; i < cols; i ++) {
                                         var cell = i < cells.length ? cells[i] : "";
-                                        tr._children.push(gen(false, cell, i, cols, height));
+                                        if (cell != null && cell != "") {
+                                            tr._children.push(gen(false, cell, i, cols));
+                                        } else {
+                                            tr._children.push(gen(false, cell, i, cols, 20));
+                                        }
                                     }
+                                    if (emptyRow) tr.style.set("height", "20px");
                                 }
 
                                 table._children.push(tbody);
@@ -1123,11 +1129,23 @@
                 <Impl>
                     <![CDATA[
                         var a = F.parseTextArray(this.getProperty("content").toString());
+                        var cellLenght = [];
+                        for (var i = 0; i < a.length; i++) {
+                            for (var ii = 0; ii < a[i].length; ii++) {
+                                if (cellLenght[ii] == null) cellLenght[ii] = a[i][ii].length;
+                                else cellLenght[ii] = Math.max(cellLenght[ii], a[i][ii].length);
+                            }
+                        }
+                        var maxCellLength = 0;
+                        for (var i = 0; i < cellLenght.length; i++) {
+                            maxCellLength += cellLenght[i];
+                        }
+
                         var cw = a[0].length;
                         var box = this.getProperty("box");
-                        var cellWidth = box.w / cw;
                         var start = 0;
                         for (var i = 0; i < cw; i++) {
+                            var cellWidth = (cellLenght[i] / maxCellLength) * box.w;
                             var hd = this.getProperty("h" + i);
                             hd.x = start + cellWidth;
                             this.setProperty("h" + i, hd);
