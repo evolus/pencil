@@ -108,6 +108,18 @@ Page.defaultPageSizes = [
     {
         value: (Math.round(8.27 * 300)) + "x" + (Math.round(11.69 * 300)),
         displayName: "A4 at 300dpi"
+    },
+    {
+        value: "1280x720",
+        displayName: "HD ready 720p"
+    },
+    {
+        value: "1920x1080",
+        displayName: "Full HD 1080p"
+    },
+    {
+        value: "2560x1440",
+        displayName: "WQHD 1440p"
     }
 ];
 
