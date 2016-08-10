@@ -156,7 +156,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
 Controller.prototype.duplicatePage = function (pageIn, onDone) {
     var page = pageIn;
-    var name = page.name;
+    var name = page.name + " (1)";
     var width = page.width;
     var height = page.height;
     var backgroundPageId;
@@ -169,6 +169,13 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     }
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
+
+    var seed = 2;
+    while (this.findPageByName(name)) {
+        name = page.name  + " (" + seed + ")";
+        seed ++;
+    };
+
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
     newPage.canvas = null;
 
@@ -312,6 +319,55 @@ Controller.prototype.openDocument = function (callback) {
 
     handler();
 };
+Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
+
+    var invalidateTasks = [];
+    var invalidationIndex = -1;
+
+
+    function createInvalidationTask(type, name, propertyNode) {
+        return function (__callback) {
+            var value = type.fromString(propertyNode.textContent);
+            type.invalidateValue(value, function (invalidatedValue, error) {
+                if (invalidatedValue) {
+                    Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
+                }
+                __callback();
+            });
+        };
+    }
+
+    function runNextValidation(callback) {
+        invalidationIndex ++;
+        if (invalidationIndex >= invalidateTasks.length) {
+            callback();
+            return;
+        }
+        var task = invalidateTasks[invalidationIndex];
+        task(function () {
+            runNextValidation(callback);
+        });
+    }
+
+    Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
+        var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
+        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+        if (!def) return;
+
+        Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
+            var name = propertyNode.getAttribute("name");
+            var propertyDef = def.propertyMap[name];
+            if (!propertyDef || !propertyDef.type.invalidateValue) return;
+            var type = propertyDef.type;
+
+            invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
+
+        });
+    });
+
+
+    runNextValidation(onDoneCallback);
+};
 Controller.prototype.parsePageFromNode = function (pageNode, callback) {
     var thiz = this;
     var page = new Page(this.doc);
@@ -350,53 +406,7 @@ Controller.prototype.parsePageFromNode = function (pageNode, callback) {
     var contentNode = Dom.getSingle("./p:Content", pageNode);
     if (contentNode) {
         var node = document.importNode(contentNode.cloneNode(true), true);
-
-        var invalidateTasks = [];
-        var invalidationIndex = -1;
-
-
-        function createInvalidationTask(type, name, propertyNode) {
-            return function (__callback) {
-                var value = type.fromString(propertyNode.textContent);
-                type.invalidateValue(value, function (invalidatedValue, error) {
-                    if (invalidatedValue) {
-                        Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
-                    }
-                    __callback();
-                });
-            };
-        }
-
-        function runNextValidation(callback) {
-            invalidationIndex ++;
-            if (invalidationIndex >= invalidateTasks.length) {
-                callback();
-                return;
-            }
-            var task = invalidateTasks[invalidationIndex];
-            task(function () {
-                runNextValidation(callback);
-            });
-        }
-
-        Dom.workOn(".//svg:g[@p:type='Shape']", node, function (shapeNode) {
-            var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
-            var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-            if (!def) return;
-
-            Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
-                var name = propertyNode.getAttribute("name");
-                var propertyDef = def.propertyMap[name];
-                if (!propertyDef || !propertyDef.type.invalidateValue) return;
-                var type = propertyDef.type;
-
-                invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
-
-            });
-        });
-
-
-        runNextValidation(function () {
+        this.invalidateContentNode(node, function () {
             page._contentNode = node;
             invalidateAndSerializePage(page);
             callback();
@@ -1545,6 +1555,56 @@ Controller.prototype.exportCurrentDocument = function () {
 };
 Controller.prototype.printCurrentDocument = function () {
     Pencil.documentExportManager.exportDocument(this.doc, "PrintingExporter");
+};
+Controller.prototype.prepareForEmbedding = function (node, onPreparingDoneCallback) {
+    var invalidateTasks = [];
+    var invalidationIndex = -1;
+
+
+    function createInvalidationTask(type, name, propertyNode) {
+        return function (__callback) {
+            var value = type.fromString(propertyNode.textContent);
+            type.prepareForEmbedding(value, function (invalidatedValue, error) {
+                if (invalidatedValue) {
+                    Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
+                }
+                __callback();
+            });
+        };
+    }
+
+    function runNextValidation(callback) {
+        invalidationIndex ++;
+        if (invalidationIndex >= invalidateTasks.length) {
+            callback();
+            return;
+        }
+        var task = invalidateTasks[invalidationIndex];
+        task(function () {
+            runNextValidation(callback);
+        });
+    }
+
+    Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
+        var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
+        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+        if (!def) return;
+
+        Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
+            var name = propertyNode.getAttribute("name");
+            var propertyDef = def.propertyMap[name];
+            if (!propertyDef || !propertyDef.type.prepareForEmbedding) return;
+            var type = propertyDef.type;
+
+            invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
+
+        });
+    });
+
+
+    runNextValidation(function () {
+        if (onPreparingDoneCallback) onPreparingDoneCallback();
+    });
 };
 
 

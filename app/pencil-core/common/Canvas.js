@@ -2464,6 +2464,76 @@ Canvas.prototype.addSelectedToMyCollection = function () {
         valueHolder : {}
     };
 
+    var run = function (data) {
+        try {
+            var target = Pencil.getCurrentTarget();
+            // generating text/xml+svg
+            var svg = target.svg.cloneNode(true);
+
+            var fakeDom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
+            fakeDom.documentElement.appendChild(svg);
+
+            Pencil.controller.prepareForEmbedding(fakeDom, function () {
+                fakeDom.documentElement.removeChild(svg);
+                var valueHolder = data.valueHolder;
+                if (!valueHolder.shapeName)
+                    return;
+
+                var shapeDef = new PrivateShapeDef();
+                shapeDef.displayName = valueHolder.shapeName;
+                shapeDef.content = svg;
+                shapeDef.id = shapeDef.displayName.replace(/\s+/g, "_").toLowerCase()
+                        + "_" + (new Date()).getTime();
+
+                var collection = valueHolder.collection;
+                var isNewCollection = (collection == null || collection == -1);
+
+                if (isNewCollection) {
+                    // debug("creating new collection...");
+                    collection = new PrivateCollection();
+                    collection.displayName = valueHolder.collectionName;
+                    collection.description = valueHolder.collectionDescription;
+                    collection.id = collection.displayName.replace(/\s+/g, "_")
+                            .toLowerCase()
+                            + "_" + (new Date()).getTime();
+
+                    collection.shapeDefs.push(shapeDef);
+                }
+                Config.set("PrivateCollection.lastUsedCollection.id", collection.id);
+                Config.set("PrivateCollection.lastSelectCollection.id", collection.id);
+                debug("generating icon... :", valueHolder.autoGenerateIcon);
+                if (valueHolder.autoGenerateIcon) {
+                    Util.generateIcon(target, 64, 64, 2, null, function (icondata) {
+                        debug("\t done generating icon.");
+                        shapeDef.iconData = icondata;
+                        if (isNewCollection) {
+                            PrivateCollectionManager.addShapeCollection(collection);
+                        } else {
+                            PrivateCollectionManager.addShapeToCollection(collection,
+                                    shapeDef);
+                        }
+                        return;
+                    });
+                } else {
+                    var filePath = valueHolder.shapeIcon;
+                    var image = nativeImage.createFromPath(filePath);
+
+                    shapeDef.iconData = image.toDataURL();
+                    if (isNewCollection) {
+                        PrivateCollectionManager.addShapeCollection(collection);
+                    } else {
+                        PrivateCollectionManager.addShapeToCollection(collection,
+                                shapeDef);
+                    }
+
+                }
+            });
+
+        } catch (e) {
+            Console.dumpError(e);
+        }
+    };
+
     var myCollectionDialog = new PrivateCollectionDialog();
     myCollectionDialog.open({
         valueHolder: data.valueHolder,
@@ -2472,69 +2542,6 @@ Canvas.prototype.addSelectedToMyCollection = function () {
             run(data);
         }
     });
-
-    var run = function (data) {
-        try {
-            var target = Pencil.getCurrentTarget();
-            // generating text/xml+svg
-            var svg = target.svg.cloneNode(true);
-
-            var valueHolder = data.valueHolder;
-            if (!valueHolder.shapeName)
-                return;
-
-            var shapeDef = new PrivateShapeDef();
-            shapeDef.displayName = valueHolder.shapeName;
-            shapeDef.content = svg;
-            shapeDef.id = shapeDef.displayName.replace(/\s+/g, "_").toLowerCase()
-                    + "_" + (new Date()).getTime();
-
-            var collection = valueHolder.collection;
-            var isNewCollection = (collection == null || collection == -1);
-
-            if (isNewCollection) {
-                // debug("creating new collection...");
-                collection = new PrivateCollection();
-                collection.displayName = valueHolder.collectionName;
-                collection.description = valueHolder.collectionDescription;
-                collection.id = collection.displayName.replace(/\s+/g, "_")
-                        .toLowerCase()
-                        + "_" + (new Date()).getTime();
-
-                collection.shapeDefs.push(shapeDef);
-            }
-            Config.set("PrivateCollection.lastUsedCollection.id", collection.id);
-            Config.set("PrivateCollection.lastSelectCollection.id", collection.id);
-            debug("generating icon... :", valueHolder.autoGenerateIcon);
-            if (valueHolder.autoGenerateIcon) {
-                Util.generateIcon(target, 64, 64, 2, null, function (icondata) {
-                    debug("\t done generating icon.");
-                    shapeDef.iconData = icondata;
-                    if (isNewCollection) {
-                        PrivateCollectionManager.addShapeCollection(collection);
-                    } else {
-                        PrivateCollectionManager.addShapeToCollection(collection,
-                                shapeDef);
-                    }
-                    return;
-                });
-            } else {
-                var filePath = valueHolder.shapeIcon;
-                var image = nativeImage.createFromPath(filePath);
-
-                shapeDef.iconData = image.toDataURL();
-                if (isNewCollection) {
-                    PrivateCollectionManager.addShapeCollection(collection);
-                } else {
-                    PrivateCollectionManager.addShapeToCollection(collection,
-                            shapeDef);
-                }
-
-            }
-        } catch (e) {
-            Console.dumpError(e);
-        }
-    }
 };
 Canvas.prototype.insertPrivateShape = function (shapeDef, bound) {
 
@@ -2578,24 +2585,27 @@ Canvas.prototype.insertPrivateShapeImpl_ = function (shapeDef, bound) {
     this.setAttributeNS(PencilNamespaces.p, "p:holding", "true");
 
     this.drawingLayer.appendChild(shape);
-    this.selectShape(shape);
-    if (bound) {
-        var bbox = this.currentController.getBounding();
-        //note: the returned bbox is NOT zoomed
-        this.currentController.moveBy(
-                (bound.x - bbox.x - Math.round(bbox.width / 2)),
-                (bound.y - bbox.y - Math.round(bbox.height / 2)),
-                true);
-    }
-    shape.style.visibility = "visible";
-    this.removeAttributeNS(PencilNamespaces.p, "holding");
 
-    this.ensureControllerInView();
-    this.snappingHelper.updateSnappingGuide(this.currentController);
-    DockingManager.enableDocking(this.currentController);
+    Pencil.controller.invalidateContentNode(shape, function () {
+        this.selectShape(shape);
+        if (this.currentController.validateAll) this.currentController.validateAll();
+        if (bound) {
+            var bbox = this.currentController.getBounding();
+            //note: the returned bbox is NOT zoomed
+            this.currentController.moveBy(
+                    (bound.x - bbox.x - Math.round(bbox.width / 2)),
+                    (bound.y - bbox.y - Math.round(bbox.height / 2)),
+                    true);
+        }
+        shape.style.visibility = "visible";
+        this.removeAttributeNS(PencilNamespaces.p, "holding");
 
-    this.invalidateEditors();
+        this.ensureControllerInView();
+        this.snappingHelper.updateSnappingGuide(this.currentController);
+        DockingManager.enableDocking(this.currentController);
 
+        this.invalidateEditors();
+    }.bind(this));
 };
 Canvas.prototype.endFormatPainter = function () {
     Pencil._painterSourceTarget = null;
