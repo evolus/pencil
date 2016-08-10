@@ -661,7 +661,7 @@ Controller.prototype.parseDocument = function (filePath, callback) {
 
                 if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
-                if (Config.get("page.show.last_page_zoom") == "undefined") Config.set("page.show.last_page_zoom", false);
+                if (Config.get("page.show.last_page_zoom") == "undefined") Config.set("page.show.last_page_zoom", true);
                 var showLastPageZoom = Config.get("page.show.last_page_zoom");
                 if (showLastPageZoom) {
                      page.scrollTop = page.scrollTop ? parseInt(page.scrollTop, 10) : 0;
