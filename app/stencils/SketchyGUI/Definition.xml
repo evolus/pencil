@@ -1941,7 +1941,7 @@ MenuItem]]></Property>
             </For>
         </Behaviors>
         <Actions>
-            <Action id="validateColumns" displayName="Validate Columns">
+            <Action id="fixColumnContent" displayName="Fix Column Content">
                 <Impl>
                     <![CDATA[
                         var a = F.parseTextArray(this.getProperty("content").toString());
