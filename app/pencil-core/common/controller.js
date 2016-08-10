@@ -661,7 +661,17 @@ Controller.prototype.parseDocument = function (filePath, callback) {
 
                 if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
-
+                if (!Config.get("page.show.last_page_zoom")) Config.set("page.show.last_page_zoom", false);
+                var showLastPageZoom = Config.get("page.show.last_page_zoom");
+                if (showLastPageZoom) {
+                     page.scrollTop = page.scrollTop ? parseInt(page.scrollTop, 10) : 0;
+                     page.scrollLeft = page.scrollLeft ? parseInt(page.scrollLeft, 10) : 0;
+                     page.zoom = page.zoom ? page.zoom : 1;
+                } else {
+                    page.scrollTop = 0;
+                    page.scrollLeft = 0;
+                    page.zoom = 1;
+                }
                 // if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
 
                 var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
