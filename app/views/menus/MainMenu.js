@@ -18,10 +18,11 @@ MainMenu.prototype.shouldCloseOnBlur = function(event) {
     });
 
     return !found;
-}
-MainMenu.prototype.setup = function () {
+};
 
+MainMenu.prototype.generateRecentDocumentMenu = function () {
     var thiz = this;
+
     var createRecentSubMenuElement = function(fileName) {
         var index = fileName.indexOf("/");
         var name = fileName.substring(index);
@@ -52,10 +53,23 @@ MainMenu.prototype.setup = function () {
         }
         this.itemRecentFile = elements;
     }
-      var checkRecentButton = false;
+
+    var checkRecentButton = false;
     if(thiz.itemRecentFile && thiz.itemRecentFile.length > 0) {
         checkRecentButton = true;
     }
+
+    return [{
+        key: "RecentFileCommand",
+        label: "Recent files ",
+        isEnabled: function () { return checkRecentButton },
+        type: "SubMenu",
+        subItems: thiz.itemRecentFile,
+    }];
+};
+
+MainMenu.prototype.setup = function () {
+    var thiz = this;
 
     this.register(UICommandManager.getCommand("newDocumentCommand"));
     this.register(UICommandManager.getCommand("openDocumentCommand"));
@@ -65,13 +79,7 @@ MainMenu.prototype.setup = function () {
     this.register(UICommandManager.getCommand("printDocumentCommand"));
     this.register(UICommandManager.getCommand("closeDocumentCommand"));
     this.separator();
-    this.register({
-        key: "RecentFileCommand",
-        label: "Recent files ",
-        isEnabled: function () { return checkRecentButton },
-        type: "SubMenu",
-        subItems: thiz.itemRecentFile,
-    });
+    this.register(this.generateRecentDocumentMenu);
     this.separator();
     this.register({
         key: "settingAllCommand",
