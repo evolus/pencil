@@ -1681,9 +1681,9 @@ MenuItem]]></Property>
                                                 .set("height", height + "px")
                                                 .set("padding", $padding.y + "px")
                                                 .set("line-height", $textFont.size)
-                                                .set("text-align", "center")
+                                                .set("text-align", ["left", "center", "right"][$textAlign.h])
                                                 .set("display", "table-cell")
-                                                .set("vertical-align", "middle")
+                                                .set("vertical-align", ["top", "middle", "bottom"][$textAlign.v])
                                                 .set("word-break", "keep-all")
                                     }
                                 ]
