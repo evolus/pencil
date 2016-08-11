@@ -2089,6 +2089,7 @@ MenuItem]]></Property>
             <text id="text"/>
         </p:Content>
     </Shape>
+
     <Shape id="Pointer1" displayName="Pointer 1" icon="Icons/pointer.png">
         <Properties>
             <PropertyGroup name="Common">
@@ -2163,6 +2164,98 @@ MenuItem]]></Property>
             <path id="path" style="stroke-linejoin:round;"
                     d="M 115.16242,135.0524 C 99.441333,146.0604 80.746673,146.47208 63.230283,143.73702 45.713894,141.00197 26.54735,137.94861 15.539353,122.22754 4.5313381,106.50645 8.7158499,72.255446 11.804461,54.739062 14.893073,37.222678 20.421317,30.076951 36.142397,19.068936 48.109263,10.689649 64.002155,4.2019066 78.480832,6.8535552 92.959509,9.5052038 120.87321,19.882029 132.84008,28.261314 l 35.40381,32.708176 38.23224,31.293962 -51.31371,19.273158 z" />
             <text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shape id="tree" displayName="Tree View" icon="Icons/pointer.png">
+        <Properties>
+            <PropertyGroup name="Common">
+                <Property name="box" type="Dimension" p:lockRatio="true">280,322</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="content" displayName="Text Content" type="PlainText"
+                        p:editInfo="({targetName: 'box', bound: new Bound(0, 0, $box.w, $box.h), font: $textFont, align: new Alignment(0, 1), multi: true})">
+                        <![CDATA[
+                        *|Cell Content 1
+                        **|Cell content 1.2
+                        ***|Cell content 1.2
+                        ****|Cell content 1.2
+                        ***|Cell content 1.2
+                        ****|Cell content 1.2
+                        **|Cell content 1.3
+                        ]]>
+                </Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="box">
+                <Bound>new Bound(0, 0, $box.w, $box.h)</Bound>
+             </For>
+             <For ref="content">
+                 <Bound>new Bound(0, 0, $box.w, $box.h)</Bound>
+                 <Font>$textFont</Font>
+                 <DomContent>
+                     <![CDATA[
+                        var a = F.parseTextArray($content.value);
+                        var cols = 0;
+                        for (var i = 0; i < a.length; i++) {
+                            if (a[i][0].length > cols) cols = a[i][0].length;
+                        }
+                        var height = $box.h / a.length;
+                        var width = $box.w / cols;
+                        var x = 0;
+                        var y = 0;
+
+                        var genTreeNode = function(node, x, y) {
+                            var css = new CSS();
+                            css.set("font-size",$textFont.size);
+                            css.set("font-family",$textFont.family);
+                            css.set("font-style",$textFont.style);
+                            css.set("font-weight",$textFont.weight);
+                            css.set("font-decor",$textFont.decor);
+                            css.set("fill", $textColor.toRGBString());
+                            return {
+                                _name: "text",
+                                _uri: "http://www.w3.org/2000/svg",
+                                x: x,
+                                y: y,
+                                _text : node[1],
+                                style: css
+                            };
+                        }
+                        var Tree = [];
+
+                        for (var i = 0; i < a.length; i++) {
+                            var index = a[i][0].length;
+                            var x =
+                            genTreeNode(a[i]);
+                        }
+
+                        console.log("ROOT TEST", a);
+                     ]]>
+                 </DomContent>
+              </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="content" />
+            <rect id="box" />
         </p:Content>
     </Shape>
 </Shapes>
