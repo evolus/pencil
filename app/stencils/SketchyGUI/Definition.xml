@@ -2184,7 +2184,7 @@ MenuItem]]></Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property name="content" displayName="Text Content" type="PlainText"
-                        p:editInfo="var box = F.getObjectBoundingBox('content') ;({targetName: 'content', bound: new Bound(0, 0, box.w, box.h), font: $textFont, align: new Alignment(0, 1), multi: true})"><![CDATA[*|Cell Content 1
+                        p:editInfo="var box = F.getObjectBoundingBox('box') ;({targetName: 'box', bound: new Bound(0, 0, box.w, box.h), font: $textFont, align: new Alignment(0, 1), multi: true})"><![CDATA[*|Cell Content 1
 **|Cell content 1.2
 ***|Cell content 1.2.1*
 ****|Cell content 1.2.1.1
@@ -2343,7 +2343,7 @@ MenuItem]]></Property>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <StrokeColor>$borderCheck.value ? $strokeColor : $strokeColor.hollowed(1)</StrokeColor>
                 <Bound>
-                    $textFont;
+                    //depends $textFont $content
                     var box = F.getObjectBoundingBox('content');
                     new Bound (box.x - 10, box.y - 10, box.w + 20, box.h + 20);
                 </Bound>
