@@ -1844,4 +1844,308 @@
             <g id="dateContext"/>
         </p:Content>
     </Shape>
+    <Shape id="table" displayName="Table" icon="Icons/table.png">
+        <Properties>
+            <PropertyGroup name="Sizing">
+                <Property name="box" displayName="Size" type="Dimension">350,100</Property>
+                <Property name="useHtmlContent" displayName="Use HTML Content" type="Bool">false</Property>
+                <Property name="fixedHeaderHeight" noScale="true" displayName="Fixed Header Height" type="Bool">true</Property>
+                <Property name="padding" displayName="Cell Padding" type="Handle" p:noScale="true" p:lockX="true" p:minY="0">0,4</Property>
+                <Property name="headerHeight" p:disabled="!$fixedHeaderHeight.value" p:noScale="true" displayName="Header Height" type="Handle" p:lockX="true" p:minY="10" p:maxY="$box.h">0,30</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Columns Width">
+                <Property name="h0" displayName="Column 1 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(0, properties)" p:minX="collection.getMinXForColumnHandle(0, properties)" p:disabled="collection.isColumnHandleDisabled(0, properties)">30,0</Property>
+                <Property name="h1" displayName="Column 2 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(1, properties)" p:minX="collection.getMinXForColumnHandle(1, properties)" p:disabled="collection.isColumnHandleDisabled(1, properties)">120,0</Property>
+                <Property name="h2" displayName="Column 3 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(2, properties)" p:minX="collection.getMinXForColumnHandle(2, properties)" p:disabled="collection.isColumnHandleDisabled(2, properties)">220,0</Property>
+                <Property name="h3" displayName="Column 4 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(3, properties)" p:minX="collection.getMinXForColumnHandle(3, properties)" p:disabled="collection.isColumnHandleDisabled(3, properties)">260,0</Property>
+                <Property name="h4" displayName="Column 5 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(4, properties)" p:minX="collection.getMinXForColumnHandle(4, properties)" p:disabled="collection.isColumnHandleDisabled(4, properties)">270,0</Property>
+                <Property name="h5" displayName="Column 6 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(5, properties)" p:minX="collection.getMinXForColumnHandle(5, properties)" p:disabled="collection.isColumnHandleDisabled(5, properties)">280,0</Property>
+                <Property name="h6" displayName="Column 7 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(6, properties)" p:minX="collection.getMinXForColumnHandle(6, properties)" p:disabled="collection.isColumnHandleDisabled(6, properties)">290,0</Property>
+                <Property name="h7" displayName="Column 8 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(7, properties)" p:minX="collection.getMinXForColumnHandle(7, properties)" p:disabled="collection.isColumnHandleDisabled(7, properties)">290,0</Property>
+                <Property name="h8" displayName="Column 9 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(8, properties)" p:minX="collection.getMinXForColumnHandle(8, properties)" p:disabled="collection.isColumnHandleDisabled(8, properties)">290,0</Property>
+                <Property name="h9" displayName="Column 10 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(9, properties)" p:minX="collection.getMinXForColumnHandle(9, properties)" p:disabled="collection.isColumnHandleDisabled(9, properties)">290,0</Property>
+                <Property name="h10" displayName="Column 11 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(10, properties)" p:minX="collection.getMinXForColumnHandle(10, properties)" p:disabled="collection.isColumnHandleDisabled(10, properties)">290,0</Property>
+                <Property name="h11" displayName="Column 12 width" type="Handle" p:lockY="true" p:maxX="collection.getMaxXForColumnHandle(11, properties)" p:minX="collection.getMinXForColumnHandle(11, properties)" p:disabled="collection.isColumnHandleDisabled(11, properties)">290,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="content" displayName="Text Content" type="PlainText"
+                        p:editInfo="var size = F.elementSize('textDiv'); ({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max(size.w, 80) , Math.max(size.h, 10)), font: $textFont, align: new Alignment(0, 1), multi: true})"><![CDATA[[] | Column 2
+[*] | Cell Content 1
+[] | Cell content 2]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Content Color">
+                <Property name="textColor" displayName="Default Text Color" type="Color"><E>$$textFont</E></Property>
+                <Property name="fillColor" displayName="Table Background" type="Color">#00000000</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Header Color">
+                <Property name="headerTextColor" displayName="Default Text Color" type="Color"><E>$$defaultHeaderTextColor</E></Property>
+                <Property name="headerBackground" displayName="Header Background" type="Color"><E>$$defaultHeaderBGColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$defaultTableBorderColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$defaultTableBorderStyle</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="textDiv">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"overflowx: hidden; display: inline-block; " + $customStyle.value</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
+                <Color>$textColor</Color>
+                <Font>$textFont</Font>
+                <CustomStyle>
+                    <Arg>"text-decoration"</Arg>
+                    <Arg>"none"</Arg>
+                </CustomStyle>
+                <DomContent>
+                    <![CDATA[
+                        var gen = function (isHeader, content, colIndex, colCount, height) {
+                            var style = new CSS();
+
+                            style.set("border", "solid " + $strokeStyle.w + "px " + $strokeColor.toRGBAString());
+                            style.set("border-width", $strokeStyle.w + "px 0px 0px " + $strokeStyle.w + "px");
+                            style.set("padding", "0px");
+
+                            if (isHeader) {
+                                style.set("background-color", $headerBackground.toRGBAString());
+                                style.set("color", $headerTextColor.toRGBAString());
+                            }
+
+                            style.set("text-align", ["left", "center", "right"][$textAlign.h]);
+                            style.set("vertical-align", ["top", "middle", "bottom"][$textAlign.v]);
+                            style.set("min-width", "0px");
+                            style.set("min-height", "0px");
+                            style.set("height", height + "px");
+                            style.set("overflow", "hidden");
+                            style.set("-moz-box-sizing", "border-box");
+                            style.set("box-sizing", "border-box");
+
+                            var w = 0;
+                            if (colIndex < colCount - 1) {
+                                w = properties["h" + colIndex].x - (colIndex > 0 ? properties["h" + (colIndex - 1)].x : 0);
+                            } else {
+                                if (colIndex > 0) {
+                                    w = properties["box"].w - properties["h" + (colIndex - 1)].x;
+                                } else {
+                                    w = properties["box"].w;
+                                }
+
+                                w -= $strokeStyle.w;
+                            }
+
+                            w -= $strokeStyle.w + ($strokeStyle.w % 2);
+                            style.set("width", w + "px");
+
+                            var index = content.indexOf("@@");
+                            if (index >= 0) {
+                                style.importRaw(content.substring(index + 2));
+                                content = content.substring(0, index);
+                            }
+
+                            content = content.replace(/\\n/gi, "\n");
+
+                            var cell = {
+                                _name: isHeader ? "th" : "td",
+                                _uri: "http://www.w3.org/1999/xhtml",
+                                style: style.toString(),
+                                _children: [
+                                    {
+                                        _name: "div",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        _children: [],
+                                        style: new CSS()
+                                                .set("overflow", "hidden")
+                                                .set("min-width", "0px")
+                                                .set("-moz-box-sizing", "border-box")
+                                                .set("box-sizing", "border-box")
+                                                .set("padding", $padding.y + "px")
+                                                .set("width", w + "px")
+                                                .set("line-height", "0px")
+                                                .set("text-align", "center")
+                                    }
+                                ]
+                            };
+
+                            var div = cell._children[0];
+
+                            if (content.match(/^[ \t]*\[\][ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "input",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        type: "checkbox",
+                                        style: "margin: 0px !important; padding: 0px; -moz-user-input: disabled; -moz-user-focus: ignore;"
+                                    }
+                                );
+                            } else if (content.match(/^[ \t]*\[\*\][ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "input",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        type: "checkbox",
+                                        style: "margin: 0px !important; padding: 0px; -moz-user-input: disabled; -moz-user-focus: ignore;",
+                                        checked: "true"
+                                    }
+                                );
+                            } else if (content.match(/^[ \t]*\(\)[ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "input",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        type: "radio",
+                                        style: "margin: 0px !important; padding: 0px; -moz-user-input: disabled; -moz-user-focus: ignore;",
+                                    }
+                                );
+                            } else if (content.match(/^[ \t]*\(\*\)[ \t]*$/)) {
+                                div._children.push(
+                                    {
+                                        _name: "input",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        type: "radio",
+                                        style: "margin: 0px !important; padding: 0px; -moz-user-input: disabled; -moz-user-focus: ignore;",
+                                        checked: "true"
+                                    }
+                                );
+                            } else {
+                                div.style.unset("line-height");
+                                div.style.unset("text-align");
+                                if ($useHtmlContent.value) {
+                                    div._html = content;
+                                } else {
+                                    div._text = content;
+                                }
+                            }
+
+
+                            return cell;
+                        };
+
+                        //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                        var fragment = null;
+                        try {
+                            var a = F.parseTextArray($content.value);
+                            var cols = collection.getMaxColumns($content.value);
+
+                            //table and table styles
+                            var tableStyle = CSS.fromString($customStyle.value);
+
+                            tableStyle.setIfNot("border-collapse", "collapse");
+                            tableStyle.setIfNot("background-color", $fillColor.toRGBAString());
+
+                            tableStyle.set("width",  ($box.w) + "px");
+                            tableStyle.set("height",  ($box.h) + "px");
+
+                            tableStyle.set("border", "solid " + $strokeStyle.w + "px " + $strokeColor.toRGBAString());
+                            tableStyle.set("border-width", "0px " + $strokeStyle.w + "px " + $strokeStyle.w + "px 0px");
+
+                            var table = {
+                                _name: "table",
+                                _uri: "http://www.w3.org/1999/xhtml",
+                                _children: [],
+                                style: tableStyle.toString()
+                            };
+
+                            var height = 0;
+
+                            var contentHeight = $box.h - $strokeStyle.w;
+
+                            if (a.length > 0) {
+                                height = Math.floor(contentHeight / a.length);
+                                height -= $strokeStyle.w + ($strokeStyle.w % 2);
+                                headers = a[0];
+
+                                var tr = {
+                                    _name: "tr",
+                                    _uri: "http://www.w3.org/1999/xhtml",
+                                    _children: []
+                                };
+                                if ($fixedHeaderHeight.value) {
+                                    if (a.length > 1) {
+                                        height = Math.floor((contentHeight - $headerHeight.y) / (a.length - 1));
+                                    }
+                                }
+                                var headerHeight = contentHeight - (a.length - 1) * height;
+
+                                tr.style = new CSS();
+                                tr.style.set("height", headerHeight + "px");
+                                tr.style.set("min-height", "0px");
+
+                                table._children.push({
+                                    _name: "thead",
+                                    _uri: "http://www.w3.org/1999/xhtml",
+                                    _children: [tr]
+                                });
+
+                                for (var i = 0; i < cols; i ++) {
+                                    var header = i < headers.length ? headers[i] : "";
+                                    tr._children.push(gen(true, header, i, cols, headerHeight));
+                                }
+                            }
+                            if (a.length > 1) {
+                                var tbody = {
+                                    _name: "tbody",
+                                    _uri: "http://www.w3.org/1999/xhtml",
+                                    _children: []
+                                };
+
+                                for (var r = 1; r < a.length; r ++) {
+                                    var cells = a[r];
+                                    var tr = {
+                                        _name: "tr",
+                                        _uri: "http://www.w3.org/1999/xhtml",
+                                        _children: []
+                                    };
+                                    tr.style = new CSS();
+                                    tr.style.set("height", height + "px");
+                                    tr.style.set("min-height", "0px");
+
+                                    tbody._children.push(tr);
+
+                                    for (var i = 0; i < cols; i ++) {
+                                        var cell = i < cells.length ? cells[i] : "";
+                                        tr._children.push(gen(false, cell, i, cols, height));
+                                    }
+                                }
+
+                                table._children.push(tbody);
+                            }
+
+                            fragment = F.newDOMFragment([table]);
+                        } catch (e) {
+                            Console.dumpError(e);
+                        }
+                        fragment;
+                    ]]>
+                </DomContent>
+            </For>
+            <For ref="htmlObject">
+                <Box>
+                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box
+                    //depends also: $textFont, $customStyle, $padding
+                    new Dimension($box.w + $strokeStyle.w % 2, Math.max($box.h + $strokeStyle.w % 2, F.elementSize("textDiv").h))
+                </Box>
+            </For>
+
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="padding: 5px;">
+                </div>
+		<!-- <div xmlns="http://www.w3.org/1999/xhtml" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/> -->
+            </foreignObject>
+        </p:Content>
+    </Shape>
 </Shapes>
