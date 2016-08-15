@@ -2169,6 +2169,9 @@ MenuItem]]></Property>
     </Shape>
     <Shape id="tree" displayName="Tree View" icon="data:image/png;base64,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">
         <Properties>
+            <PropertyGroup name="General">
+                <Property name="box" type="Dimension">250,300</Property>
+            </PropertyGroup>
             <PropertyGroup name="Background">
                 <Property name="fillColor" displayName="Color" type="Color"><E>$$fillColor</E></Property>
             </PropertyGroup>
@@ -2201,156 +2204,191 @@ MenuItem]]></Property>
                 <Property name="selectedColor" displayName="Selected Text Color" type="Color">
                     <E>Color.fromString("#0000FF")</E>
                 </Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
             <For ref="content">
-                <DomContent>
-                    <![CDATA[
+                <Bound>new Bound(0, 0, $box.w, $box.h)</Bound>
+            </For>
+            <For ref="div">
+                //depends $textFont $content
+               <DomContent>
+               <![CDATA[
+               var a = F.parseTextArray($content.value);
+               var nodes = [];
+               var count = 0;
+               var gElement = F._target;
+               var genNodes = function(node, parent) {
+                   if (!parent || node.pos - parent.pos == 1) {
+                       Dom.empty(gElement);
+                       var nodeTemp = Dom.newDOMElement({
+                         _name: "text",
+                         _uri: "http://www.w3.org/2000/svg",
+                         _text : node.value,
+                         style: css
+                       });
+                       gElement.appendChild(nodeTemp);
+                       node.bBox = nodeTemp.getBBox();
+                       if (parent) node.parent = parent;
+                       nodes.push(node);
+                       count++;
+                       if (count < a.length) {
+                           var newNode = {};
+                           newNode.value = a[count][1];
+                           newNode.pos = a[count][0].length;
+                           genNodes(newNode, nodes[count - 1]);
+                       }
+                   } else {
+                       if (parent.parent) genNodes(node, parent.parent);
+                       else return;
+                   }
+               };
+               genNodes({value: a[0][1], pos: a[0][0].length});
+               console.log("NODES", nodes);
+               var space = 20;
+               var tree = [];
+               var cellH =parseInt($textFont.size.replace("px","")) + 6;
+               for (var i = 0; i < nodes.length; i++) {
+                   var css = new CSS();
+                   css.set("height", cellH + "px" );
+                   css.set("line-height", cellH + "px");
+                   if ($withSrcollBar.value) {
+                    css.set("width", ($box.w - (20 + (nodes[i].pos*space))) + "px");
+                   } else {
+                    css.set("width", ($box.w - (6 + (nodes[i].pos*space))) + "px");
+                   }
+                   if (i > 0) {
+                    css.set("padding-left", (nodes[i].pos*space) + "px");
+                   } else {
+                    css.set("padding-left", "6px");
+                   }
+                   css.set("text-overflow:", "ellipsis");
+                   css.set("white-space", "nowrap");
+                   css.set("overflow", "hidden");
+                   var selectedCheck = (nodes[i].value.indexOf("*") >= 0 ? true : false);
+                   var textStyle = css;
+                   if (selectedCheck) {
+                       nodes[i].value = nodes[i].value.toString().replace("*","");
+                       css.set("Color",$selectedColor.toRGBString());
+                   }
+                   var text = {
+                       _name: "div",
+                       _uri: "http://www.w3.org/1999/xhtml",
+                       _text: nodes[i].value,
+                       style: css
+                   };
+                   tree.push(text);
+                }
+                Dom.newDOMFragment(tree);
+               ]]>
+               </DomContent>
+               <Font>$textFont</Font>
+               <Color>$textColor</Color>
+           </For>
+           <For ref="line">
+               <DomContent>
                         //depends $textFont $content
-                       var a = F.parseTextArray($content.value);
+                      <![CDATA[
+                          //depends $textFont $content
+                         var a = F.parseTextArray($content.value);
+                         var lineStyle = new CSS();
+                         lineStyle.set("stroke-width",($lineCheck.value ? $strokeStyle.w : "none"));
+                         lineStyle.set("stroke",$lineCheck.value ? $strokeColor.toRGBString() : "none");
+                         lineStyle.set("fill",$lineCheck.value ? $strokeColor.toRGBString() : "none");
+                         var borderStyle = new CSS();
+                         borderStyle.set("stroke-width",($borderCheck.value ? $strokeStyle.w : 0));
+                         borderStyle.set("stroke", $borderCheck.value ? $strokeColor.toRGBString() : "none");
+                         borderStyle.set("fill", $borderCheck.value ? $fillColor.toRGBString() : "none");
+                         var space = 20;
+                         var nodes = [];
+                         var count = 0;
+                         var genNodes = function(node, parent) {
+                             if (!parent || node.pos - parent.pos == 1) {
+                                 if (parent) node.parent = parent;
+                                 node.bBox = {w: ($box.w - (14 + (node.pos*space))), h: parseInt($textFont.size.replace("px","")) + 6};
+                                 nodes.push(node);
+                                 count++;
+                                 if (count < a.length) {
+                                     var newNode = {};
+                                     newNode.value = a[count][1];
+                                     newNode.pos = a[count][0].length;
+                                     genNodes(newNode, nodes[count - 1]);
+                                 }
+                             } else {
+                                 if (parent.parent) genNodes(node, parent.parent);
+                                 else return;
+                             }
+                         };
+                         genNodes({value: a[0][1], pos: a[0][0].length});
+                         var tree = [];
+                         var x = space;
+                         var y = 0;
+                         for (var i = 0; i < nodes.length; i++) {
+                             var bBox = nodes[i].bBox;
+                             var boxW = bBox.w;
+                             var boxH = bBox.h;
+                             nodes[i].bound = {x: x, y: y, w: boxW, h: boxH};
+                             if (i > 0) {
+                                var preNode = nodes[i].parent;
+                                var lineX = preNode.bound.x + 10;
+                                var lineY = y + (boxH / 2);
+                                if ( x < $box.w && lineY < $box.h) {
+                                    var lineD = [
+                                        sk(lineX, lineY, x, lineY)
+                                    ];
+                                    var line = {
+                                        _name: "path",
+                                        _uri: "http://www.w3.org/2000/svg",
+                                        d : lineD.join(),
+                                        style: lineStyle
+                                    };
+                                    tree.push(line);
+                                }
 
-                       var css = new CSS();
-                       css.set("font-size",$textFont.size);
-                       css.set("font-family",$textFont.family);
-                       css.set("font-style",$textFont.style);
-                       css.set("font-weight",$textFont.weight);
-                       css.set("font-decor",$textFont.decor);
-                       css.set("fill", $textColor.toRGBString());
-
-                       var selectedCss = new CSS();
-                       selectedCss.set("font-size",$textFont.size);
-                       selectedCss.set("font-family",$textFont.family);
-                       selectedCss.set("font-style",$textFont.style);
-                       selectedCss.set("font-weight",$textFont.weight);
-                       selectedCss.set("font-decor",$textFont.decor);
-                       selectedCss.set("fill", $selectedColor.toRGBString());
-
-                          var lineStyle = new CSS();
-                          lineStyle.set("stroke-width",($lineCheck.value ? $strokeStyle.w : "none"));
-                          lineStyle.set("stroke",$lineCheck.value ? $strokeColor.toRGBString() : "none");
-                          lineStyle.set("fill",$lineCheck.value ? $strokeColor.toRGBString() : "none");
-                          var borderStyle = new CSS();
-                          borderStyle.set("stroke-width",($borderCheck.value ? $strokeStyle.w : 0));
-                          borderStyle.set("stroke", $borderCheck.value ? $strokeColor.toRGBString() : "none");
-                          borderStyle.set("fill", $borderCheck.value ? $fillColor.toRGBString() : "none");
-
-                       var nodes = [];
-                       var count = 0;
-                       var gElement = F._target;
-                       var genNodes = function(node, parent) {
-                           if (!parent || node.pos - parent.pos == 1) {
-                               Dom.empty(gElement);
-                               var nodeTemp = Dom.newDOMElement({
-                                 _name: "text",
-                                 _uri: "http://www.w3.org/2000/svg",
-                                 _text : node.value,
-                                 style: css
-                               });
-                               gElement.appendChild(nodeTemp);
-                               node.bBox = nodeTemp.getBBox();
-                               if (parent) node.parent = parent;
-                               nodes.push(node);
-                               count++;
-                               if (count < a.length) {
-                                   var newNode = {};
-                                   newNode.value = a[count][1];
-                                   newNode.pos = a[count][0].length;
-                                   genNodes(newNode, nodes[count - 1]);
-                               }
-                           } else {
-                               if (parent.parent) genNodes(node, parent.parent);
-                               else return;
-                           }
-                       };
-                       genNodes({value: a[0][1], pos: a[0][0].length});
-                       console.log("NODES", nodes);
-                       var space = 0;
-                       var tree = [];
-                       var x = 0;
-                       var y = 0;
-                       for (var i = 0; i < nodes.length; i++) {
-                           var bBox = nodes[i].bBox;
-                           var boxW = bBox.width + 10;
-                           var boxH = bBox.height + 10;
-                           var selectedCheck = (nodes[i].value.indexOf("*") >= 0 ? true : false);
-                           var textStyle = css;
-                           if (selectedCheck) {
-                               console.log(nodes[i].value);
-                               nodes[i].value = nodes[i].value.toString().replace("*","");
-                               textStyle = selectedCss;
-                           }
-                           nodes[i].bound = {x: x, y: y, w: boxW, h: boxH};
-                           var text = {
-                               _name: "text",
-                               _uri: "http://www.w3.org/2000/svg",
-                               x: x + 5,
-                               y: (y - 5) + ((boxH - bBox.height) / 2) + bBox.height ,
-                               _text : nodes[i].value,
-                               style: textStyle
-                           };
-                           tree.push(text);
-
-                           if (i > 0) {
-                              var preNode = nodes[i].parent;
-                              var lineX = preNode.bound.x + 10;
-                              var lineY = y + (boxH / 2);
-                              var lineD = [
-                                  sk(lineX, lineY, x, lineY)
-                              ];
-                              var line = {
-                                  _name: "path",
-                                  _uri: "http://www.w3.org/2000/svg",
-                                  d : lineD.join(),
-                                  style: lineStyle
-                              };
-                              tree.push(line);
-                          }
-                          var findcheck = false;
-                          for (var k = i; k >= 0; k--) {
-                              if (i < (nodes.length - 1)) {
-                                  if (nodes[k].pos == nodes[i + 1].parent.pos) {
-                                      x = nodes[k].bound.x + 20;
-                                      nodes[i + 1].parent = nodes[k];
-                                  }
-                              }
-                              if (nodes[i].parent && nodes[k].pos == nodes[i].parent.pos && !findcheck) {
-                                  nodes[k].maxY = y + (boxH / 2);
-                                  findcheck = true;
-                              }
-                          }
-                          y += boxH + space;
-                       }
-                       for (var i = 0; i < nodes.length; i++) {
-                           if (nodes[i].maxY) {
-                               var bound = nodes[i].bound;
-                               var lineD = [
-                                   sk(bound.x + 10 , bound.y + (bound.h), bound.x + 10, nodes[i].maxY)
-                               ];
-                               var downLine = {
-                                   _name: "path",
-                                   _uri: "http://www.w3.org/2000/svg",
-                                   d : lineD.join(),
-                                   style: lineStyle
-                               };
-                               tree.push(downLine);
-                           }
-                       }
-                       Dom.newDOMFragment(tree);
-                    ]]>
-                </DomContent>
-             </For>
+                            }
+                            var findcheck = false;
+                            for (var k = i; k >= 0; k--) {
+                                if (i < (nodes.length - 1)) {
+                                    if (nodes[k].pos == nodes[i + 1].parent.pos) {
+                                        x = nodes[k].bound.x + 20;
+                                        nodes[i + 1].parent = nodes[k];
+                                    }
+                                }
+                                if (nodes[i].parent && nodes[k].pos == nodes[i].parent.pos && !findcheck) {
+                                    nodes[k].maxY = y + (boxH / 2);
+                                    findcheck = true;
+                                }
+                            }
+                            y += boxH;
+                         }
+                         for (var i = 0; i < nodes.length; i++) {
+                             if (nodes[i].maxY) {
+                                     var bound = nodes[i].bound;
+                                     if (bound.x < $box.w && nodes[i].maxY < $box.h) {
+                                     var lineD = [
+                                         sk(bound.x + 10 , bound.y + (bound.h), bound.x + 10, nodes[i].maxY)
+                                     ];
+                                     var downLine = {
+                                         _name: "path",
+                                         _uri: "http://www.w3.org/2000/svg",
+                                         d : lineD.join(),
+                                         style: lineStyle
+                                     };
+                                     tree.push(downLine);
+                                 }
+                             }
+                         }
+                         Dom.newDOMFragment(tree);
+                      ]]>
+                  </DomContent>
+           </For>
             <For ref="box">
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <StrokeColor>$borderCheck.value ? $strokeColor : $strokeColor.hollowed(1)</StrokeColor>
                 <Bound>
                     //depends $textFont $content
-                    var box = F.getObjectBoundingBox('content');
-                    if ($withSrcollBar.value) {
-                        new Bound (box.x - 10, box.y, box.w + 34, box.h);
-                    } else {
-                        new Bound (box.x - 10, box.y, box.w + 20, box.h);
-                    }
+                    new Bound (0, 0, $box.w, $box.h);
                 </Bound>
                 <Fill>
                     $borderCheck.value ? $fillColor : $fillColor.hollowed(1)
@@ -2359,28 +2397,25 @@ MenuItem]]></Property>
             <For ref="line2">
                 <D>
                     //depends $textFont $content
-                    var box = F.getObjectBoundingBox('box');
-                    box.h = box.y + box.h;
-                    box.w = box.x + box.w;
                     var lengh = 10 ;
-                    var a = box.w - 14;
+                    var a = $box.w - 14;
                     var padding = 2 ;
                     var b = 10 ;
                     var c = 5 ;
                     [
-                        sk(a, box.y, a, box.h),
-                        skTo(box.w , box.h),
-                        skTo(box.w , box.y),
+                        sk(a, 0, a, $box.h),
+                        skTo($box.w , $box.h),
+                        skTo($box.w , 0),
                         z,
-                        sk(a + padding, box.h / 2 + lengh, box.w - 2 * padding, box.h / 2 + lengh),
-                        sk(a + padding, box.h / 2, box.w - 2 * padding, box.h / 2),
-                        sk(a + padding, box.h / 2 - lengh, box.w - 2 * padding, box.h / 2 - lengh),
+                        sk(a + padding, $box.h / 2 + lengh, $box.w - 2 * padding, $box.h / 2 + lengh),
+                        sk(a + padding, $box.h / 2, $box.w - 2 * padding, $box.h / 2),
+                        sk(a + padding, $box.h / 2 - lengh, $box.w - 2 * padding, $box.h / 2 - lengh),
 
-                        sk(a + padding, box.y + b, (box.w + a) / 2, (box.y + b) - c),
-                        skTo(box.w - 2 * padding, box.y + b),
+                        sk(a + padding, b, ($box.w + a) / 2, b - c),
+                        skTo($box.w - 2 * padding, b),
 
-                        sk(a + padding, box.h - b, (box.w + a) / 2, box.h - b + c),
-                        skTo(box.w - 2 * padding, box.h - b),
+                        sk(a + padding, $box.h - b, ($box.w + a) / 2, $box.h - b + c),
+                        skTo($box.w - 2 * padding, $box.h - b),
                     ]
                 </D>
              </For>
@@ -2396,7 +2431,14 @@ MenuItem]]></Property>
             <g id="scrollbar" style="fill: none;">
                 <path id="line2" style="stroke-linejoin: round;"/>
             </g>
-            <g id="content" />
+
+            <!-- <g id="content" /> -->
+            <foreignObject id="content">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="div" >
+                    asdadadasd
+                </div>
+            </foreignObject>
+            <g id="line"/>
         </p:Content>
     </Shape>
 </Shapes>
