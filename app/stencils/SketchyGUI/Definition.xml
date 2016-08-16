@@ -2345,7 +2345,10 @@ MenuItem]]></Property>
                                     var preNode = nodes[i].parent;
                                     var lineX = preNode.bound.x + 10;
                                     var lineY = y + (boxH / 2);
-                                    if ( x < $box.w && lineY < $box.h) {
+                                    var dist;
+                                    if ($withSrcollBar.value) dist = $box.w - 20;
+                                    else dist = $box.w - 6;
+                                    if (x < dist && lineY < $box.h) {
                                         var lineD = [
                                             sk(lineX, lineY, x, lineY)
                                         ];
@@ -2376,18 +2379,31 @@ MenuItem]]></Property>
                              }
                              for (var i = 0; i < nodes.length; i++) {
                                  if (nodes[i].maxY) {
-                                         var bound = nodes[i].bound;
-                                         if (bound.x < $box.w && nodes[i].maxY < $box.h) {
-                                         var lineD = [
-                                             sk(bound.x + 10 , bound.y + (bound.h), bound.x + 10, nodes[i].maxY)
-                                         ];
-                                         var downLine = {
-                                             _name: "path",
-                                             _uri: "http://www.w3.org/2000/svg",
-                                             d : lineD.join(),
-                                             style: lineStyle
-                                         };
-                                         tree.push(downLine);
+                                     var bound = nodes[i].bound;
+                                     var dist;
+                                     if ($withSrcollBar.value) dist = $box.w - 20;
+                                     else dist = $box.w - 6;
+                                     if (bound.x < dist) {
+                                        var lineD;
+                                        if (nodes[i].maxY < $box.h) {
+                                            lineD = [
+                                                sk(bound.x + 10 , bound.y + (bound.h), bound.x + 10, nodes[i].maxY)
+                                            ];
+                                        } else {
+                                            if ($box.h > (bound.y + bound.h))
+                                            {
+                                                lineD = [
+                                                    sk(bound.x + 10 , bound.y + bound.h, bound.x + 10, $box.h)
+                                                ];
+                                            }
+                                        }
+                                        var downLine = {
+                                            _name: "path",
+                                            _uri: "http://www.w3.org/2000/svg",
+                                            d : lineD.join(),
+                                            style: lineStyle
+                                        };
+                                        tree.push(downLine);
                                      }
                                  }
                              }
