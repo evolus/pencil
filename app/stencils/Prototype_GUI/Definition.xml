@@ -26,10 +26,6 @@
             <Property name="defaultHeaderTextColor" type="Color" displayName="Default Header Text Color">#000000ff</Property>
             <Property name="defaultHeaderBGColor" type="Color" displayName="Default Header Background Color">#ccccccff</Property>
         </PropertyGroup>
-        <PropertyGroup name="Table: border">
-            <Property name="defaultTableBorderColor" type="Color" displayName="Default Border Color">#000000FF</Property>
-            <Property name="defaultTableBorderStyle" type="StrokeStyle" displayName="Default Border Style">1|</Property>
-        </PropertyGroup>
     </Properties>
 
     <Script comments="Scripts for calculating table column widths">
@@ -1844,7 +1840,7 @@
             <g id="dateContext"/>
         </p:Content>
     </Shape>
-    <Shape id="table" displayName="Table" icon="Icons/table.png">
+    <Shape id="table" displayName="Table" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAgCAYAAACrdt7+AAAB+UlEQVRoge2Wz4vTQBiGn8SkP3LQizQsEshBT3pwoUgPHqS3gnsR6tVLmoPnssj+Df1bvNajAQUplJ7UQheKFMEuSDxEkbLOeKhiMhoPLpmuyzyXZD4mfO+8YT5eazQaHfu+71HCYrGwwjA8dV33Utme/5X1ev1lOBxez9cc3/cbQRDslX2UpunHIAharuva1UvUznu1cBEPeSaMIQpOflGr1YTv+6xWK61GjcdjsixDCIHrujiOQ6vVotPp6JQBKIZsNhvSNJW6RfR6Pd0tS3GUtZ1l2U6EnBfMDFEwhig4SZK8sG37ddkGIcT96XT6rF6vn+oUpgMp5a3fioPB4K8TLY7jJ/1+v1mZqh3yp7ObK6NgDFEoGDKZTB7PZrOXuxKTo17yXjmFHJJlWdhoNHTEwwfAZ6AJrNke+gS4A8yBEGgBEyAAEuAGUPnPKhjS7XYPgcOqmwJPS+pvfjxf5Wo/30+qk/MLM0MUjCEKjpTyURzH7bINQogDz/OacRxf1GA2LhRNMCtiroyCMUShYMh8Pn+4XC6TXYnJcW6C2W3Lsu5q6HsP+AZcA74C7wAXuAr4wAfgCtvg9hb4BFxmG9QqpWBIu90+Ao6qbgo819DjnzAzRMEYouBIKfejKCoNXUKIm57ndaMo2ugUpgMp5T5qMDMYDIYz8B2BU4lpgGLohAAAAABJRU5ErkJggg==">
         <Properties>
             <PropertyGroup name="Sizing">
                 <Property name="box" displayName="Size" type="Dimension">350,100</Property>
@@ -1885,8 +1881,8 @@
                 <Property name="headerBackground" displayName="Header Background" type="Color"><E>$$defaultHeaderBGColor</E></Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$defaultTableBorderColor</E></Property>
-                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$defaultTableBorderStyle</E></Property>
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
             </PropertyGroup>
         </Properties>
 
