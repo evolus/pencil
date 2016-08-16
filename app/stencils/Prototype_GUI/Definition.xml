@@ -1849,7 +1849,7 @@
             <PropertyGroup name="Sizing">
                 <Property name="box" displayName="Size" type="Dimension">350,100</Property>
                 <Property name="useHtmlContent" displayName="Use HTML Content" type="Bool">false</Property>
-                <Property name="fixedHeaderHeight" noScale="true" displayName="Fixed Header Height" type="Bool">true</Property>
+                <Property name="fixedHeaderHeight" noScale="true" displayName="Fixed Header Height" type="Bool">false</Property>
                 <Property name="padding" displayName="Cell Padding" type="Handle" p:noScale="true" p:lockX="true" p:minY="0">0,4</Property>
                 <Property name="headerHeight" p:disabled="!$fixedHeaderHeight.value" p:noScale="true" displayName="Header Height" type="Handle" p:lockX="true" p:minY="10" p:maxY="$box.h">0,30</Property>
             </PropertyGroup>
@@ -1923,12 +1923,11 @@
                                 style.set("background-color", $headerBackground.toRGBAString());
                                 style.set("color", $headerTextColor.toRGBAString());
                             }
-
                             style.set("text-align", ["left", "center", "right"][$textAlign.h]);
                             style.set("vertical-align", ["top", "middle", "bottom"][$textAlign.v]);
                             style.set("min-width", "0px");
                             style.set("min-height", "0px");
-                            style.set("height", height + "px");
+                            style.set("height", (height - $strokeStyle.w ) + "px");
                             style.set("overflow", "hidden");
                             style.set("-moz-box-sizing", "border-box");
                             style.set("box-sizing", "border-box");
@@ -1942,7 +1941,6 @@
                                 } else {
                                     w = properties["box"].w;
                                 }
-
                                 w -= $strokeStyle.w;
                             }
 
@@ -1972,7 +1970,7 @@
                                                 .set("-moz-box-sizing", "border-box")
                                                 .set("box-sizing", "border-box")
                                                 .set("padding", $padding.y + "px")
-                                                .set("width", w + "px")
+                                                .set("width", (w - $padding.y) + "px")
                                                 .set("line-height", "0px")
                                                 .set("text-align", "center")
                                     }
@@ -2045,8 +2043,8 @@
                             tableStyle.setIfNot("border-collapse", "collapse");
                             tableStyle.setIfNot("background-color", $fillColor.toRGBAString());
 
-                            tableStyle.set("width",  ($box.w) + "px");
-                            tableStyle.set("height",  ($box.h) + "px");
+                            tableStyle.set("width",  $box.w + "px");
+                            tableStyle.set("height",  $box.h + "px");
 
                             tableStyle.set("border", "solid " + $strokeStyle.w + "px " + $strokeColor.toRGBAString());
                             tableStyle.set("border-width", "0px " + $strokeStyle.w + "px " + $strokeStyle.w + "px 0px");
@@ -2064,7 +2062,6 @@
 
                             if (a.length > 0) {
                                 height = Math.floor(contentHeight / a.length);
-                                height -= $strokeStyle.w + ($strokeStyle.w % 2);
                                 headers = a[0];
 
                                 var tr = {
@@ -2109,7 +2106,7 @@
                                         _children: []
                                     };
                                     tr.style = new CSS();
-                                    tr.style.set("height", height + "px");
+
                                     tr.style.set("min-height", "0px");
 
                                     tbody._children.push(tr);
