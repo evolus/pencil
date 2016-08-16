@@ -2167,7 +2167,7 @@ MenuItem]]></Property>
             <text id="text"/>
         </p:Content>
     </Shape>
-    <Shape id="tree" displayName="Tree View" icon="data:image/png;base64,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">
+    <Shape id="tree" displayName="Tree" icon="data:image/png;base64,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">
         <Properties>
             <PropertyGroup name="General">
                 <Property name="box" type="Dimension">250,300</Property>
@@ -2254,15 +2254,11 @@ MenuItem]]></Property>
                        css.set("height", cellH + "px" );
                        css.set("line-height", cellH + "px");
                        if ($withSrcollBar.value) {
-                        css.set("width", (boxW - (20 + (nodes[i].pos*space))) + "px");
+                        css.set("width", (boxW - (17 + ((nodes[i].pos - 1)*space))) + "px");
                        } else {
-                        css.set("width", (boxW - (6 + (nodes[i].pos*space))) + "px");
+                        css.set("width", (boxW - (3 + ((nodes[i].pos - 1)*space))) + "px");
                        }
-                       if (i > 0) {
-                        css.set("padding-left", (nodes[i].pos*space) + "px");
-                       } else {
-                        css.set("padding-left", "6px");
-                       }
+                       css.set("padding-left", ((nodes[i].pos - 1)*space) + "px");
                        css.set("text-overflow:", "ellipsis");
                        css.set("white-space", "nowrap");
                        css.set("overflow", "hidden");
@@ -2332,12 +2328,13 @@ MenuItem]]></Property>
 
                          var space = 20;
                          var tree = [];
-                         var x = space + $strokeStyle.w;
+                         var x = space + $strokeStyle.w + 3;
                          var y = $strokeStyle.w;
                          for (var j = 0; j < nodeList.length; j++) {
                              var nodes = nodeList[j];
-                             x = space + $strokeStyle.w;;
+                             x = space + $strokeStyle.w + 3;
                              for (var i = 0; i < nodes.length; i++) {
+                                 x = ($strokeStyle.w + 3) + (space*(nodes[i].pos - 1));
                                  var bBox = nodes[i].bBox;
                                  var boxW = bBox.w;
                                  var boxH = bBox.h;
@@ -2361,7 +2358,6 @@ MenuItem]]></Property>
                                         };
                                         tree.push(line);
                                     }
-
                                 }
                                 var findcheck = false;
                                 for (var k = i; k >= 0; k--) {
@@ -2428,17 +2424,17 @@ MenuItem]]></Property>
             <For ref="line2">
                 <D>
                     //depends $textFont $content
-                    var boxW = $box.w - $strokeStyle.w * 2;
-                    var boxH = $box.h - $strokeStyle.w * 2;
+                    var boxW = $box.w - $strokeStyle.w;
+                    var boxH = $box.h - $strokeStyle.w;
                     var lengh = 10 ;
                     var a = boxW - 14;
                     var padding = 2 ;
                     var b = 10 ;
                     var c = 5 ;
                     [
-                        sk(a, $strokeStyle.w, a, boxH),
+                        sk(a, 0, a, boxH),
                         skTo(boxW , boxH),
-                        skTo(boxW , $strokeStyle.w),
+                        skTo(boxW , 0),
                         z,
                         sk(a + padding, boxH / 2 + lengh, boxW - 2 * padding, boxH / 2 + lengh),
                         sk(a + padding, boxH / 2, boxW - 2 * padding, boxH / 2),
@@ -2484,7 +2480,7 @@ MenuItem]]></Property>
                 <path id="line2" style="stroke-linejoin: round;"/>
             </g>
             <foreignObject id="content">
-                <div xmlns="http://www.w3.org/1999/xhtml" id="div" >
+                <div xmlns="http://www.w3.org/1999/xhtml" id="div" style="padding-left:3px" >
                     asdadadasd
                 </div>
             </foreignObject>
