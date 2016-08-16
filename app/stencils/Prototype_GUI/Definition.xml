@@ -2135,8 +2135,38 @@
                     new Dimension($box.w + $strokeStyle.w % 2, Math.max($box.h + $strokeStyle.w % 2, F.elementSize("textDiv").h))
                 </Box>
             </For>
-
         </Behaviors>
+        <Actions>
+            <Action id="fixColumnContent" displayName="Fix Column Content">
+                <Impl>
+                    <![CDATA[
+                        var a = F.parseTextArray(this.getProperty("content").toString());
+                        var cellLenght = [];
+                        for (var i = 0; i < a.length; i++) {
+                            for (var ii = 0; ii < a[i].length; ii++) {
+                                if (cellLenght[ii] == null) cellLenght[ii] = a[i][ii].length;
+                                else cellLenght[ii] = Math.max(cellLenght[ii], a[i][ii].length);
+                            }
+                        }
+                        var maxCellLength = 0;
+                        for (var i = 0; i < cellLenght.length; i++) {
+                            maxCellLength += cellLenght[i];
+                        }
+
+                        var cw = a[0].length;
+                        var box = this.getProperty("box");
+                        var start = 0;
+                        for (var i = 0; i < cw; i++) {
+                            var cellWidth = (cellLenght[i] / maxCellLength) * box.w;
+                            var hd = this.getProperty("h" + i);
+                            hd.x = start + cellWidth;
+                            this.setProperty("h" + i, hd);
+                            start = hd.x;
+                        }
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
             <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
                 <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv" style="padding: 5px;">
