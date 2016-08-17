@@ -2272,7 +2272,7 @@ MenuItem]]></Property>
                        css.set("line-height", cellH + "px");
                        var padding = ((nodes[i].pos - 1) * space);
                        if ($withCollapse.value){
-                           if (nodes[i].value.indexOf(">") >= 0 || nodes[i + i] && nodes[i + 1].pos - nodes[i].pos == 1) {
+                           if (nodes[i].value.indexOf(">") >= 0 || nodes[i + 1] && nodes[i + 1].pos - nodes[i].pos == 1) {
                               padding += parseInt($textFont.size.replace("px",""));
                            }
                        }
@@ -2387,16 +2387,16 @@ MenuItem]]></Property>
                                      if (nodes[i].value.indexOf(">") >= 0) {
                                          console.log("COLLAPSE NODE", nodes[i].value);
                                          arrowD = [
-                                             sk ( (x + size) - (size / 2), (y + (boxH / 2)) - (size / 2), (x + size) + (size / 2), y + (boxH / 2)),
-                                             skTo ( (x + size) - (size / 2), (y + (boxH / 2)) + (size / 2)),
+                                             sk ( (x + size) - (size / 3), (y + (boxH / 2)) - (size / 3), (x + size) + (size / 3), y + (boxH / 2)),
+                                             skTo ( (x + size) - (size / 3), (y + (boxH / 2)) + (size / 3)),
                                              z
                                          ];
                                      }
                                      if (i < nodes.length - 2) {
                                          if (nodes[i+1].parent.pos == nodes[i].pos) {
                                              arrowD = [
-                                                 sk ( (x + size) - (size / 2), (y + (boxH / 2)) - (size / 2), (x + size), (y + (boxH / 2)) + (size / 2)),
-                                                 skTo ( (x + size) + (size / 2), (y + (boxH / 2)) - (size / 2)),
+                                                 sk ( (x + size) - (size / 3), (y + (boxH / 2)) - (size / 3), (x + size), (y + (boxH / 2)) + (size / 3)),
+                                                 skTo ( (x + size) + (size / 3), (y + (boxH / 2)) - (size / 3)),
                                                  z
                                              ];
                                          }
@@ -2414,7 +2414,7 @@ MenuItem]]></Property>
                                  if ($lineCheck.value) {
                                      if (i > 0) {
                                         var preNode = nodes[i].parent;
-                                        var lineX = preNode.bound.x + 10;
+                                        var lineX = preNode.bound.x + parseInt($textFont.size.replace("px","")) / 2;
                                         var lineY = y + (boxH / 2);
                                         var dist;
                                         if ($withSrcollBar.value) dist = $box.w - 20;
@@ -2459,13 +2459,13 @@ MenuItem]]></Property>
                                             var lineD;
                                             if (nodes[i].maxY < $box.h) {
                                                 lineD = [
-                                                    sk(bound.x + 10 , bound.y + (bound.h), bound.x + 10, nodes[i].maxY)
+                                                    sk(bound.x + parseInt($textFont.size.replace("px","")) / 2 , bound.y + (bound.h), bound.x + parseInt($textFont.size.replace("px","")) / 2, nodes[i].maxY)
                                                 ];
                                             } else {
                                                 if ($box.h > (bound.y + bound.h))
                                                 {
                                                     lineD = [
-                                                        sk(bound.x + 10 , bound.y + bound.h, bound.x + 10, $box.h)
+                                                        sk(bound.x + parseInt($textFont.size.replace("px","")) / 2 , bound.y + bound.h, bound.x + parseInt($textFont.size.replace("px","")) / 2, $box.h)
                                                     ];
                                                 }
                                             }
