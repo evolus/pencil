@@ -2171,4 +2171,458 @@
             </foreignObject>
         </p:Content>
     </Shape>
+    <Shape id="tree" displayName="Tree" icon="data:image/png;base64,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">
+        <Properties>
+            <PropertyGroup name="General">
+                <Property name="box" type="Dimension">250,300</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Lines">
+                <Property name="strokeColor" displayName="Line Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Line Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+                <Property name="lineCheck" displayName="With Line" type="Bool">true</Property>
+                <Property name="borderCheck" displayName="With Border" type="Bool">true</Property>
+                <Property name="withSrcollBar" displayName="With Scrollbar" type="Bool">true</Property>
+                <Property name="withCollapse" displayName="With Collapse" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="content" displayName="Tree Content" type="PlainText"
+                        p:editInfo="var box = F.getObjectBoundingBox('box') ;({targetName: 'box', bound: new Bound(0, 0, box.w, box.h), font: $textFont, align: new Alignment(0, 1), multi: true})"><![CDATA[TreeItem 1
+#TreeItem 1.2
+##TreeItem 1.2.1*
+##TreeItem 1.2.1.1
+###TreeItem 1.2.2>
+#TreeItem 1.2.2.1>
+#TreeItem 1.3]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">
+                    <E>$$textFont</E>
+                </Property>
+                <Property name="textColor" displayName="Default Text Color" type="Color">
+                    <E>$$textColor</E>
+                </Property>
+                <Property name="selectedColor" displayName="Selected Text Color" type="Color">
+                    <E>Color.fromString("#0000FF")</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="content">
+                <Bound>new Bound($strokeStyle.w, $strokeStyle.w, $box.w - $strokeStyle.w*2, $box.h - $strokeStyle.w*2)</Bound>
+            </For>
+            <For ref="div">
+               <DomContent>
+               <![CDATA[
+               //depends $textFont $content $withCollapse
+               var parseTextArray = function(text) {
+                   var lines = text.split(/[\r\n]+/);
+                   var ar = [];
+                   for (var i = 0; i < lines.length; i++) {
+                       var c = [];
+                       var index = lines[i].lastIndexOf("#");
+                       if (index < 0) {
+                           c.push(1);
+                           c.push(lines[i].substring(0));
+                       } else {
+                           c.push(index + 2);
+                           c.push(lines[i].substring(index + 1));
+                       }
+                       ar.push(c);
+                   }
+                   return ar;
+               };
+               var a = parseTextArray($content.value);
+               var nodeList = [];
+               var count = 0;
+               var genNodes = function(node, parent) {
+                   if (node.pos == 1) {
+                       var nodes = [];
+                       nodeList.push(nodes);
+                   }
+                   if (!parent || node.pos - parent.pos == 1) {
+                       if (parent) node.parent = parent;
+                       nodeList[nodeList.length - 1].push(node);
+                       count++;
+                       if (count < a.length) {
+                           var newNode = {};
+                           newNode.value = a[count][1];
+                           newNode.pos = a[count][0];
+                           if (newNode.pos == 1) {
+                                genNodes(newNode);
+                           } else {
+                                genNodes(newNode, nodeList[nodeList.length - 1][count - 1]);
+                           }
+                       }
+                   } else {
+                       if (parent.parent) genNodes(node, parent.parent);
+                       else return;
+                   }
+               };
+               genNodes({value: a[0][1], pos: a[0][0]});
+               var space = 20;
+               var tree = [];
+               var cellH =parseInt($textFont.size.replace("px","")) + 6;
+               var boxW = $box.w - ($strokeStyle.w * 2);
+               console.log("NODELIST", nodeList);
+               for (var j = 0; j < nodeList.length; j++) {
+                   var nodes = nodeList[j];
+                   for (var i = 0; i < nodes.length; i++) {
+                       var css = new CSS();
+                       css.set("height", cellH + "px" );
+                       css.set("line-height", cellH + "px");
+                       var padding = ((nodes[i].pos - 1) * space);
+                       if ($withCollapse.value){
+                           if (nodes[i].value.indexOf(">") >= 0 || nodes[i + 1] && nodes[i + 1].pos - nodes[i].pos == 1) {
+                              padding += parseInt($textFont.size.replace("px",""));
+                           }
+                       }
+                       css.set("padding-left", padding + "px");
+                       css.set("width", (boxW - (3 + padding)) + "px");
+                       if ($withSrcollBar.value) {
+                        css.set("width", (boxW - (17 + padding)) + "px");
+                       }
+                       css.set("text-overflow:", "ellipsis");
+                       css.set("white-space", "nowrap");
+                       css.set("overflow", "hidden");
+
+                       var selectedCheck = (nodes[i].value.indexOf("*") >= 0 ? true : false);
+                       var textStyle = css;
+                       if (selectedCheck) {
+                           nodes[i].value = nodes[i].value.toString().replace("*","");
+                           css.set("Color",$selectedColor.toRGBString());
+                       }
+                       if (nodes[i].value.indexOf(">") >= 0) nodes[i].value = nodes[i].value.replace(">","");
+                       var text = {
+                           _name: "div",
+                           _uri: "http://www.w3.org/1999/xhtml",
+                           _text: nodes[i].value,
+                           style: css
+                       };
+                       tree.push(text);
+                    }
+                }
+                Dom.newDOMFragment(tree);
+               ]]>
+               </DomContent>
+               <Font>$textFont</Font>
+               <Color>$textColor</Color>
+           </For>
+           <For ref="line">
+               <DomContent>
+                      <![CDATA[
+                          //depends $textFont $content
+                          var parseTextArray = function(text) {
+                              var lines = text.split(/[\r\n]+/);
+                              var ar = [];
+                              for (var i = 0; i < lines.length; i++) {
+                                  var c = [];
+                                  var index = lines[i].lastIndexOf("#");
+                                  if (index < 0) {
+                                      c.push(1);
+                                      c.push(lines[i].substring(0));
+                                  } else {
+                                      c.push(index + 2);
+                                      c.push(lines[i].substring(index + 1));
+                                  }
+                                  ar.push(c);
+                              }
+                              return ar;
+                          };
+                         var a = parseTextArray($content.value);
+                         var nodeList =[];
+                         var count = 0;
+                         var genNodes = function(node, parent) {
+                             if (node.pos == 1) {
+                                 var nodes = [];
+                                 nodeList.push(nodes);
+                             }
+                             if (!parent || node.pos - parent.pos == 1) {
+                                 if (parent) node.parent = parent;
+                                 node.bBox = {w: ($box.w - (14 + (node.pos*space))), h: parseInt($textFont.size.replace("px","")) + 6};
+                                 nodeList[nodeList.length - 1].push(node);
+                                 count++;
+                                 if (count < a.length) {
+                                     var newNode = {};
+                                     newNode.value = a[count][1];
+                                     newNode.pos = a[count][0];
+                                     if (newNode.pos == 1) {
+                                          genNodes(newNode);
+                                     } else {
+                                          genNodes(newNode, node);
+                                     }
+                                 }
+                             } else {
+                                 if (parent.parent) genNodes(node, parent.parent);
+                                 else return;
+                             }
+                         };
+                         genNodes({value: a[0][1], pos: a[0][0]});
+
+                         var lineStyle = new CSS();
+                         lineStyle.set("stroke-width", $strokeStyle.w);
+                         lineStyle.set("stroke", $strokeColor.toRGBString());
+                         var collapseStyle = new CSS();
+                         collapseStyle.set("stroke-width",$strokeStyle.w);
+                         collapseStyle.set("stroke",$strokeColor.toRGBString());
+                         collapseStyle.set("fill",$strokeColor.toRGBString());
+
+                         var space = 20;
+                         var tree = [];
+                         var x = space + $strokeStyle.w + 3;
+                         var y = $strokeStyle.w;
+                         for (var j = 0; j < nodeList.length; j++) {
+                             var nodes = nodeList[j];
+                             x = space + $strokeStyle.w + 3;
+                             for (var i = 0; i < nodes.length; i++) {
+                                 x = ($strokeStyle.w + 3) + (space*(nodes[i].pos - 1));
+                                 var bBox = nodes[i].bBox;
+                                 var boxW = bBox.w;
+                                 var boxH = bBox.h;
+                                 nodes[i].bound = {x: x, y: y, w: boxW, h: boxH};
+
+                                 if ($withCollapse.value) {
+                                     var arrowD;
+                                     var size = parseInt($textFont.size.replace("px",""));
+                                     size /= 2;
+                                     if (nodes[i].value.indexOf(">") >= 0) {
+                                         console.log("COLLAPSE NODE", nodes[i].value);
+                                         arrowD = [
+                                             skline ( (x + size) - (size / 3), (y + (boxH / 2)) - (size / 3), (x + size) + (size / 3), y + (boxH / 2)),
+                                             sklineTo ( (x + size) - (size / 3), (y + (boxH / 2)) + (size / 3)),
+                                             z
+                                         ];
+                                     }
+                                     if (i < nodes.length - 2) {
+                                         if (nodes[i+1].parent.pos == nodes[i].pos) {
+                                             arrowD = [
+                                                 skline ( (x + size) - (size / 3), (y + (boxH / 2)) - (size / 3), (x + size), (y + (boxH / 2)) + (size / 3)),
+                                                 sklineTo ( (x + size) + (size / 3), (y + (boxH / 2)) - (size / 3)),
+                                                 z
+                                             ];
+                                         }
+                                     }
+                                     if ( arrowD != null && x < ($box.w - 17) && y < $box.h) {
+                                         var arrow = {
+                                             _name: "path",
+                                             _uri: "http://www.w3.org/2000/svg",
+                                             d : arrowD.join(),
+                                             style: collapseStyle
+                                         };
+                                         tree.push(arrow);
+                                     }
+                                 }
+                                 if ($lineCheck.value && $strokeStyle.w > 0) {
+                                     if (i > 0) {
+                                        var preNode = nodes[i].parent;
+                                        var lineX = preNode.bound.x + parseInt($textFont.size.replace("px","")) / 2;
+                                        var lineY = y + (boxH / 2);
+                                        var dist;
+                                        if ($withSrcollBar.value) dist = $box.w - 20;
+                                        else dist = $box.w - 6;
+                                        if (x < dist && lineY < $box.h) {
+                                            var lineD = [
+                                                skline(lineX, lineY, x, lineY)
+                                            ];
+                                            var line = {
+                                                _name: "path",
+                                                _uri: "http://www.w3.org/2000/svg",
+                                                d : lineD.join(),
+                                                style: lineStyle
+                                            };
+                                            tree.push(line);
+                                        }
+                                    }
+                                }
+                                var findcheck = false;
+                                for (var k = i; k >= 0; k--) {
+                                    if (i < (nodes.length - 1)) {
+                                        if (nodes[k].pos == nodes[i + 1].parent.pos) {
+                                            x = nodes[k].bound.x + 20;
+                                            nodes[i + 1].parent = nodes[k];
+                                        }
+                                    }
+                                    if (nodes[i].parent && nodes[k].pos == nodes[i].parent.pos && !findcheck) {
+                                        nodes[k].maxY = (y + (boxH / 2) + ($strokeStyle.w / 2));
+                                        findcheck = true;
+                                    }
+                                }
+                                y += boxH;
+                             }
+                             if ($lineCheck.value && $strokeStyle.w > 0) {
+                                 for (var i = 0; i < nodes.length; i++) {
+                                     if (nodes[i].maxY) {
+                                         var bound = nodes[i].bound;
+                                         var dist;
+                                         if ($withSrcollBar.value) dist = $box.w - 20;
+                                         else dist = $box.w - 6;
+                                         if (bound.x < dist) {
+                                            var lineD;
+                                            if (nodes[i].maxY < $box.h) {
+                                                lineD = [
+                                                    skline(bound.x + parseInt($textFont.size.replace("px","")) / 2 , bound.y + (bound.h), bound.x + parseInt($textFont.size.replace("px","")) / 2, nodes[i].maxY)
+                                                ];
+                                            } else {
+                                                if ($box.h > (bound.y + bound.h))
+                                                {
+                                                    lineD = [
+                                                        skline(bound.x + parseInt($textFont.size.replace("px","")) / 2 , bound.y + bound.h, bound.x + parseInt($textFont.size.replace("px","")) / 2, $box.h)
+                                                    ];
+                                                }
+                                            }
+                                            var downLine = {
+                                                _name: "path",
+                                                _uri: "http://www.w3.org/2000/svg",
+                                                d : lineD.join(),
+                                                style: lineStyle
+                                            };
+                                            tree.push(downLine);
+                                         }
+                                     }
+                                 }
+                             }
+                         }
+                         Dom.newDOMFragment(tree);
+                      ]]>
+                  </DomContent>
+           </For>
+            <For ref="box">
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <StrokeColor>$borderCheck.value ? $strokeColor : $strokeColor.hollowed(1)</StrokeColor>
+                <Bound>
+                    //depends $textFont $content
+                    new Bound(0, 0, $box.w - $strokeStyle.w, $box.h - $strokeStyle.w)
+                </Bound>
+                <Fill>
+                    $borderCheck.value ? $fillColor : $fillColor.hollowed(1)
+                </Fill>
+                <Transform>[translate($strokeStyle.w / 2, $strokeStyle.w / 2)]</Transform>
+            </For>
+            <For ref="scrollBox">
+                <D>
+                  //depends $textFont $content
+                  var boxW = $box.w - $strokeStyle.w;
+                  var boxH = $box.h - $strokeStyle.w;
+                  var a = boxW - 14;
+                  var w = boxW - 14;
+                  var h = 14 / 3;
+                  var y = ((14 / 2) - (h / 2));
+                  var x = a + 7;
+                  [
+                      skline(a, 0, a, boxH),
+                      sklineTo(boxW , boxH),
+                      sklineTo(boxW , 0),
+                      z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+
+            <For ref="scrollPoint">
+                <D>
+                    //depends $textFont $content
+                    var boxW = $box.w - $strokeStyle.w;
+                    var boxH = $box.h - $strokeStyle.w;
+                    var a = boxW - 14;
+                    var w = boxW - 14;
+                    var h = 14 / 3;
+                    var y = ((14 / 2) - (h / 2));
+                    var x = a + 7;
+                    [
+                        skline(w, boxH / 3, w + 14, boxH / 3),
+                        sklineTo(w + 14, (boxH / 3) * 2),
+                        sklineTo(w, (boxH / 3) * 2),
+                        z
+                    ]
+                </D>
+                <Fill>$fillColor.shaded(0.5)</Fill>
+            </For>
+            <For ref="arrowUp">
+                <D>
+                    //depends $textFont $content
+                    var boxW = $box.w - $strokeStyle.w;
+                    var boxH = $box.h - $strokeStyle.w;
+                    var a = boxW - 14;
+                    var w = boxW - 14;
+                    var h = 14 / 3;
+                    var y = ((14 / 2) - (h / 2));
+                    var x = a + 7;
+                    [
+                        skline(x, y, x - (h / 2), y + h),
+                        sklineTo(x + (h / 2), y + h),
+                        z
+                    ]
+                </D>
+                <Fill>$strokeColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>2|</StrokeStyle>
+            </For>
+            <For ref="arrowDown">
+                <D>
+                    //depends $textFont $content
+                    var boxW = $box.w - $strokeStyle.w;
+                    var boxH = $box.h - $strokeStyle.w;
+                    var a = boxW - 14;
+                    var w = boxW - 14;
+                    var h = 14 / 3;
+                    var y = ((14 / 2) - (h / 2));
+                    var x = a + 7;
+                    [
+                        skline(x - (h / 2), ((boxH - 14) + 7) - (h / 2), x + (h / 2), ((boxH - 14) + 7) - ( h / 2)),
+                        sklineTo(x, (((boxH - 14) + 7) - (h / 2)) + h),
+                        z
+                    ]
+                </D>
+                <Fill>$strokeColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>2|</StrokeStyle>
+            </For>
+             <For ref="scrollbar">
+                <Visibility>$withSrcollBar.value</Visibility>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Transform>[translate($strokeStyle.w / 2, $strokeStyle.w / 2)]</Transform>
+             </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var sw = this.getProperty("strokeStyle").w;
+                        var w = this.getProperty("box").w;
+                        var h = this.getProperty("box").h;
+                        return [
+                            new SnappingData("Left", b.x - sw / 2, "Left", true, this.id),
+                            new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
+                            new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
+                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect id="box" />
+            <g id="scrollbar" style="fill: none;">
+                <path id="scrollBox"/>
+                <path id="scrollPoint"/>
+                <path id="arrowUp" style="stroke-linejoin: round;"/>
+                <path id="arrowDown" style="stroke-linejoin: round;"/>
+            </g>
+            <foreignObject id="content">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="div" style="padding-left:3px" >
+                    asdadadasd
+                </div>
+            </foreignObject>
+            <g id="line"/>
+        </p:Content>
+    </Shape>
 </Shapes>
