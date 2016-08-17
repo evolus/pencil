@@ -2359,8 +2359,8 @@ MenuItem]]></Property>
                          genNodes({value: a[0][1], pos: a[0][0]});
 
                          var lineStyle = new CSS();
-                         lineStyle.set("stroke-width",$strokeStyle.w);
-                         lineStyle.set("stroke",$strokeColor.toRGBString());
+                         lineStyle.set("stroke-width", $strokeStyle.w);
+                         lineStyle.set("stroke", $strokeColor.toRGBString());
                          var collapseStyle = new CSS();
                          collapseStyle.set("stroke-width",$strokeStyle.w);
                          collapseStyle.set("stroke",$strokeColor.toRGBString());
@@ -2411,7 +2411,7 @@ MenuItem]]></Property>
                                          tree.push(arrow);
                                      }
                                  }
-                                 if ($lineCheck.value) {
+                                 if ($lineCheck.value && $strokeStyle.w > 0) {
                                      if (i > 0) {
                                         var preNode = nodes[i].parent;
                                         var lineX = preNode.bound.x + parseInt($textFont.size.replace("px","")) / 2;
@@ -2448,7 +2448,7 @@ MenuItem]]></Property>
                                 }
                                 y += boxH;
                              }
-                             if ($lineCheck.value) {
+                             if ($lineCheck.value && $strokeStyle.w > 0) {
                                  for (var i = 0; i < nodes.length; i++) {
                                      if (nodes[i].maxY) {
                                          var bound = nodes[i].bound;
