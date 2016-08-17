@@ -2183,17 +2183,18 @@ MenuItem]]></Property>
                 </Property>
                 <Property name="lineCheck" displayName="With Line" type="Bool">true</Property>
                 <Property name="borderCheck" displayName="With Border" type="Bool">true</Property>
-                <Property name="withSrcollBar" displayName="With Scroll Bar" type="Bool">true</Property>
+                <Property name="withSrcollBar" displayName="With Scrollbar" type="Bool">true</Property>
+                <Property name="withCollapse" displayName="With Collapse" type="Bool">true</Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property name="content" displayName="Tree Content" type="PlainText"
                         p:editInfo="var box = F.getObjectBoundingBox('box') ;({targetName: 'box', bound: new Bound(0, 0, box.w, box.h), font: $textFont, align: new Alignment(0, 1), multi: true})"><![CDATA[TreeItem 1
 #TreeItem 1.2
 ##TreeItem 1.2.1*
-## TreeItem 1.2.1.1
-#### TreeItem 1.2.2
-# TreeItem 1.2.2.1
-# TreeItem 1.3]]></Property>
+##TreeItem 1.2.1.1
+###TreeItem 1.2.2>
+#TreeItem 1.2.2.1>
+#TreeItem 1.3]]></Property>
                 <Property name="textFont" displayName="Default Font" type="Font">
                     <E>$$textFont</E>
                 </Property>
@@ -2210,9 +2211,9 @@ MenuItem]]></Property>
                 <Bound>new Bound($strokeStyle.w, $strokeStyle.w, $box.w - $strokeStyle.w*2, $box.h - $strokeStyle.w*2)</Bound>
             </For>
             <For ref="div">
-                //depends $textFont $content
                <DomContent>
                <![CDATA[
+               //depends $textFont $content $withCollapse
                var parseTextArray = function(text) {
                    var lines = text.split(/[\r\n]+/);
                    var ar = [];
@@ -2231,8 +2232,7 @@ MenuItem]]></Property>
                    return ar;
                };
                var a = parseTextArray($content.value);
-               console.log("NEW",a);
-               var nodeList =[];
+               var nodeList = [];
                var count = 0;
                var genNodes = function(node, parent) {
                    if (node.pos == 1) {
@@ -2259,32 +2259,39 @@ MenuItem]]></Property>
                    }
                };
                genNodes({value: a[0][1], pos: a[0][0]});
-               console.log("NODES", nodeList);
                var space = 20;
                var tree = [];
                var cellH =parseInt($textFont.size.replace("px","")) + 6;
                var boxW = $box.w - ($strokeStyle.w * 2);
+               console.log("NODELIST", nodeList);
                for (var j = 0; j < nodeList.length; j++) {
                    var nodes = nodeList[j];
                    for (var i = 0; i < nodes.length; i++) {
                        var css = new CSS();
                        css.set("height", cellH + "px" );
                        css.set("line-height", cellH + "px");
-                       if ($withSrcollBar.value) {
-                        css.set("width", (boxW - (17 + ((nodes[i].pos - 1)*space))) + "px");
-                       } else {
-                        css.set("width", (boxW - (3 + ((nodes[i].pos - 1)*space))) + "px");
+                       var padding = ((nodes[i].pos - 1) * space);
+                       if ($withCollapse.value){
+                           if (nodes[i].value.indexOf(">") >= 0 || nodes[i + i] && nodes[i + 1].pos - nodes[i].pos == 1) {
+                              padding += parseInt($textFont.size.replace("px",""));
+                           }
                        }
-                       css.set("padding-left", ((nodes[i].pos - 1)*space) + "px");
+                       css.set("padding-left", padding + "px");
+                       css.set("width", (boxW - (3 + padding)) + "px");
+                       if ($withSrcollBar.value) {
+                        css.set("width", (boxW - (17 + padding)) + "px");
+                       }
                        css.set("text-overflow:", "ellipsis");
                        css.set("white-space", "nowrap");
                        css.set("overflow", "hidden");
+
                        var selectedCheck = (nodes[i].value.indexOf("*") >= 0 ? true : false);
                        var textStyle = css;
                        if (selectedCheck) {
                            nodes[i].value = nodes[i].value.toString().replace("*","");
                            css.set("Color",$selectedColor.toRGBString());
                        }
+                       if (nodes[i].value.indexOf(">") >= 0) nodes[i].value = nodes[i].value.replace(">","");
                        var text = {
                            _name: "div",
                            _uri: "http://www.w3.org/1999/xhtml",
@@ -2352,13 +2359,12 @@ MenuItem]]></Property>
                          genNodes({value: a[0][1], pos: a[0][0]});
 
                          var lineStyle = new CSS();
-                         lineStyle.set("stroke-width",($lineCheck.value ? $strokeStyle.w : "none"));
-                         lineStyle.set("stroke",$lineCheck.value ? $strokeColor.toRGBString() : "none");
-                         lineStyle.set("fill",$lineCheck.value ? $strokeColor.toRGBString() : "none");
-                         var borderStyle = new CSS();
-                         borderStyle.set("stroke-width",($borderCheck.value ? $strokeStyle.w : 0));
-                         borderStyle.set("stroke", $borderCheck.value ? $strokeColor.toRGBString() : "none");
-                         borderStyle.set("fill", $borderCheck.value ? $fillColor.toRGBString() : "none");
+                         lineStyle.set("stroke-width",$strokeStyle.w);
+                         lineStyle.set("stroke",$strokeColor.toRGBString());
+                         var collapseStyle = new CSS();
+                         collapseStyle.set("stroke-width",$strokeStyle.w);
+                         collapseStyle.set("stroke",$strokeColor.toRGBString());
+                         collapseStyle.set("fill",$strokeColor.toRGBString());
 
                          var space = 20;
                          var tree = [];
@@ -2373,24 +2379,58 @@ MenuItem]]></Property>
                                  var boxW = bBox.w;
                                  var boxH = bBox.h;
                                  nodes[i].bound = {x: x, y: y, w: boxW, h: boxH};
-                                 if (i > 0) {
-                                    var preNode = nodes[i].parent;
-                                    var lineX = preNode.bound.x + 10;
-                                    var lineY = y + (boxH / 2);
-                                    var dist;
-                                    if ($withSrcollBar.value) dist = $box.w - 20;
-                                    else dist = $box.w - 6;
-                                    if (x < dist && lineY < $box.h) {
-                                        var lineD = [
-                                            sk(lineX, lineY, x, lineY)
-                                        ];
-                                        var line = {
-                                            _name: "path",
-                                            _uri: "http://www.w3.org/2000/svg",
-                                            d : lineD.join(),
-                                            style: lineStyle
-                                        };
-                                        tree.push(line);
+
+                                 if ($withCollapse.value) {
+                                     var arrowD;
+                                     var size = parseInt($textFont.size.replace("px",""));
+                                     size /= 2;
+                                     if (nodes[i].value.indexOf(">") >= 0) {
+                                         console.log("COLLAPSE NODE", nodes[i].value);
+                                         arrowD = [
+                                             sk ( (x + size) - (size / 2), (y + (boxH / 2)) - (size / 2), (x + size) + (size / 2), y + (boxH / 2)),
+                                             skTo ( (x + size) - (size / 2), (y + (boxH / 2)) + (size / 2)),
+                                             z
+                                         ];
+                                     }
+                                     if (i < nodes.length - 2) {
+                                         if (nodes[i+1].parent.pos == nodes[i].pos) {
+                                             arrowD = [
+                                                 sk ( (x + size) - (size / 2), (y + (boxH / 2)) - (size / 2), (x + size), (y + (boxH / 2)) + (size / 2)),
+                                                 skTo ( (x + size) + (size / 2), (y + (boxH / 2)) - (size / 2)),
+                                                 z
+                                             ];
+                                         }
+                                     }
+                                     if ( arrowD != null && x < ($box.w - 17) && y < $box.h) {
+                                         var arrow = {
+                                             _name: "path",
+                                             _uri: "http://www.w3.org/2000/svg",
+                                             d : arrowD.join(),
+                                             style: collapseStyle
+                                         };
+                                         tree.push(arrow);
+                                     }
+                                 }
+                                 if ($lineCheck.value) {
+                                     if (i > 0) {
+                                        var preNode = nodes[i].parent;
+                                        var lineX = preNode.bound.x + 10;
+                                        var lineY = y + (boxH / 2);
+                                        var dist;
+                                        if ($withSrcollBar.value) dist = $box.w - 20;
+                                        else dist = $box.w - 6;
+                                        if (x < dist && lineY < $box.h) {
+                                            var lineD = [
+                                                sk(lineX, lineY, x, lineY)
+                                            ];
+                                            var line = {
+                                                _name: "path",
+                                                _uri: "http://www.w3.org/2000/svg",
+                                                d : lineD.join(),
+                                                style: lineStyle
+                                            };
+                                            tree.push(line);
+                                        }
                                     }
                                 }
                                 var findcheck = false;
@@ -2408,33 +2448,35 @@ MenuItem]]></Property>
                                 }
                                 y += boxH;
                              }
-                             for (var i = 0; i < nodes.length; i++) {
-                                 if (nodes[i].maxY) {
-                                     var bound = nodes[i].bound;
-                                     var dist;
-                                     if ($withSrcollBar.value) dist = $box.w - 20;
-                                     else dist = $box.w - 6;
-                                     if (bound.x < dist) {
-                                        var lineD;
-                                        if (nodes[i].maxY < $box.h) {
-                                            lineD = [
-                                                sk(bound.x + 10 , bound.y + (bound.h), bound.x + 10, nodes[i].maxY)
-                                            ];
-                                        } else {
-                                            if ($box.h > (bound.y + bound.h))
-                                            {
+                             if ($lineCheck.value) {
+                                 for (var i = 0; i < nodes.length; i++) {
+                                     if (nodes[i].maxY) {
+                                         var bound = nodes[i].bound;
+                                         var dist;
+                                         if ($withSrcollBar.value) dist = $box.w - 20;
+                                         else dist = $box.w - 6;
+                                         if (bound.x < dist) {
+                                            var lineD;
+                                            if (nodes[i].maxY < $box.h) {
                                                 lineD = [
-                                                    sk(bound.x + 10 , bound.y + bound.h, bound.x + 10, $box.h)
+                                                    sk(bound.x + 10 , bound.y + (bound.h), bound.x + 10, nodes[i].maxY)
                                                 ];
+                                            } else {
+                                                if ($box.h > (bound.y + bound.h))
+                                                {
+                                                    lineD = [
+                                                        sk(bound.x + 10 , bound.y + bound.h, bound.x + 10, $box.h)
+                                                    ];
+                                                }
                                             }
-                                        }
-                                        var downLine = {
-                                            _name: "path",
-                                            _uri: "http://www.w3.org/2000/svg",
-                                            d : lineD.join(),
-                                            style: lineStyle
-                                        };
-                                        tree.push(downLine);
+                                            var downLine = {
+                                                _name: "path",
+                                                _uri: "http://www.w3.org/2000/svg",
+                                                d : lineD.join(),
+                                                style: lineStyle
+                                            };
+                                            tree.push(downLine);
+                                         }
                                      }
                                  }
                              }
