@@ -2421,9 +2421,9 @@
                                                 .set("-moz-box-sizing", "border-box")
                                                 .set("box-sizing", "border-box")
                                                 .set("height", (height - $strokeStyle.w) + "px")
-                                                .set("padding", ($padding.y + ($strokeStyle.w / 2)) + "px")
+                                                .set("padding", $padding.y + ($strokeStyle.w / 2) + "px")
                                                 .set("line-height", $textFont.size)
-                                                .set("text-align", ["left", "center", "right"][$textAlign.h])
+                                                .set("text-align", "center")
                                                 .set("display", "table-cell")
                                                 .set("vertical-align", ["top", "middle", "bottom"][$textAlign.v])
                                                 .set("word-break", "break-all")
@@ -2478,8 +2478,7 @@
                                     }
                                 );
                             } else {
-
-                                div.style.unset("text-align");
+                                div.style.set("text-align", ["left", "center", "right"][$textAlign.h])
                                 if (content == null || content == "") {
                                     div.style.set("height", "10px");
                                 }
@@ -2597,9 +2596,7 @@
             <For ref="horizontal-line">
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>
-                    var stroke = $strokeStyle;
-                    stroke.w *= 2;
-                    stroke;
+                    $strokeStyle;
                 </StrokeStyle>
                 <D>
                 <![CDATA[
