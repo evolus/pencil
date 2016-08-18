@@ -2505,20 +2505,28 @@
             <For ref="scrollBox">
                 <D>
                   //depends $textFont $content
-                  var boxW = $box.w - $strokeStyle.w;
-                  var boxH = $box.h - $strokeStyle.w;
-                  var a = boxW - 14;
-                  var w = boxW - 14;
-                  var h = 14 / 3;
-                  var y = ((14 / 2) - (h / 2));
-                  var x = a + 7;
-                  [
-                      skline(a, 0, a, boxH),
-                      sklineTo(boxW , boxH),
-                      sklineTo(boxW , 0),
-                      z
-                  ]
+
+                  var boxW = 14;
+                  var boxH = $box.h;
+                  var a = $strokeStyle.w;
+                  var x = $box.w - boxW;
+                  var y;
+                  if (!$borderCheck.value) {
+                      y = 0;
+                      [
+                        skline(x, y, (x + (boxW - a)), y),
+                        sklineTo((x + (boxW - a)), boxH - a),
+                        sklineTo(x, boxH - a),
+                        z
+                      ]
+                  } else {
+                      var y = a / 2;
+                          [
+                            skline(x, y, x, y + (boxH - 2*a)),
+                          ]
+                  }
                 </D>
+                <Transform>[translate($strokeStyle.w / 2, $strokeStyle.w / 2)]</Transform>
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <Fill>$fillColor</Fill>
@@ -2527,37 +2535,34 @@
             <For ref="scrollPoint">
                 <D>
                     //depends $textFont $content
-                    var boxW = $box.w - $strokeStyle.w;
-                    var boxH = $box.h - $strokeStyle.w;
-                    var a = boxW - 14;
-                    var w = boxW - 14;
-                    var h = 14 / 3;
-                    var y = ((14 / 2) - (h / 2));
-                    var x = a + 7;
+                    var boxW = 14;
+                    var boxH = $box.h;
+                    var a = $strokeStyle.w;
+                    var x = ($box.w - boxW) + a;
                     [
-                        skline(w, boxH / 3, w + 14, boxH / 3),
-                        sklineTo(w + 14, (boxH / 3) * 2),
-                        sklineTo(w, (boxH / 3) * 2),
-                        z
+                      skline(x, boxH / 3, (x + (boxW - 2*a)), boxH / 3),
+                      sklineTo((x + (boxW - 2*a)), (boxH / 3) * 2),
+                      sklineTo(x, (boxH / 3) * 2),
+                      z
                     ]
                 </D>
-                <Fill>$fillColor.shaded(0.5)</Fill>
+                <Fill>$strokeColor.shaded(0.5)</Fill>
             </For>
             <For ref="arrowUp">
                 <D>
                     //depends $textFont $content
-                    var boxW = $box.w - $strokeStyle.w;
-                    var boxH = $box.h - $strokeStyle.w;
-                    var a = boxW - 14;
-                    var w = boxW - 14;
-                    var h = 14 / 3;
-                    var y = ((14 / 2) - (h / 2));
-                    var x = a + 7;
+                    var boxW = 14;
+                    var boxH = $box.h;
+                    var a = $strokeStyle.w;
+                    var h = boxW / 3;
+                    var y = ((boxW / 2) - (h / 2));
+                    var x = ($box.w - boxW) + (boxW / 2);
                     [
-                        skline(x, y, x - (h / 2), y + h),
-                        sklineTo(x + (h / 2), y + h),
-                        z
+                      skline(x, y, x - (h / 2), y + h),
+                      sklineTo(x + (h / 2), y + h),
+                      z
                     ]
+
                 </D>
                 <Fill>$strokeColor</Fill>
                 <StrokeColor>$strokeColor</StrokeColor>
@@ -2566,17 +2571,16 @@
             <For ref="arrowDown">
                 <D>
                     //depends $textFont $content
-                    var boxW = $box.w - $strokeStyle.w;
-                    var boxH = $box.h - $strokeStyle.w;
-                    var a = boxW - 14;
-                    var w = boxW - 14;
-                    var h = 14 / 3;
-                    var y = ((14 / 2) - (h / 2));
-                    var x = a + 7;
+                    var boxW = 14;
+                    var boxH = $box.h;
+                    var a = $strokeStyle.w;
+                    var h = boxW / 3;
+                    var y = ((boxH - boxW) + (boxW / 2)) - (h / 2);
+                    var x = ($box.w - boxW) + (boxW / 2);
                     [
-                        skline(x - (h / 2), ((boxH - 14) + 7) - (h / 2), x + (h / 2), ((boxH - 14) + 7) - ( h / 2)),
-                        sklineTo(x, (((boxH - 14) + 7) - (h / 2)) + h),
-                        z
+                      skline(x - (h / 2), y, x + (h / 2), y),
+                      sklineTo(x, y + h),
+                      z
                     ]
                 </D>
                 <Fill>$strokeColor</Fill>
@@ -2585,10 +2589,6 @@
             </For>
              <For ref="scrollbar">
                 <Visibility>$withSrcollBar.value</Visibility>
-                <Fill>$fillColor</Fill>
-                <StrokeColor>$strokeColor</StrokeColor>
-                <StrokeStyle>$strokeStyle</StrokeStyle>
-                <Transform>[translate($strokeStyle.w / 2, $strokeStyle.w / 2)]</Transform>
              </For>
         </Behaviors>
         <Actions>
