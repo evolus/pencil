@@ -2354,7 +2354,7 @@
                 </CustomStyle>
                 <CustomStyle>
                     <Arg>"padding"</Arg>
-                    <Arg>$strokeStyle.w  + "px"</Arg>
+                    <Arg>($strokeStyle.w / 2)  + "px"</Arg>
                 </CustomStyle>
                 <Color>$textColor</Color>
                 <Font>$textFont</Font>
@@ -2364,6 +2364,8 @@
                 </CustomStyle>
                 <DomContent>
                     <![CDATA[
+                        //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box $headerHeight
+                        //depends also: $textFont, $customStyle, $padding
                         var gen = function (isHeader, content, colIndex, colCount, height) {
                             var a = F.parseTextArray($content.value);
                             var style = new CSS();
@@ -2383,11 +2385,11 @@
                             style.set("min-width", "0px");
                             style.set("min-height", "0px");
                             style.set("overflow", "hidden");
-                            style.set("height", height + "px");
-
                             var w = 0;
                             if (colIndex < colCount - 1) {
-                                w = properties["h" + colIndex].x - (colIndex > 0 ? properties["h" + (colIndex - 1)].x : 0);
+                                var w0 = colIndex > 0 ? properties["h" + (colIndex - 1)].x : $strokeStyle.w / 2;
+                                var w1 = properties["h" + colIndex].x;
+                                w = w1 - w0;
                             } else {
                                 if (colIndex > 0) {
                                     w = properties["box"].w - properties["h" + (colIndex - 1)].x;
@@ -2396,7 +2398,6 @@
                                 }
                             }
 
-                            w -= $strokeStyle.w + ($strokeStyle.w % 2);
                             style.set("width", w + "px");
                             var index = content.indexOf("@@");
                             if (index >= 0) {
@@ -2503,7 +2504,7 @@
                             tableStyle.setIfNot("border-collapse", "collapse");
                             tableStyle.setIfNot("background-color", $fillColor.toRGBAString());
 
-                            tableStyle.set("width",  ($box.w - $strokeStyle.w*2) + "px");
+                            tableStyle.set("width",  ($box.w - $strokeStyle.w) + "px");
                             tableStyle.set("height",  ($box.h - $strokeStyle.w*2) + "px");
 
                             tableStyle.set("table-layout",  "fixed");
@@ -2599,9 +2600,9 @@
                     $strokeStyle;
                 </StrokeStyle>
                 <D>
+                //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box $headerHeight
+                //depends also: $textFont, $customStyle, $padding
                 <![CDATA[
-                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box $headerHeight
-                    //depends also: $textFont, $customStyle, $padding
                     var a = F.parseTextArray($content.value);
                     var w = $strokeStyle.w;
                     var row = a.length;
@@ -2630,11 +2631,10 @@
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <D>
+                //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box $headerHeight
+                //depends also: $textFont, $customStyle, $padding
                 <![CDATA[
-                    //depends $h0 $h1 $h2 $h3 $h4 $h5 $h6 $h7 $h8 $h9 $h10 $h11 $box $headerHeight
-                    //depends also: $textFont, $customStyle, $padding
-                    var minHeight = F.textSize("htmlObject").h;
-                    var h = Math.max(minHeight, $box.h)
+                    var h = F.textSize("htmlObject").h;
                     var a = F.parseTextArray($content.value);
                     if (a.length > 0) {
                         col = a[0].length;
@@ -2725,7 +2725,6 @@
             <path id="vertical-line" style="fill:none;stroke-linejoin:round" />
             <foreignObject x="0" y="0" width="200" height="20" id="htmlObject">
                 <div xmlns="http://www.w3.org/1999/xhtml" id="textDiv"></div>
-                <!-- <div xmlns="http://www.w3.org/1999/xhtml" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/> -->
             </foreignObject>
         </p:Content>
     </Shape>
