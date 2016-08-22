@@ -5,7 +5,6 @@
             justify-content: center;
             align-items: center;
         }
-
         @recentDocumentPane {
             margin-bottom: 1em;
         }
@@ -19,30 +18,31 @@
             padding-right: 0.4em;
         }
 
-        @recentDocumentRepeater > strong {
+        body .Repeater-Document > strong {
             color: #888;
             text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
         }
-        @recentDocumentRepeater > .ContentWrapper {
+        body .Repeater-Document > .ContentWrapper {
             margin-left: -2ex;
-            width: 76ex;
+            width: 95ex;
             flex-wrap: wrap;
         }
         @recentDocumentRepeater vbox[role="item"] {
             box-shadow: 0px 0px 0.5ex rgba(0, 0, 0, 0.4);
             margin-left: 2ex;
             margin-top: 2ex;
-            width: 16ex;
+            /*width: 20ex;*/
             border: solid 0.5ex @app_bg;
             background: @app_bg;
             cursor: pointer;
+            position: relative;
         }
         @recentDocumentRepeater vbox[role="item"]:hover {
             box-shadow: 0px 0px 1ex @selected_bg;
         }
         @recentDocumentRepeater vbox[role="item"] .ImageContainer {
-            width: 16ex;
-            height: 18ex;
+            width: 20ex;
+            height: 25ex;
             background: #FFF;
         }
         @recentDocumentRepeater vbox[role="item"] .InfoPane {
@@ -65,10 +65,78 @@
             background: rgba(0, 0, 0, 0.1);
             margin-top: 1em;
         }
+        body .Repeater-Document .pinPage{
+            height: 20px;
+            line-height: 20px;
+            background: transparent;
+            border: none;
+            max-width: 20px;
+            min-width: 20px;
+            padding: 0px;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+        body .Repeater-Document .pinPage i{
+            transition: transform 2s;
+        }
+
+        body .Repeater-Document .pinPage i:hover{
+            transform:scale(1.5,1.5);
+        }
+
+        @recentDocumentRepeaterRow hbox[role="item"] {
+            box-shadow: 0px 0px 0.5ex rgba(0, 0, 0, 0.4);
+            margin-left: 2ex;
+            margin-top: 2ex;
+            width: 93ex;
+            border: solid 0.5ex @app_bg;
+            background: @app_bg;
+            cursor: pointer;
+            position: relative;
+        }
+        @recentDocumentRepeaterRow hbox[role="item"]:hover {
+            box-shadow: 0px 0px 1ex @selected_bg;
+        }
+        @recentDocumentRepeaterRow  hbox[role="item"] .ImageContainer {
+            width: 7ex;
+            height: 8ex;
+            background: #FFF;
+        }
+        @recentDocumentRepeaterRow hbox[role="item"] .InfoPane {
+            /*width: 10ex;*/
+            padding: 1ex;
+        }
+        @recentDocumentRepeaterRow hbox[role="item"] .InfoPane > * {
+            width: 80ex;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        @recentDocumentRepeaterRow hbox[role="item"] .InfoPane span {
+            opacity: 0.5;
+            font-size: 0.9em;
+        }
     </style>
     <vbox>
         <vbox anon-id="recentDocumentPane">
-            <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" anon-id="recentDocumentRepeater" flex="1">
+            <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" class="Repeater-Document" anon-id="recentDocumentRepeaterRow" flex="1">
+                <strong role="header">Recent Documents</strong>
+                <hbox role="item">
+                    <div class="ImageContainer">
+                        <img anon-id="thumbnailImage"/>
+                    </div>
+                    <vbox class="InfoPane">
+                        <strong anon-id="name"></strong>
+                        <span anon-id="path"></span>
+                        <span anon-id="info"></span>
+                    </vbox>
+                    <button class="pinPage" command="pinDocument" anon-id="pin"><i>star_border</i></button>
+                </hbox>
+                <hr role="footer"></hr>
+            </ui:RepeaterView>
+
+            <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" class="Repeater-Document" anon-id="recentDocumentRepeater" flex="1">
                 <strong role="header">Recent Documents</strong>
                 <vbox role="item">
                     <div class="ImageContainer">
@@ -78,6 +146,7 @@
                         <strong anon-id="name"></strong>
                         <span anon-id="info"></span>
                     </vbox>
+                    <button class="pinPage" command="pinDocument" anon-id="pin"><i>star_border</i></button>
                 </vbox>
                 <hr role="footer"></hr>
             </ui:RepeaterView>
