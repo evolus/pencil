@@ -136,13 +136,12 @@ StartUpDocumentView.prototype.reload = function () {
             }
         }
     }
-
-    deleteFiles = [];
     if (pinFiles) {
+        deleteFiles = [];
         pinDocs = loadFiles(pinFiles, deleteFiles, true);
         if (deleteFiles.length > 0) {
             for (var i = 0; i < deleteFiles.length; i++) {
-                pinMap[deleteFiles[i]] = null;
+                if (pinMap[deleteFiles[i]]) pinMap[deleteFiles[i]] = null;
                 pinFiles.splice(i, 1);
             }
             Config.set("pin-documents", pinFiles);
