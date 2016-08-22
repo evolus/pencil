@@ -6,21 +6,24 @@ function StartUpDocumentView() {
         Config.set("view.recentGridView", true);
         gridViewCheck = true;
     }
-    if (gridViewCheck) this.currentRepeater = this.recentDocumentRepeater;
-    else this.currentRepeater = this.recentDocumentRepeaterRow;
+    if (!gridViewCheck) {
+       var cString = this.recentDocumentRepeater.getAttribute("class");
+       cString += " RowView";
+       this.recentDocumentRepeater.setAttribute("class", cString);
 
-    this.currentRepeater.populator = function (doc, binding) {
+    }
+    this.recentDocumentRepeater.populator = function (doc, binding) {
         var filePath = doc.filePath;
         var handler = function (error, thumbPath) {
             var stats = fs.statSync(filePath);
             if (stats) {
                 binding.name.innerHTML = Dom.htmlEncode(path.basename(filePath));
                 binding.info.innerHTML = Dom.htmlEncode(moment(stats.mtime).fromNow());
-                if (binding.path) {
+                if (!gridViewCheck) {
                     binding.path.innerHTML = Dom.htmlEncode(filePath);
                 }
                 var pinFiles = Config.get("pin-documents");
-                if (pinFiles.indexOf(filePath) >= 0) {
+                if (pinFiles && pinFiles.indexOf(filePath) >= 0) {
                     binding.pin.innerHTML = "";
                     binding.pin.appendChild(Dom.newDOMElement({
                             _name: "i",
@@ -70,7 +73,7 @@ function StartUpDocumentView() {
                 }
             } else {
                 pinFiles.splice(index,1);
-                pinMaps[filePath] = null;
+                delete pinMaps[filePath];
             }
             Config.set("pin-documents", pinFiles);
             Config.set("pin-documents-thumb-map", pinMaps);
@@ -87,7 +90,7 @@ function StartUpDocumentView() {
         }
         handler();
 
-    }, this.currentRepeater);
+    }, this.recentDocumentRepeater);
 
     Dom.doOnAllChildRecursively(this.node(), function (n) {
         if (!n.getAttribute || !n.getAttribute("command")) return;
@@ -141,7 +144,7 @@ StartUpDocumentView.prototype.reload = function () {
         pinDocs = loadFiles(pinFiles, deleteFiles, true);
         if (deleteFiles.length > 0) {
             for (var i = 0; i < deleteFiles.length; i++) {
-                if (pinMap[deleteFiles[i]]) pinMap[deleteFiles[i]] = null;
+                if (pinMap[deleteFiles[i]]) delete pinMap[deleteFiles[i]];
                 pinFiles.splice(i, 1);
             }
             Config.set("pin-documents", pinFiles);
@@ -151,9 +154,9 @@ StartUpDocumentView.prototype.reload = function () {
     var startDocs = pinDocs.concat(recentDocs);
     startDocs = startDocs.slice(0, 8);
     var thiz = this;
-    this.currentRepeater.node().style.visibility = "hidden";
+    this.recentDocumentRepeater.node().style.visibility = "hidden";
     setTimeout(function () {
-        thiz.currentRepeater.setItems(startDocs);
-        thiz.currentRepeater.node().style.visibility = "inherit";
+        thiz.recentDocumentRepeater.setItems(startDocs);
+        thiz.recentDocumentRepeater.node().style.visibility = "inherit";
     }, 200);
 };
