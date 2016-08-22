@@ -19,6 +19,14 @@ function StartUpDocumentView() {
                 if (binding.path) {
                     binding.path.innerHTML = Dom.htmlEncode(filePath);
                 }
+                var pinFiles = Config.get("pin-documents");
+                if (pinFiles.indexOf(filePath) >= 0) {
+                    binding.pin.innerHTML = "";
+                    binding.pin.appendChild(Dom.newDOMElement({
+                            _name: "i",
+                            _text: "star"
+                    }));
+                }
                 if (thumbPath) {
                     window.setTimeout(function () {
                         Util.setupImage(binding.thumbnailImage, ImageData.filePathToURL(thumbPath), "center-crop", "allowUpscale");
@@ -47,18 +55,25 @@ function StartUpDocumentView() {
         if (!filePath) return;
 
         if (node) {
-            var bookFiles = Config.get("favorite-documents");
-            for (var i = 0; i < bookFiles.length; i++) {
-                if (bookFiles[i] == filePath) {
-                    bookFiles.splice(i,1);
-                    break;
+            var pinFiles = Config.get("pin-documents") || [];
+            var pinMaps = Config.get("pin-documents-thumb-map") || {};
+            var index = pinFiles.indexOf(filePath);
+            if (index < 0) {
+                if (pinFiles.length >= 8) {
+                    pinMaps[pinFiles[7]] = null;
+                    pinFiles.pop();
                 }
+                pinFiles.push(filePath);
+                var recentMap = Config.get("recent-documents-thumb-map") || null;
+                if (recentMap) {
+                    pinMaps[filePath] = recentMap[filePath];
+                }
+            } else {
+                pinFiles.splice(index,1);
+                pinMaps[filePath] = null;
             }
-            Config.set("favorite-documents", bookFiles);
-
-            var recentFile = Config.get("recent-documents");
-            recentFile.push(filePath);
-            Config.set("recent-document", recentFile);
+            Config.set("pin-documents", pinFiles);
+            Config.set("pin-documents-thumb-map", pinMaps);
             thiz.reload();
             return;
         }
@@ -85,29 +100,36 @@ function StartUpDocumentView() {
 __extend(BaseTemplatedWidget, StartUpDocumentView);
 
 StartUpDocumentView.prototype.reload = function () {
-    var files = Config.get("recent-documents");
-    var favoriteFiles = Config.get("favorite-documents");
-    var map = Config.get("recent-documents-thumb-map") || {};
+    var recentFiles = Config.get("recent-documents") || [];
+    var pinFiles = Config.get("pin-documents") || [];
+
+    var pinMap = Config.get("pin-documents-thumb-map") || {};
+    var recentMap = Config.get("recent-documents-thumb-map") || {};
+
     var recentDocs = [];
-    var favoDocs = [];
-    var loadFiles = function (files, deletedFiles) {
+    var pinDocs = [];
+
+    var loadFiles = function (files, deletedFiles, pinFlag) {
         var doc = [];
         for (var i = 0; i < Math.min(files.length, 8); i++) {
             var checkExist = fs.existsSync(files[i]);
             if(!checkExist) {
                 deletedFiles.push(files[i]);
             } else {
+                if (!pinFlag && pinFiles.indexOf(files[i]) >= 0 ) continue;
                 doc.push({
                     filePath: files[i],
-                    thumbPath: map[files[i]] || null
+                    thumbPath: (pinFlag == true) ? (pinMap[files[i]] || null) : (recentMap[files[i]] || null)
                 });
+
             }
         }
         return doc;
     }
+
     var deleteFiles = [];
-    if (files) {
-        recentdocs = loadFiles(files, deleteFiles);
+    if (recentFiles) {
+        recentDocs = loadFiles(recentFiles, deleteFiles);
         if (deleteFiles.length > 0) {
             for (var i = 0; i < deleteFiles.length; i++) {
                 Pencil.controller.removeRecentFile(deleteFiles[i]);
@@ -116,22 +138,23 @@ StartUpDocumentView.prototype.reload = function () {
     }
 
     deleteFiles = [];
-    if (favoriteFiles) {
-        favoDocs = loadFiles(favoriteFiles, deleteFiles);
+    if (pinFiles) {
+        pinDocs = loadFiles(pinFiles, deleteFiles, true);
         if (deleteFiles.length > 0) {
             for (var i = 0; i < deleteFiles.length; i++) {
-                favoriteFiles.splice(i, 1);
+                pinMap[deleteFiles[i]] = null;
+                pinFiles.splice(i, 1);
             }
-            Config.set("favorite-documents", favoriteFiles);
+            Config.set("pin-documents", pinFiles);
+            Config.set("pin-documents-thumb-map", pinMap);
         }
     }
-
+    var startDocs = pinDocs.concat(recentDocs);
+    startDocs = startDocs.slice(0, 8);
     var thiz = this;
     this.currentRepeater.node().style.visibility = "hidden";
-    // reload Favorite Documents
-
     setTimeout(function () {
-        thiz.currentRepeater.setItems(recentdocs);
+        thiz.currentRepeater.setItems(startDocs);
         thiz.currentRepeater.node().style.visibility = "inherit";
     }, 200);
 };
