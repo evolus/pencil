@@ -1,15 +1,13 @@
 function StartUpDocumentView() {
     BaseTemplatedWidget.call(this);
 
-    var gridViewCheck = Config.get("view.recentGridView");
+    var gridViewCheck = Config.get("view.startupscreen.gridview.enabled");
     if (gridViewCheck == null) {
-        Config.set("view.recentGridView", true);
+        Config.set("view.startupscreen.gridview.enabled", true);
         gridViewCheck = true;
     }
     if (!gridViewCheck) {
-       var cString = this.recentDocumentRepeater.getAttribute("class");
-       cString += " RowView";
-       this.recentDocumentRepeater.setAttribute("class", cString);
+        Dom.addClass(this.recentDocumentRepeater.node(), "RowView");
     }
     this.recentDocumentRepeater.populator = function (doc, binding) {
         var filePath = doc.filePath;
