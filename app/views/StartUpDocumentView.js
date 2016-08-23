@@ -138,6 +138,7 @@ StartUpDocumentView.prototype.reload = function (visible) {
             if(!checkExist) {
                 deletedFiles.push(files[i]);
             } else {
+                if (!pinFlag && pinFiles.indexOf(files[i]) >= 0) continue;
                 doc.push({
                     filePath: files[i],
                     thumbPath: (pinFlag == true) ? (pinMap[files[i]] || null) : (recentMap[files[i]] || null),
