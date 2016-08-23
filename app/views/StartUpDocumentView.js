@@ -10,7 +10,6 @@ function StartUpDocumentView() {
        var cString = this.recentDocumentRepeater.getAttribute("class");
        cString += " RowView";
        this.recentDocumentRepeater.setAttribute("class", cString);
-
     }
     this.recentDocumentRepeater.populator = function (doc, binding) {
         var filePath = doc.filePath;
@@ -25,10 +24,6 @@ function StartUpDocumentView() {
                 var pinFiles = Config.get("pin-documents");
                 if (pinFiles && pinFiles.indexOf(filePath) >= 0) {
                     Dom.addClass(binding.pin, "unpin");
-                    // binding.pin.appendChild(Dom.newDOMElement({
-                    //         _name: "i",
-                    //         _text: "star"
-                    // }));
                 }
                 if (thumbPath) {
                     window.setTimeout(function () {
