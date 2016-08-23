@@ -19,9 +19,7 @@ function StartUpDocumentView() {
             if (stats) {
                 binding.name.innerHTML = Dom.htmlEncode(path.basename(filePath));
                 binding.info.innerHTML = Dom.htmlEncode(moment(stats.mtime).fromNow());
-                if (!gridViewCheck) {
-                    binding.path.innerHTML = Dom.htmlEncode(filePath);
-                }
+                binding.path.innerHTML = Dom.htmlEncode(filePath);
                 if (doc.pin) {
                     Dom.addClass(binding.pin, "unpin");
                 }
@@ -74,13 +72,13 @@ function StartUpDocumentView() {
 
         var filePath = Dom.findUpwardForData(event.target, "_filePath");
         if (!filePath) return;
-        var pinCheck = Dom.findUpwardForData(event.target, "_pin");
+        //var pinCheck = Dom.findUpwardForData(event.target, "_pin");
 
         if (node) {
             var pinFiles = Config.get("pin-documents") || [];
             var pinMaps = Config.get("pin-documents-thumb-map") || {};
             var index = pinFiles.indexOf(filePath);
-            if (!pinCheck && index < 0) {
+            if (index < 0) {
                 if (pinFiles.length >= 8) {
                     pinMaps[pinFiles[7]] = null;
                     pinFiles.pop();
@@ -90,13 +88,15 @@ function StartUpDocumentView() {
                 if (recentMap) {
                     pinMaps[filePath] = recentMap[filePath];
                 }
-            } else if (pinCheck) {
+                Dom.addClass(node, "unpin");
+            } else {
                 pinFiles.splice(index, 1);
                 delete pinMaps[filePath];
+                Dom.removeClass(node, "unpin");
             }
             Config.set("pin-documents", pinFiles);
             Config.set("pin-documents-thumb-map", pinMaps);
-            thiz.reload(true);
+            // thiz.reload(true);
             return;
         }
         function handler() {
@@ -139,10 +139,12 @@ StartUpDocumentView.prototype.reload = function (visible) {
                 deletedFiles.push(files[i]);
             } else {
                 if (!pinFlag && pinFiles.indexOf(files[i]) >= 0) continue;
+                var stats = fs.statSync(files[i]);
                 doc.push({
                     filePath: files[i],
                     thumbPath: (pinFlag == true) ? (pinMap[files[i]] || null) : (recentMap[files[i]] || null),
-                    pin: pinFlag
+                    pin: pinFlag,
+                    time: stats.mtime
                 });
             }
         }
@@ -171,9 +173,16 @@ StartUpDocumentView.prototype.reload = function (visible) {
         }
     }
     var startDocs = pinDocs;
-    if (startDocs.length < 8) {
-        startDocs = recentDocs.slice(0, (8 - startDocs.length)).concat(startDocs);
+    if (startDocs.length < 8 && recentDocs.length > 0) {
+        var docLeft = 8 - startDocs.length;
+        startDocs = recentDocs.slice(0, Math.min(docLeft, recentDocs.length)).concat(startDocs);
     }
+    startDocs.sort(function(a,b){
+        var aIndex = recentFiles.indexOf(a.filePath);
+        var bIndex = recentFiles.indexOf(b.filePath);
+        return aIndex - bIndex;
+    });
+
     var thiz = this;
     if (visible) {
         thiz.recentDocumentRepeater.setItems(startDocs);
