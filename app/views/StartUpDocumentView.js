@@ -146,9 +146,10 @@ StartUpDocumentView.prototype.reload = function (visible) {
             Config.set("pin-documents-thumb-map", pinMap);
         }
     }
-    var startDocs = pinDocs.concat(recentDocs);
-    startDocs = startDocs.slice(0, 8);
-    startDocs.reverse();
+    var startDocs = pinDocs;
+    if (startDocs.length < 8) {
+        startDocs = recentDocs.slice(0, (8 - startDocs.length)).concat(startDocs);
+    }
     var thiz = this;
     if (visible) {
         thiz.recentDocumentRepeater.setItems(startDocs);

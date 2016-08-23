@@ -7,6 +7,7 @@
         }
         @recentDocumentPane {
             margin-bottom: 1em;
+            position: relative;
         }
         @otherOptionPane > button {
             font-size: 1.1em;
@@ -24,7 +25,7 @@
         }
         @recentDocumentPane .Repeater-Document > .ContentWrapper {
             margin-left: -2ex;
-            width: 95ex;
+            width: 100ex;
             flex-wrap: wrap;
         }
         @recentDocumentRepeater vbox[role="item"] {
@@ -41,7 +42,7 @@
             box-shadow: 0px 0px 1ex @selected_bg;
         }
         @recentDocumentPane .Repeater-Document vbox[role="item"] .ImageContainer {
-            width: 20ex;
+            width: 22ex;
             height: 25ex;
             background: #FFF;
         }
@@ -93,7 +94,7 @@
         }
 
         @recentDocumentPane .RowView vbox[role="item"] {
-            width: 93ex;
+            width: 97ex;
             flex-direction: row;
         }
 
@@ -107,7 +108,7 @@
             padding: 1ex;
         }
         @recentDocumentPane .RowView vbox[role="item"] .InfoPane > * {
-            width: 80ex;
+            width: 86ex;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -116,9 +117,18 @@
             opacity: 0.5;
             font-size: 0.9em;
         }
+        @recentDocumentPane .GridSelect {
+            position: absolute;
+            right: 0;
+            top: -10px;
+        }
     </style>
     <vbox>
         <vbox anon-id="recentDocumentPane">
+            <hbox class="GridSelect">
+                <button><i>apps</i></button>
+                <button><i>list</i></button>
+            </hbox>
             <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" class="Repeater-Document" anon-id="recentDocumentRepeater" flex="1">
                 <strong role="header">Recent Documents</strong>
                 <vbox role="item">
