@@ -150,6 +150,7 @@ StartUpDocumentView.prototype.reload = function (visible) {
     }
     var startDocs = pinDocs.concat(recentDocs);
     startDocs = startDocs.slice(0, 8);
+    startDocs.reverse();
     var thiz = this;
     if (visible) {
         thiz.recentDocumentRepeater.setItems(startDocs);
