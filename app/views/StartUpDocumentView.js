@@ -21,7 +21,7 @@ function StartUpDocumentView() {
                 binding.info.innerHTML = Dom.htmlEncode(moment(stats.mtime).fromNow());
                 binding.path.innerHTML = Dom.htmlEncode(filePath);
                 if (doc.pin) {
-                    Dom.addClass(binding.pin, "unpin");
+                    Dom.addClass(binding.pin, "Unpin");
                 }
                 if (thumbPath) {
                     window.setTimeout(function () {
@@ -88,11 +88,11 @@ function StartUpDocumentView() {
                 if (recentMap) {
                     pinMaps[filePath] = recentMap[filePath];
                 }
-                Dom.addClass(node, "unpin");
+                Dom.addClass(node, "Unpin");
             } else {
                 pinFiles.splice(index, 1);
                 delete pinMaps[filePath];
-                Dom.removeClass(node, "unpin");
+                Dom.removeClass(node, "Unpin");
             }
             Config.set("pin-documents", pinFiles);
             Config.set("pin-documents-thumb-map", pinMaps);

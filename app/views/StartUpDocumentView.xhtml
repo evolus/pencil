@@ -66,7 +66,7 @@
             background: rgba(0, 0, 0, 0.1);
             margin-top: 1em;
         }
-        @recentDocumentPane .Repeater-Document .pinPage{
+        @recentDocumentPane .Repeater-Document .Pin{
             height: 20px;
             line-height: 20px;
             background: transparent;
@@ -80,19 +80,14 @@
             display: table-cell;
             font-size: 20px;
         }
-        @recentDocumentPane .Repeater-Document .pinPage i{
+        @recentDocumentPane .Repeater-Document .Pin i{
             opacity: 0.5;
             transform: rotate(90deg);
         }
 
-        @recentDocumentPane .Repeater-Document .unpin i{
+        @recentDocumentPane .Repeater-Document .Unpin i{
             opacity : 1;
             transform: rotate(0deg);
-        }
-
-        @recentDocumentPane .Repeater-Document .pinPage i:hover{
-            opacity : 1;
-            transform: scale(1.5, 1.5);
         }
 
         @recentDocumentPane .RowView vbox[role="item"] {
@@ -155,7 +150,7 @@
                         <span anon-id="path"></span>
                         <span anon-id="info"></span>
                     </vbox>
-                    <button class="pinPage" command="pinDocument" anon-id="pin"><i class="mdi mdi-pin"></i></button>
+                    <button class="Pin" command="pinDocument" anon-id="pin"><i class="mdi mdi-pin"></i></button>
                 </vbox>
                 <hr role="footer"></hr>
             </ui:RepeaterView>
