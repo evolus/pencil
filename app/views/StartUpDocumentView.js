@@ -8,6 +8,9 @@ function StartUpDocumentView() {
     }
     if (!gridViewCheck) {
         Dom.addClass(this.recentDocumentRepeater.node(), "RowView");
+        Dom.addClass(this.listViewButton, "GridSelectActive");
+    } else {
+        Dom.addClass(this.gridViewButton, "GridSelectActive");
     }
     this.recentDocumentRepeater.populator = function (doc, binding) {
         var filePath = doc.filePath;
@@ -19,8 +22,7 @@ function StartUpDocumentView() {
                 if (!gridViewCheck) {
                     binding.path.innerHTML = Dom.htmlEncode(filePath);
                 }
-                var pinFiles = Config.get("pin-documents");
-                if (pinFiles && pinFiles.indexOf(filePath) >= 0) {
+                if (doc.pin) {
                     Dom.addClass(binding.pin, "unpin");
                 }
                 if (thumbPath) {
@@ -29,6 +31,7 @@ function StartUpDocumentView() {
                     }, 10);
                 }
                 binding._node._filePath = filePath;
+                binding._node._pin = doc.pin;
                 binding._node.setAttribute("title", filePath);
             }
         };
@@ -41,6 +44,28 @@ function StartUpDocumentView() {
     }
 
     var thiz = this;
+    this.bind ("click", function(ev) {
+        var button = Dom.findUpward(ev.target, function(node) {
+            if (node == thiz.listViewButton || node == thiz.gridViewButton) return true;
+            return false;
+        })
+        if (button == thiz.gridViewButton) {
+            if (gridViewCheck) return;
+            gridViewCheck = true;
+            Dom.removeClass(thiz.recentDocumentRepeater.node(), "RowView");
+            Dom.removeClass(thiz.listViewButton, "GridSelectActive");
+            Dom.addClass(thiz.gridViewButton, "GridSelectActive");
+            Config.set("view.startupscreen.gridview.enabled", true);
+        } else {
+            if (!gridViewCheck) return;
+            gridViewCheck = false;
+            Dom.addClass(thiz.recentDocumentRepeater.node(), "RowView");
+            Dom.removeClass(thiz.gridViewButton, "GridSelectActive");
+            Dom.addClass(thiz.listViewButton, "GridSelectActive");
+            Config.set("view.startupscreen.gridview.enabled", false);
+        }
+    }, this.changeViewButtons);
+
     this.bind("click", function (event) {
         var node = Dom.findUpward(event.target, function(node) {
             if (node.getAttribute("command") == "pinDocument") return true;
@@ -49,12 +74,13 @@ function StartUpDocumentView() {
 
         var filePath = Dom.findUpwardForData(event.target, "_filePath");
         if (!filePath) return;
+        var pinCheck = Dom.findUpwardForData(event.target, "_pin");
 
         if (node) {
             var pinFiles = Config.get("pin-documents") || [];
             var pinMaps = Config.get("pin-documents-thumb-map") || {};
             var index = pinFiles.indexOf(filePath);
-            if (index < 0) {
+            if (!pinCheck && index < 0) {
                 if (pinFiles.length >= 8) {
                     pinMaps[pinFiles[7]] = null;
                     pinFiles.pop();
@@ -64,17 +90,15 @@ function StartUpDocumentView() {
                 if (recentMap) {
                     pinMaps[filePath] = recentMap[filePath];
                 }
-            } else {
-                pinFiles.splice(index,1);
+            } else if (pinCheck) {
+                pinFiles.splice(index, 1);
                 delete pinMaps[filePath];
             }
             Config.set("pin-documents", pinFiles);
             Config.set("pin-documents-thumb-map", pinMaps);
-
             thiz.reload(true);
             return;
         }
-
         function handler() {
             Pencil.controller.loadDocument(filePath);
         }
@@ -114,12 +138,11 @@ StartUpDocumentView.prototype.reload = function (visible) {
             if(!checkExist) {
                 deletedFiles.push(files[i]);
             } else {
-                if (!pinFlag && pinFiles.indexOf(files[i]) >= 0 ) continue;
                 doc.push({
                     filePath: files[i],
-                    thumbPath: (pinFlag == true) ? (pinMap[files[i]] || null) : (recentMap[files[i]] || null)
+                    thumbPath: (pinFlag == true) ? (pinMap[files[i]] || null) : (recentMap[files[i]] || null),
+                    pin: pinFlag
                 });
-
             }
         }
         return doc;
@@ -127,7 +150,7 @@ StartUpDocumentView.prototype.reload = function (visible) {
 
     var deleteFiles = [];
     if (recentFiles) {
-        recentDocs = loadFiles(recentFiles, deleteFiles);
+        recentDocs = loadFiles(recentFiles, deleteFiles, false);
         if (deleteFiles.length > 0) {
             for (var i = 0; i < deleteFiles.length; i++) {
                 Pencil.controller.removeRecentFile(deleteFiles[i]);
