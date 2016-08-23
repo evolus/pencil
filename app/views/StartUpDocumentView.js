@@ -24,11 +24,11 @@ function StartUpDocumentView() {
                 }
                 var pinFiles = Config.get("pin-documents");
                 if (pinFiles && pinFiles.indexOf(filePath) >= 0) {
-                    binding.pin.innerHTML = "";
-                    binding.pin.appendChild(Dom.newDOMElement({
-                            _name: "i",
-                            _text: "star"
-                    }));
+                    Dom.addClass(binding.pin, "unpin");
+                    // binding.pin.appendChild(Dom.newDOMElement({
+                    //         _name: "i",
+                    //         _text: "star"
+                    // }));
                 }
                 if (thumbPath) {
                     window.setTimeout(function () {
@@ -66,7 +66,7 @@ function StartUpDocumentView() {
                     pinMaps[pinFiles[7]] = null;
                     pinFiles.pop();
                 }
-                pinFiles.push(filePath);
+                pinFiles.unshift(filePath);
                 var recentMap = Config.get("recent-documents-thumb-map") || null;
                 if (recentMap) {
                     pinMaps[filePath] = recentMap[filePath];
@@ -77,7 +77,8 @@ function StartUpDocumentView() {
             }
             Config.set("pin-documents", pinFiles);
             Config.set("pin-documents-thumb-map", pinMaps);
-            thiz.reload();
+
+            thiz.reload(true);
             return;
         }
 
@@ -102,7 +103,8 @@ function StartUpDocumentView() {
 
 __extend(BaseTemplatedWidget, StartUpDocumentView);
 
-StartUpDocumentView.prototype.reload = function () {
+
+StartUpDocumentView.prototype.reload = function (visible) {
     var recentFiles = Config.get("recent-documents") || [];
     var pinFiles = Config.get("pin-documents") || [];
 
@@ -154,9 +156,14 @@ StartUpDocumentView.prototype.reload = function () {
     var startDocs = pinDocs.concat(recentDocs);
     startDocs = startDocs.slice(0, 8);
     var thiz = this;
-    this.recentDocumentRepeater.node().style.visibility = "hidden";
-    setTimeout(function () {
+    if (visible) {
         thiz.recentDocumentRepeater.setItems(startDocs);
-        thiz.recentDocumentRepeater.node().style.visibility = "inherit";
-    }, 200);
+    } else {
+        this.recentDocumentRepeater.node().style.visibility = "hidden";
+        setTimeout(function () {
+            thiz.recentDocumentRepeater.setItems(startDocs);
+            thiz.recentDocumentRepeater.node().style.visibility = "inherit";
+        }, 200);
+    }
+
 };

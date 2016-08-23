@@ -76,13 +76,20 @@
             position: absolute;
             right: 0;
             bottom: 0;
+            display: table-cell;
+            font-size: 15px;
         }
         @recentDocumentPane .Repeater-Document .pinPage i{
-            transition: transform 2s;
+            opacity: 0.5;
+        }
+
+        @recentDocumentPane .Repeater-Document .unpin i{
+            opacity : 1;
         }
 
         @recentDocumentPane .Repeater-Document .pinPage i:hover{
-            transform:scale(1.5,1.5);
+            opacity : 1;
+            transform: scale(1.5, 1.5);
         }
 
         @recentDocumentPane .RowView vbox[role="item"] {
@@ -123,7 +130,7 @@
                         <span anon-id="path"></span>
                         <span anon-id="info"></span>
                     </vbox>
-                    <button class="pinPage" command="pinDocument" anon-id="pin"><i>star_border</i></button>
+                    <button class="pinPage" command="pinDocument" anon-id="pin"><i class="mdi mdi-pin"></i></button>
                 </vbox>
                 <hr role="footer"></hr>
             </ui:RepeaterView>
