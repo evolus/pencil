@@ -8,9 +8,9 @@ function StartUpDocumentView() {
     }
     if (!gridViewCheck) {
         Dom.addClass(this.recentDocumentRepeater.node(), "RowView");
-        Dom.addClass(this.listViewButton, "GridSelectActive");
+        Dom.addClass(this.listViewButton, "Active");
     } else {
-        Dom.addClass(this.gridViewButton, "GridSelectActive");
+        Dom.addClass(this.gridViewButton, "Active");
     }
     this.recentDocumentRepeater.populator = function (doc, binding) {
         var filePath = doc.filePath;
@@ -51,16 +51,18 @@ function StartUpDocumentView() {
             if (gridViewCheck) return;
             gridViewCheck = true;
             Dom.removeClass(thiz.recentDocumentRepeater.node(), "RowView");
-            Dom.removeClass(thiz.listViewButton, "GridSelectActive");
-            Dom.addClass(thiz.gridViewButton, "GridSelectActive");
+            Dom.removeClass(thiz.listViewButton, "Active");
+            Dom.addClass(thiz.gridViewButton, "Active");
             Config.set("view.startupscreen.gridview.enabled", true);
+            thiz.recentDocumentRepeater.setItems(thiz.startDocs);
         } else {
             if (!gridViewCheck) return;
             gridViewCheck = false;
             Dom.addClass(thiz.recentDocumentRepeater.node(), "RowView");
-            Dom.removeClass(thiz.gridViewButton, "GridSelectActive");
-            Dom.addClass(thiz.listViewButton, "GridSelectActive");
+            Dom.removeClass(thiz.gridViewButton, "Active");
+            Dom.addClass(thiz.listViewButton, "Active");
             Config.set("view.startupscreen.gridview.enabled", false);
+            thiz.recentDocumentRepeater.setItems(thiz.startDocs);
         }
     }, this.changeViewButtons);
 
@@ -182,7 +184,7 @@ StartUpDocumentView.prototype.reload = function (visible) {
         var bIndex = recentFiles.indexOf(b.filePath);
         return aIndex - bIndex;
     });
-
+    this.startDocs = startDocs;
     var thiz = this;
     if (visible) {
         thiz.recentDocumentRepeater.setItems(startDocs);
