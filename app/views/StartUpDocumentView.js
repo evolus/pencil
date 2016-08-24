@@ -19,10 +19,9 @@ function StartUpDocumentView() {
             if (stats) {
                 binding.name.innerHTML = Dom.htmlEncode(path.basename(filePath));
                 binding.info.innerHTML = Dom.htmlEncode(moment(stats.mtime).fromNow());
-                binding.path.innerHTML = Dom.htmlEncode(filePath);
-                if (doc.pin) {
-                    Dom.addClass(binding.pin, "Unpin");
-                }
+                if (!gridViewCheck) binding.path.innerHTML = Dom.htmlEncode(filePath);
+                var pinDocs = Config.get("pin-documents");
+                if (pinDocs && pinDocs.indexOf(filePath) >= 0) Dom.addClass(binding.pin, "Unpin");
                 if (thumbPath) {
                     window.setTimeout(function () {
                         Util.setupImage(binding.thumbnailImage, ImageData.filePathToURL(thumbPath), "center-crop", "allowUpscale");
@@ -82,7 +81,7 @@ function StartUpDocumentView() {
             var index = pinFiles.indexOf(filePath);
             if (index < 0) {
                 if (pinFiles.length >= 8) {
-                    pinMaps[pinFiles[7]] = null;
+                    delete pinMaps[pinFiles[7]];
                     pinFiles.pop();
                 }
                 pinFiles.unshift(filePath);
@@ -92,13 +91,12 @@ function StartUpDocumentView() {
                 }
                 Dom.addClass(node, "Unpin");
             } else {
-                pinFiles.splice(index, 1);
+                pinFiles = pinFiles.splice(index, 1);
                 delete pinMaps[filePath];
                 Dom.removeClass(node, "Unpin");
             }
             Config.set("pin-documents", pinFiles);
             Config.set("pin-documents-thumb-map", pinMaps);
-            // thiz.reload(true);
             return;
         }
         function handler() {
@@ -168,7 +166,7 @@ StartUpDocumentView.prototype.reload = function (visible) {
         if (deleteFiles.length > 0) {
             for (var i = 0; i < deleteFiles.length; i++) {
                 if (pinMap[deleteFiles[i]]) delete pinMap[deleteFiles[i]];
-                pinFiles.splice(i, 1);
+                pinFiles = pinFiles.splice(i, 1);
             }
             Config.set("pin-documents", pinFiles);
             Config.set("pin-documents-thumb-map", pinMap);
