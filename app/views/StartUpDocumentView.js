@@ -91,7 +91,7 @@ function StartUpDocumentView() {
                 }
                 Dom.addClass(node, "Unpin");
             } else {
-                pinFiles = pinFiles.splice(index, 1);
+                pinFiles.splice(index, 1);
                 delete pinMaps[filePath];
                 Dom.removeClass(node, "Unpin");
             }
@@ -121,7 +121,7 @@ function StartUpDocumentView() {
 __extend(BaseTemplatedWidget, StartUpDocumentView);
 
 
-StartUpDocumentView.prototype.reload = function (visible) {
+StartUpDocumentView.prototype.reload = function () {
     var recentFiles = Config.get("recent-documents") || [];
     var pinFiles = Config.get("pin-documents") || [];
 
@@ -166,7 +166,8 @@ StartUpDocumentView.prototype.reload = function (visible) {
         if (deleteFiles.length > 0) {
             for (var i = 0; i < deleteFiles.length; i++) {
                 if (pinMap[deleteFiles[i]]) delete pinMap[deleteFiles[i]];
-                pinFiles = pinFiles.splice(i, 1);
+                var index = pinFiles.indexOf(deleteFiles[i]);
+                pinFiles.splice(index, 1);
             }
             Config.set("pin-documents", pinFiles);
             Config.set("pin-documents-thumb-map", pinMap);
@@ -182,16 +183,18 @@ StartUpDocumentView.prototype.reload = function (visible) {
         var bIndex = recentFiles.indexOf(b.filePath);
         return aIndex - bIndex;
     });
-    this.startDocs = startDocs;
-    var thiz = this;
-    if (visible) {
-        thiz.recentDocumentRepeater.setItems(startDocs);
-    } else {
-        this.recentDocumentRepeater.node().style.visibility = "hidden";
-        setTimeout(function () {
-            thiz.recentDocumentRepeater.setItems(startDocs);
-            thiz.recentDocumentRepeater.node().style.visibility = "inherit";
-        }, 200);
+    this.changeViewButtons.style.visibility = "hidden";
+    if (startDocs.length > 0) {
+        this.startDocs = startDocs;
+        this.changeViewButtons.style.visibility = "inherit";
+
     }
+
+    var thiz = this;
+    this.recentDocumentRepeater.node().style.visibility = "hidden";
+    setTimeout(function () {
+        thiz.recentDocumentRepeater.setItems(startDocs);
+        thiz.recentDocumentRepeater.node().style.visibility = "inherit";
+    }, 200);
 
 };
