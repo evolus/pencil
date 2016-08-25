@@ -16,7 +16,19 @@ function Canvas(element) {
     this.height;
     // building the content as: box >> svg
     var thiz = this;
-
+    // private var
+    var autoPanStart;
+    var setAutoPan = function(func) {
+        if (autoPanStart == null) {
+            autoPanStart = window.setInterval(func, 50);
+        }
+    }
+    var stopAutoPan = function () {
+        if (autoPanStart) {
+            clearInterval(autoPanStart);
+            autoPanStart = null;
+        }
+    }
     this.focusableBox = this.element.parentNode;
 
     this.addEventListener("mousedown", function (event) {
@@ -31,6 +43,7 @@ function Canvas(element) {
     }, false);
 
     this.addEventListener("mouseup", function (event) {
+        var thiz = this;
         if (thiz.duplicateMode) {
             thiz.mouseUp = true;
             thiz.duplicateMode = null;
@@ -170,12 +183,78 @@ function Canvas(element) {
             document.removeEventListener("mouseup", arguments.callee, false);
             return;
         }
+        if (autoPanStart) {
+            stopAutoPan();
+        }
         thiz.handleMouseUp(event);
     }, false);
     this.svg.ownerDocument.addEventListener("mousemove", function (event) {
+        if (autoPanStart) {
+            stopAutoPan();
+        }
         if (!thiz || !thiz.handleMouseMove) {
             document.removeEventListener("mousemove", arguments.callee, false);
             return;
+        }
+        if (thiz.controllerHeld && thiz.currentController && !autoPanStart) {
+            var loc = { x: event.clientX, y: event.clientY };
+            var aPane = Pencil.controller.applicationPane.contentBody.getBoundingClientRect();
+            var pane = {
+                   x: Math.round(aPane.left),
+                   y: Math.round(aPane.top),
+                   w: Math.round(aPane.width),
+                   h: Math.round(aPane.height)
+               }
+            console.log("Controller", loc.x, loc.y);
+            console.log("Controller", pane);
+            var fun;
+            var dx = 0;
+            var dy = 0;
+            if (loc.x >= (pane.x + pane.w) - 20) {
+                fun = function() {
+                    if (thiz._scrollPane.scrollLeft >=  thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
+                        stopAutoPan();
+                        return;
+                    }
+                    thiz._scrollPane.scrollLeft += 10;
+                    dx = 10;
+                    thiz.currentController.moveBy(dx, dy, false, true);
+                }
+            }
+            if (loc.x <= pane.x + 10) {
+                fun = function() {
+                    if (thiz._scrollPane.scrollLeft <= 10) {
+                        stopAutoPan();
+                        return;
+                    }
+                    thiz._scrollPane.scrollLeft -= 10;
+                    dx = -10;
+                    thiz.currentController.moveBy(dx, dy, false, true);
+                }
+            }
+            if (loc.y <= pane.y + 10) {
+                fun = function() {
+                    if (thiz._scrollPane.scrollTop <= 10) {
+                        stopAutoPan();
+                        return;
+                    }
+                    thiz._scrollPane.scrollTop -= 10;
+                    dy = -10;
+                    thiz.currentController.moveBy(dx, dy, false, true);
+                }
+            }
+            if (loc.y >= (pane.y + pane.h) - 20) {
+                fun = function() {
+                    if (thiz._scrollPane.scrollTop >= thiz._scrollPane.scrollHeight - thiz._scrollPane.offsetHeight) {
+                        stopAutoPan();
+                        return;
+                    }
+                    thiz._scrollPane.scrollTop += 10;
+                    dy = 10;
+                    thiz.currentController.moveBy(dx, dy, false, true);
+                }
+            }
+            if (fun != null) setAutoPan(fun);
         }
 
         thiz.handleMouseMove(event);
@@ -230,8 +309,8 @@ function Canvas(element) {
             thiz.spaceHeld = true;
             thiz._lastPX = thiz._currentPX;
             thiz._lastPY = thiz._currentPY;
-            thiz._lastScrollX = thiz.parentNode && thiz.parentNode.scrollLeft || 0;
-            thiz._lastScrollY = thiz.parentNode && thiz.parentNode.scrollTop || 0;
+            thiz._lastScrollX = thiz._scrollPane.scrollLeft || 0;
+            thiz._lastScrollY = thiz._scrollPane.scrollTop || 0;
             Dom.addClass(thiz, "PanDown");
         }
     }, false);
@@ -1079,14 +1158,11 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
             this.currentX = newX;
             this.currentY = newY;
 
+
             // this.oX = newX;
             // this.oY = newY;
 
             this.hasMoved = true;
-
-            if (this.currentController.dockingManager) {
-                this.currentController.dockingManager.altKey = event.altKey;
-            }
 
             var gridSize = Pencil.getGridSize();
             var snap = null;
@@ -1172,7 +1248,9 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                     }
                 }
             }
-
+            if (this.currentController.dockingManager) {
+                this.currentController.dockingManager.altKey = event.altKey;
+            }
             return;
         }
 
