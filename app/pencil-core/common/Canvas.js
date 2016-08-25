@@ -212,34 +212,34 @@ function Canvas(element) {
             var dy = 0;
             if (loc.x >= (pane.x + pane.w) - 20) {
                 fun = function() {
-                    if (thiz._scrollPane.scrollLeft >=  thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
+                    if (thiz._scrollPane.scrollLeft >= thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
                         stopAutoPan();
                         return;
                     }
                     thiz._scrollPane.scrollLeft += 10;
-                    dx = 10;
+                    dx = 10 / thiz.zoom;
                     thiz.currentController.moveBy(dx, dy, false, true);
                 }
             }
             if (loc.x <= pane.x + 10) {
                 fun = function() {
-                    if (thiz._scrollPane.scrollLeft <= 10) {
+                    if (thiz._scrollPane.scrollLeft <= 0) {
                         stopAutoPan();
                         return;
                     }
                     thiz._scrollPane.scrollLeft -= 10;
-                    dx = -10;
+                    dx = -10 / thiz.zoom;
                     thiz.currentController.moveBy(dx, dy, false, true);
                 }
             }
             if (loc.y <= pane.y + 10) {
                 fun = function() {
-                    if (thiz._scrollPane.scrollTop <= 10) {
+                    if (thiz._scrollPane.scrollTop <= 0) {
                         stopAutoPan();
                         return;
                     }
                     thiz._scrollPane.scrollTop -= 10;
-                    dy = -10;
+                    dy = -10 / thiz.zoom;
                     thiz.currentController.moveBy(dx, dy, false, true);
                 }
             }
@@ -250,7 +250,7 @@ function Canvas(element) {
                         return;
                     }
                     thiz._scrollPane.scrollTop += 10;
-                    dy = 10;
+                    dy = 10 / thiz.zoom;
                     thiz.currentController.moveBy(dx, dy, false, true);
                 }
             }
