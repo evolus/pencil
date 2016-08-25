@@ -16,17 +16,16 @@ function Canvas(element) {
     this.height;
     // building the content as: box >> svg
     var thiz = this;
-    // private var
-    var autoPanStart;
-    var setAutoPan = function(func) {
-        if (autoPanStart == null) {
-            autoPanStart = window.setInterval(func, 50);
+    this.autoScrollTimout = null;
+    this.startAutoScrollFunction = function(func) {
+        if (this.autoScrollTimout == null) {
+            this.autoScrollTimout = window.setInterval(func, 50);
         }
     }
-    var stopAutoPan = function () {
-        if (autoPanStart) {
-            clearInterval(autoPanStart);
-            autoPanStart = null;
+    this.stopAutoScrollFunction = function () {
+        if (this.autoScrollTimout) {
+            clearInterval(this.autoScrollTimout);
+            this.autoScrollTimout = null;
         }
     }
     this.focusableBox = this.element.parentNode;
@@ -183,20 +182,20 @@ function Canvas(element) {
             document.removeEventListener("mouseup", arguments.callee, false);
             return;
         }
-        if (autoPanStart) {
-            stopAutoPan();
+        if (thiz.autoScrollTimout) {
+            thiz.stopAutoScrollFunction();
         }
         thiz.handleMouseUp(event);
     }, false);
     this.svg.ownerDocument.addEventListener("mousemove", function (event) {
-        if (autoPanStart) {
-            stopAutoPan();
+        if (thiz.autoScrollTimout) {
+            thiz.stopAutoScrollFunction();
         }
         if (!thiz || !thiz.handleMouseMove) {
             document.removeEventListener("mousemove", arguments.callee, false);
             return;
         }
-        if (thiz.controllerHeld && thiz.currentController && !autoPanStart) {
+        if (thiz.controllerHeld && thiz.currentController && !thiz.autoScrollTimout) {
             var loc = { x: event.clientX, y: event.clientY };
             var aPane = Pencil.controller.applicationPane.contentBody.getBoundingClientRect();
             var pane = {
@@ -207,13 +206,13 @@ function Canvas(element) {
                }
             console.log("Controller", loc.x, loc.y);
             console.log("Controller", pane);
-            var fun;
+            var fun = null;
             var dx = 0;
             var dy = 0;
             if (loc.x >= (pane.x + pane.w) - 20) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft >= thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
-                        stopAutoPan();
+                        thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollLeft += 10;
@@ -224,7 +223,7 @@ function Canvas(element) {
             if (loc.x <= pane.x + 10) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft <= 0) {
-                        stopAutoPan();
+                        thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollLeft -= 10;
@@ -235,7 +234,7 @@ function Canvas(element) {
             if (loc.y <= pane.y + 10) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop <= 0) {
-                        stopAutoPan();
+                        thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollTop -= 10;
@@ -246,7 +245,7 @@ function Canvas(element) {
             if (loc.y >= (pane.y + pane.h) - 20) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop >= thiz._scrollPane.scrollHeight - thiz._scrollPane.offsetHeight) {
-                        stopAutoPan();
+                        thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollTop += 10;
@@ -254,7 +253,7 @@ function Canvas(element) {
                     thiz.currentController.moveBy(dx, dy, false, true);
                 }
             }
-            if (fun != null) setAutoPan(fun);
+            if (fun != null) thiz.startAutoScrollFunction(fun);
         }
 
         thiz.handleMouseMove(event);
