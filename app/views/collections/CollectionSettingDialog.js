@@ -7,11 +7,13 @@ function CollectionSettingDialog (collection) {
     this.subTitle = "Configure default property values for shapes created from this collection."
 
     this.propertyEditors = {};
+    console.log("MANAGER COLLECTION", this.collection);
     for (var i = 0; i < this.collection.propertyGroups.length; i ++) {
         var propertyGroup = this.collection.propertyGroups[i];
-        console.log("\"" + propertyGroup.name + "\": \"\",");
-        this.propertyContainer.appendChild(this.createGroupNode(propertyGroup));
-
+        if (propertyGroup) {
+            console.log("\"" + propertyGroup.name + "\": \"\",");
+            this.propertyContainer.appendChild(this.createGroupNode(propertyGroup));
+        }
     }
 }
 __extend(Dialog, CollectionSettingDialog);
@@ -64,6 +66,16 @@ CollectionSettingDialog.prototype.createGroupNode = function (propertyGroup) {
         return currentGroupNode;
 };
 
+CollectionSettingDialog.prototype.setDefaultProperties = function() {
+    for (p in this.collection.properties) {
+        var property = this.collection.properties[p];
+        if (this.propertyEditors[property.name] && this.propertyEditors[property.name].getValue() != property.initialValue) {
+            this.propertyEditors[property.name].setValue(property.initialValue);
+            this.propertyEditors[property.name].modified = true;
+        }
+    }
+}
+
 CollectionSettingDialog.prototype.getDialogActions = function () {
     return [
             Dialog.ACTION_CANCEL,
@@ -74,15 +86,20 @@ CollectionSettingDialog.prototype.getDialogActions = function () {
                         var editor = this.propertyEditors[propertyName];
                         if (editor.modified == true) {
                             var value = editor.getValue();
-
                             var name = ShapeDefCollectionParser.getCollectionPropertyConfigName(this.collection.id, propertyName);
                             Config.set(name, value.toString());
-
                             var property = this.collection.properties[propertyName];
                             property.value = value;
                         }
                     }
                     return true;
+                }
+            },
+            {
+                type: "extra1", title: "Default",
+                run: function () {
+                    this.setDefaultProperties();
+                    return false;
                 }
             }
         ]

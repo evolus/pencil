@@ -21,7 +21,6 @@ function Canvas(element) {
     this.startAutoScrollFunction = function(func) {
         if (this.autoScrollTimout == null) {
             this.lockPointerFunction = function () {
-                thiz.element.requestPointerLock = thiz.element.requestPointerLock;
                 thiz.element.requestPointerLock();
             }
             this.lockPointerFunction();
@@ -251,6 +250,7 @@ function Canvas(element) {
             }
             if (fun != null) thiz.startAutoScrollFunction(fun);
         }
+
 
         thiz.handleMouseMove(event);
     }, false);
