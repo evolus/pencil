@@ -30,6 +30,10 @@ function Canvas(element) {
     }
     this.stopAutoScrollFunction = function () {
         if (this.autoScrollTimout) {
+            if (thiz.lockPointerFunction != null) {
+                document.exitPointerLock();
+                thiz.lockPointerFunction = null;
+            }
             clearInterval(this.autoScrollTimout);
             this.autoScrollTimout = null;
         }
@@ -183,18 +187,13 @@ function Canvas(element) {
         thiz.focus();
         thiz.handleMouseWheel(event);
     }, false);
-
     this.svg.ownerDocument.addEventListener("mouseup", function (event) {
+        if (thiz.autoScrollTimout) {
+            thiz.stopAutoScrollFunction();
+        }
         if (!thiz || !thiz.handleMouseUp) {
             document.removeEventListener("mouseup", arguments.callee, false);
             return;
-        }
-        if (thiz.autoScrollTimout) {
-            if (thiz.lockPointerFunction != null) {
-                document.exitPointerLock();
-                thiz.lockPointerFunction = null;
-            }
-            thiz.stopAutoScrollFunction();
         }
         thiz.handleMouseUp(event);
     }, false);
@@ -214,50 +213,40 @@ function Canvas(element) {
                    h: Math.round(aPane.height)
                }
             var fun = null;
-            // var dx = 0;
-            // var dy = 0;
-            if (loc.x >= (pane.x + pane.w) - 20) {
+            if (loc.x >= (pane.x + pane.w)) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft >= thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
                         thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollLeft += 20;
-                    // dx = 10 / thiz.zoom;
-                    // thiz.currentController.moveBy(dx, dy, false, true);
                 }
             }
-            if (loc.x <= pane.x + 10) {
+            if (loc.x <= pane.x) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft <= 0) {
                         thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollLeft -= 20;
-                    // dx = -10 / thiz.zoom;
-                    // thiz.currentController.moveBy(dx, dy, false, true);
                 }
             }
-            if (loc.y <= pane.y + 10) {
+            if (loc.y <= pane.y) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop <= 0) {
                         thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollTop -= 20;
-                    // dy = -10 / thiz.zoom;
-                    // thiz.currentController.moveBy(dx, dy, false, true);
                 }
             }
-            if (loc.y >= (pane.y + pane.h) - 20) {
+            if (loc.y >= (pane.y + pane.h)) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop >= thiz._scrollPane.scrollHeight - thiz._scrollPane.offsetHeight) {
                         thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollTop += 20;
-                    // dy = 10 / thiz.zoom;
-                    // thiz.currentController.moveBy(dx, dy, false, true);
                 }
             }
             if (fun != null) thiz.startAutoScrollFunction(fun);
