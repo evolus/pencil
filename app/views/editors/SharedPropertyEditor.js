@@ -221,11 +221,17 @@ SharedPropertyEditor.prototype.setDefaultProperties = function() {
     var shapeProperties = this.target.getProperties();
     for (p in shapeProperties) {
         var property = defaultProperties[p] || null;
-        if (property) {
-            if (this.propertyEditor[p] && this.propertyEditor[p].getValue() != property.initialValue) {
-                this.propertyEditor[p].setValue(property.initialValue);
-                this.target.setProperty(p, property.initialValue);
+        if (property && this.propertyEditor[p]) {
+            property
+            var type = property.type;
+            var name = ShapeDefCollectionParser.getCollectionPropertyConfigName(collection.id, property.name);
+            var value = Config.get(name);
+            var propertyValue = property.initialValue;
+            if (value) {
+                propertyValue = type.fromString(value);
             }
+            this.propertyEditor[p].setValue(propertyValue);
+            this.target.setProperty(p, propertyValue);
         }
     }
 }
