@@ -58,7 +58,10 @@ function ScrollableView () {
     this.nextButton.addEventListener("focusout", function() {
         stopScroll();
     }, false)
-
+    
+    window.addEventListener("resize", function(ev){
+        thiz.invalidate();
+    },false)
 
     this.bind("wheel", function (event) {
         this.offset -= event.deltaY;
