@@ -24,6 +24,12 @@ SharedPropertyEditor.prototype.setup = function () {
         thiz.validationEditorUI();
     }, false);
     this.propertyContainer.style.display = "none";
+
+    this.propertyContainer.addEventListener("click", function(event) {
+        if (event.target.getAttribute("command") && event.target.getAttribute("command") == "setDefault") {
+            thiz.setDefaultProperties();
+        }
+    }, false);
 };
 SharedPropertyEditor.prototype.getTitle = function() {
 	return "Properties";
@@ -129,6 +135,20 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var executor = function () {
         if (!thiz.target || uuid != thiz.currentExecutorUUID) return;
         if (properties.length == 0) {
+            if (thiz.target.def.collection.propertyGroups && thiz.target.def.collection.propertyGroups.length > 0) {
+                var hbox = Dom.newDOMElement({
+                    _name: "hbox",
+                    _children: [
+                        {
+                            _name: "button",
+                            _text: "Restore Default",
+                            command: "setDefault",
+                            "class": "DefaultButton"
+                        }
+                    ]
+                });
+                thiz.propertyContainer.appendChild(hbox);
+            }
             thiz.propertyContainer.style.display = "flex";
             thiz.propertyContainer.style.opacity = "1";
             thiz.validationEditorUI();
@@ -198,6 +218,29 @@ SharedPropertyEditor.prototype.attach = function (target) {
     this.properties = this.target.getProperties();
     Dom.emitEvent("p:TitleChanged", this.node(), {});
 };
+
+SharedPropertyEditor.prototype.setDefaultProperties = function() {
+    if (!this.target) return;
+    var collection = this.target.def.collection;
+    var defaultProperties = collection.properties;
+    var shapeProperties = this.target.getProperties();
+    for (p in shapeProperties) {
+        var property = defaultProperties[p] || null;
+        if (property && this.propertyEditor[p]) {
+            property
+            var type = property.type;
+            var name = ShapeDefCollectionParser.getCollectionPropertyConfigName(collection.id, property.name);
+            var value = Config.get(name);
+            var propertyValue = property.initialValue;
+            if (value) {
+                propertyValue = type.fromString(value);
+            }
+            this.propertyEditor[p].setValue(propertyValue);
+            this.target.setProperty(p, propertyValue);
+        }
+    }
+}
+
 SharedPropertyEditor.prototype.detach = function () {
     this.propertyContainer.style.display = "none";
     this.noTargetMessagePane.style.display = "flex";

@@ -16,7 +16,27 @@ function Canvas(element) {
     this.height;
     // building the content as: box >> svg
     var thiz = this;
-
+    this.lockPointerFunction = null;
+    this.autoScrollTimout = null;
+    this.startAutoScrollFunction = function(func) {
+        if (this.autoScrollTimout == null) {
+            this.lockPointerFunction = function () {
+                thiz.element.requestPointerLock();
+            }
+            this.lockPointerFunction();
+            this.autoScrollTimout = window.setInterval(func, 50);
+        }
+    }
+    this.stopAutoScrollFunction = function () {
+        if (this.autoScrollTimout) {
+            if (thiz.lockPointerFunction != null) {
+                document.exitPointerLock();
+                thiz.lockPointerFunction = null;
+            }
+            clearInterval(this.autoScrollTimout);
+            this.autoScrollTimout = null;
+        }
+    }
     this.focusableBox = this.element.parentNode;
 
     this.addEventListener("mousedown", function (event) {
@@ -28,9 +48,11 @@ function Canvas(element) {
             thiz.clearSelection();
             thiz.selectNone();
         }
+
     }, false);
 
     this.addEventListener("mouseup", function (event) {
+        var thiz = this;
         if (thiz.duplicateMode) {
             thiz.mouseUp = true;
             thiz.duplicateMode = null;
@@ -164,8 +186,10 @@ function Canvas(element) {
         thiz.focus();
         thiz.handleMouseWheel(event);
     }, false);
-
     this.svg.ownerDocument.addEventListener("mouseup", function (event) {
+        if (thiz.autoScrollTimout) {
+            thiz.stopAutoScrollFunction();
+        }
         if (!thiz || !thiz.handleMouseUp) {
             document.removeEventListener("mouseup", arguments.callee, false);
             return;
@@ -177,6 +201,58 @@ function Canvas(element) {
             document.removeEventListener("mousemove", arguments.callee, false);
             return;
         }
+        if (thiz.controllerHeld && thiz.currentController && !thiz.autoScrollTimout) {
+            var a = thiz;
+            var loc = { x: event.clientX, y: event.clientY };
+            var aPane = Pencil.controller.applicationPane.contentBody.getBoundingClientRect();
+            var pane = {
+                   x: Math.round(aPane.left),
+                   y: Math.round(aPane.top),
+                   w: Math.round(aPane.width),
+                   h: Math.round(aPane.height)
+               }
+            var fun = null;
+            if (loc.x >= (pane.x + pane.w)) {
+                fun = function() {
+                    if (thiz._scrollPane.scrollLeft >= thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
+                        thiz._scrollPane.scrollLeft = thiz._scrollPane.scrollWidth;
+                        //thiz.stopAutoScrollFunction();
+                        return;
+                    }
+                    thiz._scrollPane.scrollLeft += 20;
+                }
+            }
+            if (loc.x <= pane.x) {
+                fun = function() {
+                    if (thiz._scrollPane.scrollLeft <= 0) {
+                        //thiz.stopAutoScrollFunction();
+                        return;
+                    }
+                    thiz._scrollPane.scrollLeft -= 20;
+                }
+            }
+            if (loc.y <= pane.y) {
+                fun = function() {
+                    if (thiz._scrollPane.scrollTop <= 0) {
+                        //thiz.stopAutoScrollFunction();
+                        return;
+                    }
+                    thiz._scrollPane.scrollTop -= 20;
+                }
+            }
+            if (loc.y >= (pane.y + pane.h)) {
+                fun = function() {
+                    if (thiz._scrollPane.scrollTop >= thiz._scrollPane.scrollHeight - thiz._scrollPane.offsetHeight) {
+                        thiz.__scrollPane.scrollTop = thiz._scrollPane.scrollHeight;
+                        //thiz.stopAutoScrollFunction();
+                        return;
+                    }
+                    thiz._scrollPane.scrollTop += 20;
+                }
+            }
+            if (fun != null) thiz.startAutoScrollFunction(fun);
+        }
+
 
         thiz.handleMouseMove(event);
     }, false);
@@ -230,8 +306,8 @@ function Canvas(element) {
             thiz.spaceHeld = true;
             thiz._lastPX = thiz._currentPX;
             thiz._lastPY = thiz._currentPY;
-            thiz._lastScrollX = thiz.parentNode && thiz.parentNode.scrollLeft || 0;
-            thiz._lastScrollY = thiz.parentNode && thiz.parentNode.scrollTop || 0;
+            thiz._lastScrollX = thiz._scrollPane.scrollLeft || 0;
+            thiz._lastScrollY = thiz._scrollPane.scrollTop || 0;
             Dom.addClass(thiz, "PanDown");
         }
     }, false);
@@ -1079,14 +1155,11 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
             this.currentX = newX;
             this.currentY = newY;
 
+
             // this.oX = newX;
             // this.oY = newY;
 
             this.hasMoved = true;
-
-            if (this.currentController.dockingManager) {
-                this.currentController.dockingManager.altKey = event.altKey;
-            }
 
             var gridSize = Pencil.getGridSize();
             var snap = null;
@@ -1172,7 +1245,9 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                     }
                 }
             }
-
+            if (this.currentController.dockingManager) {
+                this.currentController.dockingManager.altKey = event.altKey;
+            }
             return;
         }
 
@@ -1220,7 +1295,6 @@ Canvas.prototype.setRangeBoundVisibility = function (visible) {
 
 };
 Canvas.prototype.handleKeyPress = function (event) {
-
     if (this != Pencil.activeCanvas) return;
 
     for (editor in this.onScreenEditors) {

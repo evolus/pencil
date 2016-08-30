@@ -203,17 +203,19 @@
                 </div>
             </hbox>
             <vbox flex="1">
-                <hbox anon-id="toolbarContainer">
-                    <ui:FileToolbar label="" />
-                    <ui:EditToolbar label="Edit" anon-id="editToolbar"/>
-                    <ui:ZoomToolbar anon-id="zoomToolbar" label="100%" />
-                    <ui:AlignmentToolbar label="Alignment"/>
-                    <ui:SizeToolbar label="Same sizes &amp; Spaces"/>
-                    <ui:SharedFontEditor anon-id="sharedFontEditor" label="Text style" />
-                    <ui:ColorEditor label="Colors" />
-                    <ui:SharedBorderStyleEditor label="Line style" />
-                    <ui:SharedGeomtryEditor />
-                </hbox>
+                <ui:ScrollableView anon-id="toolBarSrollView" flex="1">
+                    <hbox anon-id="toolbarContainer">
+                        <ui:FileToolbar label="" />
+                        <ui:EditToolbar label="Edit" anon-id="editToolbar"/>
+                        <ui:ZoomToolbar anon-id="zoomToolbar" label="100%" />
+                        <ui:AlignmentToolbar label="Alignment"/>
+                        <ui:SizeToolbar label="Same sizes &amp; Spaces"/>
+                        <ui:SharedFontEditor anon-id="sharedFontEditor" label="Text style" />
+                        <ui:ColorEditor label="Colors" />
+                        <ui:SharedBorderStyleEditor label="Line style" />
+                        <ui:SharedGeomtryEditor />
+                    </hbox>
+                </ui:ScrollableView>
             </vbox>
         </hbox>
         <hbox flex="1" style="overflow: hidden; position: relative; " anon-id="contentSection">
