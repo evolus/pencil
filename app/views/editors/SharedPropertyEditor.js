@@ -24,6 +24,12 @@ SharedPropertyEditor.prototype.setup = function () {
         thiz.validationEditorUI();
     }, false);
     this.propertyContainer.style.display = "none";
+
+    this.propertyContainer.addEventListener("click", function(event) {
+        if (event.target.getAttribute("command") && event.target.getAttribute("command") == "setDefault") {
+            thiz.setDefaultProperties();
+        }
+    }, false);
 };
 SharedPropertyEditor.prototype.getTitle = function() {
 	return "Properties";
@@ -129,6 +135,15 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var executor = function () {
         if (!thiz.target || uuid != thiz.currentExecutorUUID) return;
         if (properties.length == 0) {
+            if (thiz.target.def.collection.propertyGroups && thiz.target.def.collection.propertyGroups.length > 0) {
+                var button = Dom.newDOMElement({
+                    _name: "button",
+                    _text: "Set Default",
+                    command: "setDefault",
+                    "class": "DefaultButton"
+                });
+                thiz.propertyContainer.appendChild(button);
+            }
             thiz.propertyContainer.style.display = "flex";
             thiz.propertyContainer.style.opacity = "1";
             thiz.validationEditorUI();
@@ -198,6 +213,23 @@ SharedPropertyEditor.prototype.attach = function (target) {
     this.properties = this.target.getProperties();
     Dom.emitEvent("p:TitleChanged", this.node(), {});
 };
+
+SharedPropertyEditor.prototype.setDefaultProperties = function() {
+    if (!this.target) return;
+    var collection = this.target.def.collection;
+    var defaultProperties = collection.properties;
+    var shapeProperties = this.target.getProperties();
+    for (p in shapeProperties) {
+        var property = defaultProperties[p] || null;
+        if (property) {
+            if (this.propertyEditor[p] && this.propertyEditor[p].getValue() != property.initialValue) {
+                this.propertyEditor[p].setValue(property.initialValue);
+                this.target.setProperty(p, property.initialValue);
+            }
+        }
+    }
+}
+
 SharedPropertyEditor.prototype.detach = function () {
     this.propertyContainer.style.display = "none";
     this.noTargetMessagePane.style.display = "flex";

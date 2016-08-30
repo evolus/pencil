@@ -215,7 +215,8 @@ function Canvas(element) {
             if (loc.x >= (pane.x + pane.w)) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft >= thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
-                        thiz.stopAutoScrollFunction();
+                        thiz._scrollPane.scrollLeft = thiz._scrollPane.scrollWidth;
+                        //thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollLeft += 20;
@@ -224,7 +225,7 @@ function Canvas(element) {
             if (loc.x <= pane.x) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft <= 0) {
-                        thiz.stopAutoScrollFunction();
+                        //thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollLeft -= 20;
@@ -233,7 +234,7 @@ function Canvas(element) {
             if (loc.y <= pane.y) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop <= 0) {
-                        thiz.stopAutoScrollFunction();
+                        //thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollTop -= 20;
@@ -242,7 +243,8 @@ function Canvas(element) {
             if (loc.y >= (pane.y + pane.h)) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop >= thiz._scrollPane.scrollHeight - thiz._scrollPane.offsetHeight) {
-                        thiz.stopAutoScrollFunction();
+                        thiz.__scrollPane.scrollTop = thiz._scrollPane.scrollHeight;
+                        //thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollTop += 20;
