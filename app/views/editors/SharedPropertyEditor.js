@@ -136,13 +136,18 @@ SharedPropertyEditor.prototype.attach = function (target) {
         if (!thiz.target || uuid != thiz.currentExecutorUUID) return;
         if (properties.length == 0) {
             if (thiz.target.def.collection.propertyGroups && thiz.target.def.collection.propertyGroups.length > 0) {
-                var button = Dom.newDOMElement({
-                    _name: "button",
-                    _text: "Restore Default",
-                    command: "setDefault",
-                    "class": "DefaultButton"
+                var hbox = Dom.newDOMElement({
+                    _name: "hbox",
+                    _children: [
+                        {
+                            _name: "button",
+                            _text: "Restore Default",
+                            command: "setDefault",
+                            "class": "DefaultButton"
+                        }
+                    ]
                 });
-                thiz.propertyContainer.appendChild(button);
+                thiz.propertyContainer.appendChild(hbox);
             }
             thiz.propertyContainer.style.display = "flex";
             thiz.propertyContainer.style.opacity = "1";
