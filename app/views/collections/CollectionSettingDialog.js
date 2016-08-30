@@ -96,7 +96,7 @@ CollectionSettingDialog.prototype.getDialogActions = function () {
                 }
             },
             {
-                type: "extra1", title: "Set Default",
+                type: "extra1", title: "Restore Default",
                 run: function () {
                     this.setDefaultProperties();
                     return false;

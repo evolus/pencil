@@ -138,7 +138,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
             if (thiz.target.def.collection.propertyGroups && thiz.target.def.collection.propertyGroups.length > 0) {
                 var button = Dom.newDOMElement({
                     _name: "button",
-                    _text: "Set Default",
+                    _text: "Restore Default",
                     command: "setDefault",
                     "class": "DefaultButton"
                 });
