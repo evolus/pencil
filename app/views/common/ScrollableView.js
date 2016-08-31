@@ -58,7 +58,6 @@ function ScrollableView () {
     this.nextButton.addEventListener("focusout", function() {
         stopScroll();
     }, false)
-    
     window.addEventListener("resize", function(ev){
         thiz.invalidate();
     },false)

@@ -117,6 +117,7 @@
             font-size: 2em;
             color: darken(saturate(#da8500, 20%), 0%);
             cursor: default;
+            margin-top: 0.2em;
         }
         @appName * {
             vertical-align: middle;
@@ -156,7 +157,6 @@
             padding-top: 0.8em;
             padding-bottom: 0.8em;
         }
-
         @contentSection {
             position: relative;
             padding-right: 3em;
@@ -193,12 +193,13 @@
             box-shadow: 0em 0em 0.5em 0.3em rgba(0, 0, 0, 0.15);
         }
 
-        @media screen and(max-width: 1440px) {
+        @media screen and (max-width: 1000px) {
             @logoBox {
-                padding-right: 0px;
+                padding-right: 0.2em;
             }
             @appName {
-                display: none;
+                margin-left: 0.2em !important;
+                margin-top: 0;
             }
             @toolbarContainer *[label]:after {
                 display:none;
@@ -211,9 +212,8 @@
                 padding-bottom:0.4em;
             }
             @contentHeader @menuIcon {
-                padding:0.1em;
+                padding:0.2em;
             }
-
         }
     </style>
 
