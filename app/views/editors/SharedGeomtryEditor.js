@@ -18,7 +18,6 @@ SharedGeomtryEditor.prototype.setup = function () {
 
     var thiz = this;
 
-
     this.container.addEventListener("input", function (event) {
         if (event.target != thiz.shapeAngle)
         thiz.handleCommandEvent();
@@ -60,8 +59,24 @@ SharedGeomtryEditor.prototype.handleCommandEvent = function () {
             this.targetObject.moveBy(dx, dy);
         }
 
-        if (this.targetObject.supportScaling()) {
+        if (this.targetObject.supportScaling() && !this.handleBox) {
             this.targetObject.scaleTo(this.shapeWidth.value, this.shapeHeight.value);
+        } else {
+            var hb = this.handleBox;
+            var boundSize = this.targetObject.getBounding();
+            var widthValue = this.shapeWidth.value - boundSize.width;
+            var heightValue = this.shapeHeight.value - boundSize.height;
+
+            if (widthValue != 0 || heightValue != 0) {
+                var b = new Handle(hb.end.x, hb.end.y);
+                if (hb.mode.value == "horizontal" || hb.mode.value == "Horizontal" ||
+                    hb.mode.value == "free" || hb.mode.value == "Free")
+                    b.x += widthValue;
+                if (hb.mode.value == "vertical" || hb.mode.value == "Vertical" ||
+                    hb.mode.value == "free" || hb.mode.value == "Free")
+                    b.y += heightValue;
+                this.targetObject.setProperty("endLine", b);
+            }
         }
 
         if (da != 0) {
@@ -85,7 +100,7 @@ SharedGeomtryEditor.prototype._applyValue = function () {
     Pencil.activeCanvas.run(function() {
     	return;
         this.setProperty(SharedGeomtryEditor.PROPERTY_NAME, thiz.font);
-        debug("applied: " + thiz.font);
+        console.log("applied: " + thiz.font);
     }, this.target);
 };
 SharedGeomtryEditor.prototype.attach = function (targetObject) {
@@ -98,6 +113,8 @@ SharedGeomtryEditor.prototype.attach = function (targetObject) {
 
     var geo = this.targetObject.getGeometry();
 
+    this.handleBox = null;
+
     this.shapeX.value = Math.max(0, Math.round(geo.ctm.e));
     this.shapeY.value = Math.max(0, Math.round(geo.ctm.f));
 
@@ -109,11 +126,23 @@ SharedGeomtryEditor.prototype.attach = function (targetObject) {
     this.shapeY.disabled = false;
     this.shapeAngle.disabled = false;
 
-    var box = this.targetObject.getProperty(SharedGeomtryEditor.PROPERTY_NAME);
-
+    box = this.targetObject.getProperty(SharedGeomtryEditor.PROPERTY_NAME);
     this.shapeWidth.disabled = box ? false : true;
     this.shapeHeight.disabled = box ? false : true;
 
+    if (!box) {
+        var start = this.targetObject.getProperty("startLine")|| null;
+        var end = this.targetObject.getProperty("endLine") || null;
+        var mode = this.targetObject.getProperty("mode") || null;
+        if (!start || !end) return;
+        if (mode.value == "horizontal" || mode.value == "Horizontal" ||
+            mode.value == "free" || mode.value == "Free")
+            this.shapeWidth.disabled = false;
+        if (mode.value == "vertical" || mode.value == "Vertical" ||
+            mode.value == "free" || mode.value == "Free")
+            this.shapeHeight.disabled = false;
+        this.handleBox = {"start": start, "end": end, "mode": mode};
+    }
     //this.geometryToolbar.style.display = '';
 };
 SharedGeomtryEditor.prototype.detach = function () {
@@ -124,6 +153,7 @@ SharedGeomtryEditor.prototype.detach = function () {
     this.shapeAngle.disabled = true;
     //this.geometryToolbar.style.display = 'none';
     this.targetObject = null;
+    this.handleBox = null;
 };
 SharedGeomtryEditor.prototype.invalidate = function () {
     if (!this.targetObject) {

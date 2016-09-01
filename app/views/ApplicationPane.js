@@ -13,6 +13,8 @@ function ApplicationPane() {
 
     this.sharedFontEditor.applicationPane = this;
 
+    this.toolBarSrollView.setWheelAllow(false);
+
     var thiz = this;
     this.mainMenu = new MainMenu(this.menuIcon);
     this.bind("click", function (event) {
