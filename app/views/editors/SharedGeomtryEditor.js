@@ -141,8 +141,10 @@ SharedGeomtryEditor.prototype.attach = function (targetObject) {
     this.shapeAngle.disabled = false;
 
     box = this.targetObject.getProperty(SharedGeomtryEditor.PROPERTY_NAME);
-    this.shapeWidth.disabled = box ? false : true;
-    this.shapeHeight.disabled = box ? false : true;
+    // this.shapeWidth.disabled = box ? false : true;
+    // this.shapeHeight.disabled = box ? false : true;
+    var disableWidthInput = box ? false : true;
+    var disableHeightInput = box ? false : true;
 
     if (!box) {
         this.oldSize = {"width": this.shapeWidth.value, "height": this.shapeHeight.value};
@@ -152,13 +154,14 @@ SharedGeomtryEditor.prototype.attach = function (targetObject) {
         if (!start || !end) return;
         if (mode.value == "horizontal" || mode.value == "Horizontal" ||
             mode.value == "free" || mode.value == "Free")
-            this.shapeWidth.disabled = false;
+            disableWidthInput = false;
         if (mode.value == "vertical" || mode.value == "Vertical" ||
             mode.value == "free" || mode.value == "Free")
-            this.shapeHeight.disabled = false;
-
+            disableHeightInput = false;
          this.handleBox = {"start": start, "end": end, "mode": mode};
     }
+    this.shapeWidth.disabled = disableWidthInput;
+    this.shapeHeight.disabled = disableHeightInput;
     //this.geometryToolbar.style.display = '';
 };
 SharedGeomtryEditor.prototype.detach = function () {
