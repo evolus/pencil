@@ -54,30 +54,6 @@ SharedGeomtryEditor.prototype.handleCommandEvent = function () {
     var a = Svg.getAngle(currentGeo.ctm.a, currentGeo.ctm.b);
     var da = this.shapeAngle.value - a;
 
-    var newEndLine;
-    if (this.handleBox) {
-        var start = this.handleBox.start;
-        var end = this.handleBox.end;
-        var mode = this.handleBox.mode;
-        if (start != null && end != null && mode != null && this.oldSize != null) {
-            var widthValue = this.shapeWidth.value - this.oldSize.width;
-            var heightValue = this.shapeHeight.value - this.oldSize.height;
-            if (widthValue != 0 || heightValue != 0) {
-                if (mode.value == "horizontal" || mode.value == "Horizontal" ||
-                    mode.value == "free" || mode.value == "Free"){
-                        if (end.x <= 0) end.x -= widthValue;
-                        else end.x += widthValue;
-                    }
-                if (mode.value == "vertical" || mode.value == "Vertical" ||
-                    mode.value == "free" || mode.value == "Free") {
-                        if (end.y <= 0) end.y -= heightValue;
-                        else end.y += heightValue;
-                    }
-                newEndLine = new Handle(end.x, end.y);
-            }
-        }
-    }
-
     Pencil.activeCanvas.run(function () {
         if (dx != 0 || dy != 0) {
             this.targetObject.moveBy(dx, dy);
@@ -85,14 +61,32 @@ SharedGeomtryEditor.prototype.handleCommandEvent = function () {
 
         if (this.targetObject.supportScaling() && box != null) {
             this.targetObject.scaleTo(this.shapeWidth.value, this.shapeHeight.value);
-        } else {
-            this.targetObject.setProperty("endLine", newEndLine);
-            this.oldSize = {"width": this.shapeWidth.value, "height": this.shapeHeight.value};
         }
-        // if (!box && newEndLine != null) {
-        //     this.targetObject.setProperty("endLine", newEndLine);
-        //     this.oldSize = {"width": this.shapeWidth.value, "height": this.shapeHeight.value};
-        // }
+        if (!box) {
+            if (this.handleBox) {
+                var start = this.handleBox.start;
+                var end = this.handleBox.end;
+                var mode = this.handleBox.mode;
+                if (start != null && end != null && mode != null && this.oldSize != null) {
+                    var widthValue = this.shapeWidth.value - this.oldSize.width;
+                    var heightValue = this.shapeHeight.value - this.oldSize.height;
+                    if (widthValue != 0 || heightValue != 0) {
+                        if (mode.value == "horizontal" || mode.value == "Horizontal" ||
+                            mode.value == "free" || mode.value == "Free"){
+                                if (end.x < 0) end.x -= widthValue;
+                                else end.x += widthValue;
+                            }
+                        if (mode.value == "vertical" || mode.value == "Vertical" ||
+                            mode.value == "free" || mode.value == "Free") {
+                                if (end.y < 0) end.y -= heightValue;
+                                else end.y += heightValue;
+                            }
+                        this.targetObject.setProperty("endLine", new Handle(end.x, end.y));
+                        this.oldSize = {"width": this.shapeWidth.value, "height": this.shapeHeight.value};
+                    }
+                }
+            }
+        }
 
         if (da != 0) {
             this.targetObject.rotateBy(da);
