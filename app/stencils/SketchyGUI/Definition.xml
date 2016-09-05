@@ -122,8 +122,8 @@
     <Shape id="line" displayName="Line" icon="Icons/line.png">
         <Properties>
             <PropertyGroup>
-                <Property name="a" displayName="Start" type="Handle" p:lockX="$mode.value == 'vertical'" p:lockY="$mode.value == 'horizontal'">0,0</Property>
-                <Property name="b" displayName="Start" type="Handle" p:lockX="$mode.value == 'vertical'"  p:lockY="$mode.value == 'horizontal'">100,0</Property>
+                <Property name="startLine" displayName="Start" type="Handle" p:lockX="$mode.value == 'vertical'" p:lockY="$mode.value == 'horizontal'">0,0</Property>
+                <Property name="endLine" displayName="Start" type="Handle" p:lockX="$mode.value == 'vertical'"  p:lockY="$mode.value == 'horizontal'">100,0</Property>
                 <Property name="mode" displayName="Direction" type="Enum" p:enumValues="['horizontal|Horizontal', 'vertical|Vertical', 'free|Free']">free</Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
@@ -136,7 +136,7 @@
                 <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
                 <D>
                     [
-                        sk($a.x, $a.y, $b.x, $b.y)
+                        sk($startLine.x, $startLine.y, $endLine.x, $endLine.y)
                     ]
                 </D>
              </For>
@@ -154,11 +154,11 @@
         </p:Content>
     </Shape>
     <Shortcut displayName="Horizontal Line" icon="Icons/line.png" to="line">
-        <PropertyValue name="b">100,0</PropertyValue>
+        <PropertyValue name="endLine">100,0</PropertyValue>
         <PropertyValue name="mode" p:readonly="true">horizontal</PropertyValue>
     </Shortcut>
     <Shortcut displayName="Vertical Line" icon="Icons/vertical_line.png" to="line">
-        <PropertyValue name="b">0,100</PropertyValue>
+        <PropertyValue name="endLine">0,100</PropertyValue>
         <PropertyValue name="mode" p:readonly="true">vertical</PropertyValue>
     </Shortcut>
     <Shape id="textbox" displayName="Text Field" icon="Icons/textfield.png">
