@@ -54,30 +54,45 @@ SharedGeomtryEditor.prototype.handleCommandEvent = function () {
     var a = Svg.getAngle(currentGeo.ctm.a, currentGeo.ctm.b);
     var da = this.shapeAngle.value - a;
 
+    var newEndLine;
+    if (this.handleBox) {
+        var start = this.handleBox.start;
+        var end = this.handleBox.end;
+        var mode = this.handleBox.mode;
+        if (start != null && end != null && mode != null && this.oldSize != null) {
+            var widthValue = this.shapeWidth.value - this.oldSize.width;
+            var heightValue = this.shapeHeight.value - this.oldSize.height;
+            if (widthValue != 0 || heightValue != 0) {
+                if (mode.value == "horizontal" || mode.value == "Horizontal" ||
+                    mode.value == "free" || mode.value == "Free"){
+                        if (end.x <= 0) end.x -= widthValue;
+                        else end.x += widthValue;
+                    }
+                if (mode.value == "vertical" || mode.value == "Vertical" ||
+                    mode.value == "free" || mode.value == "Free") {
+                        if (end.y <= 0) end.y -= heightValue;
+                        else end.y += heightValue;
+                    }
+                newEndLine = new Handle(end.x, end.y);
+            }
+        }
+    }
+
     Pencil.activeCanvas.run(function () {
         if (dx != 0 || dy != 0) {
             this.targetObject.moveBy(dx, dy);
         }
 
-        if (this.targetObject.supportScaling() && !this.handleBox) {
+        if (this.targetObject.supportScaling() && box != null) {
             this.targetObject.scaleTo(this.shapeWidth.value, this.shapeHeight.value);
         } else {
-            var hb = this.handleBox;
-            var boundSize = this.targetObject.getBounding();
-            var widthValue = this.shapeWidth.value - boundSize.width;
-            var heightValue = this.shapeHeight.value - boundSize.height;
-
-            if (widthValue != 0 || heightValue != 0) {
-                var b = new Handle(hb.end.x, hb.end.y);
-                if (hb.mode.value == "horizontal" || hb.mode.value == "Horizontal" ||
-                    hb.mode.value == "free" || hb.mode.value == "Free")
-                    b.x += widthValue;
-                if (hb.mode.value == "vertical" || hb.mode.value == "Vertical" ||
-                    hb.mode.value == "free" || hb.mode.value == "Free")
-                    b.y += heightValue;
-                this.targetObject.setProperty("endLine", b);
-            }
+            this.targetObject.setProperty("endLine", newEndLine);
+            this.oldSize = {"width": this.shapeWidth.value, "height": this.shapeHeight.value};
         }
+        // if (!box && newEndLine != null) {
+        //     this.targetObject.setProperty("endLine", newEndLine);
+        //     this.oldSize = {"width": this.shapeWidth.value, "height": this.shapeHeight.value};
+        // }
 
         if (da != 0) {
             this.targetObject.rotateBy(da);
@@ -86,7 +101,6 @@ SharedGeomtryEditor.prototype.handleCommandEvent = function () {
         Pencil.activeCanvas.snappingHelper.updateSnappingGuide(this.targetObject);
         this.invalidate();
     }, this, Util.getMessage("action.move.shape"));
-
     Pencil.activeCanvas.invalidateEditors(this);
 };
 
@@ -131,6 +145,7 @@ SharedGeomtryEditor.prototype.attach = function (targetObject) {
     this.shapeHeight.disabled = box ? false : true;
 
     if (!box) {
+        this.oldSize = {"width": this.shapeWidth.value, "height": this.shapeHeight.value};
         var start = this.targetObject.getProperty("startLine")|| null;
         var end = this.targetObject.getProperty("endLine") || null;
         var mode = this.targetObject.getProperty("mode") || null;
@@ -141,7 +156,8 @@ SharedGeomtryEditor.prototype.attach = function (targetObject) {
         if (mode.value == "vertical" || mode.value == "Vertical" ||
             mode.value == "free" || mode.value == "Free")
             this.shapeHeight.disabled = false;
-        this.handleBox = {"start": start, "end": end, "mode": mode};
+
+         this.handleBox = {"start": start, "end": end, "mode": mode};
     }
     //this.geometryToolbar.style.display = '';
 };
@@ -153,7 +169,6 @@ SharedGeomtryEditor.prototype.detach = function () {
     this.shapeAngle.disabled = true;
     //this.geometryToolbar.style.display = 'none';
     this.targetObject = null;
-    this.handleBox = null;
 };
 SharedGeomtryEditor.prototype.invalidate = function () {
     if (!this.targetObject) {
