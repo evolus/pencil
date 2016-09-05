@@ -13,7 +13,14 @@ function ApplicationPane() {
 
     this.sharedFontEditor.applicationPane = this;
 
-    this.toolBarSrollView.setWheelAllow(false);
+    //this.toolBarSrollView.setWheelAllow(false);
+
+    this.bind("click", function(ev) {
+        console.log(document.activeElement);
+        var activeElement = document.activeElement;
+        if (activeElement.nodeName != "input") this.toolBarSrollView.setWheelAllow(true);
+        else this.toolBarSrollView.setWheelAllow(false);
+    }, this.toolBarSrollView.node());
 
     var thiz = this;
     this.mainMenu = new MainMenu(this.menuIcon);
