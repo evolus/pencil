@@ -952,7 +952,7 @@ Canvas.prototype.handleMouseUp = function (event) {
         this.setRangeBoundVisibility(false);
         this.isSelectingRange = false;
         // enum objects that are in range
-        if (!event.ctrlKey) {
+        if (!this.isEventWithControl(event)) {
             this.clearSelection();
         }
         var thiz = this;
@@ -963,7 +963,7 @@ Canvas.prototype.handleMouseUp = function (event) {
             var bbox = controller.getBoundingRect();
 
             if (Svg.isInside(bbox, thiz.currentRange)) {
-                if (event.ctrlKey) {
+                if (thiz.isEventWithControl(event)) {
                     var targets = thiz.getSelectedTargets();
                     var foundTarget = null;
                     for (i in targets) {
@@ -2110,7 +2110,7 @@ Canvas.prototype.handleMouseDown = function (event) {
 
             thiz.duplicateFunc = null;
         }
-    } else if (event.ctrlKey) {
+    } else if (this.isEventWithControl(event)) {
         if (foundTarget) {
             this.removeFromSelection(foundTarget);
         } else {
@@ -2173,6 +2173,9 @@ Canvas.prototype.handleMouseDown = function (event) {
 
 };
 
+Canvas.prototype.isEventWithControl = function (event) {
+    return (event.ctrlKey && !IS_MAC) || (event.metaKey && IS_MAC);
+};
 Canvas.prototype.doGroup = function () {
 
     this.run(this.doGroupImpl_, this, Util.getMessage("action.group.shapes"));
