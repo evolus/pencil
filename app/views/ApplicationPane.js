@@ -15,11 +15,17 @@ function ApplicationPane() {
 
     //this.toolBarSrollView.setWheelAllow(false);
 
-    this.bind("click", function(ev) {
-        console.log(document.activeElement);
-        var activeElement = document.activeElement;
-        if (activeElement.nodeName != "input") this.toolBarSrollView.setWheelAllow(true);
-        else this.toolBarSrollView.setWheelAllow(false);
+    this.bind("focusout", function(ev) {
+        console.log(ev.target);
+        if (ev.target) {
+            this.toolBarSrollView.setWheelAllow(true);
+        }
+    }, this.toolBarSrollView.node());
+
+    this.bind("focusin", function(ev) {
+        if (ev.target) {
+            this.toolBarSrollView.setWheelAllow(false);
+        }
     }, this.toolBarSrollView.node());
 
     var thiz = this;
