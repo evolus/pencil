@@ -53,7 +53,7 @@ function PageDetailDialog() {
     this.selector.addEventListener("ValueChange", function (event) {
         var color = thiz.selector.getColor();
         //thiz.colorButton.bgColor = color;
-        thiz.colorButton.style.color = color.toRGBString();
+        thiz.colorButton.style.color = color.toRGBAString();
         thiz.modified = true;
     }, false);
 
@@ -314,14 +314,14 @@ PageDetailDialog.prototype.updateUIWith = function (page) {
         this.backgroundCombo.selectItem({
              name: "Background Color"
         });
-        this.colorButton.style.color = page.backgroundColor ? page.backgroundColor.toRGBString() : "#000" ;
+        this.colorButton.style.color = page.backgroundColor ? page.backgroundColor.toRGBAString() : "#000" ;
     }
     if (page.backgroundPage) {
         this.backgroundCombo.selectItem({
              name: page.backgroundPage.name,
              value: page.backgroundPage.id
         });
-        this.colorButton.style.color = page.backgroundPage.backgroundColor ? page.backgroundPage.backgroundColor.toRGBString() : "#000";
+        this.colorButton.style.color = page.backgroundPage.backgroundColor ? page.backgroundPage.backgroundColor.toRGBAString() : "#000";
     }
 
     if (!page.backgroundPageId && !page.backgroundColor) {
