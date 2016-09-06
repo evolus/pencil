@@ -4,7 +4,8 @@
             border: solid 1px;
             border-color: lighten(@app_bg, 5%) darken(@app_bg, 10%) darken(@app_bg, 10%) lighten(@app_bg, 5%);
         }
-        @header {
+        @header,
+        @searchPageContainer {
             background: @app_bg;
             align-items: center;
             padding-right: 0.3em;
@@ -12,8 +13,14 @@
             overflow: visible;
             min-height: 2.8em;
         }
+
+        @searchPageContainer {
+            padding: 3px;
+        }
+
         @header .widget_ScrollableView > button,
-        @header button {
+        @header button,
+        @searchPageContainer button {
             line-height: 1.4em;
             height: 1.4em;
             padding: 0em 0.3em;
@@ -22,7 +29,8 @@
 
         @pageBreadcrumb button:not(:hover),
         @actionButtonContainer button:not(:hover),
-        @pageBreadcrumb > hbox:last-child button {
+        @pageBreadcrumb > hbox:last-child button,
+        @searchPageContainer button:not(:hover) {
             background: none;
             border-color: transparent;
         }
@@ -65,12 +73,14 @@
             margin-left: 0.4em;
         }
 
-        @pageBreadcrumb {
+        @pageBreadcrumb,
+        @nameTextBoxContainer {
             white-space: nowrap;
         }
 
         @pageBreadcrumb,
-        @childPageContainer {
+        @childPageContainer,
+        @nameTextBoxContainer {
             cursor: default;
         }
         @childPageSrollView {
@@ -84,7 +94,8 @@
             @iconify();
         }
         @pageBreadcrumb > hbox,
-        @childPageContainer > hbox {
+        @childPageContainer > hbox,
+        @nameTextBoxContainer > hbox {
             line-height: 1.6em;
             position: relative;
         }
@@ -105,7 +116,10 @@
         @childPageContainer > hbox:hover {
             color: @selected_bg;
         }
-        @pageBreadcrumb > hbox > span {
+
+
+        @pageBreadcrumb > hbox > span,
+        @nameTextBoxContainer {
             padding: 0em 0.5em;
             cursor: pointer;
         }
@@ -116,7 +130,8 @@
             text-decoration: underline;
         }
         @pageBreadcrumb > hbox,
-        @childPageContainer > hbox {
+        @childPageContainer > hbox,
+        @nameTextBoxContainer{
             align-items: center;
 
         }
@@ -125,7 +140,8 @@
             font-size: 1em;
         }
         @pageBreadcrumb hbox span,
-        @childPageContainer hbox span {
+        @childPageContainer hbox span,
+        @nameTextBoxContainer {
             text-align: center;
         }
 
@@ -225,7 +241,37 @@
             display: none;
         }
 
+        @nameTextBox {
+            height: 29px;
+            box-shadow: inset 0px 0px 0.3em rgba(0, 0, 0, 0.2);
+            border: solid 1px #bfbfbf;
+            border-radius: 0px;
+            width: 100%;
+        }
+
+        @searchPageContainer{
+            display: none;
+        }
+        @searchControls > * {
+            margin-right: 10px;
+        }
+        @searchControls  {
+            margin-left: 10px;
+            color: #6d6a6a;
+        }
+
     </style>
+    <hbox anon-id="searchPageContainer">
+        <hbox class="InputRow" anon-id="nameTextBoxContainer">
+            Page Name:
+        </hbox>
+        <hbox flex="1" ><input type="text" anon-id="nameTextBox" /></hbox>
+        <hbox anon-id="searchControls">
+             <span anon-id="searchInfo">---</span>
+             <button anon-id="searchLeft"><i>keyboard_arrow_left</i></button>
+             <button anon-id="searchRight"><i>keyboard_arrow_right</i></button>
+        </hbox>
+    </hbox>
     <hbox anon-id="header">
         <hbox flex="1">
             <hbox anon-id="pageBreadcrumb">
@@ -240,6 +286,7 @@
             </hbox>
         </hbox>
         <hbox anon-id="actionButtonContainer">
+            <hbox><button anon-id="searchPageButton"><i>find_in_page</i><span>Search...</span></button></hbox>
             <hbox><button anon-id="addPageButton"><i>note_add</i> <span>Add Page...</span></button></hbox>
             <hbox><button anon-id="toggleButton"><i>expand_more</i><i>expand_less</i></button></hbox>
         </hbox>

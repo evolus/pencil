@@ -106,6 +106,14 @@ Controller.prototype.findPageByName = function (name) {
 
     return null;
 };
+Controller.prototype.findListPageByName = function (name) {
+    var pages = [];
+    for (var i in this.doc.pages) {
+        if (this.doc.pages[i].name.toLowerCase().indexOf(name.toLowerCase()) >= 0) pages.push(this.doc.pages[i]);
+    }
+
+    return pages;
+}
 Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId, activateAfterCreate) {
     var id = Util.newUUID();
     var pageFileName = "page_" + id + ".xml";
@@ -590,6 +598,7 @@ Controller.prototype.removeRecentFile = function (filePath) {
 };
 Controller.prototype.loadDocument = function (filePath, callback) {
     ApplicationPane._instance.busy();
+    this.applicationPane.pageListView.resetSearchBar();
     this.resetDocument();
     var thiz = this;
     if (!fs.existsSync(filePath)) {

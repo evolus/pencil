@@ -1,6 +1,8 @@
 function PageListView() {
     BaseTemplatedWidget.call(this);
 
+    this.searchPage = [];
+
     var findPageThumbnailView = function (event) {
         var node = Dom.findUpward(event.target, function (n) {
             return n.__widget && (n.__widget instanceof PageThumbnailView);
@@ -20,7 +22,6 @@ function PageListView() {
         this.handleDoubleClick(node.__widget.page);
 
     }, this.pageListContainer);
-
 
     // this.bind("mouseover", function (event) {
     //     var page = Dom.findUpwardForData(event.target, "_page");
@@ -130,6 +131,51 @@ function PageListView() {
         Config.set("pageListViewExpanded.enabled", this.expanded);
     }, this.toggleButton);
 
+    this.bind("click", function(ev) {
+        if (this.showSearchBar == null) this.showSearchBar = false;
+        if (this.showSearchBar == false) {
+            this.showSearchBar = true;
+            this.searchPageContainer.style.display = "flex";
+            this.searchLeft.disabled = true;
+            this.searchRight.disabled = true;
+            this.searchInfo.innerHTML = "---";
+            this.nameTextBox.focus();
+        } else {
+            this.showSearchBar = false;
+            this.searchPageContainer.style.display = "none";
+            this.searchPage = [];
+            this.nameTextBox.value = "";
+        }
+    },this.searchPageButton);
+
+    this.bind("click", function(ev) {
+        if (thiz.searchPage.length == 0) return;
+        var parent = Dom.findUpward(ev.target, function(node) {
+            if (node == thiz.searchControls || node == thiz.searchLeft || node == thiz.searchRight) return true;
+            return false;
+        });
+        if (parent == thiz.searchControls) return;
+        var index = thiz.searchPage.indexOf(thiz.controller.activePage);
+        if (parent == thiz.searchLeft) {
+            index--;
+        } else {
+            index++;
+        }
+        thiz.validateSearchBar(index);
+    },this.searchControls);
+
+
+    this.bind("input", function(ev) {
+        setTimeout(function() {
+            thiz.searchPage = [];
+            thiz.searchPage = Pencil.controller.findListPageByName(thiz.nameTextBox.value);
+            if (thiz.searchPage.length > 0) {
+                thiz.validateSearchBar(0);
+            }
+            thiz.nameTextBox.focus();
+        }, 100);
+    }, this.nameTextBox)
+
     this.pageListContainer._isDropZone = true;
     this.childPageContainer._isDropZone = true;
 
@@ -209,6 +255,26 @@ function PageListView() {
     this.invalidateExpandedState();
 }
 __extend(BaseTemplatedWidget, PageListView);
+
+PageListView.prototype.resetSearchBar = function() {
+    this.searchLeft.disabled = true;
+    this.searchRight.disabled = true;
+    this.searchInfo.innerHTML = "---";
+    this.nameTextBox.value = "";
+}
+
+PageListView.prototype.validateSearchBar = function(index) {
+    if (index == null || this.searchPage.length == 0 || index < 0 || index >= this.searchPage.length) return;
+    this.searchLeft.disabled = true;
+    this.searchRight.disabled = true;
+    this.searchInfo.innerHTML = "---";
+    if (index > 0) this.searchLeft.disabled = false;
+    if (index < this.searchPage.length - 1) this.searchRight.disabled = false;
+    this.searchInfo.innerHTML = (index + 1) + " of " + this.searchPage.length;
+    this.activatePage(this.searchPage[index]);
+    this.nameTextBox.focus();
+}
+
 PageListView.prototype.setController = function (controller) {
     this.controller = controller;
     this.currentParentPage = null;
