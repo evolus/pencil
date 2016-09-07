@@ -82,7 +82,7 @@
         @childPageContainer,
         @nameTextBoxContainer {
             cursor: default;
-            min-height: 2em;
+            min-height: 1.8em;
         }
         @childPageSrollView {
             background: #FFF;
@@ -242,7 +242,7 @@
         }
 
         @nameTextBox {
-            height: 29px;
+            height: 2em;
             box-shadow: inset 0px 0px 0.3em rgba(0, 0, 0, 0.2);
             border: solid 1px #bfbfbf;
             border-radius: 0px;
@@ -261,6 +261,11 @@
             overflow: hidden;
             max-width: 5em;
             white-space: nowrap;
+        }
+        @actionButtonContainer .activeFilter {
+            background: silver !important;
+            font-weight: bold;
+
         }
 
     </style>

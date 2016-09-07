@@ -275,9 +275,11 @@ PageListView.prototype.filterPages = function() {
     if (!value) {
         this.filterValue.innerHTML = "Filter";
         this.nameTextBox.value = "";
+        Dom.removeClass(this.filterButton, "activeFilter");
     } else {
         this.nameTextBox.value = value;
         this.filterValue.innerHTML = value;
+        Dom.addClass(this.filterButton, "activeFilter");
     }
     var selectedContainer = this.expanded == true ? this.pageListContainer : this.childPageContainer;
     var hiddenItemCount = 0;
