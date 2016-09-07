@@ -590,6 +590,7 @@ Controller.prototype.removeRecentFile = function (filePath) {
 };
 Controller.prototype.loadDocument = function (filePath, callback) {
     ApplicationPane._instance.busy();
+    this.applicationPane.pageListView.restartFilterCache();
     this.resetDocument();
     var thiz = this;
     if (!fs.existsSync(filePath)) {
