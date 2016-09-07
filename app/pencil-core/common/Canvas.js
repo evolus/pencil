@@ -1879,35 +1879,86 @@ Canvas.prototype.doPaste = function () {
         if (text) {
             var parsed = false;
 
-            var dom = Canvas.domParser.parseFromString(text, "text/xml");
-            if (dom) {
-                console.log("Parsed text", text);
-                console.log("Result dom", dom);
-                var node = dom.documentElement;
-                console.log("Root: " + dom.documentElement.localName);
-                if (node.namespaceURI == PencilNamespaces.svg) {
-                    if (node.localName == "g") {
-                        var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
-                        contents.push({
-                            type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
-                            data: dom
-                        });
-                        parsed = true;
-                    } else if (node.localName == "svg") {
-                        contents.push({
-                            type: SVGXferHelper.MIME_TYPE,
-                            data: dom
-                        })
-                        parsed = true;
+            function parseContent(string) {
+                var dom = Canvas.domParser.parseFromString(string, "text/xml");
+                if (dom) {
+                    console.log("Parsed text", string);
+                    console.log("Result dom", dom);
+                    var node = dom.documentElement;
+                    console.log("Root: " + dom.documentElement.localName);
+                    if (node.namespaceURI == PencilNamespaces.svg) {
+                        if (node.localName == "g") {
+                            var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
+                            return {
+                                type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
+                                data: dom
+                            };
+                        } else if (node.localName == "svg") {
+                            return {
+                                type: SVGXferHelper.MIME_TYPE,
+                                data: dom
+                            };
+                        }
                     }
                 }
+                return null;
+            }
+
+            var content = parseContent(text);
+            if (content) {
+                contents.push(content);
+                parsed = true;
             }
 
             if (!parsed) {
-                contents.push({
-                    type: PlainTextXferHelper.MIME_TYPE,
-                    data: text
-                });
+                var parsedFile = false;
+                var fileTypes = [".png", ".jpg", ".jpeg", ".gif", ".svg"];
+                var fileType = path.extname(text);
+                if (fileType && fileTypes.indexOf(fileType.toLowerCase()) >= 0) {
+                    try {
+                        var fstat = fsExistSync(text);
+                        if (fstat && fstat.isFile()) {
+
+                            if (fileType.toLowerCase() == ".png") {
+                                var image = nativeImage.createFromPath(text);
+                                if (image) {
+                                    var id = Pencil.controller.nativeImageToRefSync(image);
+
+                                    var size = image.getSize();
+
+                                    contents.push({
+                                        type: PNGImageXferHelper.MIME_TYPE,
+                                        data: new ImageData(size.width, size.height, ImageData.idToRefString(id))
+                                    });
+                                    parsedFile = true;
+                                }
+                            } else if (fileType.toLowerCase() == ".svg") {
+                                var fileContent = fs.readFileSync(text, "utf8");
+                                var svgContent = parseContent(fileContent);
+                                if (svgContent) {
+                                    contents.push(svgContent);
+                                    parsedFile = true;
+                                }
+                            } else {
+                                contents.push({
+                                    type: JPGGIFImageXferHelper.MIME_TYPE,
+                                    data: text
+                                });
+                                parsedFile = true;
+                            }
+                        }
+
+                    } catch (e) {
+                        Console.dumpError(e);
+                    }
+                }
+
+                if (!parsedFile) {
+                    contents.push({
+                        type: PlainTextXferHelper.MIME_TYPE,
+                        data: text
+                    });
+                }
             }
         }
     }

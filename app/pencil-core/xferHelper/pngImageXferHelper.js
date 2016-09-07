@@ -28,3 +28,41 @@ PNGImageXferHelper.prototype.handleData = function (imageData) {
 };
 
 Pencil.registerXferHelper(PNGImageXferHelper);
+
+
+function JPGGIFImageXferHelper(canvas) {
+    this.canvas = canvas;
+    this.type = JPGGIFImageXferHelper.MIME_TYPE;
+}
+JPGGIFImageXferHelper.MIME_TYPE = "image/gif";
+
+JPGGIFImageXferHelper.prototype.toString = function () {
+    return "JPGGIFImageXferHelper: " + JPGGIFImageXferHelper.MIME_TYPE;
+};
+JPGGIFImageXferHelper.prototype.handleData = function (url) {
+
+    try {
+        var def = CollectionManager.shapeDefinition.locateDefinition(PNGImageXferHelper.SHAPE_DEF_ID);
+        if (!def) return;
+        this.canvas.insertShape(def, this.canvas.lastMouse || {x: 10, y: 10});
+        if (!this.canvas.currentController) return;
+
+
+        var controller = this.canvas.currentController;
+        var thiz = this;
+
+        var handler = function (imageData) {
+            var dim = new Dimension(imageData.w, imageData.h);
+            thiz.canvas.currentController.setProperty("imageData", imageData);
+            thiz.canvas.currentController.setProperty("box", dim);
+            thiz.canvas.invalidateEditors();
+            thiz.canvas.invalidateEditors();
+        };
+
+        ImageData.fromExternalToImageData(url, handler);
+    } catch (ex) {
+        Console.dumpError(ex);
+    }
+};
+
+Pencil.registerXferHelper(JPGGIFImageXferHelper);
