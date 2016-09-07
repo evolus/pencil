@@ -598,7 +598,6 @@ Controller.prototype.removeRecentFile = function (filePath) {
 };
 Controller.prototype.loadDocument = function (filePath, callback) {
     ApplicationPane._instance.busy();
-    this.applicationPane.pageListView.resetSearchBar();
     this.resetDocument();
     var thiz = this;
     if (!fs.existsSync(filePath)) {

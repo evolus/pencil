@@ -5,7 +5,7 @@
             border-color: lighten(@app_bg, 5%) darken(@app_bg, 10%) darken(@app_bg, 10%) lighten(@app_bg, 5%);
         }
         @header,
-        @searchPageContainer {
+        @filterContainer {
             background: @app_bg;
             align-items: center;
             padding-right: 0.3em;
@@ -14,13 +14,13 @@
             min-height: 2.8em;
         }
 
-        @searchPageContainer {
+        @filterContainer {
             padding: 3px;
         }
 
         @header .widget_ScrollableView > button,
         @header button,
-        @searchPageContainer button {
+        @filterContainer button {
             line-height: 1.4em;
             height: 1.4em;
             padding: 0em 0.3em;
@@ -30,7 +30,7 @@
         @pageBreadcrumb button:not(:hover),
         @actionButtonContainer button:not(:hover),
         @pageBreadcrumb > hbox:last-child button,
-        @searchPageContainer button:not(:hover) {
+        @filterContainer button:not(:hover) {
             background: none;
             border-color: transparent;
         }
@@ -118,8 +118,7 @@
         }
 
 
-        @pageBreadcrumb > hbox > span,
-        @nameTextBoxContainer {
+        @pageBreadcrumb > hbox > span{
             padding: 0em 0.5em;
             cursor: pointer;
         }
@@ -249,28 +248,17 @@
             width: 100%;
         }
 
-        @searchPageContainer{
+        @filterContainer{
             display: none;
-        }
-        @searchControls > * {
-            margin-right: 10px;
-        }
-        @searchControls  {
-            margin-left: 10px;
-            color: #6d6a6a;
+            position: absolute;
+            border-radius: 2px;
+            background: #D3DADE;
+            padding: 5px;
         }
 
     </style>
-    <hbox anon-id="searchPageContainer">
-        <hbox class="InputRow" anon-id="nameTextBoxContainer">
-            Page Name:
-        </hbox>
+    <hbox anon-id="filterContainer">
         <hbox flex="1" ><input type="text" anon-id="nameTextBox" /></hbox>
-        <hbox anon-id="searchControls">
-             <span anon-id="searchInfo">---</span>
-             <button anon-id="searchLeft"><i>keyboard_arrow_left</i></button>
-             <button anon-id="searchRight"><i>keyboard_arrow_right</i></button>
-        </hbox>
     </hbox>
     <hbox anon-id="header">
         <hbox flex="1">
@@ -286,7 +274,7 @@
             </hbox>
         </hbox>
         <hbox anon-id="actionButtonContainer">
-            <hbox><button anon-id="searchPageButton"><i>find_in_page</i><span>Search...</span></button></hbox>
+            <hbox><button anon-id="filterButton"><i>filter_list</i><span anon-id="filterValue">Filter...</span></button></hbox>
             <hbox><button anon-id="addPageButton"><i>note_add</i> <span>Add Page...</span></button></hbox>
             <hbox><button anon-id="toggleButton"><i>expand_more</i><i>expand_less</i></button></hbox>
         </hbox>
