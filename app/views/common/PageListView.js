@@ -1,10 +1,9 @@
 function PageListView() {
     BaseTemplatedWidget.call(this);
 
-    this.filter = {};
-    this.resetFilter = function() {
-        this.filter = {};
-    }
+    this.filterCache = {};
+    this.showFilterBar = false;
+
     var findPageThumbnailView = function (event) {
         var node = Dom.findUpward(event.target, function (n) {
             return n.__widget && (n.__widget instanceof PageThumbnailView);
@@ -82,7 +81,6 @@ function PageListView() {
                 }
             }
         }
-
         this.activatePage(newActivePage);
     }, this.pageBreadcrumb);
 
@@ -132,16 +130,11 @@ function PageListView() {
         this.childPageSrollView.invalidate();
         Config.set("pageListViewExpanded.enabled", this.expanded);
         this.validateFilterBox();
-        this.filterPage();
+        this.filterPages();
     }, this.toggleButton);
 
     this.bind("click", function(ev) {
-        if (this.showFilterBar == null) this.showFilterBar = false;
-        if (this.showFilterBar == false) {
-            this.showFilterBar = true;
-        } else {
-            this.showFilterBar = false;
-        }
+        this.showFilterBar = !this.showFilterBar;
         this.validateFilterBox();
     },this.filterButton);
 
@@ -149,14 +142,19 @@ function PageListView() {
         setTimeout(function() {
             var value = thiz.nameTextBox.value == "" ? null : thiz.nameTextBox.value;
             var filterName = thiz.controller.activePage.parentPage ? thiz.controller.activePage.parentPage.name : "Root";
-            if (value == null && thiz.filter[filterName] != null) {
-                delete thiz.filter[filterName];
+            if (value == null && thiz.filterCache[filterName] != null) {
+                delete thiz.filterCache[filterName];
             } else {
-                thiz.filter[filterName] = value;
+                thiz.filterCache[filterName] = value;
             }
-            thiz.filterPage();
+            thiz.filterPages();
             thiz.nameTextBox.focus();
         }, 500);
+    }, this.nameTextBox)
+
+    this.bind("blur", function(ev) {
+        this.showFilterBar = false;
+        this.validateFilterBox();
     }, this.nameTextBox)
 
     this.pageListContainer._isDropZone = true;
@@ -239,28 +237,35 @@ function PageListView() {
 }
 __extend(BaseTemplatedWidget, PageListView);
 
-
+PageListView.prototype.restartFilterCache = function() {
+    this.filterCache = {};
+}
 
 PageListView.prototype.validateFilterBox = function() {
     if (this.showFilterBar == true) {
         this.filterContainer.style.display = "flex";
         var filterName = this.controller.activePage.parentPage ? this.controller.activePage.parentPage.name : "Root";
-        if (this.filter[filterName]) {
-            this.nameTextBox.value = this.filter[filterName] == null ? "" : this.filter[filterName];
+        if (this.filterCache[filterName]) {
+            this.nameTextBox.value = this.filterCache[filterName] == null ? "" : this.filterCache[filterName];
         }
         var bottom = this.controller.applicationPane.pageListView.node().clientHeight;
         var right = this.controller.applicationPane.rightSidePane.node().clientWidth;
         this.filterContainer.style.bottom = (bottom + 5) + "px";
         this.filterContainer.style.right = (right + 5) + "px";
-        this.nameTextBox.focus();
+        this.filterButton.disabled = true;
+        var thiz = this;
+        window.setTimeout(function() {
+            thiz.nameTextBox.focus();
+        }, 0)
     } else {
+        this.filterButton.disabled = false;
         this.filterContainer.style.display = "none";
     }
 }
 
-PageListView.prototype.filterPage = function() {
+PageListView.prototype.filterPages = function() {
     var filterName = this.controller.activePage.parentPage ? this.controller.activePage.parentPage.name : "Root";
-    var value = this.filter[filterName];
+    var value = this.filterCache[filterName];
 
     if (!value) {
         this.filterValue.innerHTML = "Filter";
@@ -288,9 +293,9 @@ PageListView.prototype.filterPage = function() {
             }
         }
     }
-    if (hiddenItemCount == selectedContainer.childNodes.length) {
-        activePageItem.style.display = "inherit";
-    }
+    // if (hiddenItemCount == selectedContainer.childNodes.length) {
+    //     activePageItem.style.display = "inherit";
+    // }
 }
 
 PageListView.prototype.setController = function (controller) {
@@ -463,9 +468,9 @@ PageListView.prototype.renderPages = function() {
         this.childPageContainer.appendChild(childNode);
     }
     this.invalidateExpandedState();
+
     this.childPageSrollView.invalidate();
     this.pageListSrollView.invalidate();
-
     var thiz = this;
     window.setTimeout(function () {
         var childListFrom = 0;
@@ -494,7 +499,7 @@ PageListView.prototype.renderPages = function() {
         }
         thiz.childPageSrollView.ensuareVisible(childListFrom, childListTo);
         thiz.pageListSrollView.ensuareVisible(thumbnailFrom, thumbnailTo);
-        thiz.filterPage();
+        thiz.filterPages();
     }, 0);
 
 };
@@ -534,6 +539,7 @@ PageListView.prototype.handleDoubleClick = function (page) {
     if (!page.children || page.children.length == 0) {
         this.handleSelectPage(page);
     } else {
+        if (this.filterCache[page.name]) delete this.filterCache[page.name];
         this.activatePage(page.children[0]);
     }
 };
