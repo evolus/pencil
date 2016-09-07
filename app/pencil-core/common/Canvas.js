@@ -1865,6 +1865,7 @@ Canvas.prototype.doCopy = function () {
 };
 Canvas.domParser = new DOMParser();
 Canvas.prototype.doPaste = function () {
+    console.log("doPaste:", clipboard.availableFormats(), clipboard.readImage());
     var formats = clipboard.availableFormats();
     if (!formats) return;
 
@@ -1904,10 +1905,46 @@ Canvas.prototype.doPaste = function () {
             }
 
             if (!parsed) {
-                contents.push({
-                    type: PlainTextXferHelper.MIME_TYPE,
-                    data: text
-                });
+                var imageFile = false;
+                var imageTypes = [".png", ".jpg", ".gif"];
+                var fileType = path.extname(text);
+                if (fileType && imageTypes.indexOf(fileType.toLowerCase()) >= 0) {
+                    try {
+                        var fstat = fsExistSync(text);
+                        if (fstat && fstat.isFile()) {
+
+                            if (fileType.toLowerCase() == ".png") {
+                                var image = nativeImage.createFromPath(text);
+                                if (image) {
+                                    var id = Pencil.controller.nativeImageToRefSync(image);
+
+                                    var size = image.getSize();
+
+                                    contents.push({
+                                        type: PNGImageXferHelper.MIME_TYPE,
+                                        data: new ImageData(size.width, size.height, ImageData.idToRefString(id))
+                                    });
+                                }
+                            } else {
+                                contents.push({
+                                    type: JPGGIFImageXferHelper.MIME_TYPE,
+                                    data: text
+                                });
+                            }
+
+                            imageFile = true;
+                        }
+
+                    } catch (e) {
+                    }
+                }
+
+                if (!imageFile) {
+                    contents.push({
+                        type: PlainTextXferHelper.MIME_TYPE,
+                        data: text
+                    });
+                }
             }
         }
     }
