@@ -189,7 +189,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
             rect.setAttribute("y", "0");
             rect.setAttribute("width", page.width);
             rect.setAttribute("height", page.height);
-            rect.setAttribute("style", "stroke: none; fill: " + page.backgroundColor.toRGBString() + ";");
+            rect.setAttribute("style", "stroke: none; fill: " + page.backgroundColor.toRGBAString() + ";");
 
             if (svg.firstChild) {
                 svg.insertBefore(rect, svg.firstChild);
@@ -348,10 +348,10 @@ Rasterizer.prototype._prepareWindowForRasterization = function(backgroundColor) 
     var bgr = Color.fromString("#ffffff00");
     if (this._backgroundColor) {
         bgr = Color.fromString(this._backgroundColor);
-        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
+        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBAString());
     } else if (backgroundColor) {
         bgr = Color.fromString(backgroundColor);
-        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBString());
+        ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBAString());
     } else {
         ctx.drawWindow(this.win, 0, 0, w, h, bgr.toRGBAString());
     }

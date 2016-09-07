@@ -2389,7 +2389,7 @@ Canvas.prototype.setCanvasState = function (state) {
 };
 Canvas.prototype.setBackgroundColor = function (color) {
     if(color) {
-        this.element.style.backgroundColor = color.toRGBString();
+        this.element.style.backgroundColor = color.toRGBAString();
     } else {
         this.element.style.backgroundColor = "";
     }

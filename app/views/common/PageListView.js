@@ -171,6 +171,11 @@ function PageListView() {
 
         event.dataTransfer.setDragImage(this.dndImage, 8, 8);
         event.dataTransfer.setData("dragType", "page");
+        event.dataTransfer.setData("text/html", "");
+        if (n.__widget && n.__widget.page && n.__widget.page.thumbPath) {
+            event.dataTransfer.setData("text/html", "");
+            event.dataTransfer.setData("pencil/png", n.__widget.page.thumbPath);
+        }
 
         if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
         this.currentDraggedObject = n;
