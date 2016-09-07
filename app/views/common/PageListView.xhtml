@@ -255,6 +255,12 @@
             background: #D3DADE;
             padding: 5px;
         }
+        @filterValue {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            max-width: 5em;
+            white-space: nowrap;
+        }
 
     </style>
     <hbox anon-id="filterContainer">
@@ -274,7 +280,7 @@
             </hbox>
         </hbox>
         <hbox anon-id="actionButtonContainer">
-            <hbox><button anon-id="filterButton"><i>filter_list</i><span anon-id="filterValue">Filter...</span></button></hbox>
+            <hbox><button anon-id="filterButton"><i>filter_list</i><span anon-id="filterValue">Filter</span></button></hbox>
             <hbox><button anon-id="addPageButton"><i>note_add</i> <span>Add Page...</span></button></hbox>
             <hbox><button anon-id="toggleButton"><i>expand_more</i><i>expand_less</i></button></hbox>
         </hbox>

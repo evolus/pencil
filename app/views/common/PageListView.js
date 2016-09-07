@@ -2,7 +2,9 @@ function PageListView() {
     BaseTemplatedWidget.call(this);
 
     this.filter = {};
-
+    this.resetFilter = function() {
+        this.filter = {};
+    }
     var findPageThumbnailView = function (event) {
         var node = Dom.findUpward(event.target, function (n) {
             return n.__widget && (n.__widget instanceof PageThumbnailView);
@@ -154,7 +156,7 @@ function PageListView() {
             }
             thiz.filterPage();
             thiz.nameTextBox.focus();
-        }, 100);
+        }, 500);
     }, this.nameTextBox)
 
     this.pageListContainer._isDropZone = true;
@@ -237,6 +239,8 @@ function PageListView() {
 }
 __extend(BaseTemplatedWidget, PageListView);
 
+
+
 PageListView.prototype.validateFilterBox = function() {
     if (this.showFilterBar == true) {
         this.filterContainer.style.display = "flex";
@@ -259,24 +263,34 @@ PageListView.prototype.filterPage = function() {
     var value = this.filter[filterName];
 
     if (!value) {
-        this.filterValue.innerHTML = "Filter...";
+        this.filterValue.innerHTML = "Filter";
         this.nameTextBox.value = "";
     } else {
         this.nameTextBox.value = value;
         this.filterValue.innerHTML = value;
     }
     var selectedContainer = this.expanded == true ? this.pageListContainer : this.childPageContainer;
+    var hiddenItemCount = 0;
     for (var i = 0; i < selectedContainer.childNodes.length; i++) {
         var item = selectedContainer.childNodes[i];
+        var activePageItem;
         var page;
         if (this.expanded) page = item.__widget.page;
         else page = item._page;
         item.style.display = "inherit";
         if (value) {
-            if (page.name.indexOf(value) < 0) item.style.display = "none";
+            if (page.name.toUpperCase().indexOf(value.toUpperCase()) < 0) {
+                hiddenItemCount++;
+                item.style.display = "none";
+            }
+            if (page == this.controller.activePage) {
+                activePageItem = item;
+            }
         }
     }
-
+    if (hiddenItemCount == selectedContainer.childNodes.length) {
+        activePageItem.style.display = "inherit";
+    }
 }
 
 PageListView.prototype.setController = function (controller) {
@@ -482,6 +496,7 @@ PageListView.prototype.renderPages = function() {
         thiz.pageListSrollView.ensuareVisible(thumbnailFrom, thumbnailTo);
         thiz.filterPage();
     }, 0);
+
 };
 
 PageListView.prototype.invalidateExpandedState = function() {
