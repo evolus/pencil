@@ -5,6 +5,7 @@ function TextToolOverlay() {
         thiz.selector._commandName = "";
         thiz.selector._control = null;
     };
+
     this.bind("click", function (event) {
         var node = Dom.findUpward(event.target, function (n) {
             return n.getAttribute && n.getAttribute("command");
@@ -241,7 +242,7 @@ TextToolOverlay.prototype.updateColorButtonByCommandValue = function (commandNam
 };
 TextToolOverlay.prototype.updateButtonColor = function (control, value) {
     if (control == this.mhilightColorButton) {
-        this.colorDisplay.style.backgroundColor = value;
+        this.mhilightColorButton.style.color = value;
     } else if (control == this.mtextColorButton) {
         this.mtextColorButton.style.color = value;
     }

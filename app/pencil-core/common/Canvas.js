@@ -20,19 +20,19 @@ function Canvas(element) {
     this.autoScrollTimout = null;
     this.startAutoScrollFunction = function(func) {
         if (this.autoScrollTimout == null) {
-            this.lockPointerFunction = function () {
-                thiz.element.requestPointerLock();
-            }
-            this.lockPointerFunction();
+            // this.lockPointerFunction = function () {
+            //     thiz.element.requestPointerLock();
+            // }
+            // this.lockPointerFunction();
             this.autoScrollTimout = window.setInterval(func, 50);
         }
     }
     this.stopAutoScrollFunction = function () {
         if (this.autoScrollTimout) {
-            if (thiz.lockPointerFunction != null) {
-                document.exitPointerLock();
-                thiz.lockPointerFunction = null;
-            }
+            // if (thiz.lockPointerFunction != null) {
+            //     document.exitPointerLock();
+            //     thiz.lockPointerFunction = null;
+            // }
             clearInterval(this.autoScrollTimout);
             this.autoScrollTimout = null;
         }
@@ -197,60 +197,60 @@ function Canvas(element) {
         thiz.handleMouseUp(event);
     }, false);
     this.svg.ownerDocument.addEventListener("mousemove", function (event) {
+        if (thiz.autoScrollTimout) {
+            thiz.stopAutoScrollFunction();
+        }
         if (!thiz || !thiz.handleMouseMove) {
             document.removeEventListener("mousemove", arguments.callee, false);
             return;
         }
-        if (thiz.controllerHeld && thiz.currentController && !thiz.autoScrollTimout) {
-            var a = thiz;
+        if (thiz.controllerHeld && thiz.currentController &&
+             (thiz._scrollPane.clientHeight < thiz._scrollPane.scrollHeight || thiz._scrollPane.clientWidth < thiz._scrollPane.scrollWidth)) {
+            var scrollBarSize = 15;
             var loc = { x: event.clientX, y: event.clientY };
-            var aPane = Pencil.controller.applicationPane.contentBody.getBoundingClientRect();
-            var pane = {
-                   x: Math.round(aPane.left),
-                   y: Math.round(aPane.top),
-                   w: Math.round(aPane.width),
-                   h: Math.round(aPane.height)
-               }
+            var pane = thiz._scrollPane.getBoundingClientRect();
             var fun = null;
-            if (loc.x >= (pane.x + pane.w)) {
+            if (loc.x >= pane.right - scrollBarSize) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft >= thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
                         thiz._scrollPane.scrollLeft = thiz._scrollPane.scrollWidth;
-                        //thiz.stopAutoScrollFunction();
+                        thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollLeft += 20;
                 }
             }
-            if (loc.x <= pane.x) {
+            if (loc.x <= pane.left + (scrollBarSize / 2)) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft <= 0) {
-                        //thiz.stopAutoScrollFunction();
+                        thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollLeft -= 20;
                 }
             }
-            if (loc.y <= pane.y) {
+            if (loc.y <= pane.top + (scrollBarSize / 2)) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop <= 0) {
-                        //thiz.stopAutoScrollFunction();
+                        thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollTop -= 20;
                 }
             }
-            if (loc.y >= (pane.y + pane.h)) {
+            if (loc.y >= pane.bottom - scrollBarSize) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop >= thiz._scrollPane.scrollHeight - thiz._scrollPane.offsetHeight) {
-                        thiz.__scrollPane.scrollTop = thiz._scrollPane.scrollHeight;
-                        //thiz.stopAutoScrollFunction();
+                        thiz._scrollPane.scrollTop = thiz._scrollPane.scrollHeight;
+                        thiz.stopAutoScrollFunction();
                         return;
                     }
                     thiz._scrollPane.scrollTop += 20;
                 }
             }
-            if (fun != null) thiz.startAutoScrollFunction(fun);
+            if (fun != null) {
+                thiz.startAutoScrollFunction(fun);
+            }
         }
 
 
