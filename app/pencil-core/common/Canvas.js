@@ -207,53 +207,58 @@ function Canvas(element) {
         if (thiz.controllerHeld && thiz.currentController &&
              (thiz._scrollPane.clientHeight < thiz._scrollPane.scrollHeight || thiz._scrollPane.clientWidth < thiz._scrollPane.scrollWidth)) {
             var scrollBarSize = 15;
+            var scrollValue = 20;
             var loc = { x: event.clientX, y: event.clientY };
             var pane = thiz._scrollPane.getBoundingClientRect();
             var fun = null;
-            if (loc.x >= pane.right - scrollBarSize) {
+            var dx = scrollValue / thiz.zoom;
+            var dy = scrollValue / thiz.zoom;
+            if (loc.x > pane.right - scrollBarSize && loc.x < pane.right) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft >= thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
                         thiz._scrollPane.scrollLeft = thiz._scrollPane.scrollWidth;
                         thiz.stopAutoScrollFunction();
                         return;
                     }
-                    thiz._scrollPane.scrollLeft += 20;
+                    thiz._scrollPane.scrollLeft += scrollValue;
+                    thiz.currentController.moveBy(dx, 0, false, true);
                 }
             }
-            if (loc.x <= pane.left + (scrollBarSize / 2)) {
+            if (loc.x < pane.left + (scrollBarSize / 2) && loc.x > pane.left) {
                 fun = function() {
                     if (thiz._scrollPane.scrollLeft <= 0) {
                         thiz.stopAutoScrollFunction();
                         return;
                     }
-                    thiz._scrollPane.scrollLeft -= 20;
+                    thiz._scrollPane.scrollLeft -= scrollValue;
+                    thiz.currentController.moveBy(-dx, 0, false, true);
                 }
             }
-            if (loc.y <= pane.top + (scrollBarSize / 2)) {
+            if (loc.y < pane.top + (scrollBarSize / 2) && loc.y > pane.top) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop <= 0) {
                         thiz.stopAutoScrollFunction();
                         return;
                     }
-                    thiz._scrollPane.scrollTop -= 20;
+                    thiz._scrollPane.scrollTop -= scrollValue;
+                    thiz.currentController.moveBy(0, -dy, false, true);
                 }
             }
-            if (loc.y >= pane.bottom - scrollBarSize) {
+            if (loc.y > pane.bottom - scrollBarSize && loc.y < pane.bottom) {
                 fun = function() {
                     if (thiz._scrollPane.scrollTop >= thiz._scrollPane.scrollHeight - thiz._scrollPane.offsetHeight) {
                         thiz._scrollPane.scrollTop = thiz._scrollPane.scrollHeight;
                         thiz.stopAutoScrollFunction();
                         return;
                     }
-                    thiz._scrollPane.scrollTop += 20;
+                    thiz._scrollPane.scrollTop += scrollValue;
+                    thiz.currentController.moveBy(0, dy, false, true);
                 }
             }
             if (fun != null) {
                 thiz.startAutoScrollFunction(fun);
             }
         }
-
-
         thiz.handleMouseMove(event);
     }, false);
 

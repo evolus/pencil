@@ -14,6 +14,17 @@ function TextToolOverlay() {
         if (!node) return;
         var command = node.getAttribute("command");
         var arg = node.hasAttribute("arg") ? node.getAttribute("arg") : undefined;
+        if (command == "decreaseFontSize" || command == "increaseFontSize") {
+            arg = thiz.queryFontSizeValue();
+            arg = arg + (command == "decreaseFontSize" ? -1 : 1);
+            if (arg >= 1 && arg <= 7) {
+                command = "fontSize";
+                thiz.runEditorCommand(command, arg);
+                thiz.fixFontSize();
+                thiz.fontSizeCombo.selectItem(arg);
+            }
+            return;
+        }
         thiz.runEditorCommand(command, arg);
         // if (node == thiz.medCleanUpButton) {
         //     var v = thiz._richTextEditor.getRichtextValue();
@@ -119,6 +130,22 @@ function TextToolOverlay() {
         thiz.fixFontSize();
     }, false);
 
+    // this.medIncreaseFontButton.addEventListener("click", function(event){
+    //     var size = thiz.queryFontSizeValue();
+    //     if (size < 7) {
+    //         thiz.runEditorCommand("fontSize", size + 1);
+    //         thiz.fixFontSize();
+    //     }
+    // }, false)
+
+    // this.medDecreaseFontButton.addEventListener("click", function(event){
+    //     var size = thiz.queryFontSizeValue();
+    //     if (size > 1) {
+    //         thiz.runEditorCommand("fontSize", size - 1);
+    //         thiz.fixFontSize();
+    //     }
+    // }, false)
+
     var changeColorListener = function (control, commandName) {
         var color = thiz.getColorByCommandValue(commandName);
         thiz.selector.setColor(color);
@@ -188,6 +215,7 @@ TextToolOverlay.prototype.fixFontSize = function () {
 };
 TextToolOverlay.prototype.queryFontSizeValue = function () {
     var node = window.getSelection().anchorNode;
+    console.log("Selected Node",  window.getSelection());
     if (!node) return TextToolOverlay.DEFAULT_FONT;
     if (!node.style) node = node.parentNode;
     if (!node.style.fontSize || !node.style.fontSize.match(/^([0-9\.]+)em$/)) return TextToolOverlay.DEFAULT_FONT;
@@ -212,6 +240,9 @@ TextToolOverlay.prototype.updateListByCommandValue = function (commandName, cont
     }
 
     if (value && control == this.fontCombo) {
+        if (value.indexOf(" ") > 0) {
+            value = value.substring(1, value.length - 1);
+        }
         if (value.indexOf(",") >= 0) {
             value = null;
         } else {
@@ -242,7 +273,7 @@ TextToolOverlay.prototype.updateColorButtonByCommandValue = function (commandNam
 };
 TextToolOverlay.prototype.updateButtonColor = function (control, value) {
     if (control == this.mhilightColorButton) {
-        this.mhilightColorButton.style.color = value;
+        // this.mhilightColorButton.style.color = value;
     } else if (control == this.mtextColorButton) {
         this.mtextColorButton.style.color = value;
     }
@@ -293,7 +324,10 @@ TextToolOverlay.prototype.runEditorCommand = function (command, arg) {
         if (typeof(arg) != "undefined") {
             window.document.execCommand(command, false, arg);
         } else {
-            window.document.execCommand(command, false, null);
+            var check = window.document.queryCommandSupported(command);
+            if (check) {
+                window.document.execCommand(command, false, null);
+            }
         }
 
     } catch (e) {

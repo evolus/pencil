@@ -118,25 +118,28 @@
             right: 0;
             top: -11px;
         }
-        @recentDocumentPane .GridSelect button{
-            color:#c0c0c0;
-            box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
-            margin-left: 1px;
-            width: 40px;
-            height: 30px;
-            display: table;
-            line-height: 30px;
+        @recentDocumentPane .GridSelect button {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            box-shadow: none;
+            text-transform: none;
+            padding: 0em 0.8em;
+            line-height: normal;
+            cursor: inherit;
+        }
+        @recentDocumentPane .GridSelect button > *{
+            margin-left: 0.5em;
+            line-height: 1em;
         }
         @recentDocumentPane .GridSelect .Active{
-            box-shadow: inset 1px 1px 0px rgba(0, 0, 0, 0.2);
-            color: #000;
+            background: #dddddd;
         }
     </style>
     <vbox>
         <vbox anon-id="recentDocumentPane">
             <hbox anon-id="changeViewButtons" class="GridSelect">
-                <button anon-id="gridViewButton" ><i>apps</i></button>
-                <button anon-id="listViewButton" ><i>dehaze</i></button>
+                <button anon-id="gridViewButton" ><i>apps</i><span> Grid View </span></button>
+                <button anon-id="listViewButton" ><i>dehaze</i><span> List View </span></button>
             </hbox>
             <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" class="Repeater-Document" anon-id="recentDocumentRepeater" flex="1">
                 <strong role="header">Recent Documents</strong>
