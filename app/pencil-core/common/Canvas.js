@@ -52,10 +52,11 @@ function Canvas(element) {
     }, false);
 
     this.addEventListener("mouseup", function (event) {
-        var thiz = this;
         if (thiz.duplicateMode) {
             thiz.mouseUp = true;
             thiz.duplicateMode = null;
+            if (this.controllerHeld && this.currentController
+                    && this.currentController.markAsMoving) thiz.finishMoving(event);
         }
     }, false);
 
