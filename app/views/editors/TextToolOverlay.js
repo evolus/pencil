@@ -215,7 +215,6 @@ TextToolOverlay.prototype.fixFontSize = function () {
 };
 TextToolOverlay.prototype.queryFontSizeValue = function () {
     var node = window.getSelection().anchorNode;
-    console.log("Selected Node",  window.getSelection());
     if (!node) return TextToolOverlay.DEFAULT_FONT;
     if (!node.style) node = node.parentNode;
     if (!node.style.fontSize || !node.style.fontSize.match(/^([0-9\.]+)em$/)) return TextToolOverlay.DEFAULT_FONT;
