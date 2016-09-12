@@ -48,7 +48,8 @@ PageThumbnailView.prototype._updateUI = function () {
     this.pageThumbnail.style.visibility = "hidden";
     if (!this.page.children || this.page.children.length == 0) this.pageActionButton.style.visibility = "hidden";
     if (this.page.thumbPath) this.pageThumbnail.src = this.page.thumbPath + "?time=" + (new Date().getTime());
-    this.pageTitle.innerHTML = this.page.name;
+    // this.pageTitle.appendChild(document.createTextNode(this.page.name));
+    this.pageTitle.innerHTML = Dom.htmlEncode(this.page.name);
     this.node().setAttribute("title", this.page.name);
 };
 

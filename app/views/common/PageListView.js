@@ -278,7 +278,7 @@ PageListView.prototype.filterPages = function() {
         Dom.removeClass(this.filterButton, "activeFilter");
     } else {
         this.nameTextBox.value = value;
-        this.filterValue.innerHTML = value;
+        this.filterValue.innerHTML = Dom.htmlEncode(value);
         Dom.addClass(this.filterButton, "activeFilter");
     }
     var selectedContainer = this.expanded == true ? this.pageListContainer : this.childPageContainer;
