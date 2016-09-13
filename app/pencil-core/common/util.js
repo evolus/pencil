@@ -804,7 +804,19 @@ Dom.newDOMElement = function (spec, doc, holder) {
         e.appendChild(e.ownerDocument.createCDATASection(spec._cdata));
     }
     if (spec._html) {
-        e.innerHTML = spec._html;
+        // e.innerHTML = spec._html;
+        try {
+            e.innerHTML = spec._html;
+        } catch (ex){
+            var index = spec._html.indexOf(">");
+            var lastIndex = spec._html.lastIndexOf("<");
+            var text = spec._html.substring(index + 1, lastIndex);
+            var dom = domParser.parseFromString(spec._html, "text/xml");
+            var node = dom.children[0];
+            node.innerHTML = "";
+            node.innerHTML = Dom.htmlEncode(text);
+            e.appendChild(node);
+        }
     }
     if (spec._children && spec._children.length > 0) {
         e.appendChild(Dom.newDOMFragment(spec._children, e.ownerDocument, holder || null));
