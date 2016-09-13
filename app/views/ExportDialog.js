@@ -114,7 +114,7 @@ ExportDialog.prototype.setup = function (options) {
         }
     };
     var renderer = function (page) {
-        return page.name;
+        return Dom.htmlEncode(page.name);
     };
 
     this.pageTree.setup(source, renderer, {
