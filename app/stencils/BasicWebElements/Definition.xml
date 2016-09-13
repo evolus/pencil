@@ -74,7 +74,7 @@
         ]]>
     </Script>
 
-    <Shape id="pane" displayName="Pane" icon="Icons/pane.png">
+    <Shape id="pane" system="true" displayName="Pane" icon="Icons/pane.png">
         <Properties>
             <PropertyGroup name="Handles">
                 <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2" p:disabled="$cornerStyle.value == 'none'">10,0</Property>
@@ -222,6 +222,227 @@
             <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
                 <div xmlns="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden;">
                     Rich <strong>text</strong> pane contains <a href="#">hyper text</a>
+                </div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+    <Shape id="pane-v2" displayName="Pane" icon="Icons/pane.png">
+        <Properties>
+            <PropertyGroup name="Handles">
+                <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2" p:disabled="$cornerStyle.value == 'none'" p:noScale="!($fixedRadius.value)">10,0</Property>
+                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2">0,10</Property>
+                <Property name="fixedRadius" displayName="Fixed Radius" type="Bool" p:disabled="$cornerStyle.value == 'none'">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#eeeeeeff</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Shadow">
+                <Property name="shadowStyle" displayName="Style" type="ShadowStyle">0|0|3</Property>
+                <Property name="shadowColor" displayName="Color" type="Color">#00000000</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color">#000000ff</Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">0|</Property>
+                <Property name="rightBorder" displayName="With Right Border" type="Bool">true</Property>
+                <Property name="bottomBorder" displayName="With Bottom Border" type="Bool">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="RichText"
+                    p:editInfo="({targetName: 'htmlObject', bound: Bound.fromBox($box, $textPadding.y), font: $textFont, align: $textAlign, multi: true})"><![CDATA[]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Style">
+                <Property name="box" type="Dimension">200,300</Property>
+                <Property name="cornerStyle" displayName="Corner Style" type="Enum" p:enumValues="['none|None', 'all|All rounded', 'top|Rounded top corners', 'bottom|Rounded bottom corners', 'left|Rounded left corners', 'right|Rounded right corners']">none</Property>
+                <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>
+                    var x = Math.min(0, $shadowStyle.dx - $shadowStyle.size);
+                    var y = Math.min(0, $shadowStyle.dy - $shadowStyle.size);
+                    var w = Math.max($box.w, $box.w + $shadowStyle.dx + $shadowStyle.size) - x;
+                    var h = Math.max($box.h, $box.h + $shadowStyle.dy + $shadowStyle.size) - y;
+                    new Bound(x, y, w, h);
+                </Bound>
+                <CustomStyle>
+                    <Arg>"padding-top"</Arg>
+                    <Arg>(0 - Math.min(0, $shadowStyle.dy - $shadowStyle.size)) + "px"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="htmlObject2">
+                <TextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>false</Arg>
+                    <Arg>true</Arg>
+                </TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <Bound>
+                    var x = 0;
+                    var y = 0;
+                    var w = $box.w;
+                    var h = $box.h;
+                    new Bound(x, y, w, h);
+                </Bound>
+            </For>
+            <For ref="div">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"box-sizing: border-box; -moz-box-sizing: border-box; overflow: hidden;" + $customStyle.value</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"box-shadow"</Arg>
+                    <Arg>$shadowColor.a > 0 ? $shadowStyle.toCSSString($shadowColor) : "none"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding-left"</Arg>
+                    <Arg>$textAlign.h == 1 ? "0px" : ($textPadding.y + "px")</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding-right"</Arg>
+                    <Arg>$textAlign.h == 1 ? "0px" : ($textPadding.y + "px")</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding-top"</Arg>
+                    <Arg>$textAlign.v == 1 ? "0px" : ($textPadding.y + "px")</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding-bottom"</Arg>
+                    <Arg>$textAlign.v == 1 ? "0px" : ($textPadding.y + "px")</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"background-color"</Arg>
+                    <Arg>$fillColor.toRGBAString()</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>($cornerStyle.value == "all") ? "border-radius" : "x"</Arg>
+                    <Arg>$radius.x + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-top-left-radius"</Arg>
+                    <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "top" || $cornerStyle.value == "left") ? ($radius.x + "px") : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-top-right-radius"</Arg>
+                    <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "top" || $cornerStyle.value == "right") ? ($radius.x + "px") : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-bottom-left-radius"</Arg>
+                    <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "bottom" || $cornerStyle.value == "left") ? ($radius.x + "px") : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-bottom-right-radius"</Arg>
+                    <Arg>($cornerStyle.value == "all" || $cornerStyle.value == "bottom" || $cornerStyle.value == "right") ? ($radius.x + "px") : "0px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border"</Arg>
+                    <Arg>$strokeStyle.w > 0 ? ("solid " + $strokeStyle.w + "px " + $strokeColor.toRGBAString()) : "none"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"border-width"</Arg>
+                    <Arg>"" + $strokeStyle.w + "px " + ($rightBorder.value ? $strokeStyle.w : 0) + "px " + ($bottomBorder.value ? $strokeStyle.w : 0) + "px " + $strokeStyle.w + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"margin-left"</Arg>
+                    <Arg>(0 - Math.min(0, $shadowStyle.dx - $shadowStyle.size)) + "px"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="div2">
+                <Attr>
+                    <Arg>"style"</Arg>
+                    <Arg>"box-sizing: border-box; -moz-box-sizing: border-box; overflow: hidden; display: table-cell;" + ($customStyle.value.replace(/background[^;]+/g, ""))</Arg>
+                </Attr>
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding-left"</Arg>
+                    <Arg>$textAlign.h == 1 ? "0px" : ($textPadding.y + "px")</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding-right"</Arg>
+                    <Arg>$textAlign.h == 1 ? "0px" : ($textPadding.y + "px")</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding-top"</Arg>
+                    <Arg>$textAlign.v == 1 ? "0px" : ($textPadding.y + "px")</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"padding-bottom"</Arg>
+                    <Arg>$textAlign.v == 1 ? "0px" : ($textPadding.y + "px")</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"text-align"</Arg>
+                    <Arg>["left", "center", "right"][$textAlign.h]</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"vertical-align"</Arg>
+                    <Arg>["top", "middle", "bottom"][$textAlign.v]</Arg>
+                </CustomStyle>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="generateLoremShortRichTextBox" displayName="Generate Short Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(10));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremLongRichTextBox" displayName="Generate Long Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(45));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="generateLoremExtraLongRichTextBox" displayName="Generate Longer Random Texts">
+                <Impl>
+                        <![CDATA[
+                            this.setProperty("textContent", RichText.fromLoremIpsum(100));
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var shadow = this.getProperty("shadowStyle");
+                        return [
+                            new SnappingData("Left", b.x + shadow.size, "Left", true, this.id),
+                            new SnappingData("Right", b.x + b.width - shadow.size, "Right", true, this.id),
+                            new SnappingData("Top", b.y + shadow.size, "Top", false, this.id),
+                            new SnappingData("Bottom", b.y + b.height- shadow.size, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden;">
+                </div>
+            </foreignObject>
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject2">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="div2" style="-moz-box-sizing: border-box; overflow: hidden;">
                 </div>
             </foreignObject>
         </p:Content>
