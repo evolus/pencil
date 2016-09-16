@@ -119,7 +119,41 @@
             <text id="text"/>
         </p:Content>
     </Shape>
-    <Shape id="line" displayName="Line" icon="Icons/line.png">
+    <Shape id="line" displayName="Line" icon="Icons/line.png"  system="true">
+        <Properties>
+            <PropertyGroup>
+                <Property name="a" displayName="Start" type="Handle" p:lockX="$mode.value == 'vertical'" p:lockY="$mode.value == 'horizontal'">0,0</Property>
+                <Property name="b" displayName="Start" type="Handle" p:lockX="$mode.value == 'vertical'"  p:lockY="$mode.value == 'horizontal'">100,0</Property>
+                <Property name="mode" displayName="Direction" type="Enum" p:enumValues="['horizontal|Horizontal', 'vertical|Vertical', 'free|Free']">free</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="line1,bg">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <D>
+                    [
+                        sk($a.x, $a.y, $b.x, $b.y)
+                    ]
+                </D>
+             </For>
+            <For ref="rect">
+                <Transform>[translate(($strokeStyle.w % 2 == 0 ? 0 : 0.5), ($strokeStyle.w % 2 == 0 ? 0 : 0.5))]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+    			<path id="bg" style="stroke: #FFFFFF; stroke-opacity: 0; stroke-width: 8px; fill: none;"/>
+    			<path id="line1" style="stroke-linejoin: round; fill: none;"/>
+    		</g>
+        </p:Content>
+    </Shape>
+    <Shape id="lineV2" displayName="Line" icon="Icons/line.png">
         <Properties>
             <PropertyGroup>
                 <Property name="startLine" displayName="Start" type="Handle" p:lockX="$mode.value == 'vertical'" p:lockY="$mode.value == 'horizontal'">0,0</Property>
@@ -153,11 +187,11 @@
     		</g>
         </p:Content>
     </Shape>
-    <Shortcut displayName="Horizontal Line" icon="Icons/line.png" to="line">
+    <Shortcut displayName="Horizontal Line" icon="Icons/line.png" to="lineV2">
         <PropertyValue name="endLine">100,0</PropertyValue>
         <PropertyValue name="mode" p:readonly="true">horizontal</PropertyValue>
     </Shortcut>
-    <Shortcut displayName="Vertical Line" icon="Icons/vertical_line.png" to="line">
+    <Shortcut displayName="Vertical Line" icon="Icons/vertical_line.png" to="lineV2">
         <PropertyValue name="endLine">0,100</PropertyValue>
         <PropertyValue name="mode" p:readonly="true">vertical</PropertyValue>
     </Shortcut>
