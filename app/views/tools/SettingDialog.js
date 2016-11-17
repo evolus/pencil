@@ -1,6 +1,6 @@
 function SettingDialog() {
     Dialog.call(this);
-    this.title = "Setting Dialog";
+    this.title = "Settings";
 
     this.configElements = {
         "grid.enabled": this.checkboxEnableGrid,
