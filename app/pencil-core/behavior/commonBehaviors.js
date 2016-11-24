@@ -691,7 +691,13 @@ Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim) {
         var h = y1 - y;
         var oh = h;
 
-        h = (row == yCells.length - 1) ? (dim.h - totalH) : (scaleY ? Math.floor(h * rY) : h);
+        if (scaleY) {
+            if (row == yCells.length - 2) {
+                h = dim.h - (imageData.h - yCell.to) - y;
+            } else {
+                h = Math.floor(h * rY);
+            }
+        }
 
         var col = 0;
         var x = 0;
@@ -720,7 +726,14 @@ Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim) {
             var w = x1 - x;
             var ow = w;
 
-            w = (col == xCells.length - 1) ? (dim.w - totalW) : (scaleX ? Math.floor(w * rX) : w);
+            if (scaleX) {
+                if (col == xCells.length - 2) {
+                    w = dim.w - (imageData.w - xCell.to) - x;
+                } else {
+                    w = Math.floor(w * rX);
+                }
+            }
+
 
             var css = new CSS()
             .set("width", w + "px")
