@@ -4,14 +4,29 @@ function PNGImageXferHelper(canvas) {
 }
 PNGImageXferHelper.MIME_TYPE = "image/png";
 PNGImageXferHelper.SHAPE_DEF_ID = "Evolus.Common:Bitmap";
+PNGImageXferHelper.SHAPE_DEF_ID_2 = "Evolus.Common:NPatchBitmap";
+
 
 PNGImageXferHelper.prototype.toString = function () {
     return "PNGImageXferHelper: " + PNGImageXferHelper.MIME_TYPE;
 };
-PNGImageXferHelper.prototype.handleData = function (imageData) {
 
+PNGImageXferHelper.prototype.handleData = function (imageData, shapeId) {
+    if (this.canvas.useAlternativePasting) {
+        var thiz = this;
+        Dialog.confirm("Select bitmap type", "Please select the bitmap type you want to paste the content as.", "Normal Bitmap", function () {
+            thiz.handleDataImpl(imageData, PNGImageXferHelper.SHAPE_DEF_ID);
+        }, "N-Patch Scalable Bitmap", function () {
+            thiz.handleDataImpl(imageData, PNGImageXferHelper.SHAPE_DEF_ID_2);
+        });
+    } else {
+        this.handleDataImpl(imageData, PNGImageXferHelper.SHAPE_DEF_ID);
+    }
+    this.canvas.useAlternativePasting = false;
+};
+PNGImageXferHelper.prototype.handleDataImpl = function (imageData, shapeId) {
     try {
-        var bitmapDef = CollectionManager.shapeDefinition.locateDefinition(PNGImageXferHelper.SHAPE_DEF_ID);
+        var bitmapDef = CollectionManager.shapeDefinition.locateDefinition(shapeId);
         if (!bitmapDef) return;
 
         this.canvas.insertShape(bitmapDef, this.canvas.lastMouse || {x: 10, y: 10});

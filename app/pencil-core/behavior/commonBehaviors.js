@@ -642,3 +642,129 @@ Pencil.behaviors.NPatchDomContent = function (nPatch, dim) {
     Dom.empty(this);
     this.appendChild(buildNPatchDomFragment(nPatch, dim));
 };
+
+Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim) {
+    //sorting
+    var xCells = imageData.xCells;
+    if (!xCells || xCells.length == 0) xCells = [{from: 0, to: imageData.w}];
+    var yCells = imageData.yCells;
+    if (!yCells || yCells.length == 0) yCells = [{from: 0, to: imageData.h}];
+
+    xCells = [].concat(xCells);
+    yCells = [].concat(yCells);
+
+    xCells.push({from: imageData.w, to: imageData.w + 1});  //sentinel, fake cell
+    yCells.push({from: imageData.h, to: imageData.h + 1});  //sentinel, fake cell
+
+    var order = function (a, b) { return a.from - b.from };
+    xCells.sort(order);
+    yCells.sort(order);
+
+    //generate np from imageData
+    var specs = [];
+    var totalFlexW = 0;
+    var totalFlexH = 0;
+    for (var p of xCells) {
+        totalFlexW += p.to - p.from;
+    }
+    for (var p of yCells) {
+        totalFlexH += p.to - p.from;
+    }
+
+    var targetScaleX = dim.w - (imageData.w - totalFlexW);
+    var targetScaleY = dim.h - (imageData.h - totalFlexH);
+    var rX = targetScaleX / totalFlexW;
+    var rY = targetScaleY / totalFlexH;
+
+    var y = 0;
+    var totalH = 0;
+    var row = 0;
+
+    var rowSpecs = [];
+    while (row < yCells.length && y < imageData.h) {
+        var yCell = yCells[row];
+
+        var scaleY = yCell.from <= y; //starting within a scalable area? (1)
+        var y1 = !scaleY ? yCell.from : yCell.to;
+        if (y > yCell.from) y = yCell.from; //this should not be the case. better safe than sorry (2)
+
+        var h = y1 - y;
+        var oh = h;
+
+        h = (row == yCells.length - 1) ? (dim.h - totalH) : (scaleY ? Math.floor(h * rY) : h);
+
+        var col = 0;
+        var x = 0;
+        var totalW = 0;
+        console.log("xCells", xCells);
+
+        var rowSpec = {
+            _name: "div",
+            _uri: PencilNamespaces.html,
+            totalH: totalH,
+            style: new CSS().set("height", h + "px").set("white-space", "nowrap").set("overflow", "hidden"),
+            _children: []
+        };
+        rowSpecs.push(rowSpec);
+
+
+        while (col < xCells.length && x < imageData.w) {
+            var xCell = xCells[col];
+            console.log(" >> col", col, "cell", xCell);
+            var scaleX = xCell.from <= x; // same as (1)
+            var x1 = !scaleX ? xCell.from : xCell.to;
+            console.log(" >> x1", x1);
+            if (x > xCell.from) x = xCell.from; // same as (2)
+
+            //generate block: x, y, x1 - x, y1 - y, scaleX, scaleY
+            var w = x1 - x;
+            var ow = w;
+
+            w = (col == xCells.length - 1) ? (dim.w - totalW) : (scaleX ? Math.floor(w * rX) : w);
+
+            var css = new CSS()
+            .set("width", w + "px")
+            .set("height", h + "px")
+            .set("display", "inline-block")
+            .set("background-image", "url('" + (ImageData.refStringToUrl(imageData.data) || imageData.data) + "')")
+            .set("background-position", (0 - (w > ow ? x * w/ow : x)) + "px " + (0 - (h > oh ? y * h/oh : y)) + "px")
+            .set("background-repeat", "no-repeat")
+            .set("background-size", (w > ow ? (imageData.w * w/ow) : imageData.w) + "px " + (h > oh ? (imageData.h * h/oh) : imageData.h) + "px");
+
+
+            var cellSpec = {
+                _name: "div",
+                _uri: PencilNamespaces.html,
+                totalW: totalW,
+                style: css.toString()
+
+            };
+            rowSpec._children.push(cellSpec);
+
+            x = x1;
+            totalW += w;
+
+            if (scaleX) col ++;
+        }
+
+        y = y1;
+        totalH += h;
+
+        if (scaleY) row ++;
+    }
+
+
+    Dom.empty(this);
+
+    this.setAttribute("width", dim.w)
+    this.setAttribute("height", dim.h)
+
+    var outerSpec = {
+        _name: "div",
+        _uri: PencilNamespaces.html,
+        style: new CSS().set("width", dim.w + "px").set("height", dim.h + "px").set("line-height", "1px").toString(),
+        _children: rowSpecs
+    }
+
+    this.appendChild(Dom.newDOMElement(outerSpec));
+};

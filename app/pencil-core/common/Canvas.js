@@ -1876,7 +1876,8 @@ Canvas.prototype.doCopy = function () {
     clipboard.writeText(textualData);
 };
 Canvas.domParser = new DOMParser();
-Canvas.prototype.doPaste = function () {
+Canvas.prototype.doPaste = function (withAlternative) {
+    this.useAlternativePasting = withAlternative ? true : false;
     var formats = clipboard.availableFormats();
     if (!formats) return;
 

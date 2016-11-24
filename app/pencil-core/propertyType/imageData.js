@@ -1,20 +1,62 @@
-function ImageData(w, h, data) {
+function ImageData(w, h, data, xCells, yCells) {
     this.data = data;
     this.w = w;
     this.h = h;
+    this.xCells = xCells;
+    this.yCells = yCells;
 }
 ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]+)$/;
+ImageData.REG_EX2 = /^([0-9]+)\,([0-9]+)\,([0-9\- ]*)\,([0-9\- ]*)\,([^\0]+)$/;
 ImageData.win = null;
 
+/*
+100,200,10-20 45-33,
+*/
+
 ImageData.fromString = function (literal) {
+    if (literal.match(ImageData.REG_EX2)) {
+        var w = parseInt(RegExp.$1, 10);
+        var h = parseInt(RegExp.$2, 10);
+
+        var xCellsString = RegExp.$3;
+        var yCellsString = RegExp.$4;
+        var data = RegExp.$5;
+        var xCells = ImageData.parseCellString(xCellsString);
+        var yCells = ImageData.parseCellString(yCellsString);
+
+        return new ImageData(w, h, data, xCells,yCells);
+    }
     if (literal.match(ImageData.REG_EX)) {
-        return new ImageData(parseInt(RegExp.$1),
-                            parseInt(RegExp.$2),
+        return new ImageData(parseInt(RegExp.$1, 10),
+                            parseInt(RegExp.$2, 10),
                             RegExp.$3);
     }
+
     return new ImageData(literal);
 };
+ImageData.parseCellString = function (literal) {
+    var cells = [];
+    var blocks = literal.split(/[ ]+/);
+    for (var block of blocks) {
+        if (block.match(/^[ ]*([0-9]+)[ ]*\-[ ]*([0-9]+)[ ]*$/)) {
+            cells.push({
+                from: parseInt(RegExp.$1, 10),
+                to: parseInt(RegExp.$2, 10)
+            })
+        }
+    }
 
+    return cells;
+};
+ImageData.generateCellString = function (cells) {
+    if (!cells) return "";
+    var blocks = [];
+    for (var cell of cells) {
+        blocks.push(cell.from + "-" + cell.to);
+    }
+
+    return blocks.join(" ");
+};
 ImageData.invalidateValue = function (oldData, callback) {
     if (oldData.data.match(/^data:/)) {
         var image = null;
@@ -159,7 +201,11 @@ ImageData.convertToEmbeded = function (imageData, callback) {
 
 
 ImageData.prototype.toString = function () {
-    return [this.w, this.h, this.data].join(",");
+    if (!this.xCells && !this.yCells) {
+        return [this.w, this.h, this.data].join(",");
+    } else {
+        return [this.w, this.h, ImageData.generateCellString(this.xCells), ImageData.generateCellString(this.yCells), this.data].join(",");
+    }
 };
 
 window.addEventListener("load", function () {
