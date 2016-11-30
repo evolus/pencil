@@ -461,8 +461,7 @@ Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
                 generateNextThumbnail(onDone);
             });
         }
-
-
+        if (pageNodes.length == 0 && index == -1 && pageNodeIndex == -1) throw "Wrong format.";
         parseNextPageNode(function () {
             generateNextThumbnail(function () {
                 thiz.modified = false;
@@ -477,7 +476,6 @@ Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
         // this.documentPath = filePath;
         this.doc.name = this.getDocumentName();
     } catch (e) {
-        // console.log("error:", e);
         thiz.newDocument();
         ApplicationPane._instance.unbusy();
     }
@@ -619,125 +617,114 @@ Controller.prototype.loadDocument = function (filePath, callback) {
 Controller.prototype.parseDocument = function (filePath, callback) {
     var targetDir = this.tempDir.name;
     var thiz = this;
+    var admZip = require('adm-zip');
     try {
-        var admZip = require('adm-zip');
         var zip = new admZip(filePath);
-    } catch (e) {
-        ApplicationPane._instance.unbusy();
-        Dialog.alert(
-            "Your save file is corrupt! please delete it and create a new one."
-        );
-        return;
-    }
-    var extractor = unzip.Extract({ path: targetDir }).on("entry", function(entry) {
-        console.log(entry.path);
-        entry.pipe(fs.createWriteStream('targetDir'));
-    });
-    extractor.on("close", function () {
-        try {
-            var contentFile = path.join(targetDir, "content.xml");
-            if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
-            var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
-            Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                var value = propNode.textContent;
-                if (value == "undefined" || value == "null") return;
-                thiz.doc.properties[propNode.getAttribute("name")] = value;
-            });
-            Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-                var page = new Page(thiz.doc);
-                var pageFileName = pageNode.getAttribute("href");
-                page.pageFileName = pageFileName;
-                page.tempFilePath = path.join(targetDir, pageFileName);
-                thiz.doc.pages.push(page);
-            });
-
-            thiz.doc.pages.forEach(function (page) {
-                var pageFile = path.join(targetDir, page.pageFileName);
-                if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
-                var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
+        zip.extractAllToAsync(targetDir, true, function() {
+            try {
+                var contentFile = path.join(targetDir, "content.xml");
+                if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
+                var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
                 Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                    var propName = propNode.getAttribute("name");
                     var value = propNode.textContent;
-                    if(propName == "note") {
-                        value = RichText.fromString(value);
-                    }
                     if (value == "undefined" || value == "null") return;
-                    page[propNode.getAttribute("name")] = value;
+                    thiz.doc.properties[propNode.getAttribute("name")] = value;
+                });
+                Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
+                    var page = new Page(thiz.doc);
+                    var pageFileName = pageNode.getAttribute("href");
+                    page.pageFileName = pageFileName;
+                    page.tempFilePath = path.join(targetDir, pageFileName);
+                    thiz.doc.pages.push(page);
                 });
 
-                if (page.width) {
-                    page.width = parseInt(page.width, 10);
-                } else page.width = 0;
+                thiz.doc.pages.forEach(function (page) {
+                    var pageFile = path.join(targetDir, page.pageFileName);
+                    if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
+                    var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
+                    Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
+                        var propName = propNode.getAttribute("name");
+                        var value = propNode.textContent;
+                        if(propName == "note") {
+                            value = RichText.fromString(value);
+                        }
+                        if (value == "undefined" || value == "null") return;
+                        page[propNode.getAttribute("name")] = value;
+                    });
 
-                if (page.height) {
-                    page.height = parseInt(page.height, 10);
-                } else page.height = 0;
+                    if (page.width) {
+                        page.width = parseInt(page.width, 10);
+                    } else page.width = 0;
 
-                if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
+                    if (page.height) {
+                        page.height = parseInt(page.height, 10);
+                    } else page.height = 0;
 
-                if (Config.get("page.show.last_page_zoom") == "undefined") Config.set("page.show.last_page_zoom", true);
-                var showLastPageZoom = Config.get("page.show.last_page_zoom");
-                if (showLastPageZoom) {
-                     page.scrollTop = page.scrollTop ? parseInt(page.scrollTop, 10) : 0;
-                     page.scrollLeft = page.scrollLeft ? parseInt(page.scrollLeft, 10) : 0;
-                     page.zoom = page.zoom ? page.zoom : 1;
-                } else {
-                    page.scrollTop = 0;
-                    page.scrollLeft = 0;
-                    page.zoom = 1;
-                }
-                // if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+                    if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
-                var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
-                if (fs.existsSync(thumbPath)) {
-                    page.thumbPath = thumbPath;
-                    page.thumbCreated = new Date();
-                }
-                page.canvas = null;
-            }, thiz);
+                    if (Config.get("page.show.last_page_zoom") == "undefined") Config.set("page.show.last_page_zoom", true);
+                    var showLastPageZoom = Config.get("page.show.last_page_zoom");
+                    if (showLastPageZoom) {
+                         page.scrollTop = page.scrollTop ? parseInt(page.scrollTop, 10) : 0;
+                         page.scrollLeft = page.scrollLeft ? parseInt(page.scrollLeft, 10) : 0;
+                         page.zoom = page.zoom ? page.zoom : 1;
+                    } else {
+                        page.scrollTop = 0;
+                        page.scrollLeft = 0;
+                        page.zoom = 1;
+                    }
+                    // if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
 
-            thiz.doc.pages.forEach(function (page) {
-                if (page.backgroundPageId) {
-                    page.backgroundPage = this.findPageById(page.backgroundPageId);
-                    this.invalidateBitmapFilePath(page);
-                }
+                    var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
+                    if (fs.existsSync(thumbPath)) {
+                        page.thumbPath = thumbPath;
+                        page.thumbCreated = new Date();
+                    }
+                    page.canvas = null;
+                }, thiz);
 
-                if (page.parentPageId) {
-                    var parentPage = this.findPageById(page.parentPageId);
-                    page.parentPage = parentPage;
-                    parentPage.children.push(page);
-                }
-            }, thiz);
+                thiz.doc.pages.forEach(function (page) {
+                    if (page.backgroundPageId) {
+                        page.backgroundPage = this.findPageById(page.backgroundPageId);
+                        this.invalidateBitmapFilePath(page);
+                    }
 
-            thiz.documentPath = filePath;
-            thiz.oldPencilDoc = false;
-            thiz.doc.name = thiz.getDocumentName();
-            thiz.modified = false;
-            thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
-            FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
-            FontLoader.instance.loadFonts(function () {
-                thiz.sayControllerStatusChanged();
-                if (thiz.doc.properties.activeId) {
-                    thiz.activatePage(thiz.findPageById(thiz.doc.properties.activeId));
-                } else {
-                    if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
-                }
-                thiz.applicationPane.onDocumentChanged();
+                    if (page.parentPageId) {
+                        var parentPage = this.findPageById(page.parentPageId);
+                        page.parentPage = parentPage;
+                        parentPage.children.push(page);
+                    }
+                }, thiz);
+
+                thiz.documentPath = filePath;
+                thiz.oldPencilDoc = false;
+                thiz.doc.name = thiz.getDocumentName();
                 thiz.modified = false;
-                if (callback) callback();
+                thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
+                FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
+                FontLoader.instance.loadFonts(function () {
+                    thiz.sayControllerStatusChanged();
+                    if (thiz.doc.properties.activeId) {
+                        thiz.activatePage(thiz.findPageById(thiz.doc.properties.activeId));
+                    } else {
+                        if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
+                    }
+                    thiz.applicationPane.onDocumentChanged();
+                    thiz.modified = false;
+                    if (callback) callback();
+                    ApplicationPane._instance.unbusy();
+                });
+            } catch (e) {
+                console.log("error:", e);
+                thiz.newDocument();
                 ApplicationPane._instance.unbusy();
-            });
-        } catch (e) {
-            console.log("error:", e);
-            thiz.newDocument();
-            ApplicationPane._instance.unbusy();
-        }
-    }).on("error", function () {
+            }
+        });
+    } catch (e) {
+        console.log(e);
         thiz.parseOldFormatDocument(filePath);
         ApplicationPane._instance.unbusy();
-    });
-    var readStream = fs.createReadStream(filePath);
-    readStream.pipe(extractor);
+    }
 }
 Controller.prototype.confirmAndSaveDocument = function (onSaved) {
     Dialog.confirm(
