@@ -619,7 +619,20 @@ Controller.prototype.loadDocument = function (filePath, callback) {
 Controller.prototype.parseDocument = function (filePath, callback) {
     var targetDir = this.tempDir.name;
     var thiz = this;
-    var extractor = unzip.Extract({ path: targetDir });
+    try {
+        var admZip = require('adm-zip');
+        var zip = new admZip(filePath);
+    } catch (e) {
+        ApplicationPane._instance.unbusy();
+        Dialog.alert(
+            "Your save file is corrupt! please delete it and create a new one."
+        );
+        return;
+    }
+    var extractor = unzip.Extract({ path: targetDir }).on("entry", function(entry) {
+        console.log(entry.path);
+        entry.pipe(fs.createWriteStream('targetDir'));
+    });
     extractor.on("close", function () {
         try {
             var contentFile = path.join(targetDir, "content.xml");
@@ -700,9 +713,7 @@ Controller.prototype.parseDocument = function (filePath, callback) {
             thiz.oldPencilDoc = false;
             thiz.doc.name = thiz.getDocumentName();
             thiz.modified = false;
-            //new file was loaded, update recent file list
             thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
-
             FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
             FontLoader.instance.loadFonts(function () {
                 thiz.sayControllerStatusChanged();
@@ -721,12 +732,12 @@ Controller.prototype.parseDocument = function (filePath, callback) {
             thiz.newDocument();
             ApplicationPane._instance.unbusy();
         }
-
     }).on("error", function () {
         thiz.parseOldFormatDocument(filePath);
         ApplicationPane._instance.unbusy();
     });
-    fs.createReadStream(filePath).pipe(extractor);
+    var readStream = fs.createReadStream(filePath);
+    readStream.pipe(extractor);
 }
 Controller.prototype.confirmAndSaveDocument = function (onSaved) {
     Dialog.confirm(
@@ -823,21 +834,29 @@ Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
     ApplicationPane._instance.busy();
 
     this.serializeDocument(function () {
-        this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
+    this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
 
-        var archiver = require("archiver");
-        var archive = archiver("zip");
-        var output = fs.createWriteStream(documentPath);
-        output.on("close", function () {
-            thiz.sayDocumentSaved();
-            ApplicationPane._instance.unbusy();
-            if (onSaved) onSaved();
+    var easyZip = require("easy-zip2").EasyZip;
+    var zip = new easyZip();
+        zip.zipFolder(this.tempDir.name + "/.", function() {
+            zip.writeToFile(documentPath, function(){
+                thiz.sayDocumentSaved();
+                ApplicationPane._instance.unbusy();
+                if (onSaved) onSaved();
+            });
         });
-        archive.pipe(output);
-        archive.directory(this.tempDir.name, "/", {});
-        archive.finalize();
+    // var archiver = require("archiver");
+    // var archive = archiver("zip");
+    // var output = fs.createWriteStream(documentPath);
+    // output.on('finish', function () {
+    //     thiz.sayDocumentSaved();
+    //     ApplicationPane._instance.unbusy();
+    //     if (onSaved) onSaved();
+    // });
+    // archive.pipe(output);
+    // archive.directory(this.tempDir.name, "/", {});
+    // archive.finalize();
     }.bind(this));
-
     thiz.applicationPane.onDocumentChanged();
     thiz.sayControllerStatusChanged();
 };
