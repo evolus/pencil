@@ -55,6 +55,9 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                         handleAction: function (checked) {
                             if (!checked) return;
                             thiz.targetObject.setProperty(this.property, new Enum(this.value));
+                            var editors = Pencil.controller.applicationPane.sharedPropertyEditor.propertyEditor;
+                            editors[this.property].setValue(this.value);
+                            Pencil.controller.applicationPane.sharedPropertyEditor.validationEditorUI();
                         }
                     });
                 }
@@ -127,7 +130,7 @@ OnMenuEditor.prototype.generateMenuItems = function () {
             linkItem.subItems.push(item);
         }
         linkItem.subItems.push({
-            label: "Notthing",
+            label: "Nothing",
             type: "Selection",
             isChecked: function() {
                 return targetPageId ? false : true;

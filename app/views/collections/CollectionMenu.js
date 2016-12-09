@@ -12,15 +12,17 @@ CollectionMenu.prototype.getTemplatePath = function () {
 
 CollectionMenu.prototype.setup = function () {
     var thiz = this;
-    this.register({
-        getLabel: function () { return "Collection setting..." },
-        icon: "tune",
-        isValid: function () { return thiz.collection.propertyGroups },
-        run: function () {
-            var propertiesSettingDialog = new CollectionSettingDialog(thiz.collection);
-            propertiesSettingDialog.open()
-        }
-    });
+    if (thiz.collection.propertyGroups.length > 0) {
+        this.register({
+            getLabel: function () { return "Collection setting..." },
+            icon: "tune",
+            isValid: function () { return thiz.collection.propertyGroups },
+            run: function () {
+                var propertiesSettingDialog = new CollectionSettingDialog(thiz.collection);
+                propertiesSettingDialog.open()
+            }
+        });
+    }
     this.register({
         getLabel: function () { return "Hide" },
         icon: "visibility_off",
