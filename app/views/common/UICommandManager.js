@@ -172,9 +172,9 @@ UICommandManager.installControl = function (commandKey, control) {
 
     command.controls.push(control);
     control.addEventListener("click", function (event) {
-        var valid = command.isValid ? command.isValid() : !command.disabled;
+        var valid = command._isValid ? command._isValid() : !command.disabled;
         if (!valid) return;
-        command.run();
+        command._run();
     }, false);
 };
 UICommandManager.invalidateCommand = function (command) {

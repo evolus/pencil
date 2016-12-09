@@ -13,6 +13,21 @@ function ApplicationPane() {
 
     this.sharedFontEditor.applicationPane = this;
 
+    //this.toolBarSrollView.setWheelAllow(false);
+
+    this.bind("focusout", function(ev) {
+        console.log(ev.target);
+        if (ev.target) {
+            this.toolBarSrollView.setWheelAllow(true);
+        }
+    }, this.toolBarSrollView.node());
+
+    this.bind("focusin", function(ev) {
+        if (ev.target) {
+            this.toolBarSrollView.setWheelAllow(false);
+        }
+    }, this.toolBarSrollView.node());
+
     var thiz = this;
     this.mainMenu = new MainMenu(this.menuIcon);
     this.bind("click", function (event) {
