@@ -8,6 +8,12 @@ function ApplicationPane() {
     this.rasterizer = new Rasterizer(this.controller);
     this.canvasMenu = new CanvasMenu();
 
+    this.documentHandler = new DocumentHandler(this.controller);
+    this.documentHandler.registerHandler(new EpzHandler(this.controller));
+    this.documentHandler.registerHandler(new EpgzHandler(this.controller));
+    this.documentHandler.actived(".epz");
+
+    Pencil.documentHandler = this.documentHandler;
     Pencil.controller = this.controller;
     Pencil.rasterizer = this.rasterizer;
 
@@ -174,7 +180,7 @@ ApplicationPane.prototype.activatePage = function (page) {
     this.pageListView.activatePage(page);
 }
 ApplicationPane.prototype.testSave = function () {
-    this.controller.newDocument();
+    this.documentHandler.newDocument();
     var page = this.controller.newPage("Sample page", 1000, 1000, null, null, "");
     page.canvas = Pencil.activeCanvas;
 
