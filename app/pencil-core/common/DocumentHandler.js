@@ -84,11 +84,11 @@ DocumentHandler.prototype.saveDocument = function (onSaved) {
             Config.set("document.save.recentlyDirPath", path.dirname(filePath));
             thiz.controller.documentPath = filePath;
             thiz.controller.doc.name = thiz.controller.getDocumentName();
-            if (this.fileHandler[path.extname(filePath)] == null) {
-                this.activeHandler.saveDocumentImpl(filePath, onSaved);
+            if (thiz.fileHandler[path.extname(filePath)] == null) {
+                thiz.activeHandler.saveDocumentImpl(filePath, onSaved);
                 return;
             }
-            this.fileHandler[path.extname(filePath)].saveDocumentImpl(filePath, onSaved);
+            thiz.fileHandler[path.extname(filePath)].saveDocumentImpl(filePath, onSaved);
         });
         return;
     }
