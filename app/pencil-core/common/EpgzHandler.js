@@ -6,7 +6,7 @@ function EpgzHandler(controller) {
 
 __extend(FileHandler, EpgzHandler);
 
-EpgzHandler.prototype.loadDocument = function(filePath, callback) {
+EpgzHandler.prototype.loadDocumentImpl = function(filePath, callback) {
     ApplicationPane._instance.busy();
     this.controller.applicationPane.pageListView.restartFilterCache();
     Pencil.documentHandler.resetDocument();

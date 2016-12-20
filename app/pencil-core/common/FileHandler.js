@@ -172,50 +172,50 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
     }
 }
 
-FileHandler.prototype.saveDocumentImpl = function (documentPath, onSaved) {
-    if (!this.controller.doc) throw "No document";
-    if (!documentPath) throw "Path not specified";
-
-    this.controller.updateCanvasState();
-    this.controller.oldPencilDoc = false;
-
-    var thiz = this;
-    ApplicationPane._instance.busy();
-    this.controller.serializeDocument(function () {
-    this.controller.addRecentFile(documentPath, this.controller.getCurrentDocumentThumbnail());
-    if (path.extname(documentPath) == ".epgz")
-    {
-        var targz = require('targz');
-        targz.compress({
-        src: Pencil.documentHandler.tempDir.name,
-        dest: documentPath,
-        tar: {
-            dereference : true
-        }
-        }, function(err){
-            if(err) {
-                return;
-            } else {
-                thiz.controller.sayDocumentSaved();
-                ApplicationPane._instance.unbusy();
-                if (onSaved) onSaved();
-            }
-        });
-    } else {
-        var easyZip = require("easy-zip2").EasyZip;
-        var zip = new easyZip();
-            zip.zipFolder(Pencil.documentHandler.tempDir.name + "/.", function() {
-                zip.writeToFile(documentPath, function(){
-                    thiz.controller.sayDocumentSaved();
-                    ApplicationPane._instance.unbusy();
-                    if (onSaved) onSaved();
-                });
-            });
-    }
-    }.bind(this));
-    thiz.controller.applicationPane.onDocumentChanged();
-    thiz.controller.sayControllerStatusChanged();
-};
+// FileHandler.prototype.saveDocumentImpl = function (documentPath, onSaved) {
+//     if (!this.controller.doc) throw "No document";
+//     if (!documentPath) throw "Path not specified";
+//
+//     this.controller.updateCanvasState();
+//     this.controller.oldPencilDoc = false;
+//
+//     var thiz = this;
+//     ApplicationPane._instance.busy();
+//     this.controller.serializeDocument(function () {
+//     this.controller.addRecentFile(documentPath, this.controller.getCurrentDocumentThumbnail());
+//     if (path.extname(documentPath) == ".epgz")
+//     {
+//         var targz = require('targz');
+//         targz.compress({
+//         src: Pencil.documentHandler.tempDir.name,
+//         dest: documentPath,
+//         tar: {
+//             dereference : true
+//         }
+//         }, function(err){
+//             if(err) {
+//                 return;
+//             } else {
+//                 thiz.controller.sayDocumentSaved();
+//                 ApplicationPane._instance.unbusy();
+//                 if (onSaved) onSaved();
+//             }
+//         });
+//     } else {
+//         var easyZip = require("easy-zip2").EasyZip;
+//         var zip = new easyZip();
+//             zip.zipFolder(Pencil.documentHandler.tempDir.name + "/.", function() {
+//                 zip.writeToFile(documentPath, function(){
+//                     thiz.controller.sayDocumentSaved();
+//                     ApplicationPane._instance.unbusy();
+//                     if (onSaved) onSaved();
+//                 });
+//             });
+//     }
+//     }.bind(this));
+//     thiz.controller.applicationPane.onDocumentChanged();
+//     thiz.controller.sayControllerStatusChanged();
+// };
 
 FileHandler.prototype.parseDocumentThumbnail = function (filePath, callback) {
     var extractPath = null;
