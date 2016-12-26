@@ -5,7 +5,7 @@ function EpHandler(controller) {
 }
 __extend(FileHandler, EpHandler);
 
-EpHandler.prototype.loadDocumentImpl = function(filePath, callback) {
+EpHandler.prototype.loadDocument = function(filePath, callback) {
     ApplicationPane._instance.busy();
     this.controller.applicationPane.pageListView.restartFilterCache();
     Pencil.documentHandler.resetDocument();

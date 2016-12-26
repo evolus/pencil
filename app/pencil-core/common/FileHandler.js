@@ -71,8 +71,8 @@ FileHandler.prototype.parseOldFormatDocument = function (filePath, callback) {
 FileHandler.prototype.parseDocument = function (filePath, callback) {
     var targetDir = Pencil.documentHandler.tempDir.name;
     var thiz = this;
-
     try {
+
         var contentFile = path.join(targetDir, "content.xml");
         if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
         var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");

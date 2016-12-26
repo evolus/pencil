@@ -6,7 +6,7 @@ function EpgzHandler(controller) {
 
 __extend(FileHandler, EpgzHandler);
 
-EpgzHandler.prototype.loadDocumentImpl = function(filePath, callback) {
+EpgzHandler.prototype.loadDocument = function(filePath, callback) {
     ApplicationPane._instance.busy();
     this.controller.applicationPane.pageListView.restartFilterCache();
     Pencil.documentHandler.resetDocument();
@@ -39,7 +39,7 @@ EpgzHandler.prototype.loadDocumentImpl = function(filePath, callback) {
     }
 }
 
-EpgzHandler.prototype.saveDocumentImpl = function (documentPath, onSaved) {
+EpgzHandler.prototype.saveDocument = function (documentPath, onSaved) {
     if (!this.controller.doc) throw "No document";
     if (!documentPath) throw "Path not specified";
 
