@@ -27,15 +27,23 @@ EpgzHandler.prototype.loadDocument = function(filePath, callback) {
             dest: Pencil.documentHandler.tempDir.name
         }, function(err) {
             if(err) {
-                thiz.parseOldFormatDocument(filePath, callback);
-                ApplicationPane._instance.unbusy();
+                var oldPencilDocument = Pencil.documentHandler.preDocument;
+                Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
+                    (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
+                        Pencil.controller.confirmAndclose(function () {
+                            Pencil.documentHandler.resetDocument();
+                            ApplicationPane._instance.showStartupPane();
+                        });
+                    };
+                    ApplicationPane._instance.unbusy();
+                });
             } else {
                 thiz.parseDocument(filePath, callback);
             }
         });
     } catch(e) {
-        thiz.parseOldFormatDocument(filePath, callback);
         ApplicationPane._instance.unbusy();
+        return;
     }
 }
 

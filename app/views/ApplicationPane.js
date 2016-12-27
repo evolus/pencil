@@ -217,6 +217,7 @@ ApplicationPane.prototype.invalidateZoom = function () {
     this.zoomToolbar.setAttribute("label", Pencil.activeCanvas ? (Math.round(Pencil.activeCanvas.zoom * 100) + "%") : "100%") ;
 };
 ApplicationPane.prototype.showStartupPane = function () {
+    Pencil.documentHandler.preDocument = null;
     if (Pencil.controller.activePage) {
         Pencil.controller.activePage.canvas.selectNone();
     }

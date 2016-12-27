@@ -4,6 +4,7 @@ function FileHandler(controller){
 
 FileHandler.prototype.parseOldFormatDocument = function (filePath, callback) {
     var targetDir = Pencil.documentHandler.tempDir.name;
+    var oldPencilDocument = Pencil.documentHandler.preDocument;
     var thiz = this;
     this.pathToRefCache = null;
     try {
@@ -60,19 +61,27 @@ FileHandler.prototype.parseOldFormatDocument = function (filePath, callback) {
 
         // this.documentPath = filePath;
         this.controller.doc.name = this.controller.getDocumentName();
-
+        Pencil.documentHandler.preDocument = filePath;
     } catch (e) {
         console.log(e);
-        Pencil.documentHandler.newDocument();
+        // Pencil.documentHandler.newDocument();
         ApplicationPane._instance.unbusy();
+        Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
+            (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
+                Pencil.controller.confirmAndclose(function () {
+                    Pencil.documentHandler.resetDocument();
+                    ApplicationPane._instance.showStartupPane();
+                });
+            };
+        });
     }
 };
 
 FileHandler.prototype.parseDocument = function (filePath, callback) {
     var targetDir = Pencil.documentHandler.tempDir.name;
+    var oldPencilDocument = Pencil.documentHandler.preDocument;
     var thiz = this;
     try {
-
         var contentFile = path.join(targetDir, "content.xml");
         if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
         var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
@@ -165,10 +174,18 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
             if (callback) callback();
             ApplicationPane._instance.unbusy();
         });
+        Pencil.documentHandler.preDocument = filePath;
     } catch (e) {
-        console.log("error:", e);
-        Pencil.documentHandler.newDocument();
+        // Pencil.documentHandler.newDocument()
         ApplicationPane._instance.unbusy();
+        Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
+            (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
+                Pencil.controller.confirmAndclose(function () {
+                    Pencil.documentHandler.resetDocument();
+                    ApplicationPane._instance.showStartupPane();
+                });
+            };
+        });
     }
 }
 

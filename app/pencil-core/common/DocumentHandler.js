@@ -3,6 +3,7 @@ function DocumentHandler(controller) {
     this.activeHandler;
     this.tempDir;
     this.controller = controller;
+    this.preDocument = null;
 }
 DocumentHandler.prototype.registerHandler = function(handler){
     this.fileHandler[handler.type] = handler;
@@ -27,7 +28,6 @@ DocumentHandler.prototype.getExtentionHandlerFile = function(saveFlag) {
 
 DocumentHandler.prototype.openDocument = function(callback){
     var thiz = this;
-
     function handler() {
         ApplicationPane._instance.busy();
         dialog.showOpenDialog({
