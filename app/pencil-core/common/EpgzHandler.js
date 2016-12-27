@@ -20,31 +20,26 @@ EpgzHandler.prototype.loadDocument = function(filePath, callback) {
         return;
     };
     var targz = require('targz');
-    try {
-        targz.decompress(
-        {
-            src: filePath,
-            dest: Pencil.documentHandler.tempDir.name
-        }, function(err) {
-            if(err) {
-                var oldPencilDocument = Pencil.documentHandler.preDocument;
-                Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
-                    (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
-                        Pencil.controller.confirmAndclose(function () {
-                            Pencil.documentHandler.resetDocument();
-                            ApplicationPane._instance.showStartupPane();
-                        });
-                    };
-                    ApplicationPane._instance.unbusy();
-                });
-            } else {
-                thiz.parseDocument(filePath, callback);
-            }
-        });
-    } catch(e) {
-        ApplicationPane._instance.unbusy();
-        return;
-    }
+    targz.decompress(
+    {
+        src: filePath,
+        dest: Pencil.documentHandler.tempDir.name
+    }, function(err) {
+        if(err) {
+            var oldPencilDocument = Pencil.documentHandler.preDocument;
+            Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
+                (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
+                    Pencil.controller.confirmAndclose(function () {
+                        Pencil.documentHandler.resetDocument();
+                        ApplicationPane._instance.showStartupPane();
+                    });
+                };
+                ApplicationPane._instance.unbusy();
+            });
+        } else {
+            thiz.parseDocument(filePath, callback);
+        }
+    });
 }
 
 EpgzHandler.prototype.saveDocument = function (documentPath, onSaved) {
