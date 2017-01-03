@@ -42,6 +42,9 @@ HandleEditor.prototype.install = function (canvas) {
         }
         thiz.handleMouseMove(ev);
     }, false);
+    // outmostItem.addEventListener("focusout", function (ev) {
+    //     thiz.dettach();
+    // }, false);
 
 };
 HandleEditor.prototype.attach = function (targetObject) {
@@ -155,7 +158,7 @@ HandleEditor.prototype.handleMouseUp = function (event) {
     }
 };
 HandleEditor.prototype.handleKeyPressEvent = function (event) {
-	if (!this.focusedHandleName) return false;
+	if (!this.focusedHandleName || event.altKey) return false;
 
 	var thiz = this;
 	var focusedHandle = null;
@@ -288,6 +291,8 @@ HandleEditor.prototype.handleMoveTo = function (x, y, event) {
     	handle.removeAttributeNS(PencilNamespaces.p, "connected");
         this.lastMatchedOutlet = null;
     }
+
+    console.log("move handle");
 };
 HandleEditor.prototype.getPropertyConstraints = function (handle) {
     if (!this.currentHandle) return {};
@@ -375,6 +380,7 @@ HandleEditor.prototype.setupHandles = function () {
     }
 
     this.invalidateFocusedHandle();
+    console.log("Setup handler");
 };
 
 Pencil.registerEditor(HandleEditor);
