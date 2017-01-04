@@ -42,9 +42,6 @@ HandleEditor.prototype.install = function (canvas) {
         }
         thiz.handleMouseMove(ev);
     }, false);
-    // outmostItem.addEventListener("focusout", function (ev) {
-    //     thiz.dettach();
-    // }, false);
 
 };
 HandleEditor.prototype.attach = function (targetObject) {
@@ -95,6 +92,7 @@ HandleEditor.prototype.findHandle = function (element) {
     return handle;
 };
 HandleEditor.prototype.handleMouseDown = function (event) {
+    console.log("mouse down");
 	this.lastMatchedOutlet = null;
     this.currentHandle = this.findHandle(event.originalTarget);
 
@@ -158,7 +156,12 @@ HandleEditor.prototype.handleMouseUp = function (event) {
     }
 };
 HandleEditor.prototype.handleKeyPressEvent = function (event) {
-	if (!this.focusedHandleName || event.altKey) return false;
+	if (!this.focusedHandleName
+        || (event.keyCode != DOM_VK_UP
+        && event.keyCode != DOM_VK_DOWN
+        && event.keyCode != DOM_VK_LEFT
+        && event.keyCode != DOM_VK_RIGHT
+        && !event.ctrlKey)) return false;
 
 	var thiz = this;
 	var focusedHandle = null;
@@ -170,7 +173,6 @@ HandleEditor.prototype.handleKeyPressEvent = function (event) {
 
 	if (!focusedHandle) return;
 
-
 	var fakeEvent = {
 			preventDefault: function() {
 				event.preventDefault();
@@ -180,23 +182,19 @@ HandleEditor.prototype.handleKeyPressEvent = function (event) {
 			clientX: 0,
 			clientY: 0
 	};
-
-	this.handleMouseDown(fakeEvent);
-
+    this.handleMouseDown(fakeEvent);
 	var gridSize = Pencil.getGridSize().w;
 	var d = event.ctrlKey ? gridSize : (event.shiftKey ? gridSize * 4 : 1);
-
-	if (event.keyCode == DOM_VK_UP) {
-		fakeEvent.clientY -= d;
-	} else if (event.keyCode == DOM_VK_DOWN) {
-		fakeEvent.clientY += d;
-	} else if (event.keyCode == DOM_VK_LEFT) {
-		fakeEvent.clientX -= d;
-	} else if (event.keyCode == DOM_VK_RIGHT) {
-		fakeEvent.clientX += d;
-	} else {
-		return false;
-	}
+    switch(event.keyCode) {
+        case DOM_VK_UP:
+            fakeEvent.clientY -= d; break;
+        case DOM_VK_DOWN:
+            fakeEvent.clientY += d; break;
+        case DOM_VK_LEFT:
+            fakeEvent.clientX -= d; break;
+        case DOM_VK_RIGHT:
+            fakeEvent.clientX += d; break;
+    }
 
 	this.handleMouseMove(fakeEvent);
 	this.handleMouseUp(fakeEvent);
