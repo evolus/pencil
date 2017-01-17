@@ -2887,6 +2887,7 @@ Canvas.prototype.__dragover = function (event) {
 Canvas.prototype.__drop = function (event) {
     var thiz =this;
     var data = event.dataTransfer.getData("collectionId");
+    var data = nsDragAndDrop.getData("collectionId");
     var collections = CollectionManager.shapeDefinition.collections;
     // for (var i = 0; i < collections.length; i ++) {
     //     if (collections[i].id == data) {

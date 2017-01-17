@@ -166,15 +166,20 @@ function PageListView() {
     }
 
     this.bind("dragstart", function (event) {
+        nsDragAndDrop.dragStart(event);
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_index");
         if (!n) return;
 
         event.dataTransfer.setDragImage(this.dndImage, 8, 8);
         event.dataTransfer.setData("dragType", "page");
         event.dataTransfer.setData("text/html", "");
+        nsDragAndDrop.setData("dragType", "page");
+        nsDragAndDrop.setData("text/html", "");
         if (n.__widget && n.__widget.page && n.__widget.page.thumbPath) {
             event.dataTransfer.setData("text/html", "");
             event.dataTransfer.setData("pencil/png", n.__widget.page.thumbPath);
+            nsDragAndDrop.setData("text/html", "");
+            nsDragAndDrop.setData("pencil/png", n.__widget.page.thumbPath);
         }
 
         if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
@@ -183,7 +188,8 @@ function PageListView() {
     }, this.node());
 
     this.bind("drop", function (event) {
-        if (event.dataTransfer.getData("dragType") != "page") return;
+        // if (event.dataTransfer.getData("dragType") != "page") return;
+        if (nsDragAndDrop.getData("dragType") != "page") return;
         if (!this.lastDropCandidateObject || !this.currentDraggedObject) return;
 
         var pageId = findPageIdFromUINode(this.currentDraggedObject);
@@ -194,7 +200,8 @@ function PageListView() {
     }, this.node());
 
     this.bind("dragover", function (event) {
-        if (event.dataTransfer.getData("dragType") != "page") return;
+        // if (event.dataTransfer.getData("dragType") != "page") return;
+        if (nsDragAndDrop.getData("dragType") != "page") return;
         var container = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_isDropZone");
         if (!container) return;
 
@@ -269,6 +276,7 @@ PageListView.prototype.validateFilterBox = function() {
 }
 
 PageListView.prototype.filterPages = function() {
+    if (!this.controller.activePage) { return; }
     var filterName = this.controller.activePage.parentPage ? this.controller.activePage.parentPage.name : "Root";
     var value = this.filterCache[filterName];
 

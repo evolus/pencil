@@ -31,6 +31,7 @@ ShapeDefDragObserver.prototype = {
         this.lastDragEnterExitEventTS = now;
 
         var defId = event.dataTransfer.getData("pencil/def");
+        var defId = nsDragAndDrop.getData("pencil/def");
 
         this.dragStart = false;
 
@@ -154,6 +155,7 @@ PrivateShapeDefDragObserver.prototype = {
         // }
 
         var defId = event.dataTransfer.getData("pencil/privatedef");
+        var defId = nsDragAndDrop.getData("pencil/privatedef");
 
         var def = PrivateCollectionManager.locateShapeDefinition(defId);
 
@@ -262,6 +264,7 @@ ShapeShortcutDragObserver.prototype = {
         this.lastDragEnterExitEventTS = now;
 
         var defId = event.dataTransfer.getData("pencil/shortcut");
+        var defId = nsDragAndDrop.getData("pencil/shortcut");
 
         var shortcut = CollectionManager.shapeDefinition.locateShortcut(defId);
         var def = shortcut.shape;

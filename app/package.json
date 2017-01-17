@@ -2,7 +2,7 @@
   "name": "Pencil",
   "productName": "Pencil",
   "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
-  "version": "3.0.0-rc.1",
+  "version": "3.0.0-rc.2",
   "author": {
     "name": "Evolus",
     "url": "http://evolus.vn",
@@ -48,7 +48,7 @@
     "nugget": "^2.0.0",
     "q": "^1.4.1",
     "rimraf": "^2.5.2",
-    "tmp": "0.0.28",
+    "tmp": "0.0.31",
     "unzip2": "^0.2.5"
   },
   "private": true
