@@ -451,7 +451,13 @@ FileDragObserver.fileTypeHandler = {
         FileDragObserver.handleSVGData(fileContents, canvas, loc);
     },
     ep: function (canvas, url) {
-        Pencil.controller.loadDocument(url);
+        Pencil.documentHandler.loadDocument(url);
+    },
+    epz: function (canvas, url) {
+        Pencil.documentHandler.loadDocument(url);
+    },
+    epgz: function (canvas, url) {
+        Pencil.documentHandler.loadDocument(url);
     }
 };
 

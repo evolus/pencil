@@ -30,7 +30,11 @@
       "synopsis": "An open-source GUI prototyping tool that is available for ALL platforms.",
       "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
       "vendor": "Evolus",
-      "target": ["deb", "rpm", "tar.gz"],
+      "target": [
+        "deb",
+        "rpm",
+        "tar.gz"
+      ],
       "depends": []
     },
     "win": {
@@ -47,7 +51,7 @@
     "postinstall": "install-app-deps",
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
     "start": "./node_modules/.bin/electron ./app",
-    "start:dev":  "./node_modules/.bin/electron ./app --enable-dev --disable-gpu",
+    "start:dev": "./node_modules/.bin/electron ./app --enable-dev --disable-gpu",
     "clean": "rimraf dist",
     "pack": "build",
     "dist": "build",
@@ -56,5 +60,8 @@
     "dist:win32": "./node_modules/.bin/build --windows --x64",
     "dist:darwin": "./node_modules/.bin/build --osx"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "archive-type": "^3.2.0"
+  }
 }
