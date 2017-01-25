@@ -63,5 +63,8 @@
     "dist:win32": "./node_modules/.bin/build --windows --x64",
     "dist:darwin": "./node_modules/.bin/build --osx"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "archive-type": "^3.2.0"
+  }
 }

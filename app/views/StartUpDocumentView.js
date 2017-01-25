@@ -36,7 +36,7 @@ function StartUpDocumentView() {
         if (doc.thumbPath) {
             handler(null, doc.thumbPath);
         } else {
-            Pencil.controller.parseDocumentThumbnail(filePath, handler);
+            Pencil.documentHandler.parseDocumentThumbnail(filePath, handler);
         }
     }
 
@@ -100,10 +100,10 @@ function StartUpDocumentView() {
             return;
         }
         function handler() {
-            Pencil.controller.loadDocument(filePath);
+            Pencil.documentHandler.loadDocument(filePath);
         }
         if (Pencil.controller.modified) {
-            Pencil.controller.confirmAndSaveDocument(handler);
+            Pencil.documentHandler.confirmAndSaveDocument(handler);
             return;
         }
         handler();

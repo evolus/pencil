@@ -32,10 +32,10 @@ MainMenu.prototype.generateRecentDocumentMenu = function () {
             label: name,
             run: function () {
                 function handler() {
-                    Pencil.controller.loadDocument(name);
+                    Pencil.documentHandler.loadDocument(name);
                 }
                 if (Pencil.controller.modified) {
-                    Pencil.controller.confirmAndSaveDocument(handler);
+                    Pencil.documentHandler.confirmAndSaveDocument(handler);
                     return;
                 }
                 handler();

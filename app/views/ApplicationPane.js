@@ -8,6 +8,14 @@ function ApplicationPane() {
     this.rasterizer = new Rasterizer(this.controller);
     this.canvasMenu = new CanvasMenu();
 
+    this.documentHandler = new DocumentHandler(this.controller);
+    this.documentHandler.registerHandler(new EpzHandler(this.controller));
+    this.documentHandler.registerHandler(new EpgzHandler(this.controller));
+    this.documentHandler.registerHandler(new EpHandler(this.controller));
+    var handlerType = Config.get("document.fileHandler.fileHandlerType", ".epgz");
+    this.documentHandler.actived(handlerType);
+
+    Pencil.documentHandler = this.documentHandler;
     Pencil.controller = this.controller;
     Pencil.rasterizer = this.rasterizer;
 
@@ -174,7 +182,7 @@ ApplicationPane.prototype.activatePage = function (page) {
     this.pageListView.activatePage(page);
 }
 ApplicationPane.prototype.testSave = function () {
-    this.controller.newDocument();
+    this.documentHandler.newDocument();
     var page = this.controller.newPage("Sample page", 1000, 1000, null, null, "");
     page.canvas = Pencil.activeCanvas;
 
@@ -209,6 +217,7 @@ ApplicationPane.prototype.invalidateZoom = function () {
     this.zoomToolbar.setAttribute("label", Pencil.activeCanvas ? (Math.round(Pencil.activeCanvas.zoom * 100) + "%") : "100%") ;
 };
 ApplicationPane.prototype.showStartupPane = function () {
+    Pencil.documentHandler.preDocument = null;
     if (Pencil.controller.activePage) {
         Pencil.controller.activePage.canvas.selectNone();
     }
