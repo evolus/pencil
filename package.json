@@ -2,7 +2,7 @@
   "name": "Pencil",
   "devDependencies": {
     "electron-builder": "11.3.0",
-    "electron-prebuilt": "1.4.14",
+    "electron": "1.4.14",
     "rimraf": "^2.5.4"
   },
   "build": {
