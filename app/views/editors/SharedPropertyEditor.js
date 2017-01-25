@@ -135,7 +135,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var executor = function () {
         if (!thiz.target || uuid != thiz.currentExecutorUUID) return;
         if (properties.length == 0) {
-            if (thiz.target.def.collection.propertyGroups && thiz.target.def.collection.propertyGroups.length > 0) {
+            if (thiz.target.def && thiz.target.def.collection.propertyGroups && thiz.target.def.collection.propertyGroups.length > 0) {
                 var hbox = Dom.newDOMElement({
                     _name: "hbox",
                     _children: [

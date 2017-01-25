@@ -30,6 +30,7 @@ function BaseCollectionPane() {
     }, this.clearTextButton);
 
     this.shapeList.addEventListener("dragstart", function (event) {
+        nsDragAndDrop.dragStart(event);
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
         thiz.addDefDataToDataTransfer(def, event);

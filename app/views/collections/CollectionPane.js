@@ -34,11 +34,14 @@ CollectionPane.prototype.handleCollectionContextMenu = function (collection, eve
 CollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
     if (def.shape) {
         event.dataTransfer.setData("pencil/shortcut", def.id);
+        nsDragAndDrop.setData("pencil/shortcut", def.id);
     } else {
         event.dataTransfer.setData("pencil/def", def.id);
+        nsDragAndDrop.setData("pencil/def", def.id);
     }
     // event.dataTransfer.setData("pencil/def", def.id);
     event.dataTransfer.setData("collectionId", def.collection ? def.collection.id : 0);
+    nsDragAndDrop.setData("collectionId", def.collection ? def.collection.id : 0);
 };
 CollectionPane.prototype.getCollections = function () {
     return CollectionManager.shapeDefinition.collections;
