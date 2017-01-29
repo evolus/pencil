@@ -40,8 +40,13 @@
     "drawing"
   ],
   "dependencies": {
+    "adm-zip": "^0.4.7",
+    "archive-type": "^3.2.0",
     "archiver": "^1.0.0",
+    "easy-zip2": "^1.0.0",
+    "electron-log": "^1.3.0",
     "electron-squirrel-startup": "^1.0.0",
+    "electron-updater": "^1.2.0",
     "less": "~2.7.1",
     "lodash": "^4.13.1",
     "moment": "^2.13.0",
