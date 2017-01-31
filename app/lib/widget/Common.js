@@ -576,6 +576,26 @@ function run(task, message, indicator) {
     });
 }
 
+widget.reloadDesktopFont = function() {
+        return new Promise(function(resolve) {
+            require("./desktop").getDesktopFontConfig(function (config) {
+                    if (config.font) document.body.style.font = config.font;
+                    if (config.family) document.body.style.fontFamily = config.family;
+                    if (config.style) document.body.style.fontStyle = config.style;
+                    if (config.weight) document.body.style.fontWeight = config.weight;
+                    if (config.size) {
+                        var scale = Config.get("view.uiTextScale", 100) / 100;
+                        var size = config.size;
+                        if (config.size.match(/^([0-9\.]+)([pxt]+)$/)) {
+                            size = (parseFloat(RegExp.$1) * scale) + RegExp.$2;
+                        }
+                        document.body.style.fontSize = size;
+                    }
+                    resolve(config);
+            });
+        });
+};
+
 document.addEventListener("DOMContentLoaded", function () {
     //load all registered widget class templates
     var index = -1;
@@ -590,18 +610,6 @@ document.addEventListener("DOMContentLoaded", function () {
             document.body.setAttribute("loaded", "true");
         }, 300);
     }
-    function loadDesktopFont() {
-    		return new Promise(function(resolve) {
-      			require("./desktop").getDesktopFontConfig(function (config) {
-        				document.body.style.fontFamily = config.family;
-        				document.body.style.fontStyle = config.style;
-        				document.body.style.fontWeight = config.weight;
-        				document.body.style.fontSize = config.size;
-
-        				resolve(config);
-      			});
-    		});
-  	}
     function loadNext() {
         index ++;
 
@@ -638,7 +646,7 @@ document.addEventListener("DOMContentLoaded", function () {
         request.send(null);
     }
 
-    loadDesktopFont().then(loadNext);
+    widget.reloadDesktopFont().then(loadNext);
 
 }, false);
 

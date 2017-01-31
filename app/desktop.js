@@ -142,7 +142,7 @@ module.exports = function () {
                     family = RegExp.$1;
                 }
                 if (/FontSize:\s?(.*)/i.exec(data)) {
-                    size = RegExp.$1;
+                    size = parseInt(RegExp.$1, 10);
                 }
                 if (/FontWeight:\s?(.*)/i.exec(data)) {
                     weight = RegExp.$1;
@@ -154,9 +154,7 @@ module.exports = function () {
 
                 callback({
                    family: family,
-                   weight: weight,
-                   style: style,
-                   size: (parseInt(size) - 2) + "pt"
+                   font: "-webkit-control",
                 });
             });
         },
