@@ -1,7 +1,6 @@
 version: 3.0.0-rc.2+{build}
 
 platform:
-  - x86
   - x64
 
 cache:
@@ -21,14 +20,14 @@ install:
   - ps: Install-Product node 6 $env:platform
   - git reset --hard HEAD
   - npm install npm -g
-  - npm install electron-builder@11.3.0
+  - npm install electron-builder@12.0.0
   - npm prune
   - npm install
 
 build_script:
   - node --version
   - npm --version
-  - npm run dist
+  - npm run dist:win32
 
 test: off
 

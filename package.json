@@ -1,7 +1,7 @@
 {
   "name": "Pencil",
   "devDependencies": {
-    "electron-builder": "11.3.0",
+    "electron-builder": "12.0.0",
     "electron": "1.4.14",
     "rimraf": "^2.5.4"
   },
@@ -60,11 +60,8 @@
     "dist": "build",
     "release": "build",
     "dist:linux": "./node_modules/.bin/build --linux --x64",
-    "dist:win32": "./node_modules/.bin/build --windows --x64",
+    "dist:win32": "./node_modules/.bin/build --windows --ia32 --x64",
     "dist:darwin": "./node_modules/.bin/build --osx"
   },
-  "private": true,
-  "dependencies": {
-    "archive-type": "^3.2.0"
-  }
+  "private": true
 }
