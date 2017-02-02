@@ -154,7 +154,9 @@ module.exports = function () {
 
                 callback({
                    family: family,
-                   font: "-webkit-control",
+                   weight: weight,
+                   style: style,
+                   size: size + "px"
                 });
             });
         },
