@@ -23,11 +23,12 @@ SharedFontEditor.prototype.setup = function () {
         thiz._applyValue();
     });
 
-    this.pixelFontSize.addEventListener("click", function(event) {
-        if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "") return;
+    this.pixelFontSize.addEventListener("input", function(event) {
+        if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value == "0") return;
         thiz.font.size = thiz.pixelFontSize.value + "px";
         thiz._applyValue();
     }, false);
+
     this.pixelFontSize.addEventListener("wheel", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "") return;
         thiz.font.size = thiz.pixelFontSize.value + "px";

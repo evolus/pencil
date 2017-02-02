@@ -40,7 +40,7 @@ FontEditor.prototype.setup = function () {
         thiz.fireChangeEvent();
     });
 
-    this.pixelFontSize.addEventListener("click", function(event) {
+    this.pixelFontSize.addEventListener("input", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) return;
         thiz.fireChangeEvent();
     }, false);

@@ -16,7 +16,27 @@ function Canvas(element) {
     this.height;
     // building the content as: box >> svg
     var thiz = this;
-
+    this.lockPointerFunction = null;
+    this.autoScrollTimout = null;
+    this.startAutoScrollFunction = function(func) {
+        if (this.autoScrollTimout == null) {
+            // this.lockPointerFunction = function () {
+            //     thiz.element.requestPointerLock();
+            // }
+            // this.lockPointerFunction();
+            this.autoScrollTimout = window.setInterval(func, 50);
+        }
+    }
+    this.stopAutoScrollFunction = function () {
+        if (this.autoScrollTimout) {
+            // if (thiz.lockPointerFunction != null) {
+            //     document.exitPointerLock();
+            //     thiz.lockPointerFunction = null;
+            // }
+            clearInterval(this.autoScrollTimout);
+            this.autoScrollTimout = null;
+        }
+    }
     this.focusableBox = this.element.parentNode;
 
     this.addEventListener("mousedown", function (event) {
@@ -28,12 +48,15 @@ function Canvas(element) {
             thiz.clearSelection();
             thiz.selectNone();
         }
+
     }, false);
 
     this.addEventListener("mouseup", function (event) {
         if (thiz.duplicateMode) {
             thiz.mouseUp = true;
             thiz.duplicateMode = null;
+            if (this.controllerHeld && this.currentController
+                    && this.currentController.markAsMoving) thiz.finishMoving(event);
         }
     }, false);
 
@@ -164,8 +187,10 @@ function Canvas(element) {
         thiz.focus();
         thiz.handleMouseWheel(event);
     }, false);
-
     this.svg.ownerDocument.addEventListener("mouseup", function (event) {
+        if (thiz.autoScrollTimout) {
+            thiz.stopAutoScrollFunction();
+        }
         if (!thiz || !thiz.handleMouseUp) {
             document.removeEventListener("mouseup", arguments.callee, false);
             return;
@@ -173,11 +198,17 @@ function Canvas(element) {
         thiz.handleMouseUp(event);
     }, false);
     this.svg.ownerDocument.addEventListener("mousemove", function (event) {
+        if (thiz.autoScrollTimout) {
+            thiz.stopAutoScrollFunction();
+        }
         if (!thiz || !thiz.handleMouseMove) {
             document.removeEventListener("mousemove", arguments.callee, false);
             return;
         }
-
+        if (thiz.controllerHeld && thiz.currentController &&
+             (thiz._scrollPane.clientHeight < thiz._scrollPane.scrollHeight || thiz._scrollPane.clientWidth < thiz._scrollPane.scrollWidth)) {
+            thiz.handleScrollPane(event);
+        }
         thiz.handleMouseMove(event);
     }, false);
 
@@ -230,8 +261,8 @@ function Canvas(element) {
             thiz.spaceHeld = true;
             thiz._lastPX = thiz._currentPX;
             thiz._lastPY = thiz._currentPY;
-            thiz._lastScrollX = thiz.parentNode && thiz.parentNode.scrollLeft || 0;
-            thiz._lastScrollY = thiz.parentNode && thiz.parentNode.scrollTop || 0;
+            thiz._lastScrollX = thiz._scrollPane.scrollLeft || 0;
+            thiz._lastScrollY = thiz._scrollPane.scrollTop || 0;
             Dom.addClass(thiz, "PanDown");
         }
     }, false);
@@ -621,6 +652,8 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
     var shape = this.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
     shape.setAttributeNS(PencilNamespaces.p, "p:type", "Shape");
     shape.setAttributeNS(PencilNamespaces.p, "p:def", shapeDef.id);
+
+
     if (overridingValueMap && overridingValueMap._shortcut) {
         shape.setAttributeNS(PencilNamespaces.p, "p:sc",
                 overridingValueMap._shortcut.displayName);
@@ -664,9 +697,7 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
                 (bound.y - Math.round(bbox.height / (2 * this.zoom))), true);
         controller.normalizePositionToGrid();
     }
-
     this.selectShape(shape);
-
     this.snappingHelper.updateSnappingGuide(this.currentController);
     DockingManager.enableDocking(this.currentController);
 
@@ -834,6 +865,63 @@ Canvas.prototype.handleMouseWheel = function(event) {
         this._scrollPane.scrollTop = drawingY * this.zoom + padding - dy;
     }
 }
+
+Canvas.prototype.handleScrollPane = function(event) {
+    var thiz =this;
+    var scrollBarSize = 15;
+    var scrollValue = 20;
+    var loc = { x: event.clientX, y: event.clientY };
+    var pane = thiz._scrollPane.getBoundingClientRect();
+    var fun = null;
+    var dx = scrollValue / thiz.zoom;
+    var dy = scrollValue / thiz.zoom;
+    if (loc.x > pane.right - scrollBarSize && loc.x < pane.right) {
+        fun = function() {
+            if (thiz._scrollPane.scrollLeft >= thiz._scrollPane.scrollWidth - thiz._scrollPane.offsetWidth) {
+                thiz._scrollPane.scrollLeft = thiz._scrollPane.scrollWidth;
+                thiz.stopAutoScrollFunction();
+                return;
+            }
+            thiz._scrollPane.scrollLeft += scrollValue;
+            if (thiz.currentController != null) thiz.currentController.moveBy(dx, 0, false, true);
+        }
+    }
+    if (loc.x < pane.left  && loc.x > pane.left - scrollBarSize) {
+        fun = function() {
+            if (thiz._scrollPane.scrollLeft <= 0) {
+                thiz.stopAutoScrollFunction();
+                return;
+            }
+            thiz._scrollPane.scrollLeft -= scrollValue;
+            if (thiz.currentController != null) thiz.currentController.moveBy(-dx, 0, false, true);
+        }
+    }
+    if (loc.y < pane.top  && loc.y > pane.top - scrollBarSize) {
+        fun = function() {
+            if (thiz._scrollPane.scrollTop <= 0) {
+                thiz.stopAutoScrollFunction();
+                return;
+            }
+            thiz._scrollPane.scrollTop -= scrollValue;
+            if (thiz.currentController != null) thiz.currentController.moveBy(0, -dy, false, true);
+        }
+    }
+    if (loc.y > pane.bottom - scrollBarSize && loc.y < pane.bottom) {
+        fun = function() {
+            if (thiz._scrollPane.scrollTop >= thiz._scrollPane.scrollHeight - thiz._scrollPane.offsetHeight) {
+                thiz._scrollPane.scrollTop = thiz._scrollPane.scrollHeight;
+                thiz.stopAutoScrollFunction();
+                return;
+            }
+            thiz._scrollPane.scrollTop += scrollValue;
+            if (thiz.currentController != null) thiz.currentController.moveBy(0, dy, false, true);
+        }
+    }
+    if (fun != null) {
+        thiz.startAutoScrollFunction(fun);
+    }
+}
+
 Canvas.prototype.handleMouseUp = function (event) {
 
     if (this.reClick && !this.hasMoved) {
@@ -876,7 +964,7 @@ Canvas.prototype.handleMouseUp = function (event) {
         this.setRangeBoundVisibility(false);
         this.isSelectingRange = false;
         // enum objects that are in range
-        if (!event.ctrlKey) {
+        if (!this.isEventWithControl(event)) {
             this.clearSelection();
         }
         var thiz = this;
@@ -887,7 +975,7 @@ Canvas.prototype.handleMouseUp = function (event) {
             var bbox = controller.getBoundingRect();
 
             if (Svg.isInside(bbox, thiz.currentRange)) {
-                if (event.ctrlKey) {
+                if (thiz.isEventWithControl(event)) {
                     var targets = thiz.getSelectedTargets();
                     var foundTarget = null;
                     for (i in targets) {
@@ -1079,14 +1167,11 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
             this.currentX = newX;
             this.currentY = newY;
 
+
             // this.oX = newX;
             // this.oY = newY;
 
             this.hasMoved = true;
-
-            if (this.currentController.dockingManager) {
-                this.currentController.dockingManager.altKey = event.altKey;
-            }
 
             var gridSize = Pencil.getGridSize();
             var snap = null;
@@ -1172,7 +1257,9 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                     }
                 }
             }
-
+            if (this.currentController.dockingManager) {
+                this.currentController.dockingManager.altKey = event.altKey;
+            }
             return;
         }
 
@@ -1192,9 +1279,9 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                 width : w,
                 height : h
             };
-
             this.setRangeBoundStart(x1, y1);
             this.setRangeBoundSize(w, h);
+            this.handleScrollPane(event);
         }
     } catch (ex) {
         error(ex);
@@ -1220,7 +1307,6 @@ Canvas.prototype.setRangeBoundVisibility = function (visible) {
 
 };
 Canvas.prototype.handleKeyPress = function (event) {
-
     if (this != Pencil.activeCanvas) return;
 
     for (editor in this.onScreenEditors) {
@@ -1790,7 +1876,8 @@ Canvas.prototype.doCopy = function () {
     clipboard.writeText(textualData);
 };
 Canvas.domParser = new DOMParser();
-Canvas.prototype.doPaste = function () {
+Canvas.prototype.doPaste = function (withAlternative) {
+    this.useAlternativePasting = withAlternative ? true : false;
     var formats = clipboard.availableFormats();
     if (!formats) return;
 
@@ -1805,35 +1892,86 @@ Canvas.prototype.doPaste = function () {
         if (text) {
             var parsed = false;
 
-            var dom = Canvas.domParser.parseFromString(text, "text/xml");
-            if (dom) {
-                console.log("Parsed text", text);
-                console.log("Result dom", dom);
-                var node = dom.documentElement;
-                console.log("Root: " + dom.documentElement.localName);
-                if (node.namespaceURI == PencilNamespaces.svg) {
-                    if (node.localName == "g") {
-                        var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
-                        contents.push({
-                            type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
-                            data: dom
-                        });
-                        parsed = true;
-                    } else if (node.localName == "svg") {
-                        contents.push({
-                            type: SVGXferHelper.MIME_TYPE,
-                            data: dom
-                        })
-                        parsed = true;
+            function parseContent(string) {
+                var dom = Canvas.domParser.parseFromString(string, "text/xml");
+                if (dom) {
+                    console.log("Parsed text", string);
+                    console.log("Result dom", dom);
+                    var node = dom.documentElement;
+                    console.log("Root: " + dom.documentElement.localName);
+                    if (node.namespaceURI == PencilNamespaces.svg) {
+                        if (node.localName == "g") {
+                            var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
+                            return {
+                                type: (typeAttribute == "Shape" || typeAttribute == "Group") ? ShapeXferHelper.MIME_TYPE : TargetSetXferHelper.MIME_TYPE,
+                                data: dom
+                            };
+                        } else if (node.localName == "svg") {
+                            return {
+                                type: SVGXferHelper.MIME_TYPE,
+                                data: dom
+                            };
+                        }
                     }
                 }
+                return null;
+            }
+
+            var content = parseContent(text);
+            if (content) {
+                contents.push(content);
+                parsed = true;
             }
 
             if (!parsed) {
-                contents.push({
-                    type: PlainTextXferHelper.MIME_TYPE,
-                    data: text
-                });
+                var parsedFile = false;
+                var fileTypes = [".png", ".jpg", ".jpeg", ".gif", ".svg"];
+                var fileType = path.extname(text);
+                if (fileType && fileTypes.indexOf(fileType.toLowerCase()) >= 0) {
+                    try {
+                        var fstat = fsExistSync(text);
+                        if (fstat && fstat.isFile()) {
+
+                            if (fileType.toLowerCase() == ".png") {
+                                var image = nativeImage.createFromPath(text);
+                                if (image) {
+                                    var id = Pencil.controller.nativeImageToRefSync(image);
+
+                                    var size = image.getSize();
+
+                                    contents.push({
+                                        type: PNGImageXferHelper.MIME_TYPE,
+                                        data: new ImageData(size.width, size.height, ImageData.idToRefString(id))
+                                    });
+                                    parsedFile = true;
+                                }
+                            } else if (fileType.toLowerCase() == ".svg") {
+                                var fileContent = fs.readFileSync(text, "utf8");
+                                var svgContent = parseContent(fileContent);
+                                if (svgContent) {
+                                    contents.push(svgContent);
+                                    parsedFile = true;
+                                }
+                            } else {
+                                contents.push({
+                                    type: JPGGIFImageXferHelper.MIME_TYPE,
+                                    data: text
+                                });
+                                parsedFile = true;
+                            }
+                        }
+
+                    } catch (e) {
+                        Console.dumpError(e);
+                    }
+                }
+
+                if (!parsedFile) {
+                    contents.push({
+                        type: PlainTextXferHelper.MIME_TYPE,
+                        data: text
+                    });
+                }
             }
         }
     }
@@ -2036,7 +2174,7 @@ Canvas.prototype.handleMouseDown = function (event) {
 
             thiz.duplicateFunc = null;
         }
-    } else if (event.ctrlKey) {
+    } else if (this.isEventWithControl(event)) {
         if (foundTarget) {
             this.removeFromSelection(foundTarget);
         } else {
@@ -2099,6 +2237,9 @@ Canvas.prototype.handleMouseDown = function (event) {
 
 };
 
+Canvas.prototype.isEventWithControl = function (event) {
+    return (event.ctrlKey && !IS_MAC) || (event.metaKey && IS_MAC);
+};
 Canvas.prototype.doGroup = function () {
 
     this.run(this.doGroupImpl_, this, Util.getMessage("action.group.shapes"));
@@ -2312,7 +2453,7 @@ Canvas.prototype.setCanvasState = function (state) {
 };
 Canvas.prototype.setBackgroundColor = function (color) {
     if(color) {
-        this.element.style.backgroundColor = color.toRGBString();
+        this.element.style.backgroundColor = color.toRGBAString();
     } else {
         this.element.style.backgroundColor = "";
     }
@@ -2464,6 +2605,76 @@ Canvas.prototype.addSelectedToMyCollection = function () {
         valueHolder : {}
     };
 
+    var run = function (data) {
+        try {
+            var target = Pencil.getCurrentTarget();
+            // generating text/xml+svg
+            var svg = target.svg.cloneNode(true);
+
+            var fakeDom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
+            fakeDom.documentElement.appendChild(svg);
+
+            Pencil.controller.prepareForEmbedding(fakeDom, function () {
+                fakeDom.documentElement.removeChild(svg);
+                var valueHolder = data.valueHolder;
+                if (!valueHolder.shapeName)
+                    return;
+
+                var shapeDef = new PrivateShapeDef();
+                shapeDef.displayName = valueHolder.shapeName;
+                shapeDef.content = svg;
+                shapeDef.id = shapeDef.displayName.replace(/\s+/g, "_").toLowerCase()
+                        + "_" + (new Date()).getTime();
+
+                var collection = valueHolder.collection;
+                var isNewCollection = (collection == null || collection == -1);
+
+                if (isNewCollection) {
+                    // debug("creating new collection...");
+                    collection = new PrivateCollection();
+                    collection.displayName = valueHolder.collectionName;
+                    collection.description = valueHolder.collectionDescription;
+                    collection.id = collection.displayName.replace(/\s+/g, "_")
+                            .toLowerCase()
+                            + "_" + (new Date()).getTime();
+
+                    collection.shapeDefs.push(shapeDef);
+                }
+                Config.set("PrivateCollection.lastUsedCollection.id", collection.id);
+                Config.set("PrivateCollection.lastSelectCollection.id", collection.id);
+                debug("generating icon... :", valueHolder.autoGenerateIcon);
+                if (valueHolder.autoGenerateIcon) {
+                    Util.generateIcon(target, 64, 64, 2, null, function (icondata) {
+                        debug("\t done generating icon.");
+                        shapeDef.iconData = icondata;
+                        if (isNewCollection) {
+                            PrivateCollectionManager.addShapeCollection(collection);
+                        } else {
+                            PrivateCollectionManager.addShapeToCollection(collection,
+                                    shapeDef);
+                        }
+                        return;
+                    });
+                } else {
+                    var filePath = valueHolder.shapeIcon;
+                    var image = nativeImage.createFromPath(filePath);
+
+                    shapeDef.iconData = image.toDataURL();
+                    if (isNewCollection) {
+                        PrivateCollectionManager.addShapeCollection(collection);
+                    } else {
+                        PrivateCollectionManager.addShapeToCollection(collection,
+                                shapeDef);
+                    }
+
+                }
+            });
+
+        } catch (e) {
+            Console.dumpError(e);
+        }
+    };
+
     var myCollectionDialog = new PrivateCollectionDialog();
     myCollectionDialog.open({
         valueHolder: data.valueHolder,
@@ -2472,69 +2683,6 @@ Canvas.prototype.addSelectedToMyCollection = function () {
             run(data);
         }
     });
-
-    var run = function (data) {
-        try {
-            var target = Pencil.getCurrentTarget();
-            // generating text/xml+svg
-            var svg = target.svg.cloneNode(true);
-
-            var valueHolder = data.valueHolder;
-            if (!valueHolder.shapeName)
-                return;
-
-            var shapeDef = new PrivateShapeDef();
-            shapeDef.displayName = valueHolder.shapeName;
-            shapeDef.content = svg;
-            shapeDef.id = shapeDef.displayName.replace(/\s+/g, "_").toLowerCase()
-                    + "_" + (new Date()).getTime();
-
-            var collection = valueHolder.collection;
-            var isNewCollection = (collection == null || collection == -1);
-
-            if (isNewCollection) {
-                // debug("creating new collection...");
-                collection = new PrivateCollection();
-                collection.displayName = valueHolder.collectionName;
-                collection.description = valueHolder.collectionDescription;
-                collection.id = collection.displayName.replace(/\s+/g, "_")
-                        .toLowerCase()
-                        + "_" + (new Date()).getTime();
-
-                collection.shapeDefs.push(shapeDef);
-            }
-            Config.set("PrivateCollection.lastUsedCollection.id", collection.id);
-            Config.set("PrivateCollection.lastSelectCollection.id", collection.id);
-            debug("generating icon... :", valueHolder.autoGenerateIcon);
-            if (valueHolder.autoGenerateIcon) {
-                Util.generateIcon(target, 64, 64, 2, null, function (icondata) {
-                    debug("\t done generating icon.");
-                    shapeDef.iconData = icondata;
-                    if (isNewCollection) {
-                        PrivateCollectionManager.addShapeCollection(collection);
-                    } else {
-                        PrivateCollectionManager.addShapeToCollection(collection,
-                                shapeDef);
-                    }
-                    return;
-                });
-            } else {
-                var filePath = valueHolder.shapeIcon;
-                var image = nativeImage.createFromPath(filePath);
-
-                shapeDef.iconData = image.toDataURL();
-                if (isNewCollection) {
-                    PrivateCollectionManager.addShapeCollection(collection);
-                } else {
-                    PrivateCollectionManager.addShapeToCollection(collection,
-                            shapeDef);
-                }
-
-            }
-        } catch (e) {
-            Console.dumpError(e);
-        }
-    }
 };
 Canvas.prototype.insertPrivateShape = function (shapeDef, bound) {
 
@@ -2578,24 +2726,27 @@ Canvas.prototype.insertPrivateShapeImpl_ = function (shapeDef, bound) {
     this.setAttributeNS(PencilNamespaces.p, "p:holding", "true");
 
     this.drawingLayer.appendChild(shape);
-    this.selectShape(shape);
-    if (bound) {
-        var bbox = this.currentController.getBounding();
-        //note: the returned bbox is NOT zoomed
-        this.currentController.moveBy(
-                (bound.x - bbox.x - Math.round(bbox.width / 2)),
-                (bound.y - bbox.y - Math.round(bbox.height / 2)),
-                true);
-    }
-    shape.style.visibility = "visible";
-    this.removeAttributeNS(PencilNamespaces.p, "holding");
 
-    this.ensureControllerInView();
-    this.snappingHelper.updateSnappingGuide(this.currentController);
-    DockingManager.enableDocking(this.currentController);
+    Pencil.controller.invalidateContentNode(shape, function () {
+        this.selectShape(shape);
+        if (this.currentController.validateAll) this.currentController.validateAll();
+        if (bound) {
+            var bbox = this.currentController.getBounding();
+            //note: the returned bbox is NOT zoomed
+            this.currentController.moveBy(
+                    (bound.x - bbox.x - Math.round(bbox.width / 2)),
+                    (bound.y - bbox.y - Math.round(bbox.height / 2)),
+                    true);
+        }
+        shape.style.visibility = "visible";
+        this.removeAttributeNS(PencilNamespaces.p, "holding");
 
-    this.invalidateEditors();
+        this.ensureControllerInView();
+        this.snappingHelper.updateSnappingGuide(this.currentController);
+        DockingManager.enableDocking(this.currentController);
 
+        this.invalidateEditors();
+    }.bind(this));
 };
 Canvas.prototype.endFormatPainter = function () {
     Pencil._painterSourceTarget = null;
@@ -2736,6 +2887,7 @@ Canvas.prototype.__dragover = function (event) {
 Canvas.prototype.__drop = function (event) {
     var thiz =this;
     var data = event.dataTransfer.getData("collectionId");
+    var data = nsDragAndDrop.getData("collectionId");
     var collections = CollectionManager.shapeDefinition.collections;
     // for (var i = 0; i < collections.length; i ++) {
     //     if (collections[i].id == data) {

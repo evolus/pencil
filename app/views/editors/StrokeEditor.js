@@ -5,8 +5,7 @@ __extend(PropertyEditor, StrokeEditor);
 
 StrokeEditor.prototype.setup = function () {
     //setting up dasharray
-    var STYLES = [
-                    [Util.getMessage("stroke.style.solid"), ""],
+    var STYLES = [  [Util.getMessage("stroke.style.solid"), ""],
                     [Util.getMessage("stroke.style.dotted"), "1,3"],
                     [Util.getMessage("stroke.style.condensed.dotted"), "1,1"],
                     [Util.getMessage("stroke.style.dashed"), "5,5"],
@@ -28,7 +27,7 @@ StrokeEditor.prototype.setup = function () {
     }
 
     this.items = strokeItems;
-
+    var thiz = this;
     this.styleCombo.renderer = function (style) {
         var svg = Dom.newDOMElement({
             _name: "div",
@@ -80,7 +79,6 @@ StrokeEditor.prototype.setValue  = function (stroke) {
             break;
         }
     }
-
     this.styleCombo.selectItem(item);
 };
 
@@ -88,7 +86,7 @@ StrokeEditor.prototype.getValue = function () {
     var stroke = new StrokeStyle();
     stroke.w = this.strokeWidth.value;
     stroke.array = this.styleCombo.getSelectedItem().value;
-    return stroke.toString();
+    return stroke;
 };
 StrokeEditor.prototype.setDisabled = function (disabled) {
     if (disabled == true) {

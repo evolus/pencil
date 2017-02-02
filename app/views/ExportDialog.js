@@ -40,6 +40,7 @@ ExportDialog.prototype.invalidateUIByExporter = function () {
     var exporter = this.exporterCombo.getSelectedItem();
     if (exporter.supportTemplating()) {
         var templates = exporter.getTemplates();
+        console.log(templates);
         this.templateCombo.setItems(templates);
         this.templateCombo.setDisabled(false);
 
@@ -113,7 +114,7 @@ ExportDialog.prototype.setup = function (options) {
         }
     };
     var renderer = function (page) {
-        return page.name;
+        return Dom.htmlEncode(page.name);
     };
 
     this.pageTree.setup(source, renderer, {
@@ -173,6 +174,7 @@ ExportDialog.prototype.setOptionValues = function (valueMap) {
 
 
 ExportDialog.prototype.getDialogActions = function () {
+    var thiz = this;
     return [
         {   type: "cancel", title: "Cancel",
             isCloseHandler: true,
@@ -191,6 +193,8 @@ ExportDialog.prototype.getDialogActions = function () {
                     templateId: template ? template.id : null,
                     options: {}
                 };
+
+                result.options.copyBGLinks = thiz.copyBgLinks.checked;
 
                 if (this.propertyEditors) {
                     for (var name in this.propertyEditors) {

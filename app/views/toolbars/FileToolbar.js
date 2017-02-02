@@ -10,7 +10,8 @@ FileToolbar.prototype.registerCommands = function () {
         icon: "note_add",
         isValid: function () { return true; },
         run: function () {
-            Pencil.controller.newDocument();
+            Pencil.documentHandler.newDocument();
+            // Pencil.controller.newDocument();
         },
         shortcut: "Ctrl+N"
     });
@@ -20,7 +21,8 @@ FileToolbar.prototype.registerCommands = function () {
         icon: "open_in_browser",
         isValid: function () { return true; },
         run: function () {
-            Pencil.controller.openDocument();
+            Pencil.documentHandler.openDocument();
+            // Pencil.controller.openDocument();
         },
         shortcut: "Ctrl+O"
     });
@@ -30,7 +32,7 @@ FileToolbar.prototype.registerCommands = function () {
         icon: "save",
         isValid: function () { return Pencil.controller.doc; },
         run: function () {
-            Pencil.controller.saveDocument();
+            Pencil.documentHandler.saveDocument();
         },
         shortcut: "Ctrl+S"
     });
@@ -51,7 +53,8 @@ FileToolbar.prototype.registerCommands = function () {
         label: "Save As...",
         isValid: function () { return Pencil.controller.doc && Pencil.controller.documentPath; },
         run: function () {
-            Pencil.controller.saveAsDocument();
+            Pencil.documentHandler.saveAsDocument();
+            // Pencil.controller.saveAsDocument();
         },
         shortcut: "Ctrl+Shift+S"
     });
