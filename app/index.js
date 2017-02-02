@@ -80,7 +80,10 @@ function createWindow() {
     app.mainWindow = mainWindow;
     global.mainWindow = mainWindow;
 
-    require('./updater')();
+    const updater = require('./updater');
+    setTimeout(function() {
+        updater.checkForUpdates();
+    }, 3000);
 }
 
 // Quit when all windows are closed.

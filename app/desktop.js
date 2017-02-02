@@ -151,12 +151,13 @@ module.exports = function () {
                     style = RegExp.$1;
                 }
 
+                size = 11;
 
                 callback({
                    family: family,
                    weight: weight,
                    style: style,
-                   size: size + "px"
+                   size: (parseInt(size) - 2) + "pt"
                 });
             });
         },

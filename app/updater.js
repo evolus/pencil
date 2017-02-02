@@ -3,6 +3,8 @@ const os = require("os");
 const { autoUpdater } = require("electron-updater");
 
 function AppUpdater() {
+}
+AppUpdater.prototype.checkForUpdates = function() {
     if (isDev()) {
       return;
     }
@@ -21,7 +23,7 @@ function AppUpdater() {
     })
     autoUpdater.checkForUpdates();
     console.log('checking for update');
-}
+};
 
 function notify(title, message) {
   let windows = BrowserWindow.getAllWindows();
@@ -30,10 +32,11 @@ function notify(title, message) {
   }
 
   windows[0].webContents.send("notify", title, message);
+  console.log(message);
 }
 
 function isDev() {
     return process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) || /[\\/]electron[\\/]/.test(process.execPath);
 }
 
-module.exports = AppUpdater;
+module.exports = new AppUpdater();
