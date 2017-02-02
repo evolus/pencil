@@ -108,6 +108,7 @@ function ApplicationPane() {
         }
     }, this.toolbarContainer)
 
+    Pencil.handleArguments();
     FontLoader.instance.loadFonts();
 }
 __extend(BaseTemplatedWidget, ApplicationPane);

@@ -2021,6 +2021,10 @@ Util.setupImage = function (image, src, mode, allowUpscale) {
     image.src = src;
 };
 
+Util.isDev = function() {
+    return process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) || /[\\/]electron[\\/]/.test(process.execPath);
+};
+
 function stencilDebug(x) {
     debug(x);
 }

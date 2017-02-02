@@ -44,11 +44,16 @@
       "target": "nsis"
     },
     "nsis": {
-      "oneClick": false
+      "oneClick": false,
+      "perMachine": true
     },
     "electronDownload": {
       "cache": ".electron-cache"
-    }
+    },
+    "fileAssociations": {
+	  "ext": ["ep", "epz", "epgz"],
+	  "name": "Pencil Document"
+	}
   },
   "scripts": {
     "postinstall": "install-app-deps",

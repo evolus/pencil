@@ -161,6 +161,13 @@ Pencil.boot = function (event) {
         Console.dumpError(e, "stdout");
     }
 };
+Pencil.handleArguments = function() {
+	var remote = require('electron').remote;
+	var appArguments = remote.getGlobal('sharedObject').appArguments;
+	if (appArguments && appArguments.length > 1 && !Util.isDev()) {
+		Pencil.documentHandler.loadDocument(appArguments[1], function() {});
+	}
+};
 Pencil.setTitle = function (s) {
     document.title = s + " - Pencil";
 };

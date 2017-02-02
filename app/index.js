@@ -15,6 +15,7 @@ if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAccel
     app.disableHardwareAcceleration();
 }
 
+global.sharedObject = { appArguments: process.argv };
 
 var handleRedirect = (e, url) => {
     e.preventDefault();
