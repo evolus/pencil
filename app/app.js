@@ -16,7 +16,6 @@ const QueueHandler  = require("./pencil-core/common/QueueHandler");
 const sharedUtil    = require("./pencil-core/common/shared-util");
 
 const dialog        = remote.dialog;
-// const updater       = require('./updater')();
 
 tmp.setGracefulCleanup();
 

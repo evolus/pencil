@@ -1,9 +1,5 @@
 "use strict";
 
-if (require('electron-squirrel-startup')) {
-  return;
-}
-
 const {app, protocol, shell, BrowserWindow} = require("electron");
 const pkg      = require("./package.json");
 const fs       = require("fs");
@@ -82,6 +78,8 @@ function createWindow() {
 
     app.mainWindow = mainWindow;
     global.mainWindow = mainWindow;
+
+    require('./updater')();
 }
 
 // Quit when all windows are closed.

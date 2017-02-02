@@ -3,9 +3,9 @@ const os = require("os");
 const { autoUpdater } = require("electron-updater");
 
 function AppUpdater() {
-    // if (isDev()) {
-    //   return;
-    // }
+    if (isDev()) {
+      return;
+    }
 
     const platform = os.platform();
     if (platform === "linux") {
