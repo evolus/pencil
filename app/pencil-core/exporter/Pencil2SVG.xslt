@@ -56,7 +56,7 @@
             <g>
                 <rect x="0" y="0"
                     width="{p:Properties/p:Property[@name='width']/text()}"
-                    height="{p:Properties/p:Property[@name='width']/text()}">
+                    height="{p:Properties/p:Property[@name='height']/text()}">
                     <xsl:choose>
                         <xsl:when test="p:Properties/p:Property[@name='transparentBackground']/text() = 'false'">
                             <xsl:attribute name="fill"><xsl:value-of select="substring(p:Properties/p:Property[@name='backgroundColor']/text(), 1, 7)"/></xsl:attribute>
