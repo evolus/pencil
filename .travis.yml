@@ -53,7 +53,7 @@ install:
   - nvm install $NODE_VERSION
   - npm install npm -g
   - npm install
-  - npm install electron-builder@12.0.0
+  - npm install electron-builder@12.3.0
   - npm prune
 
 script:

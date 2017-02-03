@@ -1,9 +1,5 @@
 "use strict";
 
-if (require('electron-squirrel-startup')) {
-  return;
-}
-
 const {app, protocol, shell, BrowserWindow} = require("electron");
 const pkg      = require("./package.json");
 const fs       = require("fs");
@@ -19,6 +15,7 @@ if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAccel
     app.disableHardwareAcceleration();
 }
 
+global.sharedObject = { appArguments: process.argv };
 
 var handleRedirect = (e, url) => {
     e.preventDefault();
@@ -82,6 +79,11 @@ function createWindow() {
 
     app.mainWindow = mainWindow;
     global.mainWindow = mainWindow;
+
+    const updater = require('./updater');
+    setTimeout(function() {
+        updater.checkForUpdates();
+    }, 3000);
 }
 
 // Quit when all windows are closed.
