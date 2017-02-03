@@ -68,23 +68,27 @@ TargetSet.prototype.setProperty = function (name, value) {
 TargetSet.prototype.getProperty = function (name, any) {
     if (name == "box") return null;
     var firstValue = this.targets[0].getProperty(name);
-    if (!firstValue) return null;
 
-    if (any) return firstValue;
+    //TODO: add additonal info to indicate sameness
+    return firstValue;
 
-    var same = true;
-    for (var i = 1; i < this.targets.length; i ++) {
-        var target = this.targets[i];
-        var value = target.getProperty(name);
+    // if (!firstValue) return null;
 
-        if (value == null) return null;
-        if (firstValue.toString() != value.toString()) {
-            same = false;
-            break;
-        }
-    }
-
-    return same ? firstValue : null;
+    // if (any) return firstValue;
+    //
+    // var same = true;
+    // for (var i = 1; i < this.targets.length; i ++) {
+    //     var target = this.targets[i];
+    //     var value = target.getProperty(name);
+    //
+    //     if (value == null) return null;
+    //     if (firstValue.toString() != value.toString()) {
+    //         same = false;
+    //         break;
+    //     }
+    // }
+    //
+    // return same ? firstValue : null;
 };
 TargetSet.prototype.locatePropertyNode = function (name) {
     return null;

@@ -24,10 +24,19 @@ OnMenuEditor.prototype.generateMenuItems = function () {
         for (var j in group.properties) {
             var property = group.properties[j];
             if (property.type == Bool) {
+                var checked = false;
+                try {
+                    checked = this.targetObject.getProperty(property.name).value;
+                } catch (e) {
+                    try {
+                        checked = property.initialValue.value;
+                        this.targetObject.setProperty(property.name, checked);
+                    } catch (ex) {}
+                }
                 var item = {
                     type: "Toggle",
                     label: property.displayName,
-                    checked: this.targetObject.getProperty(property.name).value,
+                    checked: checked,
                     property: property.name,
                     handleAction: function (checked) {
                         var bool = Bool.fromString("" + checked);
