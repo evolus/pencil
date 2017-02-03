@@ -1,7 +1,7 @@
 function EpgzHandler(controller) {
     FileHandler.call(this);
     this.controller = controller;
-    this.name = "Pencil Document (GNU Zipped)";
+    this.name = "Pencil Document (GZip Compressed)";
     this.type = EpgzHandler.EXT;
 }
 

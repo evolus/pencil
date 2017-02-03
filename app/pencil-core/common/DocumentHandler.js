@@ -47,11 +47,11 @@ DocumentHandler.prototype.openDocument = function(callback){
     var thiz = this;
     function handler() {
         ApplicationPane._instance.busy();
-        dialog.showOpenDialog({
-            title: "Open pencil document",
+        dialog.showOpenDialog(remote.getCurrentWindow(), {
+            title: "Open",
             defaultPath: Config.get("document.open.recentlyDirPath", null) || os.homedir(),
             filters: [
-                { name: "Stencil documents", extensions: thiz.getExtentionHandlerFile(false) }
+                { name: "Pencil Documents", extensions: thiz.getExtentionHandlerFile(false) }
             ]
         }, function (filenames) {
             ApplicationPane._instance.unbusy();
@@ -114,7 +114,7 @@ DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
     var defaultPath = path.join(fileDir, fileName);
     var thiz = this;
 
-    dialog.showSaveDialog({
+    dialog.showSaveDialog(remote.getCurrentWindow(), {
         title: "Save as",
         defaultPath: defaultPath,
         filters: filters
