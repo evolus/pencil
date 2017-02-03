@@ -135,11 +135,14 @@ module.exports = function () {
                 var data = stdout.trim();
                 console.log('System Font:', data);
 
+                // TODO: use default fontsize
+                size = 11;
+
                 if (/FontName:\s?(.*)/i.exec(data)) {
                     family = RegExp.$1;
                 }
                 if (/FontSize:\s?(.*)/i.exec(data)) {
-                    size = RegExp.$1;
+                    size = parseInt(RegExp.$1, 10);
                 }
                 if (/FontWeight:\s?(.*)/i.exec(data)) {
                     weight = RegExp.$1;
@@ -148,7 +151,6 @@ module.exports = function () {
                     style = RegExp.$1;
                 }
 
-                // TODO: use default fontsize
                 size = 11;
 
                 callback({

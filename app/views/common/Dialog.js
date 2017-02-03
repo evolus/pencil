@@ -202,6 +202,8 @@ Dialog.prototype.close = function () {
         }
     }
 
+    if (this.onClosed) this.onClosed();
+
     window.setTimeout(function () {
         if (this.dialogFrame.parentNode) this.dialogFrame.parentNode.removeChild(this.dialogFrame);
         this.dialogFrame.style.display = "none";

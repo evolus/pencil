@@ -76,7 +76,7 @@
                         </hbox>
                         <hbox class="Entry Disabled">
                             <label>Grid size:</label>
-                            <input anon-id="textboxGridSize" size="1" type="number" min="1" max="256" preference="pencil-gridSize" configName="edit.gridSize"/>
+                            <input anon-id="textboxGridSize" size="1" type="number" min="1" max="256" preference="pencil-gridSize" configName="edit.gridSize" default-value="5"/>
                         </hbox>
                     </hbox>
                     <hbox class="Entry">
@@ -114,8 +114,16 @@
                         </hbox>
                         <hbox class="Entry">
                             <label>Undo level:</label>
-                            <input anon-id="textboxUndoLevel" size="1" type="number" min="1" max="256" preference="pencil-viewUndoLevel" configName="view.undoLevel"/>
+                            <input anon-id="textboxUndoLevel" size="1" type="number" min="1" max="256" preference="pencil-viewUndoLevel" configName="view.undoLevel" default-value="0"/>
                         </hbox>
+                    </hbox>
+                </vbox>
+                <vbox>
+                    <strong>User Interface</strong>
+                    <hbox class="Entry">
+                        <label>Text scale:</label>
+                        <input anon-id="textScaleInput" size="1" type="number" min="1" max="256" preference="pencil-uiTextSize" configName="view.uiTextScale" default-value="100"/>
+                        <label>%</label>
                     </hbox>
                 </vbox>
             </vbox>

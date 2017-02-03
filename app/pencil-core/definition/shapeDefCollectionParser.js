@@ -239,6 +239,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
             var property = new Property();
             property.name = propNode.getAttribute("name");
             property.displayName = propNode.getAttribute("displayName");
+
             var type = propNode.getAttribute("type");
             try {
                 property.type = window[type];
@@ -343,6 +344,9 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
             var property = new Property();
             property.name = propNode.getAttribute("name");
             property.displayName = propNode.getAttribute("displayName");
+
+			if(propNode.getAttribute("reload")) property.reload = propNode.getAttribute("reload");
+
             var type = propNode.getAttribute("type");
             try {
                 property.type = window[type];

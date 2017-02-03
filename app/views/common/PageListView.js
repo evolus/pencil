@@ -1,6 +1,9 @@
 function PageListView() {
     BaseTemplatedWidget.call(this);
 
+    this.filterCache = {};
+    this.showFilterBar = false;
+
     var findPageThumbnailView = function (event) {
         var node = Dom.findUpward(event.target, function (n) {
             return n.__widget && (n.__widget instanceof PageThumbnailView);
@@ -20,7 +23,6 @@ function PageListView() {
         this.handleDoubleClick(node.__widget.page);
 
     }, this.pageListContainer);
-
 
     // this.bind("mouseover", function (event) {
     //     var page = Dom.findUpwardForData(event.target, "_page");
@@ -79,7 +81,6 @@ function PageListView() {
                 }
             }
         }
-
         this.activatePage(newActivePage);
     }, this.pageBreadcrumb);
 
@@ -128,7 +129,33 @@ function PageListView() {
         this.pageListSrollView.invalidate();
         this.childPageSrollView.invalidate();
         Config.set("pageListViewExpanded.enabled", this.expanded);
+        this.validateFilterBox();
+        this.filterPages();
     }, this.toggleButton);
+
+    this.bind("click", function(ev) {
+        this.showFilterBar = !this.showFilterBar;
+        this.validateFilterBox();
+    },this.filterButton);
+
+    this.bind("input", function(ev) {
+        setTimeout(function() {
+            var value = thiz.nameTextBox.value == "" ? null : thiz.nameTextBox.value;
+            var filterName = thiz.controller.activePage.parentPage ? thiz.controller.activePage.parentPage.name : "Root";
+            if (value == null && thiz.filterCache[filterName] != null) {
+                delete thiz.filterCache[filterName];
+            } else {
+                thiz.filterCache[filterName] = value;
+            }
+            thiz.filterPages();
+            thiz.nameTextBox.focus();
+        }, 500);
+    }, this.nameTextBox)
+
+    this.bind("blur", function(ev) {
+        this.showFilterBar = false;
+        this.validateFilterBox();
+    }, this.nameTextBox)
 
     this.pageListContainer._isDropZone = true;
     this.childPageContainer._isDropZone = true;
@@ -139,11 +166,21 @@ function PageListView() {
     }
 
     this.bind("dragstart", function (event) {
+        nsDragAndDrop.dragStart(event);
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_index");
         if (!n) return;
 
         event.dataTransfer.setDragImage(this.dndImage, 8, 8);
         event.dataTransfer.setData("dragType", "page");
+        event.dataTransfer.setData("text/html", "");
+        nsDragAndDrop.setData("dragType", "page");
+        nsDragAndDrop.setData("text/html", "");
+        if (n.__widget && n.__widget.page && n.__widget.page.thumbPath) {
+            event.dataTransfer.setData("text/html", "");
+            event.dataTransfer.setData("pencil/png", n.__widget.page.thumbPath);
+            nsDragAndDrop.setData("text/html", "");
+            nsDragAndDrop.setData("pencil/png", n.__widget.page.thumbPath);
+        }
 
         if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
         this.currentDraggedObject = n;
@@ -151,7 +188,8 @@ function PageListView() {
     }, this.node());
 
     this.bind("drop", function (event) {
-        if (event.dataTransfer.getData("dragType") != "page") return;
+        // if (event.dataTransfer.getData("dragType") != "page") return;
+        if (nsDragAndDrop.getData("dragType") != "page") return;
         if (!this.lastDropCandidateObject || !this.currentDraggedObject) return;
 
         var pageId = findPageIdFromUINode(this.currentDraggedObject);
@@ -162,7 +200,8 @@ function PageListView() {
     }, this.node());
 
     this.bind("dragover", function (event) {
-        if (event.dataTransfer.getData("dragType") != "page") return;
+        // if (event.dataTransfer.getData("dragType") != "page") return;
+        if (nsDragAndDrop.getData("dragType") != "page") return;
         var container = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_isDropZone");
         if (!container) return;
 
@@ -209,6 +248,71 @@ function PageListView() {
     this.invalidateExpandedState();
 }
 __extend(BaseTemplatedWidget, PageListView);
+
+PageListView.prototype.restartFilterCache = function() {
+    this.filterCache = {};
+}
+
+PageListView.prototype.validateFilterBox = function() {
+    if (this.showFilterBar == true) {
+        this.filterContainer.style.display = "flex";
+        var filterName = this.controller.activePage.parentPage ? this.controller.activePage.parentPage.name : "Root";
+        if (this.filterCache[filterName]) {
+            this.nameTextBox.value = this.filterCache[filterName] == null ? "" : this.filterCache[filterName];
+        }
+        var bottom = this.controller.applicationPane.pageListView.node().clientHeight;
+        var right = this.controller.applicationPane.rightSidePane.node().clientWidth;
+        this.filterContainer.style.bottom = (bottom + 5) + "px";
+        this.filterContainer.style.right = (right + 5) + "px";
+        this.filterButton.disabled = true;
+        var thiz = this;
+        window.setTimeout(function() {
+            thiz.nameTextBox.focus();
+        }, 0)
+    } else {
+        this.filterButton.disabled = false;
+        this.filterContainer.style.display = "none";
+    }
+}
+
+PageListView.prototype.filterPages = function() {
+    if (!this.controller.activePage) { return; }
+    var filterName = this.controller.activePage.parentPage ? this.controller.activePage.parentPage.name : "Root";
+    var value = this.filterCache[filterName];
+
+    if (!value) {
+        this.filterValue.innerHTML = "Filter";
+        this.nameTextBox.value = "";
+        Dom.removeClass(this.filterButton, "activeFilter");
+    } else {
+        this.nameTextBox.value = value;
+        this.filterValue.innerHTML = Dom.htmlEncode(value);
+        Dom.addClass(this.filterButton, "activeFilter");
+    }
+    var selectedContainer = this.expanded == true ? this.pageListContainer : this.childPageContainer;
+    var hiddenItemCount = 0;
+    for (var i = 0; i < selectedContainer.childNodes.length; i++) {
+        var item = selectedContainer.childNodes[i];
+        var activePageItem;
+        var page;
+        if (this.expanded) page = item.__widget.page;
+        else page = item._page;
+        item.style.display = "inherit";
+        if (value) {
+            if (page.name.toUpperCase().indexOf(value.toUpperCase()) < 0) {
+                hiddenItemCount++;
+                item.style.display = "none";
+            }
+            if (page == this.controller.activePage) {
+                activePageItem = item;
+            }
+        }
+    }
+    // if (hiddenItemCount == selectedContainer.childNodes.length) {
+    //     activePageItem.style.display = "inherit";
+    // }
+}
+
 PageListView.prototype.setController = function (controller) {
     this.controller = controller;
     this.currentParentPage = null;
@@ -379,9 +483,9 @@ PageListView.prototype.renderPages = function() {
         this.childPageContainer.appendChild(childNode);
     }
     this.invalidateExpandedState();
+
     this.childPageSrollView.invalidate();
     this.pageListSrollView.invalidate();
-
     var thiz = this;
     window.setTimeout(function () {
         var childListFrom = 0;
@@ -410,7 +514,9 @@ PageListView.prototype.renderPages = function() {
         }
         thiz.childPageSrollView.ensuareVisible(childListFrom, childListTo);
         thiz.pageListSrollView.ensuareVisible(thumbnailFrom, thumbnailTo);
+        thiz.filterPages();
     }, 0);
+
 };
 
 PageListView.prototype.invalidateExpandedState = function() {
@@ -448,6 +554,7 @@ PageListView.prototype.handleDoubleClick = function (page) {
     if (!page.children || page.children.length == 0) {
         this.handleSelectPage(page);
     } else {
+        if (this.filterCache[page.name]) delete this.filterCache[page.name];
         this.activatePage(page.children[0]);
     }
 };

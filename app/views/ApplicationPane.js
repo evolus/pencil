@@ -8,10 +8,33 @@ function ApplicationPane() {
     this.rasterizer = new Rasterizer(this.controller);
     this.canvasMenu = new CanvasMenu();
 
+    this.documentHandler = new DocumentHandler(this.controller);
+    this.documentHandler.registerHandler(new EpzHandler(this.controller));
+    this.documentHandler.registerHandler(new EpgzHandler(this.controller));
+    this.documentHandler.registerHandler(new EpHandler(this.controller));
+    var handlerType = Config.get("document.fileHandler.fileHandlerType", ".epgz");
+    this.documentHandler.actived(handlerType);
+
+    Pencil.documentHandler = this.documentHandler;
     Pencil.controller = this.controller;
     Pencil.rasterizer = this.rasterizer;
 
     this.sharedFontEditor.applicationPane = this;
+
+    //this.toolBarSrollView.setWheelAllow(false);
+
+    this.bind("focusout", function(ev) {
+        console.log(ev.target);
+        if (ev.target) {
+            this.toolBarSrollView.setWheelAllow(true);
+        }
+    }, this.toolBarSrollView.node());
+
+    this.bind("focusin", function(ev) {
+        if (ev.target) {
+            this.toolBarSrollView.setWheelAllow(false);
+        }
+    }, this.toolBarSrollView.node());
 
     var thiz = this;
     this.mainMenu = new MainMenu(this.menuIcon);
@@ -85,6 +108,7 @@ function ApplicationPane() {
         }
     }, this.toolbarContainer)
 
+    Pencil.handleArguments();
     FontLoader.instance.loadFonts();
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
@@ -159,7 +183,7 @@ ApplicationPane.prototype.activatePage = function (page) {
     this.pageListView.activatePage(page);
 }
 ApplicationPane.prototype.testSave = function () {
-    this.controller.newDocument();
+    this.documentHandler.newDocument();
     var page = this.controller.newPage("Sample page", 1000, 1000, null, null, "");
     page.canvas = Pencil.activeCanvas;
 
@@ -194,6 +218,7 @@ ApplicationPane.prototype.invalidateZoom = function () {
     this.zoomToolbar.setAttribute("label", Pencil.activeCanvas ? (Math.round(Pencil.activeCanvas.zoom * 100) + "%") : "100%") ;
 };
 ApplicationPane.prototype.showStartupPane = function () {
+    Pencil.documentHandler.preDocument = null;
     if (Pencil.controller.activePage) {
         Pencil.controller.activePage.canvas.selectNone();
     }

@@ -1,4 +1,4 @@
-widget.DataTable = function () {
+lwidget.DataTable = function () {
     Dom.registerEvent(window, "load", function () {
         var f = function (event) {
             var target = Dom.getTarget(event);
@@ -25,7 +25,7 @@ widget.DataTable = function () {
             },
         });
         if (selectionPane) return;
-        
+
         //alert("start checking from: " + event.type);
         var checkbox = Dom.findUpward(target, {
             eval: function (n) {
@@ -33,38 +33,38 @@ widget.DataTable = function () {
                 return hasClass;
             },
         });
-        
+
         var infoSelection = Dom.findUpward(target, {
             eval: function (n) {
                 var hasClass = Dom.hasClass(n, "DataTableCheckInfo");
                 return hasClass;
             },
         });
-        
+
         var dataTable = DataTable.findInstance(event);
         if (!dataTable) return;
-        
+
         if (infoSelection) {
             dataTable.setSelectionInfoVisible(true);
             return;
         }
-        
+
         if (checkbox) {
             checkBoxClickHandler(target, checkbox, event);
             return;
         }
-        
+
         var th = Dom.findUpward(target, new DomTagNameEvaluator("th"));
         if (th) return;
-        
+
         var actionNode = Dom.findUpward(target, {
             eval: function (n) {
                 return n.getAttribute && n.getAttribute("action-id");
             }
         });
-        
 
-        
+
+
         //check for primary clickable item
         var td = Dom.findUpward(target, new DomTagNameEvaluator("td"), function (node) {
             return node == dataTable.container;
@@ -78,22 +78,22 @@ widget.DataTable = function () {
             }, function (n) {
                 primary = n;
             });
-            
+
             if (primary && primary.click && primary != target) {
                 primary.click();
                 return;
             }
         }
-        
+
         //find data row instance
         var row = Dom.findUpward(target, {
             eval: function (n) {
                 return n.getAttribute && n.getAttribute("data-index");
             }
         });
-        
+
         if (!row) return;
-        
+
         var index = parseInt(row.getAttribute("data-index"), 10);
         var data = dataTable.items[index];
         if (event.shiftKey) {
@@ -101,12 +101,12 @@ widget.DataTable = function () {
             //alert(json);
             console.log("ROW DATA:", data);
         }
-        
+
         if (actionNode) {
             actionClickHandler(target, actionNode, row, data, dataTable, event);
             return;
         }
-        
+
         if (dataTable.defaultSelectionHandler) {
             dataTable.defaultSelectionHandler.run(data);
         }
@@ -124,23 +124,23 @@ widget.DataTable = function () {
                     break;
                 }
             }
-            
+
             if (action) break;
         }
-        
+
         if (!action) return;
         if (!row) return;
-        
+
         //invoke the action
         action.handler(data);
     }
-    
+
     function checkBoxClickHandler(target, checkbox, event) {
         var dataTable = DataTable.findInstance(event);
         if (!dataTable) return;
-        
+
         var all = Dom.hasClass(checkbox, "All");
-        
+
         if (all) {
             if (checkbox.checked) {
                 if (dataTable.totalItems > 200) {
@@ -156,10 +156,10 @@ widget.DataTable = function () {
                     }, Messages["cancel"], function () {
                         checkbox.checked = false;
                     });
-                    
+
                     return;
                 }
-                
+
                 if (checkbox.checked) {
                     dataTable.selectAll();
                 } else {
@@ -168,7 +168,7 @@ widget.DataTable = function () {
             } else {
                 dataTable.selectNone();
             }
-            
+
             dataTable.fireAllCheckBoxChangedEvent(checkbox.checked);
         } else {
             var allChecked = true;
@@ -177,39 +177,39 @@ widget.DataTable = function () {
             }, function (c) {
                 if (!c.checked) allChecked = false;
             })
-            
+
             Dom.doOnChildRecursively(dataTable.table, {
                 eval: function (n) { return Dom.hasClass(n, "DataTableCheck") && Dom.hasClass(n, "All")}
             }, function (c) {
                 c.checked = allChecked && !dataTable.multiPages;
             })
-            
+
             dataTable._updateCheckedRowIndicator();
-            
+
             var index = parseInt(checkbox.getAttribute("data-index"), 10);
             dataTable.fireCheckBoxChangedEvent(index, checkbox.checked);
         }
-        
+
         dataTable.fireSelectionChangedEvent(true);
     }
-    
+
     function columnHeaderClickHandler(event) {
         var dataTable = DataTable.findInstance(event);
         if (!dataTable) return;
-        
+
         var target = Dom.getTarget(event);
         var th = Dom.findUpward(target, {
             eval: function (n) {
                 return Dom.hasClass(n, "Sortable") && n.id;
             }
         });
-        
+
         if (!th) return;
         var id = th.id;
         for (var i = 0; i < dataTable.actualColumns.length; i ++) {
             var column = dataTable.actualColumns[i];
             if (!column.propertyName) continue;
-            
+
             if (column.columnId == id) {
                 console.log("Found colum id ", column, th);
                 var asc = Dom.hasClass(th, "AscSort");
@@ -224,14 +224,14 @@ widget.DataTable = function () {
                 return;
             }
         }
-    } 
-    
+    }
+
     function SelectorColumn(exclusive) {
         this.exclusive = exclusive;
         this.headerClass = "DTCheckbox DTCheckboxAll";
         this.name = "name" + widget.random();
     }
-    
+
     SelectorColumn.prototype.getCellContentHtml = function (data, row, col) {
         return "<input primary=\"true\" type=\"" + (this.exclusive ? "radio" : "checkbox") + "\" class=\"DataTableCheck Item\" data-index=\"" + row + "\" name=\"" + this.name + "\" />";
     };
@@ -247,12 +247,12 @@ widget.DataTable = function () {
     SelectorColumn.prototype.getExtraWrapperClass = function () {
         return "DTCheckBox";
     };
-    
+
     function ActionColumn(actions) {
         this.actions = actions;
         this.headerClass = "Actions";
         this.title = "Actions";
-        
+
     }
     ActionColumn.prototype.getTitleContentHtml = function () {
         return this.title;
@@ -262,7 +262,7 @@ widget.DataTable = function () {
         for (var i = 0; i < this.actions.length; i ++) {
             var action = this.actions[i];
             if (action.isApplicable && !action.isApplicable(data)) continue;
-            
+
             html += "<span action-id=\"" + action.id + "\" class=\"fa " + action.type + " Action"  + action.id +  " " + (action.isApplicable && action.isApplicable(data) ? "" : "disabled")  + "\" title=\"" + Dom.htmlEncode(action.title) + "\"></span>"
         }
         return html;
@@ -277,7 +277,7 @@ widget.DataTable = function () {
         this.preferredWidth = "" + w;
         return this;
     };
-    
+
     function DataTable(container, id) {
         this.container = widget.get(container);
         this.columns = [];
@@ -295,9 +295,9 @@ widget.DataTable = function () {
         this.itemsChangedListener = null;
         this.headerHeight = 0;
         this.hiddenHeader = false;
-        
+
         Dom.registerEvent(this.container, "click", clickHandler, false);
-        
+
         var ua = navigator.userAgent.toLowerCase();
         if (ua.indexOf("chrome/") >= 0
                 || ua.indexOf("safari/") >= 0
@@ -319,11 +319,11 @@ widget.DataTable = function () {
                     window.setTimeout(detector, 500);
                 }
             }
-            
+
             detector();
-            
+
         }
-        
+
         var thiz = this;
     }
     DataTable.prototype.withOverflowIndicators = function(indicatorContainer) {
@@ -332,25 +332,25 @@ widget.DataTable = function () {
         Dom.addClass(left, "DTOverflowIndicator DTOverflowIndicatorLeft");
         indicatorContainer.appendChild(left);
         this.leftOverflowIndicator = left;
-        
+
         var right = document.createElement("div");
         Dom.addClass(right, "DTOverflowIndicator DTOverflowIndicatorRight");
         indicatorContainer.appendChild(right);
         this.rightOverflowIndicator = right;
-        
+
         Dom.registerEvent(this.container, "scroll", function () {
             thiz.invalidateOverflowIndicators();
         }, false);
-        
+
         return this;
     };
     DataTable.prototype.invalidateSelectionInfo = function(paginator) {
         if (!this._selectionPane || !this._selectionPane._dt) return;
         var thiz = this;
         this._selectionPane._pg = paginator;
-        
+
         paginator.getSelectedItems(function(items) {
-            
+
             thiz._selectionPane._dt.setItems(items);
         });
     }
@@ -393,7 +393,7 @@ widget.DataTable = function () {
             }
         });
         var selectionItemDataTable = new widget.DataTable(bodyPane);
-        
+
         selectionItemDataTable.column(new widget.DataTable.PlainTextColumn(Messages["table_colum_header_index"], function(data, row, col){
             return (row +1);
         }).width("4em"));
@@ -433,7 +433,7 @@ widget.DataTable = function () {
                         thiz._selectionPane._dt.setItems(selectedsInPaginator);
                         thiz.fireSelectionChangedEvent(true);
                         thiz._selectionPane._actionBar.invalidate();
-                        
+
                     };
                     if (thiz._selectionPane._pg) {
                         thiz._selectionPane._pg.getSelectedItems(function(items) {
@@ -447,18 +447,18 @@ widget.DataTable = function () {
         var actions = [];
         actions.push(removeAction);
         selectionItemDataTable.column(new widget.DataTable.ActionColumn(actions).width("6em"));
-        
+
         //selectionItemDataTable.setup();
-        
+
         this.container.appendChild(infoPane);
         this._selectionPane = infoPane;
         this._selectionPane._actionBar = ab;
         this._selectionPane._dt = selectionItemDataTable;
         this.setSelectionInfoVisible(false);
         this._selectionPane._dt.setup(function() {
-            
+
         });
-     
+
         return this;
     }
     DataTable.prototype.sumarizerSelectionItem = function(data) {
@@ -477,10 +477,10 @@ widget.DataTable = function () {
     }
     DataTable.prototype.invalidateOverflowIndicators = function () {
         if (!this.leftOverflowIndicator) return;
-        
+
         var overflowLeft = (this.container.scrollLeft != 0);
         var overflowRight = (this.container.offsetWidth + this.container.scrollLeft != this.container.scrollWidth);
-        
+
         var indicatorContainer = this.leftOverflowIndicator.parentNode;
         if (overflowLeft) {
             Dom.addClass(indicatorContainer, "DTOverflowLeft");
@@ -495,10 +495,10 @@ widget.DataTable = function () {
     };
     DataTable.prototype.setHeight = function(height) {
     };
-    
+
     DataTable.prototype.setMinHeight = function(height) {
     };
-    
+
     DataTable.prototype.setHiddenHeader = function(isHidden) {
     	this.hiddenHeader = isHidden;
     };
@@ -539,27 +539,27 @@ widget.DataTable = function () {
             c.checked = selected;
             c.disabled = typeof(thiz.disabledWhenCheckAll) == "undefined" ? all : thiz.disabledWhenCheckAll;
         })
-        
+
         //this.fireSelectionChangedEvent();
     };
     DataTable.prototype.selectItems = function (items, fromUserActions) {
         var thiz = this;
         var allChecked = true;
         var checkAllElement = null;
-        
+
         Dom.doOnChildRecursively(this.table, {
             eval: function (n) { return Dom.hasClass(n, "DataTableCheck") && Dom.hasClass(n, "Item")}
         }, function (c) {
             var index = parseInt(c.getAttribute("data-index"), 10);
             var item = thiz.items[index]
-            var itemChecked = contains(items, item, thiz.comparer); 
+            var itemChecked = contains(items, item, thiz.comparer);
             c.checked =  itemChecked;
-            
+
             if (!itemChecked) {
                 allChecked = false;
             }
         });
-        
+
         Dom.doOnChildRecursively(this.table, {
             eval: function (n) { return Dom.hasClass(n, "DataTableCheck") && Dom.hasClass(n, "All")}
         }, function (c) {
@@ -569,18 +569,18 @@ widget.DataTable = function () {
             } else {
                 c.disabled = false;
             }
-            
+
             c.checked = allChecked;
         });
-        
+
         Dom.doOnChildRecursively(this.table, {
             eval: function (n) { return Dom.hasClass(n, "DataTableCheck") && Dom.hasClass(n, "Item")}
         }, function (c) {
             c.disabled = allChecked;
         });
-        
+
         this._updateCheckedRowIndicator();
-        
+
         this.fireSelectionChangedEvent(fromUserActions);
     };
     DataTable.prototype._updateCheckedRowIndicator = function () {
@@ -598,15 +598,15 @@ widget.DataTable = function () {
     };
     DataTable.prototype.highlightItems = function (items, styleClass) {
         var thiz = this;
-        
+
         Dom.doOnAllChildren(this.body, function (tr) {
             var dataIndex = tr.getAttribute("data-index");
             if (!dataIndex) return;
-            
+
             var index = parseInt(dataIndex, 10);
             var item = thiz.items[index]
             if (!item) return;
-            
+
             if (contains(items, item, thiz.comparer)) {
                 Dom.addClass(tr, styleClass ? styleClass : "Highlighted");
             } else {
@@ -616,15 +616,15 @@ widget.DataTable = function () {
     };
     DataTable.prototype.removeHighlightItems = function (items, styleClass) {
         var thiz = this;
-        
+
         Dom.doOnAllChildren(this.body, function (tr) {
             var dataIndex = tr.getAttribute("data-index");
             if (!dataIndex) return;
-            
+
             var index = parseInt(dataIndex, 10);
             var item = thiz.items[index]
             if (!item) return;
-            
+
             if (contains(items, item, thiz.comparer)) {
                 Dom.removeClass(tr, styleClass ? styleClass : "Highlighted");
             }
@@ -647,7 +647,7 @@ widget.DataTable = function () {
             c.checked = false;
         })
     };
-    
+
     DataTable.prototype.getSelectionCount = function () {
         if (this.isSelectAll()) return this.totalItems;
         return this.getSelectedItems().length;
@@ -673,36 +673,36 @@ widget.DataTable = function () {
         this.exclusive = ex || false;
         return this;
     };
-    
+
     DataTable.prototype.setDefaultSelectionHandler = function (handler) {
         this.defaultSelectionHandler = handler;
         Dom.addClass(this.table, "WithSelectionHandler");
     };
-    
+
     DataTable.prototype.withColumnBuilder = function (builder) {
         this.columnBuilder = builder;
         return this;
     };
     DataTable.prototype.createColumnDefinitions = function () {
         this.actualColumns = [];
-        
+
         //add a selector column if required
         if (this.withSelector) {
             var selectorColumn = new SelectorColumn(this.exclusive);
             selectorColumn.sizingPolicy = this.selectorColumnWidth || "45px";
             this.actualColumns.push(selectorColumn);
         }
-        
+
         if (this.columnBuilder) {
             this.columns = this.columnBuilder.build();
         }
-        
+
         for (var i = 0; i < this.columns.length; i ++) {
             var column = this.columns[i];
             column.sizingPolicy = column.preferredWidth || this.defaultColWidth || "1*";
             this.actualColumns.push(column);
         }
-        
+
         //add an action column at the end, if requested
         if (this.actions && this.actions.length > 0) {
             var actionColum = new ActionColumn(this.actions);
@@ -713,9 +713,9 @@ widget.DataTable = function () {
     };
     DataTable.prototype.setup = function (callback) {
         this.actualColumns = [];
-        
+
         this.createColumnDefinitions();
-        
+
         if (this.isConfigurable && !this.columnBuilder) {
             var thiz = this;
             $userService.getConfigParam("nv.amw", "hidden_columns_" + this.systemId, function (param) {
@@ -736,10 +736,10 @@ widget.DataTable = function () {
             this._init();
             if (callback) callback();
         }
-        
+
         return this;
     };
-    
+
     DataTable.prototype.systemId = function (id) {
         this.systemId = id;
         return this;
@@ -770,21 +770,21 @@ widget.DataTable = function () {
         this.lastContainerWidth = Dom.getOffsetWidth(this.container);
         var totalWidth = this.lastContainerWidth - 1;
         var remainingWidth = totalWidth;
-        
+
         this.createColumnDefinitions();
-        
-        var html = 
-                "<table style=\"width: #@@TABLE_WIDTH@@#px;\" id=\"" + this.tableId + "\" class=\"table DataTable" 
-                + (this.supportZebraColor() ? " table-striped": "") + " table-bordered\">\n" + 
-                "    <thead class=\"" + (this.hiddenHeader ? "Hidden" : "") + "\">\n" + 
+
+        var html =
+                "<table style=\"width: #@@TABLE_WIDTH@@#px;\" id=\"" + this.tableId + "\" class=\"table DataTable"
+                + (this.supportZebraColor() ? " table-striped": "") + " table-bordered\">\n" +
+                "    <thead class=\"" + (this.hiddenHeader ? "Hidden" : "") + "\">\n" +
                 "        <tr id=\"" + this.headerId + "\">\n";
-        
+
         var totalWeight = 0;
         //console.log("Actual cols size ", this.actualColumns.length);
         for (var i = 0; i < this.actualColumns.length; i ++) {
-        	
+
         	if (!this.isColumnVisible(this.actualColumns[i])) continue;
-        	
+
         	var col = this.actualColumns[i];
             var wText = col.sizingPolicy;
             var w = 0;
@@ -807,7 +807,7 @@ widget.DataTable = function () {
             	remainingWidth -= w;
             }
         }
-        
+
         var MIN_FLEX_WIDTH = this.minColWidth();
         var totalDisplayWidth = totalWidth - remainingWidth;
         if (remainingWidth < 0) remainingWidth = 0;
@@ -820,15 +820,15 @@ widget.DataTable = function () {
                 w = parseInt(wText.substring(0, wText.length - 1));
                 var width = Math.floor((remainingWidth * w) / totalWeight);
                 width = Math.max(width, MIN_FLEX_WIDTH * w);
-                
+
                 col._width = width;
                 totalDisplayWidth += width;
             }
         }
-        
+
         var realTableWidth = Math.max(totalWidth, totalDisplayWidth);
         html = html.replace("#@@TABLE_WIDTH@@#", "" + realTableWidth);
-        
+
         var t = 0;
         for (var i = 0; i < this.actualColumns.length; i ++) {
             if (!this.isColumnVisible(this.actualColumns[i])) continue;
@@ -840,7 +840,7 @@ widget.DataTable = function () {
             if (col.headerClass) {
                 clazz += col.headerClass;
             }
-            
+
             if (col.propertyName) {
                 clazz += " Sortable";
             }
@@ -848,39 +848,39 @@ widget.DataTable = function () {
             if (col.getExtraWrapperClass) {
                 extra = " class=\"" + col.getExtraWrapperClass() + "\"";
             }
-            
+
             var style = "";
             style += "width: " + col._width + "px; height: 25px; overflow: hidden;";
             var margin = 1;
             html +=
                 "<th title=\"" + Dom.htmlEncode(col.getTitleInfo()) + "\" width=\"" + col._width + "\" id=\"" + id + "\" class=\"" + clazz + "\" style=\"" + style +"\"><div" + extra + " style=\"width: " + (col._width - margin) + "px;\">" + col.getTitleContentHtml() + "</div></th>";
         }
-                
-        html += "        </tr>\n" + 
-                "    </thead>\n" + 
-                "    <tbody id=\"" + this.bodyId + "\">\n" + 
-                "    </tbody>\n" + 
+
+        html += "        </tr>\n" +
+                "    </thead>\n" +
+                "    <tbody id=\"" + this.bodyId + "\">\n" +
+                "    </tbody>\n" +
                 "</table>";
-        
+
         this.container.innerHTML = html;
-        
+
         this.table = document.getElementById(this.tableId);
         this.header = document.getElementById(this.headerId);
         this.headerHeight = Dom.getOffsetHeight(this.header);
         this.body = document.getElementById(this.bodyId);
-        
+
         if (this.defaultSelectionHandler) {
             Dom.addClass(this.table, "WithSelectionHandler");
         }
-        
+
         this.table._dt = this;
-        
+
         this.overlay = document.createElement("div");
         Dom.addClass(this.overlay, "BusyOverlay");
         this.container.appendChild(this.overlay);
-        
+
         Dom.addClass(this.container, "DataTableContainer");
-        
+
         var thiz = this;
         if (this.isConfigurable) {
             if (this.columnSettingButton) {
@@ -912,10 +912,10 @@ widget.DataTable = function () {
             }, false);
         }
         if (this.withSelector) {
-            this.addSelectionInfoPane(); 
+            this.addSelectionInfoPane();
         }
         if (this.currentOrder) {
-           this.setOrder(this.currentOrder); 
+           this.setOrder(this.currentOrder);
         }
         Dom.registerEvent(this.header, "click", columnHeaderClickHandler, false);
 
@@ -926,7 +926,7 @@ widget.DataTable = function () {
         for (var i = 0; i < this.hiddenColumnIds.length; i ++) {
             if (this.hiddenColumnIds[i] == column.id) return false;
         }
-        
+
         return true;
     };
     DataTable.prototype.defaultColWidth = function(w) {
@@ -934,7 +934,7 @@ widget.DataTable = function () {
     	return this;
     }
     DataTable.prototype.minColWidth = function() {
-      return 50;  
+      return 50;
     };
     DataTable.prototype.setHiddenColumnIds = function (ids) {
         var paramValue = "";
@@ -992,12 +992,12 @@ widget.DataTable = function () {
                                 hiddenIds.push(row._column.id);
                             }
                         }
-                        
+
                         if (hiddenIds.length == thiz.columns.length) {
                             widget.Dialog.error(Messages["please_select_at_least_one_visible_column_msg"]);
                             return false;
                         }
-                        
+
                         thiz.setHiddenColumnIds(hiddenIds);
                         return true;
                     }
@@ -1013,13 +1013,13 @@ widget.DataTable = function () {
         };
         new widget.Dialog(builder).show();
     };
-    
+
     DataTable.prototype.getCalculatedHeight = function () {
     	var headerHeight = this.table.getElementsByTagName("th")[0].offsetHeight;
         var bodyHeight = this.table.offsetHeight - headerHeight;
         var rowHeight = bodyHeight / (this.items ? this.items.length : 1);
-        
-        
+
+
         var dialog = Dom.findParentWithClass(this.table, "DialogContainer");
         if (dialog) {
             //find scrollable container
@@ -1051,7 +1051,7 @@ widget.DataTable = function () {
 			y : yPosition
 		};
 	};
-    
+
 	DataTable.prototype.getDefaultRowHeight = function() {
 		var headerHeight = this.table.getElementsByTagName("th")[0].offsetHeight;
         var bodyHeight = this.table.offsetHeight - headerHeight;
@@ -1061,7 +1061,7 @@ widget.DataTable = function () {
         } else {
         	rowHeight = bodyHeight / this.items.length;
         }
-		
+
 		return rowHeight;
 	};
     DataTable.prototype.getPreferredPageSize = function (busy) {
@@ -1069,7 +1069,7 @@ widget.DataTable = function () {
         var headerHeight = Dom.getOffsetHeight(this.table.getElementsByTagName("th")[0]);
         var bodyHeight = Dom.getOffsetHeight(this.table) - headerHeight;
         var rowHeight = bodyHeight / (this.items ? this.items.length : 1);
-        
+
         var maxBodyHeight = Dom.getOffsetHeight(this.container) - Dom.calculateSystemScrollbarSize().h - headerHeight;
         var rows = Math.floor(maxBodyHeight / rowHeight);
         if (rows <= 0) rows = 1;
@@ -1081,7 +1081,7 @@ widget.DataTable = function () {
         var rowHeight = this.getDefaultRowHeight();
         return rowHeight;
     };
-    
+
     DataTable.prototype.showBusy = function (busy) {
         if (busy) {
             //Dom.addClass(this.container, "Busy");
@@ -1093,11 +1093,11 @@ widget.DataTable = function () {
             defaultIndicator.done();
         }
     };
-    
+
     DataTable.prototype.getItems = function() {
     	return this.items;
     };
-    
+
     DataTable.prototype.addItems = function(items) {
     	var html = "";
         for (var i = 0; i < items.length; i ++) {
@@ -1126,11 +1126,11 @@ widget.DataTable = function () {
                 }
                 html += "</td>"
             }
-            
+
             html += "</tr>";
             this.items.push(items[i]);
         }
-        
+
         if (navigator.userAgent.match(/MSIE/i)) {
             this.temp.innerHTML = "<table><tbody>" + html + "</tbody></table>";
             var newBody = this.temp.firstChild.firstChild;
@@ -1140,14 +1140,14 @@ widget.DataTable = function () {
         } else {
             this.body.innerHTML += html;
         }
-        
-        
+
+
         this.fireSelectionChangedEvent(false);
     }
     DataTable.prototype.getClassOfRow = function(item) {
         return "";
     }
-    
+
     DataTable.prototype.markedAsPaginated = function (paginated) {
         this.paginated = paginated;
         if (paginated) {
@@ -1183,15 +1183,15 @@ widget.DataTable = function () {
                 		 html += " title=\"" + text  +"\"";
                 	 }
                 }
-               
+
                 html += "><div class=\"CellContentWrapper\" style=\"width: " + (column._width - 1) + "px;\">";
                 html += cellHtml;
                 html += "</div></td>"
             }
-            
+
             html += "</tr>";
         }
-        
+
         if (navigator.userAgent.match(/MSIE/i)) {
             this.temp.innerHTML = "<table><tbody>" + html + "</tbody></table>";
             var newBody = this.temp.firstChild.firstChild;
@@ -1201,16 +1201,16 @@ widget.DataTable = function () {
         } else {
             this.body.innerHTML = html;
         }
-        
+
         this.selectCurrentPageItems(this.isSelectAll());
-        
+
         if (this.leftOverflowIndicator) {
             this.leftOverflowIndicator.style.height = this.table.offsetHeight + "px";
         }
         if (this.rightOverflowIndicator) {
             this.rightOverflowIndicator.style.height = this.table.offsetHeight + "px";
         }
-        
+
         this.table.style.height = "auto";
         this.invalidateOverflowIndicators();
         if (this.lastCalculatedPageSize && this.items.length == this.lastCalculatedPageSize) {
@@ -1223,12 +1223,12 @@ widget.DataTable = function () {
             this.table.style.height = "auto";
         }
         this.invalidateOverflowIndicators();
-        
+
         this.fireSelectionChangedEvent(false);
-        
+
         if (this.onItemsChanged && notify) {
         	this.onItemsChanged(this.items);
-        } 
+        }
     }
     DataTable.prototype.setItems = function (items, dontNotify) {
         this._setItems(items, dontNotify ? false : true);
@@ -1254,10 +1254,10 @@ widget.DataTable = function () {
             var index = parseInt(c.getAttribute("data-index"), 10);
             selectedItems.push(thiz.items[index]);
         })
-        
+
         return selectedItems;
     }
-    
+
     ///// IOrderDisplay interface
     DataTable.prototype.setOrder = function (order) {
         for (var i = 0; i < this.actualColumns.length; i ++) {
@@ -1267,7 +1267,7 @@ widget.DataTable = function () {
             Dom.removeClass(th, "DescSort");
             Dom.removeClass(th, "AscSort");
             Dom.removeClass(th, "BothSort");
-            
+
             if (order && order.propertyName == column.propertyName) {
                 Dom.addClass(th, order.asc ? "AscSort" : "DescSort");
             }
@@ -1277,14 +1277,14 @@ widget.DataTable = function () {
     DataTable.prototype.getOrder = function () {
         return this.currentOrder;
     };
-    
+
     DataTable.prototype.addOrderRequestListener = function (listener) {
         this.orderRequestListeners.push(listener);
     };
     DataTable.prototype.addListener = function (listener) {
         this.listeners.push(listener);
     };
-    
+
     DataTable.findInstance = function (event) {
         var target = Dom.getTarget(event);
         return DataTable.findInstanceFromNode(target);
@@ -1295,9 +1295,9 @@ widget.DataTable = function () {
                 return n._dt;
             }
         });
-        
+
         if (!table) return null;
-        
+
         return table._dt;
     };
     DataTable.getRowData = function (node) {
@@ -1309,19 +1309,19 @@ widget.DataTable = function () {
                 return n.getAttribute && n.getAttribute("data-index");
             }
         });
-        
+
         if (!row) return null;
-        
+
         var index = parseInt(row.getAttribute("data-index"), 10);
         var data = dataTable.items[index];
-        
+
         return data;
     }
 
-    
+
     DataTable.SelectorColumn = SelectorColumn;
     DataTable.ActionColumn = ActionColumn;
-    
+
     function BaseColumn() {
     }
     BaseColumn.prototype.sortable = function (propertyName) {
@@ -1350,7 +1350,7 @@ widget.DataTable = function () {
         return this.title ? this.title : "";
     };
     DataTable.BaseColumn = BaseColumn;
-    
+
     DataTable.PlainTextColumn = function (title, getter, clazz) {
         this.title = title;
         this.headerClass = clazz;
@@ -1370,7 +1370,7 @@ widget.DataTable = function () {
     DataTable.PlainTextColumn.prototype.getCellContentHtml = function (data, row, col) {
         return Dom.htmlEncode(this.getter(data, row, col));
     };
-    
+
     DataTable.GenericColumn = function (title, renderer, clazz) {
         this.title = title;
         this.headerClass = clazz;
@@ -1390,7 +1390,7 @@ widget.DataTable = function () {
     DataTable.GenericColumn.prototype.getCellContentHtml = function (data, row, col) {
         return this.renderer(data, row, col);
     };
-    
+
     DataTable.LinkColumn = function (title, linkContentBuilder, linkHrefBuider, clazz) {
         this.title = title;
         this.headerClass = clazz;
@@ -1434,16 +1434,15 @@ widget.DataTable = function () {
         var content = Dom.htmlEncode(link.text);
         return content;
     };
-    
+
     DataTable.Action = function (title, type, handler) {
         this.title = title;
         this.type = type;
         this.handler = handler;
         this.id = widget.random();
     };
-    
-    
-    
+
+
+
     return DataTable;
 }();
-

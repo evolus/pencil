@@ -87,6 +87,9 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
         var htmlFile = path.join(destDir.name, PrintingExporter.HTML_FILE);
 
         Dom.serializeNodeToFile(result, htmlFile);
+        // console.log("HTML File: " + htmlFile);
+        // callback();
+        // return;
 
         if (this.pdfOutput) {
             if (fsExistSync(targetFile)) {
