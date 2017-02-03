@@ -1,10 +1,12 @@
 function EpzHandler (controller) {
     FileHandler.call(this);
     this.controller = controller;
-    this.type = ".epz";
+    this.name = "Pencil Document (Compressed)";
+    this.type = EpzHandler.EXT;
 }
 __extend(FileHandler, EpzHandler);
 
+EpzHandler.EXT = ".epz";
 EpzHandler.prototype.loadDocument = function(filePath, callback) {
     ApplicationPane._instance.busy();
     this.controller.applicationPane.pageListView.restartFilterCache();

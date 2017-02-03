@@ -1,11 +1,13 @@
 function EpgzHandler(controller) {
     FileHandler.call(this);
     this.controller = controller;
-    this.type = ".epgz";
+    this.name = "Pencil Document (GNU Zipped)";
+    this.type = EpgzHandler.EXT;
 }
 
 __extend(FileHandler, EpgzHandler);
 
+EpgzHandler.EXT = ".epgz";
 EpgzHandler.prototype.loadDocument = function(filePath, callback) {
     ApplicationPane._instance.busy();
     this.controller.applicationPane.pageListView.restartFilterCache();

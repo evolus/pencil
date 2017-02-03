@@ -1,6 +1,7 @@
 function EpHandler(controller) {
     FileHandler.call(this);
     this.controller = controller;
+    this.name = "Pencil Document (Legacy)";
     this.type = ".ep";
 }
 __extend(FileHandler, EpHandler);

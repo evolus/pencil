@@ -9,11 +9,6 @@ function ApplicationPane() {
     this.canvasMenu = new CanvasMenu();
 
     this.documentHandler = new DocumentHandler(this.controller);
-    this.documentHandler.registerHandler(new EpzHandler(this.controller));
-    this.documentHandler.registerHandler(new EpgzHandler(this.controller));
-    this.documentHandler.registerHandler(new EpHandler(this.controller));
-    var handlerType = Config.get("document.fileHandler.fileHandlerType", ".epgz");
-    this.documentHandler.actived(handlerType);
 
     Pencil.documentHandler = this.documentHandler;
     Pencil.controller = this.controller;

@@ -4,7 +4,24 @@ function DocumentHandler(controller) {
     this.tempDir;
     this.controller = controller;
     this.preDocument = null;
+
+    this.registerHandler(new EpzHandler(this.controller));
+    this.registerHandler(new EpgzHandler(this.controller));
+    this.registerHandler(new EpHandler(this.controller));
+
+    var handlerType = this.getDefaultFileType();
+    this.actived(handlerType);
 }
+DocumentHandler.prototype.getDefaultFileType = function () {
+    const configName = "document.fileHandler.defaultHandlerType";
+    var value = Config.get(configName, null);
+    if (value === null) {
+        value = EpgzHandler.EXT;
+        Config.set(configName, value);
+    }
+
+    return value;
+};
 DocumentHandler.prototype.registerHandler = function(handler){
     this.fileHandler[handler.type] = handler;
     // if (this.fileHandler[handler.type].loadDocument != null) this.readExtensions.push(handler.type.replace(".",""));
@@ -51,91 +68,111 @@ DocumentHandler.prototype.openDocument = function(callback){
 }
 
 DocumentHandler.prototype.loadDocument = function(filePath, callback){
-    if (this.fileHandler[path.extname(filePath)] == null || this.fileHandler[path.extname(filePath)].loadDocument == null) {
+    var ext = path.extname(filePath);
+    var handler = this.fileHandler[ext];
+    if (handler == null || handler.loadDocument == null) {
         Dialog.alert("This file type is not support! please open another file.");
     } else {
-        this.fileHandler[path.extname(filePath)].loadDocument(filePath, callback);
-        if (this.fileHandler[path.extname(filePath)].saveDocument != null) {
-            Config.set("document.fileHandler.fileHandlerType", path.extname(filePath));
-            this.actived(path.extname(filePath));
-        }
+        var thiz = this;
+        handler.loadDocument(filePath, function () {
+            if (handler.saveDocument != null) {
+                thiz.actived(ext);
+            }
+            if (callback) callback();
+        });
     }
 }
 
-DocumentHandler.prototype.saveAsDocument = function (onSaved) {
-    var filePath = path.join(this.controller.documentPath && path.dirname(this.controller.documentPath) || Config.get("document.save.recentlyDirPath", null) || os.homedir(),
-                    this.controller.documentPath && path.basename(this.controller.documentPath) || "Untitled" + thiz.activeHandler.type);
-    var thiz = this;
-    var callback = function() {
-        dialog.showSaveDialog({
-            title: "Save as",
-            defaultPath: filePath,
-            filters: [
-                { name: "Stencil documents", extensions: thiz.getExtentionHandlerFile(true) }
-            ]
-        }, function (filePath) {
-            if (!filePath) return;
-            if (thiz.fileHandler[path.extname(filePath)] != thiz.activeHandler) {
-                Config.set("document.fileHandler.fileHandlerType", path.extname(filePath));
-                thiz.actived(path.extname(filePath));
+DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
+    var filters = [];
+    var defaultFileType = this.getDefaultFileType();
+    for (var type in this.fileHandler) {
+        var handler = this.fileHandler[type];
+        if (handler.saveDocument) {
+            var filter = {
+                name: handler.name,
+                extensions: [handler.type.replace(/^\./,"")]
+            };
+            if (handler.type == defaultFileType) {
+                filters.unshift(filter);
+            } else {
+                filters.push(filter);
             }
-            thiz.controller.addRecentFile(filePath, thiz.controller.getCurrentDocumentThumbnail());
-            thiz.controller.documentPath = filePath;
-            thiz.controller.doc.name = thiz.controller.getDocumentName();
-            thiz.activeHandler.saveDocument(filePath, onSaved);
-        }.bind(thiz));
+        }
     }
-    if (this.fileHandler[path.extname(filePath)].saveDocument == null) {
-        filePath = filePath.replace(path.extname(filePath), this.activeHandler.type);
-        Dialog.confirm(
-            "The file format is not support for save operator!?",
-            "your file name will change to: " + path.basename(filePath),
-            "Save", callback,
-            "Cancel", function () { });
-        // Dialog.alert("The file format is not support for save operator!",  , callback);
+
+    var fileName = null;
+    var fileDir = null;
+    if (this.controller.documentPath) {
+        fileName = path.basename(this.controller.documentPath).replace(/\.[^\.]+$/, "") + defaultFileType;
+        fileDir = path.dirname(this.controller.documentPath);
     } else {
-        callback();
+        fileName = "Untitled" + defaultFileType;
+        fileDir = Config.get("document.save.recentlyDirPath", os.homedir());
     }
+
+    var defaultPath = path.join(fileDir, fileName);
+    var thiz = this;
+
+    dialog.showSaveDialog({
+        title: "Save as",
+        defaultPath: defaultPath,
+        filters: filters
+    }, function (filePath) {
+        if (filePath) {
+            var ext = path.extname(filePath);
+            if (ext != defaultFileType && fs.existsSync(filePath)) {
+                Dialog.confirm("Are you sure you want to overwrite the existing file?", filePath,
+                    "Yes, overwrite", function () {
+                        Config.set("document.save.recentlyDirPath", path.dirname(filePath));
+                        if (callback) {
+                            callback(filePath);
+                        }
+                    },
+                    "No", function () {
+                        thiz.pickupTargetFileToSave(callback);
+                    });
+
+                return;
+            }
+            Config.set("document.save.recentlyDirPath", path.dirname(filePath));
+        }
+        if (callback) {
+            callback(filePath);
+        }
+    });
+};
+DocumentHandler.prototype.getHandlerForFilePath = function (filePath) {
+    return this.fileHandler[path.extname(filePath)];
+};
+
+DocumentHandler.prototype.saveAsDocument = function (onSaved, skipAddingRecentFiles) {
+    var thiz = this;
+    this.pickupTargetFileToSave(function (filePath) {
+        console.log("Got file path", filePath);
+        if (!filePath) return;
+        var handler = thiz.getHandlerForFilePath(filePath);
+        if (!handler || !handler.saveDocument) {
+            Dialog.error("Unsupported file format.");
+            return;
+        }
+
+        thiz.actived(handler.type);
+        console.log("activeHandler", thiz.activeHandler.type);
+
+        if (!skipAddingRecentFiles) thiz.controller.addRecentFile(filePath, thiz.controller.getCurrentDocumentThumbnail());
+        thiz.controller.documentPath = filePath;
+        thiz.controller.doc.name = thiz.controller.getDocumentName();
+        thiz.activeHandler.saveDocument(filePath, onSaved);
+    });
 };
 
 DocumentHandler.prototype.saveDocument = function (onSaved) {
-    if (!this.controller.documentPath || this.controller.oldPencilDoc) {
-        var filePath = path.join(Config.get("document.save.recentlyDirPath", null) || os.homedir(),
-            (this.controller.documentPath && path.basename(this.controller.documentPath)) || "Untitled" + this.activeHandler.type);
-        var thiz = this;
-        var callback = function() {
-            dialog.showSaveDialog({
-                title: "Save as",
-                defaultPath: filePath,
-                filters: [
-                    { name: "Stencil files", extensions: thiz.getExtentionHandlerFile(true) }
-                ]
-            }, function (filePath) {
-                if (!filePath) return;
-                if (thiz.fileHandler[path.extname(filePath)] != thiz.activeHandler) {
-                    thiz.actived(path.extname(filePath));
-                    Config.set("document.fileHandler.fileHandlerType", path.extname(filePath));
-                }
-                Config.set("document.save.recentlyDirPath", path.dirname(filePath));
-                thiz.controller.documentPath = filePath;
-                thiz.controller.doc.name = thiz.controller.getDocumentName();
-                thiz.activeHandler.saveDocument(filePath, onSaved);
-            }.bind(thiz));
-        }
-        if (this.fileHandler[path.extname(filePath)].saveDocument == null) {
-            filePath = filePath.replace(path.extname(filePath), this.activeHandler.type);
-            Dialog.confirm(
-                "The file format is not support for save operator!?",
-                "your file name will change to: " + path.basename(filePath),
-                "Save", callback,
-                "Cancel", function () { });
-            // Dialog.alert("The file format is not support for save operator!",  "your file name will change to: " + path.basename(filePath), callback);
-        } else {
-            callback();
-        }
-        return;
+    if (!this.controller.documentPath || !this.activeHandler || !this.activeHandler.saveDocument) {
+        this.saveAsDocument(onSaved, "skipAddingRecentFiles");
+    } else {
+        this.getHandlerForFilePath(this.controller.documentPath).saveDocument(this.controller.documentPath, onSaved);
     }
-    this.fileHandler[path.extname(this.controller.documentPath)].saveDocument(this.controller.documentPath, onSaved);
 };
 
 DocumentHandler.prototype.confirmAndSaveDocument = function (onSaved) {
