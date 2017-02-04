@@ -18,15 +18,9 @@ init:
 install:
   - ps: $env:PLATFORM = $env:platform
   - ps: Install-Product node 6 $env:platform
-  - git reset --hard HEAD
-  - npm install npm -g
-  - npm install electron-builder@12.3.0
-  - npm prune
   - npm install
 
 build_script:
-  - node --version
-  - npm --version
   - npm run dist:win32
 
 test: off
