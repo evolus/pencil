@@ -22,9 +22,11 @@ matrix:
 cache:
   apt: true
   bundler: true
+  yarn: true
   directories:
     - node_modules
     - .electron-cache
+    - .yarn-cache
     - $HOME/.electron
 
 addons:
@@ -52,9 +54,7 @@ before_install:
 install:
   - nvm install $NODE_VERSION
   - npm install npm -g
-  - npm install
-  - npm install electron-builder@12.3.0
-  - npm prune
+  - yarn install
 
 script:
   - npm run dist

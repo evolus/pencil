@@ -58,6 +58,7 @@ SharedColorEditor.prototype.setup = function () {
 
 SharedColorEditor.prototype.attach = function (targetObject) {
     if (!targetObject) return;
+    if (targetObject && targetObject.getAttributeNS && targetObject.getAttributeNS(PencilNamespaces.p, "locked") == "true") { return; }
 
     this.targetObject = targetObject;
     this.color = this.targetObject.getProperty(this.propertyName);

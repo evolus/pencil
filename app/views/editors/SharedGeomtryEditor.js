@@ -117,6 +117,8 @@ SharedGeomtryEditor.prototype.attach = function (targetObject) {
         return;
     }
 
+    if (targetObject && targetObject.getAttributeNS && targetObject.getAttributeNS(PencilNamespaces.p, "locked") == "true") { return; }
+
     this.targetObject = targetObject;
 
     var geo = this.targetObject.getGeometry();
