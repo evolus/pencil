@@ -60,6 +60,7 @@ SharedPropertyEditor.prototype.validationEditorUI = function() {
 SharedPropertyEditor.prototype.attach = function (target) {
 
     if (!target) return;
+    if (target && target.getAttributeNS && target.getAttributeNS(PencilNamespaces.p, "locked") == "true") { return; }
 
     if (!this.canAttach) {
 		this.pendingTarget = target;
