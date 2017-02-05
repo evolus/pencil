@@ -53,6 +53,7 @@ before_install:
 
 install:
   - nvm install $NODE_VERSION
+  - npm install npm -g
   - yarn install
 
 script:

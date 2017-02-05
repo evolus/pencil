@@ -18,6 +18,7 @@ init:
 install:
   - ps: $env:PLATFORM = $env:platform
   - ps: Install-Product node 6 $env:platform
+  - npm install npm -g
   - npm install
 
 build_script:
