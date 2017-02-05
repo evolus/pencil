@@ -3,7 +3,8 @@
         .CellContainer {
             position: relative;
             box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.4);
+            background-image: linear-gradient(to bottom, #D0D0D0 0px, #FFFFFF 100%);
+            background-repeat: repeat-x;
         }
         @xCellContainer {
             height: 1.5em;
@@ -11,6 +12,8 @@
         }
         @yCellContainer {
             width: 1.5em;
+            background-image: linear-gradient(to right, #D0D0D0 0px, #FFFFFF 100%);
+            background-repeat: repeat-y;
         }
         .CellContainer > .Cell {
             position: absolute;
@@ -86,12 +89,12 @@
             justify-content: center;
         }
         @container > * {
-            background: rgba(0, 0, 0, 0.2);
-            padding-right: 1.5em;
-            padding-bottom: 1.5em;
+            /* background: rgba(0, 0, 0, 0.2); */
+            padding-right: 0em;
+            padding-bottom: 0em;
         }
         @image {
-            box-shadow: 0em 0em 0.4em rgba(0, 0, 0, 0.1);
+            box-shadow: 0em 0em 0.8em rgba(0, 0, 0, 0.2);
         }
     </style>
     <div anon-id="container">
