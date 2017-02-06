@@ -101,7 +101,7 @@ Menu.prototype.handleMouseIn = function (event) {
         this.currentHideMenuTimeout = window.setTimeout(function () {
             thiz.hideCurrentSubMenu();
             thiz.currentHideMenuTimeout = null;
-        }, 200);
+        }, 70);
     }
     if (this.currentShowMenuTimeout) {
         window.clearTimeout(this.currentShowMenuTimeout);
@@ -111,7 +111,7 @@ Menu.prototype.handleMouseIn = function (event) {
         this.currentShowMenuTimeout = window.setTimeout(function () {
             thiz.openSubMenu(itemNode);
             thiz.currentShowMenuTimeout = null;
-        }, 300);
+        }, 100);
     }
 
 };
