@@ -155,12 +155,12 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
                         "class": "ItemInner",
                         _children: [
                             {
-                                _name: "span",
-                                _text: collection.displayName
-                            },
-                            {
                                 _name: "i",
                                 _text: icon
+                            },
+                            {
+                                _name: "span",
+                                _text: collection.displayName
                             }
                         ]
                     }
@@ -189,9 +189,9 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
 
             var w = inner.clientWidth + 4 * Util.em();
 
-            item.style.height = w + "px";
-            item.firstChild.style.width = w + "px";
-            item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
+            //item.style.height = w + "px";
+            //item.firstChild.style.width = "5em";
+            //item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
         }
         thiz.collectionScrollView.invalidate();
     }, 10);
