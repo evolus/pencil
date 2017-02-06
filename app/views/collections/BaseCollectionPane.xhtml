@@ -32,6 +32,21 @@
             font-size: 0.95em;
             cursor: default;
             overflow: hidden;
+            overflow: hidden;
+            position: relative;
+            opacity: 0.999999;
+        }
+        @selectorPane::after {
+            content: " ";
+            display: block;
+            background: transparent;
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            width: 3px;
+            right: -3px;
+            box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+            z-index: 2;
         }
         @selectorPaneContainer {
             overflow: hidden;
@@ -59,7 +74,8 @@
         }
 
         @selectorPane .Item {
-            color: rgba(0, 0, 0, 0.3);
+            color: rgba(0, 0, 0, 0.5);
+            transition: background 0.2s ease;
         }
         @selectorPane .Item > .ItemInner {
             text-align: center;
@@ -71,13 +87,18 @@
             justify-content: center;
         }
         @selectorPane .Item:focus {
-            outline: dashed 1px rgba(255, 255, 255, 0.5);
-            outline-offset: -2px;
+            /*outline: dashed 1px rgba(255, 255, 255, 0.5);*/
+            /*outline-offset: -2px;*/
+            outline: none;
         }
         @selectorPane .Item i {
             @iconify();
             opacity: 1;
             font-size: 1.5em;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
+        }
+        @selectorPane .Item[active='true'] i {
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.8);
         }
         @selectorPane .Item span {
             display: inline-block;
@@ -88,14 +109,22 @@
             font-size: 0.9em;
         }
         @selectorPane .Item + .Item {
-            border-top: solid 2px #536F88;
+            border-top: solid 2px rgba(0, 0, 0, 0.05);
         }
         @selectorPane .Item[active='true'] {
             color: #000;
             background: @app_bg;
+            z-index: 3;
+            position: relative;
+            box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+        }
+        @selectorPane .Item[active='true'],
+        @selectorPane .Item[active='true'] + .Item {
+            border-top-color: transparent;
         }
         @selectorPane .Item:not([active='true']):hover {
             background: rgba(255, 255, 255, 0.2);
+            color: rgba(0, 0, 0, 0.6);
         }
         @shapePane {
             background: @app_bg;

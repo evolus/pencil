@@ -149,6 +149,7 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
                 _name: "vbox",
                 "class": "Item",
                 "tabindex": "0",
+                title: collection.displayName,
                 _children: [
                     {
                         _name: "div",
