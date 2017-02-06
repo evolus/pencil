@@ -28,6 +28,7 @@ EpgzHandler.prototype.loadDocument = function(filePath, callback) {
         dest: Pencil.documentHandler.tempDir.name
     }, function(err) {
         if(err) {
+            console.error(err);
             var oldPencilDocument = Pencil.documentHandler.preDocument;
             Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
                 (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
