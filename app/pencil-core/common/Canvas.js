@@ -2413,7 +2413,8 @@ Canvas.prototype.run = function (job, targetObject, actionName, args) {
         Console.dumpError(e);
     } finally {
         this._saveMemento(actionName);
-        this._sayContentModified();
+        if (!Pencil.controller.activePageLoading)
+            this._sayContentModified();
     }
 
 };

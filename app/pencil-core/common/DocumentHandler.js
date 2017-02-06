@@ -78,6 +78,7 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
             if (handler.saveDocument != null) {
                 thiz.actived(ext);
             }
+            Pencil.controller.modified = false;
             if (callback) callback();
         });
     }
