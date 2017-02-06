@@ -145,7 +145,7 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
         thiz.controller.doc.pages.forEach(function (page) {
             if (page.backgroundPageId) {
                 page.backgroundPage = this.controller.findPageById(page.backgroundPageId);
-                this.invalidateBitmapFilePath(page);
+                thiz.controller.invalidateBitmapFilePath(page);
             }
 
             if (page.parentPageId) {
@@ -166,7 +166,7 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
             if (thiz.controller.doc.properties.activeId) {
                 thiz.controller.activatePage(thiz.controller.findPageById(thiz.controller.doc.properties.activeId));
             } else {
-                if (thiz.controller.doc.pages.length > 0) thiz.activatePage(thiz.controller.doc.pages[0]);
+                if (thiz.controller.doc.pages.length > 0) thiz.controller.activatePage(thiz.controller.doc.pages[0]);
             }
             thiz.controller.applicationPane.onDocumentChanged();
             thiz.modified = false;
@@ -176,6 +176,7 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
         Pencil.documentHandler.preDocument = filePath;
     } catch (e) {
         // Pencil.documentHandler.newDocument()
+        console.error(e);
         ApplicationPane._instance.unbusy();
         Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
             (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
