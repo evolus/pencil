@@ -173,8 +173,11 @@ SharedPropertyEditor.prototype.attach = function (target) {
             thiz.propertyContainer.appendChild(currentGroupNode);
             groupNodes.push(currentGroupNode);
         }
-        var propName = property.displayName ? property.displayName.trim() : property.displayName;
-        var groupName = property._group.name ? property._group.name.trim() : property._group.name;
+        var propName = property.displayName ? property.displayName.trim() : null;
+        var groupName = property._group.name ? property._group.name.trim() : null;
+
+        if (!propName || !groupName) { return; }
+
         if (propName.indexOf(groupName) == 0) {
             propName = propName.substring(groupName.length);
         }
