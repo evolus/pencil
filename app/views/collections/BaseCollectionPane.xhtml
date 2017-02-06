@@ -1,6 +1,6 @@
 <vbox>
     <style>
-        $selector_item_width: 3em;
+        $selector_item_width: 5em;
         $selector_item_height: 12em;
 
         body .widget_CollectionPane {
@@ -59,16 +59,16 @@
         }
 
         @selectorPane .Item {
-            padding: 0em;
             color: rgba(0, 0, 0, 0.3);
-            line-height: @selector_item_width;
-            white-space: nowrap;
         }
         @selectorPane .Item > .ItemInner {
             text-align: center;
-            height: @selector_item_width;
-            transform-origin: 0px 0px;
-
+            width: @selector_item_width;
+            padding: 0.5em;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         @selectorPane .Item:focus {
             outline: dashed 1px rgba(255, 255, 255, 0.5);
@@ -78,22 +78,20 @@
             @iconify();
             opacity: 1;
             font-size: 1.5em;
-            transform: rotate(90deg);
-            vertical-align: middle;
-            margin-left: 0.5em;
         }
         @selectorPane .Item span {
-            vertical-align: middle;
             display: inline-block;
-            font-weight: bold;
             text-overflow: ellipsis;
             overflow: hidden;
+            text-align: center;
+            margin-top: 1ex;
+            font-size: 0.9em;
         }
         @selectorPane .Item + .Item {
             border-top: solid 2px #536F88;
         }
         @selectorPane .Item[active='true'] {
-            color: @selected_bg;
+            color: #000;
             background: @app_bg;
         }
         @selectorPane .Item:not([active='true']):hover {
@@ -192,6 +190,10 @@
         @collectionManagementButton:not(:hover) {
             border-color: transparent;
             background: none;
+        }
+        @collectionManagementButton {
+            display: inline-block;
+            text-align: center;
         }
 
         @descriptionContainer {

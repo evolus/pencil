@@ -166,6 +166,12 @@ CollapseablePanel.prototype.setContentFragment = function (fragment) {
         this.updateTitle(title);
     }
 };
+CollapseablePanel.prototype.recalculateButtonSizes = function () {
+    for (var i = 0; i < this.titleContainer.childNodes.length; i ++) {
+        var title = this.titleContainer.childNodes[i];
+        if (title._button) this.updateTitle(title);
+    }
+};
 CollapseablePanel.prototype.updateTitle = function (titleElement) {
     var title = titleElement._child.getTitle();
     if (titleElement._child.getIconName) {
@@ -186,6 +192,9 @@ CollapseablePanel.prototype.collapseAll = function() {
         if (this.children[i].onSizeChanged) this.children[i].onSizeChanged();
     }
     this.setAttribute("closed", "true");
+    if (this.getAttribute("controls-location") == "top") {
+        this.recalculateButtonSizes();
+    }
 };
 CollapseablePanel.prototype.open = function(activeId) {
     var found = false;
