@@ -55,10 +55,34 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                         handleAction: function (checked) {
                             if (!checked) return;
                             thiz.targetObject.setProperty(this.property, new Enum(this.value));
+                            var editors = Pencil.controller.applicationPane.sharedPropertyEditor.propertyEditor;
+                            editors[this.property].setValue(this.value);
+                            Pencil.controller.applicationPane.sharedPropertyEditor.validationEditorUI();
                         }
                     });
                 }
                 items.push(enumItem);
+            } else if (property.type == ImageData) { //TODO: property constraint to enable n-patch edit?
+                var value = thiz.targetObject.getProperty(property.name);
+
+                var imageNPathSpecEditItem = {
+                    label: "Configure N-Patch...",
+                    icon: "grid_on",
+                    type: "Normal",
+                    imageData: value,
+                    property: property.name,
+                    handleAction: function () {
+                        var propName = this.property;
+                        var dialog = new NPatchSpecEditorDialog();
+                        dialog.open({
+                            imageData: this.imageData,
+                            onDone: function (newImageData) {
+                                thiz.targetObject.setProperty(propName, newImageData);
+                            }
+                        });
+                    }
+                }
+                items.push(imageNPathSpecEditItem);
             }
         }
     }
@@ -69,7 +93,6 @@ OnMenuEditor.prototype.generateMenuItems = function () {
         for (var i in this.targetObject.def.actions) {
             var action = this.targetObject.def.actions[i];
             if (action.displayName) {
-                console.log("action: ", action);
                 if (!actionItem) {
                     actionItem = {
                         label: "Action",
@@ -127,7 +150,7 @@ OnMenuEditor.prototype.generateMenuItems = function () {
             linkItem.subItems.push(item);
         }
         linkItem.subItems.push({
-            label: "Notthing",
+            label: "Nothing",
             type: "Selection",
             isChecked: function() {
                 return targetPageId ? false : true;

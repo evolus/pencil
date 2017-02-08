@@ -13,16 +13,20 @@ function OpenClipartPane() {
         }
     }
     this.shapeList.addEventListener("dragstart", function (event) {
+        nsDragAndDrop.dragStart(event);
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
         if (def._svg) {
             var svg = injectSvgInfo(def._svg);
             event.dataTransfer.setData("image/svg+xml", svg);
+            nsDragAndDrop.setData("image/svg+xml", svg);
         } else {
             event.dataTransfer.setData("pencil/png", def.src);
+            nsDragAndDrop.setData("pencil/png", def.src);
         }
 
         event.dataTransfer.setData("text/html", "");
+        nsDragAndDrop.setData("text/html", "");
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
         event.target.collection = def;
     });

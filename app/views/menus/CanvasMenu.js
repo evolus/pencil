@@ -181,6 +181,17 @@ CanvasMenu.prototype.setup = function () {
         }
     });
     UICommandManager.register({
+      key: "pasteCommand2",
+        label: "Paste",
+        icon: "content_paste",
+        shortcut: "Ctrl+Shift+V",
+        isValid: function () { return Pencil.activeCanvas; /*FIXME: check for clipboard content*/ },
+        applyWhenClass: "CanvasScrollPane",
+        run: function () {
+            Pencil.activeCanvas.doPaste("withAlternative");
+        }
+    });
+    UICommandManager.register({
       key: "selectAllCommand",
         label: "Select All",
         icon: "select_all",
@@ -273,7 +284,7 @@ CanvasMenu.prototype.setup = function () {
 
     this.register(UICommandManager.getCommand("cutCommand"));
     this.register(UICommandManager.getCommand("copyCommand"));
-    this.register(UICommandManager.getCommand("pasteCommand"));
+    this.register(UICommandManager.getCommand("pasteCommand2"));
     this.register(UICommandManager.getCommand("selectAllCommand"));
 
     UICommandManager.getCommand("exportSelectionAsPNGButton").isAvailable = function () {

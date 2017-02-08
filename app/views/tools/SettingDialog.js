@@ -11,7 +11,8 @@ function SettingDialog() {
         "quick.editting": this.quickEditting,
         "edit.cutAndPasteAtTheSamePlace": this.cutAndPasteAtTheSamePlace,
         "view.undo.enabled": this.undoEnabled,
-        "view.undoLevel": this.textboxUndoLevel
+        "view.undoLevel": this.textboxUndoLevel,
+        "view.uiTextScale": this.textScaleInput
     };
 
     this.bind("click", function (event) {
@@ -34,11 +35,13 @@ function SettingDialog() {
         if (!node) return;
         var configName = node.getAttribute("configName");
 
-        if (configName == "edit.gridSize") {
-            if (node.value == "" || parseInt(node.value) == 0) {
-                node.value = "5";
+        if (node.value == "" || parseInt(node.value) == 0) {
+            var defaultValue = node.getAttribute("default-value");
+            if (defaultValue) {
+                node.value = defaultValue;
             }
         }
+
         Config.set(configName, node.value);
         this.setPreferenceItems();
     }, this.textboxGridSize);
@@ -50,14 +53,10 @@ function SettingDialog() {
         if (!node) return;
         var configName = node.getAttribute("configName");
 
-        if (configName == "edit.gridSize") {
-            if (node.value == "" || parseInt(node.value) == 0) {
-                node.value = "1";
-            }
-        }
-        if (configName == "view.undoLevel") {
-            if (node.value == "") {
-                node.value = "0";
+        if (node.value == "" || parseInt(node.value) == 0) {
+            var defaultValue = node.getAttribute("default-value");
+            if (defaultValue) {
+                node.value = defaultValue;
             }
         }
         if (node.type == "number" || node.type == "text") {
@@ -70,6 +69,9 @@ function SettingDialog() {
 
             Config.set(configName, node.value);
             this.setPreferenceItems();
+            if (configName == "view.uiTextScale") {
+                widget.reloadDesktopFont().then(function () {});
+            }
         }
     }, this.settingTabPane);
 
@@ -145,6 +147,12 @@ SettingDialog.prototype.setup = function () {
         Config.set("view.undoLevel", 20);
     }
     this.textboxUndoLevel.value = Config.get("view.undoLevel");
+
+    var textScale = Config.get("view.uiTextScale");
+    if (textScale == null) {
+        Config.set("view.uiTextScale", 100);
+    }
+    this.textScaleInput.value = Config.get("view.uiTextScale");
 
     var svgurl = Config.get("external.editor.vector.path", "/usr/bin/inkscape");
     var bitmapurl = Config.get("external.editor.bitmap.path", "/usr/bin/gimp");

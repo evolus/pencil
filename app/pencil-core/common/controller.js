@@ -1,7 +1,6 @@
 function Controller(canvasPool, applicationPane) {
     this.canvasPool = canvasPool;
     this.applicationPane = applicationPane;
-
     var thiz = this;
     this.canvasPool.canvasContentModifiedListener = function (canvas) {
         thiz.handleCanvasModified(canvas);
@@ -19,7 +18,7 @@ Controller.THUMBNAIL_SIZE = 256;
 
 Controller.prototype.makeSubDir = function (sub) {
     const fs = require("fs");
-    var fullPath = path.join(this.tempDir.name, sub);
+    var fullPath = path.join(Pencil.documentHandler.tempDir.name, sub);
     try {
         fs.mkdirSync(fullPath);
     } catch(e) {
@@ -30,32 +29,32 @@ Controller.prototype.makeSubDir = function (sub) {
 Controller.prototype.getDocumentName = function () {
     return this.documentPath ? path.basename(this.documentPath).replace(/\.epz$/, "") : "* Unsaved document";
 };
-Controller.prototype.newDocument = function () {
-    var thiz = this;
-
-    function create() {
-        thiz.resetDocument();
-        thiz.sayControllerStatusChanged();
-        FontLoader.instance.loadFonts();
-
-        // thiz.sayDocumentChanged();
-        setTimeout(function () {
-            var size = thiz.applicationPane.getPreferredCanvasSize();
-            var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "", null, "activatePage");
-            thiz.modified = false;
-        }, 50);
-    };
-
-    if (this.modified) {
-        this.confirmAndSaveDocument(create);
-        return;
-    }
-    create();
-};
+// Controller.prototype.newDocument = function () {
+//     var thiz = this;
+//
+//     function create() {
+//         thiz.resetDocument();
+//         thiz.sayControllerStatusChanged();
+//         FontLoader.instance.loadFonts();
+//
+//         // thiz.sayDocumentChanged();
+//         setTimeout(function () {
+//             var size = thiz.applicationPane.getPreferredCanvasSize();
+//             var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "", null, "activatePage");
+//             thiz.modified = false;
+//         }, 50);
+//     };
+//
+//     if (this.modified) {
+//         this.confirmAndSaveDocument(create);
+//         return;
+//     }
+//     create();
+// };
 Controller.prototype.confirmAndclose = function (onClose) {
     var handler = function () {
-        if (this.tempDir) this.tempDir.removeCallback();
-        this.tempDir = null;
+        if (Pencil.documentHandler.tempDir) Pencil.documentHandler.tempDir.removeCallback();
+        Pencil.documentHandler.tempDir = null;
         this.doc = null;
         this.modified = false;
 
@@ -67,24 +66,24 @@ Controller.prototype.confirmAndclose = function (onClose) {
     if (!this.doc || !this.modified) {
         handler();
     } else {
-        this.confirmAndSaveDocument(handler);
+        Pencil.documentHandler.confirmAndSaveDocument(handler);
     }
 }
-Controller.prototype.resetDocument = function () {
-    if (this.tempDir) this.tempDir.removeCallback();
-    this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
-
-    this.doc = new PencilDocument();
-    this.doc.name = "";
-    this.documentPath = null;
-    this.canvasPool.reset();
-    this.activePage = null;
-    this.documentPath = null;
-    this.pendingThumbnailerMap = null;
-
-    this.applicationPane.pageListView.currentParentPage = null;
-    FontLoader.instance.setDocumentRepoDir(path.join(this.tempDir.name, "fonts"));
-};
+// Controller.prototype.resetDocument = function () {
+//     if (Pencil.documentHandler.tempDir) Pencil.documentHandler.tempDir.removeCallback();
+//     Pencil.documentHandler.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
+//
+//     this.doc = new PencilDocument();
+//     this.doc.name = "";
+//     this.documentPath = null;
+//     this.canvasPool.reset();
+//     this.activePage = null;
+//     this.documentPath = null;
+//     this.pendingThumbnailerMap = null;
+//
+//     this.applicationPane.pageListView.currentParentPage = null;
+//     FontLoader.instance.setDocumentRepoDir(path.join(Pencil.documentHandler.tempDir.name, "fonts"));
+// };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
         if (this.doc.pages[i].id == id) return this.doc.pages[i];
@@ -131,7 +130,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     page.scrollLeft = null;
     page.zoom = null;
 
-    page.tempFilePath = path.join(this.tempDir.name, pageFileName);
+    page.tempFilePath = path.join(Pencil.documentHandler.tempDir.name, pageFileName);
     page.invalidatedAfterLoad = true;
 
     this.serializePage(page, page.tempFilePath);
@@ -156,7 +155,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
 Controller.prototype.duplicatePage = function (pageIn, onDone) {
     var page = pageIn;
-    var name = page.name;
+    var name = page.name + " (1)";
     var width = page.width;
     var height = page.height;
     var backgroundPageId;
@@ -169,6 +168,13 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     }
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
+
+    var seed = 2;
+    while (this.findPageByName(name)) {
+        name = page.name  + " (" + seed + ")";
+        seed ++;
+    };
+
     var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
     newPage.canvas = null;
 
@@ -204,7 +210,7 @@ Controller.prototype.serializeDocument = function (onDone) {
     this.doc.properties.activeId = this.activePage.id;
     var dom = this.doc.toDom();
     var xml = Controller.serializer.serializeToString(dom);
-    var outputPath = path.join(this.tempDir.name, "content.xml");
+    var outputPath = path.join(Pencil.documentHandler.tempDir.name, "content.xml");
     fs.writeFileSync(outputPath, xml, "utf8");
 
     var index = -1;
@@ -286,191 +292,80 @@ Controller.prototype.findEmbeddableFontFaces = function (page) {
     return faces;
 };
 
-Controller.prototype.openDocument = function (callback) {
-    var thiz = this;
-    function handler() {
-        ApplicationPane._instance.busy();
-        dialog.showOpenDialog({
-            title: "Open pencil document",
-            defaultPath: Config.get("document.open.recentlyDirPath", null) || os.homedir(),
-            filters: [
-                { name: "Stencil files", extensions: ["epz", "ep"] }
-            ]
+// Controller.prototype.openDocument = function (callback) {
+//     var thiz = this;
+//     function handler() {
+//         ApplicationPane._instance.busy();
+//         dialog.showOpenDialog({
+//             title: "Open pencil document",
+//             defaultPath: Config.get("document.open.recentlyDirPath", null) || os.homedir(),
+//             filters: [
+//                 { name: "Stencil files", extensions: ["epz", "ep"] }
+//             ]
+//
+//         }, function (filenames) {
+//             ApplicationPane._instance.unbusy();
+//             if (!filenames || filenames.length <= 0) return;
+//             Config.set("document.open.recentlyDirPath", path.dirname(filenames[0]));
+//             this.loadDocument(filenames[0], callback);
+//         }.bind(thiz));
+//     };
+//
+//     if (this.modified) {
+//         this.confirmAndSaveDocument(handler);
+//         return;
+//     }
+//
+//     handler();
+// };
+Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
 
-        }, function (filenames) {
-            ApplicationPane._instance.unbusy();
-            if (!filenames || filenames.length <= 0) return;
-            Config.set("document.open.recentlyDirPath", path.dirname(filenames[0]));
-            this.loadDocument(filenames[0], callback);
-        }.bind(thiz));
-    };
+    var invalidateTasks = [];
+    var invalidationIndex = -1;
 
-    if (this.modified) {
-        this.confirmAndSaveDocument(handler);
-        return;
+
+    function createInvalidationTask(type, name, propertyNode) {
+        return function (__callback) {
+            var value = type.fromString(propertyNode.textContent);
+            type.invalidateValue(value, function (invalidatedValue, error) {
+                if (invalidatedValue) {
+                    Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
+                }
+                __callback();
+            });
+        };
     }
 
-    handler();
-};
-Controller.prototype.parsePageFromNode = function (pageNode, callback) {
-    var thiz = this;
-    var page = new Page(this.doc);
-    Dom.workOn("./p:Properties/p:Property", pageNode, function (propNode) {
-        var name = propNode.getAttribute("name");
-        var value = propNode.textContent;
-        if(name == "note") {
-            value = RichText.fromString(value);
+    function runNextValidation(callback) {
+        invalidationIndex ++;
+        if (invalidationIndex >= invalidateTasks.length) {
+            callback();
+            return;
         }
-        if (!Page.PROPERTY_MAP[name]) return;
-        page[Page.PROPERTY_MAP[name]] = value;
+        var task = invalidateTasks[invalidationIndex];
+        task(function () {
+            runNextValidation(callback);
+        });
+    }
+
+    Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
+        var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
+        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+        if (!def) return;
+
+        Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
+            var name = propertyNode.getAttribute("name");
+            var propertyDef = def.propertyMap[name];
+            if (!propertyDef || !propertyDef.type.invalidateValue) return;
+            var type = propertyDef.type;
+
+            invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
+
+        });
     });
 
-    function invalidateAndSerializePage(page) {
-        if (page.width) {
-            page.width = parseInt(page.width, 10);
-        } else page.width = 0;
 
-        if (page.height) {
-            page.height = parseInt(page.height, 10);
-        } else page.height = 0;
-
-        if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
-
-        if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
-
-        var pageFileName = "page_" + page.id + ".xml";
-        page.pageFileName = pageFileName;
-        page.tempFilePath = path.join(thiz.tempDir.name, pageFileName);
-
-        thiz.serializePage(page, page.tempFilePath);
-        delete page._contentNode;
-        thiz.doc.pages.push(page);
-    }
-
-    var contentNode = Dom.getSingle("./p:Content", pageNode);
-    if (contentNode) {
-        var node = document.importNode(contentNode.cloneNode(true), true);
-
-        var invalidateTasks = [];
-        var invalidationIndex = -1;
-
-
-        function createInvalidationTask(type, name, propertyNode) {
-            return function (__callback) {
-                var value = type.fromString(propertyNode.textContent);
-                type.invalidateValue(value, function (invalidatedValue, error) {
-                    if (invalidatedValue) {
-                        Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
-                    }
-                    __callback();
-                });
-            };
-        }
-
-        function runNextValidation(callback) {
-            invalidationIndex ++;
-            if (invalidationIndex >= invalidateTasks.length) {
-                callback();
-                return;
-            }
-            var task = invalidateTasks[invalidationIndex];
-            task(function () {
-                runNextValidation(callback);
-            });
-        }
-
-        Dom.workOn(".//svg:g[@p:type='Shape']", node, function (shapeNode) {
-            var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
-            var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-            if (!def) return;
-
-            Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
-                var name = propertyNode.getAttribute("name");
-                var propertyDef = def.propertyMap[name];
-                if (!propertyDef || !propertyDef.type.invalidateValue) return;
-                var type = propertyDef.type;
-
-                invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
-
-            });
-        });
-
-
-        runNextValidation(function () {
-            page._contentNode = node;
-            invalidateAndSerializePage(page);
-            callback();
-        });
-    } else {
-        page._contentNode = null;
-        invalidateAndSerializePage(page);
-        callback();
-    }
-};
-Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
-    var targetDir = this.tempDir.name;
-    var thiz = this;
-    this.pathToRefCache = null;
-    try {
-        if (path.extname(filePath) != ".ep" && path.extname(filePath) != ".epz") throw "Wrong format.";
-
-        this.documentPath = filePath;
-        this.oldPencilDoc = true;
-        var dom = Controller.parser.parseFromString(fs.readFileSync(filePath, "utf8"), "text/xml");
-
-        Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-            thiz.doc.properties[propNode.getAttribute("name")] = propNode.textContent;
-        });
-
-        var pageNodes = Dom.getList("./p:Pages/p:Page", dom.documentElement);
-
-        var pageNodeIndex = -1;
-        function parseNextPageNode(__callback) {
-            pageNodeIndex ++;
-            if (pageNodeIndex >= pageNodes.length) {
-                __callback();
-                return;
-            }
-
-            var pageNode = pageNodes[pageNodeIndex];
-            thiz.parsePageFromNode(pageNode, function () {
-                parseNextPageNode(__callback);
-            });
-        }
-
-        // update page thumbnails
-        var index = -1;
-        function generateNextThumbnail(onDone) {
-            index ++;
-            if (index >= thiz.doc.pages.length) {
-                if (onDone) onDone();
-                return;
-            }
-            var page = thiz.doc.pages[index];
-            thiz.updatePageThumbnail(page, function () {
-                generateNextThumbnail(onDone);
-            });
-        }
-
-
-        parseNextPageNode(function () {
-            generateNextThumbnail(function () {
-                thiz.modified = false;
-                thiz.sayControllerStatusChanged();
-                if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
-                thiz.pathToRefCache = null;
-                if (callback) callback();
-                ApplicationPane._instance.unbusy();
-            });
-        });
-
-        // this.documentPath = filePath;
-        this.doc.name = this.getDocumentName();
-    } catch (e) {
-        // console.log("error:", e);
-        thiz.newDocument();
-        ApplicationPane._instance.unbusy();
-    }
+    runNextValidation(onDoneCallback);
 };
 
 Controller.THUMB_CACHE_DIR = "thumbs";
@@ -578,248 +473,7 @@ Controller.prototype.removeRecentFile = function (filePath) {
         Pencil.app.addRecentDocument(f);
     });
 };
-Controller.prototype.loadDocument = function (filePath, callback) {
-    ApplicationPane._instance.busy();
-    this.resetDocument();
-    var thiz = this;
-    if (!fs.existsSync(filePath)) {
-        Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
-        thiz.removeRecentFile(filePath);
-        ApplicationPane._instance.unbusy();
-        thiz.newDocument();
-        if (callback) callback();
-        return;
-    };
 
-    var fd = fs.openSync(filePath, "r");
-    var buffer = new Buffer(2);
-    var chunkSize = 2;
-    fs.read(fd, buffer, 0, chunkSize, 0, function (err, bytes, buff) {
-        var content = buff.toString("utf8", 0, chunkSize);
-        if (content.toUpperCase() == "PK") {
-            thiz.parseDocument(filePath, callback);
-        } else {
-            thiz.parseOldFormatDocument(filePath, callback);
-        }
-        fs.close(fd);
-    });
-};
-
-Controller.prototype.parseDocument = function (filePath, callback) {
-    var targetDir = this.tempDir.name;
-    var thiz = this;
-    var extractor = unzip.Extract({ path: targetDir });
-    extractor.on("close", function () {
-        try {
-            var contentFile = path.join(targetDir, "content.xml");
-            if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
-            var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
-            Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                var value = propNode.textContent;
-                if (value == "undefined" || value == "null") return;
-                thiz.doc.properties[propNode.getAttribute("name")] = value;
-            });
-            Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-                var page = new Page(thiz.doc);
-                var pageFileName = pageNode.getAttribute("href");
-                page.pageFileName = pageFileName;
-                page.tempFilePath = path.join(targetDir, pageFileName);
-                thiz.doc.pages.push(page);
-            });
-
-            thiz.doc.pages.forEach(function (page) {
-                var pageFile = path.join(targetDir, page.pageFileName);
-                if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
-                var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
-                Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                    var propName = propNode.getAttribute("name");
-                    var value = propNode.textContent;
-                    if(propName == "note") {
-                        value = RichText.fromString(value);
-                    }
-                    if (value == "undefined" || value == "null") return;
-                    page[propNode.getAttribute("name")] = value;
-                });
-
-                if (page.width) {
-                    page.width = parseInt(page.width, 10);
-                } else page.width = 0;
-
-                if (page.height) {
-                    page.height = parseInt(page.height, 10);
-                } else page.height = 0;
-
-                if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
-
-
-                // if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
-
-                var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
-                if (fs.existsSync(thumbPath)) {
-                    page.thumbPath = thumbPath;
-                    page.thumbCreated = new Date();
-                }
-                page.canvas = null;
-            }, thiz);
-
-            thiz.doc.pages.forEach(function (page) {
-                if (page.backgroundPageId) {
-                    page.backgroundPage = this.findPageById(page.backgroundPageId);
-                    this.invalidateBitmapFilePath(page);
-                }
-
-                if (page.parentPageId) {
-                    var parentPage = this.findPageById(page.parentPageId);
-                    page.parentPage = parentPage;
-                    parentPage.children.push(page);
-                }
-            }, thiz);
-
-            thiz.documentPath = filePath;
-            thiz.oldPencilDoc = false;
-            thiz.doc.name = thiz.getDocumentName();
-            thiz.modified = false;
-            //new file was loaded, update recent file list
-            thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
-
-            FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
-            FontLoader.instance.loadFonts(function () {
-                thiz.sayControllerStatusChanged();
-                if (thiz.doc.properties.activeId) {
-                    thiz.activatePage(thiz.findPageById(thiz.doc.properties.activeId));
-                } else {
-                    if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
-                }
-                thiz.applicationPane.onDocumentChanged();
-                thiz.modified = false;
-                if (callback) callback();
-                ApplicationPane._instance.unbusy();
-            });
-        } catch (e) {
-            console.log("error:", e);
-            thiz.newDocument();
-            ApplicationPane._instance.unbusy();
-        }
-
-    }).on("error", function () {
-        thiz.parseOldFormatDocument(filePath);
-        ApplicationPane._instance.unbusy();
-    });
-    fs.createReadStream(filePath).pipe(extractor);
-}
-Controller.prototype.confirmAndSaveDocument = function (onSaved) {
-    Dialog.confirm(
-        "Save changes to document before closing?",
-        "If you don't save, changes will be permanently lost.",
-        "Save", function () { this.saveDocument(onSaved); }.bind(this),
-        "Cancel", function () { },
-        "Discard changes", function () { if (onSaved) onSaved(); }
-        );
-};
-Controller.prototype.parseDocumentThumbnail = function (filePath, callback) {
-    var extractPath = null;
-    var found = false;
-    fs.createReadStream(filePath)
-        .pipe(unzip.Parse())
-        .on("entry", function (entry) {
-            var fileName = entry.path;
-            var type = entry.type; // 'Directory' or 'File'
-            var size = entry.size;
-            if (fileName === "content.xml") {
-                var xmlFile = tmp.fileSync({postfix: ".xml", keep: false});
-                entry.pipe(fs.createWriteStream(xmlFile.name))
-                    .on("close", function () {
-                        var dom = Controller.parser.parseFromString(fs.readFileSync(xmlFile.name, "utf8"), "text/xml");
-                        xmlFile.removeCallback();
-
-                        Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-                            var pageFileName = pageNode.getAttribute("href");
-                            if (!extractPath) {
-                                extractPath = "thumbnails/" + pageFileName.replace(/^page_/, "").replace(/\.xml$/, "") + ".png";
-                            }
-                        });
-                    });
-            } else if (fileName && fileName == extractPath) {
-                var pngFile = tmp.fileSync({postfix: ".png", keep: false});
-                entry.pipe(fs.createWriteStream(pngFile.name))
-                    .on("close", function () {
-                        callback(null, pngFile.name);
-                    });
-            } else {
-                entry.autodrain();
-            }
-        })
-        .on("end", function () {
-            if (!found) callback("PARSE ERROR", null);
-        });
-};
-Controller.prototype.saveAsDocument = function (onSaved) {
-    var thiz = this;
-    dialog.showSaveDialog({
-        title: "Save as",
-        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || Config.get("document.save.recentlyDirPath", null) || os.homedir(),
-                        this.documentPath && path.basename(this.documentPath) || "Untitled.epz"),
-        filters: [
-            { name: "Pencil Documents", extensions: ["epz"] }
-        ]
-    }, function (filePath) {
-        if (!filePath) return;
-        this.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
-        this.documentPath = filePath;
-        this.doc.name = this.getDocumentName();
-        this.saveDocumentImpl(filePath, onSaved);
-    }.bind(this));
-};
-Controller.prototype.saveDocument = function (onSaved) {
-    if (!this.documentPath || this.oldPencilDoc) {
-        var thiz = this;
-        dialog.showSaveDialog({
-            title: "Save as",
-            defaultPath: path.join(Config.get("document.save.recentlyDirPath", null) || os.homedir(),
-                (this.documentPath && path.basename(this.documentPath).replace(path.extname(this.documentPath), "") + ".epz") || "Untitled.epz"),
-            filters: [
-                { name: "Pencil Documents", extensions: ["epz"] }
-            ]
-        }, function (filePath) {
-            if (!filePath) return;
-            Config.set("document.save.recentlyDirPath", path.dirname(filePath));
-            thiz.documentPath = filePath;
-            thiz.doc.name = thiz.getDocumentName();
-            thiz.saveDocumentImpl(thiz.documentPath, onSaved);
-        });
-        return;
-    }
-    this.saveDocumentImpl(this.documentPath, onSaved);
-};
-Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
-    if (!this.doc) throw "No document";
-    if (!documentPath) throw "Path not specified";
-
-    this.updateCanvasState();
-    this.oldPencilDoc = false;
-
-    var thiz = this;
-    ApplicationPane._instance.busy();
-
-    this.serializeDocument(function () {
-        this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
-
-        var archiver = require("archiver");
-        var archive = archiver("zip");
-        var output = fs.createWriteStream(documentPath);
-        output.on("close", function () {
-            thiz.sayDocumentSaved();
-            ApplicationPane._instance.unbusy();
-            if (onSaved) onSaved();
-        });
-        archive.pipe(output);
-        archive.directory(this.tempDir.name, "/", {});
-        archive.finalize();
-    }.bind(this));
-
-    thiz.applicationPane.onDocumentChanged();
-    thiz.sayControllerStatusChanged();
-};
 Controller.serializePageToDom = function (page, noContent) {
     var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
     var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
@@ -1420,7 +1074,7 @@ Controller.prototype.nativeImageToRefSync = function (nativeImage) {
     return id;
 };
 Controller.prototype.refIdToFilePath = function (id) {
-    var fullPath = path.join(this.tempDir.name, Controller.SUB_REFERENCE);
+    var fullPath = path.join(Pencil.documentHandler.tempDir.name, Controller.SUB_REFERENCE);
     fullPath = path.join(fullPath, id);
 
     return fullPath;
@@ -1564,6 +1218,56 @@ Controller.prototype.exportCurrentDocument = function () {
 };
 Controller.prototype.printCurrentDocument = function () {
     Pencil.documentExportManager.exportDocument(this.doc, "PrintingExporter");
+};
+Controller.prototype.prepareForEmbedding = function (node, onPreparingDoneCallback) {
+    var invalidateTasks = [];
+    var invalidationIndex = -1;
+
+
+    function createInvalidationTask(type, name, propertyNode) {
+        return function (__callback) {
+            var value = type.fromString(propertyNode.textContent);
+            type.prepareForEmbedding(value, function (invalidatedValue, error) {
+                if (invalidatedValue) {
+                    Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
+                }
+                __callback();
+            });
+        };
+    }
+
+    function runNextValidation(callback) {
+        invalidationIndex ++;
+        if (invalidationIndex >= invalidateTasks.length) {
+            callback();
+            return;
+        }
+        var task = invalidateTasks[invalidationIndex];
+        task(function () {
+            runNextValidation(callback);
+        });
+    }
+
+    Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
+        var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
+        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+        if (!def) return;
+
+        Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
+            var name = propertyNode.getAttribute("name");
+            var propertyDef = def.propertyMap[name];
+            if (!propertyDef || !propertyDef.type.prepareForEmbedding) return;
+            var type = propertyDef.type;
+
+            invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
+
+        });
+    });
+
+
+    runNextValidation(function () {
+        if (onPreparingDoneCallback) onPreparingDoneCallback();
+    });
 };
 
 

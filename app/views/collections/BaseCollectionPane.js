@@ -30,6 +30,7 @@ function BaseCollectionPane() {
     }, this.clearTextButton);
 
     this.shapeList.addEventListener("dragstart", function (event) {
+        nsDragAndDrop.dragStart(event);
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
         thiz.addDefDataToDataTransfer(def, event);
@@ -40,10 +41,17 @@ function BaseCollectionPane() {
     this.dndImage = new Image();
     this.dndImage.src = "css/bullet.png";
 
-    this.searchInput.addEventListener("keyup", function (event) {
-        thiz.filterCollections();
-    }, false);
+    var searchShapesFunction = function () {
+        this.searchTimeout = null;
+        this.filterCollections();
+    }.bind(this);
 
+    this.bind("keyup", function (event) {
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+        this.searchTimeout = setTimeout(searchShapesFunction, 200);
+    }, this.searchInput);
 
     var ensureVisibleShapeIconsFunction = function() {
         this.revealTimeout = null;
@@ -248,14 +256,14 @@ BaseCollectionPane.prototype.filterCollections = function () {
 };
 BaseCollectionPane.prototype.ensureVisibleShapeIcons = function () {
     var pr = this.shapeListContainer.getBoundingClientRect();
-    console.log("PR:", pr);
+    // console.log("PR:", pr);
     for (var i = 0; i < this.shapeList.childNodes.length; i ++) {
         var node = this.shapeList.childNodes[i];
         if (node._loaded) continue;
         var cr = node.getBoundingClientRect();
         // console.log(cr, pr);
-        if ((pr.top <= cr.top && cr.top <= (pr.top + pr.height))
-            || pr.top <= (cr.top + cr.height) && (cr.top + cr.height) <= (pr.top + pr.height)) {
+        if ((pr.top - pr.height <= cr.top && cr.top <= (pr.top + pr.height * 2))
+            || pr.top - pr.height <= (cr.top + cr.height) && (cr.top + cr.height) <= (pr.top + pr.height * 2)) {
                 node._iconNode.src = node._iconNode.getAttribute("data-src");
                 node._loaded = true;
             }

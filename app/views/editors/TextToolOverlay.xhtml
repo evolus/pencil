@@ -31,31 +31,34 @@
         @popupToolbar .Row:not(:first-child) button {
             border-top: none;
         }
+        @popupToolbar .ButtonGroup > button:hover {
+            background: #D9D9D9;
+        }
     </style>
     <div anon-id="popupContainer">
          <vbox anon-id="popupToolbar">
             <hbox class="Row">
                 <hbox class="ButtonGroup" anon-id="textFormatContainer">
-                    <button mode="icon" anon-id="medBoldButton" tooltiptext="toolbar.bold.tooltiptext;" command="bold" group="TextFormatGroup"><i>format_bold</i></button>
-                    <button mode="icon" anon-id="medItalicButton" tooltiptext="toolbar.italic.tooltiptext;" command="italic" group="TextFormatGroup"><i>format_italic</i></button>
-                    <button mode="icon" anon-id="medUnderlineButton" tooltiptext="toolbar.underline.tooltiptext;" command="underline" group="TextFormatGroup"><i>format_underlined</i></button>
-                    <button mode="icon" anon-id="medStrikeButton" tooltiptext="toolbar.strike.through.tooltiptext;" command="strikeThrough" group="TextFormatGroup"><i>strikethrough_s</i></button>
+                    <button mode="icon" anon-id="medBoldButton" title="Bold" command="bold" group="TextFormatGroup"><i>format_bold</i></button>
+                    <button mode="icon" anon-id="medItalicButton" title="Italic" command="italic" group="TextFormatGroup"><i>format_italic</i></button>
+                    <button mode="icon" anon-id="medUnderlineButton" title="Underline" command="underline" group="TextFormatGroup"><i>format_underlined</i></button>
+                    <button mode="icon" anon-id="medStrikeButton" title="Strike Through" command="strikeThrough" group="TextFormatGroup"><i>strikethrough_s</i></button>
                 </hbox>
                 <hbox anon-id="malignContainer" class="ButtonGroup">
-                    <button group="AlignRadioGroup" tooltiptext="toolbar.align.left.tooltiptext;" mode="icon" anon-id="malignLeftCommand" command="justifyleft"><i>format_align_left</i></button>
-                    <button group="AlignRadioGroup" tooltiptext="toolbar.align.center.tooltiptext;" mode="icon" anon-id="malignCenterCommand" command="justifycenter"><i>format_align_center</i></button>
-                    <button group="AlignRadioGroup" tooltiptext="toolbar.align.right.tooltiptext;" mode="icon" anon-id="malignRightCommand" command="justifyright"><i>format_align_right</i></button>
+                    <button group="AlignRadioGroup" title="Align Left" mode="icon" anon-id="malignLeftCommand" command="justifyleft"><i>format_align_left</i></button>
+                    <button group="AlignRadioGroup" title="Align Center" mode="icon" anon-id="malignCenterCommand" command="justifycenter"><i>format_align_center</i></button>
+                    <button group="AlignRadioGroup" title="Align Right" mode="icon" anon-id="malignRightCommand" command="justifyright"><i>format_align_right</i></button>
                 </hbox>
                 <hbox class="ButtonGroup">
-                    <button mode="icon" anon-id="medBulletedListButton" tooltiptext="toolbar.unordered.list.tooltiptext;" command="insertunorderedlist"><i>format_list_bulleted</i></button>
-                    <button mode="icon" anon-id="medNumberedListButton" tooltiptext="toolbar.ourdered.list.tooltiptext;" command="insertorderedlist"><i>format_list_numbered</i></button>
+                    <button mode="icon" anon-id="medBulletedListButton" title="Unordered List" command="insertunorderedlist"><i>format_list_bulleted</i></button>
+                    <button mode="icon" anon-id="medNumberedListButton" title="Toolbar Ourdered" command="insertorderedlist"><i>format_list_numbered</i></button>
                 </hbox>
                 <hbox class="ButtonGroup">
-                    <button mode="icon" anon-id="medIndentButton" tooltiptext="toolbar.indent.tooltiptext;" command="indent"><i>format_indent_increase</i></button>
-                    <button mode="icon" anon-id="medOutdentButton" tooltiptext="toolbar.outdent.tooltiptext;" command="outdent"><i>format_indent_decrease</i></button>
+                    <button mode="icon" anon-id="medIndentButton" title="Indent" command="indent"><i>format_indent_increase</i></button>
+                    <button mode="icon" anon-id="medOutdentButton" title="Outdent" command="outdent"><i>format_indent_decrease</i></button>
                 </hbox>
                 <hbox class="ButtonGroup">
-                    <button mode="icon" anon-id="medCleanUpButton" tooltiptext="Clean Up" command="removeformat"><i>clear</i></button>
+                    <button mode="icon" anon-id="medCleanUpButton" title="Clean Up" command="removeformat"><i>clear</i></button>
                 </hbox>
             </hbox>
 
@@ -67,12 +70,17 @@
                     <ui:ComboManager anon-id="fontSizeCombo" />
                 </hbox>
                 <hbox class="ButtonGroup">
-                    <button mode="icon" anon-id="medIncreaseFontButton" tooltiptext="toolbar.inc.font.size.tooltiptext;" command="increaseFontSize"><i>format_size</i></button>
-                    <button mode="icon" anon-id="medDecreaseFontButton" tooltiptext="toolbar.dec.font.size.tooltiptext;" command="decreaseFontSize"><i>text_fields</i></button>
+                    <button mode="icon" anon-id="medIncreaseFontButton" title="Increase Font Size" command="increaseFontSize"><i>format_size</i></button>
+                    <button mode="icon" anon-id="medDecreaseFontButton" title="Decrease Font Size" command="decreaseFontSize"><i>text_fields</i></button>
                 </hbox>
                 <hbox class="ButtonGroup">
-                    <button anon-id="mtextColorButton" tooltiptext="pcolorbutton.text.color.tooltip;">AB</button>
-                    <button anon-id="mhilightColorButton" tooltiptext="pcolorbutton.bgr.color.tooltip;"><span anon-id="colorDisplay" class="ColorDisplay"></span></button>
+                    <button anon-id="mtextColorButton" title="Text Color">
+                        <i>format_color_text</i>
+                    </button>
+                    <button anon-id="mhilightColorButton" title="Hilight color">
+                        <i>high_quality</i>
+                        <!-- <span anon-id="colorDisplay" class="ColorDisplay"></span> -->
+                    </button>
                 </hbox>
             </hbox>
             <ui:Popup anon-id="selectorContainer">
