@@ -1,7 +1,7 @@
 {
   "name": "Pencil",
   "devDependencies": {
-    "electron-builder": "12.3.0",
+    "electron-builder": "13.0.0",
     "electron": "1.4.14",
     "rimraf": "^2.5.4"
   },
@@ -14,13 +14,13 @@
     },
     "dmg": {
       "contents": [{
-        "x": 410,
-        "y": 150,
+        "x": 355,
+        "y": 140,
         "type": "link",
         "path": "/Applications"
       }, {
         "x": 130,
-        "y": 150,
+        "y": 145,
         "type": "file"
       }]
     },
@@ -45,7 +45,8 @@
     },
     "nsis": {
       "oneClick": false,
-      "perMachine": true
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
     },
     "electronDownload": {
       "cache": ".electron-cache"

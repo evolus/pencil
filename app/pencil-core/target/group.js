@@ -83,20 +83,24 @@ Group.prototype.setProperty = function (name, value) {
 Group.prototype.getProperty = function (name) {
     if (name == "box") return null;
     var firstValue = this.targets[0].getProperty(name);
-    if (!firstValue) return null;
-    var same = true;
-    for (var i = 1; i < this.targets.length; i ++) {
-        var target = this.targets[i];
-        var value = target.getProperty(name);
 
-        if (value == null) return null;
-        if (firstValue.toString() != value.toString()) {
-            same = false;
-            break;
-        }
-    }
-
-    return same ? firstValue : null;
+    //TODO: add additonal info to indicate sameness
+    return firstValue;
+    
+    // if (!firstValue) return null;
+    // var same = true;
+    // for (var i = 1; i < this.targets.length; i ++) {
+    //     var target = this.targets[i];
+    //     var value = target.getProperty(name);
+    //
+    //     if (value == null) return null;
+    //     if (firstValue.toString() != value.toString()) {
+    //         same = false;
+    //         break;
+    //     }
+    // }
+    //
+    // return same ? firstValue : null;
 };
 Group.prototype.setMetadata = function (name, value) {
     return Util.setNodeMetadata(this.svg, name, value);

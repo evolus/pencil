@@ -43,7 +43,9 @@ SharedColorEditor.prototype.setup = function () {
 
     this.selector.addEventListener("ValueChange", function (event) {
         thiz.color = thiz.selector.getColor();
-        thiz._applyValue();
+        if (thiz.selectorContainer.isVisible()) {
+            thiz._applyValue();
+        }
     }, false);
     this.selector.addEventListener("p:CloseColorSelector", function (event) {
         if (thiz.selectorContainer.isVisible()) {
@@ -56,6 +58,7 @@ SharedColorEditor.prototype.setup = function () {
 
 SharedColorEditor.prototype.attach = function (targetObject) {
     if (!targetObject) return;
+    if (targetObject && targetObject.getAttributeNS && targetObject.getAttributeNS(PencilNamespaces.p, "locked") == "true") { return; }
 
     this.targetObject = targetObject;
     this.color = this.targetObject.getProperty(this.propertyName);

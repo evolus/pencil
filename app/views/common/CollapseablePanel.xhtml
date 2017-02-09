@@ -143,24 +143,61 @@
         @pinButton i {
             font-size: 1em;
             opacity: 0.6;
+            transform: rotate(30deg);
         }
         @pinButton:not(:hover) {
             border-color: transparent;
             background: transparent;
         }
         body .widget_CollapseablePanel:not([float='true']) @pinButton {
-            background: darken(@app_bg, 20%);
+            background: darken(@app_bg, 10%);
         }
         body .widget_CollapseablePanel:not([float='true']) @pinButton i {
             opacity: 1;
+            transform: rotate(0);
         }
         body .widget_CollapseablePanel[closed='true'] @pinButton {
             display: none;
         }
+
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] {
+            flex-direction: column;
+        }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @controlContainer {
+            flex-direction: row;
+        }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer {
+            flex-direction: row;
+        }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] .TitleElement {
+            width: auto !important;
+            height: auto !important;
+            margin-top: 0px !important;
+            flex: 1 0 2em;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+        }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer button {
+            transform: none !important;
+            float: none !important;
+            flex: 1 0 2em;
+            overflow: hidden;
+        }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer button span {
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @pinButton {
+        }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @pinContainer {
+            margin-top: 0.25em;
+            align-items: center;
+        }
     </style>
     <vbox anon-id="controlContainer">
         <box flex="1" anon-id="titleContainer"></box>
-        <hbox style="justify-content: center;"><button anon-id="pinButton" title="Pin panel"><i class="mdi mdi-pin"></i></button></hbox>
+        <hbox style="justify-content: center;" anon-id="pinContainer"><button anon-id="pinButton" title="Pin panel"><i class="mdi mdi-pin"></i></button></hbox>
     </vbox>
     <hbox anon-id="contentContainer" flex="1">
     </hbox>

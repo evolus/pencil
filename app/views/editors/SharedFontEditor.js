@@ -120,6 +120,8 @@ SharedFontEditor.prototype._applyValue = function () {
     }, this.target, Util.getMessage("action.apply.properties.value"))
 };
 SharedFontEditor.prototype.attach = function (target) {
+    if (target && target.getAttributeNS && target.getAttributeNS(PencilNamespaces.p, "locked") == "true") { return; }
+
     this.target = target;
     this.font = target.getProperty(SharedFontEditor.PROPERTY_NAME, "any");
 

@@ -1,11 +1,13 @@
 function EpgzHandler(controller) {
     FileHandler.call(this);
     this.controller = controller;
-    this.type = ".epgz";
+    this.name = "Pencil Document (GZip Compressed)";
+    this.type = EpgzHandler.EXT;
 }
 
 __extend(FileHandler, EpgzHandler);
 
+EpgzHandler.EXT = ".epgz";
 EpgzHandler.prototype.loadDocument = function(filePath, callback) {
     ApplicationPane._instance.busy();
     this.controller.applicationPane.pageListView.restartFilterCache();
@@ -26,6 +28,7 @@ EpgzHandler.prototype.loadDocument = function(filePath, callback) {
         dest: Pencil.documentHandler.tempDir.name
     }, function(err) {
         if(err) {
+            console.error(err);
             var oldPencilDocument = Pencil.documentHandler.preDocument;
             Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
                 (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
