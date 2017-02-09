@@ -83,6 +83,19 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
     }
 }
 
+DocumentHandler.prototype.loadDocumentFromArguments = function(filePath){
+    var ext = path.extname(filePath);
+    var handler = this.fileHandler[ext];
+    if (handler && handler.loadDocument) {
+        var thiz = this;
+        handler.loadDocument(filePath, function () {
+            if (handler.saveDocument != null) {
+                thiz.actived(ext);
+            }
+        });
+    }
+}
+
 DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
     var filters = [];
     var defaultFileType = this.getDefaultFileType();
