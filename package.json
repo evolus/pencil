@@ -1,7 +1,7 @@
 {
   "name": "Pencil",
   "devDependencies": {
-    "electron-builder": "13.0.0",
+    "electron-builder": "13.3.0",
     "electron": "1.4.14",
     "rimraf": "^2.5.4"
   },
@@ -14,7 +14,7 @@
     },
     "dmg": {
       "contents": [{
-        "x": 355,
+        "x": 356,
         "y": 140,
         "type": "link",
         "path": "/Applications"
@@ -51,8 +51,8 @@
       "cache": ".electron-cache"
     },
     "fileAssociations": {
-	  "ext": ["ep", "epz", "epgz"],
-	  "name": "Pencil Document"
+      "ext": ["ep", "epz", "epgz"],
+      "name": "Pencil Document"
 	}
   },
   "scripts": {
@@ -64,9 +64,9 @@
     "pack": "build",
     "dist": "build",
     "release": "build",
-    "dist:linux": "./node_modules/.bin/build --linux --x64",
+    "dist:linux": "./node_modules/.bin/build --linux --ia32 --x64",
     "dist:win32": "./node_modules/.bin/build --windows --ia32 --x64",
-    "dist:darwin": "./node_modules/.bin/build --osx"
+    "dist:osx": "./node_modules/.bin/build --macos"
   },
   "private": true
 }
