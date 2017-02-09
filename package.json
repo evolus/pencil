@@ -39,7 +39,6 @@
       "owners": "Evolus",
       "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
       "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
-      "certificateSubjectName": "Nguyen Tien Dung",
       "iconUrl": "https://raw.githubusercontent.com/evolus/pencil/master/build/icon.ico",
       "target": "nsis"
     },
