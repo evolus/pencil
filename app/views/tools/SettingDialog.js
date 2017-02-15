@@ -142,7 +142,8 @@ SettingDialog.prototype.setup = function () {
     this.comboGridStyle.setItems(["Dotted", "Solid"]);
     var gridStyle = Config.get("edit.gridStyle");
     if (gridStyle == null) {
-       Config.set("edit.gridStyle", "Dotted");
+        gridStyle = "Dotted";
+        Config.set("edit.gridStyle", gridStyle);
     }
     this.comboGridStyle.selectItem(gridStyle);
 
