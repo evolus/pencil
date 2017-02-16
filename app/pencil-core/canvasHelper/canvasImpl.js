@@ -15,6 +15,7 @@ CanvasImpl.setupGrid = function () {
     }
     if (Config.get("grid.enabled")) {
         var grid = Pencil.getGridSize();
+        var gridStyle = Pencil.getGridStyle();
         if (grid.w > 0 && grid.h > 0) {
             var z = this.zoom ? this.zoom : 1;
             for (var i = 1; i < this.width * z; i += grid.w * z) {
@@ -23,8 +24,20 @@ CanvasImpl.setupGrid = function () {
                 line.setAttribute("y1", 0);
                 line.setAttribute("x2", i);
                 line.setAttribute("y2", this.height * z);
-                line.setAttribute("style", "stroke-dasharray: 1," + (grid.h - 1) * z + ";");
+                if (gridStyle === "Dotted") {
+                   line.setAttribute("style", "stroke-dasharray: 1," + (grid.h - 1) * z + ";");
+                }
                 this.gridContainer.appendChild(line);
+            }
+            if (gridStyle === "Solid") {
+               for (var i = 1; i < this.height * z; i += grid.h * z) {
+                  var line = document.createElementNS(PencilNamespaces.svg, "svg:line");
+                  line.setAttribute("x1", 0);
+                  line.setAttribute("y1", i);
+                  line.setAttribute("x2", this.width * z);
+                  line.setAttribute("y2", i);
+                  this.gridContainer.appendChild(line);
+               }
             }
         }
     }

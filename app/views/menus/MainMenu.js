@@ -83,7 +83,7 @@ MainMenu.prototype.setup = function () {
     this.separator();
     this.register({
         key: "settingAllCommand",
-        label: "Setting...",
+        label: "Settings...",
         icon: "settings",
         isValid: function () { return true; },
         run: function () {

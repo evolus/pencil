@@ -48,16 +48,15 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then git lfs pull; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl -L https://github.com/github/git-lfs/releases/download/v1.2.0/git-lfs-linux-amd64-1.2.0.tar.gz | tar -xz; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git-lfs-1.2.0/git-lfs pull; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y ruby-dev gcc make; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install --no-install-recommends -y ruby-dev gcc make gcc-multilib g++-multilib; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then gem install --no-ri --no-rdoc fpm; fi
 
 install:
   - nvm install $NODE_VERSION
-  - npm install npm -g
-  - yarn install
+  - npm install
 
 script:
-  - npm run dist
+  - npm run dist:$TRAVIS_OS_NAME
 
 branches:
   only:
