@@ -251,7 +251,7 @@ FileHandler.prototype.parsePageFromNode = function (pageNode, callback) {
 
         if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
-        if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+        if (page.backgroundPageId) page.backgroundPage = thiz.controller.findPageById(page.backgroundPageId);
 
         var pageFileName = "page_" + page.id + ".xml";
         page.pageFileName = pageFileName;
