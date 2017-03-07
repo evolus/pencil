@@ -76,6 +76,7 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
         var thiz = this;
         handler.loadDocument(filePath, function () {
             thiz.actived(ext);
+            Pencil.controller.modified = false;
             if (callback) callback();
         });
     }

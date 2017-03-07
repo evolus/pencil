@@ -1,6 +1,7 @@
 function Controller(canvasPool, applicationPane) {
     this.canvasPool = canvasPool;
     this.applicationPane = applicationPane;
+    this.activePageLoading = false;
     var thiz = this;
     this.canvasPool.canvasContentModifiedListener = function (canvas) {
         thiz.handleCanvasModified(canvas);
@@ -633,6 +634,8 @@ Controller.prototype.updateCanvasState = function () {
 Controller.prototype.activatePage = function (page) {
     if (page == null || this.activePage && page.id == this.activePage.id) return;
 
+    this.activePageLoading = true;
+
     this.updateCanvasState();
 
     this.retrievePageCanvas(page);
@@ -645,6 +648,7 @@ Controller.prototype.activatePage = function (page) {
     page.lastUsed = new Date();
     this.activePage = page;
     page.canvas._sayTargetChanged();
+    this.activePageLoading = false;
     // this.sayDocumentChanged();
 };
 Controller.prototype.ensurePageCanvasBackground = function (page) {

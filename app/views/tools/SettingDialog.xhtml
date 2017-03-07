@@ -78,6 +78,10 @@
                             <label>Grid size:</label>
                             <input anon-id="textboxGridSize" size="1" type="number" min="1" max="256" preference="pencil-gridSize" configName="edit.gridSize" default-value="5"/>
                         </hbox>
+                        <hbox anon-id="gridStyleContainer" class="Entry Disabled">
+                           <label>Grid style:</label>
+                           <ui:ComboManager anon-id="comboGridStyle" title="Grid style" />
+                        </hbox>
                     </hbox>
                     <hbox class="Entry">
                         <input type="checkbox" anon-id="snapToGrid" label="Show grid" preference="pencil-snapToGrid" configName="edit.snap.grid"/>
