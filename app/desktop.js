@@ -8,6 +8,7 @@ module.exports = function () {
                                 "cinamon": [{command: "dconf", params: ["read", "/org/cinnamon/desktop/interface/font-name"]},
                                             {command: "gsettings", params: ["get", "org.cinnamon.desktop.interface", "font-name"]}],
                                 "gnome": [{command: "gsettings", params: ["get", "org.gnome.desktop.interface", "font-name"]}],
+                                "gnome-xorg": [{command: "gsettings", params: ["get", "org.gnome.desktop.interface", "font-name"]}],
                                 "ubuntu": [{command: "gsettings", params: ["get", "org.gnome.desktop.interface", "font-name"]}]
                             }
 
