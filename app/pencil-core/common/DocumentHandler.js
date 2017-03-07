@@ -75,9 +75,7 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
     } else {
         var thiz = this;
         handler.loadDocument(filePath, function () {
-            if (handler.saveDocument != null) {
-                thiz.actived(ext);
-            }
+            thiz.actived(ext);
             if (callback) callback();
         });
     }
@@ -89,9 +87,7 @@ DocumentHandler.prototype.loadDocumentFromArguments = function(filePath){
     if (handler && handler.loadDocument) {
         var thiz = this;
         handler.loadDocument(filePath, function () {
-            if (handler.saveDocument != null) {
-                thiz.actived(ext);
-            }
+            thiz.actived(ext);
         });
     }
 }
