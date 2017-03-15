@@ -8,51 +8,49 @@ __extend(FileHandler, EpzHandler);
 
 EpzHandler.EXT = ".epz";
 EpzHandler.prototype.loadDocument = function(filePath, callback) {
-    ApplicationPane._instance.busy();
-    this.controller.applicationPane.pageListView.restartFilterCache();
-    Pencil.documentHandler.resetDocument();
     var thiz = this;
-    if (!fs.existsSync(filePath)) {
-        Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
-        thiz.removeRecentFile(filePath);
-        ApplicationPane._instance.unbusy();
-        Pencil.documentHandler.newDocument()
-        if (callback) callback();
-        return;
-    };
     var admZip = require('adm-zip');
-    try {
-        var zip = new admZip(filePath);
-        zip.extractAllToAsync(Pencil.documentHandler.tempDir.name, true, function() {
+
+    var zip = new admZip(filePath);
+    zip.extractAllToAsync(Pencil.documentHandler.tempDir.name, true, function (err) {
+        if (err) {
+            callback({
+                error: FileHandler.ERROR_FILE_LOADING_FAILED,
+                message: "File could not be loaded."
+            });
+        } else {
             thiz.parseDocument(filePath, callback);
-        });
-    } catch(e) {
-        thiz.parseOldFormatDocument(filePath, callback);
-        ApplicationPane._instance.unbusy();
-    }
+        }
+    });
 }
 
-EpzHandler.prototype.saveDocument = function (documentPath, onSaved) {
-    if (!this.controller.doc) throw "No document";
-    if (!documentPath) throw "Path not specified";
-
-    this.controller.updateCanvasState();
-    this.controller.oldPencilDoc = false;
-
+EpzHandler.prototype.saveDocument = function (documentPath, callback) {
     var thiz = this;
-    ApplicationPane._instance.busy();
-    this.controller.serializeDocument(function () {
-    this.controller.addRecentFile(documentPath, this.controller.getCurrentDocumentThumbnail());
     var easyZip = require("easy-zip2").EasyZip;
     var zip = new easyZip();
-    zip.zipFolder(Pencil.documentHandler.tempDir.name + "/.", function() {
-        zip.writeToFile(documentPath, function(){
-            thiz.controller.sayDocumentSaved();
-            ApplicationPane._instance.unbusy();
-            if (onSaved) onSaved();
-        });
+    zip.zipFolder(Pencil.documentHandler.tempDir.name + "/.", function (err) {
+        if (err) {
+            if (callback) {
+                callback({
+                    error: FileHandler.ERROR_FILE_SAVING_FAILED,
+                    message: "Unable to save file: " + err,
+                    cause: err
+                });
+            }
+        } else {
+            zip.writeToFile(documentPath, function (err) {
+                if (err) {
+                    if (callback) {
+                        callback({
+                            error: FileHandler.ERROR_FILE_SAVING_FAILED,
+                            message: "Unable to save file: " + err,
+                            cause: err
+                        });
+                    }
+                } else {
+                    if (callback) callback();
+                }
+            });
+        }
     });
-    }.bind(this));
-    thiz.controller.applicationPane.onDocumentChanged();
-    thiz.controller.sayControllerStatusChanged();
 };
