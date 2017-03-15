@@ -11,34 +11,31 @@ EpgzHandler.EXT = ".epgz";
 EpgzHandler.prototype.loadDocument = function(filePath, callback) {
     var thiz = this;
 
-    var targz = require('targz');
-    targz.decompress(
-    {
-        src: filePath,
-        dest: Pencil.documentHandler.tempDir.name
-    }, function (err) {
-        if (err) {
-            callback({
-                error: FileHandler.ERROR_FILE_LOADING_FAILED,
-                message: "File could not be loaded."
-            });
-        } else {
-            thiz.parseDocument(filePath, callback);
-        }
+    const decompress = require('decompress');
+    const decompressTargz = require('decompress-targz');
+
+    decompress(filePath, Pencil.documentHandler.tempDir.name, {
+        plugins: [
+            decompressTargz()
+        ]
+    }).then(() => {
+        thiz.parseDocument(filePath, callback);
+    }).catch ((err) => {
+        callback({
+            error: FileHandler.ERROR_FILE_LOADING_FAILED,
+            message: "File could not be loaded."
+        });
     });
 }
 
 EpgzHandler.prototype.saveDocument = function (documentPath, callback) {
     var thiz = this;
-    var targz = require('targz');
-    targz.compress({
-        src: Pencil.documentHandler.tempDir.name,
-        dest: documentPath,
-        tar: {
-            dereference : true
-        }
-    }, function (err){
-        if (err) {
+    var targz = require('tar.gz');
+    new targz({}, {fromBase: true}).compress(Pencil.documentHandler.tempDir.name, documentPath)
+        .then(function () {
+            if (callback) callback();
+        })
+        .catch(function (err) {
             if (callback) {
                 callback({
                     error: FileHandler.ERROR_FILE_SAVING_FAILED,
@@ -46,8 +43,5 @@ EpgzHandler.prototype.saveDocument = function (documentPath, callback) {
                     cause: err
                 });
             }
-        } else {
-            if (callback) callback();
-        }
-    });
+        });
 };
