@@ -82,14 +82,23 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
         this.controller.applicationPane.pageListView.restartFilterCache();
         this.resetDocument();
 
-        handler.loadDocument(filePath, function (err) {
-            thiz.controller.modified = false;
-            try {
-                if (callback) callback(err);
-            } finally {
-                ApplicationPane._instance.unbusy();
-            }
-        });
+        handler.loadDocument(filePath)
+            .then(function () {
+                thiz.controller.modified = false;
+                try {
+                    if (callback) callback();
+                } finally {
+                    ApplicationPane._instance.unbusy();
+                }
+            })
+            .catch(function (err) {
+                thiz.controller.modified = false;
+                try {
+                    if (callback) callback(err);
+                } finally {
+                    ApplicationPane._instance.unbusy();
+                }
+            });
     }
 };
 
@@ -112,9 +121,15 @@ DocumentHandler.prototype.loadDocumentFromArguments = function (filePath) {
 
         ApplicationPane._instance.busy();
 
-        handler.loadDocument(filePath, function () {
-            ApplicationPane._instance.unbusy();
-        });
+        handler.loadDocument(filePath)
+            .then(function () {
+                thiz.controller.modified = false;
+                ApplicationPane._instance.unbusy();
+            })
+            .catch(function (err) {
+                thiz.controller.modified = false;
+                ApplicationPane._instance.unbusy();
+            });
     }
 }
 
@@ -217,21 +232,23 @@ DocumentHandler.prototype._saveBoundDocument = function (onSaved) {
     var thiz = this;
     this.controller.serializeDocument(function () {
         thiz.controller.addRecentFile(thiz.controller.documentPath, thiz.controller.getCurrentDocumentThumbnail());
-        thiz.getActiveHandler().saveDocument(thiz.controller.documentPath, function (err) {
-            if (err) {
-                Dialog.error("Error when saving document: " + err);
-            } else {
-                thiz.controller.sayDocumentSaved();
-            }
-
-            try {
-                if (onSaved) onSaved();
-            } finally {
+        thiz.getActiveHandler().saveDocument(thiz.controller.documentPath)
+            .then(function () {
                 ApplicationPane._instance.unbusy();
+                thiz.controller.sayDocumentSaved();
+
+                if (onSaved) onSaved();
+
                 thiz.controller.applicationPane.onDocumentChanged();
                 thiz.controller.sayControllerStatusChanged();
-            }
-        });
+            })
+            .catch (function (err) {
+                ApplicationPane._instance.unbusy();
+                Dialog.error("Error when saving document: " + err);
+
+                thiz.controller.applicationPane.onDocumentChanged();
+                thiz.controller.sayControllerStatusChanged();
+            });
     });
 };
 

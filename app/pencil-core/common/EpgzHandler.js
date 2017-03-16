@@ -8,40 +8,28 @@ function EpgzHandler(controller) {
 __extend(FileHandler, EpgzHandler);
 
 EpgzHandler.EXT = ".epgz";
-EpgzHandler.prototype.loadDocument = function(filePath, callback) {
+EpgzHandler.prototype.loadDocument = function(filePath) {
     var thiz = this;
+    return new Promise(function (resolve, reject) {
+        const decompress = require('decompress');
+        const decompressTargz = require('decompress-targz');
 
-    const decompress = require('decompress');
-    const decompressTargz = require('decompress-targz');
-
-    decompress(filePath, Pencil.documentHandler.tempDir.name, {
-        plugins: [
-            decompressTargz()
-        ]
-    }).then(() => {
-        thiz.parseDocument(filePath, callback);
-    }).catch ((err) => {
-        callback({
-            error: FileHandler.ERROR_FILE_LOADING_FAILED,
-            message: "File could not be loaded."
+        decompress(filePath, Pencil.documentHandler.tempDir.name, {
+            plugins: [
+                decompressTargz()
+            ]
+        }).then(() => {
+            thiz.parseDocument(filePath, resolve);
+        }).catch ((err) => {
+            reject(new Error("File could not be loaded: " + err));
         });
     });
 }
 
-EpgzHandler.prototype.saveDocument = function (documentPath, callback) {
-    var thiz = this;
-    var targz = require('tar.gz');
-    new targz({}, {fromBase: true}).compress(Pencil.documentHandler.tempDir.name, documentPath)
-        .then(function () {
-            if (callback) callback();
-        })
-        .catch(function (err) {
-            if (callback) {
-                callback({
-                    error: FileHandler.ERROR_FILE_SAVING_FAILED,
-                    message: "Unable to save file: " + err,
-                    cause: err
-                });
-            }
-        });
+EpgzHandler.prototype.saveDocument = function (documentPath) {
+    return new Promise(function (resolve, reject) {
+        var targz = require('tar.gz');
+        new targz({}, {fromBase: true}).compress(Pencil.documentHandler.tempDir.name, documentPath)
+        .then(resolve).catch(reject);
+    });
 };

@@ -14,13 +14,10 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
     try {
         var contentFile = path.join(targetDir, "content.xml");
         if (!fs.existsSync(contentFile)) {
-            if (callback) callback({
-                error: FileHandler.ERROR_FILE_LOADING_FAILED,
-                message: Util.getMessage("content.specification.is.not.found.in.the.archive")
-            });
+            if (callback) callback(new Error(Util.getMessage("content.specification.is.not.found.in.the.archive")));
             return;
         }
-        
+
         var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
         Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
             var value = propNode.textContent;
@@ -37,7 +34,11 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
 
         thiz.controller.doc.pages.forEach(function (page) {
             var pageFile = path.join(targetDir, page.pageFileName);
-            if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
+            if (!fs.existsSync(pageFile)) {
+                if (callback) callback(new Error(Util.getMessage("page.specification.is.not.found.in.the.archive")));
+                return;
+            }
+
             var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
             Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
                 var propName = propNode.getAttribute("name");
@@ -109,13 +110,11 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
             thiz.controller.applicationPane.onDocumentChanged();
             thiz.modified = false;
             if (callback) callback();
-            ApplicationPane._instance.unbusy();
         });
         Pencil.documentHandler.preDocument = filePath;
     } catch (e) {
         // Pencil.documentHandler.newDocument()
         console.error(e);
-        ApplicationPane._instance.unbusy();
         Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
             (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
                 Pencil.controller.confirmAndclose(function () {

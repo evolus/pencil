@@ -7,50 +7,46 @@ function EpzHandler (controller) {
 __extend(FileHandler, EpzHandler);
 
 EpzHandler.EXT = ".epz";
-EpzHandler.prototype.loadDocument = function(filePath, callback) {
+EpzHandler.prototype.loadDocument = function(filePath) {
     var thiz = this;
-    var admZip = require('adm-zip');
 
-    var zip = new admZip(filePath);
-    zip.extractAllToAsync(Pencil.documentHandler.tempDir.name, true, function (err) {
-        if (err) {
-            callback({
-                error: FileHandler.ERROR_FILE_LOADING_FAILED,
-                message: "File could not be loaded."
-            });
-        } else {
-            thiz.parseDocument(filePath, callback);
-        }
+    return new Promise(function (resolve, reject) {
+        var admZip = require('adm-zip');
+
+        var zip = new admZip(filePath);
+        zip.extractAllToAsync(Pencil.documentHandler.tempDir.name, true, function (err) {
+            if (err) {
+                reject(new Error("File could not be loaded: " + err));
+            } else {
+                thiz.parseDocument(filePath, resolve);
+            }
+        });
+
     });
-}
+};
 
 EpzHandler.prototype.saveDocument = function (documentPath, callback) {
     var thiz = this;
-    var easyZip = require("easy-zip2").EasyZip;
-    var zip = new easyZip();
-    zip.zipFolder(Pencil.documentHandler.tempDir.name + "/.", function (err) {
-        if (err) {
-            if (callback) {
-                callback({
-                    error: FileHandler.ERROR_FILE_SAVING_FAILED,
-                    message: "Unable to save file: " + err,
-                    cause: err
-                });
-            }
-        } else {
-            zip.writeToFile(documentPath, function (err) {
-                if (err) {
-                    if (callback) {
-                        callback({
-                            error: FileHandler.ERROR_FILE_SAVING_FAILED,
-                            message: "Unable to save file: " + err,
-                            cause: err
-                        });
-                    }
-                } else {
-                    if (callback) callback();
+
+    return new Promise(function (resolve, reject) {
+        var easyZip = require("easy-zip2").EasyZip;
+        var zip = new easyZip();
+        zip.zipFolder(Pencil.documentHandler.tempDir.name + "/.", function (err) {
+            if (err) {
+                reject(new Error("Unable to save file: " + err));
+            } else {
+                try {
+                    zip.writeToFile(documentPath, function (err) {
+                        if (err) {
+                            reject(new Error("Unable to save file: " + err));
+                        } else {
+                            resolve();
+                        }
+                    });
+                } catch (e) {
+                    reject(e);
                 }
-            });
-        }
+            }
+        });
     });
 };

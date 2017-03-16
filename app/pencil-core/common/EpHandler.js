@@ -12,7 +12,10 @@ EpHandler.prototype.parseOldFormatDocument = function (filePath, callback) {
     var thiz = this;
     this.pathToRefCache = null;
     try {
-        if (path.extname(filePath) != ".ep") throw "Wrong format.";
+        if (path.extname(filePath) != ".ep") {
+            callback(new Error("Invalid file format."));
+            return;
+        }
 
         this.controller.documentPath = filePath;
         this.controller.oldPencilDoc = true;
@@ -59,42 +62,28 @@ EpHandler.prototype.parseOldFormatDocument = function (filePath, callback) {
                 if (thiz.controller.doc.pages.length > 0) thiz.controller.activatePage(thiz.controller.doc.pages[0]);
                 thiz.controller.pathToRefCache = null;
                 if (callback) callback();
-                ApplicationPane._instance.unbusy();
             });
         });
 
         this.controller.doc.name = this.controller.getDocumentName();
         Pencil.documentHandler.preDocument = filePath;
     } catch (e) {
-        console.log(e);
-
-        ApplicationPane._instance.unbusy();
-        Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
-            (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
-                Pencil.controller.confirmAndclose(function () {
-                    Pencil.documentHandler.resetDocument();
-                    ApplicationPane._instance.showStartupPane();
-                });
-            };
-        });
+        callback(new Error("Invalid file format."));
     }
 };
 EpHandler.prototype.loadDocument = function(filePath, callback) {
-    ApplicationPane._instance.busy();
-    this.controller.applicationPane.pageListView.restartFilterCache();
-    Pencil.documentHandler.resetDocument();
     var thiz = this;
-    if (!fs.existsSync(filePath)) {
-        Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
-        thiz.removeRecentFile(filePath);
-        ApplicationPane._instance.unbusy();
-        Pencil.documentHandler.newDocument()
-        if (callback) callback();
-        return;
-    };
-    try {
-        thiz.parseOldFormatDocument(filePath, callback);
-    } catch(e) {
-        ApplicationPane._instance.unbusy();
-    }
+    return new Promise(function (resolve, reject) {
+        if (!fs.existsSync(filePath)) {
+            throw new Error("File not found.");
+        }
+
+        thiz.parseOldFormatDocument(filePath, function (err) {
+            if (err) {
+                reject(new Error("Unable to parse file: " + err));
+            } else {
+                resolve();
+            }
+        });
+    });
 }
