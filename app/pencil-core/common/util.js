@@ -2060,7 +2060,7 @@ Util.importSandboxFunctions = function () {
     }
 };
 
-function pEval (expression, extra) {
+function pEval (expression, extra, codeLocation) {
     var result = null;
 
     try {
@@ -2071,6 +2071,7 @@ function pEval (expression, extra) {
         }
     } catch (ex) {
         if (expression.length < 1000) error("Problematic code: " + expression);
+        if (codeLocation) error("Code location: " + codeLocation);
         Console.dumpError(ex);
     }
 

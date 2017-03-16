@@ -210,7 +210,11 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
 
     Dom.workOn("./p:Script", shapeDefsNode, function (scriptNode) {
         var context = { collection: collection };
-        pEval(scriptNode.textContent, context);
+        try {
+            pEval(scriptNode.textContent, context, "COLLECTION_SCRIPT: " + collection.displayName + ", " + collection.relURL + " (" + scriptNode.getAttribute("comments") + ")");
+        } catch (e) {
+            console.error("Collection script evaluation failed: " + collection.displayName, e);
+        }
     });
 
 
