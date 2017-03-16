@@ -75,8 +75,6 @@ CollectionManager.reloadDeveloperStencil = function (showNotification) {
     if (showNotification) NotificationPopup.show("Developer collections were reloaded.");
 };
 CollectionManager._loadDeveloperStencil = function () {
-    console.log("Loading developer stencils...");
-
     try {
 		var stencilPath = Config.get("dev.stencil.path", "null");
 		if (!stencilPath || stencilPath == "none" || stencilPath == "null") {
@@ -133,8 +131,6 @@ CollectionManager._loadStencil = function (dir, parser, isSystem, isDeveloperSte
     }
 };
 CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, isSystem, isDeveloperStencil) {
-    console.log("Loading stencils in: " + stencilDir + "\n excluded: " + excluded);
-
     var parser = new ShapeDefCollectionParser();
     var count = 0;
 
@@ -153,8 +149,6 @@ CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, i
                 count++;
             }
         }
-
-        console.log(count, "stencils loaded.");
     } catch (e) {
         console.error(e);
     }
@@ -166,7 +160,6 @@ CollectionManager.loadStencils = function(showNotification) {
     CollectionManager.shapeDefinition.collections = [];
     CollectionManager.shapeDefinition.shapeDefMap = {};
 
-    console.log("Loading system stencils...");
     //load all system stencils
     var parser = new ShapeDefCollectionParser();
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Common/Definition.xml"));

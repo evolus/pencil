@@ -1872,7 +1872,6 @@ Canvas.prototype.doCopy = function () {
     var textualData = new XMLSerializer()
             .serializeToString(transferableData.dataNode);
 
-    console.log("Copy :" , textualData);
     clipboard.writeText(textualData);
 };
 Canvas.domParser = new DOMParser();
@@ -1895,10 +1894,7 @@ Canvas.prototype.doPaste = function (withAlternative) {
             function parseContent(string) {
                 var dom = Canvas.domParser.parseFromString(string, "text/xml");
                 if (dom) {
-                    console.log("Parsed text", string);
-                    console.log("Result dom", dom);
                     var node = dom.documentElement;
-                    console.log("Root: " + dom.documentElement.localName);
                     if (node.namespaceURI == PencilNamespaces.svg) {
                         if (node.localName == "g") {
                             var typeAttribute = node.getAttributeNS(PencilNamespaces.p, "type");
@@ -2008,7 +2004,6 @@ Canvas.prototype.doPaste = function (withAlternative) {
             var helper = this.xferHelpers[i];
 
             if (helper.type == content.type) {
-                console.log("Handling data by", helper);
                 try {
                     helper.handleData(content.data);
                     handled = true;
@@ -2083,7 +2078,6 @@ Canvas.prototype.handleMouseDown = function (event) {
     var controller = null;
 
     var targets = this.getSelectedTargets();
-    console.log("Target" , targets, "controller", this.currentController);
 
     var foundTarget = null;
     for (i in targets) {
@@ -2103,7 +2097,6 @@ Canvas.prototype.handleMouseDown = function (event) {
 
         var thiz = this;
         this.duplicateFunc = function () {
-            console.log("current control: ",thiz.currentController);
             var target =thiz.currentController.createTransferableData();
             var contents = [];
 
@@ -2120,7 +2113,6 @@ Canvas.prototype.handleMouseDown = function (event) {
 
             var dom = Canvas.domParser.parseFromString(textualData, "text/xml");
             dom.copySamePlace = true;
-            console.log("Dom is:", dom);
             var node = dom.documentElement;
             if (node.namespaceURI == PencilNamespaces.svg) {
                 if (node.localName == "g") {
@@ -2146,7 +2138,6 @@ Canvas.prototype.handleMouseDown = function (event) {
                     var helper = thiz.xferHelpers[i];
 
                     if (helper.type == content.type) {
-                        console.log("Handling data by", helper);
                         try {
                             helper.handleData(content.data);
                             handled = true;
@@ -2335,7 +2326,6 @@ Canvas.prototype.toggleLocking = function () {
 
 };
 Canvas.prototype.toggleLockingImpl_ = function () {
-    console.log(("toggleLockingImpl_", this.lockingStatus));
     if (!this.lockingStatus)
         return;
     if (this.lockingStatus.controller && this.lockingStatus.controller.lock) {
@@ -2404,8 +2394,6 @@ Canvas.prototype.setMemento = function (memento) {
 
 };
 Canvas.prototype.run = function (job, targetObject, actionName, args) {
-
-    console.log("add undo", actionName);
     try {
         // console.log();
         job.apply(targetObject, args);
@@ -2428,13 +2416,10 @@ Canvas.prototype.getCanvasState = function () {
         state.scrollLeft = this._scrollPane.scrollLeft;
     }
 
-    console.log("return state: " + JSON.stringify(state), state);
-
     return state;
 };
 Canvas.prototype.setCanvasState = function (state) {
     if (state) {
-        console.log("Setting canvas state", state);
         this.zoomTo(state.zoom);
         if (this._scrollPane) {
             window.setTimeout(function () {
@@ -2903,7 +2888,6 @@ Canvas.prototype.__drop = function (event) {
         this.canvasContentModifiedListener = null;
     }
     if (!this.currentDragObserver) {
-        console.log('currentDragObserver is null');
         return;
     }
 
