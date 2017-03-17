@@ -267,6 +267,53 @@ CollectionManager.extractCollection = function(file, callback) {
         fs.createReadStream(filePath).pipe(extractor);
     });
 };
+CollectionManager.installCollectionFonts = function (collection) {
+    if (!collection.fonts || collection.fonts.length == 0) {
+        return;
+    }
+
+    var installedFonts = [];
+    for (var font of collection.fonts) {
+        var existingFont = FontLoader.instance.userRepo.getFont(font.name);
+        if (existingFont) {
+            if (existingFont.source == collection.id) {
+                FontLoader.instance.userRepo.removeFont(existingFont);
+            } else {
+                continue;   //skip installing this font
+            }
+        }
+
+        var fontData = {
+            fontName: font.name,
+            source: collection.id
+        }
+
+        for (var variantName in FontRepository.SUPPORTED_VARIANTS) {
+            var declaredPath = font[variantName];
+            var filePath = "";
+            if (declaredPath) {
+                var parts = declaredPath.split("/");
+                filePath = collection.installDirPath;
+                for (var p of parts) {
+                    filePath = path.join(filePath, p);
+                }
+
+                if (!fs.existsSync(filePath)) filePath = "";
+            }
+
+            fontData[variantName + "FilePath"] = filePath;
+        }
+
+        FontLoader.instance.installNewFont(fontData);
+        installedFonts.push(fontData.fontName);
+    }
+
+    if (installedFonts.length > 0) {
+        NotificationPopup.show("New fonts installed:\n   " + installedFonts.join("\n   "), "View", function () {
+            (new FontManagementDialog()).open();
+        });
+    }
+};
 CollectionManager.installCollection = function(targetDir, callback) {
     return QP.Promise(function(resolve, reject) {
         try {
@@ -286,6 +333,9 @@ CollectionManager.installCollection = function(targetDir, callback) {
                 }
                 collection.userDefined = true;
                 collection.installDirPath = targetDir;
+
+                //install fonts
+                CollectionManager.installCollectionFonts(collection);
 
                 CollectionManager.setCollectionVisible(collection, true);
                 CollectionManager.setCollectionCollapsed(collection, false);

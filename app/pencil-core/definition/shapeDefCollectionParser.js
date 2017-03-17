@@ -207,6 +207,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
     collection.author = shapeDefsNode.getAttribute("author");
     collection.infoUrl = shapeDefsNode.getAttribute("url");
     collection.system = shapeDefsNode.getAttribute("system") == "true";
+    collection.fonts = [];
 
     Dom.workOn("./p:Script", shapeDefsNode, function (scriptNode) {
         var context = { collection: collection };
@@ -216,7 +217,16 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
             console.error("Collection script evaluation failed: " + collection.displayName, e);
         }
     });
-
+    Dom.workOn("./p:Fonts/p:Font", shapeDefsNode, function (fontNode) {
+        var font = {
+            name: fontNode.getAttribute("name"),
+            regular: fontNode.getAttribute("regular"),
+            bold: fontNode.getAttribute("bold"),
+            italic: fontNode.getAttribute("italic"),
+            boldItalic: fontNode.getAttribute("boldItalic")
+        };
+        collection.fonts.push(font);
+    });
 
     this.parseCollectionProperties(shapeDefsNode, collection);
 
