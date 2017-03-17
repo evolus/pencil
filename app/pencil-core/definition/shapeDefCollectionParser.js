@@ -575,6 +575,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
         } else {
             var type = shapeDef.getProperty(name).type;
             spec.initialValue = type.fromString(Dom.getText(propValueNode));
+            spec.collection = collection;
         }
 
         shortcut.propertyMap[name] = spec;

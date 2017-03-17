@@ -1051,6 +1051,29 @@ Controller.prototype.copyAsRef = function (sourcePath, callback) {
 
     rd.pipe(wr);
 };
+Controller.prototype.collectionResourceAsRefSync = function (collection, resourcePath) {
+    var parts = resourcePath.split("/");
+    sourcePath = collection.installDirPath;
+    for (var p of parts) {
+        if (p.indexOf("..") >= 0 || p.indexOf("\\") >= 0) return null;
+        sourcePath = path.join(sourcePath, p);
+    }
+    if (!fs.existsSync(sourcePath)) {
+        console.error("Path not found: " + sourcePath);
+        return null;
+    }
+
+    var id = "collection " + collection.id + " " + resourcePath;
+    id = id.replace(/[^a-z\-0-9]+/gi, "_");
+
+    var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, fs.readFileSync(sourcePath));
+    }
+
+    return id;
+};
 Controller.prototype.nativeImageToRefSync = function (nativeImage) {
     var id = Util.newUUID() + ".png";
     var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
