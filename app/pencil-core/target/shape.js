@@ -52,6 +52,9 @@ Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
 
     for (var name in this.def.propertyMap) {
         var value = null;
+        var prop = this.def.propertyMap[name];
+
+        var currentCollection = this.def.connection;
 
         if (overridingValueMap && overridingValueMap[name]) {
             var spec = overridingValueMap[name];
@@ -64,14 +67,18 @@ Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
             } else {
                 value = spec.initialValue;
             }
-        } else {
-            var prop = this.def.propertyMap[name];
 
+            if (spec.collection) currentCollection = spec.collection;
+        } else {
             if (prop.initialValueExpression) {
                 value = this.evalExpression(prop.initialValueExpression);
             } else {
                 value = prop.initialValue;
             }
+        }
+
+        if (prop.type.performIntialProcessing) {
+            prop.type.performIntialProcessing(value, this.def, currentCollection);
         }
 
         this.storeProperty(name, value);

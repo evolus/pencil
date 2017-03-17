@@ -1,6 +1,5 @@
 function DocumentHandler(controller) {
-    this.fileHandler = {};
-    this.activeHandler;
+    this.handlerRegistry = {};
     this.tempDir;
     this.controller = controller;
     this.preDocument = null;
@@ -8,10 +7,8 @@ function DocumentHandler(controller) {
     this.registerHandler(new EpzHandler(this.controller));
     this.registerHandler(new EpgzHandler(this.controller));
     this.registerHandler(new EpHandler(this.controller));
-
-    var handlerType = this.getDefaultFileType();
-    this.actived(handlerType);
 }
+
 DocumentHandler.prototype.getDefaultFileType = function () {
     const configName = "document.fileHandler.defaultHandlerType";
     var value = Config.get(configName, null);
@@ -22,85 +19,125 @@ DocumentHandler.prototype.getDefaultFileType = function () {
 
     return value;
 };
-DocumentHandler.prototype.registerHandler = function(handler){
-    this.fileHandler[handler.type] = handler;
-    // if (this.fileHandler[handler.type].loadDocument != null) this.readExtensions.push(handler.type.replace(".",""));
-    // if (this.fileHandler[handler.type].saveDocument != null) this.saveExtentions.push(handler.type.replace(".",""));
+DocumentHandler.prototype.getDefaultHandler = function () {
+    return this.handlerRegistry[this.getDefaultFileType()];
+};
+
+DocumentHandler.prototype.registerHandler = function (handler) {
+    this.handlerRegistry[handler.type] = handler;
 }
 
-DocumentHandler.prototype.actived = function(type){
-    if (this.fileHandler[type] == null) return;
-    this.activeHandler = this.fileHandler[type];
-}
-
-DocumentHandler.prototype.getExtentionHandlerFile = function(saveFlag) {
-    var extentions = new Array();
-    var fileHandlers = this.fileHandler;
+DocumentHandler.prototype.getAllSupportedExtensions = function(forSaving) {
+    var extentions = [];
+    var fileHandlers = this.handlerRegistry;
     for (var index in fileHandlers) {
-        if (saveFlag && fileHandlers[index].saveDocument || !saveFlag && fileHandlers[index].loadDocument)
+        if (forSaving && fileHandlers[index].saveDocument || !forSaving && fileHandlers[index].loadDocument)
             extentions.push(index.replace(".",""));
     }
     return extentions;
 }
 
-DocumentHandler.prototype.openDocument = function(callback){
+DocumentHandler.prototype.openDocument = function (callback) {
     var thiz = this;
     function handler() {
-        ApplicationPane._instance.busy();
         dialog.showOpenDialog(remote.getCurrentWindow(), {
             title: "Open",
             defaultPath: Config.get("document.open.recentlyDirPath", null) || os.homedir(),
             filters: [
-                { name: "Pencil Documents", extensions: thiz.getExtentionHandlerFile(false) }
+                { name: "Pencil Documents", extensions: thiz.getAllSupportedExtensions(false) }
             ]
         }, function (filenames) {
-            ApplicationPane._instance.unbusy();
             if (!filenames || filenames.length <= 0) return;
             Config.set("document.open.recentlyDirPath", path.dirname(filenames[0]));
-            this.loadDocument(filenames[0], callback);
-        }.bind(thiz));
+
+            thiz.loadDocument(filenames[0], callback);
+
+        });
     };
+
     if (this.controller.modified) {
         this.confirmAndSaveDocument(handler);
-        return;
+    } else {
+        handler();
     }
-    handler();
 }
 
 DocumentHandler.prototype.loadDocument = function(filePath, callback){
     var ext = path.extname(filePath);
-    var handler = this.fileHandler[ext];
+    var handler = this.handlerRegistry[ext];
     if (handler == null || handler.loadDocument == null) {
-        Dialog.alert("This file type is not support! please open another file.");
+        Dialog.alert("Unsupported document type: " + ext);
     } else {
         var thiz = this;
-        handler.loadDocument(filePath, function () {
-            if (handler.saveDocument != null) {
-                thiz.actived(ext);
-            }
-            if (callback) callback();
-        });
-    }
-}
+        if (!fs.existsSync(filePath)) {
+            callback({
+                error: FileHandler.ERROR_NOT_FOUND,
+                message: "File doesn't exist"
+            });
 
-DocumentHandler.prototype.loadDocumentFromArguments = function(filePath){
+            return;
+        };
+
+        ApplicationPane._instance.busy();
+        this.controller.applicationPane.pageListView.restartFilterCache();
+        this.resetDocument();
+
+        handler.loadDocument(filePath)
+            .then(function () {
+                thiz.controller.modified = false;
+                try {
+                    if (callback) callback();
+                } finally {
+                    ApplicationPane._instance.unbusy();
+                }
+            })
+            .catch(function (err) {
+                thiz.controller.modified = false;
+                try {
+                    if (callback) callback(err);
+                } finally {
+                    ApplicationPane._instance.unbusy();
+                }
+            });
+    }
+};
+
+//        thiz.removeRecentFile(filePath);
+
+
+DocumentHandler.prototype.loadDocumentFromArguments = function (filePath) {
     var ext = path.extname(filePath);
-    var handler = this.fileHandler[ext];
+    var handler = this.handlerRegistry[ext];
     if (handler && handler.loadDocument) {
         var thiz = this;
-        handler.loadDocument(filePath, function () {
-            if (handler.saveDocument != null) {
-                thiz.actived(ext);
-            }
-        });
+        if (!fs.existsSync(filePath)) {
+            callback({
+                error: FileHandler.ERROR_NOT_FOUND,
+                message: "File doesn't exist"
+            });
+
+            return;
+        };
+
+        ApplicationPane._instance.busy();
+
+        handler.loadDocument(filePath)
+            .then(function () {
+                thiz.controller.modified = false;
+                ApplicationPane._instance.unbusy();
+            })
+            .catch(function (err) {
+                thiz.controller.modified = false;
+                ApplicationPane._instance.unbusy();
+            });
     }
 }
 
 DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
     var filters = [];
     var defaultFileType = this.getDefaultFileType();
-    for (var type in this.fileHandler) {
-        var handler = this.fileHandler[type];
+    for (var type in this.handlerRegistry) {
+        var handler = this.handlerRegistry[type];
         if (handler.saveDocument) {
             var filter = {
                 name: handler.name,
@@ -156,13 +193,15 @@ DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
     });
 };
 DocumentHandler.prototype.getHandlerForFilePath = function (filePath) {
-    return this.fileHandler[path.extname(filePath)];
+    return this.handlerRegistry[path.extname(filePath)];
 };
-
+DocumentHandler.prototype.getActiveHandler = function () {
+    if (!this.controller.documentPath) return null;
+    return this.getHandlerForFilePath(this.controller.documentPath);
+};
 DocumentHandler.prototype.saveAsDocument = function (onSaved, skipAddingRecentFiles) {
     var thiz = this;
     this.pickupTargetFileToSave(function (filePath) {
-        console.log("Got file path", filePath);
         if (!filePath) return;
         var handler = thiz.getHandlerForFilePath(filePath);
         if (!handler || !handler.saveDocument) {
@@ -170,22 +209,47 @@ DocumentHandler.prototype.saveAsDocument = function (onSaved, skipAddingRecentFi
             return;
         }
 
-        thiz.actived(handler.type);
-        console.log("activeHandler", thiz.activeHandler.type);
-
         if (!skipAddingRecentFiles) thiz.controller.addRecentFile(filePath, thiz.controller.getCurrentDocumentThumbnail());
         thiz.controller.documentPath = filePath;
         thiz.controller.doc.name = thiz.controller.getDocumentName();
-        thiz.activeHandler.saveDocument(filePath, onSaved);
+
+        thiz._saveBoundDocument(onSaved);
     });
 };
 
 DocumentHandler.prototype.saveDocument = function (onSaved) {
-    if (!this.controller.documentPath || !this.activeHandler || !this.activeHandler.saveDocument) {
+    if (!this.controller.documentPath || !this.getActiveHandler().saveDocument) {
         this.saveAsDocument(onSaved, "skipAddingRecentFiles");
     } else {
-        this.getHandlerForFilePath(this.controller.documentPath).saveDocument(this.controller.documentPath, onSaved);
+        this._saveBoundDocument(onSaved);
     }
+};
+
+DocumentHandler.prototype._saveBoundDocument = function (onSaved) {
+    ApplicationPane._instance.busy();
+    this.controller.updateCanvasState();
+
+    var thiz = this;
+    this.controller.serializeDocument(function () {
+        thiz.controller.addRecentFile(thiz.controller.documentPath, thiz.controller.getCurrentDocumentThumbnail());
+        thiz.getActiveHandler().saveDocument(thiz.controller.documentPath)
+            .then(function () {
+                ApplicationPane._instance.unbusy();
+                thiz.controller.sayDocumentSaved();
+
+                if (onSaved) onSaved();
+
+                thiz.controller.applicationPane.onDocumentChanged();
+                thiz.controller.sayControllerStatusChanged();
+            })
+            .catch (function (err) {
+                ApplicationPane._instance.unbusy();
+                Dialog.error("Error when saving document: " + err);
+
+                thiz.controller.applicationPane.onDocumentChanged();
+                thiz.controller.sayControllerStatusChanged();
+            });
+    });
 };
 
 DocumentHandler.prototype.confirmAndSaveDocument = function (onSaved) {
@@ -211,11 +275,12 @@ DocumentHandler.prototype.newDocument = function () {
             thiz.controller.modified = false;
         }, 50);
     };
+
     if (this.controller.modified) {
         this.confirmAndSaveDocument(create);
-        return;
+    } else {
+        create();
     }
-    create();
 };
 
 DocumentHandler.prototype.resetDocument = function () {

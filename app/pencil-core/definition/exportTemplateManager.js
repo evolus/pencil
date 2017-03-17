@@ -10,7 +10,6 @@ ExportTemplateManager.SUPPORTED_TYPES_NAMES = {
 };
 
 ExportTemplateManager.addTemplate = function (template, type) {
-    console.log("add template", template, type);
     if (!ExportTemplateManager.templates[type]) {
         ExportTemplateManager.templates[type] = [];
     }
@@ -97,7 +96,7 @@ ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type)
             ExportTemplateManager.addTemplate(template, type);
         })
     } catch (e) {
-        console.error(e);
+        //console.error(e);
     }
 };
 

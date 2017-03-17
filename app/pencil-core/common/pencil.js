@@ -509,6 +509,15 @@ Pencil.getGridSize = function () {
     return {w: size, h: size};
 };
 
+Pencil.getGridStyle = function () {
+    var style = Config.get("edit.gridStyle");
+    if (style == null) {
+        style = "Dotted";
+        Config.set("edit.gridStyle", style);
+    }
+    return style;
+};
+
 Pencil.getCurrentTarget = function () {
     var canvas = Pencil.activeCanvas;
     return canvas ? canvas.currentController : null;

@@ -12,7 +12,7 @@ var nsDragAndDrop = {
     },
 
     getData(key) {
-        return this.dragData[key];
+        return this.dragData ? this.dragData[key] : null;
     },
 
     dragStart: function(event) {

@@ -75,8 +75,6 @@ CollectionManager.reloadDeveloperStencil = function (showNotification) {
     if (showNotification) NotificationPopup.show("Developer collections were reloaded.");
 };
 CollectionManager._loadDeveloperStencil = function () {
-    console.log("Loading developer stencils...");
-
     try {
 		var stencilPath = Config.get("dev.stencil.path", "null");
 		if (!stencilPath || stencilPath == "none" || stencilPath == "null") {
@@ -133,8 +131,6 @@ CollectionManager._loadStencil = function (dir, parser, isSystem, isDeveloperSte
     }
 };
 CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, isSystem, isDeveloperStencil) {
-    console.log("Loading stencils in: " + stencilDir + "\n excluded: " + excluded);
-
     var parser = new ShapeDefCollectionParser();
     var count = 0;
 
@@ -153,8 +149,6 @@ CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, i
                 count++;
             }
         }
-
-        console.log(count, "stencils loaded.");
     } catch (e) {
         console.error(e);
     }
@@ -166,7 +160,6 @@ CollectionManager.loadStencils = function(showNotification) {
     CollectionManager.shapeDefinition.collections = [];
     CollectionManager.shapeDefinition.shapeDefMap = {};
 
-    console.log("Loading system stencils...");
     //load all system stencils
     var parser = new ShapeDefCollectionParser();
     CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Common/Definition.xml"));
@@ -274,6 +267,53 @@ CollectionManager.extractCollection = function(file, callback) {
         fs.createReadStream(filePath).pipe(extractor);
     });
 };
+CollectionManager.installCollectionFonts = function (collection) {
+    if (!collection.fonts || collection.fonts.length == 0) {
+        return;
+    }
+
+    var installedFonts = [];
+    for (var font of collection.fonts) {
+        var existingFont = FontLoader.instance.userRepo.getFont(font.name);
+        if (existingFont) {
+            if (existingFont.source == collection.id) {
+                FontLoader.instance.userRepo.removeFont(existingFont);
+            } else {
+                continue;   //skip installing this font
+            }
+        }
+
+        var fontData = {
+            fontName: font.name,
+            source: collection.id
+        }
+
+        for (var variantName in FontRepository.SUPPORTED_VARIANTS) {
+            var declaredPath = font[variantName];
+            var filePath = "";
+            if (declaredPath) {
+                var parts = declaredPath.split("/");
+                filePath = collection.installDirPath;
+                for (var p of parts) {
+                    filePath = path.join(filePath, p);
+                }
+
+                if (!fs.existsSync(filePath)) filePath = "";
+            }
+
+            fontData[variantName + "FilePath"] = filePath;
+        }
+
+        FontLoader.instance.installNewFont(fontData);
+        installedFonts.push(fontData.fontName);
+    }
+
+    if (installedFonts.length > 0) {
+        NotificationPopup.show("New fonts installed:\n   " + installedFonts.join("\n   "), "View", function () {
+            (new FontManagementDialog()).open();
+        });
+    }
+};
 CollectionManager.installCollection = function(targetDir, callback) {
     return QP.Promise(function(resolve, reject) {
         try {
@@ -293,6 +333,9 @@ CollectionManager.installCollection = function(targetDir, callback) {
                 }
                 collection.userDefined = true;
                 collection.installDirPath = targetDir;
+
+                //install fonts
+                CollectionManager.installCollectionFonts(collection);
 
                 CollectionManager.setCollectionVisible(collection, true);
                 CollectionManager.setCollectionCollapsed(collection, false);
