@@ -708,7 +708,7 @@ Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim) {
             _name: "div",
             _uri: PencilNamespaces.html,
             totalH: totalH,
-            style: new CSS().set("height", h + "px").set("white-space", "nowrap").set("overflow", "hidden"),
+            style: new CSS().set("height", h + "px").set("white-space", "nowrap").set("overflow", "hidden").set("display", "flex"),
             _children: []
         };
         rowSpecs.push(rowSpec);
