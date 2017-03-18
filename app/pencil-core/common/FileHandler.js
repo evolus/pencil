@@ -2,79 +2,10 @@ function FileHandler(controller){
     this.controller = controller;
 }
 
-FileHandler.prototype.parseOldFormatDocument = function (filePath, callback) {
-    var targetDir = Pencil.documentHandler.tempDir.name;
-    var oldPencilDocument = Pencil.documentHandler.preDocument;
-    var thiz = this;
-    this.pathToRefCache = null;
-    try {
-        if (path.extname(filePath) != ".ep" && path.extname(filePath) != ".epz") throw "Wrong format.";
+FileHandler.ERROR_NOT_FOUND = "ERROR_NOT_FOUND";
+FileHandler.ERROR_FILE_LOADING_FAILED = "ERROR_FILE_LOADING_FAILED";
+FileHandler.ERROR_FILE_SAVING_FAILED = "ERROR_FILE_SAVING_FAILED";
 
-        this.controller.documentPath = filePath;
-        this.controller.oldPencilDoc = true;
-        var dom = Controller.parser.parseFromString(fs.readFileSync(filePath, "utf8"), "text/xml");
-
-        Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-            thiz.controller.doc.properties[propNode.getAttribute("name")] = propNode.textContent;
-        });
-
-        var pageNodes = Dom.getList("./p:Pages/p:Page", dom.documentElement);
-        console.log(pageNodes);
-        var pageNodeIndex = -1;
-        function parseNextPageNode(__callback) {
-            pageNodeIndex ++;
-            if (pageNodeIndex >= pageNodes.length) {
-                __callback();
-                return;
-            }
-
-            var pageNode = pageNodes[pageNodeIndex];
-            thiz.parsePageFromNode(pageNode, function () {
-                parseNextPageNode(__callback);
-            });
-        }
-
-        // update page thumbnails
-        var index = -1;
-        function generateNextThumbnail(onDone) {
-            index ++;
-            if (index >= thiz.controller.doc.pages.length) {
-                if (onDone) onDone();
-                return;
-            }
-            var page = thiz.controller.doc.pages[index];
-            thiz.controller.updatePageThumbnail(page, function () {
-                generateNextThumbnail(onDone);
-            });
-        }
-        if (pageNodes.length == 0 && index == -1 && pageNodeIndex == -1) throw "Wrong format.";
-        parseNextPageNode(function () {
-            generateNextThumbnail(function () {
-                thiz.controller.modified = false;
-                thiz.controller.sayControllerStatusChanged();
-                if (thiz.controller.doc.pages.length > 0) thiz.controller.activatePage(thiz.controller.doc.pages[0]);
-                thiz.controller.pathToRefCache = null;
-                if (callback) callback();
-                ApplicationPane._instance.unbusy();
-            });
-        });
-
-        this.controller.doc.name = this.controller.getDocumentName();
-        Pencil.documentHandler.preDocument = filePath;
-    } catch (e) {
-        console.log(e);
-
-        ApplicationPane._instance.unbusy();
-        Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
-            (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
-                Pencil.controller.confirmAndclose(function () {
-                    Pencil.documentHandler.resetDocument();
-                    ApplicationPane._instance.showStartupPane();
-                });
-            };
-        });
-    }
-};
 
 FileHandler.prototype.parseDocument = function (filePath, callback) {
     var targetDir = Pencil.documentHandler.tempDir.name;
@@ -82,7 +13,11 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
     var thiz = this;
     try {
         var contentFile = path.join(targetDir, "content.xml");
-        if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
+        if (!fs.existsSync(contentFile)) {
+            if (callback) callback(new Error(Util.getMessage("content.specification.is.not.found.in.the.archive")));
+            return;
+        }
+
         var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
         Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
             var value = propNode.textContent;
@@ -99,7 +34,11 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
 
         thiz.controller.doc.pages.forEach(function (page) {
             var pageFile = path.join(targetDir, page.pageFileName);
-            if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
+            if (!fs.existsSync(pageFile)) {
+                if (callback) callback(new Error(Util.getMessage("page.specification.is.not.found.in.the.archive")));
+                return;
+            }
+
             var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
             Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
                 var propName = propNode.getAttribute("name");
@@ -171,13 +110,11 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
             thiz.controller.applicationPane.onDocumentChanged();
             thiz.modified = false;
             if (callback) callback();
-            ApplicationPane._instance.unbusy();
         });
         Pencil.documentHandler.preDocument = filePath;
     } catch (e) {
         // Pencil.documentHandler.newDocument()
         console.error(e);
-        ApplicationPane._instance.unbusy();
         Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
             (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
                 Pencil.controller.confirmAndclose(function () {
@@ -251,7 +188,7 @@ FileHandler.prototype.parsePageFromNode = function (pageNode, callback) {
 
         if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
 
-        if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
+        if (page.backgroundPageId) page.backgroundPage = thiz.controller.findPageById(page.backgroundPageId);
 
         var pageFileName = "page_" + page.id + ".xml";
         page.pageFileName = pageFileName;

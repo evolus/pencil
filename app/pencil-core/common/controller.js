@@ -1,6 +1,7 @@
 function Controller(canvasPool, applicationPane) {
     this.canvasPool = canvasPool;
     this.applicationPane = applicationPane;
+    this.activePageLoading = false;
     var thiz = this;
     this.canvasPool.canvasContentModifiedListener = function (canvas) {
         thiz.handleCanvasModified(canvas);
@@ -633,6 +634,8 @@ Controller.prototype.updateCanvasState = function () {
 Controller.prototype.activatePage = function (page) {
     if (page == null || this.activePage && page.id == this.activePage.id) return;
 
+    this.activePageLoading = true;
+
     this.updateCanvasState();
 
     this.retrievePageCanvas(page);
@@ -645,6 +648,7 @@ Controller.prototype.activatePage = function (page) {
     page.lastUsed = new Date();
     this.activePage = page;
     page.canvas._sayTargetChanged();
+    this.activePageLoading = false;
     // this.sayDocumentChanged();
 };
 Controller.prototype.ensurePageCanvasBackground = function (page) {
@@ -1046,6 +1050,29 @@ Controller.prototype.copyAsRef = function (sourcePath, callback) {
     });
 
     rd.pipe(wr);
+};
+Controller.prototype.collectionResourceAsRefSync = function (collection, resourcePath) {
+    var parts = resourcePath.split("/");
+    sourcePath = collection.installDirPath;
+    for (var p of parts) {
+        if (p.indexOf("..") >= 0 || p.indexOf("\\") >= 0) return null;
+        sourcePath = path.join(sourcePath, p);
+    }
+    if (!fs.existsSync(sourcePath)) {
+        console.error("Path not found: " + sourcePath);
+        return null;
+    }
+
+    var id = "collection " + collection.id + " " + resourcePath;
+    id = id.replace(/[^a-z\-0-9]+/gi, "_");
+
+    var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, fs.readFileSync(sourcePath));
+    }
+
+    return id;
 };
 Controller.prototype.nativeImageToRefSync = function (nativeImage) {
     var id = Util.newUUID() + ".png";

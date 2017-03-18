@@ -292,7 +292,6 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
     if (!this.skipStack) {
         BaseWidget.registerClosable(this);
     }
-    console.log("showAt X: ", x, "Y: ", y);
 };
 Popup.prototype._setPosition = function (x, y) {
     this.popupContainer.style.left = x + "px";
