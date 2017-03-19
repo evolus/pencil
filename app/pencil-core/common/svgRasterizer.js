@@ -290,31 +290,19 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
 
     var thiz = this;
     var s = (typeof (scale) == "undefined") ? 1 : scale;
-    var canvas = document.createElement("canvas");
-    canvas.setAttribute("width", w * s);
-    canvas.setAttribute("height", h * s);
-    var ctx = canvas.getContext("2d");
+    thiz.getBackend().rasterize(svg, w, h, s, function (data) {
+        var dataURI = data;
 
-    var img = new Image();
-    var url = "data:image/svg+xml;charset=utf-8," + Controller.serializer.serializeToString(svg);
-
-    function saveFile (dataURI) {
         var actualPath = filePath ? filePath : tmp.fileSync().name;
-        var base64Data = dataURI.replace(/^data:image\/png;base64,/, "");
+        const prefix = "data:image/png;base64,";
+        var base64Data = dataURI;
+        if (base64Data.startsWith(prefix)) base64Data = base64Data.substring(prefix.length);
 
-        fs.writeFile(actualPath, base64Data, 'base64', function (err) {
+        var buffer = new Buffer(base64Data, "base64");
+        fs.writeFile(actualPath, buffer, 0, buffer.length, function (err) {
             callback(actualPath, err);
         });
-    };
-
-    img.onload = function () {
-        ctx.scale(s, s);
-        ctx.drawImage(img, 0, 0);
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        window.URL.revokeObjectURL(url);
-        saveFile(canvas.toDataURL());
-    };
-    img.src = url;
+    });
 };
 
 Rasterizer.prototype._prepareWindowForRasterization = function(backgroundColor) {

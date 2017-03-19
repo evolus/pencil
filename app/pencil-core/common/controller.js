@@ -1013,7 +1013,13 @@ Controller.prototype.rasterizeSelection = function () {
         ]
     }, function (filePath) {
         if (!filePath) return;
-        this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function () {});
+        this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
+            if (!error) {
+                NotificationPopup.show("Selection exprted as '" + path.basename(filePath) + "'.", "View", function () {
+                    shell.openItem(filePath);
+                });
+            }
+        });
     }.bind(this));
 };
 
