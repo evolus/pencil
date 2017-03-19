@@ -87,6 +87,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
         var group = definedGroups[i];
         for (var j in group.properties) {
             var property = group.properties[j];
+
             var editor = TypeEditorRegistry.getTypeEditor(property.type);
             if (!editor) continue;
 
@@ -116,6 +117,13 @@ SharedPropertyEditor.prototype.attach = function (target) {
         var group = definedGroups[i];
         for (var j in group.properties) {
             var property = group.properties[j];
+
+            var meta = this.target.def.propertyMap[property.name].meta["disabled"];
+            if (meta) {
+                var value = this.target.evalExpression(meta, true);
+                if (value) continue;
+            }
+
             var editor = TypeEditorRegistry.getTypeEditor(property.type);
             if (!editor) continue;
             property._group = group;

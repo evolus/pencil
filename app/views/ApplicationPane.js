@@ -19,7 +19,6 @@ function ApplicationPane() {
     //this.toolBarSrollView.setWheelAllow(false);
 
     this.bind("focusout", function(ev) {
-        console.log(ev.target);
         if (ev.target) {
             this.toolBarSrollView.setWheelAllow(true);
         }
