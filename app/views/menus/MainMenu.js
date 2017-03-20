@@ -140,6 +140,15 @@ MainMenu.prototype.setup = function () {
 
         }
     });
+    developerToolSubItems.push({
+        key: "copyAsShortcut",
+        label: "Copy as Shortcut XML...",
+        isAvailable: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.generateShortcutXML; },
+        run: function () {
+            var xml = Pencil.activeCanvas.currentController.generateShortcutXML();
+            clipboard.writeText(xml);
+        }
+    });
     developerToolSubItems.push(Menu.SEPARATOR);
 
     developerToolSubItems.push({

@@ -261,26 +261,28 @@ GeometryEditor.prototype.handleMouseDown = function (event) {
     this._minY2 = r == 0 ? minY2 : (minY2 + grid.y - r);
 
     this._minDim = minDim;
-    
+
     try {
-        var guides = this.canvas.currentController.getSnappingGuide();
-        this._lastGuides = {
-            left: null,
-            top: null,
-            bottom: null,
-            right: null
-        };
-        
-        
-        for (var i = 0; i < guides.vertical.length; i ++) {
-            var guide = guides.vertical[i];
-            if (guide.type == "Left") this._lastGuides.left = guide;
-            if (guide.type == "Right") this._lastGuides.right = guide;
-        }
-        for (var i = 0; i < guides.horizontal.length; i ++) {
-            var guide = guides.horizontal[i];
-            if (guide.type == "Top") this._lastGuides.top = guide;
-            if (guide.type == "Bottom") this._lastGuides.bottom = guide;
+        if (this.canvas.currentController.getSnappingGuide) {
+            var guides = this.canvas.currentController.getSnappingGuide();
+            this._lastGuides = {
+                left: null,
+                top: null,
+                bottom: null,
+                right: null
+            };
+
+
+            for (var i = 0; i < guides.vertical.length; i ++) {
+                var guide = guides.vertical[i];
+                if (guide.type == "Left") this._lastGuides.left = guide;
+                if (guide.type == "Right") this._lastGuides.right = guide;
+            }
+            for (var i = 0; i < guides.horizontal.length; i ++) {
+                var guide = guides.horizontal[i];
+                if (guide.type == "Top") this._lastGuides.top = guide;
+                if (guide.type == "Bottom") this._lastGuides.bottom = guide;
+            }
         }
     } catch (e) {
         Console.dumpError(e);
@@ -341,7 +343,7 @@ GeometryEditor.prototype.setTool = function (tool) {
 GeometryEditor.prototype.handleMouseMove = function (event) {
     if (!this.currentAnchor) return;
     event.preventDefault();
-    
+
     var locking = this.getLockingPolicy();
     if (event.ctrlKey) locking.ratio = true;
 
@@ -387,7 +389,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
     var controller = this.canvas.currentController;
     var bound = controller.getBounding();
-    
+
     //HORIZONTAL
     if (!locking.width) {
         dx = matrix.dx * mdx;
@@ -551,7 +553,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
     //this.currentAnchor = null;
 
     newGeo.ctm = this.oGeo.ctm.translate(dx, dy);
-    
+
     if (locking.ratio && !locking.width && !locking.height) {
     	var r = this.oGeo.dim.w / this.oGeo.dim.h;
     	var w = 0, h = 0;
@@ -562,7 +564,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
     		h = this.oGeo.dim.h + dh;
     		w = h * r;
     	}
-    	
+
     	w = Math.round(w);
     	h = Math.round(h);
         newGeo.dim = new Dimension(w, h);
@@ -571,8 +573,8 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
     } else {
         newGeo.dim = new Dimension(Math.round(this.oGeo.dim.w + dw), Math.round(this.oGeo.dim.h + dh));
     }
-    
-    
+
+
 
     var p = Svg.vectorInCTM(new Point(dx, dy), this.geo.ctm.inverse(), true);
     this.adx = p.x;
@@ -772,4 +774,3 @@ GeometryEditor.prototype.validateGeometry = function (geo, matrix, locking) {
 };
 
 Pencil.registerEditor(GeometryEditor);
-

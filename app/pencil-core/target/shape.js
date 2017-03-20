@@ -50,6 +50,8 @@ Shape.prototype.getPropertyGroups = function () {
 Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
     this._evalContext = {collection: this.def.collection};
 
+    var hasPostProcessing = false;
+
     for (var name in this.def.propertyMap) {
         var value = null;
         var prop = this.def.propertyMap[name];
@@ -78,11 +80,14 @@ Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
         }
 
         if (prop.type.performIntialProcessing) {
-            prop.type.performIntialProcessing(value, this.def, currentCollection);
+            if (prop.type.performIntialProcessing(value, this.def, currentCollection)) {
+                hasPostProcessing = true;
+            }
         }
 
         this.storeProperty(name, value);
     }
+
     for (name in this.def.propertyMap) {
         this.applyBehaviorForProperty(name);
     }
@@ -1064,4 +1069,40 @@ Shape.prototype.invalidateInboundConnections = function () {
 };
 Shape.prototype.invalidateOutboundConnections = function () {
     Connector.invalidateOutboundConnectionsForShapeTarget(this);
+};
+Shape.prototype.generateShortcutXML = function () {
+    var dom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
+    var spec = {
+        _name: "Shortcut",
+        _uri: PencilNamespaces.p,
+        to: this.def.id,
+        displayName: "Shortcut",
+        _children: [
+
+        ]
+    };
+    for (var name in this.def.propertyMap) {
+        var prop = this.def.getProperty(name);
+        var value = this.getProperty(name);
+        if (!value) continue;
+        if (prop.initialValueExpression) {
+            this._evalContext = {collection: this.def.collection};
+            var v = this.evalExpression(prop.initialValueExpression);
+            if (v && value.toString() == v.toString()) continue;
+        }
+        if (prop.initialValue) {
+            if (value.toString() == prop.initialValue.toString()) continue;
+        }
+
+        spec._children.push({
+            _name: "PropertyValue",
+            _uri: PencilNamespaces.p,
+            name: name,
+            _text: value.toString()
+        });
+    }
+
+    var shortcutNode = Dom.newDOMElement(spec, dom);
+    var xml = Dom.serializeNode(shortcutNode).replace(/<PropertyValue/g, "\n    <PropertyValue").replace("</Shortcut>", "\n</Shortcut>");
+    return xml;
 };

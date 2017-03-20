@@ -113,15 +113,24 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var groupNodes = [];
 
     var properties = [];
+
+    var allowDisabled = Config.get("dev.enable_disabled_in_property_page", null);
+    if (allowDisabled == null) {
+        Config.set("dev.enable_disabled_in_property_page", false);
+        allowDisabled = false;
+    }
+
     for (var i in definedGroups) {
         var group = definedGroups[i];
         for (var j in group.properties) {
             var property = group.properties[j];
 
-            var meta = this.target.def.propertyMap[property.name].meta["disabled"];
-            if (meta) {
-                var value = this.target.evalExpression(meta, true);
-                if (value) continue;
+            if (this.target.def) {
+                var meta = this.target.def.propertyMap[property.name].meta["disabled"];
+                if (meta && !allowDisabled) {
+                    var value = this.target.evalExpression(meta, true);
+                    if (value) continue;
+                }
             }
 
             var editor = TypeEditorRegistry.getTypeEditor(property.type);
