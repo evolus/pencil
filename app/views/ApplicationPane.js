@@ -19,7 +19,6 @@ function ApplicationPane() {
     //this.toolBarSrollView.setWheelAllow(false);
 
     this.bind("focusout", function(ev) {
-        console.log(ev.target);
         if (ev.target) {
             this.toolBarSrollView.setWheelAllow(true);
         }
@@ -254,9 +253,19 @@ ApplicationPane.prototype.busy = function () {
     this.busyCount ++;
     if (this.busyCount == 1) this.showBusyIndicator();
 };
+
 ApplicationPane.prototype.unbusy = function () {
     if (this.busyCount > 0) this.busyCount --;
     if (this.busyCount == 0) this.hideBusyIndicator();
+};
+ApplicationPane.prototype.unbusyAfter = function (callback) {
+    return function() {
+        try {
+            callback.apply(this, arguments);
+        } finally {
+            ApplicationPane._instance.unbusy();
+        }
+    };
 };
 ApplicationPane.prototype.invalidatePropertyEditor = function () {
     if (!Pencil.activeCanvas.currentController) {

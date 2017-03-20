@@ -277,7 +277,7 @@ CanvasMenu.prototype.setup = function () {
 
     this.register(UICommandManager.getCommand("cutCommand"));
     this.register(UICommandManager.getCommand("copyCommand"));
-    this.register(UICommandManager.getCommand("pasteCommand2"));
+    this.register(UICommandManager.getCommand("pasteCommand"));
     this.register(UICommandManager.getCommand("selectAllCommand"));
 
     UICommandManager.getCommand("exportSelectionAsPNGButton").isAvailable = function () {

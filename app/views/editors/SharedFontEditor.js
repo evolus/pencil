@@ -139,8 +139,6 @@ SharedFontEditor.prototype.attach = function (target) {
     // //set the value
     var matched = this.fontCombo.selectItem(this.font);
 
-    console.log("Selecting", this.font);
-    console.log(" >> Matching " + matched);
     if (!matched) {
         var families = this.font.getFamilies();
         for (var i = 0; i < families.length; i ++) {

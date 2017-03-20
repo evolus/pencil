@@ -207,12 +207,26 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
     collection.author = shapeDefsNode.getAttribute("author");
     collection.infoUrl = shapeDefsNode.getAttribute("url");
     collection.system = shapeDefsNode.getAttribute("system") == "true";
+    collection.fonts = [];
 
     Dom.workOn("./p:Script", shapeDefsNode, function (scriptNode) {
         var context = { collection: collection };
-        pEval(scriptNode.textContent, context);
+        try {
+            pEval(scriptNode.textContent, context, "COLLECTION_SCRIPT: " + collection.displayName + ", " + collection.relURL + " (" + scriptNode.getAttribute("comments") + ")");
+        } catch (e) {
+            console.error("Collection script evaluation failed: " + collection.displayName, e);
+        }
     });
-
+    Dom.workOn("./p:Fonts/p:Font", shapeDefsNode, function (fontNode) {
+        var font = {
+            name: fontNode.getAttribute("name"),
+            regular: fontNode.getAttribute("regular"),
+            bold: fontNode.getAttribute("bold"),
+            italic: fontNode.getAttribute("italic"),
+            boldItalic: fontNode.getAttribute("boldItalic")
+        };
+        collection.fonts.push(font);
+    });
 
     this.parseCollectionProperties(shapeDefsNode, collection);
 
@@ -561,6 +575,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
         } else {
             var type = shapeDef.getProperty(name).type;
             spec.initialValue = type.fromString(Dom.getText(propValueNode));
+            spec.collection = collection;
         }
 
         shortcut.propertyMap[name] = spec;

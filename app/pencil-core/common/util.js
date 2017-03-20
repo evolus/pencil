@@ -2060,7 +2060,7 @@ Util.importSandboxFunctions = function () {
     }
 };
 
-function pEval (expression, extra) {
+function pEval (expression, extra, codeLocation) {
     var result = null;
 
     try {
@@ -2071,6 +2071,7 @@ function pEval (expression, extra) {
         }
     } catch (ex) {
         if (expression.length < 1000) error("Problematic code: " + expression);
+        if (codeLocation) error("Code location: " + codeLocation);
         Console.dumpError(ex);
     }
 
@@ -2296,6 +2297,21 @@ function getStaticFilePath(subPath) {
     }
 
     return filePath;
+}
+
+function _before(before, fn) {
+  return function () {
+    before.apply(this, arguments);
+    return fn.apply(this, arguments);
+  };
+}
+
+function _after(fn, after) {
+  return function () {
+    var result = fn.apply(this, arguments);
+    after.call(this, result);
+    return result;
+  };
 }
 
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);

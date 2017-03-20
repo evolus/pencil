@@ -693,7 +693,7 @@ Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim) {
 
         if (scaleY) {
             if (row == yCells.length - 2) {
-                h = dim.h - (imageData.h - yCell.to) - y;
+                h = dim.h - (imageData.h - yCell.to) - totalH;
             } else {
                 h = Math.floor(h * rY);
             }
@@ -702,13 +702,12 @@ Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim) {
         var col = 0;
         var x = 0;
         var totalW = 0;
-        console.log("xCells", xCells);
 
         var rowSpec = {
             _name: "div",
             _uri: PencilNamespaces.html,
             totalH: totalH,
-            style: new CSS().set("height", h + "px").set("white-space", "nowrap").set("overflow", "hidden"),
+            style: new CSS().set("height", h + "px").set("white-space", "nowrap").set("overflow", "hidden").set("display", "flex"),
             _children: []
         };
         rowSpecs.push(rowSpec);
@@ -716,10 +715,8 @@ Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim) {
 
         while (col < xCells.length && x < imageData.w) {
             var xCell = xCells[col];
-            console.log(" >> col", col, "cell", xCell);
             var scaleX = xCell.from <= x; // same as (1)
             var x1 = !scaleX ? xCell.from : xCell.to;
-            console.log(" >> x1", x1);
             if (x > xCell.from) x = xCell.from; // same as (2)
 
             //generate block: x, y, x1 - x, y1 - y, scaleX, scaleY
@@ -728,7 +725,7 @@ Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim) {
 
             if (scaleX) {
                 if (col == xCells.length - 2) {
-                    w = dim.w - (imageData.w - xCell.to) - x;
+                    w = dim.w - (imageData.w - xCell.to) - totalW;
                 } else {
                     w = Math.floor(w * rX);
                 }

@@ -103,6 +103,19 @@ ImageData.prepareForEmbedding = function (oldData, callback) {
     }
 };
 
+ImageData.performIntialProcessing = function (data, def, currentCollection) {
+    if (data.data.match(/^collection:\/\/(.+)$/)) {
+        var declaredPath = RegExp.$1;
+        var id = Pencil.controller.collectionResourceAsRefSync(currentCollection || def.collection, declaredPath);
+        if (id) {
+            data.data = ImageData.idToRefString(id);
+            return true;
+        }
+    }
+
+    return false;
+};
+
 ImageData.filePathToURL = function (filePath, options) {
     filePath = path.resolve(filePath).replace(/\\/g, "/");
 

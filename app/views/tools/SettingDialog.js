@@ -5,6 +5,7 @@ function SettingDialog() {
     this.configElements = {
         "grid.enabled": this.checkboxEnableGrid,
         "edit.gridSize" : this.textboxGridSize,
+        "edit.gridStyle" : this.comboGridStyle,
         "edit.snap.grid": this.snapToGrid,
         "object.snapping.enabled": this.enableSnapping,
         "object.snapping.background": this.enableSnappingBackground,
@@ -79,6 +80,12 @@ function SettingDialog() {
         this.setPreferenceItems();
     }, this.preferenceNameInput);
 
+    var thiz = this;
+    this.comboGridStyle.addEventListener("p:ItemSelected", function (event) {
+        var gridStyle = thiz.comboGridStyle.getSelectedItem();
+        thiz.updateConfigAndInvalidateUI("edit.gridStyle", gridStyle);
+    }, false);
+
 }
 __extend(Dialog, SettingDialog);
 
@@ -89,8 +96,10 @@ SettingDialog.prototype.updateConfigAndInvalidateUI = function (configName, valu
         if (checkBox == this.checkboxEnableGrid) {
             if (value) {
                 Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
+                Dom.removeClass(this.gridStyleContainer, "Disabled");
             } else {
                 Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
+                Dom.addClass(this.gridStyleContainer, "Disabled");
             }
         }
         if (checkBox == this.undoEnabled) {
@@ -130,6 +139,14 @@ SettingDialog.prototype.setup = function () {
     }
     this.textboxGridSize.value = Config.get("edit.gridSize");
 
+    this.comboGridStyle.setItems(["Dotted", "Solid"]);
+    var gridStyle = Config.get("edit.gridStyle");
+    if (gridStyle == null) {
+        gridStyle = "Dotted";
+        Config.set("edit.gridStyle", gridStyle);
+    }
+    this.comboGridStyle.selectItem(gridStyle);
+
     // var w = Config.get("clipartbrowser.scale.width");
     // var h = Config.get("clipartbrowser.scale.height");
     // if (w == null) {
@@ -162,8 +179,10 @@ SettingDialog.prototype.setup = function () {
 
     if (this.checkboxEnableGrid.checked) {
         Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
+        Dom.removeClass(this.gridStyleContainer, "Disabled");
     } else {
         Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
+        Dom.addClass(this.gridStyleContainer, "Disabled");
     }
 
     if (this.undoEnabled.checked) {
@@ -241,6 +260,13 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                                     result = "/usr/bin/inkscape";
                                 }
                                 thiz.svgEditorUrl.value = result;
+                            }
+                            if (data.name == "edit.gridStyle")
+                            {
+                               if (result == "") {
+                                  result = "Dotted"
+                               }
+                               thiz.comboGridStyle.selectedItem = result;
                             }
                         }
                         Config.set(data.name, result);

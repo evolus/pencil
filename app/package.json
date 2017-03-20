@@ -2,7 +2,7 @@
   "name": "Pencil",
   "productName": "Pencil",
   "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
-  "version": "3.0.0-rc.2",
+  "version": "3.0.0-ga",
   "author": {
     "name": "Evolus",
     "url": "http://evolus.vn",
@@ -18,7 +18,7 @@
       "name": "Nguyen Tien Dzung"
     }
   ],
-  "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
+  "copyright": "Copyright © 2008-2017 Evolus. All rights reserved.",
   "homepage": "http://pencil.evolus.vn",
   "license": "GPL2",
   "main": "index.js",
@@ -52,9 +52,11 @@
     "nugget": "^2.0.0",
     "q": "^1.4.1",
     "rimraf": "^2.5.4",
-    "targz": "^1.0.1",
+    "tar.gz": "^1.0.5",
     "tmp": "0.0.31",
-    "unzip2": "^0.2.5"
+    "unzip2": "^0.2.5",
+    "decompress": "^4.0.0",
+    "decompress-targz": "^4.0.0"
   },
   "private": true
 }

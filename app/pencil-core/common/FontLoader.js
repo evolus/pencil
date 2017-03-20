@@ -172,9 +172,11 @@ FontRepository.prototype.load = function () {
         Dom.workOn("/p:FontRegistry/p:Font", dom, function (node) {
             var fontName = node.getAttribute("name");
             var location = node.getAttribute("location");
+            var source = node.getAttribute("source") || "";
             var font = {
                 name: fontName,
                 location: location,
+                source: source,
                 variants: []
             };
             thiz.fonts.push(font);
@@ -214,6 +216,7 @@ FontRepository.prototype.addFont = function (data) {
     var font = {
         name: data.fontName,
         location: null,
+        source: data.source || "",
         variants: []
     };
 
@@ -297,6 +300,7 @@ FontRepository.prototype.save = function () {
             }
 
             fontNode.setAttribute("location", font.location);
+            fontNode.setAttribute("source", font.source || "");
 
             font.variants.forEach(function (variant) {
                 var fontStyleNode = dom.createElementNS(PencilNamespaces.p, "FontStyle");
