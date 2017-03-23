@@ -71,6 +71,8 @@ MainMenu.prototype.generateRecentDocumentMenu = function () {
 MainMenu.prototype.setup = function () {
     var thiz = this;
 
+    if (Config.get("dev.enabled", null) == null) Config.set("dev.enabled", false);
+
     this.register(UICommandManager.getCommand("newDocumentCommand"));
     this.register(UICommandManager.getCommand("openDocumentCommand"));
     this.register(UICommandManager.getCommand("saveDocumentCommand"));
@@ -135,18 +137,21 @@ MainMenu.prototype.setup = function () {
     developerToolSubItems.push({
         key: "exportAsLayout",
         label: "Export as Layout...",
-        isAvailable: function () { return false; },
+        isAvailable: function () { return true; },
         run: function () {
-
+            Pencil.controller.exportAsLayout();
         }
     });
     developerToolSubItems.push({
         key: "copyAsShortcut",
         label: "Copy as Shortcut XML...",
-        isAvailable: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.generateShortcutXML; },
+        isAvailable: function () {
+            return Pencil.activeCanvas && Pencil.activeCanvas.currentController
+                    && Pencil.activeCanvas.currentController.generateShortcutXML;
+        },
         run: function () {
-            var xml = Pencil.activeCanvas.currentController.generateShortcutXML();
-            clipboard.writeText(xml);
+            Pencil.activeCanvas.currentController.generateShortcutXML();
+            //clipboard.writeText(xml);
         }
     });
     developerToolSubItems.push(Menu.SEPARATOR);

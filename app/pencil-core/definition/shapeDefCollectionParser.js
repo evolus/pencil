@@ -136,50 +136,40 @@ ShapeDefCollectionParser.getCollectionPropertyConfigName = function (collectionI
     }
 };
 ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
-    return null;
-
     var url = uri.toString();
-    var layoutUri = url.replace(/Definition\.xml$/, "Layout.html");
+    var layoutUri = url.replace(/Definition\.xml$/, "Layout.xhtml");
     try {
         var request = new XMLHttpRequest();
         request.open("GET", layoutUri, false);
         request.send("");
 
         var html = request.responseText;
+        if (!html || request.status == 404) return null;
 
-        if (html && request.status != 404) {
-            var div = document.createElementNS(PencilNamespaces.html, "div");
-            html = html.replace(/^.*<body[^>]*>/i, "").replace(/<\/body>.*$/i, "");
-            html = html.replace(/style="([^"]+)"/gi, "title=\"$1\"");
-            var parser = Components.classes["@mozilla.org/feed-unescapehtml;1"]
-                            .getService(Components.interfaces.nsIScriptableUnescapeHTML);
-            var fragment = parser.parseFragment(html, false, null, div);
-            div.appendChild(fragment);
+        var dom = Dom.parseDocument(html);
 
-            Dom.workOn("//html:img[@src]", div, function (image) {
-                var src = image.getAttribute("src");
-                if (src && src.indexOf("data:image") != 0) {
-                    src = url.substring(0, url.lastIndexOf("/") + 1) + src;
-                    image.setAttribute("src", src);
-                }
-            });
-            Dom.workOn("//*[@title]", div, function (node) {
-                var title = node.getAttribute("title");
-                node.removeAttribute("title");
-                node.setAttribute("style", title);
-            });
+        var container = Dom.getSingle("/html:html/html:body", dom);
+        if (!container) container = dom.documentElement;
 
-            try {
-                var w = Dom.getSingle("./html:div", div).getAttribute("width");
-                div._originalWidth = parseInt(w, 10);
-            } catch (e) {
-
-            }
-
-            return div;
+        var div = dom.createElementNS(PencilNamespaces.html, "div");
+        while (container.firstChild) {
+            var n = container.firstChild;
+            container.removeChild(n);
+            div.appendChild(n);
         }
+
+        Dom.workOn("//html:img[@src]", div, function (image) {
+            var src = image.getAttribute("src");
+            if (src && src.indexOf("data:image") != 0) {
+                src = url.substring(0, url.lastIndexOf("/") + 1) + src;
+                image.setAttribute("src", src);
+            }
+        });
+
+        return document.importNode(div, true);
+
     } catch (ex) {
-        //throw ex;
+        console.error(ex);
     }
 
     return null;

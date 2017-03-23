@@ -74,6 +74,8 @@ CollapseablePanel.globalSplitterMoveListener = function (event) {
         w = Math.min(window.innerWidth / 2, w);
         CollapseablePanel.heldInstance.setWidth(w);
     }
+
+    BaseWidget.signalOnSizeChangedRecursively(CollapseablePanel.heldInstance.node());
 };
 
 CollapseablePanel.ensureGlobalHandlers = function () {

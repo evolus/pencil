@@ -29,7 +29,7 @@ function BaseCollectionPane() {
         thiz.filterCollections();
     }, this.clearTextButton);
 
-    this.shapeList.addEventListener("dragstart", function (event) {
+    this.shapeListContainer.addEventListener("dragstart", function (event) {
         nsDragAndDrop.dragStart(event);
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
@@ -123,6 +123,7 @@ BaseCollectionPane.prototype.onSizeChanged = function () {
     if (!this.loaded) {
         setTimeout(this.reload.bind(this), 300);
     }
+    this.updateLayoutSize();
 };
 BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     if (this.node().offsetWidth <= 0) return;
@@ -270,13 +271,64 @@ BaseCollectionPane.prototype.ensureVisibleShapeIcons = function () {
             }
     }
 };
+BaseCollectionPane.prototype.updateLayoutSize = function () {
+    if (!this.last || !this.last.customLayout) return;
+
+    this.layoutOriginalSize = {
+        width: this.collectionLayoutContainer.firstChild.firstChild.offsetWidth,
+        height: this.collectionLayoutContainer.firstChild.firstChild.offsetHeight
+    };
+
+    var W = this.collectionLayoutContainer.offsetWidth;
+    var r = W / this.layoutOriginalSize.width;
+    var H = this.layoutOriginalSize.height * r;
+
+    this.collectionLayoutContainer.style.height = H + "px";
+    this.collectionLayoutContainer.firstChild.style.zoom = r;
+};
 BaseCollectionPane.prototype.openCollection = function (collection) {
     Dom.empty(this.shapeList);
+    Dom.empty(this.collectionLayoutContainer);
     this.collectionIcon.innerHTML = this.getCollectionIcon(collection);
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
     this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
     this.collectionDescription.setAttribute("title", collection.description);
     this.settingButton.style.visibility =  (collection.propertyGroups && collection.propertyGroups.length > 0) ? "inherit" : "hidden";
+
+    this.layoutOriginalSize = null;
+
+    if (collection.customLayout) {
+        if (collection.customLayout.parentNode) collection.customLayout.parentNode.removeChild(collection.customLayout);
+        this.collectionLayoutContainer.appendChild(collection.customLayout);
+
+        Dom.workOn(".//*[@sc-ref]", this.collectionLayoutContainer, function (n) {
+            var scName = n.getAttribute("sc-ref");
+            var sc = collection.getShortcutByDisplayName(collection.id + ":" + scName);
+            n._def = sc;
+            n.setAttribute("draggable", "true");
+            n.setAttribute("title", scName);
+        });
+        Dom.workOn(".//*[@ref]", this.collectionLayoutContainer, function (n) {
+            var defId = n.getAttribute("ref");
+            var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+            n._def = def;
+            n.setAttribute("draggable", "true");
+            n.setAttribute("title", def.displayName);
+        });
+
+        this.collectionLayoutContainer.style.display = "block";
+        this.collectionLayoutContainer.style.overflow = "hidden";
+        this.collectionLayoutContainer.style.visibility = "hidden";
+        this.collectionLayoutContainer.style.height = "1px";
+
+        var thiz = this;
+        window.setTimeout(function () {
+            thiz.updateLayoutSize();
+            thiz.collectionLayoutContainer.style.visibility = "inherit";
+        }, 10);
+    } else {
+        this.collectionLayoutContainer.style.display = "none";
+    }
 
     this.last = collection;
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
@@ -342,6 +394,8 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
     window.setTimeout(function () {
         thiz.ensureVisibleShapeIcons();
     }, 200);
+
+    this.updateLayoutSize();
 };
 
 BaseCollectionPane.prototype.ensureSelectedCollectionVisible = function (collection) {

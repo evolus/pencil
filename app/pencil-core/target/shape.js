@@ -80,8 +80,10 @@ Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
         }
 
         if (prop.type.performIntialProcessing) {
-            if (prop.type.performIntialProcessing(value, this.def, currentCollection)) {
+            var newValue = prop.type.performIntialProcessing(value, this.def, currentCollection);
+            if (newValue) {
                 hasPostProcessing = true;
+                value = newValue;
             }
         }
 
@@ -1071,38 +1073,89 @@ Shape.prototype.invalidateOutboundConnections = function () {
     Connector.invalidateOutboundConnectionsForShapeTarget(this);
 };
 Shape.prototype.generateShortcutXML = function () {
-    var dom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
-    var spec = {
-        _name: "Shortcut",
-        _uri: PencilNamespaces.p,
-        to: this.def.id,
-        displayName: "Shortcut",
-        _children: [
+    new PromptDialog().open({
+        title: "Shortcut",
+        message: "Please enter shortcut name",
+        defaultValue: "Shortcut",
+        callback: function (shortcutName) {
+            if (!shortcutName) return;
+            var fileName = shortcutName.replace(/[^a-z0-9\\-]/g, "").toLowerCase() + ".png";
 
-        ]
-    };
-    for (var name in this.def.propertyMap) {
-        var prop = this.def.getProperty(name);
-        var value = this.getProperty(name);
-        if (!value) continue;
-        if (prop.initialValueExpression) {
-            this._evalContext = {collection: this.def.collection};
-            var v = this.evalExpression(prop.initialValueExpression);
-            if (v && value.toString() == v.toString()) continue;
-        }
-        if (prop.initialValue) {
-            if (value.toString() == prop.initialValue.toString()) continue;
-        }
+            var dom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
+            var spec = {
+                _name: "Shortcut",
+                _uri: PencilNamespaces.p,
+                to: this.def.id.replace(this.def.collection.id + ":", ""),
+                displayName: shortcutName,
+                _children: [
 
-        spec._children.push({
-            _name: "PropertyValue",
-            _uri: PencilNamespaces.p,
-            name: name,
-            _text: value.toString()
-        });
-    }
+                ]
+            };
+            for (var name in this.def.propertyMap) {
+                var prop = this.def.getProperty(name);
+                var value = this.getProperty(name);
 
-    var shortcutNode = Dom.newDOMElement(spec, dom);
-    var xml = Dom.serializeNode(shortcutNode).replace(/<PropertyValue/g, "\n    <PropertyValue").replace("</Shortcut>", "\n</Shortcut>");
-    return xml;
+                if (prop.type == ImageData && this.def.collection.developerStencil) {
+                    if (value.data && value.data.match(/^ref:\/\//)) {
+                        var id = ImageData.refStringToId(value.data);
+                        if (id) {
+                            var filePath = Pencil.controller.refIdToFilePath(id);
+
+                            var targetPath = path.join(path.join(this.def.collection.installDirPath, "bitmaps"), fileName);
+                            fs.writeFileSync(targetPath, fs.readFileSync(filePath));
+
+                            value = new ImageData(value.w, value.h, "collection://bitmaps/" + fileName, value.xCells, value.yCells);
+                        }
+                    }
+                }
+
+                if (!value) continue;
+                if (prop.initialValueExpression) {
+                    this._evalContext = {collection: this.def.collection};
+                    var v = this.evalExpression(prop.initialValueExpression);
+                    if (v && value.toString() == v.toString()) continue;
+                }
+                if (prop.initialValue) {
+                    if (value.toString() == prop.initialValue.toString()) continue;
+                }
+
+                spec._children.push({
+                    _name: "PropertyValue",
+                    _uri: PencilNamespaces.p,
+                    name: name,
+                    _text: value.toString()
+                });
+            }
+
+            var next = function () {
+                var shortcutNode = Dom.newDOMElement(spec, dom);
+                var xml = "    " + Dom.serializeNode(shortcutNode).replace(/<PropertyValue/g, "\n        <PropertyValue").replace("</Shortcut>", "\n    </Shortcut>");
+
+                if (this.def.collection.developerStencil) {
+                    var defPath = path.join(this.def.collection.installDirPath, "Definition.xml");
+                    var content = fs.readFileSync(defPath, {encoding: "utf8"});
+                    content = content.replace(/<\/Shapes>/, xml + "\n</Shapes>");
+                    fs.writeFileSync(defPath, content);
+
+                    CollectionManager.reloadDeveloperStencil("notify");
+                }
+                console.log(xml);
+            }.bind(this);
+
+            if (this.def.collection.developerStencil) {
+                var targetPath = path.join(path.join(this.def.collection.installDirPath, "icons"), fileName);
+                Pencil.rasterizer.rasterizeSelectionToFile(this, targetPath, function (p, error) {
+                    if (!error) {
+                        spec.icon = "icons/" + fileName;
+                        next();
+                    }
+                });
+            } else {
+                next();
+            }
+
+
+
+        }.bind(this)
+    });
 };

@@ -689,7 +689,15 @@ BaseWidget.signalOnAttachedRecursively = function (container) {
     }
     if (container.__widget && container.__widget.onAttached) container.__widget.onAttached();
 };
-
+BaseWidget.signalOnSizeChangedRecursively = function (container) {
+    if (container.__widget && container.__widget.onSizeChanged) {
+        container.__widget.onSizeChanged();
+    }
+    for (var i = 0; i < container.childNodes.length; i++) {
+        var child = container.childNodes[i];
+        BaseWidget.signalOnSizeChangedRecursively(child);
+    }
+};
 BaseWidget.prototype.bind = function (eventName, f, node) {
     var n = node || this.__node;
     var thiz = this;
