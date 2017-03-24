@@ -73,6 +73,32 @@
             opacity: 0.2;
             cursor: default;
         }
+
+        .CellContainer > .Cell > .XCellInfo {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 1.5em;
+        }
+        .CellContainer > .Cell > .YCellInfo {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 1.5em;
+        }
+        .CellContainer > .Cell > .XCellInfo > .Info {
+            margin-top: 0.25em;
+        }
+        .CellContainer > .Cell > .YCellInfo > .Info {
+            margin-left: 0.25em;
+            margin-top: 1em;
+            transform: rotate(-90deg);
+        }
+        @xCellContainer > .Cell > .Indicator {
+            top: 1.5em;
+            left: 0px;
+            right: 0px;
+        }
         @xCellContainer > .Cell > .Indicator {
             top: 1.5em;
             left: 0px;
@@ -99,9 +125,9 @@
     </style>
     <div anon-id="container">
          <vbox>
-             <hbox>
+             <vbox>
                  <div anon-id="xCellContainer" class="CellContainer" flex="1"></div>
-             </hbox>
+             </vbox>
              <hbox>
                 <div anon-id="yCellContainer" class="CellContainer"></div>
                 <img anon-id="image" />
