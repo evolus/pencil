@@ -74,6 +74,12 @@ CollectionManager.reloadDeveloperStencil = function (showNotification) {
 
     if (showNotification) NotificationPopup.show("Developer collections were reloaded.");
 };
+CollectionManager.getDeveloperStencil = function () {
+    for (var collection of CollectionManager.shapeDefinition.collections) {
+        if (collection.developerStencil) return collection;
+    }
+    return null;
+};
 CollectionManager._loadDeveloperStencil = function () {
     try {
 		var stencilPath = Config.get("dev.stencil.path", "null");

@@ -1265,14 +1265,7 @@ Console.log = function (message) {
     if (console && console.log) console.log(message);
 };
 Console.dumpError = function (exception, toConsole) {
-    var s = [
-        exception.message,
-        "",
-        "Location: " + exception.fileName + " (" + exception.lineNumber + ")",
-        "Stacktrace:\n\t" + (exception.stack ? exception.stack.replace(/\n/g, "\n\t") : "<empty stack trace>")
-    ].join("\n");
-
-    console.error(s);
+    console.error(exception);
 };
 Console.alertError = function (exception, toConsole) {
     var s = [

@@ -1296,6 +1296,8 @@ Controller.prototype.exportAsLayout = function () {
     var outputDir = null;
     const IMAGE_FILE = "layout_image.png";
 
+    var devCollection = CollectionManager.getDeveloperStencil();
+
     Dom.workOn("//svg:g[@p:type='Shape']", container, function (g) {
             var dx = 0; //rect.left;
             var dy = 0; //rect.top;
@@ -1319,10 +1321,18 @@ Controller.prototype.exportAsLayout = function () {
                 geo: {
                     x: rect.left - dx,
                     y: rect.top - dy,
-                    w: rect.width,
-                    h: rect.height
+                    w: rect.width - 2,
+                    h: rect.height - 2
                 }
             };
+
+            if (devCollection) {
+                if (linkingInfo.sc) {
+                    if (!devCollection.getShortcutByDisplayName(devCollection.id + ":" + linkingInfo.sc)) return;
+                } else if (linkingInfo.refId) {
+                    if (!devCollection.getShapeDefById(linkingInfo.refId)) return;
+                }
+            }
 //            if (!linkingInfo.refId) return;
 
             items.push(linkingInfo);
@@ -1349,7 +1359,7 @@ Controller.prototype.exportAsLayout = function () {
 
         var bg = document.createElementNS(PencilNamespaces.html, "img");
         bg.setAttribute("style", "width: " + pw + "px; height: " + ph + "px;");
-        bg.setAttribute("src", IMAGE_FILE);
+        bg.setAttribute("src", IMAGE_FILE + "?ts=" + (new Date().getTime()));
         div.appendChild(bg);
 
         for (var i = 0; i < items.length; i ++) {
@@ -1380,12 +1390,18 @@ Controller.prototype.exportAsLayout = function () {
         }
 
         Dom.serializeNodeToFile(html, outputPath, "");
+        CollectionManager.reloadDeveloperStencil();
     };
 
 
+    var defaultPath = "Layout.xhtml";
+    if (devCollection) {
+        defaultPath = path.join(devCollection.installDirPath, defaultPath);
+    }
+
     dialog.showSaveDialog(remote.getCurrentWindow(), {
         title: "Export Layout",
-        defaultPath: "Layout.xhtml",
+        defaultPath: defaultPath,
         filters: [{name: 'XHTML Layout', extensions: ["xhtml"]}]
     }, function (filePath) {
         if (filePath) {

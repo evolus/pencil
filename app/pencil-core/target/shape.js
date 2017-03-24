@@ -1079,7 +1079,7 @@ Shape.prototype.generateShortcutXML = function () {
         defaultValue: "Shortcut",
         callback: function (shortcutName) {
             if (!shortcutName) return;
-            var fileName = shortcutName.replace(/[^a-z0-9\\-]/g, "").toLowerCase() + ".png";
+            var fileName = shortcutName.replace(/[^a-z0-9\\-]+/gi, "").toLowerCase() + ".png";
 
             var dom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
             var spec = {
@@ -1101,10 +1101,12 @@ Shape.prototype.generateShortcutXML = function () {
                         if (id) {
                             var filePath = Pencil.controller.refIdToFilePath(id);
 
-                            var targetPath = path.join(path.join(this.def.collection.installDirPath, "bitmaps"), fileName);
+                            var bitmapImageFileName = (shortcutName + "-" + name).replace(/[^a-z0-9\\-]+/gi, "").toLowerCase() + ".png";
+
+                            var targetPath = path.join(path.join(this.def.collection.installDirPath, "bitmaps"), bitmapImageFileName);
                             fs.writeFileSync(targetPath, fs.readFileSync(filePath));
 
-                            value = new ImageData(value.w, value.h, "collection://bitmaps/" + fileName, value.xCells, value.yCells);
+                            value = new ImageData(value.w, value.h, "collection://bitmaps/" + bitmapImageFileName, value.xCells, value.yCells);
                         }
                     }
                 }

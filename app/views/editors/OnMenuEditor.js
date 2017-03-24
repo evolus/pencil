@@ -18,6 +18,8 @@ OnMenuEditor.prototype.generateMenuItems = function () {
     var definedGroups = this.targetObject.getPropertyGroups();
     var items = [];
     var thiz = this;
+
+    var previousImageDataMenu = null;
     for (var i in definedGroups) {
         var group = definedGroups[i];
 
@@ -91,6 +93,14 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                         });
                     }
                 }
+
+                if (previousImageDataMenu) {
+                    previousImageDataMenu.label = "Configure N-Patch (" + previousImageDataMenu.property + ")..."
+                    imageNPathSpecEditItem.label = "Configure N-Patch (" + property.name + ")..."
+                }
+
+                previousImageDataMenu = imageNPathSpecEditItem;
+
                 items.push(imageNPathSpecEditItem);
             }
         }

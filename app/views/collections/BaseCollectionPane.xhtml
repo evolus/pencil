@@ -262,8 +262,11 @@
             margin-left: 0.5em;
         }
         @collectionLayoutContainer *[draggable]:hover {
-            background: rgba(0, 0, 0, 0.03);
             outline: dashed 1px rgba(33, 66, 99, 0.4);
+        }
+        @collectionLayoutContainer *[draggable][matched='true'] {
+            outline: solid 1px rgba(255, 0, 0, 0.6);
+            outline-offset: 3px;
         }
     </style>
     <hbox anon-id="filter">

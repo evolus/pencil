@@ -30,5 +30,3 @@
 /* public override String */ ShapeDefCollection.prototype.toString = function () {
     return "[ShapeDefCollection: " + this.id + "]";
 };
-
-
