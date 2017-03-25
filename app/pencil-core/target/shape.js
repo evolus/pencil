@@ -718,7 +718,6 @@ Shape.prototype.sendToBack = function () {
     } catch (e) { alert(e); }
 };
 Shape.prototype.getTextEditingInfo = function (editingEvent) {
-    debug("getTextEditingInfo(), editingEvent = " + editingEvent.type);
     var infos = [];
 
     this.prepareExpressionEvaluation();
@@ -745,7 +744,7 @@ Shape.prototype.getTextEditingInfo = function (editingEvent) {
                 var b = this.def.behaviorMap[target];
                 for (i in b.items) {
                     if (b.items[i].handler == Pencil.behaviors.TextContent && b.items[i].args[0].literal.indexOf("properties." + name) != -1) {
-                        var obj = {properties: this.getProperties(), functions: Pencil.functions};
+                        var obj = {properties: this.getProperties(), functions: Pencil.functions, collection: this.def.collection};
                         var font = null;
                         for (j in b.items) {
                             if (b.items[j].handler == Pencil.behaviors.Font) {
@@ -789,7 +788,7 @@ Shape.prototype.getTextEditingInfo = function (editingEvent) {
                     }
 
                     if (b.items[i].handler == Pencil.behaviors.PlainTextContent && b.items[i].args[0].literal.indexOf("properties." + name) != -1) {
-                        var obj = {properties: this.getProperties(), functions: Pencil.functions};
+                        var obj = {properties: this.getProperties(), functions: Pencil.functions, collection: this.def.collection};
                         var font = null;
                         for (j in b.items) {
                             if (b.items[j].handler == Pencil.behaviors.Font) {
@@ -1141,7 +1140,6 @@ Shape.prototype.generateShortcutXML = function () {
 
                     CollectionManager.reloadDeveloperStencil("notify");
                 }
-                console.log(xml);
             }.bind(this);
 
             if (this.def.collection.developerStencil) {

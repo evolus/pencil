@@ -491,6 +491,15 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
         var action = new ShapeAction();
         action.id = actionNode.getAttribute("id");
         action.displayName = actionNode.getAttribute("displayName");
+        action.meta = {};
+
+        Dom.workOn("./@p:*", actionNode, function (metaAttribute) {
+            var metaValue = metaAttribute.nodeValue;
+            metaValue = metaValue.replace(/\$([a-z][a-z0-9]*)/gi, function (zero, one) {
+                return "properties." + one;
+            });
+            action.meta[metaAttribute.localName] = metaValue;
+        });
 
         var implNode = Dom.getSingle("./p:Impl", actionNode);
         var text = implNode.textContent;
