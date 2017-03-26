@@ -1,11 +1,21 @@
-function CollectionResourceBrowserDialog (collection, prefix, type, returnType) {
+function CollectionResourceBrowserDialog (collection, options) {
     Dialog.call(this);
     this.collection = collection;
-    this.prefix = prefix;
-    this.type = type;
-    this.returnType = returnType;
+
+    this.options = options || {};
+
+    this.prefixes = this.options.prefixes || {"All": ""};
+    this.type = this.options.type || CollectionResourceBrowserDialog.TYPE_BITMAP;
+    this.returnType = this.options.returnType || CollectionResourceBrowserDialog.RETURN_IMAGEDATA;
+
     this.title = this.collection.displayName + " Resource Selection";
     this.subTitle = "Select resource provided by collection"
+
+    this.prefixCombo.renderer = function (item) {
+        return item.name;
+    }
+
+    this.prefixCombo.setItems(this.prefixes);
 
     this.searchTimeout = null;
     var thiz = this;
@@ -17,6 +27,8 @@ function CollectionResourceBrowserDialog (collection, prefix, type, returnType) 
             thiz.search();
         }, 500);
     }, this.filterInput);
+
+    this.bind("p:ItemSelected", this.search, this.prefixCombo);
 
     var ensureVisibleItemsContentFunction = function() {
         this.revealTimeout = null;
@@ -32,6 +44,16 @@ function CollectionResourceBrowserDialog (collection, prefix, type, returnType) 
 
     this.bind("dblclick", this.handleItemDblClick, this.resultContainer);
 
+    var optionCache = CollectionResourceBrowserDialog.optionCache[this.collection.id];
+    if (optionCache) {
+        this.filterInput.value = optionCache.keyword || "";
+        for (var p of this.prefixes) {
+            if (p.prefix == optionCache.prefix) {
+                this.prefixCombo.selectItem(p);
+                break;
+            }
+        }
+    }
 }
 __extend(Dialog, CollectionResourceBrowserDialog);
 
@@ -40,6 +62,8 @@ CollectionResourceBrowserDialog.TYPE_BITMAP = "bitmap";
 CollectionResourceBrowserDialog.RETURN_IMAGEDATA = "ImageData";
 CollectionResourceBrowserDialog.RETURN_CONTENT= "Content";
 CollectionResourceBrowserDialog.RETURN_DOMCONTENT= "Document";
+
+CollectionResourceBrowserDialog.optionCache = {};
 
 CollectionResourceBrowserDialog.prototype.getDialogActions = function () {
     return [
@@ -63,6 +87,13 @@ CollectionResourceBrowserDialog.prototype.search = function () {
     var keyword = this.filterInput.value.trim();
     var items = [];
     var dirPath = this.collection.installDirPath;
+    this.prefix = this.prefixCombo.getSelectedItem().prefix;
+
+    CollectionResourceBrowserDialog.optionCache[this.collection.id] = {
+        keyword: keyword,
+        prefix: this.prefix
+    };
+
     if (this.prefix) {
         var parts = this.prefix.trim().split("/");
         for (var p of parts) {
@@ -232,6 +263,6 @@ CollectionResourceBrowserDialog.prototype.handleItemDblClick = function (e) {
     }
 };
 
-CollectionResourceBrowserDialog.open = function (collection, prefix, type, returnType, callback) {
-    new CollectionResourceBrowserDialog(collection, prefix, type, returnType).callback(callback).open();
+CollectionResourceBrowserDialog.open = function (collection, options, callback) {
+    new CollectionResourceBrowserDialog(collection, options).callback(callback).open();
 };

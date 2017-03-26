@@ -25,7 +25,7 @@ OnMenuEditor.prototype.generateMenuItems = function () {
         allowDisabled = false;
     }
 
-    this.targetObject.prepareExpressionEvaluation();
+    if (this.targetObject.prepareExpressionEvaluation) this.targetObject.prepareExpressionEvaluation();
 
     var previousImageDataMenu = null;
     for (var i in definedGroups) {

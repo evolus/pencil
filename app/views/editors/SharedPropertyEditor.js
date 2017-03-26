@@ -77,7 +77,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
 
     this.target = target;
 
-    this.target.prepareExpressionEvaluation();
+    if (this.target.prepareExpressionEvaluation) this.target.prepareExpressionEvaluation();
 
     this.propertyEditor = {};
     this.propertyContainer.innerHTML = "";

@@ -94,6 +94,45 @@ Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
         this.applyBehaviorForProperty(name);
     }
 };
+Shape.prototype.repairShapeProperties = function () {
+    this._evalContext = {collection: this.def.collection};
+
+    var hasPostProcessing = false;
+    var repaired = false;
+
+    for (var name in this.def.propertyMap) {
+        var propNode = this.locatePropertyNode(name);
+        if (propNode) continue;
+
+        var value = null;
+        var prop = this.def.propertyMap[name];
+
+        var currentCollection = this.def.connection;
+
+        if (prop.initialValueExpression) {
+            value = this.evalExpression(prop.initialValueExpression);
+        } else {
+            value = prop.initialValue;
+        }
+
+        if (prop.type.performIntialProcessing) {
+            var newValue = prop.type.performIntialProcessing(value, this.def, currentCollection);
+            if (newValue) {
+                hasPostProcessing = true;
+                value = newValue;
+            }
+        }
+
+        this.storeProperty(name, value);
+        repaired = true;
+    }
+
+    if (!repaired) return;
+
+    for (name in this.def.propertyMap) {
+        this.applyBehaviorForProperty(name);
+    }
+};
 Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedProperties) {
     var propertyDef = this.def.propertyMap[name];
     if (!propertyDef) return;
@@ -142,6 +181,7 @@ Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedPr
     }
 };
 Shape.prototype.validateAll = function (offScreen) {
+    this.repairShapeProperties();
     this.prepareExpressionEvaluation();
 
     for (var b = 0; b < this.def.behaviors.length; b ++) {
