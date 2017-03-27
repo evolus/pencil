@@ -135,16 +135,13 @@ ShapeDefCollectionParser.getCollectionPropertyConfigName = function (collectionI
         Console.dumpError(e, "stdout");
     }
 };
-ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
-    var url = uri.toString();
-    var layoutUri = url.replace(/Definition\.xml$/, "Layout.xhtml");
+ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) {
+    var layoutUri = path.join(installDirPath, "Layout.xhtml");
+    if (!fs.existsSync(layoutUri)) return null;
+    
     try {
-        var request = new XMLHttpRequest();
-        request.open("GET", layoutUri, false);
-        request.send("");
-
-        var html = request.responseText;
-        if (!html || request.status == 404) return null;
+        var html = fs.readFileSync(layoutUri, {encoding: "utf8"});
+        if (!html) return null;
 
         var dom = Dom.parseDocument(html);
 
@@ -161,7 +158,10 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
         Dom.workOn("//html:img[@src]", div, function (image) {
             var src = image.getAttribute("src");
             if (src && src.indexOf("data:image") != 0) {
-                src = url.substring(0, url.lastIndexOf("/") + 1) + src;
+                var parts = src.split("/");
+                src = installDirPath;
+                for (var p of parts) src = path.join(src, p);
+
                 image.setAttribute("src", src);
             }
         });
@@ -177,8 +177,9 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
 /* public ShapeDefCollection */ ShapeDefCollectionParser.prototype.parse = function (dom, uri) {
     var collection = new ShapeDefCollection();
     collection.url = uri ? uri : dom.documentURI;
+    collection.installDirPath = path.dirname(uri);
 
-    collection.customLayout = this.loadCustomLayout(collection.url);
+    collection.customLayout = this.loadCustomLayout(collection.installDirPath);
 
     var s1 = collection.url.toString();
     var s2 = window.location.href.toString();

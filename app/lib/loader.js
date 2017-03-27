@@ -9,7 +9,18 @@ function loadFontManager() {
       fmPath = platform;
     }
 
-    return require(`./font-manager/${fmPath}/fontmanager`);
+    try {
+        return require(`./font-manager/${fmPath}/fontmanager`);
+    } catch (e) {
+        console.error("Failed to load pre-compiled font manager, returning a dummy version.");
+        return {
+            getAvailableFontsSync: function () {
+                return [
+                    { family: "Arial"}
+                ];
+            }
+        }
+    }
 }
 
 exports.fontManager = loadFontManager();

@@ -95,6 +95,7 @@ CollectionManager._loadDeveloperStencil = function () {
             collection.installDirPath = path.dirname(stencilPath);
             collection.developerStencil = true;
             CollectionManager.addShapeDefCollection(collection);
+            CollectionManager.installCollectionFonts(collection);
 		}
 
 	} catch (e) {
