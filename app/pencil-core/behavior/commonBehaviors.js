@@ -643,7 +643,7 @@ Pencil.behaviors.NPatchDomContent = function (nPatch, dim) {
     this.appendChild(buildNPatchDomFragment(nPatch, dim));
 };
 
-Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim) {
+Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim, xAnchorMaps, yAnchorMaps) {
     //sorting
     var xCells = imageData.xCells;
     if (!xCells || xCells.length == 0) xCells = [{from: 0, to: imageData.w}];

@@ -23,6 +23,9 @@ NPatchSpecEditorDialog.prototype.addCell = function (from, to, isX) {
         _uri: PencilNamespaces.html,
         "class": "Cell",
         _children: [
+            {_name: "div", _uri: PencilNamespaces.html, "class": (isX ? "XCellInfo" : "YCellInfo"), _id: "info", _children: [
+                {_name: "div", _uri: PencilNamespaces.html, "class": "Info", _id: "cellInfo", "flex" : "1"}
+            ]},
             {_name: "div", _uri: PencilNamespaces.html, "class": "Indicator", _id: "indicator"},
             {_name: "div", _uri: PencilNamespaces.html, "class": "StartResizer Resizer"},
             {_name: "div", _uri: PencilNamespaces.html, "class": "EndResizer Resizer"}
@@ -33,14 +36,14 @@ NPatchSpecEditorDialog.prototype.addCell = function (from, to, isX) {
     } else {
         this.yCellContainer.appendChild(div);
     }
-
     div._data = {from: from, to: to};
+    div._isX = isX;
+    div._cellInfo = holder.cellInfo;
     div._indicator = holder.indicator;
     this.invalidateCellPosition(div);
 
     return div;
 };
-
 NPatchSpecEditorDialog.prototype.handleGlobalMouseDown = function (event) {
     var cell = Dom.findParentWithClass(event.target, "Cell");
     var indicator = Dom.findParentWithClass(event.target, "Indicator");
@@ -129,19 +132,22 @@ NPatchSpecEditorDialog.prototype.handleGlobalMouseMove = function (event) {
     this.invalidateCellPosition(this.held.cell);
 };
 NPatchSpecEditorDialog.prototype.invalidateCellPosition = function (cell) {
-    var a = Math.round(cell._data.from / this.r);
-    var b = Math.round(cell._data.to / this.r);
-
+    var a = Math.floor(cell._data.from / this.r);
+    var b = Math.floor(cell._data.to / this.r);
+    var s = b - a;
     if (cell.parentNode == this.xCellContainer) {
         cell.style.left = a + "px";
-        cell.style.width = (b - a) + "px"
+        cell.style.width = s + "px"
         cell._indicator.style.bottom = (0 - this.options.imageData.h / this.r) + "px";
     } else {
         cell.style.top = a + "px";
-        cell.style.height = (b - a) + "px"
+        cell.style.height = s + "px"
         cell._indicator.style.right = (0 - this.options.imageData.w / this.r) + "px";
     }
-
+    var info = cell._cellInfo;
+    if (info) {
+        info.textContent = b - a;
+    }
 };
 NPatchSpecEditorDialog.prototype.setup = function (options) {
     this.options = options || {};

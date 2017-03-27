@@ -86,7 +86,6 @@ ImageData.invalidateValue = function (oldData, callback) {
     }
 };
 ImageData.prepareForEmbedding = function (oldData, callback) {
-    console.log("prepareForEmbedding, oldData = ", oldData)
     if (oldData.data.match(/^ref:\/\//)) {
         var id = ImageData.refStringToId(oldData.data);
         if (!id) {
@@ -95,7 +94,6 @@ ImageData.prepareForEmbedding = function (oldData, callback) {
         }
 
         var filePath = Pencil.controller.refIdToFilePath(id);
-        console.log("converted file path: ", filePath);
         var image = nativeImage.createFromPath(filePath);
         callback(new ImageData(oldData.w, oldData.h, image.toDataURL()), null);
     } else {
@@ -108,12 +106,11 @@ ImageData.performIntialProcessing = function (data, def, currentCollection) {
         var declaredPath = RegExp.$1;
         var id = Pencil.controller.collectionResourceAsRefSync(currentCollection || def.collection, declaredPath);
         if (id) {
-            data.data = ImageData.idToRefString(id);
-            return true;
+            return new ImageData(data.w, data.h, ImageData.idToRefString(id), data.xCells, data.yCells);
         }
     }
 
-    return false;
+    return null;
 };
 
 ImageData.filePathToURL = function (filePath, options) {

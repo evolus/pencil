@@ -135,51 +135,41 @@ ShapeDefCollectionParser.getCollectionPropertyConfigName = function (collectionI
         Console.dumpError(e, "stdout");
     }
 };
-ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
-    return null;
-
-    var url = uri.toString();
-    var layoutUri = url.replace(/Definition\.xml$/, "Layout.html");
+ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) {
+    var layoutUri = path.join(installDirPath, "Layout.xhtml");
+    if (!fs.existsSync(layoutUri)) return null;
+    
     try {
-        var request = new XMLHttpRequest();
-        request.open("GET", layoutUri, false);
-        request.send("");
+        var html = fs.readFileSync(layoutUri, {encoding: "utf8"});
+        if (!html) return null;
 
-        var html = request.responseText;
+        var dom = Dom.parseDocument(html);
 
-        if (html && request.status != 404) {
-            var div = document.createElementNS(PencilNamespaces.html, "div");
-            html = html.replace(/^.*<body[^>]*>/i, "").replace(/<\/body>.*$/i, "");
-            html = html.replace(/style="([^"]+)"/gi, "title=\"$1\"");
-            var parser = Components.classes["@mozilla.org/feed-unescapehtml;1"]
-                            .getService(Components.interfaces.nsIScriptableUnescapeHTML);
-            var fragment = parser.parseFragment(html, false, null, div);
-            div.appendChild(fragment);
+        var container = Dom.getSingle("/html:html/html:body", dom);
+        if (!container) container = dom.documentElement;
 
-            Dom.workOn("//html:img[@src]", div, function (image) {
-                var src = image.getAttribute("src");
-                if (src && src.indexOf("data:image") != 0) {
-                    src = url.substring(0, url.lastIndexOf("/") + 1) + src;
-                    image.setAttribute("src", src);
-                }
-            });
-            Dom.workOn("//*[@title]", div, function (node) {
-                var title = node.getAttribute("title");
-                node.removeAttribute("title");
-                node.setAttribute("style", title);
-            });
-
-            try {
-                var w = Dom.getSingle("./html:div", div).getAttribute("width");
-                div._originalWidth = parseInt(w, 10);
-            } catch (e) {
-
-            }
-
-            return div;
+        var div = dom.createElementNS(PencilNamespaces.html, "div");
+        while (container.firstChild) {
+            var n = container.firstChild;
+            container.removeChild(n);
+            div.appendChild(n);
         }
+
+        Dom.workOn("//html:img[@src]", div, function (image) {
+            var src = image.getAttribute("src");
+            if (src && src.indexOf("data:image") != 0) {
+                var parts = src.split("/");
+                src = installDirPath;
+                for (var p of parts) src = path.join(src, p);
+
+                image.setAttribute("src", src);
+            }
+        });
+
+        return document.importNode(div, true);
+
     } catch (ex) {
-        //throw ex;
+        console.error(ex);
     }
 
     return null;
@@ -187,8 +177,9 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
 /* public ShapeDefCollection */ ShapeDefCollectionParser.prototype.parse = function (dom, uri) {
     var collection = new ShapeDefCollection();
     collection.url = uri ? uri : dom.documentURI;
+    collection.installDirPath = path.dirname(uri);
 
-    collection.customLayout = this.loadCustomLayout(collection.url);
+    collection.customLayout = this.loadCustomLayout(collection.installDirPath);
 
     var s1 = collection.url.toString();
     var s2 = window.location.href.toString();
@@ -501,6 +492,15 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (uri) {
         var action = new ShapeAction();
         action.id = actionNode.getAttribute("id");
         action.displayName = actionNode.getAttribute("displayName");
+        action.meta = {};
+
+        Dom.workOn("./@p:*", actionNode, function (metaAttribute) {
+            var metaValue = metaAttribute.nodeValue;
+            metaValue = metaValue.replace(/\$([a-z][a-z0-9]*)/gi, function (zero, one) {
+                return "properties." + one;
+            });
+            action.meta[metaAttribute.localName] = metaValue;
+        });
 
         var implNode = Dom.getSingle("./p:Impl", actionNode);
         var text = implNode.textContent;

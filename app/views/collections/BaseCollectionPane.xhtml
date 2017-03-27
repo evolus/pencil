@@ -261,6 +261,13 @@
         @searchButton {
             margin-left: 0.5em;
         }
+        @collectionLayoutContainer *[draggable]:hover {
+            outline: dashed 1px rgba(33, 66, 99, 0.4);
+        }
+        @collectionLayoutContainer *[draggable][matched='true'] {
+            outline: solid 1px rgba(255, 0, 0, 0.6);
+            outline-offset: 3px;
+        }
     </style>
     <hbox anon-id="filter">
         <hbox anon-id="logo">
@@ -293,6 +300,7 @@
                 <button anon-id="settingButton"><i>settings</i></button>
             </hbox>
             <vbox flex="1" anon-id="shapeListContainer">
+                <div anon-id="collectionLayoutContainer"></div>
                 <ul anon-id="shapeList" class="ShapeList" flex="1">
                 </ul>
             </vbox>

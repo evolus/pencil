@@ -71,6 +71,8 @@ MainMenu.prototype.generateRecentDocumentMenu = function () {
 MainMenu.prototype.setup = function () {
     var thiz = this;
 
+    if (Config.get("dev.enabled", null) == null) Config.set("dev.enabled", false);
+
     this.register(UICommandManager.getCommand("newDocumentCommand"));
     this.register(UICommandManager.getCommand("openDocumentCommand"));
     this.register(UICommandManager.getCommand("saveDocumentCommand"));
@@ -132,23 +134,6 @@ MainMenu.prototype.setup = function () {
             patchDialog.open();
         }
     });
-    developerToolSubItems.push({
-        key: "exportAsLayout",
-        label: "Export as Layout...",
-        isAvailable: function () { return false; },
-        run: function () {
-
-        }
-    });
-    developerToolSubItems.push({
-        key: "copyAsShortcut",
-        label: "Copy as Shortcut XML...",
-        isAvailable: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.generateShortcutXML; },
-        run: function () {
-            var xml = Pencil.activeCanvas.currentController.generateShortcutXML();
-            clipboard.writeText(xml);
-        }
-    });
     developerToolSubItems.push(Menu.SEPARATOR);
 
     developerToolSubItems.push({
@@ -165,6 +150,27 @@ MainMenu.prototype.setup = function () {
             CollectionManager.unselectDeveloperStencilDir();
         }
     });
+    developerToolSubItems.push({
+        key: "exportAsLayout",
+        label: "Export as Collection Layout...",
+        isAvailable: function () { return Pencil.activeCanvas; },
+        run: function () {
+            Pencil.controller.exportAsLayout();
+        }
+    });
+    developerToolSubItems.push({
+        key: "copyAsShortcut",
+        label: "Generate Shortcut XML...",
+        isAvailable: function () {
+            return Pencil.activeCanvas && Pencil.activeCanvas.currentController
+                    && Pencil.activeCanvas.currentController.generateShortcutXML;
+        },
+        run: function () {
+            Pencil.activeCanvas.currentController.generateShortcutXML();
+            //clipboard.writeText(xml);
+        }
+    });
+
     developerToolSubItems.push(Menu.SEPARATOR);
     developerToolSubItems.push({
         key: "openDeveloperTools",

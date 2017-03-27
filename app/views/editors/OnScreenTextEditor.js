@@ -74,7 +74,6 @@ OnScreenTextEditor.prototype.handleShapeDoubleClicked = function (event) {
 
     if (this.textEditingInfo.type == PlainText) {
         //setup
-        console.log("currentTarget", this.currentTarget);
         this._lastTarget = this.currentTarget;
         try {
             this._setupEditor();
@@ -103,8 +102,6 @@ OnScreenTextEditor.prototype._setupEditor = function () {
 
     var bound = this.textEditingInfo.bound;
     var bbox = this.textEditingInfo.target.getBBox();
-    console.log("bound", bound);
-    console.log("box", bbox);
 
     var font = this.textEditingInfo.font;
     var align = this.textEditingInfo.align;
@@ -120,8 +117,6 @@ OnScreenTextEditor.prototype._setupEditor = function () {
     var x = targetCtm.e;
     var y = targetCtm.f;
 
-    console.log("x:y (1)", [x, y]);
-
     var width = Math.max(bbox.width, 100);
     var height = Math.min(Math.max(bbox.height + 2, 50), 500);
 
@@ -132,7 +127,6 @@ OnScreenTextEditor.prototype._setupEditor = function () {
         height = this.textEditingInfo.bound.h * this.canvas.zoom + 4;
     }
 
-    console.log("x:y (2)", [x, y]);
 
     if (x < 0) {
         width += x;
@@ -145,8 +139,6 @@ OnScreenTextEditor.prototype._setupEditor = function () {
 
 
     width = Math.max(width, 60);
-
-    console.log("x:y (3)", [x, y]);
 
     this.container.style.width = width + "px";
     this.container.style.height = height + "px";

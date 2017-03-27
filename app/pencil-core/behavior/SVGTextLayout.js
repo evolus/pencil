@@ -18,7 +18,6 @@ SVGHTMLRenderer.prototype.isInline = function (node) {
     return (display == "inline" || display == "inline-block");
 };
 SVGHTMLRenderer.prototype.layout = function (nodes, view, outmost) {
-    console.log("NODES" , nodes);
     var layouts = [];
     var inlines = [];
     for (var i = 0; i < nodes.length; i ++) {
@@ -283,7 +282,6 @@ SVGHTMLRenderer.prototype.renderHTML = function (html, container, view) {
     }
 
     div.innerHTML = html;
-    console.log("IMPORT HTML:", div);
     this.render(div.childNodes, container, view);
 
     div.parentNode.removeChild(div);

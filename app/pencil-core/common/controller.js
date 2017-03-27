@@ -1284,6 +1284,136 @@ Controller.prototype.prepareForEmbedding = function (node, onPreparingDoneCallba
     });
 };
 
+Controller.prototype.exportAsLayout = function () {
+    var container = Pencil.activeCanvas.drawingLayer;
+
+    var pw = parseFloat(this.activePage.width);
+    var ph = parseFloat(this.activePage.height);
+
+    var items = [];
+
+    var outputPath = null;
+    var outputDir = null;
+    const IMAGE_FILE = "layout_image.png";
+
+    var devCollection = CollectionManager.getDeveloperStencil();
+
+    Dom.workOn("//svg:g[@p:type='Shape']", container, function (g) {
+            var dx = 0; //rect.left;
+            var dy = 0; //rect.top;
+
+            var owner = g.ownerSVGElement;
+
+            if (owner.parentNode && owner.parentNode.getBoundingClientRect) {
+                var rect = owner.parentNode.getBoundingClientRect();
+                dx = rect.left;
+                dy = rect.top;
+            }
+
+            debug("dx, dy: " + [dx, dy]);
+
+            rect = g.getBoundingClientRect();
+
+            var linkingInfo = {
+                node: g,
+                sc: g.getAttributeNS(PencilNamespaces.p, "sc"),
+                refId: g.getAttributeNS(PencilNamespaces.p, "def"),
+                geo: {
+                    x: rect.left - dx,
+                    y: rect.top - dy,
+                    w: rect.width - 2,
+                    h: rect.height - 2
+                }
+            };
+
+            if (devCollection) {
+                if (linkingInfo.sc) {
+                    if (!devCollection.getShortcutByDisplayName(devCollection.id + ":" + linkingInfo.sc)) return;
+                } else if (linkingInfo.refId) {
+                    if (!devCollection.getShapeDefById(linkingInfo.refId)) return;
+                }
+            }
+//            if (!linkingInfo.refId) return;
+
+            items.push(linkingInfo);
+    });
+
+    var current = 0;
+    var thiz = this;
+    var done = function () {
+        var html = document.createElementNS(PencilNamespaces.html, "html");
+
+        var body = document.createElementNS(PencilNamespaces.html, "body");
+        html.appendChild(body);
+
+        var div = document.createElementNS(PencilNamespaces.html, "div");
+        div.setAttribute("style", "position: relative; padding: 0px; margin: 0px; width: " + pw + "px; height: " + ph + "px;");
+        body.appendChild(div);
+
+        /*
+        var canvas = document.createElementNS(PencilNamespaces.html, "canvas");
+        canvas.setAttribute("width", pw);
+        canvas.setAttribute("height", ph);
+
+        */
+
+        var bg = document.createElementNS(PencilNamespaces.html, "img");
+        bg.setAttribute("style", "width: " + pw + "px; height: " + ph + "px;");
+        bg.setAttribute("src", IMAGE_FILE + "?ts=" + (new Date().getTime()));
+        div.appendChild(bg);
+
+        for (var i = 0; i < items.length; i ++) {
+            var link = items[i];
+            var img = document.createElementNS(PencilNamespaces.html, "img");
+            img.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=");
+            if (link.sc) {
+                img.setAttribute("sc-ref", link.sc);
+            } else {
+                img.setAttribute("ref", link.refId);
+            }
+            img.setAttribute("id", link.refId);
+            var css = new CSS();
+            css.set("position", "absolute");
+            css.set("left", "" + link.geo.x + "px");
+            css.set("top", "" + link.geo.y + "px");
+            css.set("width", "" + link.geo.w + "px");
+            css.set("height", "" + link.geo.h + "px");
+            /*
+            css.set("left", "" + (100 * link.geo.x / pw) + "%");
+            css.set("top", "" + (100 * link.geo.y / ph) + "%");
+            css.set("width", "" + (100 * link.geo.w / pw) + "%");
+            css.set("height", "" + (100 * link.geo.h / ph) + "%");
+            */
+            img.setAttribute("style", css.toString());
+
+            div.appendChild(img);
+        }
+
+        Dom.serializeNodeToFile(html, outputPath, "");
+        CollectionManager.reloadDeveloperStencil();
+    };
+
+
+    var defaultPath = "Layout.xhtml";
+    if (devCollection) {
+        defaultPath = path.join(devCollection.installDirPath, defaultPath);
+    }
+
+    dialog.showSaveDialog(remote.getCurrentWindow(), {
+        title: "Export Layout",
+        defaultPath: defaultPath,
+        filters: [{name: 'XHTML Layout', extensions: ["xhtml"]}]
+    }, function (filePath) {
+        if (filePath) {
+            outputPath = filePath;
+            outputImage = path.join(path.dirname(outputPath), IMAGE_FILE);
+            Pencil.rasterizer.rasterizePageToFile(thiz.activePage, outputImage, function (p, error) {
+                done();
+            });
+        }
+    });
+};
+
 
 window.onbeforeunload = function (event) {
     // Due to a change of Chrome 51, returning non-empty strings or true in beforeunload handler now prevents the page to unload

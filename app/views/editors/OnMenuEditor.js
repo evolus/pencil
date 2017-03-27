@@ -18,11 +18,30 @@ OnMenuEditor.prototype.generateMenuItems = function () {
     var definedGroups = this.targetObject.getPropertyGroups();
     var items = [];
     var thiz = this;
+
+    var allowDisabled = Config.get("dev.enable_disabled_in_menu", null);
+    if (allowDisabled == null) {
+        Config.set("dev.enable_disabled_in_menu", false);
+        allowDisabled = false;
+    }
+
+    if (this.targetObject.prepareExpressionEvaluation) this.targetObject.prepareExpressionEvaluation();
+
+    var previousImageDataMenu = null;
     for (var i in definedGroups) {
         var group = definedGroups[i];
 
         for (var j in group.properties) {
             var property = group.properties[j];
+
+            if (this.targetObject.def && !allowDisabled) {
+                var meta = this.targetObject.def.propertyMap[property.name].meta["disabled"];
+                if (meta) {
+                    var value = this.targetObject.evalExpression(meta, true);
+                    if (value) continue;
+                }
+            }
+
             if (property.type == Bool) {
                 var checked = false;
                 try {
@@ -91,6 +110,14 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                         });
                     }
                 }
+
+                if (previousImageDataMenu) {
+                    previousImageDataMenu.label = "Configure N-Patch (" + previousImageDataMenu.property + ")..."
+                    imageNPathSpecEditItem.label = "Configure N-Patch (" + property.name + ")..."
+                }
+
+                previousImageDataMenu = imageNPathSpecEditItem;
+
                 items.push(imageNPathSpecEditItem);
             }
         }
@@ -101,7 +128,15 @@ OnMenuEditor.prototype.generateMenuItems = function () {
     if (this.targetObject.def && this.targetObject.performAction) {
         for (var i in this.targetObject.def.actions) {
             var action = this.targetObject.def.actions[i];
+
             if (action.displayName) {
+                if (this.targetObject.def && !allowDisabled) {
+                    var meta = action.meta["disabled"];
+                    if (meta) {
+                        var value = this.targetObject.evalExpression(meta, true);
+                        if (value) continue;
+                    }
+                }
                 if (!actionItem) {
                     actionItem = {
                         label: "Action",
