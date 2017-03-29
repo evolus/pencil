@@ -11,6 +11,14 @@ Config.getDataPath = function () {
     return path.join(os.homedir(), Config.DATA_DIR_NAME);
 };
 
+Config.getPrivateStencilsFilePath = function () {
+    var sharedPath = Config.get("shared.privateStencils.path");
+
+    return (sharedPath && sharedPath !== "")
+        ? sharedPath
+        : Config.getDataFilePath(Config.PRIVATE_STENCILS_DIR_NAME);
+};
+
 Config.getDataFilePath = function (name) {
     return path.join(Config.getDataPath(), name);
 };
