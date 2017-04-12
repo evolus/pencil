@@ -646,8 +646,25 @@ Pencil.behaviors.NPatchDomContent = function (nPatch, dim) {
 Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim, xAnchorMaps, yAnchorMaps) {
     //sorting
     var xCells = imageData.xCells;
-    if (!xCells || xCells.length == 0) xCells = [{from: 0, to: imageData.w}];
     var yCells = imageData.yCells;
+
+    if ((!xCells || xCells.length == 0) && (!yCells || yCells.length == 0)) {
+        Dom.empty(this);
+
+        this.setAttribute("width", dim.w)
+        this.setAttribute("height", dim.h)
+        this.setAttribute("style", "line-height: 1px;");
+
+        this.appendChild(Dom.newDOMElement({
+            _name: "img",
+            _uri: PencilNamespaces.html,
+            style: new CSS().set("width", dim.w + "px").set("height", dim.h + "px").toString(),
+            src: ImageData.refStringToUrl(imageData.data) || imageData.data
+        }));
+        return;
+    }
+
+    if (!xCells || xCells.length == 0) xCells = [{from: 0, to: imageData.w}];
     if (!yCells || yCells.length == 0) yCells = [{from: 0, to: imageData.h}];
 
     xCells = [].concat(xCells);

@@ -73,6 +73,8 @@ MainMenu.prototype.setup = function () {
 
     if (Config.get("dev.enabled", null) == null) Config.set("dev.enabled", false);
 
+    var devEnable = Config.get("dev.enabled", false);
+
     this.register(UICommandManager.getCommand("newDocumentCommand"));
     this.register(UICommandManager.getCommand("openDocumentCommand"));
     this.register(UICommandManager.getCommand("saveDocumentCommand"));
@@ -158,12 +160,21 @@ MainMenu.prototype.setup = function () {
             Pencil.controller.exportAsLayout();
         }
     });
+    developerToolSubItems.push(UICommandManager.register({
+        key: "buildStencilCollection",
+        label: "Build Stencil Collection...",
+        shortcut: "Ctrl+B",
+        isAvailable: function () { return Pencil.controller && Pencil.controller.doc && devEnable; },
+        run: function () {
+            new StencilCollectionBuilder(Pencil.controller).build();
+        }
+    }));
     developerToolSubItems.push({
         key: "copyAsShortcut",
         label: "Generate Shortcut XML...",
         isAvailable: function () {
             return Pencil.activeCanvas && Pencil.activeCanvas.currentController
-                    && Pencil.activeCanvas.currentController.generateShortcutXML;
+                    && Pencil.activeCanvas.currentController.generateShortcutXML && devEnable;
         },
         run: function () {
             Pencil.activeCanvas.currentController.generateShortcutXML();

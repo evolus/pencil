@@ -178,6 +178,7 @@ function Canvas(element) {
         thiz.handleClick(event);
     }, false);
     this.svg.addEventListener("mousedown", function (event) {
+        thiz.movementDisabled = Pencil.controller.movementDisabled || event.ctrlKey;
         // document.commandDispatcher.advanceFocus();
         thiz.focus();
         thiz.handleMouseDown(event);
@@ -1148,6 +1149,8 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
             if (!fake) {
                 event.preventDefault();
                 event.stopPropagation();
+
+                if (this.movementDisabled) return;
             }
 
             if (this.currentController.markAsMoving)
@@ -2520,21 +2523,41 @@ Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
     return newSize;
 };
 Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
+    var pageMargin = Config.get(Config.DEV_USE_PAGE_MARGIN) ? Config.get(Config.DEV_PAGE_MARGIN_SIZE) : 0;
+
+    hPadding += pageMargin;
+    vPadding += pageMargin;
 
     this.zoomTo(1.0);
 
     var thiz = this;
     var maxBox = null;
+    function out(name, rect) {
+        console.log(name, "left: ", rect.left, "top: ", rect.top, "width: ", rect.width, "height: ", rect.height);
+    }
+    out("this.svg", this.svg.getBoundingClientRect());
     Dom.workOn("./svg:g[@p:type]", this.drawingLayer, function (node) {
         try {
             var controller = thiz.createControllerFor(node);
             var bbox = controller.getBoundingRect();
+            //HACK: inspect the strokeWidth attribute to fix half stroke bbox issue
             var box = {
                 x1 : bbox.x,
                 y1 : bbox.y,
                 x2 : bbox.x + bbox.width,
                 y2 : bbox.y + bbox.height
             };
+
+            if (controller.getGeometry) {
+                var geo = controller.getGeometry();
+                if (geo.ctm && geo.ctm.a == 1 && geo.ctm.b == 0 && geo.ctm.c == 0 && geo.ctm.d == 1 && geo.dim) {
+                    box.x1 = geo.ctm.e;
+                    box.y1 = geo.ctm.f;
+                    box.x2 = box.x1 + geo.dim.w;
+                    box.y2 = box.y1 + geo.dim.h;
+                }
+            }
+
             if (maxBox == null) {
                 maxBox = box;
             } else {
@@ -2556,6 +2579,10 @@ Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
                 Util.getMessage("button.cancel.close"));
         return;
     }
+    maxBox.x1 = Math.floor(maxBox.x1);
+    maxBox.x2 = Math.ceil(maxBox.x2);
+    maxBox.y1 = Math.floor(maxBox.y1);
+    maxBox.y2 = Math.ceil(maxBox.y2);
 
     var width = maxBox.x2 - maxBox.x1 + 2 * hPadding;
     var height = maxBox.y2 - maxBox.y1 + 2 * vPadding;

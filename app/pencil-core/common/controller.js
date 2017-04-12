@@ -28,7 +28,7 @@ Controller.prototype.makeSubDir = function (sub) {
     return fullPath;
 };
 Controller.prototype.getDocumentName = function () {
-    return this.documentPath ? path.basename(this.documentPath).replace(/\.epz$/, "") : "* Unsaved document";
+    return this.documentPath ? path.basename(this.documentPath).replace(/\.[a-z]+$/, "") : "* Unsaved document";
 };
 // Controller.prototype.newDocument = function () {
 //     var thiz = this;

@@ -158,6 +158,8 @@ UICommandManager.register = function (command) {
             document.body.addEventListener(eventNames[i], f, false);
         }
     }
+
+    return command;
 };
 UICommandManager.getCommand = function (commandKey) {
     if (!commandKey) return;

@@ -11,7 +11,6 @@ SharedPropertyEditor.prototype.setup = function () {
     var thiz = this;
 
     this.propertyContainer.addEventListener("p:ValueChanged", function(event) {
-        console.log("p:ValueChanged", event);
         if (!thiz.target) return;
         var editor = Dom.findUpward(event.target, function (n) {
             return n._property;

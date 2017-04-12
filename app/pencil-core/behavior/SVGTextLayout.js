@@ -272,6 +272,7 @@ SVGHTMLRenderer.prototype.renderHTML = function (html, container, view) {
     var div = doc.createElementNS(PencilNamespaces.html, "div");
     div.style.position = "absolute";
     div.style.display = "none";
+    div.style.textAlign = ["left", "center", "right"][this.hAlign || 0];
     doc.body.appendChild(div);
 
     for (var styleName in this.defaultStyle) {
@@ -296,7 +297,7 @@ SVGHTMLRenderer.prototype.render = function (nodes, container, view) {
     var target = container;
     if (vAlign > 0) {
         var last = layouts[layouts.length - 1];
-        var height = last.y + last.height;
+        var height = last.y + last.height - (view.y || 0);
         dy = Math.round((this.height - height) * vAlign / 2);
         var target = container.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
         target.setAttribute("transform", "translate(0," + dy + ")");

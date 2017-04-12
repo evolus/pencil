@@ -111,6 +111,24 @@ SnappingHelper.prototype.rebuildSnappingGuide = function () {
             }
         }
     }
+
+    var pageMargin = Config.get(Config.DEV_USE_PAGE_MARGIN);
+    if (pageMargin) {
+        var margin = Config.get(Config.DEV_PAGE_MARGIN_SIZE);
+        var uid = Util.newUUID();
+        this.snappingGuide[uid] = {
+                vertical: [
+                    new SnappingData("MarginSnap", margin, "Left", true, uid),
+                    new SnappingData("MarginSnap", this.canvas.width - margin, "Right", true, uid)
+                ],
+                horizontal: [
+                    new SnappingData("MarginSnap", margin, "Top", false, uid),
+                    new SnappingData("MarginSnap", this.canvas.height - margin, "Bottom", false, uid)
+                ]
+            };
+
+    }
+
     this.sortData();
 };
 SnappingHelper.prototype.updateSnappingGuide = function (controller, remove) {

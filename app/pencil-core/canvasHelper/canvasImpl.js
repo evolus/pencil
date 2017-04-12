@@ -1,6 +1,8 @@
 var CanvasImpl = {};
 
 CanvasImpl.setupGrid = function () {
+    CanvasImpl.drawMargin.call(this);
+
     if (this.gridContainer) {
         Dom.empty(this.gridContainer);
     } else {
@@ -41,4 +43,37 @@ CanvasImpl.setupGrid = function () {
             }
         }
     }
+};
+CanvasImpl.drawMargin = function () {
+    var enable = Config.get(Config.DEV_USE_PAGE_MARGIN);
+    if (!enable) {
+        if (this.marginPath) this.marginPath.parentNode.removeChild(this.marginPath);
+        return;
+    }
+
+    var margin = Config.get(Config.DEV_PAGE_MARGIN_SIZE) * this.zoom;
+    var color = Config.get(Config.DEV_PAGE_MARGIN_COLOR);
+
+    if (!this.marginPatternDef) {
+        // this.marginPatternDef = Dom.newDOMElement({
+        //
+        // });
+        // this.bgLayer.appendChild(this.marginPatternDef);
+    }
+
+    if (!this.marginPath) {
+        this.marginPath = document.createElementNS(PencilNamespaces.svg, "svg:path");
+        this.marginPath.setAttributeNS(PencilNamespaces.p, "p:name", "margins");
+        this.marginPath.setAttribute("stroke", "none");
+        this.marginPath.setAttribute("fill", color);
+        this.bgLayer.appendChild(this.marginPath);
+    }
+
+    var x = 5;
+    var width = this.width * this.zoom;
+    var height = this.height * this.zoom;
+    this.marginPath.setAttribute("d", [
+        M(0 - x, 0 - x), L(0 - x, height + x), L(width + x, height + x), L(width + x, 0 - x), z,
+        M(margin, margin), L(width - margin, margin), L(width - margin, height - margin), L(margin, height - margin), z
+    ].join(" "));
 };

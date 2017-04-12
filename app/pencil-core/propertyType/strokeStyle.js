@@ -1,5 +1,5 @@
 function StrokeStyle(w, array) {
-    this.w = w ? w : 1;
+    this.w = (typeof(w) == "number") ? w : 1;
     this.array = array ? array : null;
 }
 StrokeStyle.REG_EX = /^([0-9]+)\|([0-9 \,]*)$/;

@@ -49,6 +49,7 @@ Shape.prototype.getPropertyGroups = function () {
 
 Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
     this._evalContext = {collection: this.def.collection};
+    F._target = this.svg;
 
     var hasPostProcessing = false;
 
