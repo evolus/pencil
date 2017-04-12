@@ -151,7 +151,12 @@ NPatchSpecEditorDialog.prototype.invalidateCellPosition = function (cell) {
     }
     var info = cell._cellInfo;
     if (info) {
-        info.textContent = b - a;
+        info.textContent = s
+        if (!cell._isX) {
+            var w = Math.round(info.offsetWidth);
+            var r = (s/2) - (w/2);
+            info.style.transform = "rotate(-90deg) translate(-" + r + "px, 0px)";
+        }
     }
 };
 NPatchSpecEditorDialog.commandsToData = function (pathCommands) {
