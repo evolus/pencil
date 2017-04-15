@@ -413,6 +413,21 @@ StencilCollectionBuilder.prototype.build = function () {
         _cdata: StencilCollectionBuilder.COLLECTION_UTIL
     }));
 
+    var globalPropertySpecs = [];
+
+    shapes.appendChild(Dom.newDOMElement({
+        _name: "Properties",
+        _uri: PencilNamespaces.p,
+        _children: [
+            {
+                _name: "PropertyGroup",
+                _uri: PencilNamespaces.p,
+                name: "Collection Properties",
+                _children: []
+            }
+        ]
+    }));
+
     var pageMargin = this.getPageMargin();
     var ts = new Date().getTime();
 
@@ -442,7 +457,8 @@ StencilCollectionBuilder.prototype.build = function () {
                             _name: "PropertyGroup",
                             _uri: PencilNamespaces.p,
                             name: "Common",
-                            _children: properties
+                            holder: "true",
+                            _children: []   //leave this blank, actual property definitions will be filled later
                         }
                     ]
                 },
@@ -481,9 +497,11 @@ StencilCollectionBuilder.prototype.build = function () {
             if (!contribution) return;
 
             for (var prop of contribution.properties) {
-                if (propertyMap[prop.name]) continue;
-                if (prop.name == "box") {
-                    prop.value = new Dimension(page.width - 2 * pageMargin, page.height - 2 * pageMargin).toString();
+                if (!prop.global) {
+                    if (propertyMap[prop.name]) continue;
+                    if (prop.name == "box") {
+                        prop.value = new Dimension(page.width - 2 * pageMargin, page.height - 2 * pageMargin).toString();
+                    }
                 }
                 var node = {
                     _name: "Property",
@@ -491,7 +509,8 @@ StencilCollectionBuilder.prototype.build = function () {
                     name: prop.name,
                     displayName: prop.displayName,
                     type: prop.type.name,
-                    _text: prop.value
+                    _text: prop.value,
+                    _prop: prop
                 };
                 if (prop.meta) {
                     for (var metaName in prop.meta) {
@@ -499,8 +518,12 @@ StencilCollectionBuilder.prototype.build = function () {
                     }
                 }
 
-                propertyMap[prop.name] = node;
-                properties.push(node);
+                if (prop.global) {
+                    globalPropertySpecs.push(node);
+                } else {
+                    propertyMap[prop.name] = node;
+                    properties.push(node);
+                }
             }
 
             for (var targetName in contribution.behaviorMap) {
@@ -634,6 +657,7 @@ StencilCollectionBuilder.prototype.build = function () {
         }
 
         var shape = Dom.newDOMElement(shapeSpec, dom);
+        if (!contentNode.hasChildNodes()) continue;
         shape.appendChild(contentNode);
         shapes.appendChild(shape);
 
@@ -641,7 +665,55 @@ StencilCollectionBuilder.prototype.build = function () {
             var thumPath = path.join(iconDir, shapeId + ".png");
             fs.createReadStream(page.thumbPath).pipe(fs.createWriteStream(thumPath));
         }
+
+        shape._propertyFragmentSpec = properties;
     }
+
+    var globalPropertyMap = {};
+
+    //append global propert fragment
+    if (globalPropertySpecs && globalPropertySpecs.length > 0) {
+        var globalGroupNode = Dom.getSingle("/p:Shapes/p:Properties/p:PropertyGroup", dom);
+        globalGroupNode.appendChild(Dom.newDOMFragment(globalPropertySpecs, dom));
+
+        for (var spec of globalPropertySpecs) {
+            var prop = spec._prop;
+            globalPropertyMap[prop.name] = prop.type.fromString(prop.value);
+        }
+    }
+
+    //re-fill shape's property fragment
+    Dom.workOn("/p:Shapes/p:Shape", dom, function (shapeDefNode) {
+        if (shapeDefNode._propertyFragmentSpec && shapeDefNode._propertyFragmentSpec.length > 0) {
+            //generalizing global properties
+            for (var spec of shapeDefNode._propertyFragmentSpec) {
+                var prop = spec._prop;
+                var value = prop.type.fromString(prop.value);
+                if (!value) continue;
+
+                for (var globalSpec of globalPropertySpecs) {
+                    if (spec.type != globalSpec.type) continue;
+
+                    var globalName = globalSpec._prop.name;
+                    var globalPropValue = globalPropertyMap[globalName];
+                    if (!globalPropValue || !globalPropValue.generateTransformTo) continue;
+
+                    var transformSpec = globalPropValue.generateTransformTo(value);
+                    if (transformSpec === "" || transformSpec) {
+                        delete spec._text;
+                        spec._children = [{
+                            _name: "E",
+                            _uri: PencilNamespaces.p,
+                            _text: "$$" + globalName + transformSpec
+                        }];
+                    }
+                }
+            }
+
+            var groupNode = Dom.getSingle("./p:Properties/p:PropertyGroup[@holder='true']", shapeDefNode);
+            groupNode.appendChild(Dom.newDOMFragment(shapeDefNode._propertyFragmentSpec, dom));
+        }
+    });
 
     var xsltDOM = Dom.parseDocument(
 `<xsl:stylesheet version="1.0"
