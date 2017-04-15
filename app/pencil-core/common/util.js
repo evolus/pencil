@@ -2147,7 +2147,7 @@ function pEval (expression, extra, codeLocation) {
             result = eval(expression)
         }
     } catch (ex) {
-        if (expression.length < 1000) error("Problematic code: " + expression);
+        if (expression.length < 2000) error("Problematic code: " + expression);
         if (codeLocation) error("Code location: " + codeLocation);
         Console.dumpError(ex);
     }

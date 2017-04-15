@@ -66,3 +66,5 @@ Config.define = function (name, defaultValue) {
 Config.DEV_USE_PAGE_MARGIN = Config.define("dev.pageMargin.enabled", false);
 Config.DEV_PAGE_MARGIN_SIZE = Config.define("dev.pageMargin.size", 40);
 Config.DEV_PAGE_MARGIN_COLOR = Config.define("dev.pageMargin.color", "rgba(0, 0, 0, 0.2)");
+
+Config.DEV_ENABLE_DISABLED_IN_PROP_PAGE = Config.define("dev.enable_disabled_in_property_page", false);
