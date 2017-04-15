@@ -289,7 +289,6 @@ HandleEditor.prototype.handleMoveTo = function (x, y, event) {
         this.lastMatchedOutlet = null;
     }
 
-    console.log("move handle");
 };
 HandleEditor.prototype.getPropertyConstraints = function (handle) {
     if (!this.currentHandle) return {};
