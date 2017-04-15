@@ -21,6 +21,35 @@ ShapeDef.prototype.toString = function () {
 ShapeDef.prototype.getProperty = function (name) {
     return this.propertyMap[name];
 };
+ShapeDef.prototype.removeProperty = function (name) {
+    var found = false;
+    for (var group of this.propertyGroups) {
+        for (var i = 0; i < group.properties.length; i ++) {
+            var property = group.properties[i];
+            if (property.name == name) {
+                group.properties.splice(i, 1);
+                found = true;
+                break;
+            }
+        }
+
+        if (found) break;
+    }
+
+    if (found) {
+        delete this.propertyMap[name];
+    }
+};
+ShapeDef.prototype.removeAction = function (id) {
+    for (var i = 0; i < this.actions.length; i ++) {
+        var action = this.actions[i];
+        if (action.id == id) {
+            this.actions.splice(i, 1);
+            delete this.actionMap[id];
+            break;
+        }
+    }
+};
 ShapeDef.prototype.isPropertyAffectedBy = function (target, source, checkedProperties) {
     if (target == source) return true;
 
@@ -127,13 +156,3 @@ function Shortcut() {
     this.shape = null;
     this.propertyMap = {};
 }
-
-
-
-
-
-
-
-
-
-

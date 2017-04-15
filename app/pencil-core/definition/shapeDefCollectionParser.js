@@ -363,7 +363,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
 
     //parse properties
     Dom.workOn("./p:Properties/p:PropertyGroup", shapeDefNode, function (propGroupNode) {
-        var group = new PropertyGroup;
+        var group = new PropertyGroup();
         group.name = propGroupNode.getAttribute("name");
 
         Dom.workOn("./p:Property", propGroupNode, function (propNode) {
@@ -409,6 +409,10 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
                 });
                 property.meta[metaAttribute.localName] = metaValue;
             });
+
+            if (shapeDef.propertyMap[property.name]) {
+                shapeDef.removeProperty(property.name);
+            }
 
             group.properties.push(property);
             shapeDef.propertyMap[property.name] = property;
@@ -533,6 +537,10 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
             };
         } catch (e) {
             Console.dumpError(e);
+        }
+
+        if (shapeDef.actionMap[action.id]) {
+            shapeDef.removeAction(action.id);
         }
 
         shapeDef.actionMap[action.id] = action;
