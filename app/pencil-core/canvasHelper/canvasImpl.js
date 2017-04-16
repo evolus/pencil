@@ -45,13 +45,14 @@ CanvasImpl.setupGrid = function () {
     }
 };
 CanvasImpl.drawMargin = function () {
-    var enable = Config.get(Config.DEV_USE_PAGE_MARGIN);
-    if (!enable) {
+    var unzommedMargin = Pencil.controller.getDocumentPageMargin();
+    if (!unzommedMargin) {
         if (this.marginPath) this.marginPath.parentNode.removeChild(this.marginPath);
+        this.marginPath = null;
         return;
     }
 
-    var margin = Config.get(Config.DEV_PAGE_MARGIN_SIZE) * this.zoom;
+    var margin = unzommedMargin * this.zoom;
     var color = Config.get(Config.DEV_PAGE_MARGIN_COLOR);
 
     if (!this.marginPatternDef) {

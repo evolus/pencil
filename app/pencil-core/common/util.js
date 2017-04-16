@@ -2391,4 +2391,31 @@ function _after(fn, after) {
   };
 }
 
+function getRequiredValue(input, message, pattern) {
+    var value = input.value;
+    var valid = pattern ? value.match(pattern) : value.trim().length > 0;
+    if (!valid) {
+        var e = new Error(message || "Please enter a valid value.");
+        e._input = input;
+        e._isValidationError = true;
+        throw e;
+    }
+
+    return value;
+}
+function handleCommonValidationError(e) {
+    if (e._isValidationError) {
+        Dialog.error(e.message, "", function () {
+            setTimeout(function () {
+                e._input.focus();
+                e._input.select();
+            }, 250);
+        });
+
+        return false;
+    } else {
+        throw e;
+    }
+}
+
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);

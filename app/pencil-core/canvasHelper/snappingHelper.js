@@ -112,9 +112,8 @@ SnappingHelper.prototype.rebuildSnappingGuide = function () {
         }
     }
 
-    var pageMargin = Config.get(Config.DEV_USE_PAGE_MARGIN);
-    if (pageMargin) {
-        var margin = Config.get(Config.DEV_PAGE_MARGIN_SIZE);
+    var margin = Pencil.controller.getDocumentPageMargin();
+    if (margin) {
         var uid = Util.newUUID();
         this.snappingGuide[uid] = {
                 vertical: [

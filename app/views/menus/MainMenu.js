@@ -95,15 +95,15 @@ MainMenu.prototype.setup = function () {
         }
     });
 
-    var developerToolSubItems = [];
-    developerToolSubItems.push({
+    var toolSubItems = [];
+    toolSubItems.push({
         key: "manageCollections",
         label: "Manage Collections...",
         run: function () {
             new CollectionManagementDialog(Pencil.collectionPane).open();
         }
     });
-    developerToolSubItems.push({
+    toolSubItems.push({
         key: "manageExportTemplate",
         label: "Manage Export Template...",
         run: function () {
@@ -111,7 +111,7 @@ MainMenu.prototype.setup = function () {
             templateDialog.open();
         }
     });
-    developerToolSubItems.push({
+    toolSubItems.push({
         key: "manageFontCommand",
         label: "Manage Fonts...",
         run: function () {
@@ -119,7 +119,9 @@ MainMenu.prototype.setup = function () {
         }
     });
 
-    developerToolSubItems.push(Menu.SEPARATOR);
+    toolSubItems.push(Menu.SEPARATOR);
+
+    var developerToolSubItems = [];
     developerToolSubItems.push({
         key: "stencilGenerator",
         label: "Stencil Generator...",
@@ -160,15 +162,31 @@ MainMenu.prototype.setup = function () {
             Pencil.controller.exportAsLayout();
         }
     });
+    developerToolSubItems.push(Menu.SEPARATOR);
+
+    developerToolSubItems.push(UICommandManager.register({
+        key: "configureStencilCollection",
+        getLabel: function () {
+            return StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection() ?
+                    "Configure Stencil Collection..." : "Configure as Stencil Collection...";
+        },
+        isAvailable: function () { return Pencil.controller && Pencil.controller.doc; },
+        run: function () {
+            new StencilCollectionBuilder(Pencil.controller).configure();
+        }
+    }));
+
     developerToolSubItems.push(UICommandManager.register({
         key: "buildStencilCollection",
         label: "Build Stencil Collection...",
         shortcut: "Ctrl+B",
-        isAvailable: function () { return Pencil.controller && Pencil.controller.doc && devEnable; },
+        isAvailable: function () { return Pencil.controller && Pencil.controller.doc; },
         run: function () {
             new StencilCollectionBuilder(Pencil.controller).build();
         }
     }));
+    developerToolSubItems.push(Menu.SEPARATOR);
+
     developerToolSubItems.push({
         key: "copyAsShortcut",
         label: "Generate Shortcut XML...",
@@ -183,20 +201,27 @@ MainMenu.prototype.setup = function () {
     });
 
     developerToolSubItems.push(Menu.SEPARATOR);
-    developerToolSubItems.push({
+    developerToolSubItems.push(UICommandManager.register({
         key: "openDeveloperTools",
         label: "Open Developer Tools",
         shortcut: "Ctrl+Alt+Shift+P",
         run: function () {
             Pencil.app.mainWindow.openDevTools();
         }
+    }));
+
+    toolSubItems.push({
+        key: "devToolCommand",
+        label: "Developer Tools",
+        type: "SubMenu",
+        subItems: developerToolSubItems
     });
 
     this.register({
         key: "toolCommand",
         label: "Tools",
         type: "SubMenu",
-        subItems: developerToolSubItems
+        subItems: toolSubItems
     });
     this.separator();
     this.register({
@@ -209,14 +234,15 @@ MainMenu.prototype.setup = function () {
         }
     });
     this.separator();
-    this.register({
+    this.register(UICommandManager.register({
         key: "exitApplicationCommand",
         label: "Exit",
         isValid: function () { return true; },
+        shortcut: "Ctrl+Q",
         run: function () {
             let remote = require("electron").remote;
             let currentWindow = remote.getCurrentWindow();
             currentWindow.close();
         }
-    });
+    }));
 }

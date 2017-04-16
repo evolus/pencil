@@ -359,9 +359,8 @@ collection.generatePathDOM = function (svgPathData, size, keepPathStyle) {
 `;
 
 StencilCollectionBuilder.prototype.getPageMargin = function () {
-    var pageMargin = Config.get(Config.DEV_USE_PAGE_MARGIN);
-    if (!pageMargin) return 0;
-    return Config.get(Config.DEV_PAGE_MARGIN_SIZE);
+    var pageMargin = Pencil.controller.getDocumentPageMargin();
+    return pageMargin || 0;
 };
 StencilCollectionBuilder.prototype.toCollectionReadyImageData = function (imageData, name) {
     var value = ImageData.fromString(imageData.toString());
@@ -382,9 +381,96 @@ StencilCollectionBuilder.prototype.toCollectionReadyImageData = function (imageD
     }
     return value;
 };
+StencilCollectionBuilder.getCurrentDocumentOptions = function () {
+    var json = Pencil.controller.doc.properties.stencilBuilderOptions;
+    if (json) {
+        try {
+            return JSON.parse(json);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    return null;
+};
+StencilCollectionBuilder.prototype.setCurrentDocumentOptions = function (options) {
+    options.pageMargin = Config.get(Config.DEV_PAGE_MARGIN_SIZE);
+    Pencil.controller.doc.properties.stencilBuilderOptions = JSON.stringify(options);
+
+    window.globalEventBus && window.globalEventBus.broadcast("doc-options-change", {});
+};
+StencilCollectionBuilder.prototype.makeDefaultOptions = function () {
+    options = options || {};
+    var defaultDocName = Pencil.controller.getDocumentName().replace(/\*/g, "").trim();
+    var systemUsername = os.userInfo().username;
+
+    options.displayName = defaultDocName;
+    options.id = (systemUsername + "." + defaultDocName.replace(/[^a-z0-9]+/gi, ""));
+    options.description = "";
+    options.author = systemUsername;
+    options.url = "";
+
+    options.extraScript = "";
+    options.embedReferencedFonts = true;
+    options.resourceSets = [];
+
+    return options;
+};
+StencilCollectionBuilder.prototype.configure = function () {
+    var thiz = this;
+    new StencilCollectionDetailDialog().callback(function (options) {
+        thiz.setCurrentDocumentOptions(options);
+        if (Pencil.controller.documentPath) {
+            Pencil.documentHandler.saveDocument();
+        }
+    }).open(StencilCollectionBuilder.getCurrentDocumentOptions());
+};
+StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection = function () {
+    return Pencil.controller.doc && Pencil.controller.doc.properties && Pencil.controller.doc.properties.stencilBuilderOptions
+};
 StencilCollectionBuilder.prototype.build = function () {
+    var thiz = this;
+    function next(options, outputPath) {
+        if (options) {
+            options.outputPath = outputPath;
+            thiz.setCurrentDocumentOptions(options);
+            thiz.buildImpl(options);
+        } else {
+            new StencilCollectionDetailDialog("Build").callback(function (options) {
+                options.outputPath = outputPath;
+                thiz.setCurrentDocumentOptions(options);
+                thiz.buildImpl(options);
+            }).open(null);
+        }
+    }
+
+    var currentOptions = StencilCollectionBuilder.getCurrentDocumentOptions();
+
+    if (!currentOptions
+        || !currentOptions.outputPath
+        || !fs.existsSync(currentOptions.outputPath)
+        || Pencil.controller.doc._lastUsedStencilOutputPath != currentOptions.outputPath) {
+        dialog.showOpenDialog(remote.getCurrentWindow(), {
+            title: "Select Output Directory",
+            defaultPath: (currentOptions && currentOptions.outputPath && fs.existsSync(currentOptions.outputPath)) ? currentOptions.outputPath : os.homedir(),
+            properties: ["openDirectory"]
+        }, function (filenames) {
+            if (!filenames || filenames.length <= 0) return;
+            var selectedPath = filenames[0];
+
+            next(currentOptions, selectedPath);
+        });
+
+    } else {
+        next(currentOptions, currentOptions.outputPath);
+    }
+};
+StencilCollectionBuilder.prototype.buildImpl = function (options) {
+    if (!options) {
+        options = this.makeDefaultOptions();
+    }
     StencilCollectionBuilder.INSTANCE = this;
-    var dir = "/home/dgthanhan/Projects/Pencil/V3/Stencils/Generated/Sample1";
+    var dir = options.outputPath;
     var iconDir = path.join(dir, "icons");
 
     this.currentDir = dir;
@@ -397,14 +483,11 @@ StencilCollectionBuilder.prototype.build = function () {
     var dom = Controller.parser.parseFromString("<Shapes xmlns=\"" + PencilNamespaces.p + "\"></Shapes>", "text/xml");
     var shapes = dom.documentElement;
 
-    var username = os.userInfo().username;
-    var docName = this.controller.getDocumentName().replace(/\*/g, "").trim();
-
-    shapes.setAttribute("id", username + "." + docName.replace(/[^a-z0-9]+/gi, ""));
-    shapes.setAttribute("displayName", docName);
-    shapes.setAttribute("author", username);
-    shapes.setAttribute("description", "");
-
+    shapes.setAttribute("id", options.id);
+    shapes.setAttribute("displayName", options.displayName);
+    shapes.setAttribute("author", options.author);
+    shapes.setAttribute("description", options.description);
+    shapes.setAttribute("url", options.url);
 
     shapes.appendChild(Dom.newDOMElement({
         _name: "Script",
@@ -412,6 +495,15 @@ StencilCollectionBuilder.prototype.build = function () {
         comments: "Built-in util script",
         _cdata: StencilCollectionBuilder.COLLECTION_UTIL
     }));
+
+    if (options.extraScript) {
+        shapes.appendChild(Dom.newDOMElement({
+            _name: "Script",
+            _uri: PencilNamespaces.p,
+            comments: "Extra script",
+            _cdata: "\n" + options.extraScript + "\n"
+        }));
+    }
 
     var globalPropertySpecs = [];
 
@@ -435,8 +527,6 @@ StencilCollectionBuilder.prototype.build = function () {
         this.controller.activatePage(page);
         var svg = page.canvas.svg;
         StencilCollectionBuilder._currentPage = page;
-
-        if (page.note) shapes.setAttribute("description", Dom.htmlStrip(page.note));
 
         var properties = [];
         var behaviors = [];
@@ -474,6 +564,8 @@ StencilCollectionBuilder.prototype.build = function () {
                 }
             ]
         };
+
+        if (page.note) shapeSpec.description = Dom.htmlStrip(page.note);
 
         var propertyMap = {};
 
@@ -734,5 +826,9 @@ StencilCollectionBuilder.prototype.build = function () {
     var result = xsltProcessor.transformToDocument(dom);
 
     Dom.serializeNodeToFile(result, path.join(dir, "Definition.xml"));
-    console.log("Stencil definition saved.");
+
+    Pencil.controller.doc._lastUsedStencilOutputPath = options.outputPath;
+    NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.", "View", function () {
+        shell.openItem(options.outputPath);
+    });
 };

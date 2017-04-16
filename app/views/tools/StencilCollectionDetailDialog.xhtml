@@ -1,0 +1,152 @@
+<vbox>
+    <style>
+        @scriptTab {
+            min-height: 20em;
+        }
+
+        @generalTab > * + *,
+        @generalTab > vbox > * + *,
+        @clipartBrowserTab > * + *,
+        @externalEditorTab > * + * ,
+        @advanceTab > * + * {
+            margin-top: 0.6em;
+        }
+        @settingTabPane .TabBody {
+            padding: 1em;
+        }
+        @settingTabPane hbox.Entry {
+            align-items: center;
+        }
+        @settingTabPane hbox.Entry label:first-child {
+            margin-right: 0.6em;
+            width: 13ex;
+            text-align: left;
+        }
+        @settingTabPane hbox.Entry label:not(:first-child) {
+            margin-left: 0.6em;
+        }
+
+        @settingTabPane hbox > hbox.Entry + hbox.Entry {
+            margin-left: 2ex;
+        }
+
+        @scriptTab vbox.Entry > label {
+            margin-bottom: 0.5ex;
+        }
+
+        @resourceTab {
+            padding-bottom: 1em;
+        }
+
+        @resourceTab > vbox > strong {
+            margin-bottom: 1ex;
+        }
+        @resourceTab > vbox > strong:not(:first-child) {
+            margin-top: 1em;
+        }
+
+        @resourceTab > vbox > strong + * {
+            padding-left: 1ex;
+        }
+
+        @resourceTab .Set + .Set {
+            margin-top: 1ex;
+        }
+        @resourceTab .Set > * + * {
+            margin-top: 0.3ex;
+        }
+        @resourceTab .Set > hbox > * + * {
+            margin-left: 0.3ex;
+        }
+    </style>
+    <hbox flex="1">
+        <ui:TabPane anon-id="settingTabPane">
+            <vbox anon-id="generalTab" flex="1" tab-title="Collection Information">
+                <hbox>
+                    <hbox class="Entry" flex="3">
+                        <label for="displayNameInput">Display name:</label>
+                        <input type="text" anon-id="displayNameInput" flex="1" />
+                    </hbox>
+                    <hbox class="Entry" flex="2">
+                        <label for="idInput">Identifier:</label>
+                        <input type="text" anon-id="idInput" flex="1" />
+                    </hbox>
+                </hbox>
+                <hbox class="Entry">
+                    <label for="descriptionInput">Description:</label>
+                    <input type="text" anon-id="descriptionInput" flex="1" />
+                </hbox>
+                <hbox class="Entry">
+                    <label for="authorNameInput">Author name:</label>
+                    <input type="text" anon-id="authorNameInput" flex="1" />
+                </hbox>
+                <hbox class="Entry">
+                    <label for="urlInput">URL:</label>
+                    <input type="text" anon-id="urlInput" flex="1" />
+                </hbox>
+            </vbox>
+            <vbox anon-id="scriptTab" flex="1" tab-title="Scripts">
+                <vbox class="Entry" flex="1">
+                    <label>Additional collection script:</label>
+                    <textarea anon-id="scriptInput" flex="1"/>
+                </vbox>
+            </vbox>
+            <vbox anon-id="resourceTab" flex="1" tab-title="Fonts &amp; Resources">
+                <vbox flex="1">
+                    <strong>Fonts:</strong>
+                    <hbox class="Entry">
+                        <input type="checkbox" anon-id="embedReferencedFontsCheckbox" />
+                        <label for="embedReferencedFontsCheckbox">Include embedable fonts used in shapes</label>
+                    </hbox>
+                    <strong anon-id="resourceLabel">Resources:</strong>
+                    <vbox anon-id="setContainer">
+                        <vbox class="Set">
+                            <label>Set 1:</label>
+                            <hbox>
+                                <input type="text" anon-id="resourceSet0NameInput" placeholder="Set Name" />
+                                <input type="text" anon-id="resourceSet0PathInput" placeholder="Path to resource directory" flex="1" />
+                                <button target="resourceSet0PathInput">Browse...</button>
+                            </hbox>
+                        </vbox>
+                        <vbox class="Set">
+                            <label>Set 2:</label>
+                            <hbox>
+                                <input type="text" anon-id="resourceSet1NameInput" placeholder="Set Name" />
+                                <input type="text" anon-id="resourceSet1PathInput" placeholder="Path to resource directory" flex="1" />
+                                <button target="resourceSet1PathInput">Browse...</button>
+                            </hbox>
+                        </vbox>
+                        <vbox class="Set">
+                            <label>Set 3:</label>
+                            <hbox>
+                                <input type="text" anon-id="resourceSet2NameInput" placeholder="Set Name" />
+                                <input type="text" anon-id="resourceSet2PathInput" placeholder="Path to resource directory" flex="1" />
+                                <button target="resourceSet2PathInput">Browse...</button>
+                            </hbox>
+                        </vbox>
+                        <vbox class="Set">
+                            <label>Set 4:</label>
+                            <hbox>
+                                <input type="text" anon-id="resourceSet3NameInput" placeholder="Set Name" />
+                                <input type="text" anon-id="resourceSet3PathInput" placeholder="Path to resource directory" flex="1" />
+                                <button target="resourceSet3PathInput">Browse...</button>
+                            </hbox>
+                        </vbox>
+                        <vbox class="Set">
+                            <label>Set 5:</label>
+                            <hbox>
+                                <input type="text" anon-id="resourceSet4NameInput" placeholder="Set Name" />
+                                <input type="text" anon-id="resourceSet4PathInput" placeholder="Path to resource directory" flex="1" />
+                                <button target="resourceSet4PathInput">Browse...</button>
+                            </hbox>
+                        </vbox>
+                    </vbox>
+                </vbox>
+            </vbox>
+            <!-- <vbox anon-id="optionTab" flex="1" tab-title="Builder Options">
+                <vbox class="Entry" flex="1">
+                </vbox>
+            </vbox> -->
+        </ui:TabPane>
+    </hbox>
+</vbox>

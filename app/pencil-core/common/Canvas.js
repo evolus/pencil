@@ -339,6 +339,10 @@ function Canvas(element) {
             CanvasImpl.setupGrid.apply(this);
         }
     }.bind(this));
+    window.globalEventBus.listen("doc-options-change", function (data) {
+        CanvasImpl.drawMargin.apply(this);
+        this.snappingHelper.rebuildSnappingGuide();
+    }.bind(this));
 
 }
 

@@ -1414,6 +1414,18 @@ Controller.prototype.exportAsLayout = function () {
     });
 };
 
+Controller.prototype.getDocumentPageMargin = function () {
+    if (!StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection()) {
+        return null;
+    }
+    var options = StencilCollectionBuilder.getCurrentDocumentOptions();
+    if (!options) {
+        return null;
+    }
+
+    return options.pageMargin || Config.get(Config.DEV_PAGE_MARGIN_SIZE) || 40;
+};
+
 
 window.onbeforeunload = function (event) {
     // Due to a change of Chrome 51, returning non-empty strings or true in beforeunload handler now prevents the page to unload
