@@ -134,6 +134,48 @@ Shape.prototype.repairShapeProperties = function () {
         this.applyBehaviorForProperty(name);
     }
 };
+Shape.prototype.renewTargetProperties = function () {
+    this._evalContext = {collection: this.def.collection};
+    F._target = this.svg;
+
+    var renewed = false;
+
+    for (var name in this.def.propertyMap) {
+        var prop = this.def.propertyMap[name];
+        if (!prop || !prop.meta || prop.meta.renew != "true") continue;
+
+        var propNode = this.locatePropertyNode(name);
+        if (!propNode) continue;
+
+        var value = null;
+
+        var currentCollection = this.def.connection;
+
+        if (prop.initialValueExpression) {
+            value = this.evalExpression(prop.initialValueExpression);
+        } else {
+            value = prop.initialValue;
+        }
+
+        if (prop.type.performIntialProcessing) {
+            var newValue = prop.type.performIntialProcessing(value, this.def, currentCollection);
+            if (newValue) {
+                value = newValue;
+            }
+        }
+
+        this.storeProperty(name, value);
+        renewed = true;
+    }
+
+    if (!renewed) return false;
+
+    for (name in this.def.propertyMap) {
+        this.applyBehaviorForProperty(name);
+    }
+
+    return true;
+};
 Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedProperties) {
     var propertyDef = this.def.propertyMap[name];
     if (!propertyDef) return;

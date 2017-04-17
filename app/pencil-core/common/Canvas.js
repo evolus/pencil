@@ -2527,7 +2527,7 @@ Canvas.prototype.sizeToContent = function (hPadding, vPadding) {
     return newSize;
 };
 Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
-    var pageMargin = Config.get(Config.DEV_USE_PAGE_MARGIN) ? Config.get(Config.DEV_PAGE_MARGIN_SIZE) : 0;
+    var pageMargin = Pencil.controller.getDocumentPageMargin() || 0;
 
     hPadding += pageMargin;
     vPadding += pageMargin;
@@ -2543,6 +2543,7 @@ Canvas.prototype.sizeToContent__ = function (hPadding, vPadding) {
     Dom.workOn("./svg:g[@p:type]", this.drawingLayer, function (node) {
         try {
             var controller = thiz.createControllerFor(node);
+            if (controller.def && controller.def.meta.excludeSizeCalculation) return;
             var bbox = controller.getBoundingRect();
             //HACK: inspect the strokeWidth attribute to fix half stroke bbox issue
             var box = {

@@ -36,6 +36,18 @@ ShapeXferHelper.prototype.handleData = function (dom) {
         this.canvas.drawingLayer.appendChild(shape);
         this.canvas.selectShape(shape);
 
+        if (this.canvas.currentController.renewTargetProperties) {
+            try {
+                var renewed = this.canvas.currentController.renewTargetProperties();
+                if (renewed) {
+                    this.canvas.selectNone();
+                    this.canvas.selectShape(shape);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
         var rect = this.canvas.currentController.getBoundingRect();
         var mx = 0;
         var my = 0;
@@ -57,6 +69,7 @@ ShapeXferHelper.prototype.handleData = function (dom) {
 
         this.canvas.snappingHelper.updateSnappingGuide(this.canvas.currentController);
     }, this, Util.getMessage("action.create.shape", this.canvas.createControllerFor(shape).getName()));
+
     this.canvas.invalidateEditors();
 };
 
