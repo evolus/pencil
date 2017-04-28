@@ -5,14 +5,13 @@ const STENCILS_REPO_URL = "https://raw.githubusercontent.com/mbrainiac/stencils-
 var CollectionRepository = {
 };
 
-CollectionRepository.loadCollections = function() {
+CollectionRepository.loadCollections = function(url) {
     return QP.Promise(function(resolve, reject) {
 
         var nugget = require("nugget");
         var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true }).name;
         var filename = "repository-" + new Date().getTime() + ".xml";
 
-        console.log('Downloading', STENCILS_REPO_URL, 'to', tempDir, filename);
         var nuggetOpts = {
             target: filename,
             dir: tempDir,
@@ -20,7 +19,7 @@ CollectionRepository.loadCollections = function() {
             quiet: true
         };
 
-        nugget(STENCILS_REPO_URL, nuggetOpts, function (errors) {
+        nugget(url || STENCILS_REPO_URL, nuggetOpts, function (errors) {
             if (errors) {
                 var error = errors[0] // nugget returns an array of errors but we only need 1st because we only have 1 url
                 if (error.message.indexOf('404') === -1) {

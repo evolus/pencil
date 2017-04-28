@@ -183,7 +183,7 @@ Color.prototype.generateTransformTo = function (other) {
     if (Math.abs(hsv0.hue - hsv1.hue) < ALLOWED_DELTA && Math.abs(hsv0.saturation - hsv1.saturation) < ALLOWED_DELTA) {
         var transform = "";
 
-        if (Math.abs(hsv0.value - hsv1.value) >= ALLOWED_DELTA) {
+        if (Math.abs(hsv0.value - hsv1.value) >= ALLOWED_DELTA / 3) {
             if (hsv0.value == 0) return null;
             transform += ".shaded(" + (1 - (hsv1.value / hsv0.value)) + ")";
         }
@@ -197,6 +197,16 @@ Color.prototype.generateTransformTo = function (other) {
     }
 
     return null;
+}
+Color.prototype.getDiff = function (other) {
+    if (!other) return 1;
+    var hsv0 = Color.RGB2HSV(this);
+    var hsv1 = Color.RGB2HSV(other);
+
+    return (Math.abs(hsv0.hue - hsv1.hue) / (255 * 4))
+            + (Math.abs(hsv0.saturation - hsv1.saturation) / (255 * 4))
+            + (Math.abs(hsv0.value - hsv1.value) / (100 * 4))
+            + (Math.abs(this.a - other.a) / 4);
 }
 
 pencilSandbox.Color = {

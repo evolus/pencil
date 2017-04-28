@@ -2341,7 +2341,7 @@ function copyFileSync(source, target) {
     fs.writeFileSync(targetFile, fs.readFileSync(source));
 }
 
-function copyFolderRecursiveSync( source, target ) {
+function copyFolderRecursiveSync(source, target) {
     var files = [];
 
     //check if folder needs to be created or integrated

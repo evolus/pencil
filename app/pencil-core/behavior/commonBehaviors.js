@@ -37,8 +37,7 @@ Pencil.behaviors.Color = function (color) {
 	    Svg.setStyle(this, "fill", color.toRGBString());
 	    Svg.setStyle(this, "fill-opacity", color.a);
 	} else {
-	    Svg.setStyle(this, "color", color ? color.toRGBString() : null);
-	    Svg.setStyle(this, "opacity", color ? color.a : null);
+	    Svg.setStyle(this, "color", color ? color.toRGBAString() : null);
 	}
 };
 Pencil.behaviors.StrokeColor = function (color) {

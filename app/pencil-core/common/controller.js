@@ -1070,6 +1070,9 @@ Controller.prototype.collectionResourceAsRefSync = function (collection, resourc
     }
 
     var id = "collection " + collection.id + " " + resourcePath;
+    var md5 = require("md5");
+    id = md5(id) + path.extname(resourcePath);
+
     id = id.replace(/[^a-z\-0-9]+/gi, "_");
 
     var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);

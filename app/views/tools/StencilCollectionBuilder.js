@@ -356,8 +356,100 @@ collection.generatePathDOM = function (svgPathData, size, keepPathStyle) {
 
     return Dom.newDOMFragment(specs);
 };
+collection.generateAdvancedRectPathData = function (box, strokeStyle, r, withTop, withRight, withBottom, withLeft) {
+    var x = r * 4 * (Math.sqrt(2) - 1) / 3;
+    var w = box.w - strokeStyle.w * ((withLeft ? 0.5 : 0) + (withRight ? 0.5 : 0));
+    var h = box.h - strokeStyle.w * ((withTop ? 0.5 : 0) + (withBottom ? 0.5 : 0));
+    var parts = [
+    ];
+    var close = true;
+    if (withTop) {
+        parts.push(L(w - (withRight ? r : 0),0));
+        if (withRight && r > 0) parts.push(c(x,0,r,r-x,r,r));
+    } else {
+        parts.push(M(w,0));
+        close = false;
+    }
+
+    if (withRight) {
+        parts.push(L(w,h - (withBottom ? r : 0)));
+        if (withBottom && r > 0) parts.push(c(0,x,x-r,r,0-r,r));
+    } else {
+        parts.push(M(w,h));
+        close = false;
+    }
+
+    if (withBottom) {
+        parts.push(L(withLeft ? r : 0,h));
+        if (withLeft && r > 0) parts.push(c(x-r,0,0-r,x-r,0-r,0-r));
+    } else {
+        parts.push(M(0,h));
+        close = false;
+    }
+
+    if (withLeft) {
+        parts.push(L(0,withTop ? r : 0));
+        if (withTop && r > 0) parts.push(c(0,0-x,r-x,0-r,r,0-r));
+    } else {
+        parts.push(M(0,0));
+        close = false;
+    }
+
+    if (close) parts.push(z);
+
+    var firstMove = -1;
+    for (var i = 0; i < parts.length; i ++) {
+        if (parts[i].indexOf("M") == 0) {
+            firstMove = i;
+            break;
+        }
+    }
+
+    if (firstMove > 0) {
+        while (firstMove > 0) {
+            parts.push(parts.shift());
+            firstMove --;
+        }
+    } else {
+        parts.unshift(M(withLeft ? r : 0,0));
+    }
+
+    return parts;
+};
 `;
 
+StencilCollectionBuilder.COLLECTION_RESOURCE_SCRIPT = `
+collection.browseResource = function (setNames, type, returnType, callback) {
+    var options = {
+        prefixes: [],
+        type: type || CollectionResourceBrowserDialog.TYPE_BITMAP,
+        returnType: returnType || CollectionResourceBrowserDialog.RETURN_IMAGEDATA
+    };
+
+    setNames = (setNames || "").trim();
+    if (setNames) {
+        for (var name of setNames.split(/\,/)) {
+            var prefix = collection.RESOURCE_MAP[name];
+            if (prefix) {
+                options.prefixes.push({
+                    name: name, prefix: prefix
+                });
+            }
+        }
+    } else {
+        for (var name in collection.RESOURCE_MAP) {
+            var prefix = collection.RESOURCE_MAP[name];
+            if (prefix) {
+                options.prefixes.push({
+                    name: name, prefix: prefix
+                });
+            }
+        }
+    }
+
+    CollectionResourceBrowserDialog.open(collection, options, callback);
+};
+`;
 StencilCollectionBuilder.prototype.getPageMargin = function () {
     var pageMargin = Pencil.controller.getDocumentPageMargin();
     return pageMargin || 0;
@@ -505,6 +597,53 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
         }));
     }
 
+    var resourceMap = {};
+
+    //processing resources
+    if (options.resourceSets) {
+        var base = path.dirname(Pencil.controller.documentPath);
+
+        var resourceDirName = "resources";
+        var resourceDir = path.join(dir, resourceDirName);
+
+        if (!fsExistSync(resourceDir)) {
+            fs.mkdirSync(resourceDir);
+        }
+
+        for (var set of options.resourceSets) {
+            var sourcePath = base ? path.resolve(base, set.path) : set.path;
+            if (!fs.existsSync(sourcePath)) {
+                console.error("Resource dir not found: " + sourcePath);
+                continue;
+            }
+
+            var name = set.name.replace(/[^a-z0-9]+/gi, "_");
+            var destPath = path.join(resourceDir, name);
+            resourceMap[name] = resourceDirName + "/" + name;
+
+            if (!fs.existsSync(destPath)) {
+                fs.mkdirSync(destPath);
+                var files = fs.readdirSync(sourcePath);
+                files.forEach(function (file) {
+                    var curSource = path.join(sourcePath, file);
+                    if (fs.lstatSync(curSource).isDirectory()) {
+                        copyFolderRecursiveSync(curSource, destPath);
+                    } else {
+                        copyFileSync(curSource, destPath);
+                    }
+                });
+            }
+        }
+
+        var script = "collection.RESOURCE_MAP = " + JSON.stringify(resourceMap) + ";\n" + StencilCollectionBuilder.COLLECTION_RESOURCE_SCRIPT;
+        shapes.appendChild(Dom.newDOMElement({
+            _name: "Script",
+            _uri: PencilNamespaces.p,
+            comments: "Resource script",
+            _cdata: "\n" + script+ "\n"
+        }));
+    }
+
     var globalPropertySpecs = [];
 
     shapes.appendChild(Dom.newDOMElement({
@@ -525,6 +664,7 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
 
     for (var page of this.controller.doc.pages) {
         this.controller.activatePage(page);
+        this.controller.sayControllerStatusChanged();
         var svg = page.canvas.svg;
         StencilCollectionBuilder._currentPage = page;
 
@@ -783,6 +923,8 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
                 var value = prop.type.fromString(prop.value);
                 if (!value) continue;
 
+                var previousDiff = null;
+
                 for (var globalSpec of globalPropertySpecs) {
                     if (spec.type != globalSpec.type) continue;
 
@@ -791,13 +933,16 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
                     if (!globalPropValue || !globalPropValue.generateTransformTo) continue;
 
                     var transformSpec = globalPropValue.generateTransformTo(value);
-                    if (transformSpec === "" || transformSpec) {
+                    var diff = globalPropValue.getDiff ? globalPropValue.getDiff(value) : ((transformSpec === "" || transformSpec) ? transformSpec.length : 10000000);
+                    if ((transformSpec === "" || transformSpec) && (previousDiff === null || previousDiff > diff)) {
                         delete spec._text;
                         spec._children = [{
                             _name: "E",
                             _uri: PencilNamespaces.p,
                             _text: "$$" + globalName + transformSpec
                         }];
+
+                        previousDiff = diff;
                     }
                 }
             }

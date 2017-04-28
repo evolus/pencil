@@ -260,10 +260,13 @@ SVGHTMLRenderer.HANDLERS = {
     }
 };
 
+SVGHTMLRenderer.STYLE_NAME_MAP = {
+    fill: "color"
+}
 SVGHTMLRenderer.prototype.importDefaultStyleFromNode = function (node) {
     for (var name in this.defaultStyle) {
         var value = node.style[name];
-        if (value) this.defaultStyle[name] = value;
+        if (value) this.defaultStyle[SVGHTMLRenderer.STYLE_NAME_MAP[name] || name] = value;
     }
 };
 SVGHTMLRenderer.prototype.renderHTML = function (html, container, view) {
