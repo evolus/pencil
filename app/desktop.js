@@ -104,9 +104,7 @@ module.exports = function () {
                 for (var i = 0; i < fontRegistry.length; i++) {
                     var registry = fontRegistry[i];
                     fontNameReader(registry, function(fontName, index) {
-                        if (fontName != null && fontName.length > 0) {
-                            fontNames.push(fontName);
-                        }
+                        !fontName && fontNames.push(fontName);
                         processFontName(index == fontRegistry.length -1);
                     }, i);
                 }
