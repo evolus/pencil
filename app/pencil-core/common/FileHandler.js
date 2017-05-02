@@ -89,8 +89,12 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
 
             if (page.parentPageId) {
                 var parentPage = this.controller.findPageById(page.parentPageId);
-                page.parentPage = parentPage;
-                parentPage.children.push(page);
+                if(parentPage){
+                    page.parentPage = parentPage;
+                    parentPage.children.push(page);
+                } else {
+                    delete page.parentPageId;
+                }
             }
         }, thiz);
 
