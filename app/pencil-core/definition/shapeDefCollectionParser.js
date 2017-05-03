@@ -363,8 +363,20 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
 
     //parse properties
     Dom.workOn("./p:Properties/p:PropertyGroup", shapeDefNode, function (propGroupNode) {
-        var group = new PropertyGroup();
-        group.name = propGroupNode.getAttribute("name");
+        //find existing property group to support duplicate inherited groups
+        var groupName = propGroupNode.getAttribute("name");
+        var group = null;
+        for (var g of shapeDef.propertyGroups) {
+            if (g.name == groupName) {
+                group = g;
+                break;
+            }
+        }
+        if (!group) {
+            group = new PropertyGroup();
+            group.name = groupName;
+            shapeDef.propertyGroups.push(group);
+        }
 
         Dom.workOn("./p:Property", propGroupNode, function (propNode) {
             var property = new Property();
@@ -417,8 +429,6 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
             group.properties.push(property);
             shapeDef.propertyMap[property.name] = property;
         });
-
-        shapeDef.propertyGroups.push(group);
     });
 
     /*/ styles

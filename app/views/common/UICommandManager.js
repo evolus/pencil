@@ -137,7 +137,7 @@ window.document.addEventListener("focus", function (event) {
 }, true);
 
 
-UICommandManager.register = function (command) {
+UICommandManager.register = function (command, control) {
     command._run = command.run;
     command.run = UICommandManager.checkAndRunFunction;
 
@@ -157,6 +157,10 @@ UICommandManager.register = function (command) {
         for (var i = 0; i < eventNames.length; i ++) {
             document.body.addEventListener(eventNames[i], f, false);
         }
+    }
+
+    if (control) {
+        UICommandManager.installControl(command.key, control);
     }
 
     return command;

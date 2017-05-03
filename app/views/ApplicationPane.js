@@ -299,3 +299,7 @@ ApplicationPane.prototype.toggleLeftPane = function () {
         this.leftSidePane.openLast();
     }
 };
+
+ApplicationPane.prototype.setContentVisible = function (visible) {
+    this.contentBody.style.visibility = visible ? "visible" : "hidden";
+};

@@ -41,7 +41,24 @@ SharedGeomtryEditor.prototype.setup = function () {
         }
     }, false);
 
-    this.bind("click", this.toggleMovementLocking, this.lockMovementButton);
+    var thiz = this;
+    UICommandManager.register({
+        key: "lockMovementCommand",
+        getLabel: function () {
+            return "Lock shape's movement";
+        },
+        shortcut: "F12",
+        run: function () {
+            var locked = thiz.lockMovementButton.getAttribute("checked") == "true";
+            if (locked) {
+                thiz.lockMovementButton.removeAttribute("checked");
+            } else {
+                thiz.lockMovementButton.setAttribute("checked", "true");
+            }
+
+            Pencil.controller.movementDisabled = !locked;
+        }
+    }, this.lockMovementButton);
 
     this.container.ownerDocument.documentElement.addEventListener("p:ShapeGeometryModified", function (event) {
         if (event.setter && event.setter == thiz) return;

@@ -662,318 +662,358 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
     var pageMargin = this.getPageMargin();
     var ts = new Date().getTime();
 
-    for (var page of this.controller.doc.pages) {
-        this.controller.activatePage(page);
-        this.controller.sayControllerStatusChanged();
-        var svg = page.canvas.svg;
-        StencilCollectionBuilder._currentPage = page;
+    ApplicationPane._instance.setContentVisible(false);
 
-        var properties = [];
-        var behaviors = [];
-        var actions = [];
-        var shapeId = page.name.replace(/[^a-z0-9\-]+/gi, "").toLowerCase();
-        var shapeSpec = {
-            _name: "Shape",
-            _uri: PencilNamespaces.p,
-            id: shapeId,
-            displayName: page.name,
-            icon: "icons/" + shapeId + ".png?token=" + ts,
-            _children: [
-                {
-                    _name: "Properties",
-                    _uri: PencilNamespaces.p,
-                    _children: [
-                        {
-                            _name: "PropertyGroup",
-                            _uri: PencilNamespaces.p,
-                            name: "Common",
-                            holder: "true",
-                            _children: []   //leave this blank, actual property definitions will be filled later
+    var done = function () {
+        var globalPropertyMap = {};
+
+        //append global propert fragment
+        if (globalPropertySpecs && globalPropertySpecs.length > 0) {
+            var globalGroupNode = Dom.getSingle("/p:Shapes/p:Properties/p:PropertyGroup", dom);
+            globalGroupNode.appendChild(Dom.newDOMFragment(globalPropertySpecs, dom));
+
+            for (var spec of globalPropertySpecs) {
+                var prop = spec._prop;
+                globalPropertyMap[prop.name] = prop.type.fromString(prop.value);
+            }
+        }
+
+        //re-fill shape's property fragment
+        Dom.workOn("/p:Shapes/p:Shape", dom, function (shapeDefNode) {
+            if (shapeDefNode._propertyFragmentSpec && shapeDefNode._propertyFragmentSpec.length > 0) {
+                //generalizing global properties
+                for (var spec of shapeDefNode._propertyFragmentSpec) {
+                    var prop = spec._prop;
+                    var value = prop.type.fromString(prop.value);
+                    if (!value) continue;
+
+                    var previousDiff = null;
+
+                    for (var globalSpec of globalPropertySpecs) {
+                        if (spec.type != globalSpec.type) continue;
+
+                        var globalName = globalSpec._prop.name;
+                        var globalPropValue = globalPropertyMap[globalName];
+                        if (!globalPropValue || !globalPropValue.generateTransformTo) continue;
+
+                        var transformSpec = globalPropValue.generateTransformTo(value);
+                        var diff = globalPropValue.getDiff ? globalPropValue.getDiff(value) : ((transformSpec === "" || transformSpec) ? transformSpec.length : 10000000);
+                        if ((transformSpec === "" || transformSpec) && (previousDiff === null || previousDiff > diff)) {
+                            delete spec._text;
+                            spec._children = [{
+                                _name: "E",
+                                _uri: PencilNamespaces.p,
+                                _text: "$$" + globalName + transformSpec
+                            }];
+
+                            previousDiff = diff;
                         }
-                    ]
-                },
-                {
-                    _name: "Behaviors",
-                    _uri: PencilNamespaces.p,
-                    _children: behaviors
-                },
-                {
-                    _name: "Actions",
-                    _uri: PencilNamespaces.p,
-                    _children: actions
-                }
-            ]
-        };
-
-        if (page.note) shapeSpec.description = Dom.htmlStrip(page.note);
-
-        var propertyMap = {};
-
-        var contentNode = Dom.newDOMElement({
-            _name: "Content",
-            _uri: PencilNamespaces.p
-        }, dom);
-
-        var snaps = [];
-
-        Dom.workOn(".//svg:g[@p:type='Shape']", svg, function (shapeNode) {
-            var c = page.canvas.createControllerFor(shapeNode);
-            var contribution = null;
-            try {
-                contribution = c.performAction("buildShapeContribution");
-            } catch (e) {
-                console.error("Error in building shape contribution:", e);
-                return;
-            }
-
-            if (!contribution) return;
-
-            for (var prop of contribution.properties) {
-                if (!prop.global) {
-                    if (propertyMap[prop.name]) continue;
-                    if (prop.name == "box") {
-                        prop.value = new Dimension(page.width - 2 * pageMargin, page.height - 2 * pageMargin).toString();
-                    }
-                }
-                var node = {
-                    _name: "Property",
-                    _uri: PencilNamespaces.p,
-                    name: prop.name,
-                    displayName: prop.displayName,
-                    type: prop.type.name,
-                    _text: prop.value,
-                    _prop: prop
-                };
-                if (prop.meta) {
-                    for (var metaName in prop.meta) {
-                        node["p:" + metaName] = prop.meta[metaName];
                     }
                 }
 
-                if (prop.global) {
-                    globalPropertySpecs.push(node);
-                } else {
-                    propertyMap[prop.name] = node;
-                    properties.push(node);
-                }
-            }
-
-            for (var targetName in contribution.behaviorMap) {
-                var set = contribution.behaviorMap[targetName];
-                var behaviorSpec = {
-                    _name: "For",
-                    _uri: PencilNamespaces.p,
-                    ref: set.ref,
-                    _children: []
-                }
-                for (var item of set.items) {
-                    var itemSpec = {
-                        _name: item.behavior,
-                        _uri: PencilNamespaces.p,
-                        _children: []
-                    }
-                    for (var arg of item.args) {
-                        itemSpec._children.push({
-                            _name: "Arg",
-                            _uri: PencilNamespaces.p,
-                            _text: arg
-                        })
-                    }
-                    behaviorSpec._children.push(itemSpec);
-                }
-
-                behaviors.push(behaviorSpec);
-            }
-
-            for (var action of contribution.actions) {
-                var node = {
-                    _name: "Action",
-                    _uri: PencilNamespaces.p,
-                    id: action.id,
-                    displayName: action.displayName,
-                    _children: [
-                        {
-                            _name: "Impl",
-                            _uri: PencilNamespaces.p,
-                            _cdata: action.impl
-                        }
-                    ]
-                };
-                if (action.meta) {
-                    for (var metaName in action.meta) {
-                        node["p:" + metaName] = action.meta[metaName];
-                    }
-                }
-
-                actions.push(node);
-            }
-
-            if (contribution.snaps) {
-                for (var snap of contribution.snaps) {
-                    snap._contribution = contribution;
-                    snaps.push(snap);
-                }
-            }
-
-            if (contribution.contentFragment && contribution.contentFragment.childNodes.length > 0) {
-                contentNode.appendChild(contribution.contentFragment);
+                var groupNode = Dom.getSingle("./p:Properties/p:PropertyGroup[@holder='true']", shapeDefNode);
+                groupNode.appendChild(Dom.newDOMFragment(shapeDefNode._propertyFragmentSpec, dom));
             }
         });
 
-        // if the shape has 'box', add standard snaps
-        if (propertyMap["box"]) {
-            snaps = [
-                {name: "Left", accept: "Left", horizontal: true, expression: "0"},
-                {name: "Right", accept: "Right", horizontal: true, expression: "$box.w"},
-                {name: "Top", accept: "Top", horizontal: false, expression: "0"},
-                {name: "Bottom", accept: "Bottom", horizontal: false, expression: "$box.h"},
-                {name: "VCenter", accept: "VCenter", horizontal: true, expression: "Math.round($box.w / 2)"},
-                {name: "HCenter", accept: "HCenter", horizontal: false, expression: "Math.round($box.h / 2)"},
-            ].concat(snaps);
+        var xsltDOM = Dom.parseDocument(
+    `<xsl:stylesheet version="1.0"
+     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+     xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+     <xsl:output omit-xml-declaration="yes" indent="yes" indent-amount="4" cdata-section-elements="p:Impl p:Arg p:Script"/>
+
+        <xsl:template match="node()|@*">
+          <xsl:copy>
+            <xsl:apply-templates select="node()|@*"/>
+          </xsl:copy>
+        </xsl:template>
+    </xsl:stylesheet>`
+        );
+        var xsltProcessor = new XSLTProcessor();
+        xsltProcessor.importStylesheet(xsltDOM);
+
+        var result = xsltProcessor.transformToDocument(dom);
+
+        Dom.serializeNodeToFile(result, path.join(dir, "Definition.xml"));
+
+        Pencil.controller.doc._lastUsedStencilOutputPath = options.outputPath;
+
+        progressListener.onTaskDone();
+        ApplicationPane._instance.setContentVisible(true);
+
+        var stencilPath = Config.get("dev.stencil.path", null);
+        var dirPath = Config.get("dev.stencil.dir", null);
+        if (stencilPath == options.outputPath || dirPath == path.dirname(options.outputPath)) {
+            CollectionManager.reloadDeveloperStencil(false);
+            NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.\n\nDeveloper stencil was also reloaded.", "View", function () {
+                shell.openItem(options.outputPath);
+            });
+        } else {
+            NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.", "View", function () {
+                shell.openItem(options.outputPath);
+            });
+        }
+    }.bind(this); //END OF FINAL PROCESSING
+
+    var progressListener = null;
+
+    var index = -1;
+    var pages = this.controller.doc.pages;
+    var next = function() {
+        index ++;
+        console.log("Processing page: " + index);
+        if (index >= pages.length) {
+            done();
+            return;
         }
 
-        if (snaps.length > 0) {
-            var impl = "";
-            var header = "";
-            var definedProp = {};
-            var definedBound = {};
-            function replaceReference(expression, snap) {
-                var expression = expression.replace(/\$([a-z][a-z0-9]*)/gi, function (zero, one) {
-                    var name = "__prop_" + one;
-                    if (!definedProp[one]) {
-                        header += "var " + name + " = this.getProperty(\"" + one + "\");\n";
-                        definedProp[one] = true;
-                    }
+        var page = pages[index];
 
-                    return name;
-                });
-                expression = expression.replace(/this\.def\.collection/g, "@@@");
-                expression = expression.replace(/collection\./g, "this.def.collection.");
-                expression = expression.replace(/@@@/g, "this.def.collection");
+        progressListener.onProgressUpdated(`Exporting '${page.name}...'`, index, pages.length);
 
-                if (expression.indexOf("@boundExpressionLiteral") >= 0) {
-                    var boundVarName = "__bound_" + snap._contribution.targetElementName;
-                    if (!definedBound[boundVarName]) {
-                        header += "var " + boundVarName + " = " + replaceReference(snap._contribution._boundExpressionLiteral, snap) + ";\n";
-                        definedBound[boundVarName] = true;
-                    }
-                    expression = expression.replace(/@boundExpressionLiteral/g, boundVarName);
-                }
+        try {
+            ApplicationPane._instance.activatePage(page);
+            var svg = page.canvas.svg;
+            StencilCollectionBuilder._currentPage = page;
 
-
-                return expression;
-            }
-            for (var snap of snaps) {
-                var expression = replaceReference(snap.expression, snap);
-
-                if (impl) impl += ",\n";
-                impl += "new SnappingData(" + JSON.stringify(snap.name) + ", " + expression + ", " + JSON.stringify(snap.accept) + ", " + snap.horizontal + ", this.id).makeLocal(true)";
-            }
-
-            impl = header + "\nvar snaps = [" + impl + "];\nreturn snaps;";
-
-            var snapActionNode = {
-                _name: "Action",
+            var properties = [];
+            var behaviors = [];
+            var actions = [];
+            var shapeId = page.name.replace(/[^a-z0-9\-]+/gi, "").toLowerCase();
+            var shapeSpec = {
+                _name: "Shape",
                 _uri: PencilNamespaces.p,
-                id: "getSnappingGuide",
+                id: shapeId,
+                displayName: page.name,
+                icon: "icons/" + shapeId + ".png?token=" + ts,
                 _children: [
                     {
-                        _name: "Impl",
+                        _name: "Properties",
                         _uri: PencilNamespaces.p,
-                        _cdata: "\n" + impl + "\n"
+                        _children: [
+                            {
+                                _name: "PropertyGroup",
+                                _uri: PencilNamespaces.p,
+                                name: "Common",
+                                holder: "true",
+                                _children: []   //leave this blank, actual property definitions will be filled later
+                            }
+                        ]
+                    },
+                    {
+                        _name: "Behaviors",
+                        _uri: PencilNamespaces.p,
+                        _children: behaviors
+                    },
+                    {
+                        _name: "Actions",
+                        _uri: PencilNamespaces.p,
+                        _children: actions
                     }
                 ]
             };
 
-            actions.push(snapActionNode);
-        }
+            if (page.note) shapeSpec.description = Dom.htmlStrip(page.note);
 
-        var shape = Dom.newDOMElement(shapeSpec, dom);
-        if (!contentNode.hasChildNodes()) continue;
-        shape.appendChild(contentNode);
-        shapes.appendChild(shape);
+            var propertyMap = {};
 
-        if (fs.existsSync(page.thumbPath)) {
-            var thumPath = path.join(iconDir, shapeId + ".png");
-            fs.createReadStream(page.thumbPath).pipe(fs.createWriteStream(thumPath));
-        }
+            var contentNode = Dom.newDOMElement({
+                _name: "Content",
+                _uri: PencilNamespaces.p
+            }, dom);
 
-        shape._propertyFragmentSpec = properties;
-    }
+            var snaps = [];
 
-    var globalPropertyMap = {};
+            Dom.workOn(".//svg:g[@p:type='Shape']", svg, function (shapeNode) {
+                var c = page.canvas.createControllerFor(shapeNode);
+                var contribution = null;
+                try {
+                    contribution = c.performAction("buildShapeContribution");
+                } catch (e) {
+                    console.error("Error in building shape contribution:", e);
+                    return;
+                }
 
-    //append global propert fragment
-    if (globalPropertySpecs && globalPropertySpecs.length > 0) {
-        var globalGroupNode = Dom.getSingle("/p:Shapes/p:Properties/p:PropertyGroup", dom);
-        globalGroupNode.appendChild(Dom.newDOMFragment(globalPropertySpecs, dom));
+                if (!contribution) return;
 
-        for (var spec of globalPropertySpecs) {
-            var prop = spec._prop;
-            globalPropertyMap[prop.name] = prop.type.fromString(prop.value);
-        }
-    }
+                for (var prop of contribution.properties) {
+                    if (!prop.global) {
+                        if (propertyMap[prop.name]) continue;
+                        if (prop.name == "box") {
+                            prop.value = new Dimension(page.width - 2 * pageMargin, page.height - 2 * pageMargin).toString();
+                        }
+                    }
+                    var node = {
+                        _name: "Property",
+                        _uri: PencilNamespaces.p,
+                        name: prop.name,
+                        displayName: prop.displayName,
+                        type: prop.type.name,
+                        _text: prop.value,
+                        _prop: prop
+                    };
+                    if (prop.meta) {
+                        for (var metaName in prop.meta) {
+                            node["p:" + metaName] = prop.meta[metaName];
+                        }
+                    }
 
-    //re-fill shape's property fragment
-    Dom.workOn("/p:Shapes/p:Shape", dom, function (shapeDefNode) {
-        if (shapeDefNode._propertyFragmentSpec && shapeDefNode._propertyFragmentSpec.length > 0) {
-            //generalizing global properties
-            for (var spec of shapeDefNode._propertyFragmentSpec) {
-                var prop = spec._prop;
-                var value = prop.type.fromString(prop.value);
-                if (!value) continue;
-
-                var previousDiff = null;
-
-                for (var globalSpec of globalPropertySpecs) {
-                    if (spec.type != globalSpec.type) continue;
-
-                    var globalName = globalSpec._prop.name;
-                    var globalPropValue = globalPropertyMap[globalName];
-                    if (!globalPropValue || !globalPropValue.generateTransformTo) continue;
-
-                    var transformSpec = globalPropValue.generateTransformTo(value);
-                    var diff = globalPropValue.getDiff ? globalPropValue.getDiff(value) : ((transformSpec === "" || transformSpec) ? transformSpec.length : 10000000);
-                    if ((transformSpec === "" || transformSpec) && (previousDiff === null || previousDiff > diff)) {
-                        delete spec._text;
-                        spec._children = [{
-                            _name: "E",
-                            _uri: PencilNamespaces.p,
-                            _text: "$$" + globalName + transformSpec
-                        }];
-
-                        previousDiff = diff;
+                    if (prop.global) {
+                        globalPropertySpecs.push(node);
+                    } else {
+                        propertyMap[prop.name] = node;
+                        properties.push(node);
                     }
                 }
+
+                for (var targetName in contribution.behaviorMap) {
+                    var set = contribution.behaviorMap[targetName];
+                    var behaviorSpec = {
+                        _name: "For",
+                        _uri: PencilNamespaces.p,
+                        ref: set.ref,
+                        _children: []
+                    }
+                    for (var item of set.items) {
+                        var itemSpec = {
+                            _name: item.behavior,
+                            _uri: PencilNamespaces.p,
+                            _children: []
+                        }
+                        for (var arg of item.args) {
+                            itemSpec._children.push({
+                                _name: "Arg",
+                                _uri: PencilNamespaces.p,
+                                _text: arg
+                            })
+                        }
+                        behaviorSpec._children.push(itemSpec);
+                    }
+
+                    behaviors.push(behaviorSpec);
+                }
+
+                for (var action of contribution.actions) {
+                    var node = {
+                        _name: "Action",
+                        _uri: PencilNamespaces.p,
+                        id: action.id,
+                        displayName: action.displayName,
+                        _children: [
+                            {
+                                _name: "Impl",
+                                _uri: PencilNamespaces.p,
+                                _cdata: action.impl
+                            }
+                        ]
+                    };
+                    if (action.meta) {
+                        for (var metaName in action.meta) {
+                            node["p:" + metaName] = action.meta[metaName];
+                        }
+                    }
+
+                    actions.push(node);
+                }
+
+                if (contribution.snaps) {
+                    for (var snap of contribution.snaps) {
+                        snap._contribution = contribution;
+                        snaps.push(snap);
+                    }
+                }
+
+                if (contribution.contentFragment && contribution.contentFragment.childNodes.length > 0) {
+                    contentNode.appendChild(contribution.contentFragment);
+                }
+            });
+
+            // if the shape has 'box', add standard snaps
+            if (propertyMap["box"]) {
+                snaps = [
+                    {name: "Left", accept: "Left", horizontal: true, expression: "0"},
+                    {name: "Right", accept: "Right", horizontal: true, expression: "$box.w"},
+                    {name: "Top", accept: "Top", horizontal: false, expression: "0"},
+                    {name: "Bottom", accept: "Bottom", horizontal: false, expression: "$box.h"},
+                    {name: "VCenter", accept: "VCenter", horizontal: true, expression: "Math.round($box.w / 2)"},
+                    {name: "HCenter", accept: "HCenter", horizontal: false, expression: "Math.round($box.h / 2)"},
+                ].concat(snaps);
             }
 
-            var groupNode = Dom.getSingle("./p:Properties/p:PropertyGroup[@holder='true']", shapeDefNode);
-            groupNode.appendChild(Dom.newDOMFragment(shapeDefNode._propertyFragmentSpec, dom));
+            if (snaps.length > 0) {
+                var impl = "";
+                var header = "";
+                var definedProp = {};
+                var definedBound = {};
+                function replaceReference(expression, snap) {
+                    var expression = expression.replace(/\$([a-z][a-z0-9]*)/gi, function (zero, one) {
+                        var name = "__prop_" + one;
+                        if (!definedProp[one]) {
+                            header += "var " + name + " = this.getProperty(\"" + one + "\");\n";
+                            definedProp[one] = true;
+                        }
+
+                        return name;
+                    });
+                    expression = expression.replace(/this\.def\.collection/g, "@@@");
+                    expression = expression.replace(/collection\./g, "this.def.collection.");
+                    expression = expression.replace(/@@@/g, "this.def.collection");
+
+                    if (expression.indexOf("@boundExpressionLiteral") >= 0) {
+                        var boundVarName = "__bound_" + snap._contribution.targetElementName;
+                        if (!definedBound[boundVarName]) {
+                            header += "var " + boundVarName + " = " + replaceReference(snap._contribution._boundExpressionLiteral, snap) + ";\n";
+                            definedBound[boundVarName] = true;
+                        }
+                        expression = expression.replace(/@boundExpressionLiteral/g, boundVarName);
+                    }
+
+
+                    return expression;
+                }
+                for (var snap of snaps) {
+                    var expression = replaceReference(snap.expression, snap);
+
+                    if (impl) impl += ",\n";
+                    impl += "new SnappingData(" + JSON.stringify(snap.name) + ", " + expression + ", " + JSON.stringify(snap.accept) + ", " + snap.horizontal + ", this.id).makeLocal(true)";
+                }
+
+                impl = header + "\nvar snaps = [" + impl + "];\nreturn snaps;";
+
+                var snapActionNode = {
+                    _name: "Action",
+                    _uri: PencilNamespaces.p,
+                    id: "getSnappingGuide",
+                    _children: [
+                        {
+                            _name: "Impl",
+                            _uri: PencilNamespaces.p,
+                            _cdata: "\n" + impl + "\n"
+                        }
+                    ]
+                };
+
+                actions.push(snapActionNode);
+            }
+
+            var shape = Dom.newDOMElement(shapeSpec, dom);
+            if (!contentNode.hasChildNodes()) return;
+            shape.appendChild(contentNode);
+            shapes.appendChild(shape);
+
+            if (fs.existsSync(page.thumbPath)) {
+                var thumPath = path.join(iconDir, shapeId + ".png");
+                fs.createReadStream(page.thumbPath).pipe(fs.createWriteStream(thumPath));
+            }
+
+            shape._propertyFragmentSpec = properties;
+        } finally {
+            window.setTimeout(next, 10);
         }
-    });
+    }.bind(this);   //END OF PAGE PROCESSING
 
-    var xsltDOM = Dom.parseDocument(
-`<xsl:stylesheet version="1.0"
- xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
- xmlns:p="http://www.evolus.vn/Namespace/Pencil">
- <xsl:output omit-xml-declaration="yes" indent="yes" indent-amount="4" cdata-section-elements="p:Impl p:Arg p:Script"/>
-
-    <xsl:template match="node()|@*">
-      <xsl:copy>
-        <xsl:apply-templates select="node()|@*"/>
-      </xsl:copy>
-    </xsl:template>
-</xsl:stylesheet>`
-    );
-    var xsltProcessor = new XSLTProcessor();
-    xsltProcessor.importStylesheet(xsltDOM);
-
-    var result = xsltProcessor.transformToDocument(dom);
-
-    Dom.serializeNodeToFile(result, path.join(dir, "Definition.xml"));
-
-    Pencil.controller.doc._lastUsedStencilOutputPath = options.outputPath;
-    NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.", "View", function () {
-        shell.openItem(options.outputPath);
+    Util.beginProgressJob("Building collection...", function (listener) {
+        progressListener = listener;
+        next();
     });
 };
