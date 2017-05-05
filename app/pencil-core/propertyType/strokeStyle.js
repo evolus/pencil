@@ -19,12 +19,17 @@ StrokeStyle.prototype.toString = function () {
 StrokeStyle.prototype.condensed = function (ratio) {
     return new StrokeStyle(Math.round(this.w * (1 + ratio)), this.array);
 };
+StrokeStyle.prototype.styled = function (array) {
+    return new StrokeStyle(this.w, array);
+};
 StrokeStyle.prototype.generateTransformTo = function (other) {
-    if (this.array != other.array) return null;
-
     var transform = "";
+    
     if (this.w != other.w && this.w > 0) {
         transform += ".condensed(" + ((other.w / this.w) - 1) + ")";
+    }
+    if (this.array != other.array) {
+        transform += ".styled(" + JSON.stringify(other.array) + ")";
     }
 
     return transform;

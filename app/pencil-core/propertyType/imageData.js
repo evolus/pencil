@@ -136,12 +136,12 @@ ImageData.refStringToUrl = function (refString) {
     return Pencil.controller.refIdToUrl(id);
 };
 
-ImageData.prompt = function (callback) {
-    dialog.showOpenDialog({
+ImageData.prompt = function (callback, ext) {
+    dialog.showOpenDialog(remote.getCurrentWindow(), {
         title: "Select Image",
         defaultPath: os.homedir(),
         filters: [
-            { name: "Image files", extensions: ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
+            { name: "Image files", extensions: ext || ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
         ]
 
     }, function (filenames) {
@@ -216,6 +216,27 @@ ImageData.prototype.toString = function () {
     } else {
         return [this.w, this.h, ImageData.generateCellString(this.xCells), ImageData.generateCellString(this.yCells), this.data].join(",");
     }
+};
+ImageData.SVG_IMAGE_DATA_PREFIX = "data:image/svg+xml";
+ImageData.prototype.getDataAsXML = function () {
+    var url = this.data;
+    if (!url) return null;
+
+    if (url.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+        var commaIndex = url.indexOf(",");
+        if (commaIndex < ImageData.SVG_IMAGE_DATA_PREFIX.length || commaIndex > ImageData.SVG_IMAGE_DATA_PREFIX.length + 10) return null;
+        var svg = url.substring(commaIndex + 1);
+
+        return svg;
+    } else if (url.match(/^ref:\/\//)) {
+        var id = ImageData.refStringToId(url);
+        if (!id) {
+            return null;
+        }
+        var filePath = Pencil.controller.refIdToFilePath(id);
+        return fs.readFileSync(filePath, "utf8");
+    }
+    return null;
 };
 
 window.addEventListener("load", function () {
