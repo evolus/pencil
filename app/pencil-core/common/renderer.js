@@ -132,28 +132,42 @@ module.exports = function () {
         };
     }
 
+    var initialized = false;
+
     function init() {
+
+        if (rendererWindow) {
+            try {
+                rendererWindow.destroy();
+            } catch (e) {}
+        }
 
         rendererWindow = new BrowserWindow({x: 0, y: 0, useContentSize: true, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, transparent: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
         // rendererWindow.webContents.openDevTools();
 
-        ipcMain.on("render-request", function (event, data) {
-            queueHandler.submit(createRenderTask(event, data));
-        });
+        queueHandler.tasks = [];
 
-        ipcMain.on("render-rendered", function (event, data) {
-            setTimeout(function () {
-                if (currentRenderHandler) currentRenderHandler(event, data);
-            }, 100);
-        });
+        if (!initialized) {
+            ipcMain.on("render-request", function (event, data) {
+                queueHandler.submit(createRenderTask(event, data));
+            });
 
-        ipcMain.on("font-loading-request", function (event, data) {
-            fontFaceCSS = sharedUtil.buildFontFaceCSS(data.faces);
-            event.sender.send(data.id, {});
-        });
+            ipcMain.on("render-rendered", function (event, data) {
+                setTimeout(function () {
+                    if (currentRenderHandler) currentRenderHandler(event, data);
+                }, 100);
+            });
 
+            ipcMain.on("font-loading-request", function (event, data) {
+                fontFaceCSS = sharedUtil.buildFontFaceCSS(data.faces);
+                event.sender.send(data.id, {});
+            });
+            console.log("RENDERER started.");
+        } else {
+            console.log("RENDERER re-started.");
+        }
 
-        console.log("RENDERER started.");
+        initialized = true;
     }
     function initOutProcessCanvasBasedRenderer() {
         var canvasWindow = new BrowserWindow({x: 0, y: 0, enableLargerThanScreen: true, show: false, autoHideMenuBar: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
@@ -193,6 +207,9 @@ module.exports = function () {
 
     function start() {
         ipcMain.once("render-init", function (event, data) {
+            init();
+        });
+        ipcMain.on("render-restart", function (event, data) {
             init();
         });
         ipcMain.once("canvas-render-init", function (event, data) {

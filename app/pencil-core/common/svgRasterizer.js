@@ -20,6 +20,8 @@ Rasterizer.prototype.getImageDataFromUrl = function (url, callback) {
 };
 
 Rasterizer.ipcBasedBackend = {
+    TIME_OUT: 10000,
+    pendingWorkMap: {},
     init: function () {
         ipcRenderer.send("render-init", {});
     },
@@ -27,7 +29,12 @@ Rasterizer.ipcBasedBackend = {
         var id = Util.newUUID();
 
         ipcRenderer.once(id, function (event, data) {
+            var work = Rasterizer.ipcBasedBackend.pendingWorkMap[id];
+            if (!work) return;
+
             callback(parseLinks ? data : data.url);
+            window.clearTimeout(work.timeoutId);
+            delete Rasterizer.ipcBasedBackend.pendingWorkMap[id];
         });
 
         w = width * scale;
@@ -42,6 +49,20 @@ Rasterizer.ipcBasedBackend = {
 
         var xml = Controller.serializer.serializeToString(svgNode);
         ipcRenderer.send("render-request", {svg: xml, width: w, height: h, scale: 1, id: id, processLinks: parseLinks});
+
+        var work = {};
+        work.timeoutId = window.setTimeout(function () {
+            var work = Rasterizer.ipcBasedBackend.pendingWorkMap[id];
+            if (!work) return;
+            callback("");
+            delete Rasterizer.ipcBasedBackend.pendingWorkMap[id];
+
+            console.log("Rasterizer seems to be crashed, restarting now!!!");
+            ipcRenderer.send("render-restart", {});
+
+        }, Rasterizer.ipcBasedBackend.TIME_OUT);
+
+        Rasterizer.ipcBasedBackend.pendingWorkMap[id] = work;
     }
 };
 Rasterizer.outProcessCanvasBasedBackend = {
