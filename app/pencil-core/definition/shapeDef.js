@@ -80,6 +80,15 @@ PropertyGroup.prototype.toString = function () {
     return "[PropertyGroup: " + this.name + "]";
 };
 
+PropertyGroup.prototype.clone = function () {
+    var group = new PropertyGroup();
+    group.name = this.name;
+    for (var prop of this.properties) {
+        group.properties.push(prop.clone());
+    }
+
+    return group;
+};
 
 function Property() {
     this.name = null;
@@ -92,6 +101,23 @@ function Property() {
 }
 Property.prototype.toString = function () {
     return "[Property: " + this.name + "]";
+};
+Property.prototype.clone = function () {
+    var property = new Property();
+    property.name = this.name;
+    property.displayName = this.displayName;
+    property.type = this.type;
+    property.initialValue = this.initialValue ? this.type.fromString(this.initialValue.toString()) : null;
+    property.initialValueExpression = this.initialValueExpression;
+
+    for (var name in this.relatedTargets) {
+        property.relatedTargets[name] = this.relatedTargets[name];
+    }
+    for (var name in this.meta) {
+        property.meta[name] = this.meta[name];
+    }
+
+    return property;
 };
 Property.prototype.isSimilarTo = function (property) {
     return this.name == property.name &&

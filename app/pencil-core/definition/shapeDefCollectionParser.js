@@ -594,11 +594,16 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
 // this.behaviorMap = {};
 // this.actionMap = {};
 
-    shapeDef.propertyGroups = [].concat(shapeDef.parentShapeDef.propertyGroups);
-    for (var name in shapeDef.parentShapeDef.propertyMap) {
-        shapeDef.propertyMap[name] = shapeDef.parentShapeDef.propertyMap[name];
-    }
+    shapeDef.propertyGroups = [].concat();
+    for (var group of shapeDef.parentShapeDef.propertyGroups) {
+        var clonedGroup = group.clone();
+        shapeDef.propertyGroups.push(clonedGroup);
 
+        for (var prop of clonedGroup.properties) {
+            shapeDef.propertyMap[prop.name] = prop;
+        }
+    }
+    
     shapeDef.behaviors = [].concat(shapeDef.parentShapeDef.behaviors);
     for (var name in shapeDef.parentShapeDef.behaviorMap) {
         shapeDef.behaviorMap[name] = shapeDef.parentShapeDef.behaviorMap[name];
