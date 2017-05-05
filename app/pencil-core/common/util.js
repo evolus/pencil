@@ -657,6 +657,10 @@ Dom.parseToNode = function (xml, dom) {
     return node;
 }
 Dom.parseDocument = function (xml) {
+    if (xml && xml.charCodeAt(0) === 0xFEFF) {
+        xml = xml.substr(1);
+    }
+    
     var dom = Dom.parser.parseFromString(xml, "text/xml");
     return dom;
 };
