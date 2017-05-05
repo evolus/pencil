@@ -96,11 +96,13 @@ app.on("window-all-closed", function() {
 app.on('ready', function() {
     protocol.registerBufferProtocol("ref", function(request, callback) {
         var path = request.url.substr(6);
-        console.log("PATH", path);
 
         fs.readFile(path, function (err, data) {
-            console.log("Got data: ", data.length);
-            callback({mimeType: "image/jpeg", data: new Buffer(data)});
+            if (err) {
+                callback({mimeType: "text/html", data: new Buffer("Not found")});
+            } else {
+                callback({mimeType: "image/jpeg", data: new Buffer(data)});
+            }
         });
 
     }, function (error, scheme) {
