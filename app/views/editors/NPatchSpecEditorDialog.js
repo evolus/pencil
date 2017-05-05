@@ -151,7 +151,7 @@ NPatchSpecEditorDialog.prototype.invalidateCellPosition = function (cell) {
     }
     var info = cell._cellInfo;
     if (info) {
-        info.textContent = s
+        info.textContent = (cell._data.to - cell._data.from);
         if (!cell._isX) {
             var w = Math.round(info.offsetWidth);
             var r = (s/2) - (w/2);
@@ -188,7 +188,7 @@ NPatchSpecEditorDialog.generatePathSVGData = function (svgPathData, size) {
             _name: "path",
             _uri: PencilNamespaces.svg,
             d: d,
-            style: info.style || ""
+            style: "stroke: #000000; stroke-width: 1px; fill: rgba(0, 0, 0, 0.1);"
         });
     }
 
