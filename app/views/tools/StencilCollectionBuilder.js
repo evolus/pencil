@@ -416,6 +416,38 @@ collection.generateAdvancedRectPathData = function (box, strokeStyle, r, withTop
 
     return parts;
 };
+collection.toColorizedDOMNode = function (svgXML, color) {
+    if (!svgXML) return document.createDocumentFragment();
+
+    var svg = Dom.parseDocument(svgXML);
+
+    if (color) {
+        var c = color.toRGBAString();
+        Dom.workOn("//svg:*", svg, function (node) {
+            if (node.style.fill != "none") {
+                node.style.fill = c;
+            }
+            if (node.style.stroke && node.style.stroke != "none") {
+                node.style.stroke = c;
+            }
+
+            var a = node.getAttribute("fill");
+            if (a != "none") node.setAttribute("fill", c);
+
+            a = node.getAttribute("stroke");
+            if (a && a != "none") node.setAttribute("stroke", c);
+        });
+    }
+
+    var g = svg.createElementNS(PencilNamespaces.svg, "g");
+    while (svg.documentElement.firstChild) {
+        var child = svg.documentElement.firstChild;
+        svg.documentElement.removeChild(child);
+        g.appendChild(child);
+    }
+
+    return g;
+};
 `;
 
 StencilCollectionBuilder.COLLECTION_RESOURCE_SCRIPT = `
@@ -427,23 +459,10 @@ collection.browseResource = function (setNames, type, returnType, callback) {
     };
 
     setNames = (setNames || "").trim();
-    if (setNames) {
-        for (var name of setNames.split(/\,/)) {
-            var prefix = collection.RESOURCE_MAP[name];
-            if (prefix) {
-                options.prefixes.push({
-                    name: name, prefix: prefix
-                });
-            }
-        }
-    } else {
-        for (var name in collection.RESOURCE_MAP) {
-            var prefix = collection.RESOURCE_MAP[name];
-            if (prefix) {
-                options.prefixes.push({
-                    name: name, prefix: prefix
-                });
-            }
+
+    for (var resource of collection.RESOURCE_LIST) {
+        if ((!resource.type || resource.type == options.type) && (!setNames || setNames.indexOf(resource.name) >= 0)) {
+            options.prefixes.push(resource);
         }
     }
 
@@ -597,7 +616,7 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
         }));
     }
 
-    var resourceMap = {};
+    var resourceList = [];
 
     //processing resources
     if (options.resourceSets) {
@@ -619,7 +638,10 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
 
             var name = set.name.replace(/[^a-z0-9]+/gi, "_");
             var destPath = path.join(resourceDir, name);
-            resourceMap[name] = resourceDirName + "/" + name;
+            resourceList.push({
+                name: name,
+                prefix: resourceDirName + "/" + name
+            });
 
             if (!fs.existsSync(destPath)) {
                 fs.mkdirSync(destPath);
@@ -635,7 +657,7 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
             }
         }
 
-        var script = "collection.RESOURCE_MAP = " + JSON.stringify(resourceMap) + ";\n" + StencilCollectionBuilder.COLLECTION_RESOURCE_SCRIPT;
+        var script = "collection.RESOURCE_LIST = " + JSON.stringify(resourceList) + ";\n" + StencilCollectionBuilder.COLLECTION_RESOURCE_SCRIPT;
         shapes.appendChild(Dom.newDOMElement({
             _name: "Script",
             _uri: PencilNamespaces.p,
