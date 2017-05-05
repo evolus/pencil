@@ -17,6 +17,35 @@ function CollectionResourceBrowserDialog (collection, options) {
 
     this.prefixCombo.setItems(this.prefixes);
 
+    this.collectionCombo.renderer = function (item) {
+        return item.displayName;
+    };
+    var availableCollections = [collection];
+    var selectedCollection = collection;
+    for (var c of CollectionManager.shapeDefinition.collections) {
+        if (c.id == collection.id || !c.RESOURCE_LIST) continue;
+
+        if (this.options.type) {
+            var found = false;
+            for (var resource of c.RESOURCE_LIST) {
+                if (!resource.type || resource.type == this.options.type) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) continue;
+        }
+
+        availableCollections.push(c);
+        if (CollectionResourceBrowserDialog.lastCollectionId == c.id) {
+            selectedCollection = c;
+        }
+    }
+
+    this.collectionCombo.setItems(availableCollections);
+    this.collectionCombo.selectItem(selectedCollection);
+
     this.searchTimeout = null;
     var thiz = this;
     this.bind("input", function () {
@@ -29,6 +58,7 @@ function CollectionResourceBrowserDialog (collection, options) {
     }, this.filterInput);
 
     this.bind("p:ItemSelected", this.search, this.prefixCombo);
+    this.bind("p:ItemSelected", this.changeCollection, this.collectionCombo);
 
     var ensureVisibleItemsContentFunction = function() {
         this.revealTimeout = null;
@@ -44,14 +74,13 @@ function CollectionResourceBrowserDialog (collection, options) {
 
     this.bind("dblclick", this.handleItemDblClick, this.resultContainer);
 
-    var optionCache = CollectionResourceBrowserDialog.optionCache[this.collection.id];
-    if (optionCache) {
-        this.filterInput.value = optionCache.keyword || "";
-        for (var p of this.prefixes) {
-            if (p.prefix == optionCache.prefix) {
-                this.prefixCombo.selectItem(p);
-                break;
-            }
+    this.invalidatePrefixList();
+
+    this.filterInput.value = CollectionResourceBrowserDialog.lastKeyword || "";
+    for (var p of this.prefixCombo.items) {
+        if (p.prefix == CollectionResourceBrowserDialog.lastPrefix) {
+            this.prefixCombo.selectItem(p);
+            break;
         }
     }
 }
@@ -60,6 +89,7 @@ __extend(Dialog, CollectionResourceBrowserDialog);
 CollectionResourceBrowserDialog.TYPE_SVG = "svg";
 CollectionResourceBrowserDialog.TYPE_BITMAP = "bitmap";
 CollectionResourceBrowserDialog.RETURN_IMAGEDATA = "ImageData";
+CollectionResourceBrowserDialog.RETURN_IMAGEDATA_SVG_GROUP = "ImageDataSVGGroup";
 CollectionResourceBrowserDialog.RETURN_CONTENT= "Content";
 CollectionResourceBrowserDialog.RETURN_DOMCONTENT= "Document";
 
@@ -82,17 +112,35 @@ CollectionResourceBrowserDialog.prototype.onShown = function () {
     this.filterInput.focus();
     this.search();
 };
+CollectionResourceBrowserDialog.prototype.invalidatePrefixList = function () {
+    var collection = this.collectionCombo.getSelectedItem();
+    var prefixes = [];
+    if (collection.id == this.collection.id) {
+        prefixes = this.prefixes;
+    } else {
+        for (var resource of collection.RESOURCE_LIST) {
+            if (!resource.type || resource.type == this.options.type) {
+                prefixes.push(resource);
+            }
+        }
+    }
 
+    this.prefixCombo.setItems(prefixes);
+};
+CollectionResourceBrowserDialog.prototype.changeCollection = function () {
+    this.invalidatePrefixList();
+    this.search();
+};
 CollectionResourceBrowserDialog.prototype.search = function () {
     var keyword = this.filterInput.value.trim();
     var items = [];
-    var dirPath = this.collection.installDirPath;
+    var collection = this.collectionCombo.getSelectedItem();
+    var dirPath = collection.installDirPath;
     this.prefix = this.prefixCombo.getSelectedItem().prefix;
 
-    CollectionResourceBrowserDialog.optionCache[this.collection.id] = {
-        keyword: keyword,
-        prefix: this.prefix
-    };
+    CollectionResourceBrowserDialog.lastCollectionId = collection.id;
+    CollectionResourceBrowserDialog.lastKeyword = keyword;
+    CollectionResourceBrowserDialog.lastPrefix = this.prefix;
 
     if (this.prefix) {
         var parts = this.prefix.trim().split("/");
@@ -184,7 +232,7 @@ CollectionResourceBrowserDialog.handleSVGObjectLoaded = function (e) {
     var w = svg.getAttribute("width");
     var h = svg.getAttribute("height");
     svg.setAttribute("viewBox", "0 0 " + w + " " + h);
-    object.parentNode._data.size = new Dimension(w, h);
+    object.parentNode._data.size = new Dimension(Math.round(parseFloat(w)), Math.round(parseFloat(h)));
 };
 CollectionResourceBrowserDialog.handleImageLoaded = function (e) {
     var image = event.target;
@@ -242,14 +290,28 @@ CollectionResourceBrowserDialog.prototype.ensureVisibleItemsContent = function (
         this.showItem(node, shouldShow);
     }
 };
-
+CollectionResourceBrowserDialog.SVG_IMAGE_DATA_PREFIX = "data:image/svg+xml;utf8,";
 CollectionResourceBrowserDialog.prototype.handleItemDblClick = function (e) {
     var data = Dom.findUpwardForData (e.target, "_data");
     if (!data) return;
 
+    var collection = this.collectionCombo.getSelectedItem();
+
     if (this.returnType == CollectionResourceBrowserDialog.RETURN_IMAGEDATA) {
-        var id = Pencil.controller.collectionResourceAsRefSync(this.collection, data.relativePath);
-        this.close(new ImageData(data.size.w, data.size.h, ImageData.idToRefString(id)))
+        var id = Pencil.controller.collectionResourceAsRefSync(collection, data.relativePath);
+        this.close(new ImageData(data.size.w, data.size.h, ImageData.idToRefString(id)));
+
+    } else if (this.returnType == CollectionResourceBrowserDialog.RETURN_IMAGEDATA_SVG_GROUP) {
+        var svg = Dom.parseFile(data.path);
+        var g = svg.createElementNS(PencilNamespaces.svg, "g");
+        while (svg.documentElement.firstChild) {
+            var child = svg.documentElement.firstChild;
+            svg.documentElement.removeChild(child);
+            g.appendChild(child);
+        }
+
+        var xmlData = CollectionResourceBrowserDialog.SVG_IMAGE_DATA_PREFIX + Dom.serializeNode(g);
+        this.close(new ImageData(data.size.w, data.size.h, xmlData));
     } else if (this.returnType == CollectionResourceBrowserDialog.RETURN_CONTENT) {
         this.close({
             size: data.size,
