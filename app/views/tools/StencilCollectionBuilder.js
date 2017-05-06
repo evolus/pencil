@@ -356,7 +356,7 @@ collection.generatePathDOM = function (svgPathData, size, keepPathStyle) {
 
     return Dom.newDOMFragment(specs);
 };
-collection.generateAdvancedRectPathData = function (box, strokeStyle, r, withTop, withRight, withBottom, withLeft) {
+collection.generateAdvancedRectPathData = function (box, strokeStyle, r, withTop, withRight, withBottom, withLeft, withTopLeftCorner, withTopRightCorner, withBottomRightCorner, withBottomLeftCorner) {
     var x = r * 4 * (Math.sqrt(2) - 1) / 3;
     var w = box.w - strokeStyle.w * ((withLeft ? 0.5 : 0) + (withRight ? 0.5 : 0));
     var h = box.h - strokeStyle.w * ((withTop ? 0.5 : 0) + (withBottom ? 0.5 : 0));
@@ -364,32 +364,32 @@ collection.generateAdvancedRectPathData = function (box, strokeStyle, r, withTop
     ];
     var close = true;
     if (withTop) {
-        parts.push(L(w - (withRight ? r : 0),0));
-        if (withRight && r > 0) parts.push(c(x,0,r,r-x,r,r));
+        parts.push(L(w - (withRight && withTopRightCorner ? r : 0),0));
+        if (withRight && withTopRightCorner && r > 0) parts.push(c(x,0,r,r-x,r,r));
     } else {
         parts.push(M(w,0));
         close = false;
     }
 
     if (withRight) {
-        parts.push(L(w,h - (withBottom ? r : 0)));
-        if (withBottom && r > 0) parts.push(c(0,x,x-r,r,0-r,r));
+        parts.push(L(w,h - (withBottom && withBottomRightCorner ? r : 0)));
+        if (withBottom && withBottomRightCorner && r > 0) parts.push(c(0,x,x-r,r,0-r,r));
     } else {
         parts.push(M(w,h));
         close = false;
     }
 
     if (withBottom) {
-        parts.push(L(withLeft ? r : 0,h));
-        if (withLeft && r > 0) parts.push(c(x-r,0,0-r,x-r,0-r,0-r));
+        parts.push(L(withLeft && withBottomLeftCorner ? r : 0,h));
+        if (withLeft && withBottomLeftCorner && r > 0) parts.push(c(x-r,0,0-r,x-r,0-r,0-r));
     } else {
         parts.push(M(0,h));
         close = false;
     }
 
     if (withLeft) {
-        parts.push(L(0,withTop ? r : 0));
-        if (withTop && r > 0) parts.push(c(0,0-x,r-x,0-r,r,0-r));
+        parts.push(L(0,withTop && withTopLeftCorner ? r : 0));
+        if (withTop && withTopLeftCorner && r > 0) parts.push(c(0,0-x,r-x,0-r,r,0-r));
     } else {
         parts.push(M(0,0));
         close = false;
@@ -844,7 +844,13 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
                 _uri: PencilNamespaces.p
             }, dom);
 
+            var contentFragment = dom.createDocumentFragment();
+            var clipPathFragment = dom.createDocumentFragment();
+
             var snaps = [];
+
+            var defs = null;
+            var clipPathNodeMap = {};
 
             Dom.workOn(".//svg:g[@p:type='Shape']", svg, function (shapeNode) {
                 var c = page.canvas.createControllerFor(shapeNode);
@@ -946,9 +952,36 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
                 }
 
                 if (contribution.contentFragment && contribution.contentFragment.childNodes.length > 0) {
-                    contentNode.appendChild(contribution.contentFragment);
+                    if (contribution.clipPathName) {
+                        var clipPathNode = clipPathNodeMap[contribution.clipPathName];
+                        if (!clipPathNode) {
+                            if (!defs) {
+                                defs = contentNode.ownerDocument.createElementNS(PencilNamespaces.svg, "defs");
+                                contentNode.appendChild(defs);
+                            }
+
+                            clipPathNode = contentNode.ownerDocument.createElementNS(PencilNamespaces.svg, "clipPath");
+                            clipPathNode.setAttribute("id", contribution.clipPathName);
+                            defs.appendChild(clipPathNode);
+                            clipPathNodeMap[contribution.clipPathName] = clipPathNode;
+                        }
+
+                        clipPathNode.appendChild(contribution.contentFragment);
+                    } else {
+                        var e = contribution.contentFragment;
+                        if (contribution.clippedByName) {
+                            var g = contentNode.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
+                            g.appendChild(e);
+                            g.setAttribute("style", "clip-path: url(#" + contribution.clippedByName + ");");
+
+                            e = g;
+                        }
+                        contentFragment.appendChild(e);
+                    }
                 }
             });
+
+            contentNode.appendChild(contentFragment);
 
             // if the shape has 'box', add standard snaps
             if (propertyMap["box"]) {
