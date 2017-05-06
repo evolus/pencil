@@ -17,6 +17,7 @@ OnMenuEditor.prototype.generateMenuItems = function () {
     if (!this.targetObject) return [];
     var definedGroups = this.targetObject.getPropertyGroups();
     var items = [];
+    var importantItems = [];
     var thiz = this;
 
     var allowDisabled = Config.get("dev.enable_disabled_in_menu", null);
@@ -63,6 +64,7 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                     }
                 };
                 items.push(item);
+                importantItems.push(item);
             } else if (property.type == Enum) {
                 var enumItem = {
                     type: "SubMenu",
@@ -119,8 +121,26 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                 previousImageDataMenu = imageNPathSpecEditItem;
 
                 items.push(imageNPathSpecEditItem);
+                importantItems.push(imageNPathSpecEditItem);
             }
         }
+    }
+
+    if (items.length > 10) {
+        var otherPropItem = {
+            label: "Other Properties",
+            type: "SubMenu",
+            subItems: []
+        };
+
+        for (var item of items) {
+            if (importantItems.indexOf(item) < 0) {
+                otherPropItem.subItems.push(item);
+            }
+        }
+
+        items = importantItems;
+        items.push(otherPropItem);
     }
 
     //actions
