@@ -113,6 +113,12 @@ Property.prototype.clone = function () {
     for (var name in this.relatedTargets) {
         property.relatedTargets[name] = this.relatedTargets[name];
     }
+
+    property.relatedProperties = {};
+    for (var name in this.relatedProperties) {
+        property.relatedProperties[name] = this.relatedProperties[name];
+    }
+
     for (var name in this.meta) {
         property.meta[name] = this.meta[name];
     }

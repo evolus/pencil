@@ -379,12 +379,16 @@ Shape.prototype.setProperty = function (name, value, nested) {
 Shape.prototype.getProperty = function (name) {
     var propNode = this.locatePropertyNode(name);
     if (!propNode) {
-        return null;
+        //return null;
         var prop = this.def.getProperty(name);
         if (!this._evalContext) {
             this._evalContext = {collection: this.def.collection};
         } else {
             this._evalContext.collection = this.def.collection;
+        }
+
+        if (!prop) {
+            return null;
         }
 
         if (prop.initialValueExpression) {
