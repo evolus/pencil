@@ -1,6 +1,6 @@
 function StrokeStyle(w, array) {
     this.w = (typeof(w) == "number") ? w : 1;
-    this.array = array ? array : null;
+    this.array = typeof(array) != "undefined" ? array : null;
 }
 StrokeStyle.REG_EX = /^([0-9]+)\|([0-9 \,]*)$/;
 StrokeStyle.fromString = function(literal) {
@@ -24,7 +24,7 @@ StrokeStyle.prototype.styled = function (array) {
 };
 StrokeStyle.prototype.generateTransformTo = function (other) {
     var transform = "";
-    
+
     if (this.w != other.w && this.w > 0) {
         transform += ".condensed(" + ((other.w / this.w) - 1) + ")";
     }
