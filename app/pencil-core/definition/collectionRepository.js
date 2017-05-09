@@ -1,6 +1,6 @@
 'use strict';
 
-const STENCILS_REPO_URL = "https://raw.githubusercontent.com/dgthanhan/stencils-repository/master/repository.xml";
+const STENCILS_REPO_URL = "https://raw.githubusercontent.com/mbrainiac/stencils-repository/master/repository.xml";
 
 var CollectionRepository = {
 };
