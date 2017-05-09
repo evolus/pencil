@@ -1,4 +1,4 @@
-function Shape(canvas, svg) {
+function Shape(canvas, svg, forcedDefinition) {
     this.svg = svg;
     this.canvas = canvas;
 
@@ -9,7 +9,7 @@ function Shape(canvas, svg) {
     this.id = this.svg.getAttribute("id");
 
     var defId = this.canvas.getType(svg);
-    this.def = CollectionManager.shapeDefinition.locateDefinition(defId);
+    this.def = forcedDefinition || CollectionManager.shapeDefinition.locateDefinition(defId);
     if (!this.def) {
         throw Util.getMessage("shape.definition.not.found", defId);
     }
@@ -1157,6 +1157,12 @@ Shape.prototype.invalidateInboundConnections = function () {
 };
 Shape.prototype.invalidateOutboundConnections = function () {
     Connector.invalidateOutboundConnectionsForShapeTarget(this);
+};
+Shape.prototype.getSymbolName = function () {
+    return Svg.getSymbolName(this.svg);
+};
+Shape.prototype.setSymbolName = function (name) {
+    return Svg.setSymbolName(this.svg, name);
 };
 Shape.prototype.generateShortcutXML = function () {
     new PromptDialog().open({

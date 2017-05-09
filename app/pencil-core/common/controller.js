@@ -1057,6 +1057,15 @@ Controller.prototype.copyAsRef = function (sourcePath, callback) {
 
     rd.pipe(wr);
 };
+Controller.prototype.generateCollectionResourceRefId = function (collection, resourcePath) {
+    var id = "collection " + collection.id + " " + resourcePath;
+    var md5 = require("md5");
+    id = md5(id) + path.extname(resourcePath);
+
+    id = id.replace(/[^a-z\-0-9]+/gi, "_");
+
+    return id;
+};
 Controller.prototype.collectionResourceAsRefSync = function (collection, resourcePath) {
     var parts = resourcePath.split("/");
     sourcePath = collection.installDirPath;
@@ -1069,11 +1078,7 @@ Controller.prototype.collectionResourceAsRefSync = function (collection, resourc
         return null;
     }
 
-    var id = "collection " + collection.id + " " + resourcePath;
-    var md5 = require("md5");
-    id = md5(id) + path.extname(resourcePath);
-
-    id = id.replace(/[^a-z\-0-9]+/gi, "_");
+    var id = this.generateCollectionResourceRefId(collection, resourcePath);
 
     var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
 

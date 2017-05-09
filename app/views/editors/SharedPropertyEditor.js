@@ -29,6 +29,10 @@ SharedPropertyEditor.prototype.setup = function () {
             thiz.setDefaultProperties();
         }
     }, false);
+    this.propertyContainer.addEventListener("input", function(event) {
+        if (event.target != thiz.symbolNameInput || !thiz.target || !thiz.target.setSymbolName) return;
+        thiz.target.setSymbolName(event.target.value.trim());
+    }, false);
 };
 SharedPropertyEditor.prototype.getTitle = function() {
 	return "Properties";
@@ -156,6 +160,27 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 });
                 thiz.propertyContainer.appendChild(hbox);
             }
+            
+            if (StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection() && thiz.target.getSymbolName) {
+                thiz.propertyContainer.appendChild(Dom.newDOMElement({
+                    _name: "vbox",
+                    "class": "SymbolNameContainer",
+                    _children: [
+                        {
+                            _name: "label",
+                            _text: "Symbol Name:"
+                        },
+                        {
+                            _name: "input",
+                            type: "text",
+                            _id: "symbolNameInput",
+                            value: thiz.target.getSymbolName() || ""
+
+                        }
+                    ]
+                }, document, thiz));
+            }
+
             thiz.propertyContainer.style.display = "flex";
             thiz.propertyContainer.style.opacity = "1";
             thiz.validationEditorUI();

@@ -183,7 +183,23 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
     var s = (typeof (scale) == "undefined") ? 1 : scale;
     var f = function () {
         svg.setAttribute("page", page.name);
-        thiz.getBackend().rasterize(svg, page.width, page.height, s, callback, parseLinks);
+        var m = Pencil.controller.getDocumentPageMargin() || 0;
+        var w = page.width;
+        var h = page.height;
+        if (m) {
+            var g = svg.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
+            g.setAttribute("transform", translate(0 - m, 0 - m));
+            while (svg.firstChild) {
+                g.appendChild(svg.removeChild(svg.firstChild));
+            }
+            svg.appendChild(g);
+            
+            w -= 2 * m;
+            h -= 2 * m;
+            svg.setAttribute("width", w);
+            svg.setAttribute("height", h);
+        }
+        thiz.getBackend().rasterize(svg, w, h, s, callback, parseLinks);
     };
 
     if (page.backgroundPage) {

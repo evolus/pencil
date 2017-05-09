@@ -160,7 +160,7 @@ function BehaviorItemArg(literal, shapeDef, currentTarget, type) {
         this.literal = this.literal.replace(/\$([a-z][a-z0-9]*)/gi, function (zero, one) {
             var property = shapeDef.getProperty(one);
             if (!property) {
-                throw Util.getMessage("invalid.property.reference", one);
+                throw Util.getMessage("invalid.property.reference", one) + " (" + shapeDef.id + ")";
             }
             property.relatedTargets[currentTarget] = true;
             return "properties." + one;

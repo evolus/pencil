@@ -660,7 +660,7 @@ Dom.parseDocument = function (xml) {
     if (xml && xml.charCodeAt(0) === 0xFEFF) {
         xml = xml.substr(1);
     }
-    
+
     var dom = Dom.parser.parseFromString(xml, "text/xml");
     return dom;
 };
@@ -1095,7 +1095,21 @@ Svg.getHeight = function (dom) {
     }
     return 0;
 };
-
+Svg.SYMBOL_NAME_ATTR = "symbolName";
+Svg.getSymbolName = function (node) {
+    if (node.hasAttributeNS(PencilNamespaces.p, Svg.SYMBOL_NAME_ATTR)) {
+        return node.getAttributeNS(PencilNamespaces.p, Svg.SYMBOL_NAME_ATTR);
+    } else {
+        return null;
+    }
+};
+Svg.setSymbolName = function (node, name) {
+    if (typeof(name) === "undefined" || name === null) {
+        node.remoteAttributeNS(PencilNamespaces.p, Svg.SYMBOL_NAME_ATTR);
+    } else {
+        return node.setAttributeNS(PencilNamespaces.p, Svg.SYMBOL_NAME_ATTR, name);
+    }
+};
 
 var Local = {};
 Local.getInstalledFonts = function () {
@@ -2139,6 +2153,20 @@ Util.importSandboxFunctions = function () {
         var f = arguments[i];
         pencilSandbox[f.name] = f;
     }
+};
+Util.workOnListAsync = function (list, worker, callback) {
+    var index = -1;
+    var next = function () {
+        index ++;
+        if (!list || index >= list.length) {
+            if (callback) callback();
+            return;
+        }
+
+        var item = list[index];
+        worker(item, index, next);
+    }
+    next();
 };
 
 function pEval (expression, extra, codeLocation) {

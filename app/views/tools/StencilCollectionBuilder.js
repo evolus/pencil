@@ -582,13 +582,15 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
     }
     StencilCollectionBuilder.INSTANCE = this;
     var dir = options.outputPath;
-    var iconDir = path.join(dir, "icons");
+    this.iconDir = path.join(dir, "icons");
+
+    var thiz = this;
 
     this.currentDir = dir;
     this.currentBitmapDir = path.join(dir, "bitmaps");
 
-    if (!fs.existsSync(iconDir)) {
-        fs.mkdirSync(iconDir);
+    if (!fs.existsSync(this.iconDir)) {
+        fs.mkdirSync(this.iconDir);
     }
 
     var dom = Controller.parser.parseFromString("<Shapes xmlns=\"" + PencilNamespaces.p + "\"></Shapes>", "text/xml");
@@ -681,10 +683,46 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
         ]
     }));
 
+    var layoutPage = null;
+
     var pageMargin = this.getPageMargin();
     var ts = new Date().getTime();
 
     ApplicationPane._instance.setContentVisible(false);
+
+    var finalize = function () {
+        this.saveResultDom(dom, dir, options, function () {
+            var showDone = function () {
+                Pencil.controller.doc._lastUsedStencilOutputPath = options.outputPath;
+
+                thiz.progressListener.onTaskDone();
+                ApplicationPane._instance.setContentVisible(true);
+
+                var stencilPath = Config.get("dev.stencil.path", null);
+                var dirPath = Config.get("dev.stencil.dir", null);
+                if (stencilPath == options.outputPath || dirPath == path.dirname(options.outputPath)) {
+                    CollectionManager.reloadDeveloperStencil(false);
+                    NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.\n\nDeveloper stencil was also reloaded.", "View", function () {
+                        shell.openItem(options.outputPath);
+                    });
+                } else {
+                    NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.", "View", function () {
+                        shell.openItem(options.outputPath);
+                    });
+                }
+
+            };
+
+            if (layoutPage) {
+                thiz.generateCollectionLayout(options.id, dir, layoutPage, showDone);
+            } else {
+                showDone();
+            }
+
+        });
+    }.bind(this); //END OF FINAL PROCESSING
+
+    var nonStencilPages = [];
 
     var done = function () {
         var globalPropertyMap = {};
@@ -738,52 +776,17 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
             }
         });
 
-        var xsltDOM = Dom.parseDocument(
-    `<xsl:stylesheet version="1.0"
-     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-     xmlns:p="http://www.evolus.vn/Namespace/Pencil">
-     <xsl:output omit-xml-declaration="yes" indent="yes" indent-amount="4" cdata-section-elements="p:Impl p:Arg p:Script"/>
+        this.processShortcuts(nonStencilPages, dom, dir, options, globalPropertySpecs, globalPropertyMap, function () {
+            finalize();
+        });
+    }.bind(this);
 
-        <xsl:template match="node()|@*">
-          <xsl:copy>
-            <xsl:apply-templates select="node()|@*"/>
-          </xsl:copy>
-        </xsl:template>
-    </xsl:stylesheet>`
-        );
-        var xsltProcessor = new XSLTProcessor();
-        xsltProcessor.importStylesheet(xsltDOM);
-
-        var result = xsltProcessor.transformToDocument(dom);
-
-        Dom.serializeNodeToFile(result, path.join(dir, "Definition.xml"));
-
-        Pencil.controller.doc._lastUsedStencilOutputPath = options.outputPath;
-
-        progressListener.onTaskDone();
-        ApplicationPane._instance.setContentVisible(true);
-
-        var stencilPath = Config.get("dev.stencil.path", null);
-        var dirPath = Config.get("dev.stencil.dir", null);
-        if (stencilPath == options.outputPath || dirPath == path.dirname(options.outputPath)) {
-            CollectionManager.reloadDeveloperStencil(false);
-            NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.\n\nDeveloper stencil was also reloaded.", "View", function () {
-                shell.openItem(options.outputPath);
-            });
-        } else {
-            NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.", "View", function () {
-                shell.openItem(options.outputPath);
-            });
-        }
-    }.bind(this); //END OF FINAL PROCESSING
-
-    var progressListener = null;
+    this.progressListener = null;
 
     var index = -1;
     var pages = this.controller.doc.pages;
     var next = function() {
         index ++;
-        console.log("Processing page: " + index);
         if (index >= pages.length) {
             done();
             return;
@@ -791,9 +794,14 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
 
         var page = pages[index];
 
-        progressListener.onProgressUpdated(`Exporting '${page.name}...'`, index, pages.length);
+        this.progressListener.onProgressUpdated(`Exporting '${page.name}...'`, index, pages.length);
 
         try {
+            if (page.name.toLowerCase() == "(layout)") {
+                layoutPage = page;
+                return;
+            }
+
             ApplicationPane._instance.activatePage(page);
             var svg = page.canvas.svg;
             StencilCollectionBuilder._currentPage = page;
@@ -852,8 +860,12 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
             var defs = null;
             var clipPathNodeMap = {};
 
+            var hasContribution = false;
+
             Dom.workOn(".//svg:g[@p:type='Shape']", svg, function (shapeNode) {
                 var c = page.canvas.createControllerFor(shapeNode);
+
+                if (!c.performAction) return;
                 var contribution = null;
                 try {
                     contribution = c.performAction("buildShapeContribution");
@@ -979,7 +991,14 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
                         contentFragment.appendChild(e);
                     }
                 }
+
+                hasContribution = true;
             });
+
+            if (!hasContribution) {
+                nonStencilPages.push(page);
+                return;
+            }
 
             contentNode.appendChild(contentFragment);
 
@@ -1057,7 +1076,7 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
             shapes.appendChild(shape);
 
             if (fs.existsSync(page.thumbPath)) {
-                var thumPath = path.join(iconDir, shapeId + ".png");
+                var thumPath = path.join(thiz.iconDir, shapeId + ".png");
                 fs.createReadStream(page.thumbPath).pipe(fs.createWriteStream(thumPath));
             }
 
@@ -1068,7 +1087,294 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
     }.bind(this);   //END OF PAGE PROCESSING
 
     Util.beginProgressJob("Building collection...", function (listener) {
-        progressListener = listener;
+        thiz.progressListener = listener;
         next();
+    });
+};
+
+StencilCollectionBuilder.prototype.saveResultDom = function (dom, dir, options, callback) {
+    var xsltDOM = Dom.parseDocument(
+`<xsl:stylesheet version="1.0"
+ xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+ xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+ <xsl:output omit-xml-declaration="yes" indent="yes" indent-amount="4" cdata-section-elements="p:Impl p:Arg p:Script"/>
+
+    <xsl:template match="node()|@*">
+      <xsl:copy>
+        <xsl:apply-templates select="node()|@*"/>
+      </xsl:copy>
+    </xsl:template>
+</xsl:stylesheet>`
+    );
+    var xsltProcessor = new XSLTProcessor();
+    xsltProcessor.importStylesheet(xsltDOM);
+
+    var result = xsltProcessor.transformToDocument(dom);
+
+    Dom.serializeNodeToFile(result, path.join(dir, "Definition.xml"));
+
+    if (callback) callback();
+};
+
+StencilCollectionBuilder.prototype.isShortcutPage = function (page, options) {
+    if (options.shortcutPageIds) {
+        return options.shortcutPageIds.indexOf(page.id) >= 0;
+    } else {
+        return page.name.toLowerCase().startsWith("(shortcut");
+    }
+};
+
+StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir, options, globalPropertySpecs, globalPropertyMap, callback) {
+    var thiz = this;
+    this.saveResultDom(dom, dir, options, function () {
+
+        //parse the resulted collection
+        var collection = new ShapeDefCollectionParser().parseURL(path.join(dir, "Definition.xml"));
+        var shortcutSpecs = [];
+
+        Util.workOnListAsync(pages, function(page, index, __callback) {
+            thiz.progressListener.onProgressUpdated(`Processing shortcuts in '${page.name}...'`, index, pages.length);
+            ApplicationPane._instance.activatePage(page);
+            var svg = page.canvas.svg;
+
+            var defIdPrefix = collection.id + ":";
+            var shapeNodes = Dom.getList(".//svg:g[@p:type='Shape']", svg);
+
+            Util.workOnListAsync(shapeNodes, function (shapeNode, index, __callback) {
+                var defId = page.canvas.getType(shapeNode);
+                var def = null;
+                var id = null;
+                var effectiveCollection = null;
+
+                if (!defId) {
+                    __callback();
+                    return;
+                }
+
+                if (defId.startsWith(defIdPrefix)) {
+                    effectiveCollection = collection
+                    id = defId.substring(defIdPrefix.length);
+                    def = collection.shapeDefMap[defId];
+                } else {
+                    if (options.allowExternalShortcuts || (typeof(options.allowExternalShortcuts) === "undefined")) {
+                        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+                        id = defId;
+                        effectiveCollection = def.collection;
+                    } else {
+                        __callback();
+                        return;
+                    }
+                }
+
+                if (!def) {
+                    __callback();
+                    return;
+                }
+
+                var shape = new Shape(page.canvas, shapeNode, def);
+                var symbolName = shape.getSymbolName();
+                if (!symbolName) {
+                    __callback();
+                    return;
+                }
+
+                var spec = {
+                    _name: "Shortcut",
+                    _uri: PencilNamespaces.p,
+                    to: id,
+                    displayName: symbolName,
+                    _children: [
+
+                    ]
+                };
+
+                for (var name in def.propertyMap) {
+                    var prop = def.getProperty(name);
+                    var value = shape.getProperty(name);
+
+                    if (prop.type == ImageData) {
+                        if (value.data && value.data.match(/^ref:\/\//)) {
+                            if (prop.initialValue && prop.initialValue.data && prop.initialValue.data.match(/^collection:\/\/(.+)$/)) {
+                                var declaredPath = RegExp.$1;
+                                var ref = ImageData.idToRefString(thiz.controller.generateCollectionResourceRefId(effectiveCollection, declaredPath));
+                                if (ref == value.data) continue;
+                            }
+                            value = thiz.toCollectionReadyImageData(value, spec.displayName + "-" + prop.name);
+                        }
+                    }
+
+                    if (!value) continue;
+                    if (prop.initialValueExpression) {
+                        shape._evalContext = {collection: def.collection};
+                        var v = shape.evalExpression(prop.initialValueExpression);
+                        if (v && value.toString() == v.toString()) continue;
+                    }
+                    if (prop.initialValue) {
+                        if (value.toString() == prop.initialValue.toString()) continue;
+                    }
+
+                    var sp = {
+                        _name: "PropertyValue",
+                        _uri: PencilNamespaces.p,
+                        name: name,
+                        _text: value.toString()
+                    };
+
+                    var previousDiff = null;
+
+                    for (var globalSpec of globalPropertySpecs) {
+                        if (prop.type.name != globalSpec.type) continue;
+
+                        var globalName = globalSpec._prop.name;
+
+                        var globalPropValue = globalPropertyMap[globalName];
+                        if (!globalPropValue || !globalPropValue.generateTransformTo) continue;
+
+                        var transformSpec = globalPropValue.generateTransformTo(value);
+
+                        var diff = globalPropValue.getDiff ? globalPropValue.getDiff(value) : ((transformSpec === "" || transformSpec) ? transformSpec.length : 10000000);
+                        if ((transformSpec === "" || transformSpec) && (previousDiff === null || previousDiff > diff)) {
+                            delete sp._text;
+                            sp._children = [{
+                                _name: "E",
+                                _uri: PencilNamespaces.p,
+                                _text: "$$" + globalName + transformSpec
+                            }];
+
+                            previousDiff = diff;
+                        }
+                    }
+
+                    spec._children.push(sp);
+                }
+
+                var fileName = spec.displayName.replace(/[^a-z0-9\\-]+/gi, "").toLowerCase() + ".png";
+                var targetPath = path.join(thiz.iconDir, fileName);
+                Pencil.rasterizer.rasterizeSelectionToFile(shape, targetPath, function (p, error) {
+                    if (!error) {
+                        spec.icon = "icons/" + fileName;
+                    }
+
+                    shortcutSpecs.push(spec);
+                    __callback();
+                });
+            }, __callback);
+        }, function () {
+            var fragment = Dom.newDOMFragment(shortcutSpecs, dom);
+            dom.documentElement.appendChild(fragment);
+            if (callback) callback();
+        });
+    });
+};
+StencilCollectionBuilder.prototype.generateCollectionLayout = function (collectionId, dir, page, callback) {
+    ApplicationPane._instance.activatePage(page);
+    var container = page.canvas.drawingLayer;
+    var pageMargin = StencilCollectionBuilder.INSTANCE.getPageMargin();
+
+    var pw = parseFloat(page.width) - 2 * pageMargin;
+    var ph = parseFloat(page.height) - 2 * pageMargin;
+
+    var items = [];
+
+    const IMAGE_FILE = "layout_image.png";
+
+    Dom.workOn(".//svg:g[@p:type='Shape']", container, function (g) {
+            var dx = 0; //rect.left;
+            var dy = 0; //rect.top;
+
+            var owner = g.ownerSVGElement;
+
+            if (owner.parentNode && owner.parentNode.getBoundingClientRect) {
+                var rect = owner.parentNode.getBoundingClientRect();
+                dx = rect.left;
+                dy = rect.top;
+            }
+
+            dx += pageMargin;
+            dy += pageMargin;
+
+            rect = g.getBoundingClientRect();
+
+            var linkingInfo = {
+                node: g,
+                sc: g.getAttributeNS(PencilNamespaces.p, "sc"),
+                refId: g.getAttributeNS(PencilNamespaces.p, "def"),
+                geo: {
+                    x: rect.left - dx,
+                    y: rect.top - dy,
+                    w: rect.width - 2,
+                    h: rect.height - 2
+                }
+            };
+
+            items.push(linkingInfo);
+    });
+
+    var current = 0;
+    var thiz = this;
+    var done = function () {
+        var html = document.createElementNS(PencilNamespaces.html, "html");
+
+        var body = document.createElementNS(PencilNamespaces.html, "body");
+        html.appendChild(body);
+
+        var div = document.createElementNS(PencilNamespaces.html, "div");
+        div.setAttribute("style", "position: relative; padding: 0px; margin: 0px; width: " + pw + "px; height: " + ph + "px;");
+        body.appendChild(div);
+
+        var bg = document.createElementNS(PencilNamespaces.html, "img");
+        bg.setAttribute("style", "width: " + pw + "px; height: " + ph + "px;");
+        bg.setAttribute("src", IMAGE_FILE + "?ts=" + (new Date().getTime()));
+        div.appendChild(bg);
+
+        for (var i = 0; i < items.length; i ++) {
+            var link = items[i];
+            var img = document.createElementNS(PencilNamespaces.html, "img");
+            img.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=");
+            if (link.sc) {
+                img.setAttribute("sc-ref", link.sc);
+            } else {
+                img.setAttribute("ref", link.refId);
+            }
+            img.setAttribute("id", link.refId);
+            var css = new CSS();
+            css.set("position", "absolute");
+            css.set("left", "" + link.geo.x + "px");
+            css.set("top", "" + link.geo.y + "px");
+            css.set("width", "" + link.geo.w + "px");
+            css.set("height", "" + link.geo.h + "px");
+            img.setAttribute("style", css.toString());
+
+            div.appendChild(img);
+        }
+
+        Dom.serializeNodeToFile(html, path.join(dir, "Layout.xhtml"), "");
+        if (callback) callback();
+    };
+
+
+    var outputImage = path.join(dir, IMAGE_FILE);
+    Pencil.rasterizer.rasterizePageToFile(page, outputImage, function (p, error) {
+        done();
+    });
+};
+StencilCollectionBuilder.prototype.generatePrivateShapeDef = function (target, callback) {
+    var svg = target.svg.cloneNode(true);
+
+    var fakeDom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
+    fakeDom.documentElement.appendChild(svg);
+
+    Pencil.controller.prepareForEmbedding(fakeDom, function () {
+        fakeDom.documentElement.removeChild(svg);
+
+        var shapeDef = new PrivateShapeDef();
+        shapeDef.displayName = target.getSymbolName();
+        shapeDef.content = svg;
+        shapeDef.id = ("PrivateShapeDef_" + shapeDef.displayName).replace(/\s+/g, "_").toLowerCase();
+
+        Util.generateIcon(target, 64, 64, 2, null, function (icondata) {
+            shapeDef.iconData = icondata;
+            callback(shapeDef);
+        });
     });
 };

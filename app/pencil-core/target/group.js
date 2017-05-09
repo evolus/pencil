@@ -86,7 +86,7 @@ Group.prototype.getProperty = function (name) {
 
     //TODO: add additonal info to indicate sameness
     return firstValue;
-    
+
     // if (!firstValue) return null;
     // var same = true;
     // for (var i = 1; i < this.targets.length; i ++) {
@@ -522,4 +522,10 @@ Group.openSizingPolicyDialog = function (target) {
         }
     });
 
+};
+Group.prototype.getSymbolName = function () {
+    return Svg.getSymbolName(this.svg);
+};
+Group.prototype.setSymbolName = function (name) {
+    return Svg.setSymbolName(this.svg, name);
 };
