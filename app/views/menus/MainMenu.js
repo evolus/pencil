@@ -175,6 +175,14 @@ MainMenu.prototype.setup = function () {
             new StencilCollectionBuilder(Pencil.controller).configure();
         }
     }));
+    developerToolSubItems.push(UICommandManager.register({
+        key: "unconfigureStencilCollection",
+        label: "Unconfigure as Stencil Collection...",
+        isAvailable: function () { return StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection(); },
+        run: function () {
+            new StencilCollectionBuilder(Pencil.controller).removeCurrentDocumentOptions();
+        }
+    }));
 
     developerToolSubItems.push(UICommandManager.register({
         key: "buildStencilCollection",

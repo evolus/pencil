@@ -510,6 +510,20 @@ StencilCollectionBuilder.prototype.setCurrentDocumentOptions = function (options
 
     window.globalEventBus && window.globalEventBus.broadcast("doc-options-change", {});
 };
+StencilCollectionBuilder.prototype.removeCurrentDocumentOptions = function (options) {
+    if (StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection()) {
+        Dialog.confirm(
+            "Are you sure you want to remove the configuration and stop using this document as a stencil collection?", null,
+            "Yes, remove configuration", function () {
+                delete Pencil.controller.doc.properties.stencilBuilderOptions;
+                window.globalEventBus && window.globalEventBus.broadcast("doc-options-change", {});
+            },
+            "Cancel", function () {
+            }
+        );
+
+    }
+};
 StencilCollectionBuilder.prototype.makeDefaultOptions = function () {
     options = options || {};
     var defaultDocName = Pencil.controller.getDocumentName().replace(/\*/g, "").trim();
