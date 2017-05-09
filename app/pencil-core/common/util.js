@@ -2168,6 +2168,29 @@ Util.workOnListAsync = function (list, worker, callback) {
     }
     next();
 };
+Util.compareVersion = function (version1, version2) {
+    var a = version1.split(/\./);
+    var b = version2.split(/\./);
+
+    for (var i = 0; i < Math.min(a.length, b.length); i ++) {
+        var n1 = parseInt(a[i], 10);
+        var n2 = parseInt(b[i], 10);
+
+        if (isNaN(n1) || isNaN(n2)) {
+            n1 = a[i];
+            n2 = b[i];
+        }
+
+        if (n1 > n2) return 1;
+        if (n1 < n2) return -1;
+    }
+
+    if (a.length > b.length) return 1;
+    if (a.length < b.length) return -1;
+
+    return 0;
+};
+
 
 function pEval (expression, extra, codeLocation) {
     var result = null;

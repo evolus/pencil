@@ -1,6 +1,6 @@
 'use strict';
 
-const STENCILS_REPO_URL = "https://raw.githubusercontent.com/mbrainiac/stencils-repository/master/repository.xml";
+const STENCILS_REPO_URL = "https://raw.githubusercontent.com/dgthanhan/stencils-repository/master/repository.xml";
 
 var CollectionRepository = {
 };
@@ -71,6 +71,15 @@ CollectionRepository.parse = function(dom, url) {
     });
 
     Dom.workOn("./p:collection", collectionsNode, function (node) {
+        collections.push(CollectionRepository.parseCollection(node));
+    });
+
+    //the one with uppercase "C" is intended for newer version with support for version checking
+    Dom.workOn("./p:Collection", collectionsNode, function (node) {
+        var minVersion = node.getAttribute("required-version");
+        if (minVersion) {
+            if (Util.compareVersion(pkgInfo.version, minVersion) < 0) return;
+        }
         collections.push(CollectionRepository.parseCollection(node));
     });
 

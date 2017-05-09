@@ -543,12 +543,13 @@ StencilCollectionBuilder.prototype.makeDefaultOptions = function () {
 };
 StencilCollectionBuilder.prototype.configure = function () {
     var thiz = this;
+    var currentOptions = StencilCollectionBuilder.getCurrentDocumentOptions();
     new StencilCollectionDetailDialog().callback(function (options) {
         thiz.setCurrentDocumentOptions(options);
         if (Pencil.controller.documentPath) {
             Pencil.documentHandler.saveDocument();
         }
-    }).open(StencilCollectionBuilder.getCurrentDocumentOptions());
+    }).open(currentOptions);
 };
 StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection = function () {
     return Pencil.controller.doc && Pencil.controller.doc.properties && Pencil.controller.doc.properties.stencilBuilderOptions
@@ -1155,6 +1156,7 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
             var shapeNodes = Dom.getList(".//svg:g[@p:type='Shape']", svg);
 
             Util.workOnListAsync(shapeNodes, function (shapeNode, index, __callback) {
+                thiz.progressListener.onProgressUpdated(`Processing shortcuts in '${page.name}...'`, index, shapeNodes.length);
                 var defId = page.canvas.getType(shapeNode);
                 var def = null;
                 var id = null;

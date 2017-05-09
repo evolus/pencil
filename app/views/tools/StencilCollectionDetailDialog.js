@@ -38,6 +38,7 @@ StencilCollectionDetailDialog.prototype.handleSetBrowseEvent = function (event) 
 };
 StencilCollectionDetailDialog.prototype.setup = function (options) {
     options = options || {};
+    this.originalOptions = options;
     this.doc = options.doc || Pencil.controller.doc;
 
     var defaultDocName = Pencil.controller.getDocumentName().replace(/\*/g, "").trim();
@@ -68,6 +69,10 @@ StencilCollectionDetailDialog.prototype.setup = function (options) {
 };
 StencilCollectionDetailDialog.prototype.save = function () {
     var options = {};
+
+    if (this.originalOptions) {
+        for (var name in this.originalOptions) options[name] = this.originalOptions[name];
+    }
 
     try {
 

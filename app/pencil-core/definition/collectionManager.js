@@ -152,8 +152,12 @@ CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, i
                 continue;
             }
             var folderPath = path.join(stencilDir, definitionFile);
-            if (CollectionManager._loadStencil(folderPath, parser, isSystem ? true : false, isDeveloperStencil ? true : false)) {
-                count++;
+            try {
+                if (CollectionManager._loadStencil(folderPath, parser, isSystem ? true : false, isDeveloperStencil ? true : false)) {
+                    count++;
+                }
+            } catch (e) {
+                console.error(e);
             }
         }
     } catch (e) {
