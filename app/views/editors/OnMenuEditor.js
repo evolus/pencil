@@ -92,7 +92,16 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                     });
                 }
                 items.push(enumItem);
-            } else if (property.type == ImageData) { //TODO: property constraint to enable n-patch edit?
+            } else if (property.type == ImageData) {
+                if (this.targetObject.def) {
+                    var meta = this.targetObject.def.propertyMap[property.name].meta["npatch-edit"];
+                    if (meta) {
+                        var value = this.targetObject.evalExpression(meta, false);
+                        if (!value) continue;
+                    } else {
+                        continue;
+                    }
+                }
                 var value = thiz.targetObject.getProperty(property.name);
 
                 var imageNPathSpecEditItem = {
