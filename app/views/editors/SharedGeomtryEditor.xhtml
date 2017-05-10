@@ -6,10 +6,14 @@
         @container > * + * {
             margin-left: @toolbar_gap;
         }
+        @lockMovementButton[checked='true'] {
+            color: #F00;
+        }
     </style>
     <hbox anon-id="container">
         <hbox anon-id="locationGroup" class="ButtonGroup" label="Location">
             <input anon-id="shapeX" type="number" min="0" title="Left" /><input anon-id="shapeY" type="number" min="0" title="Top" />
+            <button anon-id="lockMovementButton" command="lockMovementCommand" mode="icon" title="Lock shape's location"><i>lock</i></button>
         </hbox>
         <hbox anon-id="sizeGroup" class="ButtonGroup" label="Size">
             <input anon-id="shapeWidth" type="number" min="0" title="Width" /><input anon-id="shapeHeight" type="number" min="0" title="Height" />

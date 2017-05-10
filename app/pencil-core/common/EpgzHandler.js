@@ -28,6 +28,7 @@ EpgzHandler.prototype.loadDocument = function(filePath) {
 
 EpgzHandler.prototype.saveDocument = function (documentPath) {
     return new Promise(function (resolve, reject) {
+        var path = null;
         var targz = require('tar.gz');
         new targz({}, {fromBase: true}).compress(Pencil.documentHandler.tempDir.name, documentPath)
         .then(resolve).catch(reject);

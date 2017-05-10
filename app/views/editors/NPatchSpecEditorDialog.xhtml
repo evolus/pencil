@@ -52,7 +52,7 @@
             height: 0.5em;
             cursor: ns-resize;
         }
-        @xCellContainer > .Cell > .StartResizer {
+        @yCellContainer > .Cell > .StartResizer {
             top: -0.25em;
         }
         @yCellContainer > .Cell > .EndResizer {
@@ -91,8 +91,6 @@
         }
         .CellContainer > .Cell > .YCellInfo > .Info {
             margin-left: 0.25em;
-            margin-top: 1em;
-            transform: rotate(-90deg);
         }
         @xCellContainer > .Cell > .Indicator {
             top: 1.5em;
@@ -113,6 +111,10 @@
         @container {
             align-items: center;
             justify-content: center;
+            margin-bottom: 1ex;
+        }
+        @container[dark='true'] {
+            background: #555;
         }
         @container > * {
             /* background: rgba(0, 0, 0, 0.2); */
@@ -134,4 +136,5 @@
             </hbox>
        </vbox>
    </div>
+   <hbox><input anon-id="useDarkBackgroundCheckbox" type="checkbox" /><label for="useDarkBackgroundCheckbox">Use dark background</label></hbox>
 </vbox>

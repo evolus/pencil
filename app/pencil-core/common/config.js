@@ -51,3 +51,19 @@ try {
 }
 
 Config._load();
+
+
+
+//Specific configuration schema management
+Config.define = function (name, defaultValue) {
+    if (Config.get(name, null) === null) {
+        Config.set(name, defaultValue);
+    }
+
+    return name;
+};
+
+Config.DEV_PAGE_MARGIN_SIZE = Config.define("dev.pageMargin.size", Config.DEV_DEFAULT_PAGE_MARGIN);
+Config.DEV_PAGE_MARGIN_COLOR = Config.define("dev.pageMargin.color", "rgba(0, 0, 0, 0.2)");
+
+Config.DEV_ENABLE_DISABLED_IN_PROP_PAGE = Config.define("dev.enable_disabled_in_property_page", false);

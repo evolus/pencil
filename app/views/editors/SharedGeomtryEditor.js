@@ -41,10 +41,39 @@ SharedGeomtryEditor.prototype.setup = function () {
         }
     }, false);
 
+    var thiz = this;
+    UICommandManager.register({
+        key: "lockMovementCommand",
+        getLabel: function () {
+            return "Lock shape's movement";
+        },
+        shortcut: "F12",
+        run: function () {
+            var locked = thiz.lockMovementButton.getAttribute("checked") == "true";
+            if (locked) {
+                thiz.lockMovementButton.removeAttribute("checked");
+            } else {
+                thiz.lockMovementButton.setAttribute("checked", "true");
+            }
+
+            Pencil.controller.movementDisabled = !locked;
+        }
+    }, this.lockMovementButton);
+
     this.container.ownerDocument.documentElement.addEventListener("p:ShapeGeometryModified", function (event) {
         if (event.setter && event.setter == thiz) return;
         thiz.invalidate();
     }, false);
+};
+SharedGeomtryEditor.prototype.toggleMovementLocking = function () {
+    var locked = this.lockMovementButton.getAttribute("checked") == "true";
+    if (locked) {
+        this.lockMovementButton.removeAttribute("checked");
+    } else {
+        this.lockMovementButton.setAttribute("checked", "true");
+    }
+
+    Pencil.controller.movementDisabled = !locked;
 };
 SharedGeomtryEditor.prototype.handleCommandEvent = function () {
     var currentGeo = this.targetObject.getGeometry();
@@ -125,8 +154,8 @@ SharedGeomtryEditor.prototype.attach = function (targetObject) {
 
     this.handleBox = null;
 
-    this.shapeX.value = Math.max(0, Math.round(geo.ctm.e));
-    this.shapeY.value = Math.max(0, Math.round(geo.ctm.f));
+    this.shapeX.value = Math.round(geo.ctm.e);
+    this.shapeY.value = Math.round(geo.ctm.f);
 
     this.shapeWidth.value = Math.round(geo.dim.w);
     this.shapeHeight.value = Math.round(geo.dim.h);

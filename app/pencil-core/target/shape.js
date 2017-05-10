@@ -1,4 +1,4 @@
-function Shape(canvas, svg) {
+function Shape(canvas, svg, forcedDefinition) {
     this.svg = svg;
     this.canvas = canvas;
 
@@ -9,7 +9,7 @@ function Shape(canvas, svg) {
     this.id = this.svg.getAttribute("id");
 
     var defId = this.canvas.getType(svg);
-    this.def = CollectionManager.shapeDefinition.locateDefinition(defId);
+    this.def = forcedDefinition || CollectionManager.shapeDefinition.locateDefinition(defId);
     if (!this.def) {
         throw Util.getMessage("shape.definition.not.found", defId);
     }
@@ -49,6 +49,7 @@ Shape.prototype.getPropertyGroups = function () {
 
 Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
     this._evalContext = {collection: this.def.collection};
+    F._target = this.svg;
 
     var hasPostProcessing = false;
 
@@ -132,6 +133,48 @@ Shape.prototype.repairShapeProperties = function () {
     for (name in this.def.propertyMap) {
         this.applyBehaviorForProperty(name);
     }
+};
+Shape.prototype.renewTargetProperties = function () {
+    this._evalContext = {collection: this.def.collection};
+    F._target = this.svg;
+
+    var renewed = false;
+
+    for (var name in this.def.propertyMap) {
+        var prop = this.def.propertyMap[name];
+        if (!prop || !prop.meta || prop.meta.renew != "true") continue;
+
+        var propNode = this.locatePropertyNode(name);
+        if (!propNode) continue;
+
+        var value = null;
+
+        var currentCollection = this.def.connection;
+
+        if (prop.initialValueExpression) {
+            value = this.evalExpression(prop.initialValueExpression);
+        } else {
+            value = prop.initialValue;
+        }
+
+        if (prop.type.performIntialProcessing) {
+            var newValue = prop.type.performIntialProcessing(value, this.def, currentCollection);
+            if (newValue) {
+                value = newValue;
+            }
+        }
+
+        this.storeProperty(name, value);
+        renewed = true;
+    }
+
+    if (!renewed) return false;
+
+    for (name in this.def.propertyMap) {
+        this.applyBehaviorForProperty(name);
+    }
+
+    return true;
 };
 Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedProperties) {
     var propertyDef = this.def.propertyMap[name];
@@ -336,12 +379,16 @@ Shape.prototype.setProperty = function (name, value, nested) {
 Shape.prototype.getProperty = function (name) {
     var propNode = this.locatePropertyNode(name);
     if (!propNode) {
-        return null;
+        //return null;
         var prop = this.def.getProperty(name);
         if (!this._evalContext) {
             this._evalContext = {collection: this.def.collection};
         } else {
             this._evalContext.collection = this.def.collection;
+        }
+
+        if (!prop) {
+            return null;
         }
 
         if (prop.initialValueExpression) {
@@ -1111,6 +1158,12 @@ Shape.prototype.invalidateInboundConnections = function () {
 Shape.prototype.invalidateOutboundConnections = function () {
     Connector.invalidateOutboundConnectionsForShapeTarget(this);
 };
+Shape.prototype.getSymbolName = function () {
+    return Svg.getSymbolName(this.svg);
+};
+Shape.prototype.setSymbolName = function (name) {
+    return Svg.setSymbolName(this.svg, name);
+};
 Shape.prototype.generateShortcutXML = function () {
     new PromptDialog().open({
         title: "Shortcut",
@@ -1198,4 +1251,29 @@ Shape.prototype.generateShortcutXML = function () {
 
         }.bind(this)
     });
+};
+
+Shape.prototype.getContentEditActions = function (event) {
+    var actions = [];
+    var editInfo = this.getTextEditingInfo(event);
+    if (editInfo) {
+        actions.push({
+            type: "text",
+            editInfo: editInfo
+        });
+    }
+    for (var action of this.def.actions) {
+        if (action.meta["content-action"] == "true") {
+            actions.push({
+                type: "action",
+                actionId: action.id
+            });
+        }
+    }
+
+    return actions;
+};
+Shape.prototype.handleOtherContentEditAction = function (action) {
+    if (action.type != "action") return;
+    this.performAction(action.actionId);
 };

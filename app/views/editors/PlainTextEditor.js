@@ -9,7 +9,6 @@ PlainTextEditor.prototype.setup = function () {
         thiz.fireChangeEvent();
     }, false);
     this.textarea.addEventListener("keyup", function (event) {
-        console.log("keyup")
         thiz.fireChangeEvent();
     }, false);
 };

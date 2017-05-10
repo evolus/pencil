@@ -138,7 +138,7 @@ ShapeDefCollectionParser.getCollectionPropertyConfigName = function (collectionI
 ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) {
     var layoutUri = path.join(installDirPath, "Layout.xhtml");
     if (!fs.existsSync(layoutUri)) return null;
-    
+
     try {
         var html = fs.readFileSync(layoutUri, {encoding: "utf8"});
         if (!html) return null;
@@ -332,18 +332,51 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
     shapeDef.displayName = shapeDefNode.getAttribute("displayName");
     shapeDef.system = shapeDefNode.getAttribute("system") == "true";
     shapeDef.collection = collection;
+    var inherits = shapeDefNode.getAttribute("inherits");
+    if (inherits) {
+        if (inherits.indexOf(":") < 0) inherits = collection.id + ":" + inherits;
+        var parentShapeDef = collection.shapeDefMap[inherits];
+        if (parentShapeDef) {
+            shapeDef.parentShapeDef = parentShapeDef;
+            this.processInheritance(shapeDef);
+        }
+    }
+
     var iconPath = shapeDefNode.getAttribute("icon");
     // if (iconPath.indexOf("data:image") != 0) {
     //     iconPath = collection.url.substring(0, collection.url.lastIndexOf("/") + 1) + iconPath;
     // }
     shapeDef.iconPath = iconPath;
 
+    // adding shapeDef meta
+    shapeDef.meta = {};
+    Dom.workOn("./@p:*", shapeDefNode, function (metaAttribute) {
+        var metaValue = metaAttribute.nodeValue;
+        metaValue = metaValue.replace(/\$([a-z][a-z0-9]*)/gi, function (zero, one) {
+            property.relatedProperties[one] = true;
+            return "properties." + one;
+        });
+        shapeDef.meta[metaAttribute.localName] = metaValue;
+    });
+
     var parser = this;
 
     //parse properties
     Dom.workOn("./p:Properties/p:PropertyGroup", shapeDefNode, function (propGroupNode) {
-        var group = new PropertyGroup;
-        group.name = propGroupNode.getAttribute("name");
+        //find existing property group to support duplicate inherited groups
+        var groupName = propGroupNode.getAttribute("name");
+        var group = null;
+        for (var g of shapeDef.propertyGroups) {
+            if (g.name == groupName) {
+                group = g;
+                break;
+            }
+        }
+        if (!group) {
+            group = new PropertyGroup();
+            group.name = groupName;
+            shapeDef.propertyGroups.push(group);
+        }
 
         Dom.workOn("./p:Property", propGroupNode, function (propNode) {
             var property = new Property();
@@ -389,11 +422,13 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
                 property.meta[metaAttribute.localName] = metaValue;
             });
 
+            if (shapeDef.propertyMap[property.name]) {
+                shapeDef.removeProperty(property.name);
+            }
+
             group.properties.push(property);
             shapeDef.propertyMap[property.name] = property;
         });
-
-        shapeDef.propertyGroups.push(group);
     });
 
     /*/ styles
@@ -514,6 +549,10 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
             Console.dumpError(e);
         }
 
+        if (shapeDef.actionMap[action.id]) {
+            shapeDef.removeAction(action.id);
+        }
+
         shapeDef.actionMap[action.id] = action;
         shapeDef.actions.push(action);
 
@@ -529,7 +568,51 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
         node.removeAttribute("id");
     });
 
+
+    var parentContentPlaceHolder = Dom.getSingle(".//p:ParentContent", shapeDef.contentNode);
+    if (parentContentPlaceHolder && shapeDef.parentShapeDef && shapeDef.parentShapeDef.contentNode) {
+        var f = shapeDef.contentNode.ownerDocument.createDocumentFragment();
+        for (var i = 0; i < shapeDef.parentShapeDef.contentNode.childNodes.length; i ++) {
+            var child = shapeDef.parentShapeDef.contentNode.childNodes[i];
+            child = shapeDef.contentNode.ownerDocument.importNode(child, true);
+            f.appendChild(child);
+        }
+
+        parentContentPlaceHolder.parentNode.replaceChild(f, parentContentPlaceHolder);
+    }
+
     return shapeDef;
+};
+
+/* public ShapeDef */ ShapeDefCollectionParser.prototype.processInheritance = function (shapeDef) {
+// this.contentNode = null;
+// this.propertyGroups = [];
+// this.behaviors = [];
+// this.actions = [];
+//
+// this.propertyMap = {};
+// this.behaviorMap = {};
+// this.actionMap = {};
+
+    shapeDef.propertyGroups = [].concat();
+    for (var group of shapeDef.parentShapeDef.propertyGroups) {
+        var clonedGroup = group.clone();
+        shapeDef.propertyGroups.push(clonedGroup);
+
+        for (var prop of clonedGroup.properties) {
+            shapeDef.propertyMap[prop.name] = prop;
+        }
+    }
+    
+    shapeDef.behaviors = [].concat(shapeDef.parentShapeDef.behaviors);
+    for (var name in shapeDef.parentShapeDef.behaviorMap) {
+        shapeDef.behaviorMap[name] = shapeDef.parentShapeDef.behaviorMap[name];
+    }
+
+    shapeDef.actions = [].concat(shapeDef.parentShapeDef.actions);
+    for (var name in shapeDef.parentShapeDef.actionMap) {
+        shapeDef.actionMap[name] = shapeDef.parentShapeDef.actionMap[name];
+    }
 };
 /* public Shortcut */ ShapeDefCollectionParser.prototype.parseShortcut = function (shortcutNode, collection) {
     var shortcut = new Shortcut();

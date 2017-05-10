@@ -48,6 +48,44 @@ Font.prototype.getFamilies = function () {
     }
     return families;
 }
+Font.prototype.bold = function (yes) {
+    var font = Font.fromString(this.toString());
+    font.weight = (typeof(yes) == "undefined" || yes) ? "bold" : "normal";
+
+    return font;
+};
+Font.prototype.italic = function (yes) {
+    var font = Font.fromString(this.toString());
+    font.style = (typeof(yes) == "undefined" || yes) ? "italic" : "normal";
+
+    return font;
+};
+Font.prototype.resized = function (delta) {
+    var font = Font.fromString(this.toString());
+    if (typeof(delta) == "string" && delta.match(/^(.+)%$/)) {
+        font.size = Math.round(this.getPixelHeight() * (1 + parseFloat(RegExp.$1) / 100)) + "px";
+    } else if (typeof(delta) == "number") {
+        font.size = Math.round(this.getPixelHeight() * (1 + delta)) + "px";
+    }
+
+    return font;
+};
+Font.prototype.generateTransformTo = function (other) {
+    if (this.family != other.family) return null;
+
+    var transform = "";
+    if (this.weight != other.weight) {
+        transform += ".bold(" + (this.weight != "bold") + ")";
+    }
+    if (this.style != other.style) {
+        transform += ".italic(" + (this.style != "italic") + ")";
+    }
+    if (this.size != other.size && this.getPixelHeight() > 0) {
+        transform += ".resized(" + ((other.getPixelHeight() / this.getPixelHeight()) - 1) + ")";
+    }
+
+    return transform;
+};
 
 pencilSandbox.Font = {
     newFont: function () {

@@ -7,6 +7,11 @@ function NPatchSpecEditorDialog () {
     this.bind("mousedown", this.handleGlobalMouseDown, this.yCellContainer);
     this.bind("mouseup", this.handleGlobalMouseUp, document);
     this.bind("mousemove", this.handleGlobalMouseMove, document);
+
+    this.bind("click", function () {
+        console.log(this.useDarkBackgroundCheckbox.checked);
+        this.container.setAttribute("dark", this.useDarkBackgroundCheckbox.checked);
+    }, this.useDarkBackgroundCheckbox);
 }
 __extend(Dialog, NPatchSpecEditorDialog);
 
@@ -146,8 +151,66 @@ NPatchSpecEditorDialog.prototype.invalidateCellPosition = function (cell) {
     }
     var info = cell._cellInfo;
     if (info) {
-        info.textContent = b - a;
+        info.textContent = (cell._data.to - cell._data.from);
+        if (!cell._isX) {
+            var w = Math.round(info.offsetWidth);
+            var r = (s/2) - (w/2);
+            info.style.transform = "rotate(-90deg) translate(-" + r + "px, 0px)";
+        }
     }
+};
+NPatchSpecEditorDialog.commandsToData = function (pathCommands) {
+    var newData = "";
+
+    for (var command of pathCommands) {
+        if (newData) newData += " ";
+        newData += command.command;
+        if (command.points) {
+            for (var i = 0; i < command.points.length; i ++) {
+                newData += (i > 0 ? " " : "") + command.points[i].x + "," + command.points[i].y;
+            }
+        }
+    }
+
+    return newData;
+};
+
+NPatchSpecEditorDialog.generatePathSVGData = function (svgPathData, size) {
+    var specs = [];
+    var json = svgPathData.data;
+    if (!json.startsWith("json:")) return specs;
+    var parsedPathData = JSON.parse(json.substring(5));
+
+
+    for (var info of parsedPathData) {
+        var d = NPatchSpecEditorDialog.commandsToData(info.commands);
+        specs.push({
+            _name: "path",
+            _uri: PencilNamespaces.svg,
+            d: d,
+            style: "stroke: #000000; stroke-width: 1px; fill: rgba(0, 0, 0, 0.1);"
+        });
+    }
+
+    var svg = {
+        _name: "svg",
+        _uri: PencilNamespaces.svg,
+        width: svgPathData.w,
+        height: svgPathData.h,
+        viewBox: "0 0 " + size.w + " " + size.h,
+        _children: [
+            {
+                _name: "g",
+                _uri: PencilNamespaces.svg,
+                //transform: scale(size.w / svgPathData.w, size.h / svgPathData.h),
+                _children: specs
+            }
+        ]
+    }
+
+    var svgDom = Dom.newDOMElement(svg);
+    var svgData = encodeURIComponent(Dom.serializeNode(svgDom));
+    return "data:image/svg+xml," + svgData;
 };
 NPatchSpecEditorDialog.prototype.setup = function (options) {
     this.options = options || {};
@@ -158,7 +221,13 @@ NPatchSpecEditorDialog.prototype.setup = function (options) {
     var r0 = Math.max(this.options.imageData.w / maxW, this.options.imageData.h / maxH);
     var r1 = Math.min(this.options.imageData.w / minSize, this.options.imageData.h / minSize);
 
-    this.image.src = ImageData.refStringToUrl(this.options.imageData.data);
+    if (this.options.imageData.data && this.options.imageData.data.startsWith("json:")) {
+        this.image.src = NPatchSpecEditorDialog.generatePathSVGData(this.options.imageData, this.options.imageData);
+    } else if (this.options.imageData.data && this.options.imageData.data.startsWith("data:")) {
+        this.image.src = this.options.imageData.data;
+    } else {
+        this.image.src = ImageData.refStringToUrl(this.options.imageData.data);
+    }
 
     var r = r1 < 1 ? r1 : r0;
     this.setZoom(r);

@@ -36,7 +36,8 @@ function StartUpDocumentView() {
         if (doc.thumbPath) {
             handler(null, doc.thumbPath);
         } else {
-            Pencil.documentHandler.parseDocumentThumbnail(filePath, handler);
+            handler(null, "");
+            //Pencil.documentHandler.parseDocumentThumbnail(filePath, handler);
         }
     }
 

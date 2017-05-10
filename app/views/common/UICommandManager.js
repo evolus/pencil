@@ -137,7 +137,7 @@ window.document.addEventListener("focus", function (event) {
 }, true);
 
 
-UICommandManager.register = function (command) {
+UICommandManager.register = function (command, control) {
     command._run = command.run;
     command.run = UICommandManager.checkAndRunFunction;
 
@@ -158,6 +158,12 @@ UICommandManager.register = function (command) {
             document.body.addEventListener(eventNames[i], f, false);
         }
     }
+
+    if (control) {
+        UICommandManager.installControl(command.key, control);
+    }
+
+    return command;
 };
 UICommandManager.getCommand = function (commandKey) {
     if (!commandKey) return;
@@ -179,7 +185,7 @@ UICommandManager.installControl = function (commandKey, control) {
 };
 UICommandManager.invalidateCommand = function (command) {
     if (!command.controls) return;
-    var valid = command.isValid ? command.isValid() : !command.disabled;
+    var valid = command.isValid ? command.isValid() : (command.isAvailable ? command.isAvailable() : !command.disabled);
     for (var i = 0; i < command.controls.length; i ++) {
         command.controls[i].disabled = !valid;
         if (command.controls[i].setEnabled) command.controls[i].setEnabled(valid);
@@ -242,6 +248,8 @@ UICommandManager.handleKeyEvent = function (event) {
         if (command.isValid && !command.isValid(event)) {
             continue;
         }
+
+        if (command.isAvailable && !command.isAvailable()) continue;
 
         var eventCmdKey = command.parsedShortcut.command ? event.metaKey : false;
         var eventCtrlKey = !command.parsedShortcut.command && IS_MAC ? event.metaKey : event.ctrlKey;

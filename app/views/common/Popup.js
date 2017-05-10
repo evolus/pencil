@@ -133,6 +133,8 @@ Popup.prototype.isVisible = function () {
 Popup.prototype.showAt = function (x, y, skipEvent, autoFlip) {
     this.reparent();
 
+    console.log("Showing at: ", [x, y]);
+
     if (this.mode) {
         this.popupContainer.setAttribute("mode", this.mode);
     }

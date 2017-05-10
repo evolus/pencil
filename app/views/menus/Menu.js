@@ -215,6 +215,9 @@ Menu.prototype.renderItem = function (item) {
 
     return hbox;
 };
+Menu.prototype.getMenuItemNodes = function () {
+    return this.popupContainer.childNodes;
+};
 Menu.prototype.render = function () {
     Dom.empty(this.popupContainer);
     var actualItems = [];

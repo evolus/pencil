@@ -106,7 +106,7 @@ function EditPageNoteDialog () {
             return n.getAttribute && n.getAttribute("command");
         });
         if (!node) return;
-        var command = node.getAttribute("command");ns
+        var command = node.getAttribute("command");
         var arg = node.hasAttribute("arg") ? node.getAttribute("arg") : undefined;
         if(command == "createlink") {
             var sel = window.document.getSelection();
@@ -203,7 +203,7 @@ function EditPageNoteDialog () {
         }
         thiz.runEditorCommand("formatBlock", value);
     }, false);
-    
+
 }
 __extend(Dialog, EditPageNoteDialog);
 

@@ -1,5 +1,25 @@
 function OnMenuEditor() {
+    OnMenuEditor.globalSetup();
 }
+
+OnMenuEditor.globalSetupDone = false;
+OnMenuEditor.globalSetup = function () {
+    if (OnMenuEditor.globalSetupDone) return;
+    OnMenuEditor.globalSetupDone = true;
+
+    OnMenuEditor.invokeSecondaryContentEditCommand = UICommandManager.register({
+        key: "invokeSecondaryContentEditCommand",
+        label: "invokeSecondaryContentEditCommand",
+        shortcut: "Shift+F2",
+        isAvailable: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.handleOtherContentEditAction },
+        run: function () {
+            var editActions = Pencil.activeCanvas.currentController.getContentEditActions();
+            if (editActions.length < 2) return;
+            Pencil.activeCanvas.currentController.handleOtherContentEditAction(editActions[1]);
+        }
+    });
+};
+
 OnMenuEditor.prototype.install = function (canvas) {
     this.canvas = canvas;
     this.canvas.contextMenuEditor = this;
@@ -17,6 +37,7 @@ OnMenuEditor.prototype.generateMenuItems = function () {
     if (!this.targetObject) return [];
     var definedGroups = this.targetObject.getPropertyGroups();
     var items = [];
+    var importantItems = [];
     var thiz = this;
 
     var allowDisabled = Config.get("dev.enable_disabled_in_menu", null);
@@ -63,6 +84,7 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                     }
                 };
                 items.push(item);
+                importantItems.push(item);
             } else if (property.type == Enum) {
                 var enumItem = {
                     type: "SubMenu",
@@ -90,7 +112,16 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                     });
                 }
                 items.push(enumItem);
-            } else if (property.type == ImageData) { //TODO: property constraint to enable n-patch edit?
+            } else if (property.type == ImageData) {
+                if (this.targetObject.def) {
+                    var meta = this.targetObject.def.propertyMap[property.name].meta["npatch-edit"];
+                    if (meta) {
+                        var value = this.targetObject.evalExpression(meta, false);
+                        if (!value) continue;
+                    } else {
+                        continue;
+                    }
+                }
                 var value = thiz.targetObject.getProperty(property.name);
 
                 var imageNPathSpecEditItem = {
@@ -119,12 +150,36 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                 previousImageDataMenu = imageNPathSpecEditItem;
 
                 items.push(imageNPathSpecEditItem);
+                importantItems.push(imageNPathSpecEditItem);
             }
         }
     }
 
+    if (items.length > 10) {
+        var otherPropItem = {
+            label: "Other Properties",
+            type: "SubMenu",
+            subItems: []
+        };
+
+        for (var item of items) {
+            if (importantItems.indexOf(item) < 0) {
+                otherPropItem.subItems.push(item);
+            }
+        }
+
+        items = importantItems;
+        items.push(otherPropItem);
+    }
+
     //actions
     var actionItem = null;
+    var editActions = this.targetObject.getContentEditActions ? this.targetObject.getContentEditActions() : [];
+    var primaryActionId = null;
+    var secondaryActionId = null;
+    if (editActions.length > 0 && editActions[0].type == "action") primaryActionId = editActions[0].actionId;
+    if (editActions.length > 1 && editActions[1].type == "action") secondaryActionId = editActions[1].actionId;
+
     if (this.targetObject.def && this.targetObject.performAction) {
         for (var i in this.targetObject.def.actions) {
             var action = this.targetObject.def.actions[i];
@@ -144,10 +199,16 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                         subItems: []
                     }
                 }
+
+                var shortcut = null;
+                if (action.id == primaryActionId) shortcut = "F2";
+                if (action.id == secondaryActionId) shortcut = OnMenuEditor.invokeSecondaryContentEditCommand.shortcut;
+
                 actionItem.subItems.push({
                     label: action.displayName,
                     type: "Normal",
                     actionId: action.id,
+                    shortcut: shortcut,
                     handleAction: function (){
                         thiz.targetObject.performAction(this.actionId);
                         thiz.canvas.invalidateEditors();
