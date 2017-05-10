@@ -223,6 +223,8 @@ NPatchSpecEditorDialog.prototype.setup = function (options) {
 
     if (this.options.imageData.data && this.options.imageData.data.startsWith("json:")) {
         this.image.src = NPatchSpecEditorDialog.generatePathSVGData(this.options.imageData, this.options.imageData);
+    } else if (this.options.imageData.data && this.options.imageData.data.startsWith("data:")) {
+        this.image.src = this.options.imageData.data;
     } else {
         this.image.src = ImageData.refStringToUrl(this.options.imageData.data);
     }
