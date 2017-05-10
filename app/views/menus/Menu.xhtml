@@ -20,7 +20,8 @@
             margin: 0.8em 0em;
         }
         body .MenuPopupContainer .MenuItem.Active:not([disabled='true']),
-        body .MenuPopupContainer .MenuItem:not([disabled='true']):hover {
+        body .MenuPopupContainer .MenuItem:not([disabled='true']):hover,
+        body .MenuPopupContainer .MenuItem[selected='true']:not([disabled='true']) {
             background: @selected_bg;
             color: @selected_fg;
         }
