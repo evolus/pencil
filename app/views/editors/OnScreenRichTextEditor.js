@@ -68,9 +68,25 @@ OnScreenRichTextEditor.prototype.dettach = function () {
 
 OnScreenRichTextEditor.prototype.handleShapeDoubleClicked = function (event) {
     this.currentTarget = event.controller;
-    if (!this.currentTarget || !this.currentTarget.getTextEditingInfo) return;
+    if (!this.currentTarget) return;
 
-    this.textEditingInfo = this.currentTarget.getTextEditingInfo(event);
+    this.textEditingInfo = null;
+
+    if (this.currentTarget.getContentEditActions) {
+        var actions = this.currentTarget.getContentEditActions(event);
+        if (actions.length == 0) return;
+
+        var action = actions[0];
+        if (action.type == "text") {
+            this.textEditingInfo = action.editInfo;
+        } else {
+            this.currentTarget.handleOtherContentEditAction(action);
+            return;
+        }
+    } else {
+        if (!this.currentTarget.getTextEditingInfo) return;
+        this.textEditingInfo = this.currentTarget.getTextEditingInfo(event);
+    }
 
     if (!this.textEditingInfo || this.textEditingInfo.readonly) return;
 

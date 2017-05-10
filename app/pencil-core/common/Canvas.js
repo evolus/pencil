@@ -1393,7 +1393,7 @@ Canvas.prototype.handleKeyPress = function (event) {
             event.preventDefault();
         }
     } else if (event.keyCode == DOM_VK_F2) {
-        if (this.currentController) {
+        if (this.currentController && !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
             Dom.emitEvent("p:TextEditingRequested", this.element, {
                 controller : this.currentController
             });

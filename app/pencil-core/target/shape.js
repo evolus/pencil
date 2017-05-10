@@ -1252,3 +1252,28 @@ Shape.prototype.generateShortcutXML = function () {
         }.bind(this)
     });
 };
+
+Shape.prototype.getContentEditActions = function (event) {
+    var actions = [];
+    var editInfo = this.getTextEditingInfo(event);
+    if (editInfo) {
+        actions.push({
+            type: "text",
+            editInfo: editInfo
+        });
+    }
+    for (var action of this.def.actions) {
+        if (action.meta["content-action"] == "true") {
+            actions.push({
+                type: "action",
+                actionId: action.id
+            });
+        }
+    }
+
+    return actions;
+};
+Shape.prototype.handleOtherContentEditAction = function (action) {
+    if (action.type != "action") return;
+    this.performAction(action.actionId);
+};

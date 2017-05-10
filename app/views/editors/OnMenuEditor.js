@@ -1,5 +1,25 @@
 function OnMenuEditor() {
+    OnMenuEditor.globalSetup();
 }
+
+OnMenuEditor.globalSetupDone = false;
+OnMenuEditor.globalSetup = function () {
+    if (OnMenuEditor.globalSetupDone) return;
+    OnMenuEditor.globalSetupDone = true;
+
+    OnMenuEditor.invokeSecondaryContentEditCommand = UICommandManager.register({
+        key: "invokeSecondaryContentEditCommand",
+        label: "invokeSecondaryContentEditCommand",
+        shortcut: "Shift+F2",
+        isAvailable: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController && Pencil.activeCanvas.currentController.handleOtherContentEditAction },
+        run: function () {
+            var editActions = Pencil.activeCanvas.currentController.getContentEditActions();
+            if (editActions.length < 2) return;
+            Pencil.activeCanvas.currentController.handleOtherContentEditAction(editActions[1]);
+        }
+    });
+};
+
 OnMenuEditor.prototype.install = function (canvas) {
     this.canvas = canvas;
     this.canvas.contextMenuEditor = this;
@@ -154,6 +174,12 @@ OnMenuEditor.prototype.generateMenuItems = function () {
 
     //actions
     var actionItem = null;
+    var editActions = this.targetObject.getContentEditActions ? this.targetObject.getContentEditActions() : [];
+    var primaryActionId = null;
+    var secondaryActionId = null;
+    if (editActions.length > 0 && editActions[0].type == "action") primaryActionId = editActions[0].actionId;
+    if (editActions.length > 1 && editActions[1].type == "action") secondaryActionId = editActions[1].actionId;
+
     if (this.targetObject.def && this.targetObject.performAction) {
         for (var i in this.targetObject.def.actions) {
             var action = this.targetObject.def.actions[i];
@@ -173,10 +199,16 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                         subItems: []
                     }
                 }
+
+                var shortcut = null;
+                if (action.id == primaryActionId) shortcut = "F2";
+                if (action.id == secondaryActionId) shortcut = OnMenuEditor.invokeSecondaryContentEditCommand.shortcut;
+
                 actionItem.subItems.push({
                     label: action.displayName,
                     type: "Normal",
                     actionId: action.id,
+                    shortcut: shortcut,
                     handleAction: function (){
                         thiz.targetObject.performAction(this.actionId);
                         thiz.canvas.invalidateEditors();
