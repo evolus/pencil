@@ -1,4 +1,4 @@
-<hbox>
+<hbox use-toggle="true">
     <style>
         > * + * {
             border-top-left-radius:  0px !important;
@@ -24,9 +24,17 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+        @weightCombo {
+            width: 4em !important;
+        }
+        body .widget_FontEditor[use-toggle="false"] @boldButton,
+        body .widget_FontEditor[use-toggle="true"] @weightCombo {
+            display: none;
+        }
     </style>
     <ui:ComboManager anon-id="fontCombo" flex="1"/>
     <input anon-id="pixelFontSize" type="number" min="5" max="100"/>
     <button anon-id="boldButton"><span>B</span></button>
+    <ui:ComboManager anon-id="weightCombo" title="Font Weight"></ui:ComboManager>
     <button anon-id="italicButton"><span>I</span></button>
 </hbox>

@@ -40,6 +40,8 @@ FontEditor.prototype.setup = function () {
         thiz.fireChangeEvent();
     });
 
+    this.bind("p:ItemSelected", this.invalidateWeightCombo, this.fontCombo);
+
     this.pixelFontSize.addEventListener("input", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) return;
         thiz.fireChangeEvent();
@@ -77,6 +79,11 @@ FontEditor.prototype.setup = function () {
         thiz.fireChangeEvent();
     }, false);
 
+    this.bind("p:ItemSelected", function () {
+        if (!thiz.font || OnScreenTextEditor.isEditing) return;
+        thiz.fireChangeEvent();
+    }, this.weightCombo);
+
     this.italicButton.addEventListener("click", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
         var checked = false;
@@ -90,8 +97,21 @@ FontEditor.prototype.setup = function () {
         thiz.fireChangeEvent();
     }, false);
 
+    this.weightCombo.useHtml = true;
+    this.weightCombo.renderer = function (weight, buttonDisplay) {
+        var w = FontRepository.WEIGHT_MAP[weight];
+        return "<span style=\"font-family: " + this.fontCombo.getSelectedItem().family + "; font-weight: " + weight + ";\">" + (buttonDisplay ? w.shortName : w.displayName) + "</span>";
+    }.bind(this);
 };
 
+FontEditor.prototype.invalidateWeightCombo = function () {
+    var font = this.fontCombo.getSelectedItem();
+    this.weightCombo.node().style.fontFamily = font.family;
+    this.weightCombo.setItems(font.weights);
+
+    this.useToggle = (font.weights.length <= 2 && (font.weights.indexOf("normal") >= 0 || font.weights.indexOf("bold") >= 0));
+    this.node().setAttribute("use-toggle", this.useToggle);
+};
 
 
 FontEditor.prototype.setValue = function (font) {
@@ -126,13 +146,20 @@ FontEditor.prototype.setValue = function (font) {
     } else {
         this.italicButton.removeAttribute("checked");
     }
+
+    this.invalidateWeightCombo();
+    this.weightCombo.selectItem(this.font.weight);
 };
 
 FontEditor.prototype.getValue = function () {
     var font = new Font();
     font.family = this.fontCombo.getSelectedItem().family;
     font.size = this.pixelFontSize.value + "px";
-    font.weight = (this.boldButton.getAttribute("checked") == "true") ? "bold" : "normal";
+    if (this.useToggle) {
+        font.weight = (this.boldButton.getAttribute("checked") == "true") ? "bold" : "normal";
+    } else {
+        font.weight = this.weightCombo.getSelectedItem();
+    }
     font.style = (this.italicButton.getAttribute("checked") == "true") ? "italic" : "normal";
     this.fontSize = this.pixelFontSize.value;
     return font;
