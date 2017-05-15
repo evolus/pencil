@@ -891,6 +891,10 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
 
                 if (!contribution) return;
 
+                if (c.def.collection.performPostProcessing) {
+                    c.def.collection.performPostProcessing.call(c, contribution);
+                }
+
                 for (var prop of contribution.properties) {
                     if (!prop.global) {
                         if (propertyMap[prop.name]) continue;
