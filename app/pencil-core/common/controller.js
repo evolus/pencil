@@ -1434,6 +1434,11 @@ Controller.prototype.getDocumentPageMargin = function () {
     return options.pageMargin || Config.get(Config.DEV_PAGE_MARGIN_SIZE) || 40;
 };
 
+Controller.prototype.logShapeReparationRequest = function (shapeNode) {
+    if (!this.repairingShapes) this.repairingShapes = [];
+    this.repairingShapes.push(shape);
+}
+
 
 window.onbeforeunload = function (event) {
     // Due to a change of Chrome 51, returning non-empty strings or true in beforeunload handler now prevents the page to unload

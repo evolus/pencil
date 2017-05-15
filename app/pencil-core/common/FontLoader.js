@@ -74,6 +74,14 @@ FontLoader.prototype.removeFont = function (font, callback) {
         });
     }.bind(this), "Cancel");
 };
+FontLoader.prototype.setAutoEmbed = function (font, autoEmbed, callback) {
+    ApplicationPane._instance.busy();
+    this.userRepo.setAutoEmbed(font, autoEmbed);
+    this.loadFonts(function () {
+        if (callback) callback();
+        ApplicationPane._instance.unbusy();
+    });
+};
 FontLoader.prototype.getAllInstalledFonts = function () {
     this.userRepo.load();
     if (this.documentRepo) this.documentRepo.load();
@@ -115,10 +123,21 @@ FontLoader.prototype.embedToDocumentRepo = function (faces) {
     var shouldSave = false;
     faces.forEach(function (f) {
         console.log("Embeding " + f);
-        if (this.documentRepo.getFont(f)) return;
         var font = this.userRepo.getFont(f);
+        var userFont = this.documentRepo.getFont(f);
+        if (userFont) {
+            if (!font.autoEmbed) {
+                this.documentRepo.removeFont(userFont);
+            }
+            return;
+        }
         if (!font) return;
         console.log("user font found", font);
+        if (!font.autoEmbed) {
+            console.log(" > " + f + " is not auto-embeded.");
+            return;
+        }
+
         var font = JSON.parse(JSON.stringify(font));
         font.location = null;
         console.log(" >> cloned", font);
@@ -173,10 +192,12 @@ FontRepository.prototype.load = function () {
             var fontName = node.getAttribute("name");
             var location = node.getAttribute("location");
             var source = node.getAttribute("source") || "";
+            var autoEmbed = node.getAttribute("auto-embed") != "false";
             var font = {
                 name: fontName,
                 location: location,
                 source: source,
+                autoEmbed: autoEmbed,
                 variants: []
             };
             thiz.fonts.push(font);
@@ -205,16 +226,47 @@ FontRepository.prototype.load = function () {
         console.error(e);
     }
 };
-FontRepository.SUPPORTED_VARIANTS = {
-    regular: {weight: "normal", style: "normal"},
-    bold: {weight: "bold", style: "normal"},
-    italic: {weight: "normal", style: "italic"},
-    boldItalic: {weight: "bold", style: "italic"}
+FontRepository.SUPPORTED_WEIGHTS = [
+    {id: "thin", weight: "100", displayName: "Thin", shortName: "T"},
+    {id: "ulight", weight: "200", displayName: "Ultra Light", shortName: "UL"},
+    {id: "light", weight: "300", displayName: "Light", shortName: "L"},
+    {id: "regular", weight: "normal", displayName: "Regular", shortName: "R"},
+    {id: "medium", weight: "500", displayName: "Medium", shortName: "M"},
+    {id: "sbold", weight: "600", displayName: "Semi Bold", shortName: "SB"},
+    {id: "bold", weight: "bold", displayName: "Bold", shortName: "B"},
+    {id: "xbold", weight: "800", displayName: "Extra Bold", shortName: "XB"},
+    {id: "black", weight: "900", displayName: "Black", shortName: "BL"},
+];
+
+FontRepository.SUPPORTED_VARIANTS = {};
+FontRepository.WEIGHT_MAP = {};
+
+for (var weight of FontRepository.SUPPORTED_WEIGHTS) {
+    FontRepository.SUPPORTED_VARIANTS[weight.id] = {
+        weight: weight.weight,
+        style: "normal",
+        displayName: weight.displayName
+    };
+    FontRepository.SUPPORTED_VARIANTS[weight.id + "Italic"] = {
+        weight: weight.weight,
+        style: "italic",
+        displayName: weight.displayName + " Italic"
+    };
+
+    FontRepository.WEIGHT_MAP[weight.weight] = weight;
+}
+//@DEPRECATED, this is kept for backward compat only
+FontRepository.SUPPORTED_VARIANTS["italic"] = {
+    weight: "normal",
+    style: "italic",
+    displayName: "Regular Italic"
 };
+
 FontRepository.prototype.addFont = function (data) {
     if (!this.loaded) this.load();
     var font = {
         name: data.fontName,
+        autoEmbed: typeof(data.autoEmbed) === "boolean" ? data.autoEmbed : false,
         location: null,
         source: data.source || "",
         variants: []
@@ -264,6 +316,17 @@ FontRepository.prototype.removeFont = function (font) {
     this.save();
     this.loaded = false;
 };
+FontRepository.prototype.setAutoEmbed = function (font, autoEmbed) {
+    if (!this.loaded) this.load();
+
+    font = this.getFont(font.name);
+    if (!font) return;
+
+    font.autoEmbed = autoEmbed;
+    this.save();
+    this.loaded = false;
+};
+
 FontRepository.prototype.save = function () {
     if (!fsExistSync(this.dirPath)) {
         fs.mkdirSync(this.dirPath);
@@ -301,6 +364,7 @@ FontRepository.prototype.save = function () {
 
             fontNode.setAttribute("location", font.location);
             fontNode.setAttribute("source", font.source || "");
+            fontNode.setAttribute("auto-embed", font.autoEmbed);
 
             font.variants.forEach(function (variant) {
                 var fontStyleNode = dom.createElementNS(PencilNamespaces.p, "FontStyle");

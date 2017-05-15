@@ -1126,7 +1126,9 @@ Local.getInstalledFonts = function () {
         for (var font of installedFonts) {
             if (installedFaces.indexOf(font.name) >= 0) continue;
             installedFaces.push(font.name);
-            localFonts.push({family: font.name, type: font._type});
+            var weights = [];
+            for (var v of font.variants) if (weights.indexOf(v.weight) < 0) weights.push(v.weight);
+            localFonts.push({family: font.name, type: font._type, weights: weights});
         }
     }
 
@@ -1146,7 +1148,8 @@ Local.getInstalledFonts = function () {
         if (contained) continue;
 
         systemFonts.push({
-            family: fonts[i].family
+            family: fonts[i].family,
+            weights: ["normal", "bold"]
         });
     }
 

@@ -23,7 +23,6 @@
         width: 15em;
         display: inline-flex;
         padding: 1em;
-        cursor: pointer;
         background: #FFF;
     }
     @fontRepeater vbox[role="item"]:hover {
@@ -43,6 +42,9 @@
         align-items: center;
         margin-top: 0.5em;
     }
+    @fontRepeater vbox[role="item"] .InfoPane hbox {
+        align-items: center;
+    }
     @fontRepeater vbox[role="item"] .InfoPane > * {
         overflow: hidden;
         text-overflow: ellipsis;
@@ -52,8 +54,12 @@
         opacity: 0.5;
         font-size: 0.9em;
     }
+    @fontRepeater vbox[role="item"] .InfoPane input[type="checkbox"] {
+        margin-right: 0.3ex;
+    }
 
     @fontRepeater vbox[role="item"] .InfoPane button {
+        margin-left: 1ex;
         padding: 0.2em;
         line-height: 1em;
         height: auto;
@@ -100,6 +106,7 @@
                     <hbox flex="1">
                         <span anon-id="styleNumber"></span>
                     </hbox>
+                    <hbox><input type="checkbox" anon-id="autoEmbedCheckbox" /><label for="autoEmbedCheckbox" anon-id="embedLabel">Embed</label></hbox>
                     <button anon-id="deleteButton" title="Uninstall"><i>delete</i></button>
                 </hbox>
             </vbox>
