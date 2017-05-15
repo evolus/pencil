@@ -1,12 +1,26 @@
 <hbox>
     <style>
+        input[type='number'] {
+            width: 3.5em;
+        }
+        vbox > label {
+            opacity: 0.4;
+        }
     </style>
-    <label value="label.x.offset.value;"/>
-    <input type="number" min="-30" max="30" size="2" anon-id="dx" />
-
-    <label value="label.y.offset.value;"/>
-    <input type="number" min="-30" max="30" size="2" anon-id="dy" />
-
-    <label value="label.blur.size.value;"/>
-    <input type="number" min="-30" max="30" size="2" anon-id="size" />
+    <vbox>
+        <label>dx:</label>
+        <input type="number" min="-30" max="30" size="2" anon-id="dx" title="X offset" />
+    </vbox>
+    <vbox>
+        <label>dy:</label>
+        <input type="number" min="-30" max="30" size="2" anon-id="dy" title="Y offset" />
+    </vbox>
+    <vbox>
+        <label>blur:</label>
+        <input type="number" min="-30" max="30" size="2" anon-id="size" title="Blur radius" />
+    </vbox>
+    <vbox>
+        <label>opacity:</label>
+        <input type="number" min="0" max="1" step="0.1" size="2" anon-id="opacity" title="Shadow opacity" />
+    </vbox>
 </hbox>

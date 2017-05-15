@@ -650,23 +650,13 @@ Canvas.prototype.insertShape = function (shapeDef, bound, overridingValueMap) {
             overridingValueMap ? overridingValueMap : null ]);
 
 };
-Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
-        overridingValueMap) {
-
-    // instantiate the shape using the shapedef
-    var shape = this.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
-    shape.setAttributeNS(PencilNamespaces.p, "p:type", "Shape");
-    shape.setAttributeNS(PencilNamespaces.p, "p:def", shapeDef.id);
-
-
-    if (overridingValueMap && overridingValueMap._shortcut) {
-        shape.setAttributeNS(PencilNamespaces.p, "p:sc",
-                overridingValueMap._shortcut.displayName);
+Canvas.prototype.invalidateShapeContent = function (shape, shapeDef) {
+    var count = shape.childNodes.length;
+    for (var i = count - 1; i >= 0; i --) {
+        var child = shape.childNodes[i];
+        if (child.namespaceURI == PencilNamespaces.p && child.localName == "metadata") continue;
+        shape.removeChild(child);
     }
-
-    shape.appendChild(this.ownerDocument.createElementNS(PencilNamespaces.p,
-            "p:metadata"));
-
     for (var i = 0; i < shapeDef.contentNode.childNodes.length; i++) {
         shape.appendChild(this.ownerDocument.importNode(
                 shapeDef.contentNode.childNodes[i], true));
@@ -687,6 +677,25 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
     });
 
     Dom.renewId(shape);
+};
+Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
+        overridingValueMap) {
+
+    // instantiate the shape using the shapedef
+    var shape = this.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
+    shape.setAttributeNS(PencilNamespaces.p, "p:type", "Shape");
+    shape.setAttributeNS(PencilNamespaces.p, "p:def", shapeDef.id);
+
+
+    if (overridingValueMap && overridingValueMap._shortcut) {
+        shape.setAttributeNS(PencilNamespaces.p, "p:sc",
+                overridingValueMap._shortcut.displayName);
+    }
+
+    shape.appendChild(this.ownerDocument.createElementNS(PencilNamespaces.p,
+            "p:metadata"));
+
+    this.invalidateShapeContent(shape, shapeDef);
 
     // add the newly created shape into the drawing layer
     this.drawingLayer.appendChild(shape);
