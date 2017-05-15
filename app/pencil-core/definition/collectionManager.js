@@ -152,6 +152,7 @@ CollectionManager._loadUserDefinedStencilsIn = function (stencilDir, excluded, i
                 continue;
             }
             var folderPath = path.join(stencilDir, definitionFile);
+            if (!fs.lstatSync(folderPath).isDirectory()) continue;
             try {
                 if (CollectionManager._loadStencil(folderPath, parser, isSystem ? true : false, isDeveloperStencil ? true : false)) {
                     count++;

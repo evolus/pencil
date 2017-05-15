@@ -4,7 +4,7 @@ function CollectionResourceBrowserDialog (collection, options) {
 
     this.options = options || {};
 
-    this.prefixes = this.options.prefixes || {"All": ""};
+    this.prefixes = this.options.prefixes || [];
     this.type = this.options.type || CollectionResourceBrowserDialog.TYPE_BITMAP;
     this.returnType = this.options.returnType || CollectionResourceBrowserDialog.RETURN_IMAGEDATA;
 
@@ -20,8 +20,8 @@ function CollectionResourceBrowserDialog (collection, options) {
     this.collectionCombo.renderer = function (item) {
         return item.displayName;
     };
-    var availableCollections = [collection];
-    var selectedCollection = collection;
+    var availableCollections = collection.RESOURCE_LIST ? [collection] : [];
+    var selectedCollection = null;
     for (var c of CollectionManager.shapeDefinition.collections) {
         if (c.id == collection.id || !c.RESOURCE_LIST) continue;
 
@@ -42,6 +42,8 @@ function CollectionResourceBrowserDialog (collection, options) {
             selectedCollection = c;
         }
     }
+
+    if (!selectedCollection) selectedCollection = availableCollections[0];
 
     this.collectionCombo.setItems(availableCollections);
     this.collectionCombo.selectItem(selectedCollection);
@@ -82,6 +84,7 @@ function CollectionResourceBrowserDialog (collection, options) {
     this.invalidatePrefixList();
 
     this.filterInput.value = CollectionResourceBrowserDialog.lastKeyword || "";
+    console.log(this.prefixCombo.items);
     for (var p of this.prefixCombo.items) {
         if (p.prefix == CollectionResourceBrowserDialog.lastPrefix) {
             this.prefixCombo.selectItem(p);
@@ -122,7 +125,7 @@ CollectionResourceBrowserDialog.prototype.invalidatePrefixList = function () {
     var collection = this.collectionCombo.getSelectedItem();
     var prefixes = [];
     if (collection.id == this.collection.id) {
-        prefixes = this.prefixes;
+        prefixes = this.prefixes || [];
     } else {
         for (var resource of collection.RESOURCE_LIST) {
             if (!resource.type || resource.type == this.options.type) {
