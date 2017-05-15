@@ -7,7 +7,6 @@ function CollectionSettingDialog (collection) {
     this.subTitle = "Configure default property values for shapes created from this collection."
 
     this.propertyEditors = {};
-    console.log("MANAGER COLLECTION", this.collection);
     for (var i = 0; i < this.collection.propertyGroups.length; i ++) {
         var propertyGroup = this.collection.propertyGroups[i];
         if (propertyGroup) {
