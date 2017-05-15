@@ -84,6 +84,10 @@ Menu.prototype.handleMouseIn = function (event) {
         window.clearTimeout(this._parent.currentHideMenuTimeout);
         this._parent.currentHideMenuTimeout = null;
         Dom.addClass(this._parent.currentItemNodeWithSubMenu, "Active");
+
+        if (this._parent.currentShowMenuTimeout) {
+            window.clearTimeout(this._parent.currentShowMenuTimeout);
+        }
     }
 
     var itemNode = Dom.findUpwardForNodeWithData(event.target, "_item");
