@@ -1,4 +1,4 @@
-function Canvas(element) {
+function Canvas(element, options) {
     this.element = element;
     this.oldElement = "";
     this.__delegate("addEventListener", "hasAttribute", "getAttribute", "setAttribute", "setAttributeNS", "removeAttribute", "removeAttributeNS", "dispatchEvent");
@@ -18,6 +18,9 @@ function Canvas(element) {
     var thiz = this;
     this.lockPointerFunction = null;
     this.autoScrollTimout = null;
+
+    this.options = options || {};
+
     this.startAutoScrollFunction = function(func) {
         if (this.autoScrollTimout == null) {
             // this.lockPointerFunction = function () {
@@ -206,7 +209,7 @@ function Canvas(element) {
             document.removeEventListener("mousemove", arguments.callee, false);
             return;
         }
-        if (thiz.controllerHeld && thiz.currentController &&
+        if (thiz.controllerHeld && thiz.currentController && thiz._scrollPane &&
              (thiz._scrollPane.clientHeight < thiz._scrollPane.scrollHeight || thiz._scrollPane.clientWidth < thiz._scrollPane.scrollWidth)) {
             thiz.handleScrollPane(event);
         }
@@ -881,7 +884,8 @@ Canvas.prototype.handleMouseWheel = function(event) {
 }
 
 Canvas.prototype.handleScrollPane = function(event) {
-    var thiz =this;
+    if (!this._scrollPane) return;
+    var thiz = this;
     var scrollBarSize = 15;
     var scrollValue = 20;
     var loc = { x: event.clientX, y: event.clientY };
@@ -2417,8 +2421,7 @@ Canvas.prototype.run = function (job, targetObject, actionName, args) {
         Console.dumpError(e);
     } finally {
         this._saveMemento(actionName);
-        if (!Pencil.controller.activePageLoading)
-            this._sayContentModified();
+        if (Pencil.controller && !Pencil.controller.activePageLoading) this._sayContentModified();
     }
 
 };

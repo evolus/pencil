@@ -112,7 +112,7 @@ SnappingHelper.prototype.rebuildSnappingGuide = function () {
         }
     }
 
-    var margin = Pencil.controller.getDocumentPageMargin();
+    var margin = (Pencil.controller && !this.canvas.options.ignorePageMarging) ? Pencil.controller.getDocumentPageMargin() : 0;
     if (margin) {
         var uid = Util.newUUID();
         this.snappingGuide[uid] = {

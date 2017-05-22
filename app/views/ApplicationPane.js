@@ -41,6 +41,7 @@ function ApplicationPane() {
     }, this.menuIcon);
 
     this.bind("p:DocumentChanged", this.onDocumentChanged, this.node());
+    window.globalEventBus.listen("doc-options-change", this.onDocumentOptionsChanged.bind(this));
 
     this.bind("p:PageInfoChanged", function (event) {
         this.pageListView.handlePageInfoChangedEvent(event);
@@ -148,6 +149,8 @@ ApplicationPane.prototype.createCanvas = function () {
     container.style.height = h + "px";
     Dom.addClass(container, "Canvas");
 
+    var stencilToolbar = new StencilShapeCanvasToolbar().into(wrapper);
+
     var canvas = new Canvas(container);
 
     this.getCanvasContainer().appendChild(scrollPane);
@@ -157,6 +160,8 @@ ApplicationPane.prototype.createCanvas = function () {
     canvas._scrollPane = scrollPane;
 
     scrollPane.style.display = "none";
+
+    stencilToolbar.canvas = canvas;
 
     canvas.element.addEventListener("p:SizeChanged", function () {
         var w = Math.ceil(canvas.width * canvas.zoom);
@@ -172,7 +177,13 @@ ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageListView.currentPage = this.controller.activePage;
     this.controller.activePage.canvas._sayTargetChanged();
     this.pageListView.renderPages();
+
+    this.onDocumentOptionsChanged();
 };
+ApplicationPane.prototype.onDocumentOptionsChanged = function () {
+    this.getCanvasContainer().setAttribute("stencil-dev-mode", StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection() ? true : false);
+};
+
 ApplicationPane.prototype.activatePage = function (page) {
     this.pageListView.activatePage(page);
 }
@@ -223,20 +234,28 @@ ApplicationPane.prototype.showStartupPane = function () {
     this.invalidateUIForControllerStatus();
 };
 const NO_CONTENT_VALUE = 22;
+ApplicationPane.prototype.getCanvasToolbarHeight = function () {
+    return StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection() ? Math.round(3 * Util.em()) : 0;
+};
 ApplicationPane.prototype.getPreferredCanvasSize = function () {
+    var toolbarPadding = this.getCanvasToolbarHeight();
+
     return {
         w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - NO_CONTENT_VALUE,
-        h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - NO_CONTENT_VALUE
+        h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - NO_CONTENT_VALUE - toolbarPadding
     }
 };
 ApplicationPane.prototype.getBestFitSize = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
+    var toolbarPadding = this.getCanvasToolbarHeight();
+
     return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE),
-            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE)].join("x");
+            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE - toolbarPadding)].join("x");
 };
 ApplicationPane.prototype.getBestFitSizeObject = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
-    return {width: zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE), height: zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE)};
+    var toolbarPadding = this.getCanvasToolbarHeight();
+    return {width: zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE), height: zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE - toolbarPadding)};
 };
 ApplicationPane.prototype.showBusyIndicator = function () {
     this.currentBusyOverlay = document.createElement("div");

@@ -60,6 +60,7 @@ Controller.prototype.confirmAndclose = function (onClose) {
         this.modified = false;
 
         this.sayControllerStatusChanged();
+        ShapeTestCanvasPane._instance.quitTesting();
 
         if (onClose) onClose();
     }.bind(this);

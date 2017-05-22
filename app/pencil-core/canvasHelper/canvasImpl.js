@@ -45,7 +45,7 @@ CanvasImpl.setupGrid = function () {
     }
 };
 CanvasImpl.drawMargin = function () {
-    var unzommedMargin = Pencil.controller.getDocumentPageMargin();
+    var unzommedMargin = (Pencil.controller && !this.options.ignorePageMarging) ? Pencil.controller.getDocumentPageMargin() : 0;
     if (!unzommedMargin) {
         if (this.marginPath) this.marginPath.parentNode.removeChild(this.marginPath);
         this.marginPath = null;

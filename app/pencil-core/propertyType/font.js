@@ -54,6 +54,18 @@ Font.prototype.bold = function (yes) {
 
     return font;
 };
+Font.prototype.bolder = function (amount) {
+    var font = Font.fromString(this.toString());
+    var weight = Math.min(Math.max(100, this.getWeightAsNumber() + amount), 900);
+    weight -= weight % 100;
+    var w = "" + weight;
+    if (weight == 400) w = "normal";
+    if (weight == 700) w = "bold";
+
+    font.weight = w;
+
+    return font;
+};
 Font.prototype.italic = function (yes) {
     var font = Font.fromString(this.toString());
     font.style = (typeof(yes) == "undefined" || yes) ? "italic" : "normal";
@@ -70,12 +82,23 @@ Font.prototype.resized = function (delta) {
 
     return font;
 };
+Font.prototype.getWeightAsNumber = function () {
+    if (this.weight == "bold") return 700;
+    if (this.weight == "normal") return 400;
+    return parseInt(this.weight, 10);
+}
 Font.prototype.generateTransformTo = function (other) {
     if (this.family != other.family) return null;
 
     var transform = "";
     if (this.weight != other.weight) {
-        transform += ".bold(" + (this.weight != "bold") + ")";
+        if (this.weight == "bold" && other.weight == "normal") {
+            transform += ".bold(false)";
+        } else if (this.weight == "normal" && other.weight == "bold") {
+            transform += ".bold(true)";
+        } else {
+            transform += ".bolder(" + (other.getWeightAsNumber() - this.getWeightAsNumber()) + ")";
+        }
     }
     if (this.style != other.style) {
         transform += ".italic(" + (this.style != "italic") + ")";
