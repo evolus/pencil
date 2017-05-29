@@ -442,7 +442,7 @@ PageDetailDialog.prototype.getDialogActions = function () {
 
                 if (this.originalPage && this.originalPage.name != pageName || !this.originalPage) {
                     if (Pencil.controller.findPageByName(pageName)) {
-                        Dialog.confirm("The page name '" + pageName + "' has existed. Do you want to continue " + (this.originalPage ? "updating the" : "creating a") + " page with this name?",
+                        Dialog.confirm("The page name '" + pageName + "' already exists. Do you want to continue " + (this.originalPage ? "updating the" : "creating a") + " page with this name?",
                                 null,
                                 "Yes, continue",
                                 function () {
