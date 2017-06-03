@@ -1441,13 +1441,20 @@ Controller.prototype.logShapeReparationRequest = function (shapeNode) {
 }
 
 
-window.onbeforeunload = function (event) {
+window.addEventListener("beforeunload", function (event) {
     // Due to a change of Chrome 51, returning non-empty strings or true in beforeunload handler now prevents the page to unload
+    if (Pencil.documentHandler && Pencil.documentHandler.isSaving) {
+        console.log("Close during save prevented!");
+        event.returnValue = false;
+        return;
+    }
+
     var remote = require("electron").remote;
     if (remote.app.devEnable) return;
 
     if (Controller.ignoreNextClose) {
         Controller.ignoreNextClose = false;
+        event.returnValue = false;
         return;
     }
 
@@ -1459,6 +1466,7 @@ window.onbeforeunload = function (event) {
                 currentWindow.close();
             });
         }, 10);
-        return true;
+        event.returnValue = false;
+        return;
     }
-};
+});
