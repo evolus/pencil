@@ -29,7 +29,7 @@
             flex-wrap: wrap;
         }
         @recentDocumentRepeater vbox[role="item"] {
-            box-shadow: 0px 0px 0.5ex rgba(0, 0, 0, 0.4);
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
             margin-left: 2ex;
             margin-top: 2ex;
             /*width: 20ex;*/
@@ -37,9 +37,10 @@
             background: @app_bg;
             cursor: pointer;
             position: relative;
+            border-radius: 2px;
         }
         @recentDocumentRepeater vbox[role="item"]:hover {
-            box-shadow: 0px 0px 1ex @selected_bg;
+            box-shadow: 0px 1px 3px @selected_bg;
         }
         @recentDocumentPane .Repeater-Document vbox[role="item"] .ImageContainer {
             width: 22ex;

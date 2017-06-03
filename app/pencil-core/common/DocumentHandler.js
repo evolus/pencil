@@ -264,7 +264,6 @@ DocumentHandler.prototype.confirmAndSaveDocument = function (onSaved) {
 DocumentHandler.prototype.newDocument = function () {
     var thiz = this;
     function create() {
-        ShapeTestCanvasPane._instance.quitTesting();
         thiz.resetDocument();
         thiz.controller.sayControllerStatusChanged();
         FontLoader.instance.loadFonts();

@@ -56,6 +56,7 @@
     "q": "^1.4.1",
     "rimraf": "^2.5.4",
     "tar": "https://github.com/dgthanhan/node-tar/archive/6086b1ea82137c61eea4efe882dd514590e5b7a8.tar.gz",
+    "tar-fs": "^1.15.2",
     "tar.gz": "^1.0.5",
     "tmp": "0.0.31",
     "unzip2": "^0.2.5"
