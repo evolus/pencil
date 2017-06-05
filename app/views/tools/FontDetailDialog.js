@@ -80,7 +80,7 @@ FontDetailDialog.prototype.getDialogActions = function () {
                 }
 
                 if (FontLoader.instance.isFontExisting(fontName)) {
-                    Dialog.error("Font name '" + fontName + "' has existed.", "Please enter a new font name.");
+                    Dialog.error("Font name '" + fontName + "' already exists.", "Please enter a new font name.");
                     return;
                 }
 
