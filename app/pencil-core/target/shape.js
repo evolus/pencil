@@ -18,17 +18,28 @@ function Shape(canvas, svg, forcedDefinition) {
     this.metaNode = Dom.getSingle("./p:metadata", this.svg);
 
     //construct the target node map
+    this.setupTargetMap("shouldRepair");
+    //this.dockingManager = new DockingManager(this);
+}
+Shape.prototype.setupTargetMap = function (shouldRepair) {
     this.targetMap = {};
     for (i in this.def.behaviors) {
         var name = this.def.behaviors[i].target;
         var target = Dom.getSingle(".//*[@p:name='" + name + "']", this.svg);
         if (!target) {
-            Util.showStatusBarInfo(Util.getMessage("object.seems.to.be.old"));
+            if (shouldRepair) {
+                console.error("Target '" + name + "' is not found. Repairing now...");
+                this.repair();
+                this.setupTargetMap();
+                return;
+            } else {
+                console.error("Target '" + name + "' is not found. Ignoring...");
+                continue;
+            }
         }
         this.targetMap[name] = target;
     }
-    //this.dockingManager = new DockingManager(this);
-}
+};
 Shape.prototype.getName = function () {
     return this.def.displayName;
 };
@@ -176,6 +187,12 @@ Shape.prototype.renewTargetProperties = function () {
 
     return true;
 };
+Shape.prototype.repair = function () {
+    this.canvas.invalidateShapeContent(this.svg, this.def);
+    for (name in this.def.propertyMap) {
+        this.applyBehaviorForProperty(name);
+    }
+};
 Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedProperties) {
     var propertyDef = this.def.propertyMap[name];
     if (!propertyDef) return;
@@ -192,7 +209,7 @@ Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedPr
 
         var target = this.targetMap[targetName];
         if (!target) {
-            warn("Target '" + targetName + "' is not found. Ignoring...");
+            console.error("Target '" + targetName + "' is not found. Ignoring...");
             continue;
         }
         F._target = target;

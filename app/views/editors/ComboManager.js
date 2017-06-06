@@ -125,7 +125,7 @@ ComboManager.prototype.selectItem = function (item, fromUserAction, whenMatched)
     }
     if (!matched && whenMatched) return;
 
-    var element = this.renderer(item);
+    var element = this.renderer(item, "forButtonDisplay");
     if (!element) return;
 
     if (element.getAttribute) {

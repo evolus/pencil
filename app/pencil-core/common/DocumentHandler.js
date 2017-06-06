@@ -226,6 +226,7 @@ DocumentHandler.prototype.saveDocument = function (onSaved) {
 };
 
 DocumentHandler.prototype._saveBoundDocument = function (onSaved) {
+    this.isSaving = true;
     ApplicationPane._instance.busy();
     this.controller.updateCanvasState();
 
@@ -235,6 +236,7 @@ DocumentHandler.prototype._saveBoundDocument = function (onSaved) {
         thiz.getActiveHandler().saveDocument(thiz.controller.documentPath)
             .then(function () {
                 ApplicationPane._instance.unbusy();
+                thiz.isSaving = false;
                 thiz.controller.sayDocumentSaved();
 
                 if (onSaved) onSaved();
@@ -244,6 +246,7 @@ DocumentHandler.prototype._saveBoundDocument = function (onSaved) {
             })
             .catch (function (err) {
                 ApplicationPane._instance.unbusy();
+                thiz.isSaving = false;
                 Dialog.error("Error when saving document: " + err);
 
                 thiz.controller.applicationPane.onDocumentChanged();

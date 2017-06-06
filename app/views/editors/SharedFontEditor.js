@@ -23,6 +23,8 @@ SharedFontEditor.prototype.setup = function () {
         thiz._applyValue();
     });
 
+    this.bind("p:ItemSelected", this.invalidateWeightCombo, this.fontCombo);
+
     this.pixelFontSize.addEventListener("input", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value == "0") return;
         thiz.font.size = thiz.pixelFontSize.value + "px";
@@ -61,6 +63,14 @@ SharedFontEditor.prototype.setup = function () {
         thiz._applyValue();
     }, false);
 
+    this.bind("p:ItemSelected", function () {
+        if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
+        thiz.font.weight = thiz.weightCombo.getSelectedItem();
+        thiz._applyValue();
+
+    }, this.weightCombo);
+
+
     this.italicButton.addEventListener("click", function(event) {
         if (!thiz.target || !thiz.font || OnScreenTextEditor.isEditing) return;
         var checked = false;
@@ -83,7 +93,23 @@ SharedFontEditor.prototype.setup = function () {
         thiz.beginFormatPainter();
     }, false);
 
+    this.weightCombo.useHtml = true;
+    this.weightCombo.renderer = function (weight, buttonDisplay) {
+        var w = FontRepository.WEIGHT_MAP[weight];
+        return "<span style=\"font-family: " + this.fontCombo.getSelectedItem().family + "; font-weight: " + weight + ";\">" + (buttonDisplay ? w.shortName : w.displayName) + "</span>";
+    }.bind(this);
+
     Pencil.formatPainterButton = this.formatPainterButton;
+};
+SharedFontEditor.prototype.invalidateWeightCombo = function () {
+    var font = this.fontCombo.getSelectedItem();
+    this.weightCombo.node().style.fontFamily = font.family;
+    this.weightCombo.setItems(font.weights);
+
+    if (this.font && this.font.weight) this.weightCombo.selectItem(this.font.weight);
+
+    this.useToggle = (font.weights.length <= 2 && (font.weights.indexOf("normal") >= 0 || font.weights.indexOf("bold") >= 0));
+    this.node().setAttribute("use-toggle", this.useToggle);
 };
 SharedFontEditor.prototype.reloadFontItems = function () {
     FontEditor._loadFontItems(this.fontCombo);
@@ -131,6 +157,7 @@ SharedFontEditor.prototype.attach = function (target) {
     }
 
     this.fontCombo.setDisabled(false);
+    this.weightCombo.setDisabled(false);
     this.pixelFontSize.disabled = false;
     this.boldButton.disabled = false;
     this.italicButton.disabled = false;
@@ -164,11 +191,15 @@ SharedFontEditor.prototype.attach = function (target) {
     } else {
         this.italicButton.removeAttribute("checked");
     }
+
+    this.invalidateWeightCombo();
+
     var formatPainter = Pencil.activeCanvas && target && (target.constructor == Group || target.constructor == Shape);
     this.formatPainterButton.disabled = !formatPainter;
 };
 SharedFontEditor.prototype.detach = function () {
     this.fontCombo.setDisabled(true);
+    this.weightCombo.setDisabled(true);
     this.pixelFontSize.disabled = true;
     this.boldButton.disabled = true;
     this.italicButton.disabled = true;

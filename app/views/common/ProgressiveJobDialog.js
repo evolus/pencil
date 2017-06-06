@@ -24,7 +24,7 @@ ProgressiveJobDialog.prototype.setup = function (options) {
             thiz.statusLabel.innerHTML = Dom.htmlEncode(status || "Please wait...");
             thiz.progressBarInner.style.width = Math.round(100 * completed / total) + "%";
 
-            Pencil.app.mainWindow.setProgressBar(Math.round(completed / total));
+            if (process.platform != "linux") Pencil.app.mainWindow.setProgressBar(Math.round(completed / total));
         }
     };
 

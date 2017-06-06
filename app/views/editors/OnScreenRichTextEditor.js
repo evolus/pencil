@@ -128,14 +128,18 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
 
     var bbox = this.textEditingInfo.target.getBBox();
 
-    var width = Math.max(bbox.width, 100);
-    var height = Math.min(Math.max(bbox.height + 2, 50), 500);
+    var bw = Math.min(Math.max(bbox.width, 100), this.canvas.width);
+    var bh = Math.min(Math.max(bbox.height, 20), this.canvas.height);
+
+    var width = bw * this.canvas.zoom;
+    var height = bh * this.canvas.zoom;
 
     if (this.textEditingInfo.bound) {
         x += this.textEditingInfo.bound.x * this.canvas.zoom - 1;
         y += this.textEditingInfo.bound.y * this.canvas.zoom - 1;
-        width = this.textEditingInfo.bound.w * this.canvas.zoom + 4;
-        height = this.textEditingInfo.bound.h * this.canvas.zoom + 4;
+        width = Math.max(this.textEditingInfo.bound.w, bw) * this.canvas.zoom + 4;
+        height = Math.max(this.textEditingInfo.bound.h, bh) * this.canvas.zoom + 4;
+
     }
 
     if (x < 0) {
@@ -172,6 +176,10 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
     this.textEditorWrapper.style.textAlign = ["left", "center", "right"][align ? align.h : 0];
 
     this.textEditor.innerHTML = this.textEditingInfo.value.value;   //PlainText.value
+
+    if (height < this.textEditingInfo.font.getPixelHeight() * 3) {
+        this.textEditor.style.overflowX = "hidden";
+    }
 
     this.popup.showAt(x, y);
 
@@ -253,16 +261,23 @@ OnScreenRichTextEditor.prototype.hideAutoComplete = function () {
 //TODO: Refactor this into AC set registration from stencil
 OnScreenRichTextEditor.prototype.getAutoCompleteSet = function (term, isFull) {
     if (term && term.toLowerCase() == "lorem") {
-        var up = term.substring(0, 1) == "L";
+        var items = [
+            getLoremWord(),
+            loremIpsum(3),
+            loremIpsum(5),
+            loremIpsum(10),
+            loremIpsum(20),
+            loremIpsumParagraph(40)
+        ];
+        if (term.substring(0, 1) == "L") {
+            if (term.toUpperCase() == term) {
+                for (var i = 0; i < items.length; i ++) items[i] = items[i].toUpperCase();
+            } else {
+                for (var i = 0; i < items.length; i ++) items[i] = capitalize(items[i]);
+            }
+        }
         return {
-            items: [
-                up ? capitalize(getLoremWord()) : getLoremWord(),
-                up ? loremIpsumSentence(3).trim() : loremIpsum(3),
-                up ? loremIpsumSentence(5).trim() : loremIpsum(5),
-                up ? loremIpsumSentence(10).trim() : loremIpsum(10),
-                up ? loremIpsumSentence(20).trim() : loremIpsum(20),
-                loremIpsumParagraph(40)
-            ],
+            items: items,
             replacementSize: term.length
         }
     }

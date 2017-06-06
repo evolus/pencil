@@ -1,4 +1,4 @@
-function Canvas(element) {
+function Canvas(element, options) {
     this.element = element;
     this.oldElement = "";
     this.__delegate("addEventListener", "hasAttribute", "getAttribute", "setAttribute", "setAttributeNS", "removeAttribute", "removeAttributeNS", "dispatchEvent");
@@ -18,6 +18,9 @@ function Canvas(element) {
     var thiz = this;
     this.lockPointerFunction = null;
     this.autoScrollTimout = null;
+
+    this.options = options || {};
+
     this.startAutoScrollFunction = function(func) {
         if (this.autoScrollTimout == null) {
             // this.lockPointerFunction = function () {
@@ -206,7 +209,7 @@ function Canvas(element) {
             document.removeEventListener("mousemove", arguments.callee, false);
             return;
         }
-        if (thiz.controllerHeld && thiz.currentController &&
+        if (thiz.controllerHeld && thiz.currentController && thiz._scrollPane &&
              (thiz._scrollPane.clientHeight < thiz._scrollPane.scrollHeight || thiz._scrollPane.clientWidth < thiz._scrollPane.scrollWidth)) {
             thiz.handleScrollPane(event);
         }
@@ -650,23 +653,13 @@ Canvas.prototype.insertShape = function (shapeDef, bound, overridingValueMap) {
             overridingValueMap ? overridingValueMap : null ]);
 
 };
-Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
-        overridingValueMap) {
-
-    // instantiate the shape using the shapedef
-    var shape = this.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
-    shape.setAttributeNS(PencilNamespaces.p, "p:type", "Shape");
-    shape.setAttributeNS(PencilNamespaces.p, "p:def", shapeDef.id);
-
-
-    if (overridingValueMap && overridingValueMap._shortcut) {
-        shape.setAttributeNS(PencilNamespaces.p, "p:sc",
-                overridingValueMap._shortcut.displayName);
+Canvas.prototype.invalidateShapeContent = function (shape, shapeDef) {
+    var count = shape.childNodes.length;
+    for (var i = count - 1; i >= 0; i --) {
+        var child = shape.childNodes[i];
+        if (child.namespaceURI == PencilNamespaces.p && child.localName == "metadata") continue;
+        shape.removeChild(child);
     }
-
-    shape.appendChild(this.ownerDocument.createElementNS(PencilNamespaces.p,
-            "p:metadata"));
-
     for (var i = 0; i < shapeDef.contentNode.childNodes.length; i++) {
         shape.appendChild(this.ownerDocument.importNode(
                 shapeDef.contentNode.childNodes[i], true));
@@ -687,6 +680,25 @@ Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
     });
 
     Dom.renewId(shape);
+};
+Canvas.prototype.insertShapeImpl_ = function (shapeDef, bound,
+        overridingValueMap) {
+
+    // instantiate the shape using the shapedef
+    var shape = this.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
+    shape.setAttributeNS(PencilNamespaces.p, "p:type", "Shape");
+    shape.setAttributeNS(PencilNamespaces.p, "p:def", shapeDef.id);
+
+
+    if (overridingValueMap && overridingValueMap._shortcut) {
+        shape.setAttributeNS(PencilNamespaces.p, "p:sc",
+                overridingValueMap._shortcut.displayName);
+    }
+
+    shape.appendChild(this.ownerDocument.createElementNS(PencilNamespaces.p,
+            "p:metadata"));
+
+    this.invalidateShapeContent(shape, shapeDef);
 
     // add the newly created shape into the drawing layer
     this.drawingLayer.appendChild(shape);
@@ -872,7 +884,8 @@ Canvas.prototype.handleMouseWheel = function(event) {
 }
 
 Canvas.prototype.handleScrollPane = function(event) {
-    var thiz =this;
+    if (!this._scrollPane) return;
+    var thiz = this;
     var scrollBarSize = 15;
     var scrollValue = 20;
     var loc = { x: event.clientX, y: event.clientY };
@@ -2408,8 +2421,7 @@ Canvas.prototype.run = function (job, targetObject, actionName, args) {
         Console.dumpError(e);
     } finally {
         this._saveMemento(actionName);
-        if (!Pencil.controller.activePageLoading)
-            this._sayContentModified();
+        if (Pencil.controller && !Pencil.controller.activePageLoading) this._sayContentModified();
     }
 
 };

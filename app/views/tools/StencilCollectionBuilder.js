@@ -24,8 +24,36 @@ collection.BOUND_CALCULATOR = {
     },
 
     calculate: function (box, spec, h0, h1) {
-        spec.match(/^([A-Z0-9]*[A-Z])([0-9\-]+)$/)
-        return collection.BOUND_CALCULATOR[RegExp.$1](box, parseInt(RegExp.$2, 10), h0, h1);
+        if (spec.match(/^(([a-zA-Z0-9]+)\.)?([A-Z0-9]*[A-Z])([0-9\-]+)$/)) {
+            var bounding = box;
+            var targetName = RegExp.$2;
+            var func = RegExp.$3;
+            var delta = RegExp.$4;
+            if (targetName) {
+                var shapeNode = Dom.findUpward(F._target, {eval: function (node) {
+                    return node.hasAttributeNS && node.getAttributeNS(PencilNamespaces.p, "type") == "Shape";
+                }});
+
+                if (shapeNode) {
+                    var name = targetName;
+                    if (targetName.match(/^text.*/)) name += "text"; //HACK: use text element natural bound
+
+                    var node = Dom.getSingle(".//svg:*[@p:name='" + name + "']", shapeNode);
+                    if (node) {
+                        var bbox = node.getBBox();
+                        bounding = {
+                            x: bbox.x,
+                            y: bbox.y,
+                            w: bbox.width,
+                            h: bbox.height
+                        };
+                    }
+                }
+            }
+
+            return collection.BOUND_CALCULATOR[func](bounding, parseInt(delta, 10), h0, h1);
+        }
+        return 0;
     }
 };
 collection.toBounds = function (box, textBounds, h0, h1) {
@@ -469,6 +497,11 @@ collection.browseResource = function (setNames, type, returnType, callback) {
     CollectionResourceBrowserDialog.open(collection, options, callback);
 };
 `;
+
+
+StencilCollectionBuilder.SUBDIR_BITMAPS = "bitmaps";
+StencilCollectionBuilder.SUBDIR_VECTORS = "vectors";
+
 StencilCollectionBuilder.prototype.getPageMargin = function () {
     var pageMargin = Pencil.controller.getDocumentPageMargin();
     return pageMargin || 0;
@@ -478,16 +511,22 @@ StencilCollectionBuilder.prototype.toCollectionReadyImageData = function (imageD
     if (value.data && value.data.match(/^ref:\/\//)) {
         var id = ImageData.refStringToId(value.data);
         if (id) {
+            var vector = value.data.match(/svg$/);
+            var resourceType = vector ? StencilCollectionBuilder.SUBDIR_VECTORS : StencilCollectionBuilder.SUBDIR_BITMAPS;
             var filePath = Pencil.controller.refIdToFilePath(id);
 
-            var bitmapImageFileName = (StencilCollectionBuilder._currentPage.name + "-" + name).replace(/[^a-z0-9\\-]+/gi, "").toLowerCase() + ".png";
+            var bitmapImageFileName = (StencilCollectionBuilder._currentPage.name + "-" + name).replace(/[^a-z0-9\\-]+/gi, "").toLowerCase() + (vector ? ".svg" : ".png");
 
-            if (!fs.existsSync(this.currentBitmapDir)) fs.mkdirSync(this.currentBitmapDir);
+            var dir = vector ? this.currentVectorDir : this.currentBitmapDir;
 
-            var targetPath = path.join(this.currentBitmapDir, bitmapImageFileName);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+
+            var targetPath = path.join(dir, bitmapImageFileName);
             fs.writeFileSync(targetPath, fs.readFileSync(filePath));
 
-            value = new ImageData(value.w, value.h, "collection://bitmaps/" + bitmapImageFileName, value.xCells, value.yCells);
+            value = new ImageData(value.w, value.h, "collection://" + (resourceType) + "/" + bitmapImageFileName, value.xCells, value.yCells);
+
+            this.collectedResourceTypes[resourceType] = true;
         }
     }
     return value;
@@ -554,6 +593,30 @@ StencilCollectionBuilder.prototype.configure = function () {
 StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection = function () {
     return Pencil.controller.doc && Pencil.controller.doc.properties && Pencil.controller.doc.properties.stencilBuilderOptions
 };
+StencilCollectionBuilder.prototype.buildShapeTest = function (pageId, callback) {
+    this.cleanupShapeTest();
+    var options = StencilCollectionBuilder.getCurrentDocumentOptions() || this.makeDefaultOptions();
+
+    this.tempOutputDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
+    options.outputPath = this.tempOutputDir.name;
+    options.testMode = true;
+    options.testPageId = pageId;
+    options.resourceSets = null;
+
+    options.id = "testCollection" + (new Date()).getTime();
+
+    this.buildImpl(options, callback);
+};
+StencilCollectionBuilder.prototype.cleanupShapeTest = function () {
+    if (this.tempOutputDir) {
+        try {
+            this.tempOutputDir.removeCallback();
+        } catch (e) {
+        }
+
+        this.tempOutputDir = null;
+    }
+}
 StencilCollectionBuilder.prototype.build = function () {
     var thiz = this;
     function next(options, outputPath) {
@@ -591,18 +654,22 @@ StencilCollectionBuilder.prototype.build = function () {
         next(currentOptions, currentOptions.outputPath);
     }
 };
-StencilCollectionBuilder.prototype.buildImpl = function (options) {
+StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCallback) {
     if (!options) {
         options = this.makeDefaultOptions();
     }
     StencilCollectionBuilder.INSTANCE = this;
+    this.boundDependencyCache = {};
     var dir = options.outputPath;
     this.iconDir = path.join(dir, "icons");
 
     var thiz = this;
 
     this.currentDir = dir;
-    this.currentBitmapDir = path.join(dir, "bitmaps");
+    this.currentBitmapDir = path.join(dir, StencilCollectionBuilder.SUBDIR_BITMAPS);
+    this.currentVectorDir = path.join(dir, StencilCollectionBuilder.SUBDIR_VECTORS);
+
+    this.collectedResourceTypes = {};
 
     if (!fs.existsSync(this.iconDir)) {
         fs.mkdirSync(this.iconDir);
@@ -633,56 +700,6 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
         }));
     }
 
-    var resourceList = [];
-
-    //processing resources
-    if (options.resourceSets) {
-        var base = path.dirname(Pencil.controller.documentPath);
-
-        var resourceDirName = "resources";
-        var resourceDir = path.join(dir, resourceDirName);
-
-        if (!fsExistSync(resourceDir)) {
-            fs.mkdirSync(resourceDir);
-        }
-
-        for (var set of options.resourceSets) {
-            var sourcePath = base ? path.resolve(base, set.path) : set.path;
-            if (!fs.existsSync(sourcePath)) {
-                console.error("Resource dir not found: " + sourcePath);
-                continue;
-            }
-
-            var name = set.name.replace(/[^a-z0-9]+/gi, "_");
-            var destPath = path.join(resourceDir, name);
-            resourceList.push({
-                name: name,
-                prefix: resourceDirName + "/" + name
-            });
-
-            if (!fs.existsSync(destPath)) {
-                fs.mkdirSync(destPath);
-                var files = fs.readdirSync(sourcePath);
-                files.forEach(function (file) {
-                    var curSource = path.join(sourcePath, file);
-                    if (fs.lstatSync(curSource).isDirectory()) {
-                        copyFolderRecursiveSync(curSource, destPath);
-                    } else {
-                        copyFileSync(curSource, destPath);
-                    }
-                });
-            }
-        }
-
-        var script = "collection.RESOURCE_LIST = " + JSON.stringify(resourceList) + ";\n" + StencilCollectionBuilder.COLLECTION_RESOURCE_SCRIPT;
-        shapes.appendChild(Dom.newDOMElement({
-            _name: "Script",
-            _uri: PencilNamespaces.p,
-            comments: "Resource script",
-            _cdata: "\n" + script+ "\n"
-        }));
-    }
-
     var globalPropertySpecs = [];
 
     shapes.appendChild(Dom.newDOMElement({
@@ -706,6 +723,72 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
     ApplicationPane._instance.setContentVisible(false);
 
     var finalize = function () {
+        var resourceList = [];
+
+        //processing resources
+        if (options.resourceSets) {
+            var base = path.dirname(Pencil.controller.documentPath);
+
+            var resourceDirName = "resources";
+            var resourceDir = path.join(dir, resourceDirName);
+
+            if (!fsExistSync(resourceDir)) {
+                fs.mkdirSync(resourceDir);
+            }
+
+            for (var set of options.resourceSets) {
+                var sourcePath = base ? path.resolve(base, set.path) : set.path;
+                if (!fs.existsSync(sourcePath)) {
+                    console.error("Resource dir not found: " + sourcePath);
+                    continue;
+                }
+
+                var name = set.name.replace(/[^a-z0-9]+/gi, "_");
+                var destPath = path.join(resourceDir, name);
+                resourceList.push({
+                    name: name,
+                    prefix: resourceDirName + "/" + name
+                });
+
+                if (!fs.existsSync(destPath)) {
+                    fs.mkdirSync(destPath);
+                    var files = fs.readdirSync(sourcePath);
+                    files.forEach(function (file) {
+                        var curSource = path.join(sourcePath, file);
+                        if (fs.lstatSync(curSource).isDirectory()) {
+                            copyFolderRecursiveSync(curSource, destPath);
+                        } else {
+                            copyFileSync(curSource, destPath);
+                        }
+                    });
+                }
+            }
+        }
+
+        console.log(thiz.collectedResourceTypes);
+
+        for (var rt in thiz.collectedResourceTypes) {
+            if (thiz.collectedResourceTypes[rt]) {
+                resourceList.push({
+                    name: (rt == StencilCollectionBuilder.SUBDIR_BITMAPS ? "Built-in bitmaps" : "Built-in vectors"),
+                    type: (rt == StencilCollectionBuilder.SUBDIR_BITMAPS ? "bitmap" : "svg"),
+                    prefix: rt
+                });
+            }
+        }
+
+        console.log(resourceList);
+
+        if (resourceList.length > 0) {
+            var script = "collection.RESOURCE_LIST = " + JSON.stringify(resourceList) + ";\n" + StencilCollectionBuilder.COLLECTION_RESOURCE_SCRIPT;
+            shapes.appendChild(Dom.newDOMElement({
+                _name: "Script",
+                _uri: PencilNamespaces.p,
+                comments: "Resource script",
+                _cdata: "\n" + script+ "\n"
+            }));
+        }
+
         this.saveResultDom(dom, dir, options, function () {
             var showDone = function () {
                 Pencil.controller.doc._lastUsedStencilOutputPath = options.outputPath;
@@ -715,17 +798,21 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
 
                 var stencilPath = Config.get("dev.stencil.path", null);
                 var dirPath = Config.get("dev.stencil.dir", null);
-                if (stencilPath == options.outputPath || dirPath == path.dirname(options.outputPath)) {
-                    CollectionManager.reloadDeveloperStencil(false);
-                    NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.\n\nDeveloper stencil was also reloaded.", "View", function () {
-                        shell.openItem(options.outputPath);
-                    });
-                } else {
-                    NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.", "View", function () {
-                        shell.openItem(options.outputPath);
-                    });
-                }
 
+                if (options.testMode) {
+                    if (onBuildDoneCallback) onBuildDoneCallback();
+                } else {
+                    if (stencilPath == options.outputPath || dirPath == path.dirname(options.outputPath)) {
+                        CollectionManager.reloadDeveloperStencil(false);
+                        NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.\n\nDeveloper stencil was also reloaded.", "View", function () {
+                            shell.openItem(options.outputPath);
+                        });
+                    } else {
+                        NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.", "View", function () {
+                            shell.openItem(options.outputPath);
+                        });
+                    }
+                }
             };
 
             if (layoutPage) {
@@ -794,12 +881,26 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
         this.processShortcuts(nonStencilPages, dom, dir, options, globalPropertySpecs, globalPropertyMap, function () {
             finalize();
         });
+
     }.bind(this);
 
     this.progressListener = null;
 
     var index = -1;
     var pages = this.controller.doc.pages;
+
+    if (options.testPageId) {
+        var includedPages = [];
+        for (var page of pages) {
+            if (page.id == options.testPageId || page.id == StencilCollectionBuilder.lastDetectedCollectionSettingPageId) {
+                includedPages.push(page);
+            }
+        }
+
+        pages = includedPages;
+    }
+
+
     var next = function() {
         index ++;
         if (index >= pages.length) {
@@ -807,11 +908,10 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
             return;
         }
 
-        var page = pages[index];
-
-        this.progressListener.onProgressUpdated(`Exporting '${page.name}...'`, index, pages.length);
-
         try {
+            var page = pages[index];
+            this.progressListener.onProgressUpdated(`Exporting '${page.name}...'`, index, pages.length);
+
             if (page.name.toLowerCase() == "(layout)") {
                 layoutPage = page;
                 return;
@@ -891,6 +991,10 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
 
                 if (!contribution) return;
 
+                if (c.def.collection.performPostProcessing) {
+                    c.def.collection.performPostProcessing.call(c, contribution);
+                }
+
                 for (var prop of contribution.properties) {
                     if (!prop.global) {
                         if (propertyMap[prop.name]) continue;
@@ -915,6 +1019,7 @@ StencilCollectionBuilder.prototype.buildImpl = function (options) {
 
                     if (prop.global) {
                         globalPropertySpecs.push(node);
+                        StencilCollectionBuilder.lastDetectedCollectionSettingPageId = page.id;
                     } else {
                         propertyMap[prop.name] = node;
                         properties.push(node);

@@ -6,6 +6,12 @@ function FontManagementDialog() {
         binding.fontName.style.fontFamily = font.name;
         binding.styleNumber.innerHTML = font.variants.length + " styles";
         binding.deleteButton._font = font;
+
+        var id = Util.newUUID();
+        binding.autoEmbedCheckbox.checked = font.autoEmbed;
+        binding.autoEmbedCheckbox.setAttribute("id", id)
+        binding.embedLabel.setAttribute("for", id);
+        binding.autoEmbedCheckbox._embedFont = font;
     };
 
     this.bind("click", function (event) {
@@ -16,6 +22,16 @@ function FontManagementDialog() {
             this.load();
         }.bind(this));
     }, this.fontRepeater.node());
+
+    this.bind("click", function (event) {
+        var checkbox = Dom.findUpwardForNodeWithData(event.target, "_embedFont");
+        if (!checkbox) return;
+        var font = checkbox._embedFont;
+        FontLoader.instance.setAutoEmbed(font, checkbox.checked, function () {
+            this.load();
+        }.bind(this));
+    }, this.fontRepeater.node());
+
 
     this.title = "User Font Management";
 }

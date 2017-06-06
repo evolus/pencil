@@ -603,7 +603,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
             shapeDef.propertyMap[prop.name] = prop;
         }
     }
-    
+
     shapeDef.behaviors = [].concat(shapeDef.parentShapeDef.behaviors);
     for (var name in shapeDef.parentShapeDef.behaviorMap) {
         shapeDef.behaviorMap[name] = shapeDef.parentShapeDef.behaviorMap[name];
