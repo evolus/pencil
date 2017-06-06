@@ -234,6 +234,7 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                     Dialog.prompt(data.name, data.value, "OK", function (value) {
                         data.value = value;
                         var result = value;
+                        var oldValue = Config.get(data.name);
                         if (data.type != "string") {
                             result = parseInt(value);
                             if (data.name == "view.undoLevel" || data.name == "edit.gridSize" ) {
@@ -271,6 +272,10 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                         }
                         Config.set(data.name, result);
                         thiz.setPreferenceItems();
+
+                        if (data.name == "shared.privateStencils.path" && value != oldValue) {
+                            Pencil.app.mainWindow.reload()
+                        }
                     }, "Cancel");
                 }
             }

@@ -54,3 +54,9 @@ Linux
     * Ubuntu 12.04 and later
     * Fedora 21+
     * Debian 8+
+
+Sharing Stencils with a Team
+==================
+To use team's Private Stencils just configure the folder for the PrivateCollection.xml file at *Settings > Advanced* and set the value of *shared.privateStencils.path*.
+
+You can use for exemple a versioned network directory for sharing.

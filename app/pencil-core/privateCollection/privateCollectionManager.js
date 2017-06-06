@@ -4,6 +4,10 @@ PrivateCollectionManager.privateShapeDef = {};
 PrivateCollectionManager.privateShapeDef.shapeDefMap = {};
 PrivateCollectionManager.privateShapeDef.collections = [];
 
+if (!Config.get("shared.privateStencils.path")) {
+    Config.set("shared.privateStencils.path", "");
+}
+
 PrivateCollectionManager.loadPrivateCollections = function () {
 
     try {
@@ -81,7 +85,7 @@ PrivateCollectionManager.getPrivateCollectionFile = function () {
     return path.join(PrivateCollectionManager.getPrivateCollectionDirectory(), "PrivateCollection.xml");
 };
 PrivateCollectionManager.getPrivateCollectionDirectory = function () {
-    return Config.getDataFilePath(Config.PRIVATE_STENCILS_DIR_NAME);
+    return Config.getPrivateStencilsFilePath();
 };
 
 PrivateCollectionManager.locateShapeDefinition = function (defId) {
