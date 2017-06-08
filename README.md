@@ -50,7 +50,10 @@ Windows 7 and later are supported, older operating systems are not supported (an
 
 Linux
 -----
+
 * Tested
     * Ubuntu 12.04 and later
     * Fedora 21+
     * Debian 8+
+* Packages
+    * **Arch Linux** - [pencil](https://aur.archlinux.org/packages/pencil/) on the [Arch User Repository](https://aur.archlinux.org/).
