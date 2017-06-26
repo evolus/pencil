@@ -186,7 +186,7 @@ PageDetailDialog.prototype.setup = function (options) {
     }
 
     pageSizes.push({
-        displayName: "Custome size...",
+        displayName: "Custom size...",
         dontCheckValue: true
     });
 
@@ -302,7 +302,7 @@ PageDetailDialog.prototype.updateUIWith = function (page) {
         this.pageSizeCombo.selectItem(index);
     } else {
         this.pageSizeCombo.selectItem({
-            displayName: "Custome size..."
+            displayName: "Custom size..."
         });
         this.widthInput.disabled = false;
         this.heightInput.disabled = false;
