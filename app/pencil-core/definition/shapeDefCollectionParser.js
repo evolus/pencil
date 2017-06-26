@@ -210,12 +210,15 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
     });
     Dom.workOn("./p:Fonts/p:Font", shapeDefsNode, function (fontNode) {
         var font = {
-            name: fontNode.getAttribute("name"),
-            regular: fontNode.getAttribute("regular"),
-            bold: fontNode.getAttribute("bold"),
-            italic: fontNode.getAttribute("italic"),
-            boldItalic: fontNode.getAttribute("boldItalic")
+            name: fontNode.getAttribute("name")
         };
+
+        for (var variantName in FontRepository.SUPPORTED_VARIANTS) {
+            var filePath = fontNode.getAttribute(variantName);
+            if (filePath) font[variantName] = filePath;
+        }
+
+        console.log("Font:", font);
         collection.fonts.push(font);
     });
 

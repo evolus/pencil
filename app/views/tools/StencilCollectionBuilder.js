@@ -24,7 +24,8 @@ collection.BOUND_CALCULATOR = {
     },
 
     calculate: function (box, spec, h0, h1) {
-        if (spec.match(/^(([a-zA-Z0-9]+)\.)?([A-Z0-9]*[A-Z])([0-9\-]+)$/)) {
+        var matchResult = null;
+        if (matchResult = spec.match(/^(([a-zA-Z0-9]+)\\.)?([A-Z0-9]*[A-Z])([0-9\\-]+)$/)) {
             var bounding = box;
             var targetName = RegExp.$2;
             var func = RegExp.$3;
@@ -41,12 +42,14 @@ collection.BOUND_CALCULATOR = {
                     var node = Dom.getSingle(".//svg:*[@p:name='" + name + "']", shapeNode);
                     if (node) {
                         var bbox = node.getBBox();
-                        bounding = {
-                            x: bbox.x,
-                            y: bbox.y,
-                            w: bbox.width,
-                            h: bbox.height
-                        };
+                        if (bbox.width > 0 && bbox.height > 0) {
+                            bounding = {
+                                x: bbox.x,
+                                y: bbox.y,
+                                w: bbox.width,
+                                h: bbox.height
+                            };
+                        }
                     }
                 }
             }
@@ -512,6 +515,8 @@ StencilCollectionBuilder.prototype.toCollectionReadyImageData = function (imageD
         var id = ImageData.refStringToId(value.data);
         if (id) {
             var vector = value.data.match(/svg$/);
+            console.log("value.data", value.data);
+            console.log(" >> vector: ", vector);
             var resourceType = vector ? StencilCollectionBuilder.SUBDIR_VECTORS : StencilCollectionBuilder.SUBDIR_BITMAPS;
             var filePath = Pencil.controller.refIdToFilePath(id);
 

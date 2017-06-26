@@ -319,6 +319,7 @@ CollectionManager.installCollectionFonts = function (collection) {
             if (existingFont.source == collection.id) {
                 FontLoader.instance.userRepo.removeFont(existingFont);
             } else {
+                console.log("Skip installing: " + font.name);
                 continue;   //skip installing this font
             }
         }
@@ -343,6 +344,8 @@ CollectionManager.installCollectionFonts = function (collection) {
 
             fontData[variantName + "FilePath"] = filePath;
         }
+
+        console.log("Fontdata to install", fontData);
 
         FontLoader.instance.installNewFont(fontData);
         installedFonts.push(fontData.fontName);
