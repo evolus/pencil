@@ -145,7 +145,7 @@ ExportTemplateManager.installTemplateFromFile = function (file, type , callback)
     var readStream = fs.createReadStream(file.toString());
     var targetDir = ExportTemplateManager.getUserTemplateDirectory().toString();
     targetDir = targetDir.concat("/"+type);
-    var index = readStream.path.lastIndexOf("/");
+    var index = readStream.path.lastIndexOf(path.sep);
     var fileName = readStream.path.substring(index + 1);
     targetDir = targetDir.concat("/" + fileName.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime()));
     readStream
