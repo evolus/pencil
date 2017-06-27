@@ -496,7 +496,7 @@ PageListView.prototype.renderPages = function() {
 
         for (var i = 0; i < thiz.childPageContainer.childNodes.length; i++) {
             var item = thiz.childPageContainer.childNodes[i];
-            if (item._page.id == thiz.currentPage.id) {
+            if (thiz.currentPage != null && item._page.id == thiz.currentPage.id) {
                 childListTo = childListFrom + item.offsetWidth;
                 break;
             }
@@ -506,7 +506,7 @@ PageListView.prototype.renderPages = function() {
 
         for (var i = 0; i < thiz.pageListContainer.childNodes.length; i++) {
             var item = thiz.pageListContainer.childNodes[i];
-            if (item.__widget.page.id == thiz.currentPage.id) {
+            if (thiz.currentPage != null && item.__widget.page.id == thiz.currentPage.id) {
                 thumbnailTo = thumbnailFrom + item.offsetWidth + Util.em();
                 break;
             }

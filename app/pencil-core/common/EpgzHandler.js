@@ -19,7 +19,7 @@ EpgzHandler.prototype.loadDocument = function(filePath) {
         var wrappedReject = function (error) {
             if (wrappedRejectCalled) return;
             wrappedRejectCalled = true;
-
+            console.log(error);
             var recoverable = fs.existsSync(path.join(Pencil.documentHandler.tempDir.name, "content.xml"));
             if (!recoverable) {
                 reject(error);
