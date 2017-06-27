@@ -288,23 +288,37 @@ CollectionManager.extractCollection = function(file, callback) {
         var targetDir = path.join(CollectionManager.getUserStencilDirectory(), fileName);
         console.log("extracting to", targetDir);
 
-        var extractor = unzip.Extract({ path: targetDir });
-        extractor.on("close", function () {
-            if (callback) {
-                callback(err);
+        var admZip = require('adm-zip');
+
+        var zip = new admZip(filePath);
+        zip.extractAllToAsync(targetDir, true, function (err) {
+            if (err) {
+                error(err);
+                setTimeout(function() {
+                    CollectionManager.removeCollectionDir(targetDir);
+                }, 10);
+            } else {
+                resolve(targetDir);
             }
-            resolve(targetDir);
-        });
-        extractor.on("error", (err) => {
-            console.log("extract error", err);
-            error(err);
-
-            setTimeout(function() {
-                CollectionManager.removeCollectionDir(targetDir);
-            }, 10);
         });
 
-        fs.createReadStream(filePath).pipe(extractor);
+        // var extractor = unzip.Extract({ path: targetDir });
+        // extractor.on("close", function () {
+        //     if (callback) {
+        //         callback(err);
+        //     }
+        //     resolve(targetDir);
+        // });
+        // extractor.on("error", (err) => {
+        //     console.log("extract error", err);
+        //     error(err);
+
+        //     setTimeout(function() {
+        //         CollectionManager.removeCollectionDir(targetDir);
+        //     }, 10);
+        // });
+
+        // fs.createReadStream(filePath).pipe(extractor);
     });
 };
 CollectionManager.installCollectionFonts = function (collection) {
