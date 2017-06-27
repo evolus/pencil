@@ -67,3 +67,4 @@ Config.DEV_PAGE_MARGIN_SIZE = Config.define("dev.pageMargin.size", Config.DEV_DE
 Config.DEV_PAGE_MARGIN_COLOR = Config.define("dev.pageMargin.color", "rgba(0, 0, 0, 0.2)");
 
 Config.DEV_ENABLE_DISABLED_IN_PROP_PAGE = Config.define("dev.enable_disabled_in_property_page", false);
+Config.VIEW_USE_COMPACT_LAYOUT = Config.define("view.useCompactLayout", false);

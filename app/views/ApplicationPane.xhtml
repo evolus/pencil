@@ -12,6 +12,9 @@
             box-shadow: 0px 0px 1.5em 0.4em #FFF;
             border-bottom: solid 1px darken(@app_bg, 10%);
         }
+        body[compact-layout='true'] @contentHeader {
+            padding: 0.1em;
+        }
         @contentHeader > vbox > * + * {
             margin-top: 0.5em;
         }
@@ -120,6 +123,9 @@
             border-radius: 1em;
             cursor: pointer;
         }
+        body[compact-layout='true'] @contentHeader @menuIcon {
+            padding: 0.1em;
+        }
         @contentHeader @menuIcon:hover {
             background: #FFF;
             color: @selected_bg;
@@ -133,10 +139,16 @@
             padding-right: 3em;
             align-items: center;
         }
+        body[compact-layout='true'] @logoBox {
+            padding-right: 1.5em;
+        }
         @appName {
             font-size: 2em;
             color: darken(saturate(#da8500, 20%), 0%);
             cursor: default;
+        }
+        body[compact-layout='true'] @appName {
+            font-size: 1.6em;
         }
         @appName * {
             vertical-align: middle;
@@ -176,6 +188,15 @@
             padding-top: 1em;
             padding-bottom: 0.8em;
         }
+
+        body[compact-layout='true'] @toolbarContainer *[label] {
+            padding-top: 0.1em;
+            padding-bottom: 0.1em;
+        }
+        body[compact-layout='true'] @toolbarContainer *[label]:after {
+            display: none;
+        }
+
         @contentSection {
             position: relative;
             padding-right: 3em;

@@ -109,10 +109,16 @@ function ApplicationPane() {
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {
     var thiz = this;
+    this.invalidateUIForConfig();
     this.showStartupPane();
     // window.setTimeout(function () {
     //     thiz.controller.newDocument();
     // }, 100);
+};
+ApplicationPane.prototype.invalidateUIForConfig = function () {
+    var useCompactLayout = Config.get("view.useCompactLayout", false);
+    document.body.setAttribute("compact-layout", useCompactLayout);
+    this.toolBarSrollView.invalidate();
 };
 ApplicationPane.prototype.invalidateUIForControllerStatus = function () {
     if (this.controller.doc) {
@@ -234,6 +240,10 @@ ApplicationPane.prototype.showStartupPane = function () {
     this.invalidateUIForControllerStatus();
 };
 const NO_CONTENT_VALUE = 22;
+ApplicationPane.prototype.getNoContentValue = function () {
+    var compact = Config.get("view.useCompactLayout", false);
+    return compact ? 0 : NO_CONTENT_VALUE;
+}
 ApplicationPane.prototype.getCanvasToolbarHeight = function () {
     return StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection() ? Math.round(3 * Util.em()) : 0;
 };
@@ -241,21 +251,21 @@ ApplicationPane.prototype.getPreferredCanvasSize = function () {
     var toolbarPadding = this.getCanvasToolbarHeight();
 
     return {
-        w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - NO_CONTENT_VALUE,
-        h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - NO_CONTENT_VALUE - toolbarPadding
+        w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - this.getNoContentValue(),
+        h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - this.getNoContentValue() - toolbarPadding
     }
 };
 ApplicationPane.prototype.getBestFitSize = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
     var toolbarPadding = this.getCanvasToolbarHeight();
 
-    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE),
-            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE - toolbarPadding)].join("x");
+    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - this.getNoContentValue()),
+            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - this.getNoContentValue() - toolbarPadding)].join("x");
 };
 ApplicationPane.prototype.getBestFitSizeObject = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
     var toolbarPadding = this.getCanvasToolbarHeight();
-    return {width: zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE), height: zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE - toolbarPadding)};
+    return {width: zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - this.getNoContentValue()), height: zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - this.getNoContentValue() - toolbarPadding)};
 };
 ApplicationPane.prototype.showBusyIndicator = function () {
     this.currentBusyOverlay = document.createElement("div");
