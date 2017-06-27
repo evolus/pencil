@@ -15,7 +15,11 @@ EpgzHandler.prototype.loadDocument = function(filePath) {
     var thiz = this;
     return new Promise(function (resolve, reject) {
 
+        var wrappedRejectCalled = false;
         var wrappedReject = function (error) {
+            if (wrappedRejectCalled) return;
+            wrappedRejectCalled = true;
+            console.log(error);
             var recoverable = fs.existsSync(path.join(Pencil.documentHandler.tempDir.name, "content.xml"));
             if (!recoverable) {
                 reject(error);
@@ -38,7 +42,7 @@ EpgzHandler.prototype.loadDocument = function(filePath) {
         fs.createReadStream(filePath)
             .pipe(zlib.Gunzip())
             .on("error", wrappedReject)
-            .pipe(tarfs.extract(Pencil.documentHandler.tempDir.name)
+            .pipe(tarfs.extract(Pencil.documentHandler.tempDir.name, {readable: true, writable: true})
                     .on("error", wrappedReject)
                     .on("finish", function() {
                         console.log("Successfully extracted.");

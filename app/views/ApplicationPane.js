@@ -175,7 +175,9 @@ ApplicationPane.prototype.createCanvas = function () {
 };
 ApplicationPane.prototype.onDocumentChanged = function () {
     this.pageListView.currentPage = this.controller.activePage;
-    this.controller.activePage.canvas._sayTargetChanged();
+    if (this.pageListView.currentPage != null && this.pageListView.currentPage.canvas != null) {
+        this.pageListView.currentPage.canvas._sayTargetChanged();
+    }
     this.pageListView.renderPages();
 
     this.onDocumentOptionsChanged();

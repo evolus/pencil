@@ -25,20 +25,21 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
             thiz.controller.doc.properties[propNode.getAttribute("name")] = value;
         });
         Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-            var page = new Page(thiz.controller.doc);
+            if (!pageNode) return;
             var pageFileName = pageNode.getAttribute("href");
+            if (pageFileName == null) return;
+            var pageFile = path.join(targetDir, pageFileName);
+            if (!fs.existsSync(pageFile)) {
+                return;
+            }
+            var page = new Page(thiz.controller.doc);
             page.pageFileName = pageFileName;
-            page.tempFilePath = path.join(targetDir, pageFileName);
+            page.tempFilePath = pageFile;
             thiz.controller.doc.pages.push(page);
         });
 
         thiz.controller.doc.pages.forEach(function (page) {
-            var pageFile = path.join(targetDir, page.pageFileName);
-            if (!fs.existsSync(pageFile)) {
-                if (callback) callback(new Error(Util.getMessage("page.specification.is.not.found.in.the.archive")));
-                return;
-            }
-
+            var pageFile = page.tempFilePath;
             var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
             Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
                 var propName = propNode.getAttribute("name");
@@ -77,6 +78,8 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
             if (fs.existsSync(thumbPath)) {
                 page.thumbPath = thumbPath;
                 page.thumbCreated = new Date();
+            } else {
+                thiz.controller.invalidateBitmapFilePath(page);
             }
             page.canvas = null;
         }, thiz);
@@ -86,11 +89,15 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
                 page.backgroundPage = this.controller.findPageById(page.backgroundPageId);
                 thiz.controller.invalidateBitmapFilePath(page);
             }
-
             if (page.parentPageId) {
                 var parentPage = this.controller.findPageById(page.parentPageId);
-                page.parentPage = parentPage;
-                parentPage.children.push(page);
+                if (parentPage){
+                    page.parentPage = parentPage;
+                    parentPage.children.push(page);
+                } else {
+                    console.log("Remove parent page due to does not exist --> " + page.parentPageId);
+                    delete page.parentPageId;
+                }
             }
         }, thiz);
 
@@ -102,10 +109,15 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
         FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
         FontLoader.instance.loadFonts(function () {
             thiz.controller.sayControllerStatusChanged();
+            var activePage = null;
             if (thiz.controller.doc.properties.activeId) {
-                thiz.controller.activatePage(thiz.controller.findPageById(thiz.controller.doc.properties.activeId));
-            } else {
-                if (thiz.controller.doc.pages.length > 0) thiz.controller.activatePage(thiz.controller.doc.pages[0]);
+                activePage = thiz.controller.findPageById(thiz.controller.doc.properties.activeId);
+            }
+            if (activePage == null && thiz.controller.doc.pages.length > 0) {
+                activePage = thiz.controller.doc.pages[0];
+            }
+            if (activePage != null) {
+                thiz.controller.activatePage(activePage);
             }
             thiz.controller.applicationPane.onDocumentChanged();
             thiz.modified = false;
@@ -114,7 +126,7 @@ FileHandler.prototype.parseDocument = function (filePath, callback) {
         Pencil.documentHandler.preDocument = filePath;
     } catch (e) {
         // Pencil.documentHandler.newDocument()
-        console.error(e);
+        console.log(e);
         Dialog.alert("Unexpected error while accessing file: " + path.basename(filePath), null, function() {
             (oldPencilDocument != null) ? Pencil.documentHandler.loadDocument(oldPencilDocument) : function() {
                 Pencil.controller.confirmAndclose(function () {

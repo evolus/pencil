@@ -262,6 +262,15 @@ FontRepository.SUPPORTED_VARIANTS["italic"] = {
     displayName: "Regular Italic"
 };
 
+FontRepository.findVariantName = function (weight, style) {
+    for (var variantName in FontRepository.SUPPORTED_VARIANTS) {
+        var spec = FontRepository.SUPPORTED_VARIANTS[variantName];
+        if (spec.weight == weight && spec.style == style) return variantName;
+    }
+
+    return null;
+};
+
 FontRepository.prototype.addFont = function (data) {
     if (!this.loaded) this.load();
     var font = {

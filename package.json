@@ -60,6 +60,7 @@
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
     "start": "./node_modules/.bin/electron ./app",
     "start:dev": "./node_modules/.bin/electron ./app --enable-dev --disable-gpu",
+    "start:mac": "./node_modules/.bin/electron ./app --enable-dev",
     "clean": "rimraf dist",
     "pack": "build",
     "dist": "build",

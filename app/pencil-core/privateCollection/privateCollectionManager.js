@@ -221,63 +221,122 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
     var targetDir = path.join(tempDir.name, fileName);
     console.log("targetPath:", targetDir);
 
-    var extractor = unzip.Extract({ path: targetDir });
-    extractor.on("close", function () {
+    var admZip = require('adm-zip');
 
-        //try loading the collection
-        try {
-            var definitionFile = path.join(targetDir, "Definition.xml");
-            if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
-
-            var fileContents = fs.readFileSync(definitionFile, ShapeDefCollectionParser.CHARSET);
-
-            var domParser = new DOMParser();
-
-            var collection = null;
-            var dom = domParser.parseFromString(fileContents, "text/xml");
-            if (dom != null) {
-                var dom = dom.documentElement;
-                var parser = new PrivateShapeDefParser();
-                Dom.workOn("./p:Collection", dom, function (node) {
-                    collection = parser.parseNode(node);
-                });
-            };
-
-            if (collection && collection.id) {
-                //check for duplicate of name
-                for (i in PrivateCollectionManager.privateShapeDef.collections) {
-                    var existingCollection = PrivateCollectionManager.privateShapeDef.collections[i];
-                    if (existingCollection.id == collection.id) {
-                        throw Util.getMessage("collection.named.already.installed", collection.id);
-                    }
-                }
-
-                Dialog.confirm("Are you sure you want to install the unsigned collection: " + collection.displayName + "?",
-                    "Since a collection may contain execution code that could harm your machine. It is hightly recommanded that you should only install collections from authors whom you trust.",
-                    "Install", function () {
-                        // CollectionManager.setCollectionCollapsed(collection, false);
-                        PrivateCollectionManager.addShapeCollection(collection);
-                        tempDir.removeCallback();
-                    }, "Cancel", function () {
-                        tempDir.removeCallback();
-                    }
-                );
-            } else {
-                throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
-            }
-        } catch (e) {
-            Dialog.error("Error installing collection.");
-        } finally {
+    var zip = new admZip(filePath);
+    zip.extractAllToAsync(targetDir, true, function (err) {
+        if (err) {
             ApplicationPane._instance.unbusy();
+            Dialog.error("Error installing collection.");
             tempDir.removeCallback();
+        } else {
+            //try loading the collection
+            try {
+                var definitionFile = path.join(targetDir, "Definition.xml");
+                if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+
+                var fileContents = fs.readFileSync(definitionFile, ShapeDefCollectionParser.CHARSET);
+
+                var domParser = new DOMParser();
+
+                var collection = null;
+                var dom = domParser.parseFromString(fileContents, "text/xml");
+                if (dom != null) {
+                    var dom = dom.documentElement;
+                    var parser = new PrivateShapeDefParser();
+                    Dom.workOn("./p:Collection", dom, function (node) {
+                        collection = parser.parseNode(node);
+                    });
+                };
+
+                if (collection && collection.id) {
+                    //check for duplicate of name
+                    for (i in PrivateCollectionManager.privateShapeDef.collections) {
+                        var existingCollection = PrivateCollectionManager.privateShapeDef.collections[i];
+                        if (existingCollection.id == collection.id) {
+                            throw Util.getMessage("collection.named.already.installed", collection.id);
+                        }
+                    }
+
+                    Dialog.confirm("Are you sure you want to install the unsigned collection: " + collection.displayName + "?",
+                        "Since a collection may contain execution code that could harm your machine. It is hightly recommanded that you should only install collections from authors whom you trust.",
+                        "Install", function () {
+                            // CollectionManager.setCollectionCollapsed(collection, false);
+                            PrivateCollectionManager.addShapeCollection(collection);
+                            tempDir.removeCallback();
+                        }, "Cancel", function () {
+                            tempDir.removeCallback();
+                        }
+                    );
+                } else {
+                    throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+                }
+            } catch (e) {
+                Dialog.error("Error installing collection.");
+            } finally {
+                ApplicationPane._instance.unbusy();
+                tempDir.removeCallback();
+            }
         }
-    }).on("error", function (error) {
-        ApplicationPane._instance.unbusy();
-        Dialog.error("Error installing collection.");
-        tempDir.removeCallback();
     });
 
-    fs.createReadStream(filePath).pipe(extractor);
+    // var extractor = unzip.Extract({ path: targetDir });
+    // extractor.on("close", function () {
+
+    //     //try loading the collection
+    //     try {
+    //         var definitionFile = path.join(targetDir, "Definition.xml");
+    //         if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+
+    //         var fileContents = fs.readFileSync(definitionFile, ShapeDefCollectionParser.CHARSET);
+
+    //         var domParser = new DOMParser();
+
+    //         var collection = null;
+    //         var dom = domParser.parseFromString(fileContents, "text/xml");
+    //         if (dom != null) {
+    //             var dom = dom.documentElement;
+    //             var parser = new PrivateShapeDefParser();
+    //             Dom.workOn("./p:Collection", dom, function (node) {
+    //                 collection = parser.parseNode(node);
+    //             });
+    //         };
+
+    //         if (collection && collection.id) {
+    //             //check for duplicate of name
+    //             for (i in PrivateCollectionManager.privateShapeDef.collections) {
+    //                 var existingCollection = PrivateCollectionManager.privateShapeDef.collections[i];
+    //                 if (existingCollection.id == collection.id) {
+    //                     throw Util.getMessage("collection.named.already.installed", collection.id);
+    //                 }
+    //             }
+
+    //             Dialog.confirm("Are you sure you want to install the unsigned collection: " + collection.displayName + "?",
+    //                 "Since a collection may contain execution code that could harm your machine. It is hightly recommanded that you should only install collections from authors whom you trust.",
+    //                 "Install", function () {
+    //                     // CollectionManager.setCollectionCollapsed(collection, false);
+    //                     PrivateCollectionManager.addShapeCollection(collection);
+    //                     tempDir.removeCallback();
+    //                 }, "Cancel", function () {
+    //                     tempDir.removeCallback();
+    //                 }
+    //             );
+    //         } else {
+    //             throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+    //         }
+    //     } catch (e) {
+    //         Dialog.error("Error installing collection.");
+    //     } finally {
+    //         ApplicationPane._instance.unbusy();
+    //         tempDir.removeCallback();
+    //     }
+    // }).on("error", function (error) {
+    //     ApplicationPane._instance.unbusy();
+    //     Dialog.error("Error installing collection.");
+    //     tempDir.removeCallback();
+    // });
+
+    // fs.createReadStream(filePath).pipe(extractor);
 };
 PrivateCollectionManager.setLastUsedCollection = function (collection) {
     Config.set("PrivateCollection.lastUsedCollection.id", collection.id);

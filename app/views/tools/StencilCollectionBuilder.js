@@ -24,7 +24,8 @@ collection.BOUND_CALCULATOR = {
     },
 
     calculate: function (box, spec, h0, h1) {
-        if (spec.match(/^(([a-zA-Z0-9]+)\.)?([A-Z0-9]*[A-Z])([0-9\-]+)$/)) {
+        var matchResult = null;
+        if (matchResult = spec.match(/^(([a-zA-Z0-9]+)\\.)?([A-Z0-9]*[A-Z])([0-9\\-]+)$/)) {
             var bounding = box;
             var targetName = RegExp.$2;
             var func = RegExp.$3;
@@ -41,12 +42,14 @@ collection.BOUND_CALCULATOR = {
                     var node = Dom.getSingle(".//svg:*[@p:name='" + name + "']", shapeNode);
                     if (node) {
                         var bbox = node.getBBox();
-                        bounding = {
-                            x: bbox.x,
-                            y: bbox.y,
-                            w: bbox.width,
-                            h: bbox.height
-                        };
+                        if (bbox.width > 0 && bbox.height > 0) {
+                            bounding = {
+                                x: bbox.x,
+                                y: bbox.y,
+                                w: bbox.width,
+                                h: bbox.height
+                            };
+                        }
                     }
                 }
             }
@@ -506,12 +509,13 @@ StencilCollectionBuilder.prototype.getPageMargin = function () {
     var pageMargin = Pencil.controller.getDocumentPageMargin();
     return pageMargin || 0;
 };
-StencilCollectionBuilder.prototype.toCollectionReadyImageData = function (imageData, name) {
+StencilCollectionBuilder.prototype.toCollectionReadyImageData = function (imageData, name, isVectorHint, source) {
     var value = ImageData.fromString(imageData.toString());
     if (value.data && value.data.match(/^ref:\/\//)) {
         var id = ImageData.refStringToId(value.data);
         if (id) {
-            var vector = value.data.match(/svg$/);
+            var vector = (typeof(isVectorHint) == "boolean") ? isVectorHint : value.data.match(/svg$/);
+            console.log("value.data", value.data, vector ? true: false, "hint: " + isVectorHint, source);
             var resourceType = vector ? StencilCollectionBuilder.SUBDIR_VECTORS : StencilCollectionBuilder.SUBDIR_BITMAPS;
             var filePath = Pencil.controller.refIdToFilePath(id);
 
@@ -722,6 +726,8 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
 
     ApplicationPane._instance.setContentVisible(false);
 
+    var embeddableFontFaces = [];
+
     var finalize = function () {
         var resourceList = [];
 
@@ -789,6 +795,58 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
             }));
         }
 
+        //add fonts
+        if (options.embedReferencedFonts && embeddableFontFaces.length > 0) {
+            var fontsSpec = {
+                _name: "Fonts",
+                _uri: PencilNamespaces.p,
+                _children: []
+            };
+
+            var fontsDirName = "fonts";
+            var fontsDir = null;
+
+            embeddableFontFaces.forEach(function (f) {
+                var font = FontLoader.instance.userRepo.getFont(f);
+                if (!font || !font.variants || font.variants.length <= 0) return;
+
+                if (!fontsDir) {
+                    fontsDir = path.join(dir, fontsDirName);
+                    if (!fsExistSync(fontsDir)) {
+                        fs.mkdirSync(fontsDir);
+                    }
+                }
+
+                var fontSpec = {
+                    _name: "Font",
+                    _uri: PencilNamespaces.p,
+                    name: f
+                };
+
+                var key = f.trim().replace(/[^a-z0-9]+/i, "-");
+
+                var fontDir = path.join(fontsDir, key);
+                if (!fsExistSync(fontDir)) {
+                    fs.mkdirSync(fontDir);
+                }
+
+                font.variants.forEach(function (variant) {
+                    var variantName = FontRepository.findVariantName(variant.weight, variant.style);
+
+                    var fileName = path.basename(variant.filePath);
+                    var filePath = path.join(fontDir, fileName);
+                    var fileRelativePath = fontsDirName + "/" + key + "/" + fileName;
+                    copyFileSync(variant.filePath, filePath);
+
+                    fontSpec[variantName] = fileRelativePath;
+                });
+
+                fontsSpec._children.push(fontSpec);
+            });
+
+            shapes.appendChild(Dom.newDOMElement(fontsSpec));
+        }
+
         this.saveResultDom(dom, dir, options, function () {
             var showDone = function () {
                 Pencil.controller.doc._lastUsedStencilOutputPath = options.outputPath;
@@ -836,7 +894,13 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
 
             for (var spec of globalPropertySpecs) {
                 var prop = spec._prop;
-                globalPropertyMap[prop.name] = prop.type.fromString(prop.value);
+                var propValueObject = prop.type.fromString(prop.value);
+                globalPropertyMap[prop.name] = propValueObject;
+
+                if (options.embedReferencedFonts && prop.type === Font) {
+                    var face = propValueObject.family;
+                    if (embeddableFontFaces.indexOf(face) < 0) embeddableFontFaces.push(face);
+                }
             }
         }
 
@@ -1195,9 +1259,9 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
             shape.appendChild(contentNode);
             shapes.appendChild(shape);
 
-            if (fs.existsSync(page.thumbPath)) {
+            if (fs.existsSync(page.thumbPath) && fs.statSync(page.thumbPath).size > 0) {
                 var thumPath = path.join(thiz.iconDir, shapeId + ".png");
-                fs.createReadStream(page.thumbPath).pipe(fs.createWriteStream(thumPath));
+                copyFileSync(page.thumbPath, thumPath);
             }
 
             shape._propertyFragmentSpec = properties;
@@ -1320,7 +1384,7 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
                                 var ref = ImageData.idToRefString(thiz.controller.generateCollectionResourceRefId(effectiveCollection, declaredPath));
                                 if (ref == value.data) continue;
                             }
-                            value = thiz.toCollectionReadyImageData(value, spec.displayName + "-" + prop.name);
+                            value = thiz.toCollectionReadyImageData(value, spec.displayName + "-" + prop.name, prop.name.indexOf("vector") >= 0 ? true : undefined, symbolName + "." + name);
                         }
                     }
 
@@ -1374,6 +1438,10 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
                 Pencil.rasterizer.rasterizeSelectionToFile(shape, targetPath, function (p, error) {
                     if (!error) {
                         spec.icon = "icons/" + fileName;
+                    }
+
+                    if (fs.statSync(targetPath).size <= 0) {
+                        fs.unlinkSync(targetPath);
                     }
 
                     shortcutSpecs.push(spec);
