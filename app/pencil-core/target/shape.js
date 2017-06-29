@@ -30,7 +30,7 @@ Shape.prototype.setupTargetMap = function (shouldRepair) {
             if (shouldRepair) {
                 console.error("Target '" + name + "' is not found. Repairing now...");
                 this.repair();
-                this.setupTargetMap();
+                console.log("  >>  Target '" + name + "' is repaired.");
                 return;
             } else {
                 console.error("Target '" + name + "' is not found. Ignoring...");
@@ -189,7 +189,8 @@ Shape.prototype.renewTargetProperties = function () {
 };
 Shape.prototype.repair = function () {
     this.canvas.invalidateShapeContent(this.svg, this.def);
-    for (name in this.def.propertyMap) {
+    this.setupTargetMap();
+    for (var name in this.def.propertyMap) {
         this.applyBehaviorForProperty(name);
     }
 };

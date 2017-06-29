@@ -347,7 +347,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         });
 
         this.collectionLayoutContainer.style.display = "block";
-        this.collectionLayoutContainer.style.overflow = "hidden";
+        // this.collectionLayoutContainer.style.overflow = "hidden";
         this.collectionLayoutContainer.style.visibility = "hidden";
         this.collectionLayoutContainer.style.height = "1px";
 

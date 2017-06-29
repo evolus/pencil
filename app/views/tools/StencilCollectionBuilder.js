@@ -1496,6 +1496,20 @@ StencilCollectionBuilder.prototype.generateCollectionLayout = function (collecti
                 }
             };
 
+            var shape = page.canvas.createControllerFor(g);
+            if (shape) {
+                //console.log("calculated " + linkingInfo.sc + ": ", linkingInfo.geo, shape.getGeometry(), shape.getBounding());
+                var geo = shape.getGeometry();
+                if (geo && linkingInfo.geo.h > 15 && linkingInfo.geo.w > 15) {
+                    linkingInfo.geo = {
+                        x: geo.ctm.e - pageMargin,
+                        y: geo.ctm.f - pageMargin,
+                        w: geo.dim.w,
+                        h: geo.dim.h
+                    };
+                }
+            }
+
             items.push(linkingInfo);
     });
 
