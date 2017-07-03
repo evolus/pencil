@@ -195,6 +195,10 @@ body[loaded] #bootingIndicator {
     opacity: 0;
   }
 }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 html {
   user-select: none;
   -o-user-select: none;
