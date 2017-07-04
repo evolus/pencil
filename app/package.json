@@ -57,7 +57,7 @@
     "rimraf": "^2.5.4",
     "tar": "https://github.com/dgthanhan/node-tar/archive/6086b1ea82137c61eea4efe882dd514590e5b7a8.tar.gz",
     "tar-fs": "^1.15.2",
-    "tar.gz": "^1.0.5",
+    "tar.gz": "https://github.com/dgthanhan/node-tar.gz/archive/e1a5ee27a620aa1bc1a421a8d797c843609e88eb.tar.gz",
     "tmp": "0.0.31",
     "unzip2": "^0.2.5"
   },

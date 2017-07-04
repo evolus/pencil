@@ -219,16 +219,22 @@ Controller.prototype.serializeDocument = function (onDone) {
     var thiz = this;
 
     var embeddableFontFaces = [];
+    var refResourceIds = [];
 
-    function embedFonts() {
-        if (embeddableFontFaces.length <= 0) return;
-        FontLoader.instance.embedToDocumentRepo(embeddableFontFaces);
+    function postProcess() {
+        if (embeddableFontFaces.length > 0) {
+            //console.log("Fonts to embed:", embeddableFontFaces);
+            FontLoader.instance.embedToDocumentRepo(embeddableFontFaces);
+        }
+
+        //console.log("Referenced resources: ", refResourceIds);
+        thiz.registeredResourceIds = refResourceIds;
     }
 
     function next() {
         index ++;
         if (index >= thiz.doc.pages.length) {
-            embedFonts();
+            postProcess();
             if (onDone) onDone();
             return;
         }
@@ -239,10 +245,18 @@ Controller.prototype.serializeDocument = function (onDone) {
             thiz.serializePage(page, page.tempFilePath);
         }
 
-        var pageEmbeddableFontFaces = thiz.findEmbeddableFontFaces(page);
+        var resourceReferences = thiz.findResourceReferences(page);
+
+        var pageEmbeddableFontFaces = resourceReferences.fontFaces;
         if (pageEmbeddableFontFaces) {
             pageEmbeddableFontFaces.forEach(function (face) {
                 if (embeddableFontFaces.indexOf(face) < 0) embeddableFontFaces.push(face);
+            });
+        }
+        var pageRefResourceIds = resourceReferences.resourceIds;
+        if (pageRefResourceIds) {
+            pageRefResourceIds.forEach(function (id) {
+                if (refResourceIds.indexOf(id) < 0) refResourceIds.push(id);
             });
         }
 
@@ -261,7 +275,11 @@ Controller.prototype.serializeDocument = function (onDone) {
     next();
 };
 
-Controller.prototype.findEmbeddableFontFaces = function (page) {
+Controller.prototype.findResourceReferences = function (page) {
+    var result = {
+        fontFaces: [],
+        resourceIds: []
+    };
     var contextNode = null;
     if (page.canvas) {
         contextNode = page.canvas.drawingLayer;
@@ -269,8 +287,6 @@ Controller.prototype.findEmbeddableFontFaces = function (page) {
         var dom = Controller.parser.parseFromString(fs.readFileSync(page.tempFilePath, "utf8"), "text/xml");
         contextNode = Dom.getSingle("/p:Page/p:Content", dom);
     }
-
-    var faces = [];
 
     Dom.workOn(".//svg:g[@p:type='Shape']", contextNode, function (node) {
         var defId = node.getAttributeNS(PencilNamespaces.p, "def");
@@ -280,18 +296,32 @@ Controller.prototype.findEmbeddableFontFaces = function (page) {
         Dom.workOn("./p:metadata/p:property", node, function (propNode) {
             var name = propNode.getAttribute("name");
             var propDef = def.getProperty(name);
-            if (!propDef || propDef.type != Font) return;
-            var value = propNode.textContent;
-            var font = Font.fromString(value);
-            if (!font) return;
+            if (!propDef) return;
 
-            if (faces.indexOf(font.family) < 0 && FontLoader.instance.isFontExisting(font.family)) {
-                faces.push(font.family);
+            var value = propNode.textContent;
+
+            if (propDef.type == Font) {
+                var font = Font.fromString(value);
+                if (!font) return;
+
+                if (result.fontFaces.indexOf(font.family) < 0 && FontLoader.instance.isFontExisting(font.family)) {
+                    result.fontFaces.push(font.family);
+                }
+            } else if (propDef.type == ImageData) {
+                var imageData = ImageData.fromString(value);
+                if (!imageData || !imageData.data) return;
+
+                var id = ImageData.refStringToId(imageData.data);
+                if (!id) return;
+
+                if (result.resourceIds.indexOf(id)) {
+                    result.resourceIds.push(id);
+                }
             }
         });
     });
 
-    return faces;
+    return result;
 };
 
 // Controller.prototype.openDocument = function (callback) {
