@@ -175,6 +175,9 @@ PageMenu.prototype.setup = function () {
     UICommandManager.getCommand("exportPageAsPNGButton").page = thiz.page;
     this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
 
+    UICommandManager.getCommand("copyPageBitmapCommand").page = thiz.page;
+    this.register(UICommandManager.getCommand("copyPageBitmapCommand"));
+
     this.separator();
 
     this.register({

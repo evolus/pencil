@@ -68,3 +68,6 @@ Config.DEV_PAGE_MARGIN_COLOR = Config.define("dev.pageMargin.color", "rgba(0, 0,
 
 Config.DEV_ENABLE_DISABLED_IN_PROP_PAGE = Config.define("dev.enable_disabled_in_property_page", false);
 Config.VIEW_USE_COMPACT_LAYOUT = Config.define("view.useCompactLayout", false);
+
+Config.DEVICE_ADB_PATH = Config.define("device.adb_path", "adb");
+Config.EXPORT_CROP_FOR_CLIPBOARD = Config.define("export.crop_for_clipboard", false);

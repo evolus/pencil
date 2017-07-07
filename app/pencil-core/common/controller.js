@@ -1032,6 +1032,38 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
     }.bind(this));
 };
 
+Controller.prototype.copyPageBitmap = function (targetPage) {
+    var page = targetPage ? targetPage : (this.activePage ? this.activePage : null);
+    if (!page) {
+        return;
+    }
+
+    var crop = Config.get(Config.EXPORT_CROP_FOR_CLIPBOARD, false);
+
+    if (crop) {
+        page.canvas.selectAll();
+        page.canvas.doGroup();
+        page.canvas.sizeToContent(20, 20);
+
+        page.width = page.canvas.width;
+        page.height = page.canvas.height;
+    }
+
+    var thiz = this;
+
+    window.setTimeout(function () {
+        var tmp = require("tmp");
+        var filePath = tmp.tmpNameSync();
+        thiz.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
+            if (!error) {
+                clipboard.writeImage(filePath);
+
+                NotificationPopup.show("Page bitmap copied into clipboard.");
+            }
+        });
+    }, 100);
+};
+
 Controller.prototype.rasterizeSelection = function () {
     var target = Pencil.activeCanvas.currentController;
     if (!target || !target.getGeometry) return;
