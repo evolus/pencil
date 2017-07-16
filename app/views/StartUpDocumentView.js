@@ -117,6 +117,22 @@ function StartUpDocumentView() {
         UICommandManager.installControl(command, n);
     });
 
+    this.bind("click", function () {
+        ImageData.fromScreenshot(function (imageData, error) {
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            if (!imageData) {
+                console.log("Canceled");
+                return;
+            }
+
+            console.log("ImageData: ", imageData);
+        });
+    }, this.takeScreenshotButton);
+
 }
 
 __extend(BaseTemplatedWidget, StartUpDocumentView);

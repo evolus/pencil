@@ -160,17 +160,7 @@ Dialog.prototype.show = function () {
 
     var thiz = this;
     setTimeout(function () {
-        var screenW = window.innerWidth;
-        var screenH = window.innerHeight - 20;
-
-        var w = thiz.dialogFrame.offsetWidth;
-        var h = thiz.dialogFrame.offsetHeight;
-
-        var x = (screenW - w) / 2;
-        var y = (screenH - h) / 2;
-
-        thiz.moveTo(x, y);
-
+        thiz.invalidatePosition();
         thiz.dialogFrame.style.visibility = "visible";
         thiz.dialogFrame.style.opacity = "1";
 
@@ -180,6 +170,18 @@ Dialog.prototype.show = function () {
     }, 100);
 
     BaseWidget.registerClosable(this);
+};
+Dialog.prototype.invalidatePosition = function () {
+    var screenW = window.innerWidth;
+    var screenH = window.innerHeight - 20;
+
+    var w = this.dialogFrame.offsetWidth;
+    var h = this.dialogFrame.offsetHeight;
+
+    var x = (screenW - w) / 2;
+    var y = (screenH - h) / 2;
+
+    this.moveTo(x, y);
 };
 Dialog.prototype.moveTo = function (x, y) {
     this.dialogFrame.style.left = x + "px";

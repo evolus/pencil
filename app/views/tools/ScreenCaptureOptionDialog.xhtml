@@ -1,0 +1,73 @@
+<vbox class="Form UIWidget">
+    <style>
+        @buttonContainer > button {
+            height: 7em;
+            width: 9em;
+            text-align: center;
+            flex-direction: column;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+        }
+        @buttonContainer > button > * {
+            display: block;
+        }
+
+        @buttonContainer > button > i {
+            font-size: 3em;
+            opacity: 0.54;
+        }
+        @buttonContainer > button > span {
+            margin-top: 0.5em;
+        }
+        @buttonContainer > button + button {
+            margin-left: 0.5em;
+        }
+
+        @buttonContainer {
+            margin-bottom: 1em;
+        }
+
+        hbox.Entry {
+            align-items: center;
+        }
+        hbox.Entry > input[type] {
+            margin-right: 0.2em;
+        }
+        hbox.Entry > label + input[type] {
+            margin-left: 0.4em;
+        }
+        @optionPane > hbox + hbox {
+            margin-left: 2em;
+        }
+        label.Subtitle {
+            font-size: 0.9em;
+            font-weight: bold;
+            opacity: 0.5;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 1);
+            margin-bottom: 0.5em;
+        }
+        hbox + label.Subtitle {
+            margin-top: 1em;
+        }
+        @delayInput {
+            width: 3em;
+            line-height: 2em;
+            height: 2em;
+            text-align: right;
+        }
+    </style>
+    <label class="Subtitle">Capture mode:</label>
+    <hbox anon-id="buttonContainer">
+        <button anon-id="areaButton" flex="1"><i>crop</i><span>Area</span></button>
+        <button anon-id="windowButton" flex="1"><i>web_asset</i><span>Window</span></button>
+        <button anon-id="fullscreenButton" flex="1"><i>tv</i><span>Fullscreen</span></button>
+    </hbox>
+    <label class="Subtitle">Other options:</label>
+    <hbox anon-id="optionPane">
+        <hbox class="Entry"><input type="checkbox" anon-id="hideCursorCheckbox" checked="true" /><label for="hideCursorCheckbox">Hide pointer</label></hbox>
+        <hbox class="Entry"><input type="checkbox" anon-id="hidePencilCheckbox" checked="true" /><label for="hidePencilCheckbox">Hide Pencil</label></hbox>
+        <hbox class="Entry"><label for="delayInput">Delay:</label><input type="number" anon-id="delayInput" min="0" value="0" size="2" /><label for="delayInput">seconds</label></hbox>
+    </hbox>
+</vbox>

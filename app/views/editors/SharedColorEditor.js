@@ -43,6 +43,7 @@ SharedColorEditor.prototype.setup = function () {
 
     this.selector.addEventListener("ValueChange", function (event) {
         thiz.color = thiz.selector.getColor();
+        console.log("ValueChange", thiz.color);
         if (thiz.selectorContainer.isVisible()) {
             thiz._applyValue();
         }

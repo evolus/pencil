@@ -117,6 +117,14 @@
         @modeTabContainer .Tab {
             padding: 0.3ex 1ex;
         }
+        @htmlCodeInput {
+            flex-basis: 0em;
+            min-width: 9ex;
+        }
+        @pickerButton {
+            padding: 0em 0.45em;
+            margin-left: 0.2ex;
+        }
     </style>
     <hbox flex="1">
         <ui:TabPane>
@@ -217,9 +225,12 @@
                 </hbox>
             </vbox>
         </ui:TabPane>
-        <vbox style="margin-left: 1em; width: 15ex;">
+        <vbox style="margin-left: 1em; width: 16ex;">
             <label for="htmlCodeInput">HTML code:</label>
-            <input type="text" anon-id="htmlCodeInput" maxlength="7"/>
+            <hbox>
+                <input type="text" anon-id="htmlCodeInput" maxlength="7" flex="1"/>
+                <button anon-id="pickerButton"><i>colorize</i></button>
+            </hbox>
             <hbox style="padding-top: 1ex;">
                 <label for="opacity" flex="1">Opacity:</label>
                 <label anon-id="opacityText">12%</label>

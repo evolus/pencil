@@ -239,6 +239,78 @@ ImageData.prototype.getDataAsXML = function () {
     return null;
 };
 
+ImageData.fromScreenshot = function (callback) {
+    /*
+    var capturer = require("electron-screencapture");
+    var electron = require("electron");
+
+    var displays = electron.screen.getAllDisplays();
+    if (!displays || displays.length <= 0) {
+        console.error("No dispaly found");
+        return;
+    }
+
+    var display = displays[0];
+
+    const remote = electron.remote;
+    const BrowserWindow = remote.BrowserWindow;
+    // var win = new BrowserWindow({ width: 800, height: 600, transparent: false, frame: true, fullscreen: false, enableLargerThanScreen: true });
+    var win = new BrowserWindow({
+        x: display.bounds.x,
+        y: display.bounds.y,
+        width: display.bounds.width,
+        height: display.bounds.height,
+        transparent: true,
+        frame: false,
+        fullscreen: false,
+        enableLargerThanScreen: true,
+        show: false}
+    );
+    var mainUrl = "file://" + __dirname + "/tools/screen-cap.xhtml";
+    win.loadURL(mainUrl);
+    //win.webContents.openDevTools();
+    //win.setFullScreen(true);
+
+    return;
+    */
+
+    var provider = ScreenCaptureProvider.getActiveProvider();
+    if (!provider) {
+        callback(null, new Error("No provider found"));
+        return;
+    }
+
+    var optionDialog = new ScreenCaptureOptionDialog();
+    optionDialog.callback(function (options) {
+        console.log("captureOptions", options);
+
+        var tmp = require("tmp");
+        var localPath = tmp.tmpNameSync();
+
+        var win = require("electron").remote.getCurrentWindow();
+
+        if (options.hidePencil) win.hide();
+
+        options.outputType = BaseCaptureService.OUTPUT_FILE;
+        options.outputPath = localPath;
+
+        window.setTimeout(function () {
+            provider.capture(options).then(function () {
+                if (options.hidePencil) win.show();
+                ImageData.fromExternalToImageData(localPath, function (imageData) {
+                    var fs = require("fs");
+                    fs.unlinkSync(localPath);
+                    callback(imageData);
+                });
+            }).catch(function (error) {
+                if (options.hidePencil) win.show();
+                callback(null, error);
+            });
+        }, options.delay ? options.delay * 1000 : 100);
+    });
+    optionDialog.open();
+};
+
 window.addEventListener("load", function () {
     var iframe = document.createElementNS(PencilNamespaces.html, "html:iframe");
     iframe.setAttribute("style", "border: none; min-width: 0px; min-height: 0px; width: 1px; height: 1px; xvisibility: hidden;");

@@ -191,6 +191,8 @@ function ColorSelector() {
         thiz.selectColorCell(colorCell, true);
         thiz._emitCloseEvent();
     }, false);
+
+    this.bind("click", this.pickColor, this.pickerButton);
 }
 __extend(BaseTemplatedWidget, ColorSelector);
 
@@ -459,4 +461,111 @@ ColorSelector.prototype.onValueChanged = function (source) {
     this.invalidateUI(source);
     this.clearSelectedColor(this.recentlyUsedColor);
     this._emitChangeEvent();
+};
+ColorSelector.installGlobalListeners = function () {
+    if (ColorSelector.globalListenersInstalled) return;
+
+    ColorSelector.globalListenersInstalled = true;
+
+    document.body.addEventListener("mousedown", function (event) {
+        if (!ColorSelector.currentPickerInstance) return;
+
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+        var capturer = require("electron-screencapture");
+        var electron = require("electron");
+
+        //take the screenshot
+        var displays = electron.screen.getAllDisplays();
+        if (!displays || displays.length <= 0) {
+            ColorSelector.currentPickerInstance.onColorPickingCanceled();
+            return;
+        }
+
+        var display = displays[0];
+
+        document.body.setAttribute("color-picker-active", "picking");
+
+        capturer.takeScreenshot({x: display.bounds.x, y: display.bounds.y, width: display.bounds.width, height: display.bounds.height, sourceId: display.id})
+            .then(function (capturedImageURL) {
+                var image = new Image();
+                image.onload = function () {
+                    var canvas = document.createElement("canvas");
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+
+                    var context = canvas.getContext("2d");
+                    context.drawImage(image, 0, 0, image.width, image.height);
+
+                    var pixelData = context.getImageData(event.screenX, event.screenY, 1, 1).data;
+                    var color = "#" + Color.Dec2Hex(pixelData[0]) + Color.Dec2Hex(pixelData[1]) + Color.Dec2Hex(pixelData[2]);
+                    ColorSelector.currentPickerInstance.onColorPicked(color);
+                    window.setTimeout(function () {
+                        ColorSelector.currentPickerInstance = null;
+                    }, 400);
+
+                    canvas = null;
+                    image.src = "";
+                    image = null;
+                };
+                image.src = capturedImageURL;
+            })
+            .catch(function (error) {
+                ColorSelector.currentPickerInstance.onColorPickingCanceled();
+            });
+    }, true);
+
+    document.body.addEventListener("focus", function (event) {
+        if (!ColorSelector.currentPickerInstance) return;
+
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }, true);
+
+
+
+    document.body.addEventListener("mouseup", function (event) {
+        if (!ColorSelector.currentPickerInstance) return;
+
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }, true);
+
+    document.body.addEventListener("click", function (event) {
+        if (!ColorSelector.currentPickerInstance) return;
+
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }, true);
+};
+ColorSelector.prototype.onColorPickingCanceled = function () {
+    document.body.removeAttribute("color-picker-active");
+    BaseWidget.closableProcessingDisabled = false;
+};
+ColorSelector.prototype.onColorPicked = function (color) {
+    document.body.removeAttribute("color-picker-active");
+    BaseWidget.closableProcessingDisabled = false;
+
+    var a = this.color.a;
+    this.color = Color.fromString(color);
+    this.color.a = a;
+    this.onValueChanged(this.pickerButton);
+    this._emitCloseEvent();
+};
+ColorSelector.prototype.pickColor = function () {
+    ColorSelector.installGlobalListeners();
+
+    document.body.setAttribute("color-picker-active", true);
+    BaseWidget.closableProcessingDisabled = true;
+
+    ColorSelector.currentPickerInstance = this;
 };

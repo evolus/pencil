@@ -25,6 +25,18 @@
         body .SharedColorEditorPopup {
             z-index: 9999;
         }
+
+        body[color-picker-active] .SharedColorEditorPopup {
+            visibility: hidden !important;
+        }
+        body[color-picker-active="true"],
+        body[color-picker-active="true"] * {
+            cursor: url("css/images/eyedropper.png") 0 32, pointer !important;
+        }
+        body[color-picker-active="picking"],
+        body[color-picker-active="picking"] * {
+            cursor: none !important;
+        }
     </style>
 
     <span anon-id="colorDisplay" class="ColorDisplay"></span>
