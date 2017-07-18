@@ -347,6 +347,26 @@ function Canvas(element, options) {
         this.snappingHelper.rebuildSnappingGuide();
     }.bind(this));
 
+    this.resizer = this.element.ownerDocument.createElement("div");
+    this.element.appendChild(this.resizer);
+    Dom.addClass(this.resizer, "CanvasResizer");
+    this.resizeInfoLabel = this.element.ownerDocument.createElement("span");
+    this.resizer.appendChild(this.resizeInfoLabel);
+
+    this.resizer.addEventListener("mousedown", function (event) {
+        event.preventDefault();
+        if (this.element.hasAttribute("resizing")) {
+            this.resizing = true;
+            this.resizeInfo = {
+                ox: event.clientX,
+                oy: event.clientY,
+                ow: this.width,
+                oh: this.height
+            };
+            this.resizeInfoLabel.innerHTML = this.width + " x " + this.height;
+            return;
+        }
+    }.bind(this), false);
 }
 
 SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(elem) {
@@ -941,6 +961,10 @@ Canvas.prototype.handleScrollPane = function(event) {
 }
 
 Canvas.prototype.handleMouseUp = function (event) {
+    if (this.resizing) {
+        this.commitResize(event);
+        return;
+    }
 
     if (this.reClick && !this.hasMoved) {
         for (editor in this.onScreenEditors)
@@ -1115,7 +1139,71 @@ Canvas.prototype.handleClick = function (event) {
     }
 
 };
+Canvas.prototype.commitResize = function (event) {
+    this.resizing = false;
+    if (this.resizeInfo && this.resizeInfo.lastSize) {
+        Pencil.controller.setActiveCanvasSize(this.resizeInfo.lastSize.w, this.resizeInfo.lastSize.h)
+    }
+    this.resizeInfo = null;
+    this.element.removeAttribute("resizing");
+};
+Canvas.prototype.handleResizeMouseMove = function (event) {
+    if (this.resizing) {
+
+        var dw = Math.round((event.clientX - this.resizeInfo.ox) / this.zoom);
+        var dh = Math.round((event.clientY - this.resizeInfo.oy) / this.zoom);
+
+        var newW = this.resizeInfo.ow + dw;
+        var newH = this.resizeInfo.oh + dh;
+
+        if (event.ctrlKey) {
+            newW = Math.round(newW / 10) * 10;
+            newH = Math.round(newH / 10) * 10;
+        }
+
+        this.resizeInfo.lastSize = {
+            w: newW,
+            h: newH
+        };
+
+        var w = Math.ceil(newW * this.zoom);
+        var h = Math.ceil(newH * this.zoom);
+        this.element.style.width = w + "px";
+        this.element.style.height = h + "px";
+
+        this.resizeInfoLabel.innerHTML = w + " x " + h;
+
+        return;
+    }
+
+    var rect = this.svg.parentNode.getBoundingClientRect();
+    var bound = {
+        x: rect.left + rect.width - this.resizer.offsetWidth,
+        y: rect.top + rect.height - this.resizer.offsetHeight,
+        width: this.resizer.offsetWidth,
+        height: this.resizer.offsetHeight
+    };
+
+    var thiz = this;
+    if (event.clientX >= bound.x && event.clientX <= bound.x + bound.width
+        && event.clientY >= bound.y && event.clientY <= bound.y + bound.width) {
+        if (!this.showResizerTimeout) {
+            this.showResizerTimeout = window.setTimeout(function () {
+                thiz.showResizerTimeout = null;
+                thiz.element.setAttribute("resizing", "true");
+                thiz.resizeInfoLabel.innerHTML = thiz.width + " x " + thiz.height;
+            }, 1000);
+        }
+    } else {
+        if (this.showResizerTimeout) window.clearTimeout(this.showResizerTimeout);
+        this.element.removeAttribute("resizing");
+        this.showResizerTimeout = null;
+    }
+    return false;
+};
 Canvas.prototype.handleMouseMove = function (event, fake) {
+    if (!fake && this.handleResizeMouseMove(event)) return;
+
     try {
         if (this.duplicateMode && !this.mouseUp) {
             if(this.duplicateFunc) {

@@ -984,6 +984,17 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
         this.sayDocumentChanged();
     }
 };
+Controller.prototype.setActiveCanvasSize = function (width, height) {
+    var canvas = this.activePage.canvas;
+    if (!canvas) return;
+    var newSize = this.applicationPane.getBestFitSizeObject();
+    canvas.setSize(width, height);
+    this.activePage.width = width;
+    this.activePage.height = height;
+    Config.set("lastSize", [width, height].join("x"));
+    this.invalidateBitmapFilePath(this.activePage);
+    this.sayDocumentChanged();
+};
 Controller.prototype.getBestFitSize = function () {
     return this.applicationPane.getBestFitSize();
 };
