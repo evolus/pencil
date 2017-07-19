@@ -15,7 +15,7 @@ function BaseCmdCaptureService() {
     BaseCaptureService.call(this);
 }
 
-__extend(BaseCaptureService, BaseCmdCaptureService);
+BaseCmdCaptureService.prototype = new BaseCaptureService();
 
 BaseCmdCaptureService.prototype.capture = function (options) {
     var thiz = this;
@@ -39,7 +39,7 @@ function GnomeScreenshotService() {
     this.supportPointerHiding = true;
 }
 
-__extend(BaseCmdCaptureService, GnomeScreenshotService);
+GnomeScreenshotService.prototype = new BaseCmdCaptureService();
 
 Config.CAPTURE_GNOME_EXEC_PATH = Config.define("capture.gnome_screenshot.exec_path", "/usr/bin/gnome-screenshot");
 

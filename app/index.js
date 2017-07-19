@@ -120,6 +120,9 @@ app.on('ready', function() {
 
     const webPrinter = require("./pencil-core/common/webPrinter");
     webPrinter.start();
+
+    const globalShortcutMainService = require("./tools/global-shortcut-main.js");
+    globalShortcutMainService.start();
 });
 app.on("activate", function() {
     // On OS X it's common to re-create a window in the app when the
@@ -129,6 +132,10 @@ app.on("activate", function() {
     } else {
         app.show();
     }
+});
+
+app.on("will-quit", function () {
+  require("electron").globalShortcut.unregisterAll()
 });
 
 process.on('uncaughtException', function (error) {

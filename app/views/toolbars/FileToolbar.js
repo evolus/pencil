@@ -98,9 +98,7 @@ FileToolbar.prototype.registerCommands = function () {
         label: "Copy Page Bitmap",
         isValid: function () { return true; },
         run: function () {
-            if (this.page) {
-                Pencil.controller.copyPageBitmap(this.page);
-            }
+            Pencil.controller.copyPageBitmap(Pencil.controller.activePage);
         },
         shortcut: "Ctrl+Shift+C"
     });

@@ -239,7 +239,7 @@ ImageData.prototype.getDataAsXML = function () {
     return null;
 };
 
-ImageData.fromScreenshot = function (callback) {
+ImageData.fromScreenshot = function (callback, providedOptions) {
     /*
     var capturer = require("electron-screencapture");
     var electron = require("electron");
@@ -280,10 +280,7 @@ ImageData.fromScreenshot = function (callback) {
         return;
     }
 
-    var optionDialog = new ScreenCaptureOptionDialog();
-    optionDialog.callback(function (options) {
-        console.log("captureOptions", options);
-
+    var executer = function (options) {
         var tmp = require("tmp");
         var localPath = tmp.tmpNameSync();
 
@@ -293,6 +290,8 @@ ImageData.fromScreenshot = function (callback) {
 
         options.outputType = BaseCaptureService.OUTPUT_FILE;
         options.outputPath = localPath;
+
+        var delay = (options.delay ? parseInt(options.delay, 10) * 1000 : 0) + 100;
 
         window.setTimeout(function () {
             provider.capture(options).then(function () {
@@ -306,9 +305,16 @@ ImageData.fromScreenshot = function (callback) {
                 if (options.hidePencil) win.show();
                 callback(null, error);
             });
-        }, options.delay ? options.delay * 1000 : 100);
-    });
-    optionDialog.open();
+        }, delay);
+    };
+
+    if (providedOptions) {
+        executer(providedOptions);
+    } else {
+        var optionDialog = new ScreenCaptureOptionDialog();
+        optionDialog.callback(executer);
+        optionDialog.open();
+    }
 };
 
 window.addEventListener("load", function () {

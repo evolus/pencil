@@ -47,7 +47,7 @@ PageMenu.prototype.setup = function () {
            }
            Pencil.controller.duplicatePage(thiz.page, onDone());
        }
-   });
+    });
     this.register({
         key: "PageDelete",
         icon : "remove",
@@ -175,8 +175,14 @@ PageMenu.prototype.setup = function () {
     UICommandManager.getCommand("exportPageAsPNGButton").page = thiz.page;
     this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
 
-    UICommandManager.getCommand("copyPageBitmapCommand").page = thiz.page;
-    this.register(UICommandManager.getCommand("copyPageBitmapCommand"));
+    this.register({
+        key: "copyPageBitmapCommand",
+        label: "Copy Page Bitmap",
+        run: function () {
+            Pencil.controller.copyPageBitmap(thiz.page);
+        },
+        shortcut: "Ctrl+Shift+C"
+    });
 
     this.separator();
 

@@ -1511,7 +1511,51 @@ Controller.prototype.getDocumentPageMargin = function () {
 Controller.prototype.logShapeReparationRequest = function (shapeNode) {
     if (!this.repairingShapes) this.repairingShapes = [];
     this.repairingShapes.push(shape);
-}
+};
+
+Config.CAPTURE_INSERT_BITMAP_AS_DEFID = Config.define("capture.insert_bitmap_shape_id", "Evolus.Common:Bitmap");
+
+Controller.prototype.handleGlobalScreencapture = function (mode) {
+    var newDocumentCreated = false;
+    if (!this.doc) {
+        Pencil.documentHandler.newDocument();
+        newDocumentCreated = true;
+    }
+
+
+    ImageData.fromScreenshot(function (imageData, error) {
+        if (imageData) {
+            electron.remote.getCurrentWindow().show();
+            electron.remote.getCurrentWindow().focus();
+
+            if (!newDocumentCreated) {
+                this.newPage("Capture " + new Date(), imageData.w, imageData.h, null, Color.fromString("#FFFFFFFF"), "", null, true);
+            } else {
+                this.setActiveCanvasSize(imageData.w, imageData.h)
+            }
+
+            var page = this.activePage;
+
+            var def = CollectionManager.shapeDefinition.locateDefinition(Config.get(Config.CAPTURE_INSERT_BITMAP_AS_DEFID));
+            if (!def) return;
+
+            page.canvas.insertShape(def, null);
+            if (!page.canvas.currentController) return;
+
+            var controller = page.canvas.currentController;
+
+            var dim = new Dimension(imageData.w, imageData.h);
+            page.canvas.currentController.setProperty("imageData", imageData);
+            page.canvas.currentController.setProperty("box", dim);
+            page.canvas.invalidateEditors();
+        }
+    }.bind(this), {
+        mode: mode,
+        includePointer: false,
+        hidePencil: false,
+        delay: 0
+    });
+};
 
 
 window.addEventListener("beforeunload", function (event) {
@@ -1542,4 +1586,11 @@ window.addEventListener("beforeunload", function (event) {
         event.returnValue = false;
         return;
     }
+});
+Config.SHORTCUT_GLOBALSCREENCAPTURE_AREA = Config.define("shortcut.global.screencapture_area", "Super+F12");
+GlobalShortcutHelper.register("global-screencapture-area", Config.get(Config.SHORTCUT_GLOBALSCREENCAPTURE_AREA), function () {
+    console.log("global-screencapture-area triggered");
+    if (!Controller._instance) return;
+
+    Controller._instance.handleGlobalScreencapture(BaseCaptureService.MODE_AREA);
 });
