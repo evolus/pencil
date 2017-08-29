@@ -97,6 +97,28 @@ FontEditor.prototype.setup = function () {
         thiz.fireChangeEvent();
     }, false);
 
+    this.lineHeight.addEventListener("keyup", function(event) {
+        if (event.keyCode == 13 || event.keyCode == 10) {
+            if (!thiz.font || OnScreenTextEditor.isEditing) return;
+            if (thiz.lineHeight.value == "" || thiz.lineHeight.value < 0) {
+                thiz.lineHeight.value = 0;
+            }
+            thiz.fireChangeEvent();
+        }
+    }, false);
+    this.lineHeight.addEventListener("wheel", function(event) {
+        if (!thiz.font || OnScreenTextEditor.isEditing || thiz.lineHeight.value == "" || thiz.lineHeight.value < 0) return;
+        thiz.fireChangeEvent();
+    });
+    this.lineHeight.addEventListener("change", function(event) {
+        if (!thiz.font || OnScreenTextEditor.isEditing) return;
+        if (thiz.lineHeight.value == "" || thiz.lineHeight.value < 0) {
+            thiz.lineHeight.value = 0;
+        }
+        thiz.fireChangeEvent();
+    }, false);
+
+
     this.weightCombo.useHtml = true;
     this.weightCombo.renderer = function (weight, buttonDisplay) {
         var w = FontRepository.WEIGHT_MAP[weight];
@@ -147,6 +169,10 @@ FontEditor.prototype.setValue = function (font) {
         this.italicButton.removeAttribute("checked");
     }
 
+    if (this.font.lineHeight) {
+        this.lineHeight.value = this.font.lineHeight;
+    }
+
     this.invalidateWeightCombo();
     this.weightCombo.selectItem(this.font.weight);
 };
@@ -161,6 +187,8 @@ FontEditor.prototype.getValue = function () {
         font.weight = this.weightCombo.getSelectedItem();
     }
     font.style = (this.italicButton.getAttribute("checked") == "true") ? "italic" : "normal";
-    this.fontSize = this.pixelFontSize.value;
+    font.lineHeight = this.lineHeight.value ? this.lineHeight.valueAsNumber : 0;
+    this.fontSize = this.pixelFontSize.valueAsNumber;
+
     return font;
 };

@@ -122,6 +122,7 @@ Pencil.behaviors.Font = function (font) {
     Svg.setStyle(this, "font-weight", font.weight);
     Svg.setStyle(this, "font-style", font.style);
     Svg.setStyle(this, "text-decoration", font.decor);
+    Svg.setStyle(this, "line-height", font.lineHeight > 0 ? font.lineHeight : null);
 };
 Pencil.behaviors.BoxFit = function (bound, align) {
     try {

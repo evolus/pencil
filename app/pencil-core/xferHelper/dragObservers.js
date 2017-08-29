@@ -449,8 +449,7 @@ FileDragObserver.fileTypeHandler = {
         this._handleImageFile(canvas, url, loc, "transparent");
     },
     svg: function (canvas, url, loc) {
-        var file = fileHandler.getFileFromURLSpec(url).QueryInterface(Components.interfaces.nsILocalFile);
-        var fileContents = FileIO.read(file, XMLDocumentPersister.CHARSET);
+        var fileContents = require("fs").readFileSync(url, {encoding: "utf8"});
         FileDragObserver.handleSVGData(fileContents, canvas, loc);
     },
     ep: function (canvas, url) {
