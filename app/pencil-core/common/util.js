@@ -1200,7 +1200,14 @@ Local.getInstalledFonts = function () {
 
     Local.sortFont(localFonts);
 
-    var fonts = fontManager.getAvailableFontsSync();
+    var fonts = null;
+
+    try {
+        fonts = fontManager.getAvailableFontsSync();
+    } catch (e) {
+        console.error(e);
+        fonts = [{family: "Arial"}];
+    }
 
     var systemFonts = [];
     for (var i in fonts) {
