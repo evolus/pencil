@@ -37,24 +37,24 @@ ShapeDefCollectionParser.prototype.injectEntityDefs = function (content, file) {
 	return content;
 };
 ShapeDefCollectionParser.prototype.injectEntityDefsFromUrl = function (content, url) {
-    try {
-        //getting the current local
-        var locale = "en-US";
-        var dtdUrl = url.replace(/Definition\.xml$/, locale + ".dtd");
-
-        var request = new XMLHttpRequest();
-        request.open("GET", dtdUrl, false);
-        request.send("");
-        var doctypeContent = request.responseText;
-        if (doctypeContent && doctypeContent.length && request.status != 404) {
-            doctypeContent = "<!DOCTYPE Shapes [\n" + doctypeContent + "\n]>\n";
-
-            content = content.replace(/(<Shapes)/, function (zero, one) {
-                return doctypeContent + one;
-            });
-        }
-    } catch (ex) {
-    }
+    // try {
+    //     //getting the current local
+    //     var locale = "en-US";
+    //     var dtdUrl = url.replace(/Definition\.xml$/, locale + ".dtd");
+    //
+    //     var request = new XMLHttpRequest();
+    //     request.open("GET", dtdUrl, false);
+    //     request.send("");
+    //     var doctypeContent = request.responseText;
+    //     if (doctypeContent && doctypeContent.length && request.status != 404) {
+    //         doctypeContent = "<!DOCTYPE Shapes [\n" + doctypeContent + "\n]>\n";
+    //
+    //         content = content.replace(/(<Shapes)/, function (zero, one) {
+    //             return doctypeContent + one;
+    //         });
+    //     }
+    // } catch (ex) {
+    // }
 	return content;
 };
 ShapeDefCollectionParser.CHARSET = "UTF-8";
@@ -64,13 +64,18 @@ ShapeDefCollectionParser.getCollectionPropertyConfigName = function (collectionI
 
 /* public ShapeDefCollection */ ShapeDefCollectionParser.prototype.parseURL = function (url) {
     try {
-        var request = new XMLHttpRequest();
-        request.open("GET", url, false);
-        request.send("");
+        var dom = null;
+        if (url.match(/^[a-z]+:\/\/.*/)) {
+            var request = new XMLHttpRequest();
+            request.open("GET", url, false);
+            request.send("");
 
-        var content = this.injectEntityDefsFromUrl(request.responseText, url)
-        var domParser = new DOMParser();
-        var dom = domParser.parseFromString(content, "text/xml");
+            var content = this.injectEntityDefsFromUrl(request.responseText, url)
+            var domParser = new DOMParser();
+            var dom = domParser.parseFromString(content, "text/xml");
+        } else {
+            dom = Dom.parseFile(url);
+        }
 
         var collection = this.parse(dom, url);
         collection._location = url;
@@ -218,7 +223,6 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
             if (filePath) font[variantName] = filePath;
         }
 
-        console.log("Font:", font);
         collection.fonts.push(font);
     });
 

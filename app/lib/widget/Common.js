@@ -627,23 +627,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var path = BaseTemplatedWidget.getTemplatePathForViewClass(clazz);
 
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function() {
-            if (request.readyState == 4) {
-                var html = request.responseText;
-                html = widget.Util.processLocalizationMacros(html);
-                widget.Util.getTemplateCache()[path] = html;
+        var viewFilePath = getStaticFilePath(path);
+        const fs = require("fs");
+        fs.readFile(viewFilePath, "utf8", function (error, html) {
+            html = widget.Util.processLocalizationMacros(html || "");
+            widget.Util.getTemplateCache()[path] = html;
 
-                var templateName = path.replace(/[^a-z0-9]+/gi, "_");
-                var className = "DynamicTemplate" + templateName;
-                var processedHtml = widget.Util._processTemplateStyleSheet(html, "." + className, templateName);
+            var templateName = path.replace(/[^a-z0-9]+/gi, "_");
+            var className = "DynamicTemplate" + templateName;
+            var processedHtml = widget.Util._processTemplateStyleSheet(html, "." + className, templateName);
 
-                loadNext();
-            }
-        };
-
-        request.open("GET", widget.STATIC_BASE + path + "?t=" + widget.CACHE_RANDOM, true);
-        request.send(null);
+            loadNext();
+        });
     }
 
     widget.reloadDesktopFont().then(loadNext);

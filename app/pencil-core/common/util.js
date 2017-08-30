@@ -363,7 +363,6 @@ Object.defineProperty(Event.prototype, "originalTarget", {
 (function(){
   var attachEvent = document.attachEvent;
   var isIE = navigator.userAgent.match(/Trident/);
-  console.log(isIE);
   var requestFrame = (function(){
     var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
         function(fn){ return window.setTimeout(fn, 20); };
@@ -471,12 +470,8 @@ Object.defineProperty(Event.prototype, "originalTarget", {
 var domParser = new DOMParser();
 
 /* public static XmlDocument */ Dom.loadSystemXml = function (relPath) {
-    var request = new XMLHttpRequest();
-    request.open("GET", relPath, false);
-    request.send("");
-    var dom = domParser.parseFromString(request.responseText, "text/xml");;
-
-    return dom;
+    var absPath = getStaticFilePath(relPath);
+    return Dom.parseFile(absPath);
 };
 
 Dom.isElementExistedInDocument = function(element) {
