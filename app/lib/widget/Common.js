@@ -601,13 +601,17 @@ document.addEventListener("DOMContentLoaded", function () {
     var index = -1;
 
     function onLoadDone() {
+        debug("BOOT: Configuring DOM event.");
         BaseWidget.registerDOMMutationHandler();
         window.globalViews = {};
+        debug("BOOT: Initiating UI auto-binding.");
         widget.Util.performAutoBinding(document.body, window.globalViews);
+        debug("BOOT: Setting up popup handlers.");
         widget.Util.registerPopopCloseHandler();
 
         window.setTimeout(function () {
             document.body.setAttribute("loaded", "true");
+            debug("BOOT: Revealing user-interface.");
         }, 300);
     }
     function loadNext() {
@@ -641,7 +645,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    widget.reloadDesktopFont().then(loadNext);
+    debug("BOOT: Loading desktop font configuration.");
+    widget.reloadDesktopFont().then(function () {
+        debug("BOOT: Loading view definition files");
+        loadNext();
+    });
 
 }, false);
 
@@ -743,7 +751,11 @@ BaseWidget.registerDOMMutationHandler = function () {
             if (mutation.type == "childList" && mutation.addedNodes && mutation.addedNodes.length > 0) {
                 for (var i = 0; i < mutation.addedNodes.length; i ++) {
                     var node = mutation.addedNodes[i];
-                    BaseWidget.handleOnAttached(node);
+                    try {
+                        BaseWidget.handleOnAttached(node);
+                    } catch (e) {
+                        console.error(e);
+                    }
                 }
             }
         });

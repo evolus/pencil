@@ -8,7 +8,6 @@ PrivateCollectionManager.loadPrivateCollections = function () {
 
     try {
         var privateCollectionXmlLocation = path.join(PrivateCollectionManager.getPrivateCollectionDirectory(), "PrivateCollection.xml");
-        debug("loading private collections: " + privateCollectionXmlLocation.path);
 
         // privateCollectionXmlLocation.append("PrivateCollection.xml");
         var stat = fs.statSync(privateCollectionXmlLocation);

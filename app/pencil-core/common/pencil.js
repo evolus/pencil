@@ -79,6 +79,7 @@ Pencil.fixUI = function () {
 Pencil.boot = function (event) {
     try {
         if (Pencil.booted) return;
+        debug("BOOT: Initializing Pencil core");
 
         Pencil.app = require('electron').remote.app;
 
@@ -86,11 +87,15 @@ Pencil.boot = function (event) {
         Pencil.window = document.documentElement;
         Pencil.rasterizer = new Rasterizer("image/png");
 
+        debug("BOOT:   Loading stencils");
         CollectionManager.loadStencils();
+        debug("BOOT:   Loading export templates");
         ExportTemplateManager.loadTemplates();
+        debug("BOOT:   Configuring export manager");
         Pencil.documentExportManager = new DocumentExportManager();
 
         Pencil.activeCanvas = null;
+        debug("BOOT:   Setting up UI commands");
         Pencil.setupCommands();
 
         Pencil.undoMenuItem = document.getElementById("editUndoMenu");
@@ -99,6 +104,7 @@ Pencil.boot = function (event) {
         Pencil.sideBoxFloat = document.getElementById("sideBoxFloat");
         var collectionPaneSizeGrip = document.getElementById("collectionPaneSizeGrip");
 
+        debug("BOOT:   Registering global event handlers");
         window.addEventListener("mousedown", function (event) {
             var target = event.target;
             if (target.className && target.className == "CollectionPane") {
@@ -157,8 +163,9 @@ Pencil.boot = function (event) {
                 document.body.scrollTop = 0;
             }
         };
+        debug("BOOT:   Done initializing Pencil core.");
     } catch (e) {
-        Console.dumpError(e, "stdout");
+        console.error(e);
     }
 };
 Pencil.handleArguments = function() {

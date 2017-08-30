@@ -116,6 +116,7 @@ ApplicationPane.prototype.onAttached = function () {
     // }, 100);
 };
 ApplicationPane.prototype.invalidateUIForConfig = function () {
+    debug("BOOT: invalidating UI using configuration");
     var useCompactLayout = Config.get("view.useCompactLayout", false);
     document.body.setAttribute("compact-layout", useCompactLayout);
     this.toolBarSrollView.invalidate();
@@ -231,6 +232,7 @@ ApplicationPane.prototype.invalidateZoom = function () {
     this.zoomToolbar.setAttribute("label", Pencil.activeCanvas ? (Math.round(Pencil.activeCanvas.zoom * 100) + "%") : "100%") ;
 };
 ApplicationPane.prototype.showStartupPane = function () {
+    debug("BOOT: Showing startup pane...");
     Pencil.documentHandler.preDocument = null;
     if (Pencil.controller.activePage) {
         Pencil.controller.activePage.canvas.selectNone();
@@ -240,6 +242,7 @@ ApplicationPane.prototype.showStartupPane = function () {
     this.startupDocumentView.node().style.display = "flex";
 
     this.invalidateUIForControllerStatus();
+    debug("BOOT:   >> Done");
 };
 const NO_CONTENT_VALUE = 22;
 ApplicationPane.prototype.getNoContentValue = function () {

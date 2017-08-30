@@ -1779,11 +1779,10 @@ if (typeof(console) == "undefined") {
     };
 }
 
-function debug(value) {
-	//DEBUG_BEGIN
+const DEV_ENABLED = require("electron").remote.app.devEnable ? true : false;
 
-    //console.info(value ? value : "NULL VALUE");
-    //DEBUG_END
+function debug() {
+    if (DEV_ENABLED) console.debug.apply(console, ["DEBUG>"].concat(Array.prototype.slice.call(arguments)));
 }
 function stackTrace() {
 	//DEBUG_BEGIN
@@ -2543,5 +2542,9 @@ function handleCommonValidationError(e) {
         throw e;
     }
 }
+
+process.on('uncaughtException', function (e) {
+    console.error("UNCAUGHT EXCPTION", e);
+});
 
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);

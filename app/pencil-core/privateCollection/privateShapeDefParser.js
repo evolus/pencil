@@ -11,8 +11,6 @@ PrivateShapeDefParser.prototype.parseNode = function (dom) {
     collection.author = dom.getAttribute("p:Author");
     collection.infoUrl = dom.getAttribute("p:InfoUrl");
 
-    debug("    loading collection: id: " + collection.id + ", name: " + collection.displayName);
-
     Dom.workOn("./p:Groups/p:Group", dom, function (node) {
         var id = node.getAttribute("p:Id");
         var name = node.getAttribute("p:Name");
@@ -25,8 +23,6 @@ PrivateShapeDefParser.prototype.parseNode = function (dom) {
         shapeDef.displayName = name;
         shapeDef.iconData = icon;
         shapeDef.content = contentNode;
-
-        debug("         loading shape: id: " + shapeDef.id + ", name: " + shapeDef.displayName);
 
         collection.shapeDefs.push(shapeDef);
     });

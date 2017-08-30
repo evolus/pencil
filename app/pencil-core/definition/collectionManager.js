@@ -20,7 +20,7 @@ CollectionManager.addShapeDefCollection = function (collection) {
             CollectionManager.shapeDefinition.shapeDefMap[shapeDef.id] = shapeDef;
         }
     }
-
+    debug("   Loaded: " + collection.displayName);
 };
 CollectionManager.shapeDefinition.locateDefinition = function (shapeDefId) {
     var def = CollectionManager.shapeDefinition.shapeDefMap[shapeDefId];
@@ -203,6 +203,7 @@ CollectionManager.loadStencils = function(showNotification) {
     //load all system stencils
     var parser = new ShapeDefCollectionParser();
 
+    debug("Start loading built-in stencil collections:");
     CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/Common"), parser, true, false));
     CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/BasicWebElements"), parser, true, false));
     CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/Gtk.GUI"), parser, true, false));
@@ -214,9 +215,11 @@ CollectionManager.loadStencils = function(showNotification) {
     CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/iOS-Wireframe"), parser, true, false));
     CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/Prototype_GUI"), parser, true, false));
 
+    debug("Start loading installed stencil collections:");
     CollectionManager._loadUserDefinedStencilsIn(Config.getDataFilePath(Config.STENCILS_DIR_NAME));
 
 
+    debug("Start loading developer stencil collections:");
     CollectionManager._loadDeveloperStencil();
 
     var config = Config.get("Collection.collectionPosition");
@@ -227,6 +230,8 @@ CollectionManager.loadStencils = function(showNotification) {
         var indexB = collectionOrder.indexOf(b.id);
         return indexA - indexB;
     });
+
+    debug("Finished loading collections, showing collection pane...");
 
     CollectionManager.reloadCollectionPane();
 
