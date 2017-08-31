@@ -105,6 +105,7 @@ Pencil.boot = function (event) {
         var collectionPaneSizeGrip = document.getElementById("collectionPaneSizeGrip");
 
         debug("BOOT:   Registering global event handlers");
+        debug("BOOT:     - Collection pane collapsing event");
         window.addEventListener("mousedown", function (event) {
             var target = event.target;
             if (target.className && target.className == "CollectionPane") {
@@ -135,29 +136,37 @@ Pencil.boot = function (event) {
         //     }
         // };
 
+        debug("BOOT:     - Global scroll event");
         document.addEventListener("scroll", function (event) {
             if (document.body.scrollTop != 0 && event.target === document) {
                 document.body.scrollTop = 0;
             }
         }, false);
 
+        debug("BOOT:     - Booting shared editors.");
         //booting shared editors
         for (var i in Pencil.sharedEditors) {
             try {
+                debug("BOOT:         " + Pencil.sharedEditors[i].constructor.name);
                 Pencil.sharedEditors[i].setup();
             } catch (e) {
                 Console.dumpError(e, "stdout");
             }
         }
 
+        debug("BOOT:     - p:CanvasChanged event.");
         document.documentElement.addEventListener("p:CanvasChanged", Pencil.handleCanvasChange, false);
+        debug("BOOT:     - p:TargetChanged event.");
         document.documentElement.addEventListener("p:TargetChanged", Pencil.handleTargetChange, false);
 
+        debug("BOOT:     - p:ContentModified event.");
         document.documentElement.addEventListener("p:ContentModified", Pencil._setupUndoRedoCommand, false);
+        debug("BOOT:     - p:UserFontLoaded event.");
         document.documentElement.addEventListener("p:UserFontLoaded", function () {
             if (ApplicationPane._instance) ApplicationPane._instance.sharedFontEditor.reloadFontItems();
         }, false);
 
+        debug("BOOT:     - Fallback scroll event.");
         document.body.onscroll = function (event) {
             if (document.body.scrollTop != 0) {
                 document.body.scrollTop = 0;
