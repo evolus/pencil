@@ -160,7 +160,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 });
                 thiz.propertyContainer.appendChild(hbox);
             }
-            
+
             if (StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection() && thiz.target.getSymbolName) {
                 thiz.propertyContainer.appendChild(Dom.newDOMElement({
                     _name: "vbox",
@@ -240,7 +240,6 @@ SharedPropertyEditor.prototype.attach = function (target) {
         editorWidget.setValue(thiz.target.getProperty(property.name));
         thiz.propertyEditor[property.name] = editorWidget;
         editorWrapper._property = property;
-
 
         var meta = property.meta["disabled"];
 

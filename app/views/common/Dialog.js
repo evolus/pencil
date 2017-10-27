@@ -537,7 +537,6 @@ Dialog.select = function (items, callback, selectedItems, options) {
             }
 
             var div = document.createElement("div");
-            div.style.textAlign = "center";
             this.inputs = [];
             for (var i = 0; i < items.length; i ++) {
                 var id = "cb_" + widget.random();
@@ -590,4 +589,14 @@ Dialog.select = function (items, callback, selectedItems, options) {
         ]
     };
     new BuilderBasedDialog(builder).open();
+};
+Dialog.selectDir = function (title, defaultPath, callback) {
+    dialog.showOpenDialog(remote.getCurrentWindow(), {
+        title: title,
+        defaultPath: defaultPath || (path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), "")),
+        properties: ["openDirectory"]
+    }, function (dirPath) {
+        if (!dirPath) return;
+        callback(dirPath)
+    });
 };

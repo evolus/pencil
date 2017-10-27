@@ -2543,6 +2543,79 @@ function handleCommonValidationError(e) {
     }
 }
 
+function contains(list, item, comparer) {
+    return findItemByComparer(list, item, comparer) >= 0;
+}
+
+function sameList(a, b, comparer) {
+    return containsAll(a, b, comparer) && containsAll(b, a, comparer);
+};
+function containsAll(a, b, comparer) {
+    var c = comparer || sameId;
+    for (var i = 0; i < b.length; i ++) {
+        if (!contains(a, b[i], c)) return false;
+    }
+
+    return true;
+};
+function intersect(a, b, comparer) {
+    if (!a || !b) return [];
+    var items = [];
+    for (var i = 0; i < a.length; i ++) {
+        if (contains(b, a[i], comparer)) {
+            items.push(a[i]);
+        }
+    }
+
+    return items;
+};
+
+function findItemByComparer(list, item, comparer) {
+    for (var i = 0; i < list.length; i ++) {
+        if (comparer(list[i], item)) return i;
+    }
+
+    return -1;
+}
+function removeItemByComparer(list, item, comparer) {
+    var result = [];
+    for (var i = 0; i < list.length; i ++) {
+        if (!comparer(list[i], item)) {
+            result.push(list[i]);
+        }
+    }
+
+    return result;
+}
+function find(list, matcher) {
+    for (var i = 0; i < list.length; i ++) {
+        if (matcher(list[i])) return list[i];
+    }
+
+    return null;
+}
+function findById(list, id) {
+    return find(list, function (u) { return u.id == id; });
+}
+function _export() {
+    var obj = {};
+    for (var i = 0; i < arguments.length; i ++) {
+        var f = arguments[i];
+        if (typeof(f) != "function") continue;
+        obj[f.name] = f;
+    }
+
+    return obj;
+}
+function sameId(a, b) {
+    if (!a) return !b;
+    if (!b) return false;
+    return a.id == b.id;
+}
+function sameRelax(a, b) {
+    return a == b;
+}
+
 process.on('uncaughtException', function (e) {
     console.error("UNCAUGHT EXCPTION", e);
 });
