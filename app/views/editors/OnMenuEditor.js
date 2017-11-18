@@ -223,48 +223,9 @@ OnMenuEditor.prototype.generateMenuItems = function () {
     }
 
 
-    //Linking
-    var linkItem = null;
-    if(Pencil.controller.doc && Pencil.controller.doc.pages.length > 1 && this.targetObject.getMetadata && this.targetObject.setMetadata) {
-        linkItem = {
-            label: "Link To",
-            type: "SubMenu",
-            subItems: []
-        }
-        var targetPageId = this.targetObject.getMetadata("RelatedPage");
-        var linkSubItem = [];
-        for(var i = 0; i < Pencil.controller.doc.pages.length; i++) {
-            var page = Pencil.controller.doc.pages[i];
-            var item = {
-                label: page.name,
-                type: "Selection",
-                pageId: page.id,
-                isChecked:  function () {
-                    if (this.pageId == targetPageId) return true;
-                    return false;
-                },
-                isEnabled: function () {
-                    if (this.pageId == Pencil.controller.activePage.id) return false;
-                    return true;
-                },
-                handleAction: function () {
-                    console.log("link to " + this.pageId);
-                    thiz.targetObject.setMetadata("RelatedPage", this.pageId ? this.pageId : "");
-                }
-            };
-            linkItem.subItems.push(item);
-        }
-        linkItem.subItems.push({
-            label: "Nothing",
-            type: "Selection",
-            isChecked: function() {
-                return targetPageId ? false : true;
-            },
-            handleAction: function () {
-                thiz.targetObject.setMetadata("RelatedPage", "");
-            }
-        })
-        items.push(linkItem);
+    if (Pencil.controller.doc && Pencil.controller.doc.pages.length > 1 && this.targetObject.getMetadata && this.targetObject.setMetadata) {
+        let linkToMenu = LinkToMenu.buildWithSubPages(this.targetObject);
+        items.push(linkToMenu);
     }
     return items;
 
