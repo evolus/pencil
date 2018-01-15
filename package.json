@@ -13,23 +13,30 @@
       "category": "public.app-category.graphics-design"
     },
     "dmg": {
-      "contents": [{
-        "x": 356,
-        "y": 140,
-        "type": "link",
-        "path": "/Applications"
-      }, {
-        "x": 130,
-        "y": 145,
-        "type": "file"
-      }]
+      "contents": [
+        {
+          "x": 356,
+          "y": 140,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 145,
+          "type": "file"
+        }
+      ]
     },
     "linux": {
       "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
       "synopsis": "An open-source GUI prototyping tool that is available for ALL platforms.",
       "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
       "vendor": "Evolus",
-      "target": ["deb", "rpm", "tar.gz"],
+      "target": [
+        "deb",
+        "rpm",
+        "tar.gz"
+      ],
       "depends": [],
       "category": "Graphics",
       "packageCategory": "graphics"
@@ -51,9 +58,13 @@
       "cache": ".electron-cache"
     },
     "fileAssociations": {
-      "ext": ["ep", "epz", "epgz"],
+      "ext": [
+        "ep",
+        "epz",
+        "epgz"
+      ],
       "name": "Pencil Document"
-	}
+    }
   },
   "scripts": {
     "postinstall": "install-app-deps",
