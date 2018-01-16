@@ -71,6 +71,16 @@ function PageDetailDialog() {
         if (!value || parseInt(value, 10) < 24) thiz.heightInput.value = 24;
         thiz.modified = true;
     }, false);
+    this.rotateButton.addEventListener("click", function(event) {
+        console.log('test rotate');
+        var newWidth = thiz.heightInput.value;
+        var newHeight = thiz.widthInput.value;
+
+        thiz.heightInput.value = newHeight;
+        thiz.widthInput.value = newWidth;
+        thiz.modified = true;
+
+    }, false);
 
 }
 
