@@ -72,7 +72,6 @@ function PageDetailDialog() {
         thiz.modified = true;
     }, false);
     this.rotateButton.addEventListener("click", function(event) {
-        console.log('test rotate');
         var newWidth = thiz.heightInput.value;
         var newHeight = thiz.widthInput.value;
 
