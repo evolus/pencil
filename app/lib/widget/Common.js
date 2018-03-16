@@ -104,20 +104,24 @@ widget.Util = function() {
 
                 if (processedCSS[templateName]) return "";
 
-                var css = content.replace(/([\r\n ]+)([^\{\}\$;]+)\{/g, function (zero, leading, selectors) {
-                    selectors = selectors.replace(/^@this/gi, prefix);
-                    selectors = selectors.replace(/(\.widget_[^\r\n\,]+ )@([a-z])/gi, "$1 .AnonId_$2");
-                    if (!selectors.match(/^[ \t]*@(media|keyframes) /)) {
-                        selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
-                    }
-                    selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
-                    if (!selectors.match(/^[ \t]*body[ \.\[:]/) && !selectors.match(/^[ \t]*@(media|keyframes) /)) {
-                        selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
-                    }
+                var css = content.replace(/([^\{\}\$;]+)\{((?:[^\}\{]+\{[^\}]*\})*)([^\}]*\})/g, function (zero, start, blocks, end) {
+                    if (start.match(/^[\s]*@(keyframes|-webkit-keyframes)/)) return zero;
 
-                    var modified = leading + selectors + "{";
+                    return zero.replace(/([\r\n ]+)([^\{\}\$;]+)\{/g, function (zero, leading, selectors) {
+                        selectors = selectors.replace(/^@this/gi, prefix);
+                        selectors = selectors.replace(/(\.widget_[^\r\n\,]+ )@([a-z])/gi, "$1 .AnonId_$2");
+                        if (!selectors.match(/^[ \t]*@(media) /)) {
+                            selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
+                        }
+                        selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
+                        if (!selectors.match(/^[ \t]*body[ \.\[:]/) && !selectors.match(/^[ \t]*@(media) /)) {
+                            selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
+                        }
 
-                    return modified;
+                        var modified = leading + selectors + "{";
+
+                        return modified;
+                    });
                 });
                 css = css.replace(/\$([a-z0-9_]+)/g, "@$1");
 

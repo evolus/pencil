@@ -209,7 +209,74 @@ ImageData.convertToEmbeded = function (imageData, callback) {
     ImageData.fromUrlEmbedded(imageData.data, callback);
 };
 
+ImageData.commandsToData = function (pathCommands) {
+    var newData = "";
 
+    for (var command of pathCommands) {
+        if (newData) newData += " ";
+        newData += command.command;
+        if (command.points) {
+            for (var i = 0; i < command.points.length; i ++) {
+                newData += (i > 0 ? " " : "") + command.points[i].x + "," + command.points[i].y;
+            }
+        }
+    }
+
+    return newData;
+};
+ImageData.generatePathSVGData = function (svgPathData, size) {
+    var specs = [];
+    var json = svgPathData.data;
+    if (!json.startsWith("json:")) return specs;
+    var parsedPathData = JSON.parse(json.substring(5));
+
+    for (var info of parsedPathData) {
+        var d = NPatchSpecEditorDialog.commandsToData(info.commands);
+        specs.push({
+            _name: "path",
+            _uri: PencilNamespaces.svg,
+            d: d,
+            style: "stroke: #000000; stroke-width: 1px; fill: rgba(0, 0, 0, 0.1);"
+        });
+    }
+
+    var svg = {
+        _name: "svg",
+        _uri: PencilNamespaces.svg,
+        width: svgPathData.w,
+        height: svgPathData.h,
+        viewBox: "0 0 " + size.w + " " + size.h,
+        _children: [
+            {
+                _name: "g",
+                _uri: PencilNamespaces.svg,
+                //transform: scale(size.w / svgPathData.w, size.h / svgPathData.h),
+                _children: specs
+            }
+        ]
+    }
+
+    var svgDom = Dom.newDOMElement(svg);
+    var svgData = encodeURIComponent(Dom.serializeNode(svgDom));
+    return "data:image/svg+xml," + svgData;
+};
+
+ImageData.prototype.isBitmap = function () {
+    // Only support ref file for now
+    return !!ImageData.refStringToId(this.data);
+};
+
+ImageData.prototype.toImageSrc = function () {
+    if (!this.data) return "";
+
+    if (this.data.startsWith("json:")) {
+        return ImageData.generatePathSVGData(this, this);
+    } else if (this.data.startsWith("data:")) {
+        return this.data;
+    } else {
+        return ImageData.refStringToUrl(this.data);
+    }
+};
 ImageData.prototype.toString = function () {
     if (!this.xCells && !this.yCells) {
         return [this.w, this.h, this.data].join(",");
@@ -217,6 +284,7 @@ ImageData.prototype.toString = function () {
         return [this.w, this.h, ImageData.generateCellString(this.xCells), ImageData.generateCellString(this.yCells), this.data].join(",");
     }
 };
+
 ImageData.SVG_IMAGE_DATA_PREFIX = "data:image/svg+xml";
 ImageData.prototype.getDataAsXML = function () {
     var url = this.data;

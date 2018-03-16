@@ -275,11 +275,12 @@ Controller.prototype.serializeDocument = function (onDone) {
     next();
 };
 
-Controller.prototype.findResourceReferences = function (page) {
+Controller.prototype.countResourceReferences = function (page) {
     var result = {
-        fontFaces: [],
-        resourceIds: []
+        fontFaces: {},
+        resources: {}
     };
+
     var contextNode = null;
     if (page.canvas) {
         contextNode = page.canvas.drawingLayer;
@@ -304,9 +305,11 @@ Controller.prototype.findResourceReferences = function (page) {
                 var font = Font.fromString(value);
                 if (!font) return;
 
-                if (result.fontFaces.indexOf(font.family) < 0 && FontLoader.instance.isFontExisting(font.family)) {
-                    result.fontFaces.push(font.family);
+                var holders = result.fontFaces[font.family] || [];
+                if (holders.length || FontLoader.instance.isFontExisting(font.family)) {
+                    holders.push(node);
                 }
+                result.fontFaces[font.family] = holders;
             } else if (propDef.type == ImageData) {
                 var imageData = ImageData.fromString(value);
                 if (!imageData || !imageData.data) return;
@@ -314,14 +317,54 @@ Controller.prototype.findResourceReferences = function (page) {
                 var id = ImageData.refStringToId(imageData.data);
                 if (!id) return;
 
-                if (result.resourceIds.indexOf(id)) {
-                    result.resourceIds.push(id);
-                }
+                var holders = result.resources[id] || [];
+                holders.push(node);
+                result.resources[id] = holders;
             }
         });
     });
 
     return result;
+};
+Controller.prototype.findResourceReferences = function (page) {
+    var refs = this.countResourceReferences(page);
+    return {
+        fontFaces: refs.fontFaces.keys(),
+        resourceIds: refs.resources.keys()
+    };
+};
+Controller.prototype.getResourceReferences = function (resourceId, pages) {
+    if (!pages) pages = this.doc.pages;
+    else if (!Array.isArray(pages)) pages = [pages];
+
+    var result = {
+        fontFaces: {},
+        resources: {}
+    };
+    function appendRef(overall, refs) {
+        for (var k in refs) {
+            var ri = overall[k] || {
+                total: 0,
+                references: []
+            };
+            var holders = refs[k];
+            var n = holders ? holders.length : 0;
+            ri.total += n;
+            ri.references.push({"count": n, "page": page, "holders": holders});
+
+            overall[k] = ri;
+        }
+        return overall;
+    };
+    for (var i = 0; i < pages.length; i++) {
+        var page = pages[i];
+        var refs = this.countResourceReferences(page);
+
+        result.fontFaces = appendRef(result.fontFaces, refs.fontFaces);
+        result.resources = appendRef(result.resources, refs.resources);
+    }
+
+    return resourceId ? (result.resources[resourceId] || result.fontFaces[resourceId]) : result;
 };
 
 // Controller.prototype.openDocument = function (callback) {

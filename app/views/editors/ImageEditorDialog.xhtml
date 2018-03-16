@@ -1,0 +1,192 @@
+<vbox class="Form">
+    <style>
+        @container {
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1ex;
+            position: relative;
+        }
+        @container > * {
+            /* background: rgba(0, 0, 0, 0.2); */
+            padding-right: 0em;
+            padding-bottom: 0em;
+        }
+
+        @toolbarContainer {
+            flex-wrap: wrap;
+            xmargin-top: -1.2ex;
+            align-items: center;
+            padding: @toolbar_gap 0;
+        }
+        @toolbarContainer > * + * {
+            margin-left: 0.5em;
+        }
+        @toolbarContainer *[label] {
+            position: relative;
+        }
+        @toolbarContainer *[label]:after {
+            display: block;
+            content: attr(label);
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            top: -0.3em;
+            text-align: center;
+            color: darken(@app_bg, 15%);
+            text-shadow: 1px 1px 0px lighten(@app_bg, 5%);
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+        @toolbarContainer *[label]:hover:after {
+            color: darken(@app_bg, 45%);
+        }
+        @toolbarContainer *[label] {
+            padding-top: 1em;
+            padding-bottom: 0.8em;
+        }
+        @toolbarContainer input[type="number"] {
+            width: 4em;
+        }
+
+        body .EditImagePopupContainer {
+            display: flex;
+            align-items: center;
+            margin: @toolbar_gap - 1em;
+        }
+        body .EditImagePopupContainer input[type="number"] {
+            width: 4em;
+            margin-left: @toolbar_gap;
+        }
+
+        @vFlipButton > i {
+            transform: rotate(90deg);
+        }
+        @drawingContainer {
+            overflow: auto;
+            position: relative;
+        }
+        @selectionCanvas {
+            position: absolute;
+        }
+        @selectionCanvas.Overlay {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        @image {
+            box-shadow: 0em 0em 0.8em rgba(0, 0, 0, 0.2);
+        }
+
+        body .EditImageDialog .BusyOverlay {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            z-index:1000;
+            cursor: wait;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        body .EditImageDialog .BusyOverlay > .Loader {
+            border: 16px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+        }
+        @-webkit-keyframes spin { /* Safari */
+          0% { -webkit-transform: rotate(0deg); }
+          100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <div anon-id="container">
+        <vbox flex="1">
+            <ui:ScrollableView anon-id="toolBarSrollView" flex="1">
+                <hbox anon-id="toolbarContainer">
+                    <hbox anon-id="zoomGroupContainer">
+                        <button anon-id="zoomButton" class="PopupToggler" mode="icon" title="Zoom"><i>zoom_in</i><i>arrow_drop_down</i></button>
+                        <ui:Popup class="PopupContainer">
+                            <hbox class="EditImagePopupContainer">
+                                <input type="range" anon-id="zoomSeeker" min="10" max="100" />
+                                <input anon-id="zoomPercentInput" type="number" title="Zoom Percent" value="100" maxlength="4" />
+                            </hbox>
+                        </ui:Popup>
+                    </hbox>
+                    <hbox anon-id="cropContainer" class="ButtonGroup">
+                        <button anon-id="autoCropButton" mode="icon" title="Auto Crop"><i>crop_free</i></button>
+                        <button anon-id="cropButton" mode="icon" title="Crop"><i>crop</i></button>
+                    </hbox>
+                    <hbox anon-id="flipContainer" class="ButtonGroup">
+                        <button anon-id="hFlipButton" mode="icon" title="Flip Horizontally"><i>flip</i></button>
+                        <button anon-id="vFlipButton" mode="icon" title="Flip Vertically"><i>flip</i></button>
+                    </hbox>
+                    <hbox class="ButtonGroup">
+                        <button anon-id="greyscaleButton" mode="icon" title="Grayscale"><i>filter_vintage</i></button>
+                        <button anon-id="invertButton" mode="icon" title="Invert"><i>invert_colors</i></button>
+                    </hbox>
+                    <hbox anon-id="brightnessGroupContainer">
+                        <button anon-id="brightnessButton" class="PopupToggler" mode="icon" title="Brightness"><i>settings_brightness</i><i>arrow_drop_down</i></button>
+                        <ui:Popup class="PopupContainer">
+                            <hbox class="EditImagePopupContainer">
+                                <input type="range" anon-id="brightnessSeeker" min="0" max="100" value="50" />
+                                <input anon-id="brightnessPercentInput" type="number" title="Brightness Percent" value="100" maxlength="4" />
+                            </hbox>
+                        </ui:Popup>
+                    </hbox>
+                    <hbox anon-id="contrastGroupContainer">
+                        <button anon-id="contrastButton" class="PopupToggler" mode="icon" title="Contrast"><i>exposure</i><i>arrow_drop_down</i></button>
+                        <ui:Popup class="PopupContainer">
+                            <hbox class="EditImagePopupContainer">
+                                <input type="range" anon-id="contrastSeeker" min="0" max="100" value="50" />
+                                <input anon-id="contrastPercentInput" type="number" title="Contrast Percent" value="100" maxlength="4" />
+                            </hbox>
+                        </ui:Popup>
+                    </hbox>
+                    <hbox anon-id="fadeGroupContainer">
+                        <button anon-id="fadeButton" class="PopupToggler" mode="icon" title="Fade"><i>flip_to_back</i><i>arrow_drop_down</i></button>
+                        <ui:Popup class="PopupContainer">
+                            <hbox class="EditImagePopupContainer">
+                                <input type="range" anon-id="fadeSeeker" min="0" max="100" value="0" />
+                                <input anon-id="fadePercentInput" type="number" title="Fade Percent" value="0" maxlength="4" />
+                            </hbox>
+                        </ui:Popup>
+                    </hbox>
+                    <hbox anon-id="opacityGroupContainer">
+                        <button anon-id="opacityButton" class="PopupToggler" mode="icon" title="Opacity"><i>opacity</i><i>arrow_drop_down</i></button>
+                        <ui:Popup class="PopupContainer">
+                            <hbox class="EditImagePopupContainer">
+                                <input anon-id="opacityPercentInput" type="number" title="Opacity Percent" value="100" maxlength="4" />
+                                <input type="range" anon-id="opacitySeeker" min="0" max="100" value="100" />
+                            </hbox>
+                        </ui:Popup>
+                    </hbox>
+                    <hbox anon-id="rotationGroup" class="ButtonGroup">
+                        <button anon-id="rotateButton" mode="icon" title="Rotate"><i>rotate_right</i></button>
+                        <input anon-id="degreeOfRotationInput" type="number" title="Number of degrees" value="90" maxlength="4" />
+                        <input anon-id="keepSizeCheckbox" type="checkbox" />
+                    </hbox>
+                    <hbox anon-id="blurGroupContainer" class="ButtonGroup">
+                        <button anon-id="blurButton" mode="icon" title="Fast Blur"><i>grain</i></button>
+                        <input anon-id="blurRadInput" type="number" title="The pixel radius of the blur" maxlength="4" value="1" />
+                    </hbox>
+                    <hbox anon-id="gaussianGroupContainer" class="ButtonGroup">
+                        <button anon-id="gaussianButton" mode="icon" title="Gaussian Blur"><i>blur_on</i></button>
+                        <input anon-id="gaussianRadInput" type="number" title="The pixel radius of the blur" maxlength="4" value="1" />
+                    </hbox>
+                </hbox>
+            </ui:ScrollableView>
+        </vbox>
+        <vbox anon-id="drawingContainer">
+            <img anon-id="image" />
+            <canvas anon-id="selectionCanvas"></canvas>
+        </vbox>
+   </div>
+</vbox>

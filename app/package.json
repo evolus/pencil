@@ -59,7 +59,8 @@
     "tar-fs": "^1.15.2",
     "tar.gz": "https://github.com/dgthanhan/node-tar.gz/archive/e1a5ee27a620aa1bc1a421a8d797c843609e88eb.tar.gz",
     "tmp": "0.0.31",
-    "unzip2": "^0.2.5"
+    "unzip2": "^0.2.5",
+    "jimp": "^0.2.28"
   },
   "private": true
 }
