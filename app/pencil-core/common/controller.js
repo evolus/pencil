@@ -1592,12 +1592,12 @@ Controller.prototype.handleGlobalScreencapture = function (mode) {
             page.canvas.currentController.setProperty("box", dim);
             page.canvas.invalidateEditors();
         }
-    }.bind(this), {
+    }.bind(this), mode ? {
         mode: mode,
         includePointer: false,
         hidePencil: false,
         delay: 0
-    });
+    } : undefined);
 };
 
 
