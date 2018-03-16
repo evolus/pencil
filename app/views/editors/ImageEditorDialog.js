@@ -198,8 +198,12 @@ ImageEditorDialog.prototype.doSave = function (refId, buffer, resRefs, updateAll
     if (updateAllRefs && resRefs && resRefs.references) {
         // update references in the swap-in pages
         for (var i = 0; i < resRefs.references.length; i++) {
-            var canvas = resRefs.references[i].page.canvas;
+            var page = resRefs.references[i].page;
+            var canvas = page.canvas;
             if (!canvas) continue;
+
+            if (page != Pencil.controller.activePage) canvas.__dirtyGraphic = true;
+            
             var holders = resRefs.references[i].holders || [];
             for (var j = 0; j < holders.length; j++) {
                 var controller = canvas.createControllerFor(holders[j]);

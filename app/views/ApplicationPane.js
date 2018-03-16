@@ -220,6 +220,10 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
 
     if (canvas != null) {
         this.startupDocumentView.node().style.display = "none";
+        if (canvas.__dirtyGraphic) {
+            canvas.invalidateAll();
+            canvas.__dirtyGraphic = false;
+        }
         canvas.focus();
     }
 
