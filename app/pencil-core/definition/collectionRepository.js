@@ -23,10 +23,10 @@ CollectionRepository.loadCollections = function(url) {
             if (errors) {
                 var error = errors[0] // nugget returns an array of errors but we only need 1st because we only have 1 url
                 if (error.message.indexOf('404') === -1) {
-                    Dialog.error(`Can not download stencil reposiroty file: ${error.message}`);
+                    Dialog.error(`Can not download stencil repository file: ${error.message}`);
                     return reject(error);
                 }
-                Dialog.error(`Failed to download reposiroty at ${url}`);
+                Dialog.error(`Failed to download repository at ${url}`);
                 return reject(error);
             }
 
