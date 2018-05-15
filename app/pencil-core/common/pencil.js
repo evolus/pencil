@@ -1,8 +1,10 @@
-
-window.onerrorx = function (message, url, code) {
+window.onerrorx = function(message, url, code) {
     //Console.dumpError(message);
     error("SYSTEM ERROR!\n\t* " + message + "\n\t* at: " + url + ":" + code);
-    Util.showStatusBarError("SYSTEM ERROR! * " + message + " at: " + url + ":" + code, true);
+    Util.showStatusBarError(
+        "SYSTEM ERROR! * " + message + " at: " + url + ":" + code,
+        true
+    );
     return false;
 };
 
@@ -13,17 +15,17 @@ pencilSandbox.Pencil = Pencil;
 Pencil.SNAP = 4;
 Pencil.UNSNAP = 4;
 Pencil.editorClasses = [];
-Pencil.registerEditor = function (editorClass) {
+Pencil.registerEditor = function(editorClass) {
     Pencil.editorClasses.push(editorClass);
 };
 Pencil.sharedEditors = [];
 
-Pencil.registerSharedEditor = function (sharedEditor) {
+Pencil.registerSharedEditor = function(sharedEditor) {
     Pencil.sharedEditors.push(sharedEditor);
-}
+};
 
 Pencil.xferHelperClasses = [];
-Pencil.registerXferHelper = function (helperClass) {
+Pencil.registerXferHelper = function(helperClass) {
     Pencil.xferHelperClasses.push(helperClass);
 };
 
@@ -31,12 +33,12 @@ Pencil.behaviors = {};
 
 Pencil.documentExporters = [];
 Pencil.defaultDocumentExporter = null;
-Pencil.registerDocumentExporter = function (exporter, defaultExporter) {
+Pencil.registerDocumentExporter = function(exporter, defaultExporter) {
     Pencil.documentExporters.push(exporter);
     if (defaultExporter) Pencil.defaultDocumentExporter = exporter;
 };
-Pencil.getDocumentExporterById = function (id) {
-    for (var i = 0; i < Pencil.documentExporters.length; i ++) {
+Pencil.getDocumentExporterById = function(id) {
+    for (var i = 0; i < Pencil.documentExporters.length; i++) {
         if (Pencil.documentExporters[i].id == id) {
             return Pencil.documentExporters[i];
         }
@@ -44,7 +46,7 @@ Pencil.getDocumentExporterById = function (id) {
     return null;
 };
 
-Pencil.toggleHeartBeat = function () {
+Pencil.toggleHeartBeat = function() {
     if (Pencil.window.hasAttribute("class")) {
         Pencil.window.removeAttribute("class");
     } else {
@@ -53,22 +55,22 @@ Pencil.toggleHeartBeat = function () {
     window.setTimeout(Pencil.toggleHeartBeat, 200);
 };
 
-Pencil.installEditors = function (canvas) {
+Pencil.installEditors = function(canvas) {
     for (var factory in Pencil.editorClasses) {
         var constructorFunction = Pencil.editorClasses[factory];
         var editor = new constructorFunction();
         editor.install(canvas);
     }
 };
-Pencil.installXferHelpers = function (canvas) {
+Pencil.installXferHelpers = function(canvas) {
     for (var factory in Pencil.xferHelperClasses) {
         var constructorFunction = Pencil.xferHelperClasses[factory];
         var helper = new constructorFunction(canvas);
         canvas.xferHelpers.push(helper);
     }
 };
-Pencil.fixUI = function () {
-    Dom.workOn(".//xul:*[@image]", Pencil.window, function (node) {
+Pencil.fixUI = function() {
+    Dom.workOn(".//xul:*[@image]", Pencil.window, function(node) {
         var image = node.getAttribute("image");
         if (image.match(/^moz\-icon:\/\/([^\?]+)\?size=([a-z]+)$/)) {
             var src = "Icons/MozIcons/" + RegExp.$1 + "-" + RegExp.$2 + ".png";
@@ -76,11 +78,11 @@ Pencil.fixUI = function () {
         }
     });
 };
-Pencil.boot = function (event) {
+Pencil.boot = function(event) {
     try {
         if (Pencil.booted) return;
 
-        Pencil.app = require('electron').remote.app;
+        Pencil.app = require("electron").remote.app;
 
         Pencil.booted = true;
         Pencil.window = document.documentElement;
@@ -97,31 +99,37 @@ Pencil.boot = function (event) {
         Pencil.redoMenuItem = document.getElementById("editRedoMenu");
 
         Pencil.sideBoxFloat = document.getElementById("sideBoxFloat");
-        var collectionPaneSizeGrip = document.getElementById("collectionPaneSizeGrip");
+        var collectionPaneSizeGrip = document.getElementById(
+            "collectionPaneSizeGrip"
+        );
 
-        window.addEventListener("mousedown", function (event) {
-            var target = event.target;
-            if (target.className && target.className == "CollectionPane") {
-                if (Pencil.hideCollectionPaneTimer) {
-                    clearTimeout(Pencil.hideCollectionPaneTimer);
-                    Pencil.hideCollectionPaneTimer = null;
+        window.addEventListener(
+            "mousedown",
+            function(event) {
+                var target = event.target;
+                if (target.className && target.className == "CollectionPane") {
+                    if (Pencil.hideCollectionPaneTimer) {
+                        clearTimeout(Pencil.hideCollectionPaneTimer);
+                        Pencil.hideCollectionPaneTimer = null;
+                    }
+
+                    if (target.id == "collectionPaneSizeGrip") {
+                        collectionPaneSizeGrip._oX = event.clientX;
+                        collectionPaneSizeGrip._oY = event.clientY;
+
+                        collectionPaneSizeGrip._width = Pencil.sideBoxFloat.getBoundingClientRect().width;
+                        collectionPaneSizeGrip._height = Pencil.sideBoxFloat.getBoundingClientRect().height;
+
+                        collectionPaneSizeGrip._hold = true;
+                    }
+                } else {
+                    if (Pencil.isCollectionPaneVisibled()) {
+                        Pencil.hideCollectionPane();
+                    }
                 }
-
-                if (target.id == "collectionPaneSizeGrip") {
-                    collectionPaneSizeGrip._oX = event.clientX;
-                    collectionPaneSizeGrip._oY = event.clientY;
-
-                    collectionPaneSizeGrip._width = Pencil.sideBoxFloat.getBoundingClientRect().width;
-                    collectionPaneSizeGrip._height = Pencil.sideBoxFloat.getBoundingClientRect().height;
-
-                    collectionPaneSizeGrip._hold = true;
-                }
-            } else {
-                if (Pencil.isCollectionPaneVisibled()) {
-                    Pencil.hideCollectionPane();
-                }
-            }
-        }, true);
+            },
+            true
+        );
 
         // document.body.onscroll = function (event) {
         //     if (document.body.scrollTop != 0) {
@@ -129,11 +137,15 @@ Pencil.boot = function (event) {
         //     }
         // };
 
-        document.addEventListener("scroll", function (event) {
-            if (document.body.scrollTop != 0 && event.target === document) {
-                document.body.scrollTop = 0;
-            }
-        }, false);
+        document.addEventListener(
+            "scroll",
+            function(event) {
+                if (document.body.scrollTop != 0 && event.target === document) {
+                    document.body.scrollTop = 0;
+                }
+            },
+            false
+        );
 
         //booting shared editors
         for (var i in Pencil.sharedEditors) {
@@ -144,15 +156,32 @@ Pencil.boot = function (event) {
             }
         }
 
-        document.documentElement.addEventListener("p:CanvasChanged", Pencil.handleCanvasChange, false);
-        document.documentElement.addEventListener("p:TargetChanged", Pencil.handleTargetChange, false);
+        document.documentElement.addEventListener(
+            "p:CanvasChanged",
+            Pencil.handleCanvasChange,
+            false
+        );
+        document.documentElement.addEventListener(
+            "p:TargetChanged",
+            Pencil.handleTargetChange,
+            false
+        );
 
-        document.documentElement.addEventListener("p:ContentModified", Pencil._setupUndoRedoCommand, false);
-        document.documentElement.addEventListener("p:UserFontLoaded", function () {
-            if (ApplicationPane._instance) ApplicationPane._instance.sharedFontEditor.reloadFontItems();
-        }, false);
+        document.documentElement.addEventListener(
+            "p:ContentModified",
+            Pencil._setupUndoRedoCommand,
+            false
+        );
+        document.documentElement.addEventListener(
+            "p:UserFontLoaded",
+            function() {
+                if (ApplicationPane._instance)
+                    ApplicationPane._instance.sharedFontEditor.reloadFontItems();
+            },
+            false
+        );
 
-        document.body.onscroll = function (event) {
+        document.body.onscroll = function(event) {
             if (document.body.scrollTop != 0) {
                 document.body.scrollTop = 0;
             }
@@ -162,22 +191,22 @@ Pencil.boot = function (event) {
     }
 };
 Pencil.handleArguments = function() {
-	var remote = require('electron').remote;
-	var appArguments = remote.getGlobal('sharedObject').appArguments;
-	if (appArguments && appArguments.length > 1) {
-		Pencil.documentHandler.loadDocumentFromArguments(appArguments[1]);
-	}
+    var remote = require("electron").remote;
+    var appArguments = remote.getGlobal("sharedObject").appArguments;
+    if (appArguments && appArguments.length > 1) {
+        Pencil.documentHandler.loadFirstMatchingFromArgs(appArguments);
+    }
 };
-Pencil.setTitle = function (s) {
+Pencil.setTitle = function(s) {
     document.title = s + " - Pencil";
 };
 
-Pencil.handleCanvasChange = function (event) {
+Pencil.handleCanvasChange = function(event) {
     Pencil.activeCanvas = event.canvas;
     Pencil.setupCommands();
     Pencil.invalidateSharedEditor();
 };
-Pencil.handleTargetChange = function (event) {
+Pencil.handleTargetChange = function(event) {
     Pencil.setupCommands();
     Pencil.invalidateSharedEditor();
 };
@@ -203,7 +232,7 @@ Pencil.invalidateSharedEditor = function() {
         }
     }
 };
-Pencil.setPainterCommandChecked = function (v) {
+Pencil.setPainterCommandChecked = function(v) {
     var painterButton = Pencil.formatPainterButton;
     if (painterButton) {
         // painterCommand.checked = v;
@@ -220,17 +249,15 @@ Pencil.setPainterCommandChecked = function (v) {
         }
     }
 };
-Pencil.getCanvasList = function () {
+Pencil.getCanvasList = function() {
     var r = [];
-    Dom.workOn("//xul:pcanvas", document.documentElement, function (node) {
+    Dom.workOn("//xul:pcanvas", document.documentElement, function(node) {
         r.push(node);
     });
     return r;
 };
-Pencil.setupCommands = function () {
-
+Pencil.setupCommands = function() {
     // Pencil.uiCommandManager = new UICommandManager();
-
     // Pencil.cutCommand = {
     //     label: "Cut",
     //     icon: "content_cut",
@@ -419,11 +446,6 @@ Pencil.setupCommands = function () {
     //         Group.openSizingPolicyDialog(Pencil.activeCanvas.currentController); // FIXME: bug
     //     }
     // };
-
-
-
-
-
     // var canvas = Pencil.activeCanvas;
     // var target = canvas ? canvas.currentController : null;
     //
@@ -468,14 +490,18 @@ Pencil.setupCommands = function () {
     // Pencil._enableCommand("unGroupCommand", target && target.constructor == Group);
     //
     // Pencil._setupUndoRedoCommand();
-
-
 };
-Pencil._setupUndoRedoCommand = function () {
+Pencil._setupUndoRedoCommand = function() {
     var canvas = Pencil.activeCanvas;
 
-    Pencil._enableCommand("undoCommand", canvas && canvas.careTaker && canvas.careTaker.canUndo());
-    Pencil._enableCommand("redoCommand", canvas && canvas.careTaker && canvas.careTaker.canRedo());
+    Pencil._enableCommand(
+        "undoCommand",
+        canvas && canvas.careTaker && canvas.careTaker.canUndo()
+    );
+    Pencil._enableCommand(
+        "redoCommand",
+        canvas && canvas.careTaker && canvas.careTaker.canRedo()
+    );
 
     if (canvas && canvas.careTaker) {
         var currentAction = canvas.careTaker.getCurrentAction();
@@ -489,7 +515,7 @@ Pencil._setupUndoRedoCommand = function () {
         }
     }
 };
-Pencil._enableCommand = function (name, condition) {
+Pencil._enableCommand = function(name, condition) {
     var command = document.getElementById(name);
     if (command) {
         if (condition) {
@@ -500,16 +526,16 @@ Pencil._enableCommand = function (name, condition) {
     }
 };
 
-Pencil.getGridSize = function () {
+Pencil.getGridSize = function() {
     var size = Config.get("edit.gridSize");
     if (size == null) {
         size = 5;
         Config.set("edit.gridSize", size);
     }
-    return {w: size, h: size};
+    return { w: size, h: size };
 };
 
-Pencil.getGridStyle = function () {
+Pencil.getGridStyle = function() {
     var style = Config.get("edit.gridStyle");
     if (style == null) {
         style = "Dotted";
@@ -518,40 +544,49 @@ Pencil.getGridStyle = function () {
     return style;
 };
 
-Pencil.getCurrentTarget = function () {
+Pencil.getCurrentTarget = function() {
     var canvas = Pencil.activeCanvas;
     return canvas ? canvas.currentController : null;
 };
-Pencil.isCollectionPaneVisibled = function () {
+Pencil.isCollectionPaneVisibled = function() {
     return false;
-}
-Pencil._hideCollectionPane = function (c) {
+};
+Pencil._hideCollectionPane = function(c) {
     if (c <= 0) {
         Pencil.sideBoxFloat.style.display = "none";
         Pencil.hideCollectionPaneTimer = null;
         Pencil.setUpSizeGrip();
     } else {
         Pencil.sideBoxFloat.style.opacity = c;
-        window.setTimeout("Pencil._hideCollectionPane(" + parseFloat(c - 0.5) + ")", 1);
+        window.setTimeout(
+            "Pencil._hideCollectionPane(" + parseFloat(c - 0.5) + ")",
+            1
+        );
     }
 };
-Pencil.hideCollectionPane = function () {
+Pencil.hideCollectionPane = function() {
     if (!Pencil.hideCollectionPaneTimer) {
         if (Util.platform == "Linux") {
-            Pencil.hideCollectionPaneTimer = window.setTimeout("Pencil._hideCollectionPane(0)", 1);
+            Pencil.hideCollectionPaneTimer = window.setTimeout(
+                "Pencil._hideCollectionPane(0)",
+                1
+            );
         } else {
-            Pencil.hideCollectionPaneTimer = window.setTimeout("Pencil._hideCollectionPane(1)", 300);
+            Pencil.hideCollectionPaneTimer = window.setTimeout(
+                "Pencil._hideCollectionPane(1)",
+                300
+            );
         }
     }
-}
-Pencil.setUpSizeGrip = function () {
+};
+Pencil.setUpSizeGrip = function() {
     var box = Pencil.sideBoxFloat.getBoundingClientRect();
     var sizeGrip = document.getElementById("collectionPaneSizeGrip");
-    sizeGrip.setAttribute("left", (box.width - 15));
-    sizeGrip.setAttribute("top", (box.height - 19));
-    sizeGrip.style.display = Pencil.isCollectionPaneVisibled() ? '' : "none";
+    sizeGrip.setAttribute("left", box.width - 15);
+    sizeGrip.setAttribute("top", box.height - 19);
+    sizeGrip.style.display = Pencil.isCollectionPaneVisibled() ? "" : "none";
 };
-Pencil._showCollectionPane = function (c) {
+Pencil._showCollectionPane = function(c) {
     if (c == 0) {
         Pencil.sideBoxFloat.style.opacity = 0;
         Pencil.sideBoxFloat.style.display = "";
@@ -559,10 +594,13 @@ Pencil._showCollectionPane = function (c) {
     }
     if (c <= 1) {
         Pencil.sideBoxFloat.style.opacity = c;
-        window.setTimeout("Pencil._showCollectionPane(" + parseFloat(c + 0.5) + ")", 1);
+        window.setTimeout(
+            "Pencil._showCollectionPane(" + parseFloat(c + 0.5) + ")",
+            1
+        );
     }
 };
-Pencil.showCollectionPane = function () {
+Pencil.showCollectionPane = function() {
     if (Util.platform == "Linux") {
         Pencil.sideBoxFloat.style.opacity = 1;
         Pencil.sideBoxFloat.style.display = "";
@@ -571,7 +609,7 @@ Pencil.showCollectionPane = function () {
         Pencil._showCollectionPane(0);
     }
 };
-Pencil.toggleCollectionPane = function (dockable) {
+Pencil.toggleCollectionPane = function(dockable) {
     if (!dockable) {
         if (Config.get("collectionPane.floating") == true) {
             if (Pencil.isCollectionPaneVisibled()) {
@@ -589,7 +627,9 @@ Pencil.toggleCollectionPane = function (dockable) {
             Config.set("collectionPane.floating", true);
             document.getElementById("sideBox").style.display = "none";
             Pencil.collectionPane = document.getElementById("collectionPane");
-            Pencil.privateCollectionPane = document.getElementById("privateCollectionPane");
+            Pencil.privateCollectionPane = document.getElementById(
+                "privateCollectionPane"
+            );
             Pencil.collectionPane.reloadCollections();
             Pencil.privateCollectionPane.reloadCollections();
         } else {
@@ -597,15 +637,22 @@ Pencil.toggleCollectionPane = function (dockable) {
             Config.set("collectionPane.floating", false);
             document.getElementById("sideBox").style.display = "";
             Pencil.collectionPane = document.getElementById("_collectionPane");
-            Pencil.privateCollectionPane = document.getElementById("_privateCollectionPane");
+            Pencil.privateCollectionPane = document.getElementById(
+                "_privateCollectionPane"
+            );
             Pencil.collectionPane.reloadCollections();
             Pencil.privateCollectionPane.reloadCollections();
         }
 
-        document.getElementById("floatingCollectionPane").setAttribute("checked", Config.get("collectionPane.floating") == false);
+        document
+            .getElementById("floatingCollectionPane")
+            .setAttribute(
+                "checked",
+                Config.get("collectionPane.floating") == false
+            );
     }
 };
-Pencil.handlePropertiesCommand = function () {
+Pencil.handlePropertiesCommand = function() {
     if (Pencil.activeCanvas.currentController) {
         Pencil.activeCanvas._showPropertyDialog();
     } else {
@@ -617,19 +664,19 @@ Pencil.handlePropertiesCommand = function () {
         Pencil.controller._pageToEdit = null;
     }
 };
-Pencil.updateUndoRedoMenu = function (currentAction, prevAction) {
-//    Pencil.undoMenuItem.setAttribute("label", Util.getMessage("menu.undo.label") + currentAction);
-//    Pencil.redoMenuItem.setAttribute("label", Util.getMessage("menu.redo.label") + prevAction);
+Pencil.updateUndoRedoMenu = function(currentAction, prevAction) {
+    //    Pencil.undoMenuItem.setAttribute("label", Util.getMessage("menu.undo.label") + currentAction);
+    //    Pencil.redoMenuItem.setAttribute("label", Util.getMessage("menu.redo.label") + prevAction);
     Pencil.activeCanvas.updateContextMenu(currentAction, prevAction);
 };
-Pencil._getCanvasPadding = function () {
+Pencil._getCanvasPadding = function() {
     return 10;
 };
 Object.defineProperty(Pencil, "activeCanvas", {
-    set: function (canvas) {
+    set: function(canvas) {
         Canvas.activeCanvas = canvas;
     },
-    get: function () {
+    get: function() {
         return Canvas.activeCanvas;
     }
 });

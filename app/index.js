@@ -1,26 +1,32 @@
 "use strict";
 
-const {app, protocol, shell, BrowserWindow} = require("electron");
-const pkg      = require("./package.json");
-const fs       = require("fs");
-const path     = require("path");
+const { app, protocol, shell, BrowserWindow } = require("electron");
+const pkg = require("./package.json");
+const fs = require("fs");
+const path = require("path");
 
 app.commandLine.appendSwitch("allow-file-access-from-files");
 app.commandLine.appendSwitch("allow-file-access");
 
 // Disable hardware acceleration by default for Linux
 // TODO: implement a setting for this one and requires a restart after changing that value
-if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAcceleration) {
+if (
+    process.platform.trim().toLowerCase() == "linux" &&
+    app.disableHardwareAcceleration
+) {
     console.log("Hardware acceleration disabled for Linux.");
     app.disableHardwareAcceleration();
 }
 
 global.sharedObject = { appArguments: process.argv };
 
+console.log("Hallo welt");
+console.log(process.argv);
+
 var handleRedirect = (e, url) => {
     e.preventDefault();
     shell.openExternal(url);
-}
+};
 
 var mainWindow = null;
 function createWindow() {
@@ -28,14 +34,15 @@ function createWindow() {
         title: pkg.name,
         autoHideMenuBar: true,
         webPreferences: {
-          webSecurity: false,
-          allowRunningInsecureContent: true,
-          allowDisplayingInsecureContent: true,
-          defaultEncoding: "UTF-8"
-        },
+            webSecurity: false,
+            allowRunningInsecureContent: true,
+            allowDisplayingInsecureContent: true,
+            defaultEncoding: "UTF-8"
+        }
     };
 
-    var iconFile = process.platform == "win32" ? "app.ico" : "css/images/logo-shadow.png";
+    var iconFile =
+        process.platform == "win32" ? "app.ico" : "css/images/logo-shadow.png";
     mainWindowProperties.icon = path.join(__dirname, iconFile);
 
     mainWindow = new BrowserWindow(mainWindowProperties);
@@ -69,8 +76,8 @@ function createWindow() {
         app.exit(0);
     });
 
-    if (process.platform == 'darwin') {
-        var {MacOSToolbar} = require('./views/toolbars/MacOSToolbar');
+    if (process.platform == "darwin") {
+        var { MacOSToolbar } = require("./views/toolbars/MacOSToolbar");
         MacOSToolbar.createMacOSToolbar();
     }
 
@@ -93,24 +100,32 @@ app.on("window-all-closed", function() {
     }
 });
 
-app.on('ready', function() {
-    protocol.registerBufferProtocol("ref", function(request, callback) {
-        var path = request.url.substr(6);
+app.on("ready", function() {
+    protocol.registerBufferProtocol(
+        "ref",
+        function(request, callback) {
+            var path = request.url.substr(6);
 
-        fs.readFile(path, function (err, data) {
-            if (err) {
-                callback({mimeType: "text/html", data: new Buffer("Not found")});
-            } else {
-                callback({mimeType: "image/jpeg", data: new Buffer(data)});
+            fs.readFile(path, function(err, data) {
+                if (err) {
+                    callback({
+                        mimeType: "text/html",
+                        data: new Buffer("Not found")
+                    });
+                } else {
+                    callback({
+                        mimeType: "image/jpeg",
+                        data: new Buffer(data)
+                    });
+                }
+            });
+        },
+        function(error, scheme) {
+            if (error) {
+                console.log("ERROR REGISTERING", error);
             }
-        });
-
-    }, function (error, scheme) {
-        if (error) {
-            console.log("ERROR REGISTERING", error);
         }
-    });
-
+    );
 
     // Create the browser window.
     createWindow();
@@ -131,6 +146,6 @@ app.on("activate", function() {
     }
 });
 
-process.on('uncaughtException', function (error) {
+process.on("uncaughtException", function(error) {
     console.error(error);
 });
