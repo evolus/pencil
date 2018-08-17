@@ -976,9 +976,9 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
             var page = pages[index];
             this.progressListener.onProgressUpdated(`Exporting '${page.name}...'`, index, pages.length);
 
-            if (page.name.toLowerCase() == "(layout)") {
+            if (page.name.toLowerCase().indexOf("(layout)") >= 0) {
                 layoutPage = page;
-                return;
+                if (page.name.toLowerCase() == "(layout)") return;
             }
 
             ApplicationPane._instance.activatePage(page);
@@ -1315,6 +1315,7 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
         //parse the resulted collection
         var collection = new ShapeDefCollectionParser().parseURL(path.join(dir, "Definition.xml"));
         var shortcutSpecs = [];
+        var generatedNameMap = {};
 
         Util.workOnListAsync(pages, function(page, index, __callback) {
             thiz.progressListener.onProgressUpdated(`Processing shortcuts in '${page.name}...'`, index, pages.length);
@@ -1358,9 +1359,24 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
 
                 var shape = new Shape(page.canvas, shapeNode, def);
                 var symbolName = shape.getSymbolName();
-                if (!symbolName) {
+                
+                if (symbolName == "@ignored" || symbolName == "@shape") {
                     __callback();
                     return;
+                }
+                
+                if (!symbolName) {
+                    if (page.name.toLowerCase().indexOf("shortcut") >= 0) {
+                        var count = generatedNameMap[def.displayName];
+                        if (!count) count = 0;
+                        count ++;
+                        generatedNameMap[def.displayName] = count;
+                        symbolName = "@" + def.displayName + count;
+                        shape.setSymbolName(symbolName);
+                    } else {
+                        __callback();
+                        return;
+                    }
                 }
 
                 var spec = {
@@ -1498,6 +1514,7 @@ StencilCollectionBuilder.prototype.generateCollectionLayout = function (collecti
 
             var shape = page.canvas.createControllerFor(g);
             if (shape) {
+                if (shape.getSymbolName) linkingInfo.symbolName = shape.getSymbolName();
                 //console.log("calculated " + linkingInfo.sc + ": ", linkingInfo.geo, shape.getGeometry(), shape.getBounding());
                 var geo = shape.getGeometry();
                 if (geo && linkingInfo.geo.h > 15 && linkingInfo.geo.w > 15) {
@@ -1536,6 +1553,8 @@ StencilCollectionBuilder.prototype.generateCollectionLayout = function (collecti
             img.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=");
             if (link.sc) {
                 img.setAttribute("sc-ref", link.sc);
+            } else if (link.symbolName && link.symbolName != "@shape") {
+                img.setAttribute("sc-ref", link.symbolName);
             } else {
                 img.setAttribute("ref", link.refId);
             }

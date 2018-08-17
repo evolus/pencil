@@ -328,9 +328,11 @@ Controller.prototype.countResourceReferences = function (page) {
 };
 Controller.prototype.findResourceReferences = function (page) {
     var refs = this.countResourceReferences(page);
+    
+    
     return {
-        fontFaces: refs.fontFaces.keys(),
-        resourceIds: refs.resources.keys()
+        fontFaces: Object.keys(refs.fontFaces),
+        resourceIds: Object.keys(refs.resources)
     };
 };
 Controller.prototype.getResourceReferences = function (resourceId, pages) {

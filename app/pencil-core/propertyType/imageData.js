@@ -231,7 +231,7 @@ ImageData.generatePathSVGData = function (svgPathData, size) {
     var parsedPathData = JSON.parse(json.substring(5));
 
     for (var info of parsedPathData) {
-        var d = NPatchSpecEditorDialog.commandsToData(info.commands);
+        var d = ImageData.commandsToData(info.commands);
         specs.push({
             _name: "path",
             _uri: PencilNamespaces.svg,
