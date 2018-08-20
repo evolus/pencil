@@ -553,7 +553,7 @@ CollectionManager.uninstallCollection = function (collection, callback) {
 CollectionManager.selectDeveloperStencilDir = function () {
 	//alert("Please select the directory that contains the 'Definition.xml' file of your stencil");
     dialog.showOpenDialog({
-        title: "Select Developer Stetcil 'Definition.xml' file",
+        title: "Select Developer Stencil 'Definition.xml' file",
         defaultPath: Config.get("dev.stencil.path") || os.homedir(),
         filters: [
             { name: "Definition.xml", extensions: ["xml"] }
