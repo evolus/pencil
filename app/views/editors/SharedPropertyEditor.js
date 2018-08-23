@@ -235,7 +235,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
         editorWrapper.appendChild(editorWidget.node());
         editorWidget.setAttribute("flex", "3");
         if (editorWidget.setTypeMeta) {
-            editorWidget.setTypeMeta(property.meta);
+            editorWidget.setTypeMeta(property.meta, property);
         }
         editorWidget.setValue(thiz.target.getProperty(property.name));
         thiz.propertyEditor[property.name] = editorWidget;

@@ -28,8 +28,13 @@ PlainTextEditor.prototype.getValue = function () {
     var plainText = new PlainText(this.textarea.value);
     return plainText;
 };
-PlainTextEditor.prototype.setTypeMeta = function (meta) {
+PlainTextEditor.prototype.setTypeMeta = function (meta, propertyDefinition) {
     this.meta = meta;
+    if (!meta.language) {
+        if (propertyDefinition.name.match(/.*(expr|conversion).*/i)) {
+            meta.language = "javascript";
+        }
+    }
     if (!meta.language) {
         this.launchScriptEditorButton.style.display = "none";
     }
