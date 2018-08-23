@@ -1456,13 +1456,15 @@ Canvas.prototype.handleKeyPress = function (event) {
         this.run(function () {
             // this.currentController.moveBy(dx, dy);
             this.currentController.moveBy(dx, dy, false, true);
-
+            
+            Connector.prepareInvalidation(this);
             if (this.currentController.invalidateOutboundConnections) {
                 this.currentController.invalidateOutboundConnections();
             }
             if (this.currentController.invalidateInboundConnections) {
                 this.currentController.invalidateInboundConnections();
             }
+            Connector.finishInvalidation();
 
         }, this, Util.getMessage("action.move.shape"));
 
