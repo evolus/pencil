@@ -38,6 +38,10 @@ function PageDetailDialog() {
     }, false);
 
     this.pageSizeCombo.addEventListener("p:ItemSelected", function (event) {
+        if (thiz.ignoreNextPageSizeSelectEvent) {
+            thiz.ignoreNextPageSizeSelectEvent = false;
+            return;
+        }
         thiz.handlePageSizeSelect();
         thiz.modified = true;
     }, false);
@@ -136,6 +140,7 @@ PageDetailDialog.prototype.onShown = function () {
 };
 PageDetailDialog.prototype.handlePageSizeSelect = function () {
     var pageSize = this.pageSizeCombo.getSelectedItem();
+    console.log("on page size selected: ", pageSize);
     var value = pageSize.value;
     if (!value) return;
     if (value.match(SIZE_RE)) {
@@ -241,6 +246,11 @@ PageDetailDialog.prototype.setup = function (options) {
     }
     
     this.populatePageSizeSelector();
+    
+    if (!this.originalPage && this._bestFitSize) {
+        this.widthInput.value = this._bestFitSize.w;
+        this.heightInput.value = this._bestFitSize.h;
+    }
 
     var background = thiz.backgroundCombo.getSelectedItem();
     thiz.colorButton.disabled = background.value ? true : false;
@@ -266,9 +276,6 @@ PageDetailDialog.prototype.populatePageSizeSelector = function () {
         });
     }
     
-    this.widthInput.value = w;
-    this.heightInput.value = h;
-
     var bestFitSizeText = Pencil.controller.getBestFitSize();
     if (bestFitSizeText && bestFitSizeText.match(SIZE_RE)) {
         w = Math.max(24, parseInt(RegExp.$1, 10));
@@ -283,6 +290,8 @@ PageDetailDialog.prototype.populatePageSizeSelector = function () {
         });
     }
     
+    this._bestFitSize = {w: w, h: h};
+    
     var backgroundPage = this.backgroundCombo.getSelectedItem();
     if (backgroundPage && backgroundPage.width && backgroundPage.height) {
         pageSizes.push({
@@ -293,6 +302,7 @@ PageDetailDialog.prototype.populatePageSizeSelector = function () {
 
     pageSizes = pageSizes.concat(Page.defaultPageSizes);
     this.pageSizeCombo.setItems(pageSizes);
+    this.ignoreNextPageSizeSelectEvent = true;
 };
 
 PageDetailDialog.prototype.updateUIWith = function (page) {
@@ -303,6 +313,8 @@ PageDetailDialog.prototype.updateUIWith = function (page) {
 
     this.widthInput.value = page.width;
     this.heightInput.value = page.height;
+    
+    console.log("after setting size to ", page.width, page.height);
 
     if (page.backgroundColor) {
         this.backgroundCombo.selectItem({
@@ -332,19 +344,8 @@ PageDetailDialog.prototype.updateUIWith = function (page) {
 PageDetailDialog.prototype.createPage = function () {
     var name = this.pageTitle.value;
 
-    var width = 0;
-    var height = 0;
-    var pageSize = this.pageSizeCombo.getSelectedItem();
-    if (pageSize.value) {
-        var size = pageSize.value;
-        if (size.match(SIZE_RE)) {
-            width = parseInt(RegExp.$1, 10);
-            height = parseInt(RegExp.$2, 10);
-        }
-    } else {
-        width = parseInt(this.widthInput.value, 10);
-        height = parseInt(this.heightInput.value, 10);
-    }
+    var width = parseInt(this.widthInput.value, 10);
+    var height = parseInt(this.heightInput.value, 10);
 
     var backgroundPageId = null;
     var backgroundColor = null;
