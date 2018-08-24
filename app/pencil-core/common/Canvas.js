@@ -623,8 +623,8 @@ Canvas.prototype.getZoomedGeo = function (target) {
 Canvas.prototype.getSize = function () {
 
     return {
-        width : parseInt(this.getAttribute("width"), 10),
-        height : parseInt(this.getAttribute("height"), 10),
+        width : parseInt(this.svg.getAttribute("width"), 10),
+        height : parseInt(this.svg.getAttribute("height"), 10),
     };
 
 };
@@ -1152,6 +1152,8 @@ Canvas.prototype.handleResizeMouseMove = function (event) {
 
         var dw = Math.round((event.clientX - this.resizeInfo.ox) / this.zoom);
         var dh = Math.round((event.clientY - this.resizeInfo.oy) / this.zoom);
+        
+        if (event.shiftKey) dw = 0;
 
         var newW = this.resizeInfo.ow + dw;
         var newH = this.resizeInfo.oh + dh;
@@ -2097,7 +2099,7 @@ Canvas.prototype.doPaste = function (withAlternative) {
         if (image) {
             var id = Pencil.controller.nativeImageToRefSync(image);
             var size = image.getSize();
-
+            
             contents.push({
                 type: PNGImageXferHelper.MIME_TYPE,
                 data: new ImageData(size.width, size.height, ImageData.idToRefString(id))

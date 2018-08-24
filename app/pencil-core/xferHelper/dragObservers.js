@@ -158,6 +158,12 @@ PrivateShapeDefDragObserver.prototype = {
         var defId = nsDragAndDrop.getData("pencil/privatedef");
 
         var def = PrivateCollectionManager.locateShapeDefinition(defId);
+        if (!def) def = CollectionManager.shapeDefinition.locateBuiltinPrivateShapeDef(defId);
+        
+        if (!def) {
+            console.log("Private def not found", defId);
+            return;
+        }
 
         var loc = this.canvas.getEventLocation(event, "withoutZoom");
 

@@ -99,7 +99,20 @@ TargetSet.prototype.getGeometry = function () {
     return null;
 };
 TargetSet.prototype.getBoundingRect = function () {
-    return null;
+    if (this.targets.length <= 0) return null;
+    var rect = this.targets[0].getBoundingRect();
+    for (var i = 1; i < this.targets.length; i ++) {
+        var r = this.targets[i].getBoundingRect();
+        rect2 = {
+            x: Math.min(rect.x, r.x),
+            y: Math.min(rect.y, r.y)
+        };
+        rect2.width = Math.max(0, Math.max(rect.x + rect.width, r.x + r.width) - rect2.x);
+        rect2.height = Math.max(0, Math.max(rect.y + rect.height, r.y + r.height) - rect2.y);
+        
+        rect = rect2;
+    }
+    return rect;
 };
 TargetSet.prototype.setGeometry = function (geo) {
 };
