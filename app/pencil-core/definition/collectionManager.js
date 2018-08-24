@@ -26,6 +26,14 @@ CollectionManager.shapeDefinition.locateDefinition = function (shapeDefId) {
     var def = CollectionManager.shapeDefinition.shapeDefMap[shapeDefId];
     return def;
 };
+CollectionManager.shapeDefinition.locateBuiltinPrivateShapeDef = function (shapeDefId) {
+    for (var collection of CollectionManager.shapeDefinition.collections) {
+        if (!collection.builtinPrivateCollection || !collection.builtinPrivateCollection.map) continue;
+        var def = collection.builtinPrivateCollection.map[shapeDefId];
+        if (def) return def;
+    }
+    return null;
+};
 CollectionManager.shapeDefinition.locateShortcut = function (shortcutId) {
     return CollectionManager.shapeDefinition.shortcutMap[shortcutId];
 };

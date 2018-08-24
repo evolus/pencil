@@ -35,6 +35,9 @@ CollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
     if (def.shape) {
         event.dataTransfer.setData("pencil/shortcut", def.id);
         nsDragAndDrop.setData("pencil/shortcut", def.id);
+    } else if (def instanceof PrivateShapeDef) {
+        event.dataTransfer.setData("pencil/privatedef", def.id);
+        nsDragAndDrop.setData("pencil/privatedef", def.id);
     } else {
         event.dataTransfer.setData("pencil/def", def.id);
         nsDragAndDrop.setData("pencil/def", def.id);

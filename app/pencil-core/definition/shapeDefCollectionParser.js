@@ -140,6 +140,15 @@ ShapeDefCollectionParser.getCollectionPropertyConfigName = function (collectionI
         Console.dumpError(e, "stdout");
     }
 };
+
+ShapeDefCollectionParser.prototype.loadBuiltinPrivateCollection = function (installDirPath) {
+    var collectionFile = path.join(installDirPath, "PrivateCollection.xml");
+    if (!fs.existsSync(collectionFile)) return null;
+    
+    var collection = PrivateCollectionManager.parseSingleCollectionFile(collectionFile);
+    return collection;
+};
+
 ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) {
     var layoutUri = path.join(installDirPath, "Layout.xhtml");
     if (!fs.existsSync(layoutUri)) return null;
@@ -185,6 +194,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
     collection.installDirPath = path.dirname(uri);
 
     collection.customLayout = this.loadCustomLayout(collection.installDirPath);
+    collection.builtinPrivateCollection = this.loadBuiltinPrivateCollection(collection.installDirPath);
 
     var s1 = collection.url.toString();
     var s2 = window.location.href.toString();
@@ -238,7 +248,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
         }
 
     });
-
+    
     return collection;
 };
 

@@ -718,6 +718,11 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
             }
         ]
     }));
+    
+    var privateCollection = new PrivateCollection();
+    privateCollection.displayName = options.displayName + " (Groups)";
+    privateCollection.description = "";
+    privateCollection.id = privateCollection.displayName.replace(/\s+/g, "_").toLowerCase();
 
     var layoutPage = null;
 
@@ -846,8 +851,10 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
 
             shapes.appendChild(Dom.newDOMElement(fontsSpec));
         }
+        
+        // console.log("Private collection\n", privateCollection.toXMLDom());
 
-        this.saveResultDom(dom, dir, options, function () {
+        this.saveResultDom(dom, privateCollection, dir, options, function () {
             var showDone = function () {
                 Pencil.controller.doc._lastUsedStencilOutputPath = options.outputPath;
 
@@ -942,7 +949,7 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
             }
         });
 
-        this.processShortcuts(nonStencilPages, dom, dir, options, globalPropertySpecs, globalPropertyMap, function () {
+        this.processShortcuts(nonStencilPages, dom, dir, options, globalPropertySpecs, globalPropertyMap, privateCollection, function () {
             finalize();
         });
 
@@ -1276,7 +1283,7 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
     });
 };
 
-StencilCollectionBuilder.prototype.saveResultDom = function (dom, dir, options, callback) {
+StencilCollectionBuilder.prototype.saveResultDom = function (dom, privateCollection, dir, options, callback) {
     var xsltDOM = Dom.parseDocument(
 `<xsl:stylesheet version="1.0"
  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -1296,6 +1303,11 @@ StencilCollectionBuilder.prototype.saveResultDom = function (dom, dir, options, 
     var result = xsltProcessor.transformToDocument(dom);
 
     Dom.serializeNodeToFile(result, path.join(dir, "Definition.xml"));
+    
+    if (privateCollection && privateCollection.shapeDefs.length > 0) {
+        var xml = PrivateCollectionManager.getCollectionsExportedXML([privateCollection]);
+        fs.writeFileSync(path.join(dir, "PrivateCollection.xml"), xml, ShapeDefCollectionParser.CHARSET);
+    }
 
     if (callback) callback();
 };
@@ -1308,22 +1320,22 @@ StencilCollectionBuilder.prototype.isShortcutPage = function (page, options) {
     }
 };
 
-StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir, options, globalPropertySpecs, globalPropertyMap, callback) {
+StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir, options, globalPropertySpecs, globalPropertyMap, privateCollection, callback) {
     var thiz = this;
-    this.saveResultDom(dom, dir, options, function () {
+    this.saveResultDom(dom, null, dir, options, function () {
 
         //parse the resulted collection
         var collection = new ShapeDefCollectionParser().parseURL(path.join(dir, "Definition.xml"));
         var shortcutSpecs = [];
-        var generatedNameMap = {};
-
+        var symbolNameMap = {};
+        
         Util.workOnListAsync(pages, function(page, index, __callback) {
             thiz.progressListener.onProgressUpdated(`Processing shortcuts in '${page.name}...'`, index, pages.length);
             ApplicationPane._instance.activatePage(page);
-            var svg = page.canvas.svg;
+            var svg = page.canvas.drawingLayer;
 
             var defIdPrefix = collection.id + ":";
-            var shapeNodes = Dom.getList(".//svg:g[@p:type='Shape']", svg);
+            var shapeNodes = Dom.getList("./svg:g[@p:type='Shape']", svg);
 
             Util.workOnListAsync(shapeNodes, function (shapeNode, index, __callback) {
                 thiz.progressListener.onProgressUpdated(`Processing shortcuts in '${page.name}...'`, index, shapeNodes.length);
@@ -1367,17 +1379,23 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
                 
                 if (!symbolName) {
                     if (page.name.toLowerCase().indexOf("shortcut") >= 0) {
-                        var count = generatedNameMap[def.displayName];
-                        if (!count) count = 0;
-                        count ++;
-                        generatedNameMap[def.displayName] = count;
-                        symbolName = "@" + def.displayName + count;
+                        symbolName = "@" + def.displayName + (new Date().getTime() + "_" + Math.round(1000 * Math.random()));
                         shape.setSymbolName(symbolName);
                     } else {
                         __callback();
                         return;
                     }
                 }
+                
+                if (symbolNameMap[symbolName]) {
+                    console.error("Duplicated Symbol Name: ", symbolName);
+                    symbolName = "@" + def.displayName + (new Date().getTime() + "_" + Math.round(1000 * Math.random()));
+                    shape.setSymbolName(symbolName);
+                    
+                    console.error("  > Re-generated as: ", symbolName);
+                }
+                
+                symbolNameMap[symbolName] = true;
 
                 var spec = {
                     _name: "Shortcut",
@@ -1463,7 +1481,38 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
                     shortcutSpecs.push(spec);
                     __callback();
                 });
-            }, __callback);
+            }, function () {
+                var groupNodes = Dom.getList("./svg:g[@p:type='Group']", svg);
+
+                Util.workOnListAsync(groupNodes, function (groupNode, index, __callback) {
+                    thiz.progressListener.onProgressUpdated(`Processing private shapes in '${page.name}...'`, index, groupNodes.length);
+                    var symbolName = Svg.getSymbolName(groupNode);
+                    if (!symbolName) {
+                        symbolName = "PrivateShapeDef_" + privateCollection.shapeDefs.length;
+                        Svg.setSymbolName(groupNode, symbolName);
+                    }
+                    
+                    var defId = symbolName.replace(/\s+/g, "_").toLowerCase() + "_" + (new Date()).getTime();
+                    groupNode.setAttributeNS(PencilNamespaces.p, "private-def-id", defId);
+                    
+                    var svg = groupNode.cloneNode(true);
+
+                    var fakeDom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
+                    fakeDom.documentElement.appendChild(svg);
+
+                    Pencil.controller.prepareForEmbedding(fakeDom, function () {
+                        fakeDom.documentElement.removeChild(svg);
+                        var shapeDef = new PrivateShapeDef();
+                        shapeDef.displayName = symbolName;
+                        shapeDef.content = svg;
+                        shapeDef.id = defId;
+                        
+                        privateCollection.shapeDefs.push(shapeDef);
+                        __callback();
+                    });
+                }, __callback);
+            });
+            
         }, function () {
             var fragment = Dom.newDOMFragment(shortcutSpecs, dom);
             dom.documentElement.appendChild(fragment);
@@ -1483,7 +1532,7 @@ StencilCollectionBuilder.prototype.generateCollectionLayout = function (collecti
 
     const IMAGE_FILE = "layout_image.png";
 
-    Dom.workOn(".//svg:g[@p:type='Shape']", container, function (g) {
+    Dom.workOn("./svg:g[@p:type='Shape']", container, function (g) {
             var dx = 0; //rect.left;
             var dy = 0; //rect.top;
 
@@ -1529,6 +1578,56 @@ StencilCollectionBuilder.prototype.generateCollectionLayout = function (collecti
 
             items.push(linkingInfo);
     });
+    
+    var privateShapeItems = [];
+    Dom.workOn("./svg:g[@p:type='Group']", container, function (g) {
+        var defId = g.getAttributeNS(PencilNamespaces.p, "private-def-id");
+        if (!defId) return;
+        
+        var dx = 0; //rect.left;
+        var dy = 0; //rect.top;
+
+        var owner = g.ownerSVGElement;
+
+        if (owner.parentNode && owner.parentNode.getBoundingClientRect) {
+            var rect = owner.parentNode.getBoundingClientRect();
+            dx = rect.left;
+            dy = rect.top;
+        }
+
+        dx += pageMargin;
+        dy += pageMargin;
+
+        rect = g.getBoundingClientRect();
+
+        var linkingInfo = {
+            node: g,
+            privateRefId: defId,
+            geo: {
+                x: rect.left - dx,
+                y: rect.top - dy,
+                w: rect.width - 2,
+                h: rect.height - 2
+            }
+        };
+
+        var group = page.canvas.createControllerFor(g);
+        if (group) {
+            if (group.getSymbolName) linkingInfo.symbolName = group.getSymbolName();
+            //console.log("calculated " + linkingInfo.sc + ": ", linkingInfo.geo, shape.getGeometry(), shape.getBounding());
+            var geo = group.getGeometry();
+            if (geo && linkingInfo.geo.h > 15 && linkingInfo.geo.w > 15) {
+                linkingInfo.geo = {
+                    x: geo.ctm.e - pageMargin,
+                    y: geo.ctm.f - pageMargin,
+                    w: geo.dim.w,
+                    h: geo.dim.h
+                };
+            }
+        }
+
+        items.push(linkingInfo);
+    });
 
     var current = 0;
     var thiz = this;
@@ -1553,8 +1652,10 @@ StencilCollectionBuilder.prototype.generateCollectionLayout = function (collecti
             img.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=");
             if (link.sc) {
                 img.setAttribute("sc-ref", link.sc);
-            } else if (link.symbolName && link.symbolName != "@shape") {
+            } else if (link.symbolName && link.symbolName != "@shape" && !link.privateRefId) {
                 img.setAttribute("sc-ref", link.symbolName);
+            } else if (link.privateRefId) {
+                img.setAttribute("pr-ref", link.privateRefId);
             } else {
                 img.setAttribute("ref", link.refId);
             }

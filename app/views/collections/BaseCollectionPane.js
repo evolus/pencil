@@ -345,6 +345,15 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
                 n.removeAttribute("matched");
             }
         });
+        Dom.workOn(".//*[@pr-ref]", this.collectionLayoutContainer, function (n) {
+            if (!collection.builtinPrivateCollection || !collection.builtinPrivateCollection.map) return;
+            var defId = n.getAttribute("pr-ref");
+            var def = collection.builtinPrivateCollection.map[defId];
+            if (!def) return;
+            n._def = def;
+            n.setAttribute("draggable", "true");
+            n.setAttribute("title", def.displayName);
+        });
 
         this.collectionLayoutContainer.style.display = "block";
         // this.collectionLayoutContainer.style.overflow = "hidden";
