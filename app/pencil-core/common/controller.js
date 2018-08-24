@@ -1214,6 +1214,13 @@ Controller.prototype.nativeImageToRefSync = function (nativeImage) {
 
     return id;
 };
+Controller.prototype.svgImageToRefSync = function (svg) {
+    var id = Util.newUUID() + "_svg";
+    var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+    fs.writeFileSync(filePath, svg, "utf8");
+
+    return id;
+};
 Controller.prototype.refIdToFilePath = function (id) {
     var fullPath = path.join(Pencil.documentHandler.tempDir.name, Controller.SUB_REFERENCE);
     fullPath = path.join(fullPath, id);

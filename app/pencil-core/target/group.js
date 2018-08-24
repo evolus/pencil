@@ -496,6 +496,13 @@ Group.prototype.processNewGroup = function () {
         Util.setCustomProperty(target.svg, "sizing-oh", targetGeo.dim.h);
     }
 };
+Group.prototype.validateAll = function () {
+    for (t in this.targets) {
+        var target = this.targets[t];
+        target.validateAll();
+    }
+};
+
 
 Group.getSizingPolicy = function (target) {
 	return {

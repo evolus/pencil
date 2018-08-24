@@ -58,13 +58,19 @@ ImageData.generateCellString = function (cells) {
     return blocks.join(" ");
 };
 ImageData.invalidateValue = function (oldData, callback) {
-    if (oldData.data.match(/^data:/)) {
+    if (oldData.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+        var svg = oldData.data.substring(ImageData.SVG_IMAGE_DATA_PREFIX.length + 1);
+
+        let id = Pencil.controller.svgImageToRefSync(svg);
+        callback(new ImageData(oldData.w, oldData.h, ImageData.idToRefString(id)), null);
+    } else if (oldData.data.match(/^data:/)) {
         var image = null;
         try {
             image = nativeImage.createFromDataURL(oldData.data);
         } catch (e) {
+            console.e(e);
         }
-
+        
         if (!image) {
             callback(null);
             return;
@@ -94,8 +100,14 @@ ImageData.prepareForEmbedding = function (oldData, callback) {
         }
 
         var filePath = Pencil.controller.refIdToFilePath(id);
-        var image = nativeImage.createFromPath(filePath);
-        callback(new ImageData(oldData.w, oldData.h, image.toDataURL()), null);
+        console.log("File path");
+        if (filePath.match(/\svg$/i)) {
+            var url = ImageData.SVG_IMAGE_DATA_PREFIX + "," + fs.readFileSync(filePath, "utf8");
+            callback(new ImageData(oldData.w, oldData.h, url), null);
+        } else {
+            var image = nativeImage.createFromPath(filePath);
+            callback(new ImageData(oldData.w, oldData.h, image.toDataURL()), null);
+        }
     } else {
         callback(null);
     }
