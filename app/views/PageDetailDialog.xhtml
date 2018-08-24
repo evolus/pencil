@@ -20,14 +20,34 @@
         @sizeInputContainer {
             align-items: center;
         }
-        @sizeInputContainer > label {
-            margin-right: 0.1em;
-        }
-        @sizeInputContainer > input + * {
+        @sizeInputContainer > div + * {
             margin-left: 0.4em;
         }
-        @pageSizeCombo {
-            width: 17em;
+        @sizeInputContainer > div {
+            position: relative;
+        }
+        @sizeInputContainer input[type="number"] {
+            padding-left: 2em;
+            max-width: 6em;
+        }
+        @sizeInputContainer > div::after {
+            position: absolute;
+            top: 50%;
+            left: 0.5ex;
+            display: block;
+            line-height: 1em;
+            height: 1em;
+            margin-top: -0.5em;
+            opacity: 0.5;
+        }
+        @widthWrapper::after {
+            content: "W:";
+        }
+        @heightWrapper::after {
+            content: "H:";
+        }
+        @pageTitle {
+            min-width: 30em;
         }
     </style>
     <div class="Description">
@@ -43,11 +63,15 @@
     </hbox>
     <hbox class="InputRow">
         <label for="pageSizeCombo">Page Size:</label>
-        <ui:ComboManager flex="1" anon-id="pageSizeCombo"/>
         <hbox anon-id="sizeInputContainer">
-            <label for="widthInput">W:</label><input type="number" anon-id="widthInput" min="24" value="24"/>
-            <label for="heightInput">H:</label><input type="number" anon-id="heightInput" min="24" value="24"/>
+            <div anon-id="widthWrapper">
+                <input type="number" anon-id="widthInput" min="24" value="24"/>
+            </div>
+            <div anon-id="heightWrapper">
+                <input type="number" anon-id="heightInput" min="24" value="24"/>
+            </div>
         </hbox>
+        <ui:ComboManager anon-id="pageSizeCombo"/>
     </hbox>
     <hbox class="InputRow">
         <label for="backgroundColorCombo">Background:</label>
