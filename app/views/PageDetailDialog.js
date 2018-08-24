@@ -38,10 +38,6 @@ function PageDetailDialog() {
     }, false);
 
     this.pageSizeCombo.addEventListener("p:ItemSelected", function (event) {
-        if (thiz.ignoreNextPageSizeSelectEvent) {
-            thiz.ignoreNextPageSizeSelectEvent = false;
-            return;
-        }
         thiz.handlePageSizeSelect();
         thiz.modified = true;
     }, false);
@@ -247,9 +243,9 @@ PageDetailDialog.prototype.setup = function (options) {
     
     this.populatePageSizeSelector();
     
-    if (!this.originalPage && this._bestFitSize) {
-        this.widthInput.value = this._bestFitSize.w;
-        this.heightInput.value = this._bestFitSize.h;
+    if (!this.originalPage && this._defaultSize) {
+        this.widthInput.value = this._defaultSize.w;
+        this.heightInput.value = this._defaultSize.h;
     }
 
     var background = thiz.backgroundCombo.getSelectedItem();
@@ -266,15 +262,15 @@ PageDetailDialog.prototype.populatePageSizeSelector = function () {
     if (lastSizeConfig && lastSizeConfig.match(SIZE_RE)) {
         w = Math.max(24, parseInt(RegExp.$1, 10));
         h = Math.max(24, parseInt(RegExp.$2, 10));
+        
+        this._defaultSize = {w: w, h: h};
     }
     
     var lastSize = w + "x" + h;
-    if (lastSize) {
-        pageSizes.push({
-            displayName: "Last used",
-            value: lastSize
-        });
-    }
+    pageSizes.push({
+        displayName: "Last used",
+        value: lastSize
+    });
     
     var bestFitSizeText = Pencil.controller.getBestFitSize();
     if (bestFitSizeText && bestFitSizeText.match(SIZE_RE)) {
@@ -290,7 +286,7 @@ PageDetailDialog.prototype.populatePageSizeSelector = function () {
         });
     }
     
-    this._bestFitSize = {w: w, h: h};
+    if (!this._defaultSize) this._defaultSize = {w: w, h: h};
     
     var backgroundPage = this.backgroundCombo.getSelectedItem();
     if (backgroundPage && backgroundPage.width && backgroundPage.height) {
@@ -302,7 +298,6 @@ PageDetailDialog.prototype.populatePageSizeSelector = function () {
 
     pageSizes = pageSizes.concat(Page.defaultPageSizes);
     this.pageSizeCombo.setItems(pageSizes);
-    this.ignoreNextPageSizeSelectEvent = true;
 };
 
 PageDetailDialog.prototype.updateUIWith = function (page) {
