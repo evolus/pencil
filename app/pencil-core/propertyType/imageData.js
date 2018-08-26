@@ -101,7 +101,7 @@ ImageData.prepareForEmbedding = function (oldData, callback) {
 
         var filePath = Pencil.controller.refIdToFilePath(id);
         console.log("File path");
-        if (filePath.match(/\svg$/i)) {
+        if (filePath.match(/svg$/i)) {
             var url = ImageData.SVG_IMAGE_DATA_PREFIX + "," + fs.readFileSync(filePath, "utf8");
             callback(new ImageData(oldData.w, oldData.h, url), null);
         } else {
