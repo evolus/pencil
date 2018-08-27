@@ -4,6 +4,12 @@ function OffScreenCanvas(svg) {
 
 OffScreenCanvas.prototype = Object.create(Canvas.prototype);
 
+Object.defineProperty(OffScreenCanvas.prototype, "ownerDocument", {
+    get: function () {
+        return document;
+    }
+});
+
 OffScreenCanvas.prototype.invalidateAll = function () {
     Dom.workOn(".//svg:g[@p:type='Shape']", this.svg, function (node) {
         try {

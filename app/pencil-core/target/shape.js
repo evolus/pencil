@@ -29,8 +29,12 @@ Shape.prototype.setupTargetMap = function (shouldRepair) {
         if (!target) {
             if (shouldRepair) {
                 console.error("Target '" + name + "' is not found. Repairing now...");
-                this.repair();
-                console.log("  >>  Target '" + name + "' is repaired.");
+                try {
+                    this.repair();
+                    console.log("  >>  Target '" + name + "' is repaired.");
+                } catch (e) {
+                    console.error(e);
+                }
                 return;
             } else {
                 console.error("Target '" + name + "' is not found. Ignoring...");
