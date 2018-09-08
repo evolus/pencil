@@ -1312,8 +1312,9 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
             // this.snappedY]);
             if (!event.shiftKey
                     && snap
-                    && ((snap.dx != 0 && !this.snappingHelper.snappedX && accX) || (snap.dy != 0
-                            && !this.snappingHelper.snappedY && accY))) {
+                    && ((snap.dx != 0 && !this.snappingHelper.snappedX && accX)
+                            || (snap.dy != 0 && !this.snappingHelper.snappedY && accY)
+                        )) {
                 if (snap.dx != 0 && !this.snappingHelper.snappedX) {
                     this.snappingHelper.snappedX = true;
                     this.snappingHelper.snapX = newX;
@@ -2424,6 +2425,8 @@ Canvas.prototype.doUnGroupImpl_ = function () {
             this.snappingHelper
                     .updateSnappingGuide(this.currentController.targets[t]);
         }
+    } else {
+        this.snappingHelper.updateSnappingGuide(this.currentController);
     }
 
 };
@@ -2856,8 +2859,8 @@ Canvas.prototype.insertPrivateShapeImpl_ = function (shapeDef, bound) {
             var bbox = this.currentController.getBounding();
             //note: the returned bbox is NOT zoomed
             this.currentController.moveBy(
-                    (bound.x - bbox.x - Math.round(bbox.width / 2)),
-                    (bound.y - bbox.y - Math.round(bbox.height / 2)),
+                    Math.round(bound.x - bbox.x - bbox.width / 2),
+                    Math.round(bound.y - bbox.y - bbox.height / 2),
                     true);
         }
         shape.style.visibility = "visible";

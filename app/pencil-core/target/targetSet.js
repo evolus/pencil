@@ -1,6 +1,10 @@
 function TargetSet(canvas, targets) {
     this.canvas = canvas;
     this.targets = targets;
+    this.targetIds = [];
+    
+    this.id = "sys_currentTargetSet";
+    for (var target of this.targets) this.targetIds.push(target.id);
 
     var propertyGroup = new PropertyGroup();
     propertyGroup.name = Util.getMessage("shape.properties.label");
@@ -121,16 +125,21 @@ TargetSet.prototype.moveBy = function (x, y, zoomAware) {
     for (i in this.targets) this.targets[i].moveBy(x, y, true);
 };
 
-TargetSet.prototype.setPositionSnapshot = function () {
-    for (i in this.targets) this.targets[i].setPositionSnapshot();
-};
-TargetSet.prototype.moveFromSnapshot = function (dx, dy) {
-    for (i in this.targets) this.targets[i].moveFromSnapshot(dx, dy, "dontNormalize", true);
-};
-TargetSet.prototype.clearPositionSnapshot = function () {
-    for (i in this.targets) this.targets[i].clearPositionSnapshot();
+TargetSet.prototype.containsControllerId = function (id) {
+    return this.targetIds.indexOf(id) >= 0;
 };
 
+TargetSet.prototype.setPositionSnapshot = function () {
+    this._pSnapshot = {lastDX: 0, lastDY: 0};
+};
+TargetSet.prototype.moveFromSnapshot = function (dx, dy) {
+    this.moveBy(dx - this._pSnapshot.lastDX, dy - this._pSnapshot.lastDY);
+    this._pSnapshot.lastDX = dx;
+    this._pSnapshot.lastDY = dy;
+};
+TargetSet.prototype.clearPositionSnapshot = function () {
+    this._pSnapshot = {lastDX: 0, lastDY: 0};
+};
 
 TargetSet.prototype.getName = function () {
     return "Multiple objects";
@@ -594,3 +603,21 @@ TargetSet.prototype.invalidateOutboundConnections = function () {
         this.targets[t].invalidateOutboundConnections();
     }
 };
+TargetSet.prototype.getSnappingGuide = function () {
+    var vertical = [];
+    var horizontal = [];
+    
+    for (target of this.targets) {
+        if (!target.getSnappingGuide) continue;
+        var guide = target.getSnappingGuide();
+        if (!guide) continue;
+        
+        if (guide.horizontal && guide.horizontal.length > 0) horizontal = horizontal.concat(guide.horizontal);
+        if (guide.vertical && guide.vertical.length > 0) vertical = vertical.concat(guide.vertical);
+    }
+
+    return {
+        vertical: vertical, horizontal: horizontal
+    };
+};
+
