@@ -1,4 +1,4 @@
-function Canvas(element, options) {
+function Canvas(element, options, containerScrollPane) {
     this.element = element;
     this.oldElement = "";
     this.__delegate("addEventListener", "hasAttribute", "getAttribute", "setAttribute", "setAttributeNS", "removeAttribute", "removeAttributeNS", "dispatchEvent");
@@ -180,7 +180,7 @@ function Canvas(element, options) {
     this.svg.addEventListener("click", function (event) {
         thiz.handleClick(event);
     }, false);
-    this.svg.addEventListener("mousedown", function (event) {
+    (containerScrollPane || this.svg).addEventListener("mousedown", function (event) {
         thiz.movementDisabled = Pencil.controller.movementDisabled || event.ctrlKey;
         // document.commandDispatcher.advanceFocus();
         thiz.focus();
@@ -888,7 +888,6 @@ Canvas.prototype.handleMouseWheel = function(event) {
 
         var drawingX = this.lastMouse.x;
         var drawingY = this.lastMouse.y;
-        console.log("drawing pos", [drawingX, drawingY]);
         var dx = drawingX * this.zoom + padding - this._scrollPane.scrollLeft;
         var dy = drawingY * this.zoom + padding - this._scrollPane.scrollTop;
 
@@ -963,6 +962,7 @@ Canvas.prototype.handleScrollPane = function(event) {
 Canvas.prototype.handleMouseUp = function (event) {
     if (this.resizing) {
         this.commitResize(event);
+        this.isSelectingRange = false;
         return;
     }
 
@@ -1001,7 +1001,7 @@ Canvas.prototype.handleMouseUp = function (event) {
     this.hasMoved = true;
 
     this.controllerHeld = false;
-
+    
     if (this.isSelectingRange) {
         this.setRangeBoundVisibility(false);
         this.isSelectingRange = false;
@@ -2153,16 +2153,15 @@ Canvas.prototype.handleMouseDown = function (event) {
     var isInControlLayer = Dom.findUpward(event.originalTarget, function (node) {
         return (node == thiz.controlLayer);
     });
-    if (isInControlLayer)
-        return;
+    if (isInControlLayer) return;
 
     var top = Dom.findTop(event.originalTarget, function (node) {
         return node.hasAttributeNS
                 && node.hasAttributeNS(PencilNamespaces.p, "type");
     });
-    if (top && this.isShapeLocked(top))
-        top = null;
-
+    
+    if (top && this.isShapeLocked(top)) top = null;
+        
     if (!top) {
         this.lastTop = null;
         // this.clearSelection();
@@ -2181,7 +2180,7 @@ Canvas.prototype.handleMouseDown = function (event) {
             width : 0,
             height : 0
         };
-
+        
         this._sayTargetChanged();
         this.endFormatPainter();
 

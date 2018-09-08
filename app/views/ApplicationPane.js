@@ -158,7 +158,16 @@ ApplicationPane.prototype.createCanvas = function () {
 
     var stencilToolbar = new StencilShapeCanvasToolbar().into(wrapper);
 
-    var canvas = new Canvas(container);
+    var canvas = null;
+    
+    
+    scrollPane.addEventListener("mouseup", function (e) {
+        if (!Dom.findParentWithClass(e.target, "CanvasWrapper")) {
+            if (!canvas.isSelectingRange) canvas.selectNone();
+        }
+    });
+    
+    canvas = new Canvas(container, null, scrollPane);
 
     this.getCanvasContainer().appendChild(scrollPane);
     wrapper._canvas = canvas;
