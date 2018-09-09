@@ -1267,6 +1267,10 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
 
             var dx = newX - this.oX;
             var dy = newY - this.oY;
+            
+            //direction ratios
+            var hdr = event.ctrlKey && Math.abs(dx) < Math.abs(dy) ? 0 : 1;
+            var vdr = event.ctrlKey && Math.abs(dx) >= Math.abs(dy) ? 0 : 1;
 
             var accX = Math.abs(newX - this._lastNewX) < 2;
             var accY = Math.abs(newY - this._lastNewY) < 2;
@@ -1327,7 +1331,7 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                     this.currentController._pSnapshot.lastDY += snap.dy;
                     // debug("snapY");
                 }
-                this.currentController.moveBy(snap.dx, snap.dy);
+                this.currentController.moveBy(snap.dx * hdr, snap.dy * vdr);
             } else {
                 var unsnapX = event.shiftKey
                         || (this.snappingHelper.snapX != 0 && (Math
@@ -1339,27 +1343,21 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
 
                 if (!this.snappingHelper.snappedX
                         && !this.snappingHelper.snappedY) {
-                    this.currentController.moveFromSnapshot(dx, dy);
+                    this.currentController.moveFromSnapshot(dx * hdr, dy * vdr);
                 } else {
                     if (unsnapX || !this.snappingHelper.snappedX) {
-                        this.currentController
-                                .moveFromSnapshot(
-                                        dx,
-                                        this.snappingHelper.snappedY ? this.currentController._pSnapshot.lastDY
-                                                : dy);
-                    }
-                    if (unsnapY || !this.snappingHelper.snappedY) {
-                        this.currentController
-                                .moveFromSnapshot(
-                                        this.snappingHelper.snappedX ? this.currentController._pSnapshot.lastDX
-                                                : dx, dy);
-                        this.snappingHelper.snapY = 0;
-                        this.snappingHelper.snappedY = false;
-                    }
-                    if (unsnapX || !this.snappingHelper.snappedX) {
+                        if (this.snappingHelper.snappedY) dy = this.currentController._pSnapshot.lastDY;
                         this.snappingHelper.snapX = 0;
                         this.snappingHelper.snappedX = false;
                     }
+                    if (unsnapY || !this.snappingHelper.snappedY) {
+                        if (this.snappingHelper.snappedX) dx = this.currentController._pSnapshot.lastDX;
+                        this.snappingHelper.snapY = 0;
+                        this.snappingHelper.snappedY = false;
+                    }
+                    
+                    this.currentController.moveFromSnapshot(dx * hdr, dy * vdr);
+                    
                     if (unsnapX) {
                         this.snappingHelper.clearSnappingGuideX();
                     }
