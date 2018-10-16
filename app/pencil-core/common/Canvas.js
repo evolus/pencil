@@ -1346,17 +1346,24 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                     this.currentController.moveFromSnapshot(dx * hdr, dy * vdr);
                 } else {
                     if (unsnapX || !this.snappingHelper.snappedX) {
-                        if (this.snappingHelper.snappedY) dy = this.currentController._pSnapshot.lastDY;
-                        this.snappingHelper.snapX = 0;
-                        this.snappingHelper.snappedX = false;
+                        this.currentController
+                                .moveFromSnapshot(
+                                        dx * hdr,
+                                        this.snappingHelper.snappedY ? this.currentController._pSnapshot.lastDY * vdr
+                                                : dy * vdr);
                     }
                     if (unsnapY || !this.snappingHelper.snappedY) {
-                        if (this.snappingHelper.snappedX) dx = this.currentController._pSnapshot.lastDX;
+                        this.currentController
+                                .moveFromSnapshot(
+                                        this.snappingHelper.snappedX ? this.currentController._pSnapshot.lastDX * hdr
+                                                : dx * hdr, dy * vdr);
                         this.snappingHelper.snapY = 0;
                         this.snappingHelper.snappedY = false;
                     }
-                    
-                    this.currentController.moveFromSnapshot(dx * hdr, dy * vdr);
+                    if (unsnapX || !this.snappingHelper.snappedX) {
+                        this.snappingHelper.snapX = 0;
+                        this.snappingHelper.snappedX = false;
+                    }
                     
                     if (unsnapX) {
                         this.snappingHelper.clearSnappingGuideX();
