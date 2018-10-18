@@ -1,4 +1,5 @@
 body {
+    text-rendering: optimizeLegibility !important;
     font: -webkit-control;
     font-size: 0.95em;
 }

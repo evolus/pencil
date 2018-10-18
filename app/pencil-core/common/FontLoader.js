@@ -1,8 +1,7 @@
 function FontLoader() {
     this.userRepo = new FontRepository(Config.getDataFilePath("fonts"), FontRepository.TYPE_USER);
     this.documentRepo = null;
-
-
+    
     // //TODO: remove this test
     // var face = new FontFace(null, "url(file:///home/dgthanhan/.fonts/Signika-Bold.ttf) format('truetype')");
     // var addPromise = document.fonts.add(face);
@@ -13,6 +12,22 @@ function FontLoader() {
     //     face.load();
     // });
 }
+FontLoader.loadSystemFonts = function (callback) {
+    FontLoader.systemRepo = new FontRepository(getStaticFilePath("fonts/core"), FontRepository.TYPE_SYSTEM);
+    FontLoader.systemRepo.load();
+    var systemFaces = FontLoader.systemRepo.faces;
+    FontLoaderUtil.loadFontFaces(systemFaces, function () {
+        if (callback) callback();
+        var data = {
+            id: Util.newUUID(),
+            faces: systemFaces
+        }
+        ipcRenderer.once(data.id, function (event, data) {
+        });
+
+        ipcRenderer.send("font-loading-request", data);
+    });
+};
 FontLoader.prototype.setDocumentRepoDir = function (dirPath) {
     if (dirPath) {
         this.documentRepo = new FontRepository(dirPath, FontRepository.TYPE_DOCUMENT);
@@ -88,6 +103,15 @@ FontLoader.prototype.getAllInstalledFonts = function () {
 
     var fonts = [];
     var fontNames = [];
+    
+    if (FontLoader.systemRepo.fonts.length > 0) {
+        for (var font of FontLoader.systemRepo.fonts) {
+            var font = JSON.parse(JSON.stringify(font));
+            font._type = FontRepository.TYPE_SYSTEM;
+            fonts.push(font);
+            fontNames.push(font.name);
+        }
+    }
 
     if (this.userRepo.fonts.length > 0) {
         for (var font of this.userRepo.fonts) {
@@ -122,7 +146,6 @@ FontLoader.prototype.embedToDocumentRepo = function (faces) {
 
     var shouldSave = false;
     faces.forEach(function (f) {
-        console.log("Embeding " + f);
         var font = this.userRepo.getFont(f);
         var userFont = this.documentRepo.getFont(f);
         if (userFont) {
@@ -132,7 +155,6 @@ FontLoader.prototype.embedToDocumentRepo = function (faces) {
             return;
         }
         if (!font) return;
-        console.log("user font found", font);
         if (!font.autoEmbed) {
             console.log(" > " + f + " is not auto-embeded.");
             return;
@@ -167,6 +189,7 @@ function FontRepository(dirPath, type) {
     this.loaded = false;
 }
 
+FontRepository.TYPE_SYSTEM = "system";
 FontRepository.TYPE_USER = "user";
 FontRepository.TYPE_DOCUMENT = "document";
 

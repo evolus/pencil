@@ -1195,35 +1195,6 @@ Local.getInstalledFonts = function () {
 
     Local.sortFont(localFonts);
 
-    var fonts = null;
-
-    try {
-        fonts = fontManager.getAvailableFontsSync();
-    } catch (e) {
-        console.error(e);
-        fonts = [{family: "Arial"}];
-    }
-
-    var systemFonts = [];
-    for (var i in fonts) {
-        var contained = false;
-        for (var j in systemFonts) {
-            if (systemFonts[j].family == fonts[i].family) {
-                contained = true;
-                break;
-            }
-        }
-        if (contained) continue;
-
-        systemFonts.push({
-            family: fonts[i].family,
-            weights: ["normal", "bold"]
-        });
-    }
-
-    Local.sortFont(systemFonts);
-
-    localFonts = localFonts.concat(systemFonts)
     Local.cachedLocalFonts = localFonts;
 
     return localFonts;

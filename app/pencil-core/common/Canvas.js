@@ -1260,6 +1260,12 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                 if (this.movementDisabled) return;
             }
 
+            //avoid accidental move when user is trying to select the object
+            var msFromClick = event.timeStamp - this._mouseDownAt;
+            if (msFromClick < 100) {
+                return;
+            }
+
             if (this.currentController.markAsMoving)
                 this.currentController.markAsMoving(true);
             var newX = Math.round(event.clientX / this.zoom);
@@ -2138,6 +2144,7 @@ Canvas.prototype.doPaste = function (withAlternative) {
 };
 
 Canvas.prototype.handleMouseDown = function (event) {
+    this._mouseDownAt = event.timeStamp;
     event.preventDefault();
 
     tick("begin");

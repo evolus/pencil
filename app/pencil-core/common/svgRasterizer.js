@@ -281,7 +281,7 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, s
         if (base64Data.startsWith(prefix)) base64Data = base64Data.substring(prefix.length);
 
         var buffer = new Buffer(base64Data, "base64");
-        fs.writeFile(actualPath, buffer, 0, buffer.length, function (err) {
+        fs.writeFile(actualPath, buffer, "utf8", function (err) {
             callback(parseLinks ? {actualPath: actualPath, objectsWithLinking: data.objectsWithLinking} : actualPath, err);
         });
     }, scale, parseLinks);
