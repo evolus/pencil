@@ -142,6 +142,100 @@
             <ellipse id="path" style="stroke-linejoin: round;" cx="5" cy="5" rx="5" ry="5" />
         </p:Content>
     </Shape>
+    <Shape id="multi-vetical-horizontal-line" displayName="multi-vetical-horizontal-line" icon="Icons/multi-vetical-horizontal-line.png">
+        <Properties>
+            <PropertyGroup name="Common">
+                <Property displayName="Start" name="startPin" p:connectTo="*" type="Handle">0,0</Property>
+                <Property name="b" displayName="Point" type="Handle" >100,50</Property>
+                <Property displayName="End" name="endPin" p:connectTo="*" type="Handle">200,100</Property>
+                <Property displayName="Start Arrow" name="withStartArrow" type="Bool">true</Property>
+                <Property displayName="End Arrow" name="withEndArrow" type="Bool">false</Property>
+                <!-- <Property displayName="Slightly Detached" name="detached" type="Bool">false</Property> -->
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property displayName="Border Color" name="strokeColor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property displayName="Border Style" name="strokeStyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    <![CDATA[
+                    var spec = [M($startPin.x, $startPin.y),L($b.x, $startPin.y), L($b.x, $endPin.y), L($endPin.x, $endPin.y)];
+
+                    if($withStartArrow.value==true){
+                        //arrow to left when handle at startPin right and endPin at bottom of startPin
+                        if( $b.x > $startPin.x  ){
+                            spec.unshift(M($startPin.x, $startPin.y), L($startPin.x+5, $startPin.y-5),
+                                M($startPin.x, $startPin.y), L($startPin.x+5, $startPin.y+5));
+                        }
+
+                        //arrow to right when handle at startPin left and endPin at right of startPin
+                        if( $b.x < $startPin.x  ){
+                            spec.unshift(M($startPin.x, $startPin.y), L($startPin.x-5, $startPin.y-5),
+                                M($startPin.x, $startPin.y), L($startPin.x-5, $startPin.y+5));
+                        }
+
+                        //arrow to up when handle at startPin.X and endPin at bottom of startPin
+                        if( $b.x ==  $startPin.x && $endPin.y > $startPin.y ){
+                            spec.unshift(M($startPin.x, $startPin.y), L($startPin.x-5, $startPin.y+5),
+                                M($startPin.x, $startPin.y), L($startPin.x+5, $startPin.y+5));
+                        }
+                        
+
+                        //arrow to down when handle at startPin.X and endPin at up of startPin
+                        if( $b.x ==  $startPin.x && $endPin.y < $startPin.y ){
+                            spec.unshift(M($startPin.x, $startPin.y), L($startPin.x-5, $startPin.y-5),
+                                M($startPin.x, $startPin.y), L($startPin.x+5, $startPin.y-5));
+                        }
+                    }
+
+                    if($withEndArrow.value==true){
+
+                        //spec.unshift(M($endPin.x, $endPin.y), L($endPin.x-5, $endPin.y-5),
+                        //                M($endPin.x, $endPin.y), L($endPin.x-5, $endPin.y+5));
+
+                         //arrow to left when handle at startPin right and endPin at bottom of startPin
+                        if( $b.x > $endPin.x  ){
+                            spec.unshift(M($endPin.x, $endPin.y), L($endPin.x+5, $endPin.y-5),
+                                M($endPin.x, $endPin.y), L($endPin.x+5, $endPin.y+5));
+                        }
+
+                        //arrow to right when handle at startPin left and endPin at right of startPin
+                        if( $b.x < $endPin.x  ){
+                            spec.unshift(M($endPin.x, $endPin.y), L($endPin.x-5, $endPin.y-5),
+                                M($endPin.x, $endPin.y), L($endPin.x-5, $endPin.y+5));
+                        }
+
+                        //arrow to up when handle at startPin.X and endPin at bottom of startPin
+                        if( $b.x ==  $endPin.x && $endPin.y > $startPin.y ){
+                            
+                            spec.unshift(M($endPin.x, $endPin.y), L($endPin.x-5, $endPin.y-5),
+                                M($endPin.x, $endPin.y), L($endPin.x+5, $endPin.y-5));
+                        }
+
+                        //arrow to down when handle at startPin.X and endPin at up of startPin
+                        if( $b.x ==  $endPin.x && $endPin.y < $startPin.y ){
+                            spec.unshift(M($endPin.x, $endPin.y), L($endPin.x-5, $endPin.y+5),
+                                M($endPin.x, $endPin.y), L($endPin.x+5, $endPin.y+5));
+                        }
+                    }
+
+                    spec;
+                    ]]>
+                </D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" fill="none" style="stroke-linejoin: round;" />
+        </p:Content>
+    </Shape>
     <Shape displayName="Process" icon="Icons/process.png" id="process">
         <Properties>
             <PropertyGroup>
