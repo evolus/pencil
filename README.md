@@ -18,18 +18,26 @@ Pencil uses [Atom Electron](http://electron.atom.io/) as the runtime, follow the
       $ npm start
     ```
     
-REM # For use in npm scripts (recommended) 
-REM npm install electron-packager --save-dev
+* For use in npm scripts (recommended) 
+    ```bash
+    npm install electron-packager --save-dev
+    ```
  
 REM # For use from the CLI 
-REM npm install electron-packager -g
+    ```bash
+    npm install electron-packager -g
+    ```
 
-REM  打包 win32平台运行包,  --overwrite 覆盖已有的输出
-electron-packager ./app --platform=win32 --arch=x64  --overwrite --asar=true  --icon=./build/icon.ico --prune=true
+* 打包 win32平台运行包,  --overwrite 覆盖已有的输出
+    ```bash
+    electron-packager ./app --platform=win32 --arch=x64  --overwrite --asar=true  --icon=./build/icon.ico --prune=true
+    ```
 
-REM 打包 mac平台运行包
-REM 需在 Mac平台上运行
-electron-packager ./app --overwrite --platform=darwin --arch=x64 --icon=./build/icon.icns
+* 打包 mac平台运行包, 需在 Mac平台上运行
+    ```bash
+    electron-packager ./app --overwrite --platform=darwin --arch=x64 --icon=./build/icon.icns
+    ```
+
 
 Supported Platforms
 ==================
