@@ -23,7 +23,7 @@ Pencil uses [Atom Electron](http://electron.atom.io/) as the runtime, follow the
     npm install electron-packager --save-dev
     ```
  
-REM # For use from the CLI 
+* For use from the CLI 
     ```bash
     npm install electron-packager -g
     ```
