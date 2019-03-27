@@ -71,6 +71,45 @@ GnomeScreenshotService.prototype.isSupported = function (options) {
 };
 
 
+function WindowsSnippingToolScreenshotService() {
+    BaseCmdCaptureService.call(this);
+
+    this.id = "WindowsSnippingToolScreenshotService";
+    this.supportPointerHiding = true;
+}
+
+WindowsSnippingToolScreenshotService.prototype = new BaseCmdCaptureService();
+
+Config.CAPTURE_SNIPPING_TOOL_EXEC_PATH = Config.define("capture.snippingtool_screenshot.exec_path", process.env.windir + "\\system32\\SnippingTool.exe");
+
+WindowsSnippingToolScreenshotService.prototype.buildCommandLine = function (options) {
+    var cmd = {
+        path: this.getExecPath(),
+        args: []
+    };
+
+    if (options.mode == BaseCaptureService.MODE_AREA) cmd.args.push("/clip");
+    if (options.mode == BaseCaptureService.MODE_WINDOW) cmd.args.push("-w");
+
+    if (options.outputType == BaseCaptureService.OUTPUT_CLIPBOARD) {
+         cmd.args.push("-c");
+    } else {
+        cmd.args.push("-f");
+        cmd.args.push(options.outputPath);
+    }
+
+    if (options.includePointer && this.supportPointerHiding) cmd.args.push("-p");
+
+    return cmd;
+};
+WindowsSnippingToolScreenshotService.prototype.getExecPath = function () {
+    return Config.get(Config.CAPTURE_GNOME_EXEC_PATH);
+};
+WindowsSnippingToolScreenshotService.prototype.isSupported = function (options) {
+    return process.platform == "linux" && fs.existsSync(this.getExecPath());
+};
+
+
 // Config.CAPTURE_MATE_EXEC_PATH = Config.define("capture.mate_screenshot.exec_path", "/usr/bin/mate-screenshot");
 //
 // function MateScreenshotService() {
@@ -134,3 +173,4 @@ ScreenCaptureProvider.getActiveProvider = function () {
 };
 
 ScreenCaptureProvider.register(new GnomeScreenshotService());
+ScreenCaptureProvider.register(new WindowsSnippingToolScreenshotService());

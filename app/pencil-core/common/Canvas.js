@@ -981,6 +981,8 @@ Canvas.prototype.handleMouseUp = function (event) {
                 setter : null
             });
         }
+        
+        Connector.prepareInvalidation(this);
 
         if (this.currentController.invalidateOutboundConnections) {
             this.currentController.invalidateOutboundConnections();
@@ -988,6 +990,8 @@ Canvas.prototype.handleMouseUp = function (event) {
         if (this.currentController.invalidateInboundConnections) {
             this.currentController.invalidateInboundConnections();
         }
+        
+        Connector.finishInvalidation();
     }
     if (this.controllerHeld && this.hasMoved) {
         // just to save state

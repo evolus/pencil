@@ -90,6 +90,57 @@ collection.copyClipboardImage = function (target, imageDataPropName, boxPropName
         console.error(e);
     }
 };
+collection.copyClipboardSVGImage = function (target, imageDataPropName, boxPropName, dontParsePathData) {
+    var thiz = target;
+
+    var text = clipboard.readText();
+
+    var dom = Canvas.domParser.parseFromString(text, "text/xml");
+
+    if (!dom || dom.documentElement.namespaceURI != PencilNamespaces.svg) {
+        return;
+    }
+
+    var width = Svg.getWidth(dom);
+    var height = Svg.getHeight(dom);
+
+    //parse the provided svg viewBox
+    if (dom.documentElement.viewBox) {
+        var viewBox = dom.documentElement.viewBox.baseVal;
+        if (viewBox.width > 0 && viewBox.height > 0) {
+            width = viewBox.width;
+            height = viewBox.height;
+        }
+    }
+
+    width = Math.round(width);
+    height = Math.round(height);
+
+    var data = "";
+
+    if (!dontParsePathData) {
+        var parsedData = [];
+        Dom.workOn("//svg:path[@d]", dom.documentElement, function (pathNode) {
+            var d = pathNode.getAttribute("d");
+            var parsed = thiz.def.collection.parsePathData(d);
+            var pathInfo = {
+                commands: parsed,
+                style: pathNode.getAttribute("style")
+            };
+            parsedData.push(pathInfo);
+        });
+
+        var dim = new Dimension(width, height);
+        if (boxPropName) target.setProperty(boxPropName, dim);
+
+        data = "json:" + JSON.stringify(parsedData);
+    } else {
+        data = ImageData.SVG_IMAGE_DATA_PREFIX + "," + text;
+    }
+
+    var imageData = new ImageData(width, height, data);
+    target.setProperty(imageDataPropName, imageData);
+};
 
 collection.buildNPatchModel = function (cells, originalSize, newSize) {
     var totalScaleSize = 0;

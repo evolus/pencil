@@ -148,10 +148,20 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
             var icon = this.getCollectionIcon(collection);
             var node = Dom.newDOMElement({
                 _name: "vbox",
-                "class": "Item",
+                "class": "Item" + (collection.previewURL ? " WithPreview" : ""),
                 "tabindex": "0",
                 title: collection.displayName,
                 _children: [
+                    {
+                        _name: "div",
+                        "class": "Preview",
+                        _children: [
+                            {
+                                _name: "img",
+                                src: collection.previewURL
+                            }
+                        ]
+                    },
                     {
                         _name: "div",
                         "class": "ItemInner",

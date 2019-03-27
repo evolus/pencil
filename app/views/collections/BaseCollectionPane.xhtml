@@ -76,6 +76,35 @@
         @selectorPane .Item {
             color: rgba(0, 0, 0, 0.5);
             transition: background 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.9999;
+        }
+        @selectorPane .Item:not(.WithPreview) > .Preview {
+            display: none;
+        }
+        @selectorPane .Item > .Preview {
+            position: absolute;
+            z-index: -1;
+            top: 0.5em;
+            left: 0.5em;
+            right: 0.5em;
+            bottom: 0.5em;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        @selectorPane .Item.WithPreview {
+            min-height: 5em;
+        }
+        @selectorPane .Item.WithPreview .ItemInner i {
+            display: none;
+        }
+        @selectorPane .Item > .Preview img {
+            width: 100%;
+        }
+        @selectorPane .Item:not([active='true']) > .Preview {
+            opacity: 0.5;
         }
         @selectorPane .Item > .ItemInner {
             text-align: center;
@@ -108,6 +137,10 @@
             margin-top: 1ex;
             font-size: 0.9em;
         }
+        @selectorPane .Item.WithPreview span {
+            display: none;
+        }
+        
         @selectorPane .Item + .Item {
             border-top: solid 2px rgba(0, 0, 0, 0.05);
         }

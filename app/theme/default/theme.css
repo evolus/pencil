@@ -3,6 +3,9 @@ body {
     font: -webkit-control;
     font-size: 0.95em;
 }
+strong {
+    font-weight: 700;
+}
 input, button, selection, textarea {
     font-family: inherit;
     font-size: 1em;
