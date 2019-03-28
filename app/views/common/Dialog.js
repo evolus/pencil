@@ -39,6 +39,7 @@ Dialog.prototype.buildDOMNode = function () {
     //please note that the binding will be done for both templates
     var contentNode = this.buildContentNode();
     this.dialogBody.appendChild(contentNode);
+    this.dialogContentNode = contentNode;
 
     return node;
 };
@@ -177,9 +178,16 @@ Dialog.prototype.invalidatePosition = function () {
 
     var w = this.dialogFrame.offsetWidth;
     var h = this.dialogFrame.offsetHeight;
+    if (h > screenH) {
+        h = screenH;
+        this.dialogFrame.style.height = h + "px";
+        this.dialogContentNode.setAttribute("flex", "1");
+    } else {
+        this.dialogContentNode.removeAttribute("flex");
+    }
 
     var x = (screenW - w) / 2;
-    var y = (screenH - h) / 2;
+    var y = (window.innerHeight - h) / 2;
 
     this.moveTo(x, y);
 };

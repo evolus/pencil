@@ -53,11 +53,12 @@
             background: rgba(0, 0, 0, 0.05);
         }
         body @dialogFrame @dialogTitle {
-            color: #000;
+            color: #FFF;
+            font-size: 1.2em;
             display: block;
         }
         body @dialogFrame @dialogSubTitle {
-            color: #000;
+            color: #FFF;
             display: block;
             opacity: 0.7;
         }
@@ -66,16 +67,13 @@
         }
         body @dialogFrame @dialogHeaderPane {
             margin-bottom: 0em;
-            background: @app_bg;
-            border-top-left-radius: 0.35ex;
-            border-top-right-radius: 0.35ex;
+            background: @selected_bg;
         }
         body @dialogFrame @dialogBody {
             padding: 1.2em;
         }
         body @dialogFrame @dialogHeaderPane {
             padding: 0.4em 0.7em;
-            background: @app_bg;
         }
         body @dialogFrame @dialogBody {
             padding-bottom: 0em;
