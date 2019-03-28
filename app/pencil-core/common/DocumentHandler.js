@@ -106,31 +106,9 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
 
 
 DocumentHandler.prototype.loadDocumentFromArguments = function (filePath) {
-    var ext = path.extname(filePath);
-    var handler = this.handlerRegistry[ext];
-    if (handler && handler.loadDocument) {
-        var thiz = this;
-        if (!fs.existsSync(filePath)) {
-            callback({
-                error: FileHandler.ERROR_NOT_FOUND,
-                message: "File doesn't exist"
-            });
-
-            return;
-        };
-
-        ApplicationPane._instance.busy();
-
-        handler.loadDocument(filePath)
-            .then(function () {
-                thiz.controller.modified = false;
-                ApplicationPane._instance.unbusy();
-            })
-            .catch(function (err) {
-                thiz.controller.modified = false;
-                ApplicationPane._instance.unbusy();
-            });
-    }
+    this.loadDocument(filePath, function () {
+        console.log("Loaded file from argument: " + filePath);
+    });
 }
 
 DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
