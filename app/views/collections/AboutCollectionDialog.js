@@ -52,6 +52,15 @@ function AboutCollectionDialog(collection) {
         ]
     });
     this.aboutContent.appendChild(node);
+    
+    if (collection.userDefined || collection.developerStencil) {
+        this.locationButton.innerHTML = "" + collection.installDirPath;
+        this.locationButton.addEventListener("click", function () {
+            require("electron").shell.openItem(collection.installDirPath);            
+        }, false);
+    } else {
+        this.locationBox.style.display = "none";
+    }
 }
 __extend(Dialog, AboutCollectionDialog);
 
