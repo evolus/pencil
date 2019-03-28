@@ -212,16 +212,16 @@ CollectionManager.loadStencils = function(showNotification) {
     var parser = new ShapeDefCollectionParser();
 
     debug("Start loading built-in stencil collections:");
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/Common"), parser, true, false));
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/BasicWebElements"), parser, true, false));
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/Gtk.GUI"), parser, true, false));
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/SketchyGUI"), parser, true, false));
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/WindowsXP-GUI"), parser, true, false));
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/CommonShapes_Flowchart"), parser, true, false));
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/Android.GUI"), parser, true, false));
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/iOS.GUI"), parser, true, false));
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/iOS-Wireframe"), parser, true, false));
-    CollectionManager.addShapeDefCollection(CollectionManager._loadStencil(getStaticFilePath("stencils/Prototype_GUI"), parser, true, false));
+    CollectionManager._loadStencil(getStaticFilePath("stencils/Common"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/BasicWebElements"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/Gtk.GUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/SketchyGUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/WindowsXP-GUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/CommonShapes_Flowchart"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/Android.GUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/iOS.GUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/iOS-Wireframe"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/Prototype_GUI"), parser, true, false);
 
     debug("Start loading installed stencil collections:");
     CollectionManager._loadUserDefinedStencilsIn(Config.getDataFilePath(Config.STENCILS_DIR_NAME));
