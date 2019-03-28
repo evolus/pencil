@@ -146,9 +146,10 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
         var collection = collections[i];
         if(this.isShowCollection(collection)) {
             var icon = this.getCollectionIcon(collection);
+            var typeClass = collection.developerStencil ? "TypeDeveloper" : (collection.userDefined ? "TypeUser" : "TypeSystem");
             var node = Dom.newDOMElement({
                 _name: "vbox",
-                "class": "Item" + (collection.previewURL ? " WithPreview" : ""),
+                "class": "Item" + (collection.previewURL ? " WithPreview" : "") + " " + typeClass,
                 "tabindex": "0",
                 title: collection.displayName,
                 _children: [

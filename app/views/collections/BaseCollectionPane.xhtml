@@ -80,6 +80,32 @@
             overflow: hidden;
             opacity: 0.9999;
         }
+        @selectorPane .Item::after {
+            
+        }
+        @selectorPane .Item:not(.TypeSystem) {
+            border-left: solid 2px rgba(33, 66, 99, 1);
+        }
+        @selectorPane .Item.TypeDeveloper::after {
+            @iconify();
+            content: "build";
+
+            position: absolute;
+            opacity: 0.3;
+            transition: opacity 0.2s ease;
+            
+            padding: 0.2em;
+            background: #F00;
+            color: #FFF;
+            border-radius: 50%;
+            font-size: 0.7em;
+            bottom: 0.3em;
+            right: 0.3em;
+        }
+        @selectorPane .Item:hover::after {
+            opacity: 1;
+        }
+
         @selectorPane .Item:not(.WithPreview) > .Preview {
             display: none;
         }
