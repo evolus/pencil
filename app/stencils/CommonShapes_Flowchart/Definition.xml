@@ -1,19 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Shapes
-    xmlns="http://www.evolus.vn/Namespace/Pencil"
-    xmlns:cc="http://web.resource.org/cc/"
-    xmlns:dc="http://purl.org/dc/elements/1.1/"
-    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-    xmlns:svg="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    author="Evolus Pencil Team"
-    description="Flowchart drawing stencils"
-    displayName="Flowchart"
-    id="Evolus.Flowchart"
-    url="http://www.evolus.vn/pencil/shapes/common/flowchart">
+<Shapes xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:cc="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" author="Evolus Pencil Team" description="Flowchart drawing stencils" displayName="Flowchart" id="Evolus.Flowchart" url="http://www.evolus.vn/pencil/shapes/common/flowchart">
     <Properties>
         <PropertyGroup name="Background">
             <Property displayName="Background" name="fillColor" type="Color">#BDDFFFFF</Property>
@@ -27,7 +13,6 @@
             <Property displayName="defaultextcolor" name="defaultTextColor" type="Color">#000000ff</Property>
         </PropertyGroup>
     </Properties>
-
     <Script>
         <![CDATA[
             collection.VIA_LENGTH = 15;
@@ -81,28 +66,52 @@
         ]]>
     </Script>
     <Shortcut displayName="Straight Connector" icon="Icons/straight-connector.png" to="Evolus.Common:arrow">
-        <PropertyValue name="textFont"><E>$$defaultTextFont</E></PropertyValue>
-        <PropertyValue name="textColor"><E>$$defaultTextColor</E></PropertyValue>
-        <PropertyValue name="strokeColor"><E>$$strokeColor</E></PropertyValue>
-        <PropertyValue name="strokeStyle"><E>$$strokeStyle</E></PropertyValue>
+        <PropertyValue name="textFont">
+            <E>$$defaultTextFont</E>
+        </PropertyValue>
+        <PropertyValue name="textColor">
+            <E>$$defaultTextColor</E>
+        </PropertyValue>
+        <PropertyValue name="strokeColor">
+            <E>$$strokeColor</E>
+        </PropertyValue>
+        <PropertyValue name="strokeStyle">
+            <E>$$strokeStyle</E>
+        </PropertyValue>
         <PropertyValue name="mode">straight</PropertyValue>
         <PropertyValue name="withStartArrow">false</PropertyValue>
         <PropertyValue name="withEndArrow">true</PropertyValue>
     </Shortcut>
     <Shortcut displayName="Multi-segment Connector" icon="Icons/multi-segment-connector.png" to="Evolus.Common:arrow">
-        <PropertyValue name="textFont"><E>$$defaultTextFont</E></PropertyValue>
-        <PropertyValue name="textColor"><E>$$defaultTextColor</E></PropertyValue>
-        <PropertyValue name="strokeColor"><E>$$strokeColor</E></PropertyValue>
-        <PropertyValue name="strokeStyle"><E>$$strokeStyle</E></PropertyValue>
+        <PropertyValue name="textFont">
+            <E>$$defaultTextFont</E>
+        </PropertyValue>
+        <PropertyValue name="textColor">
+            <E>$$defaultTextColor</E>
+        </PropertyValue>
+        <PropertyValue name="strokeColor">
+            <E>$$strokeColor</E>
+        </PropertyValue>
+        <PropertyValue name="strokeStyle">
+            <E>$$strokeStyle</E>
+        </PropertyValue>
         <PropertyValue name="mode">multi-straight</PropertyValue>
         <PropertyValue name="withStartArrow">false</PropertyValue>
         <PropertyValue name="withEndArrow">true</PropertyValue>
     </Shortcut>
     <Shortcut displayName="Curvy Connector" icon="Icons/curvy-connector.png" to="Evolus.Common:arrow">
-        <PropertyValue name="textFont"><E>$$defaultTextFont</E></PropertyValue>
-        <PropertyValue name="textColor"><E>$$defaultTextColor</E></PropertyValue>
-        <PropertyValue name="strokeColor"><E>$$strokeColor</E></PropertyValue>
-        <PropertyValue name="strokeStyle"><E>$$strokeStyle</E></PropertyValue>
+        <PropertyValue name="textFont">
+            <E>$$defaultTextFont</E>
+        </PropertyValue>
+        <PropertyValue name="textColor">
+            <E>$$defaultTextColor</E>
+        </PropertyValue>
+        <PropertyValue name="strokeColor">
+            <E>$$strokeColor</E>
+        </PropertyValue>
+        <PropertyValue name="strokeStyle">
+            <E>$$strokeStyle</E>
+        </PropertyValue>
         <PropertyValue name="mode">curvy</PropertyValue>
         <PropertyValue name="withStartArrow">false</PropertyValue>
         <PropertyValue name="withEndArrow">true</PropertyValue>
@@ -124,7 +133,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var a = 5;
                     var b = 5;
 
@@ -142,11 +151,104 @@
             <ellipse id="path" style="stroke-linejoin: round;" cx="5" cy="5" rx="5" ry="5" />
         </p:Content>
     </Shape>
-<Shape id="multi-vetical-horizontal-line" displayName="multi-vetical-horizontal-line" icon="Icons/multi-vetical-horizontal-line.png">
+    <Shape id="freecurvy" displayName="free cruvy" icon="Icons/freecurvy.png">
         <Properties>
             <PropertyGroup name="Common">
                 <Property displayName="Start" name="startPin" p:connectTo="*" type="Handle">0,0</Property>
-                <Property name="b" displayName="Point" type="Handle" >100,50</Property>
+                <Property displayName="b" name="b" type="Handle">100,50</Property>
+                <Property displayName="End" name="endPin" p:connectTo="*" type="Handle">200,100</Property>
+                <Property displayName="Start Arrow" name="withStartArrow" type="Bool">true</Property>
+                <Property displayName="End Arrow" name="withEndArrow" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property displayName="Border Color" name="strokeColor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property displayName="Border Style" name="strokeStyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>
+                    <![CDATA[
+                    var spec = [M($startPin.x, $startPin.y), C($startPin.x, $startPin.y, $b.x, $b.y, $endPin.x, $endPin.y)]
+
+                    len = 8
+
+                    if($withStartArrow.value==true){
+
+						aA = ($b.x - $startPin.x == 0)  ?  0 :  Math.atan(($b.y - $startPin.y) / ($b.x - $startPin.x))
+                        aB = aA + Math.PI/4
+                        aC = aA - Math.PI/4
+                        console.log( "aA aB aC = " + aA + ", " + aB + ", " + aC)
+
+                        if($b.x - $startPin.x >= 1e-3 ){ 
+                            console.log(">>")
+                            x00 = $startPin.x + len * Math.cos(aB)
+                            y00 = $startPin.y + len * Math.sin(aB)
+                            x01 = $startPin.x + len * Math.cos(aC) 
+                            y01 = $startPin.y + len * Math.sin(aC)
+
+                        }else if($b.x - $startPin.x < 1e-3){
+                            console.log("<<")
+                            x00 = $startPin.x - len * Math.cos(aB)
+                            y00 = $startPin.y - len * Math.sin(aB)
+                            x01 = $startPin.x - len * Math.cos(aC)
+                            y01 = $startPin.y - len * Math.sin(aC)
+
+                        }
+                        console.log("x00, y00, x01, y01: (" + x00 + " " + y00 + " ) (" + x01 + " " + y01 + " )")
+
+                        spec.unshift(M($startPin.x, $startPin.y), L(x00, y00),
+                                    M($startPin.x, $startPin.y), L(x01, y01));
+                    }
+
+                    if($withEndArrow.value==true){
+
+						aA = ($b.x - $endPin.x == 0)  ?  0 :  Math.atan(($b.y - $endPin.y) / ($b.x - $endPin.x))
+                        aB = aA + Math.PI/4
+                        aC = aA - Math.PI/4
+                        console.log( "aA aB aC = " + aA + ", " + aB + ", " + aC)
+
+                        if($b.x - $endPin.x >= 1e-3 ){ 
+                            console.log(">>")
+                            x00 = $endPin.x + len * Math.cos(aB)
+                            y00 = $endPin.y + len * Math.sin(aB)
+                            x01 = $endPin.x + len * Math.cos(aC) 
+                            y01 = $endPin.y + len * Math.sin(aC)
+
+                        }else if($b.x - $endPin.x < 1e-3){
+                            console.log("<<")
+                            x00 = $endPin.x - len * Math.cos(aB)
+                            y00 = $endPin.y - len * Math.sin(aB)
+                            x01 = $endPin.x - len * Math.cos(aC)
+                            y01 = $endPin.y - len * Math.sin(aC)
+
+                        }
+                        console.log("x00, y00, x01, y01: (" + x00 + " " + y00 + " ) (" + x01 + " " + y01 + " )")
+
+                        spec.unshift(M($endPin.x, $endPin.y), L(x00, y00),
+                                    M($endPin.x, $endPin.y), L(x01, y01));
+                    }
+
+                    spec
+                ]]>
+                </D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="path" fill="none" style="stroke-linejoin: round;" />
+        </p:Content>
+    </Shape>
+    <Shape id="multi-vetical-horizontal-line" displayName="multi-vetical-horizontal-line" icon="Icons/multi-vetical-horizontal-line.png">
+        <Properties>
+            <PropertyGroup name="Common">
+                <Property displayName="Start" name="startPin" p:connectTo="*" type="Handle">0,0</Property>
+                <Property name="b" displayName="Point" type="Handle">100,50</Property>
                 <Property displayName="End" name="endPin" p:connectTo="*" type="Handle">200,100</Property>
                 <Property displayName="Start Arrow" name="withStartArrow" type="Bool">true</Property>
                 <Property displayName="End Arrow" name="withEndArrow" type="Bool">false</Property>
@@ -239,10 +341,10 @@
     <Shape id="multi-seg-hvhv-line" displayName="multi-horizine-vetical-horizontal-vetical-line" icon="Icons/multi-seg-hvhv-line.png">
         <Properties>
             <PropertyGroup name="Common">
-                <Property name="startPin" displayName="Start"  p:connectTo="*" type="Handle">0,0</Property>
-                <Property name="b" displayName="Point" type="Handle">100,50</Property>             
+                <Property name="startPin" displayName="Start" p:connectTo="*" type="Handle">0,0</Property>
+                <Property name="b" displayName="Point" type="Handle">100,50</Property>
                 <Property name="v" displayName="Point" type="Handle">200,100</Property>
-                <Property name="endPin" displayName="End" p:connectTo="*" type="Handle" >200,50</Property>
+                <Property name="endPin" displayName="End" p:connectTo="*" type="Handle">200,50</Property>
                 <Property displayName="Start Arrow" name="withStartArrow" type="Bool">true</Property>
                 <Property displayName="End Arrow" name="withEndArrow" type="Bool">false</Property>
                 <!-- <Property displayName="Slightly Detached" name="detached" type="Bool">false</Property> -->
@@ -367,34 +469,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -428,7 +534,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -445,7 +550,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -462,7 +566,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -488,7 +591,6 @@
                     <Arg>new Alignment(1,1)</Arg>
                 </BoxFit>
             </For>
-
             <For ref="outputArrrow1">
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
@@ -517,7 +619,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <rect id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -538,7 +639,6 @@
                     <tspan id="textSpan4" dy="-5"></tspan>
                 </textPath>
             </text>
-
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -546,7 +646,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Alternate Process" icon="Icons/alternate-process.png" id="AlternateProcess">
         <Properties>
             <PropertyGroup>
@@ -584,34 +683,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -636,7 +739,6 @@
                     <Arg>Math.min($box.w/8, $box.h/8)</Arg>
                 </Attr>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -653,7 +755,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -670,7 +771,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -687,7 +787,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -704,7 +803,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -741,7 +839,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var r = Math.min(box.w / 8, box.h / 8);
                     var d = r * 0.292893219;
@@ -777,7 +875,6 @@
                     <tspan id="textSpan4" dy="-5"></tspan>
                 </textPath>
             </text>
-
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -785,7 +882,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Decision" icon="Icons/decision.png" id="Decision">
         <Properties>
             <PropertyGroup>
@@ -823,10 +919,18 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"><![CDATA[Option]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"><![CDATA[Yes]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"><![CDATA[No]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"><![CDATA[Option]]></Property>
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText">
+                    <![CDATA[Option]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText">
+                    <![CDATA[Yes]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText">
+                    <![CDATA[No]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText">
+                    <![CDATA[Option]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -845,7 +949,6 @@
                     [M($box.w/2, 0), L($box.w, $box.h/2), L($box.w/2, $box.h), L(0, $box.h/2), z]
                 </D>
             </For>
-
             <!-- -->
             <For ref="text1">
                 <TextContent>$optionText1</TextContent>
@@ -868,7 +971,6 @@
                     new Bound(($box.w / 2) + 4, 0 - size.h , size.w, size.h);
                 </Bound>
             </For>
-
             <For ref="text2">
                 <TextContent>$optionText2</TextContent>
                 <Font>$optionTextFont</Font>
@@ -935,7 +1037,6 @@
                     new Bound(0-size.w, ($box.h / 2) - size.h, size.w, size.h);
                 </Bound>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -972,7 +1073,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     return this.def.collection.buildConnectorOutletsWith(box, [
                         new Outlet("top-left", null),
@@ -986,17 +1087,14 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1" />
             <text id="text2" />
             <text id="text3" />
             <text id="text4" />
-
-            <rect id="bg1" style="fill: #FF0000; fill-opacity: 0; stroke: none;"/>
-            <rect id="bg2" style="fill: #FF0000; fill-opacity: 0; stroke: none;"/>
-            <rect id="bg3" style="fill: #FF0000; fill-opacity: 0; stroke: none;"/>
-            <rect id="bg4" style="fill: #FF0000; fill-opacity: 0; stroke: none;"/>
-
+            <rect id="bg1" style="fill: #FF0000; fill-opacity: 0; stroke: none;" />
+            <rect id="bg2" style="fill: #FF0000; fill-opacity: 0; stroke: none;" />
+            <rect id="bg3" style="fill: #FF0000; fill-opacity: 0; stroke: none;" />
+            <rect id="bg4" style="fill: #FF0000; fill-opacity: 0; stroke: none;" />
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -1041,34 +1139,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -1107,7 +1209,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1124,7 +1225,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1141,7 +1241,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1158,7 +1257,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -1195,7 +1293,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var d = box.w / 7;
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -1210,7 +1308,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -1231,7 +1328,6 @@
                     <tspan id="textSpan4" dy="-5"></tspan>
                 </textPath>
             </text>
-
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -1276,34 +1372,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -1338,7 +1438,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1355,7 +1454,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1372,7 +1470,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1389,8 +1486,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -1428,7 +1523,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -1493,34 +1587,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -1539,7 +1637,6 @@
                     [M(0, 0), L($box.w, 0), L($box.w, 4*$box.h/5), C(3*$box.w/4, 4*$box.h/5, 3*$box.w/4, 4*$box.h/5, $box.w/2, 9*$box.h/10), S($box.w/4, $box.h, 0, 9*$box.h/10), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1556,7 +1653,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1573,7 +1669,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1590,7 +1685,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1607,7 +1701,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -1617,7 +1710,6 @@
                     <Arg>$textAlign</Arg>
                 </BoxFit>
             </For>
-
             <For ref="outputArrrow1">
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
@@ -1645,7 +1737,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var d = box.w / 7;
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -1659,7 +1751,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -1680,7 +1771,6 @@
                     <tspan id="textSpan4" dy="-5"></tspan>
                 </textPath>
             </text>
-
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -1688,7 +1778,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Multi Document" icon="Icons/multi-document.png" id="MultiDocument">
         <Properties>
             <PropertyGroup>
@@ -1726,34 +1815,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"  ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -1774,7 +1867,6 @@
                     M($box.w/5, $box.h/10), L($box.w/5, 0), L($box.w, 0), L($box.w, 6*$box.h/10), L(9*$box.w/10, 6*$box.h/10)]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1791,7 +1883,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1808,7 +1899,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1825,7 +1915,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -1842,7 +1931,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -1879,7 +1967,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var d = box.w / 7;
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -1894,7 +1982,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -1915,7 +2002,6 @@
                     <tspan id="textSpan4" dy="-5"></tspan>
                 </textPath>
             </text>
-
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -1960,34 +2046,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -2006,7 +2096,6 @@
                     [M(0, $box.h/5), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2023,7 +2112,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2040,7 +2128,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2057,7 +2144,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2110,7 +2196,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var d = box.w / 7;
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -2123,7 +2209,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -2151,7 +2236,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Preparation" icon="Icons/preparation.png" id="Preparation">
         <Properties>
             <PropertyGroup>
@@ -2189,34 +2273,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -2235,7 +2323,6 @@
                     [M(0, $box.h/2), L($box.w/5, 0), L(4*$box.w/5, 0), L($box.w, $box.h/2), L(4*$box.w/5, $box.h), L($box.w/5, $box.h), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2252,7 +2339,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2269,7 +2355,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2286,7 +2371,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2303,7 +2387,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -2340,7 +2423,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var d = box.w / 7;
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -2355,7 +2438,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -2383,7 +2465,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Data" icon="Icons/data.png" id="Data">
         <Properties>
             <PropertyGroup>
@@ -2421,34 +2502,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -2467,7 +2552,6 @@
                     [M($box.w/5, 0), L($box.w, 0), L(4*$box.w/5, $box.h), L(0, $box.h), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2484,7 +2568,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2501,7 +2584,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2518,7 +2600,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2535,7 +2616,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -2572,7 +2652,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var d = box.w / 7;
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -2587,7 +2667,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -2615,7 +2694,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Magnetic Disk" icon="Icons/magnetic-disk.png" id="MagneticDisk">
         <Properties>
             <PropertyGroup>
@@ -2653,34 +2731,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -2688,7 +2770,6 @@
                     <E>$$strokeColor</E>
                 </Property>
             </PropertyGroup>
-
         </Properties>
         <Behaviors>
             <For ref="path">
@@ -2714,7 +2795,6 @@
                     C($box.w, ay/4, 3*$box.w/4, 0, $box.w/2, 0), S(0, ay/4, 0, ay/2), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2731,7 +2811,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2748,7 +2827,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2765,7 +2843,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2782,7 +2859,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -2821,7 +2897,6 @@
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="fill" stroke="none" style="stroke-linejoin: round;" />
             <path fill="none" id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -2849,7 +2924,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Direct Access Storage" icon="Icons/direct-access-storage.png" id="ms-directAccessStorage">
         <Properties>
             <PropertyGroup>
@@ -2887,35 +2961,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -2949,7 +3026,6 @@
                     ]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2966,7 +3042,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -2983,7 +3058,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3000,7 +3074,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3017,7 +3090,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -3056,7 +3128,6 @@
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="fill" stroke="none" style="stroke-linejoin: round;" />
             <path fill="none" id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -3084,7 +3155,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Sequential Access Storage" icon="Icons/sequential-access-storage.png" id="SequentialtAccessStorage">
         <Properties>
             <PropertyGroup>
@@ -3124,42 +3194,46 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 5" name="optionText5" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 5" name="optionText5" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text5');
                     var sizeBox = F.textSize('text5');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text5', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -3183,7 +3257,6 @@
                     L($box.w, y), L(x, y), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3200,7 +3273,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3217,7 +3289,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3234,7 +3305,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3267,7 +3337,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -3309,7 +3378,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var angle = 50 * Math.PI / 180;
                     var y = box.h * (3 + Math.sin(angle)) / 4;
@@ -3328,7 +3397,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -3354,7 +3422,6 @@
                     <tspan id="textSpan5" dy="-5"></tspan>
                 </textPath>
             </text>
-
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -3400,35 +3467,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -3447,7 +3517,6 @@
                     [M(0, 0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), L(0, 0), M($box.w/8, 0), L($box.w/8, $box.h), M(0, $box.h/8), L($box.w, $box.h/8)]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3464,7 +3533,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3481,7 +3549,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3498,7 +3565,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3552,7 +3618,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -3573,7 +3638,6 @@
                     <tspan id="textSpan4" dy="-5"></tspan>
                 </textPath>
             </text>
-
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -3618,35 +3682,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -3666,7 +3733,6 @@
                     L($box.w, 9*$box.h/10), C($box.w, 4*$box.h/5, $box.w/2, 4*$box.h/5, $box.w/2, 9*$box.h/10), S(0, $box.h, 0, 9*$box.h/10), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3683,7 +3749,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3700,7 +3765,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3717,7 +3781,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3770,7 +3833,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
 
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -3787,7 +3850,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -3815,7 +3877,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Manual Operation" icon="Icons/manual-operation.png" id="ManualOperation">
         <Properties>
             <PropertyGroup>
@@ -3853,35 +3914,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -3900,7 +3964,6 @@
                     [M(0, 0), L($box.w, 0), L(4*$box.w/5, $box.h), L($box.w/5, $box.h), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3917,7 +3980,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3934,7 +3996,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -3951,13 +4012,11 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
                 <Visibility>$outputPin4.isConnected()</Visibility>
             </For>
-
             <For ref="textSpan4">
                 <InnerText>$optionText4</InnerText>
                 <Attr>
@@ -4005,7 +4064,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
 
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -4020,7 +4079,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -4086,35 +4144,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -4136,7 +4197,6 @@
                     L($box.w / 6, $box.h), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4153,7 +4213,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4170,7 +4229,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4187,7 +4245,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4240,7 +4297,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
 
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -4255,7 +4312,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -4320,35 +4376,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -4368,7 +4427,6 @@
                     S(3*$box.w/4, $box.h, $box.w/2, $box.h), L(0, $box.h), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4385,7 +4443,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4402,7 +4459,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4419,7 +4475,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4472,7 +4527,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var a = box.w / 2;
                     var b = box.h / 2;
@@ -4487,7 +4542,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -4515,7 +4569,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Stored Data" icon="Icons/stored-data.png" id="StoredData">
         <Properties>
             <PropertyGroup>
@@ -4553,35 +4606,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -4604,7 +4660,6 @@
                     ]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4621,7 +4676,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4638,7 +4692,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4655,7 +4708,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4672,7 +4724,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -4709,7 +4760,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
 
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -4723,7 +4774,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -4744,7 +4794,6 @@
                     <tspan id="textSpan4" dy="-5"></tspan>
                 </textPath>
             </text>
-
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -4752,7 +4801,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Merge" icon="Icons/merge.png" id="Merge">
         <Properties>
             <PropertyGroup>
@@ -4790,35 +4838,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -4837,7 +4888,6 @@
                     [M(0, 0), L($box.w, 0), L($box.w/2, $box.h), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4870,7 +4920,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4887,7 +4936,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -4955,7 +5003,6 @@
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
             <path id="outArrow" style="stroke-linejoin: round; fill: none;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -4983,7 +5030,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Extract" icon="Icons/extract.png" id="Extract">
         <Properties>
             <PropertyGroup>
@@ -5025,48 +5071,54 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 5" name="optionText5" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 5" name="optionText5" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text5');
                     var sizeBox = F.textSize('text5');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text5', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 6" name="optionText6" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 6" name="optionText6" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text6');
                     var sizeBox = F.textSize('text6');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text6', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -5085,7 +5137,6 @@
                     [M($box.w/2, 0), L($box.w, $box.h), L(0, $box.h), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5102,7 +5153,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5119,7 +5169,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5244,7 +5293,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -5275,7 +5323,6 @@
                     <tspan id="textSpan6" dy="-5"></tspan>
                 </textPath>
             </text>
-
             <text id="text" text-anchor="start" xml:space="preserve" />
             <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
             <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
@@ -5285,7 +5332,6 @@
             <path id="outputArrrow6" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Sort" icon="Icons/sort.png" id="Sort">
         <Properties>
             <PropertyGroup>
@@ -5323,35 +5369,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"  ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -5370,7 +5419,6 @@
                     [M($box.w/2, 0), L($box.w, $box.h/2), L($box.w/2, $box.h), L(0, $box.h/2), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5387,7 +5435,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5404,7 +5451,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5421,7 +5467,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5488,7 +5533,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -5516,7 +5560,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Collate" icon="Icons/collate.png" id="Collate">
         <Properties>
             <PropertyGroup>
@@ -5554,35 +5597,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -5601,7 +5647,6 @@
                     [M(0, 0), L($box.w, $box.h), L(0, $box.h), L($box.w, 0), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5618,7 +5663,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5635,7 +5679,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5652,7 +5695,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5721,7 +5763,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -5749,7 +5790,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Connector" icon="Icons/connector.png" id="Connector">
         <Properties>
             <PropertyGroup>
@@ -5787,35 +5827,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -5847,7 +5890,6 @@
                     <Arg>$box.h/2</Arg>
                 </Attr>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5864,7 +5906,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5881,7 +5922,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5898,7 +5938,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -5915,7 +5954,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text">
                 <Font>$textFont</Font>
                 <Color>$textColor</Color>
@@ -5952,7 +5990,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var angle = 50 * Math.PI / 180;
                     var y = box.h * (3 + Math.sin(angle)) / 4;
@@ -5971,7 +6009,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <ellipse id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -5999,7 +6036,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Or" icon="Icons/or.png" id="Or">
         <Properties>
             <PropertyGroup>
@@ -6037,35 +6073,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"
- ><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -6099,7 +6138,6 @@
                     ]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6116,7 +6154,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6133,7 +6170,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6150,7 +6186,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6203,7 +6238,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var angle = 50 * Math.PI / 180;
                     var y = box.h * (3 + Math.sin(angle)) / 4;
@@ -6223,7 +6258,6 @@
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="fill" stroke="none" style="stroke-linejoin: round;" />
             <path fill="none" id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -6251,7 +6285,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Summing Junction" icon="Icons/summing-junction.png" id="SummingJunction">
         <Properties>
             <PropertyGroup>
@@ -6289,34 +6322,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -6365,7 +6402,6 @@
                     ]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6382,7 +6418,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6399,7 +6434,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6416,7 +6450,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6469,7 +6502,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
                     var angle = 50 * Math.PI / 180;
                     var y = box.h * (3 + Math.sin(angle)) / 4;
@@ -6492,7 +6525,6 @@
             </clipPath>
             <path id="fill" stroke="none" style="stroke-linejoin: round;" />
             <path clip-path="url(#MyClip)" fill="none" id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -6520,7 +6552,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Card" icon="Icons/card.png" id="Card">
         <Properties>
             <PropertyGroup>
@@ -6558,34 +6589,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"  ><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -6604,7 +6639,6 @@
                     [M(0, $box.h / 5), L($box.w/5, 0), L($box.w, 0), L($box.w, $box.h), L(0, $box.h), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6621,7 +6655,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6638,7 +6671,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6655,7 +6687,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6708,7 +6739,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
 
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -6720,7 +6751,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -6748,7 +6778,6 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
     <Shape displayName="Off-page Connector" icon="Icons/off-page-connector.png" id="OffpageConnector">
         <Properties>
             <PropertyGroup>
@@ -6786,34 +6815,38 @@
                 <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
             <PropertyGroup name="Option Texts">
-                <Property displayName="Option Text 1" name="optionText1" type="PlainText"
-                    p:editInfo="
+                <Property displayName="Option Text 1" name="optionText1" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text1');
                     var sizeBox = F.textSize('text1');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text1', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 2" name="optionText2" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 2" name="optionText2" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text2');
                     var sizeBox = F.textSize('text2');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text2', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})" ><![CDATA[]]></Property>
-                <Property displayName="Option Text 3" name="optionText3" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 3" name="optionText3" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text3');
                     var sizeBox = F.textSize('text3');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text3', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
-                <Property displayName="Option Text 4" name="optionText4" type="PlainText"
-                    p:editInfo="
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
+                <Property displayName="Option Text 4" name="optionText4" type="PlainText" p:editInfo="
                     var targetBox = F.getObjectBoundingBox('text4');
                     var sizeBox = F.textSize('text4');
                     var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
                     ({targetName: 'text4', bound: newBox
-                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})"><![CDATA[]]></Property>
+                    , font: $optionTextFont, color: $optionTextColor, align: new Alignment(1, 1)})">
+                    <![CDATA[]]>
+                </Property>
                 <Property displayName="Text Font" name="optionTextFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
@@ -6832,7 +6865,6 @@
                     [M(0, 0), L($box.w, 0), L($box.w, 4*$box.h/5), L($box.w/2, $box.h), L(0, 4*$box.h/5), z]
                 </D>
             </For>
-
             <For ref="text1">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6849,7 +6881,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text2">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6866,7 +6897,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text3">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6883,7 +6913,6 @@
                     <Arg> 0 </Arg>
                 </Attr>
             </For>
-
             <For ref="text4">
                 <Font>$optionTextFont</Font>
                 <Fill>$optionTextColor</Fill>
@@ -6936,7 +6965,7 @@
             </Action>
             <Action id="getConnectorOutlets">
                 <Impl>
-                <![CDATA[
+                    <![CDATA[
                     var box = this.getProperty("box");
 
                     return this.def.collection.buildConnectorOutletsWith(box, [
@@ -6949,7 +6978,6 @@
         </Actions>
         <p:Content xmlns="http://www.w3.org/2000/svg">
             <path id="path" style="stroke-linejoin: round;" />
-
             <text id="text1">
                 <textPath xlink:href="#outputArrrow1" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan1" dy="-5"></tspan>
@@ -6977,5 +7005,4 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-
 </Shapes>
