@@ -106,8 +106,8 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
 
 
 DocumentHandler.prototype.loadDocumentFromArguments = function (filePath) {
+    console.log("Loading file from argument: " + filePath);
     this.loadDocument(filePath, function () {
-        console.log("Loaded file from argument: " + filePath);
     });
 }
 

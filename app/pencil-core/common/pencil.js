@@ -181,7 +181,10 @@ Pencil.handleArguments = function() {
 	var remote = require('electron').remote;
 	var appArguments = remote.getGlobal('sharedObject').appArguments;
 	if (appArguments && appArguments.length > 1) {
-		Pencil.documentHandler.loadDocumentFromArguments(appArguments[1]);
+        var arg = appArguments[1];
+        if (arg != "app") {
+            Pencil.documentHandler.loadDocumentFromArguments(arg);
+        }
 	}
 };
 Pencil.setTitle = function (s) {
