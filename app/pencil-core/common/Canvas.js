@@ -1979,7 +1979,7 @@ Canvas.prototype.focus = function () {
     // document.getElementById("richTextEditorToolbar").focus();
     // document.commandDispatcher.rewindFocus();
     // document.commandDispatcher.advanceFocus();
-    this.focusableBox.focus("");
+    this.focusableBox.focus();
 
 };
 Canvas.prototype.doCopy = function () {
