@@ -1,0 +1,20 @@
+<hbox class="Form">
+    <style>
+        body .EditImagePopupContainer {
+            display: flex;
+            align-items: center;
+            margin: @toolbar_gap - 1em;
+        }
+        body .EditImagePopupContainer input[type="number"] {
+            width: 4em;
+            margin-left: @toolbar_gap;
+        }
+    </style>
+    <button anon-id="brightnessButton" class="PopupToggler" mode="icon" title="Brightness"><i>settings_brightness</i><i>arrow_drop_down</i></button>
+    <ui:Popup class="PopupContainer">
+        <hbox class="EditImagePopupContainer">
+            <input type="range" anon-id="brightnessSeeker" min="0" max="100" value="50" />
+            <input anon-id="brightnessPercentInput" type="number" title="Brightness Percent" value="100" maxlength="4" />
+        </hbox>
+    </ui:Popup>
+</hbox>

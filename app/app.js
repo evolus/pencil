@@ -9,7 +9,6 @@ const path          = require("path");
 const moment        = require("moment");
 const fs            = require("fs");
 const os            = require("os");
-const unzip         = require("unzip2");
 const jimp          = require("jimp");
 const pkgInfo       = require("./package.json");
 const QueueHandler  = require("./pencil-core/common/QueueHandler");

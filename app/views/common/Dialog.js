@@ -173,20 +173,26 @@ Dialog.prototype.show = function () {
     BaseWidget.registerClosable(this);
 };
 Dialog.prototype.invalidatePosition = function () {
-    var screenW = window.innerWidth;
+    var screenW = window.innerWidth - 20;
     var screenH = window.innerHeight - 20;
 
     var w = this.dialogFrame.offsetWidth;
     var h = this.dialogFrame.offsetHeight;
-    if (h > screenH) {
+    
+    if (this.grabHeight || h > screenH) {
         h = screenH;
         this.dialogFrame.style.height = h + "px";
         this.dialogContentNode.setAttribute("flex", "1");
     } else {
         this.dialogContentNode.removeAttribute("flex");
     }
-
-    var x = (screenW - w) / 2;
+    
+    if (this.grabWidth) {
+        w = screenW;
+        this.dialogFrame.style.width = w + "px";
+    }
+    
+    var x = (window.innerWidth - w) / 2;
     var y = (window.innerHeight - h) / 2;
 
     this.moveTo(x, y);

@@ -31,7 +31,8 @@ function createWindow() {
           webSecurity: false,
           allowRunningInsecureContent: true,
           allowDisplayingInsecureContent: true,
-          defaultEncoding: "UTF-8"
+          defaultEncoding: "UTF-8",
+          nodeIntegration: true
         },
     };
 
