@@ -125,7 +125,6 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
         }.bind(this));
 
         ipcRenderer.send("printer-request", data);
-        console.log("RASTER: Printing request sent for ", data);
     }.bind(this);
 
     var fontFaces = FontLoader.instance.allFaces;
