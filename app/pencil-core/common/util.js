@@ -629,6 +629,12 @@ Dom.findParentWithClass = function (node, className) {
             }
         });
 };
+Dom.findParentByTagName = function (node, tagName) {
+    tagName = tagName.toUpperCase();
+    return Dom.findUpward(node, function (n) {
+        return n.tagName && n.tagName.toUpperCase && (n.tagName.toUpperCase() == tagName);
+    });
+}
 Dom.doOnChildRecursively = function (node, evaluator, worker) {
     if (!node || !node.childNodes) return null;
 

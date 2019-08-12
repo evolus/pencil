@@ -149,10 +149,11 @@ SharedPropertyEditor.prototype.attach = function (target) {
             if (thiz.target.def && thiz.target.def.collection.propertyGroups && thiz.target.def.collection.propertyGroups.length > 0) {
                 var hbox = Dom.newDOMElement({
                     _name: "hbox",
+                    "class": "FooterActions",
                     _children: [
                         {
                             _name: "button",
-                            _text: "Restore Default",
+                            _text: "Restore Default Settings",
                             command: "setDefault",
                             "class": "DefaultButton"
                         }
@@ -215,7 +216,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
 
         var editorWrapper = Dom.newDOMElement({
             _name: "hbox",
-            "class": "Wrapper",
+            "class": "Wrapper Type_" + property.type.name,
             _children: [
                 {
                     _name: "div",

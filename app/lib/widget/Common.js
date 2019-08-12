@@ -114,7 +114,9 @@ widget.Util = function() {
                             selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
                         }
                         selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
-                        if (!selectors.match(/^[ \t]*body[ \.\[:]/) && !selectors.match(/^[ \t]*@(media) /)) {
+                        if (!selectors.match(/^[ \t]*body[ \.\[:]/)
+                                && !selectors.match(/^[ \t]*@(media) /)
+                                && !selectors.match(/^[ \t]*&/)) {
                             selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
                         }
 
