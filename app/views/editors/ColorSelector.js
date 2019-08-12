@@ -475,47 +475,43 @@ ColorSelector.installGlobalListeners = function () {
         event.preventDefault();
         if (event.stopImmediatePropagation) event.stopImmediatePropagation();
 
-        var capturer = require("electron-screencapture");
         var electron = require("electron");
 
         //take the screenshot
-        var displays = electron.screen.getAllDisplays();
+        var displays = electron.remote.screen.getAllDisplays();
         if (!displays || displays.length <= 0) {
             ColorSelector.currentPickerInstance.onColorPickingCanceled();
             return;
         }
-
+        
         var display = displays[0];
 
         document.body.setAttribute("color-picker-active", "picking");
+        
+        new Capturer().fullscreenScreenshot({x: display.bounds.x, y: display.bounds.y, width: display.bounds.width, height: display.bounds.height},
+            function (capturedImageURL) {
+            var image = new Image();
+            image.onload = function () {
+                var canvas = document.createElement("canvas");
+                canvas.width = image.width;
+                canvas.height = image.height;
 
-        capturer.takeScreenshot({x: display.bounds.x, y: display.bounds.y, width: display.bounds.width, height: display.bounds.height, sourceId: display.id})
-            .then(function (capturedImageURL) {
-                var image = new Image();
-                image.onload = function () {
-                    var canvas = document.createElement("canvas");
-                    canvas.width = image.width;
-                    canvas.height = image.height;
+                var context = canvas.getContext("2d");
+                context.drawImage(image, 0, 0, image.width, image.height);
 
-                    var context = canvas.getContext("2d");
-                    context.drawImage(image, 0, 0, image.width, image.height);
+                var pixelData = context.getImageData(event.screenX, event.screenY, 1, 1).data;
+                var color = "#" + Color.Dec2Hex(pixelData[0]) + Color.Dec2Hex(pixelData[1]) + Color.Dec2Hex(pixelData[2]);
+                ColorSelector.currentPickerInstance.onColorPicked(color);
+                window.setTimeout(function () {
+                    ColorSelector.currentPickerInstance = null;
+                }, 400);
 
-                    var pixelData = context.getImageData(event.screenX, event.screenY, 1, 1).data;
-                    var color = "#" + Color.Dec2Hex(pixelData[0]) + Color.Dec2Hex(pixelData[1]) + Color.Dec2Hex(pixelData[2]);
-                    ColorSelector.currentPickerInstance.onColorPicked(color);
-                    window.setTimeout(function () {
-                        ColorSelector.currentPickerInstance = null;
-                    }, 400);
-
-                    canvas = null;
-                    image.src = "";
-                    image = null;
-                };
-                image.src = capturedImageURL;
-            })
-            .catch(function (error) {
-                ColorSelector.currentPickerInstance.onColorPickingCanceled();
-            });
+                canvas = null;
+                image.src = "";
+                image = null;
+            };
+            image.src = capturedImageURL;
+        }, "image/png");
     }, true);
 
     document.body.addEventListener("focus", function (event) {
@@ -568,4 +564,63 @@ ColorSelector.prototype.pickColor = function () {
     BaseWidget.closableProcessingDisabled = true;
 
     ColorSelector.currentPickerInstance = this;
+};
+
+function Capturer() {}
+Capturer.prototype.fullscreenScreenshot = function (options, callback, imageFormat) {
+    const {desktopCapturer} = require("electron");
+
+    imageFormat = imageFormat || "image/png";
+    
+    function handleStream(stream) {
+        var video = document.createElement("video");
+        video.style.cssText = "position:absolute;top:-10000px;left:-10000px;width: " + options.width + "px; height: " + options.height + "px;";
+        video.onloadedmetadata = function () {
+            console.log("options", options);
+            
+            window.setTimeout(function () {
+                // Create canvas
+                var canvas = document.createElement("canvas");
+                canvas.width = options.width;
+                canvas.height = options.height;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(video, 0, 0, options.width, options.height);
+
+                callback(canvas.toDataURL(imageFormat));
+
+                video.remove();
+                try {
+                    stream.getTracks()[0].stop();
+                } catch (e) {}
+
+            }, 10);
+        }
+        video.srcObject = stream;
+        document.body.appendChild(video);
+        video.play();
+    }
+
+    function handleError(e) {
+        console.log(e);
+    }
+
+    desktopCapturer.getSources({types: ["screen"]}, (error, sources) => {
+        if (error) throw error;
+        for (let i = 0; i < sources.length; ++i) {
+            console.log(sources);
+            if (sources[i].name === "Entire screen") {
+                navigator.webkitGetUserMedia({
+                    audio: false,
+                    video: {
+                        mandatory: {
+                            chromeMediaSource: "desktop",
+                            chromeMediaSourceId: sources[i].id,
+                        }
+                    }
+                }, handleStream, handleError);
+
+                return;
+            }
+        }
+    });
 };
