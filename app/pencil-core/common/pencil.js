@@ -182,7 +182,7 @@ Pencil.handleArguments = function() {
 	var appArguments = remote.getGlobal('sharedObject').appArguments;
 	if (appArguments && appArguments.length > 1) {
         var arg = appArguments[1];
-        if (arg != "app") {
+        if (arg != "app" && arg != "./app") {
             Pencil.documentHandler.loadDocumentFromArguments(arg);
         }
 	}

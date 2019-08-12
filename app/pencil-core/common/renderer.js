@@ -142,7 +142,22 @@ module.exports = function () {
             } catch (e) {}
         }
 
-        rendererWindow = new BrowserWindow({x: 0, y: 0, useContentSize: true, enableLargerThanScreen: true, show: false, frame: false, autoHideMenuBar: true, transparent: true, webPreferences: {webSecurity: false, defaultEncoding: "UTF-8"}});
+        rendererWindow = new BrowserWindow({
+            x: 0, y: 0,
+            useContentSize: true,
+            enableLargerThanScreen: true,
+            show: false,
+            frame: false,
+            autoHideMenuBar: true,
+            transparent: true,
+            webPreferences: {
+                webSecurity: false,
+                allowRunningInsecureContent: true,
+                allowDisplayingInsecureContent: true,
+                defaultEncoding: "UTF-8",
+                nodeIntegration: true
+            }
+        });
         // rendererWindow.webContents.openDevTools();
 
         queueHandler.tasks = [];
@@ -166,7 +181,8 @@ module.exports = function () {
         } else {
             console.log("RENDERER re-started.");
         }
-
+        rendererWindow.loadURL("about:blank");
+        
         initialized = true;
     }
     function initOutProcessCanvasBasedRenderer() {

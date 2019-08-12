@@ -18,6 +18,6 @@ const dialog        = remote.dialog;
 
 tmp.setGracefulCleanup();
 
-webFrame.registerURLSchemeAsPrivileged("file");
-webFrame.registerURLSchemeAsSecure("file");
-webFrame.registerURLSchemeAsBypassingCSP("file");
+// webFrame.registerURLSchemeAsPrivileged("file");
+// webFrame.registerURLSchemeAsSecure("file");
+// webFrame.registerURLSchemeAsBypassingCSP("file");
