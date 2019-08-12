@@ -2101,7 +2101,7 @@ Canvas.prototype.doPaste = function (withAlternative) {
     }
 
     if (formats.indexOf(RichTextXferHelper.MIME_TYPE) >= 0) {
-        var html = clipboard.readHtml();
+        var html = clipboard.readHTML();
         if (html) {
             contents.push({
                 type: RichTextXferHelper.MIME_TYPE,

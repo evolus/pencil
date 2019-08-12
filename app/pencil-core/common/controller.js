@@ -1210,7 +1210,7 @@ Controller.prototype.collectionResourceAsRefSync = function (collection, resourc
 Controller.prototype.nativeImageToRefSync = function (nativeImage) {
     var id = Util.newUUID() + ".png";
     var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
-    fs.writeFileSync(filePath, nativeImage.toPng());
+    fs.writeFileSync(filePath, nativeImage.toPNG());
 
     return id;
 };
