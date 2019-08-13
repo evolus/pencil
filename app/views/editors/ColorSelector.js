@@ -477,7 +477,6 @@ ColorSelector.installGlobalListeners = function () {
 
         var electron = require("electron");
 
-        //take the screenshot
         var displays = electron.remote.screen.getAllDisplays();
         if (!displays || displays.length <= 0) {
             ColorSelector.currentPickerInstance.onColorPickingCanceled();
@@ -488,30 +487,30 @@ ColorSelector.installGlobalListeners = function () {
 
         document.body.setAttribute("color-picker-active", "picking");
         
-        new Capturer().fullscreenScreenshot({x: display.bounds.x, y: display.bounds.y, width: display.bounds.width, height: display.bounds.height},
-            function (capturedImageURL) {
-            var image = new Image();
-            image.onload = function () {
-                var canvas = document.createElement("canvas");
-                canvas.width = image.width;
-                canvas.height = image.height;
-
-                var context = canvas.getContext("2d");
-                context.drawImage(image, 0, 0, image.width, image.height);
-
-                var pixelData = context.getImageData(event.screenX, event.screenY, 1, 1).data;
-                var color = "#" + Color.Dec2Hex(pixelData[0]) + Color.Dec2Hex(pixelData[1]) + Color.Dec2Hex(pixelData[2]);
+        var x = event.screenX;
+        var y = event.screenY;
+        
+        new Capturer().captureFullScreenData(
+            {
+                x: display.bounds.x,
+                y: display.bounds.y,
+                width: display.bounds.width,
+                height: display.bounds.height,
+                processor: function (canvas, context) {
+                    var pixelData = context.getImageData(x, y, 1, 1).data;
+                    return "#" + Color.Dec2Hex(pixelData[0]) + Color.Dec2Hex(pixelData[1]) + Color.Dec2Hex(pixelData[2]);
+                }
+            },
+            function (color, error) {
+                if (!color) {
+                    console.log("Error:", error);
+                    ColorSelector.currentPickerInstance.onColorPickingCanceled();
+                    return;
+                }
+                
                 ColorSelector.currentPickerInstance.onColorPicked(color);
-                window.setTimeout(function () {
-                    ColorSelector.currentPickerInstance = null;
-                }, 400);
-
-                canvas = null;
-                image.src = "";
-                image = null;
-            };
-            image.src = capturedImageURL;
-        }, "image/png");
+                ColorSelector.currentPickerInstance = null;
+            });
     }, true);
 
     document.body.addEventListener("focus", function (event) {
@@ -546,6 +545,7 @@ ColorSelector.installGlobalListeners = function () {
 ColorSelector.prototype.onColorPickingCanceled = function () {
     document.body.removeAttribute("color-picker-active");
     BaseWidget.closableProcessingDisabled = false;
+    ColorSelector.currentPickerInstance = null;
 };
 ColorSelector.prototype.onColorPicked = function (color) {
     document.body.removeAttribute("color-picker-active");
@@ -564,30 +564,36 @@ ColorSelector.prototype.pickColor = function () {
     BaseWidget.closableProcessingDisabled = true;
 
     ColorSelector.currentPickerInstance = this;
+    BaseWidget.registerClosable({
+        close: function () {
+            if (ColorSelector.currentPickerInstance) ColorSelector.currentPickerInstance.onColorPickingCanceled();
+        }
+    });
 };
 
 function Capturer() {}
-Capturer.prototype.fullscreenScreenshot = function (options, callback, imageFormat) {
+Capturer.prototype.captureFullScreenData = function (options, callback) {
     const {desktopCapturer} = require("electron");
 
-    imageFormat = imageFormat || "image/png";
     
-    function handleStream(stream) {
+    function onStreamReceived(stream) {
         var video = document.createElement("video");
-        video.style.cssText = "position:absolute;top:-10000px;left:-10000px;width: " + options.width + "px; height: " + options.height + "px;";
+        video.style.cssText = "position: absolute; top: -9999px; left: -9999px; width: " + options.width + "px; height: " + options.height + "px;";
         video.onloadedmetadata = function () {
-            console.log("options", options);
             
             window.setTimeout(function () {
-                // Create canvas
                 var canvas = document.createElement("canvas");
                 canvas.width = options.width;
                 canvas.height = options.height;
                 var ctx = canvas.getContext("2d");
                 ctx.drawImage(video, 0, 0, options.width, options.height);
-
-                callback(canvas.toDataURL(imageFormat));
-
+                
+                var processor = options.processor || function (canvas, ctx) {
+                    return canvas.toDataURL("image/png");
+                };
+                
+                callback(processor(canvas, ctx));
+                
                 video.remove();
                 try {
                     stream.getTracks()[0].stop();
@@ -600,14 +606,18 @@ Capturer.prototype.fullscreenScreenshot = function (options, callback, imageForm
         video.play();
     }
 
-    function handleError(e) {
+    function onCaptureError(e) {
         console.log(e);
+        callback(null, e);
     }
 
-    desktopCapturer.getSources({types: ["screen"]}, (error, sources) => {
-        if (error) throw error;
+    desktopCapturer.getSources({types: ["screen"]}, function (e, sources) {
+        if (e) {
+            callback(null, e);
+            return;
+        }
+        
         for (let i = 0; i < sources.length; ++i) {
-            console.log(sources);
             if (sources[i].name === "Entire screen") {
                 navigator.webkitGetUserMedia({
                     audio: false,
@@ -617,10 +627,12 @@ Capturer.prototype.fullscreenScreenshot = function (options, callback, imageForm
                             chromeMediaSourceId: sources[i].id,
                         }
                     }
-                }, handleStream, handleError);
+                }, onStreamReceived, onCaptureError);
 
                 return;
             }
         }
+        
+        callback(null, "No screen found");
     });
 };

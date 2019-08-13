@@ -9,6 +9,7 @@ function ColorPropertyEditor() {
         });
         return !found;
     };
+    this.selectorContainer.setPopupClass("ColorPropertyEditorPopup ColorPopup");
 };
 __extend(PropertyEditor, ColorPropertyEditor);
 ColorPropertyEditor.prototype.setup = function () {

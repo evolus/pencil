@@ -781,7 +781,7 @@ BaseWidget.unregisterClosable = function (closable) {
     if (index >= 0) BaseWidget.closables.splice(index, 1);
 };
 BaseWidget.handleClosableEscapeKey = function (event) {
-    if (BaseWidget.closables.length == 0 || BaseWidget.closableProcessingDisabled) return;
+    if (BaseWidget.closables.length == 0) return;
     var closable = BaseWidget.closables[BaseWidget.closables.length - 1];
     var shouldClose = closable.canCloseNow ? closable.canCloseNow() : true;
     if (typeof(shouldClose) == "undefined") shouldClose = true;

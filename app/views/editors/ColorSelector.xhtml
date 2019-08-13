@@ -125,6 +125,23 @@
             padding: 0em 0.45em;
             margin-left: 0.2ex;
         }
+        
+        body[color-picker-active] .ColorPopup {
+            visibility: hidden !important;
+        }
+        body[color-picker-active="true"],
+        body[color-picker-active="true"] * {
+            cursor: url("css/images/eyedropper.png") 0 32, pointer !important;
+        }
+        body[color-picker-active="picking"],
+        body[color-picker-active="picking"] * {
+            cursor: none !important;
+        }
+        
+        body[color-picker-active] > * {
+            pointer-events: none;
+        }
+
     </style>
     <hbox flex="1">
         <ui:TabPane>

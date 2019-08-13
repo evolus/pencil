@@ -11,7 +11,7 @@ function SharedColorEditor() {
         Dom.emitEvent("p:PopupClosed", this.node(), {});
     }, this.selectorContainer.node());
 
-    this.selectorContainer.setPopupClass("SharedColorEditorPopup");
+    this.selectorContainer.setPopupClass("SharedColorEditorPopup ColorPopup");
     var thiz = this;
     this.selectorContainer.shouldCloseOnBlur = function(event) {
         var found = Dom.findUpward(event.target, function (node) {
