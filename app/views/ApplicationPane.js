@@ -161,7 +161,12 @@ ApplicationPane.prototype.createCanvas = function () {
     var canvas = null;
     
     
+    scrollPane.addEventListener("mousedown", function (e) {
+        scrollPane._mouseDownAt = e.timeStamp;
+    });
+    
     scrollPane.addEventListener("mouseup", function (e) {
+        if (!scrollPane._mouseDownAt || (e.timeStamp - scrollPane._mouseDownAt) > 150) return;
         if (!Dom.findParentWithClass(e.target, "CanvasWrapper")) {
             if (!canvas.isSelectingRange) canvas.selectNone();
         }
