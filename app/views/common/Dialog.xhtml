@@ -19,10 +19,9 @@
         body @dialogFrame {
             position: absolute;
             border: none;
-            border-top: solid 2px @selected_bg;
             border-radius: 0.35ex;
-            background: #FFFFFF;
-            box-shadow: 0px 0px 1em rgba(0, 0, 0, 0.5);
+            background: @app_bg;
+            box-shadow: 0px 0px 0.5em 0.2em rgba(0, 0, 0, 0.3);
             transition: opacity 0.4s;
             box-sizing: border-box;
             cursor: default;
@@ -40,7 +39,7 @@
             text-align: center;
             line-height: 2em/1.5;
             margin-left: 1em;
-            margin-top: 0.3em;
+            margin-top: 0em;
             font-weight: bold;
             font-size: 1.5em;
             padding: 0em;
@@ -53,21 +52,22 @@
             background: rgba(0, 0, 0, 0.05);
         }
         body @dialogFrame @dialogTitle {
-            color: #FFF;
-            font-size: 1.2em;
+            color: #555555;
+            font-size: 1em;
             display: block;
         }
         body @dialogFrame @dialogSubTitle {
             color: #FFF;
             display: block;
             opacity: 0.7;
+            display: none;
         }
         body @dialogFrame @dialogTitleContainer {
-            padding: 1.2em;
+            padding: 0.5em;
         }
         body @dialogFrame @dialogHeaderPane {
             margin-bottom: 0em;
-            background: @selected_bg;
+            background: #d3d3d3;
         }
         body @dialogFrame @dialogBody {
             padding: 1.2em;
