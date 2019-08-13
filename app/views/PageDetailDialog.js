@@ -132,7 +132,10 @@ Page.defaultPageSizes = [
 const SIZE_RE = /^([0-9]+)x([0-9]+)$/;
 
 PageDetailDialog.prototype.onShown = function () {
-    this.pageTitle.focus();
+    window.setTimeout(function () {
+        this.pageTitle.focus();
+        this.pageTitle.select();
+    }.bind(this), 50);
 };
 PageDetailDialog.prototype.handlePageSizeSelect = function () {
     var pageSize = this.pageSizeCombo.getSelectedItem();

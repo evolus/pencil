@@ -156,21 +156,6 @@ PageMenu.prototype.setup = function () {
 
     this.separator();
 
-    this.register({
-        key: "PageProperties",
-        isEnabled: function () { return thiz.page },
-        getLabel: function () { return "Properties..." },
-        isValid: function () { return true },
-        run: function () {
-            var dialog = new PageDetailDialog();
-            dialog.title = "Edit Page Properties";
-            dialog.open({
-                defaultPage : thiz.page,
-                onDone: function(page) {
-                }
-            });
-        },
-    });
     UICommandManager.getCommand("exportPageAsPNGButton").isEnabled = function () {return thiz.page};
     UICommandManager.getCommand("exportPageAsPNGButton").page = thiz.page;
     this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
@@ -198,6 +183,21 @@ PageMenu.prototype.setup = function () {
                 onDone: function (editor) {
                     console.log("Complete note");
                     thiz.page.note = editor;
+                }
+            });
+        },
+    });
+    this.register({
+        key: "PageProperties",
+        isEnabled: function () { return thiz.page },
+        getLabel: function () { return "Properties..." },
+        isValid: function () { return true },
+        run: function () {
+            var dialog = new PageDetailDialog();
+            dialog.title = "Edit Page Properties";
+            dialog.open({
+                defaultPage : thiz.page,
+                onDone: function(page) {
                 }
             });
         },
