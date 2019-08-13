@@ -20,7 +20,8 @@ FontLoader.loadSystemFonts = function (callback) {
         if (callback) callback();
         var data = {
             id: Util.newUUID(),
-            faces: systemFaces
+            faces: systemFaces,
+            setName: "systemFaces"
         }
         ipcRenderer.once(data.id, function (event, data) {
         });
@@ -61,7 +62,8 @@ FontLoader.prototype.loadFonts = function (callback) {
     FontLoaderUtil.loadFontFaces(allFaces, function () {
         var data = {
             id: Util.newUUID(),
-            faces: allFaces
+            faces: [].concat(FontLoader.systemRepo.faces).concat(allFaces),
+            setName: "allFaces"
         }
         ipcRenderer.once(data.id, function (event, data) {
             Dom.emitEvent("p:UserFontLoaded", document.documentElement, {});

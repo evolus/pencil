@@ -128,7 +128,7 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
         ipcRenderer.send("printer-request", data);
     }.bind(this);
 
-    var fontFaces = FontLoader.instance.allFaces;
+    var fontFaces = [].concat(FontLoader.systemRepo.faces).concat(FontLoader.instance.allFaces);
 
     console.log(result.documentElement);
 
