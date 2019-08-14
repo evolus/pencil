@@ -115,6 +115,12 @@ function ElectronScreenshotService() {
 
     this.id = "ElectronScreenshotService";
     this.supportPointerHiding = true;
+    this.capabilities = {
+        captureArea: true,
+        captureWindow: false,
+        captureFullscreen: true,
+        canHideCursor: false
+    };
 }
 
 ElectronScreenshotService.prototype = new BaseCmdCaptureService();

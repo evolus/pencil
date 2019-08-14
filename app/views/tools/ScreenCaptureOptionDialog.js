@@ -27,8 +27,22 @@ Config.CAPTURE_OPTIONS_HIDE_POINTER = Config.define("capture.options.hide_pointe
 Config.CAPTURE_OPTIONS_HIDE_PENCIL_WINDOW = Config.define("capture.options.hide_pencil_window", true);
 Config.CAPTURE_OPTIONS_DELAY = Config.define("capture.options.delay", 0);
 
-ScreenCaptureOptionDialog.prototype.setup = function () {
-
+ScreenCaptureOptionDialog.prototype.setup = function (provider) {
+    var providedCaps = provider.capabilities || {
+        captureArea: true,
+        captureWindow: true,
+        captureFullscreen: true,
+        canHideCursor: true
+    };
+    
+    this.areaButton.disabled = !providedCaps.captureArea;
+    this.windowButton.disabled = !providedCaps.captureWindow;
+    this.fullscreenButton.disabled = !providedCaps.captureFullscreen;
+    
+    if (!providedCaps.canHideCursor) {
+        this.hidePencilCheckbox.checked = false;
+        this.hidePencilCheckbox.disabled = true;
+    }
 };
 
 ScreenCaptureOptionDialog.prototype.makeResult = function (mode) {

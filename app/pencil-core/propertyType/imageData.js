@@ -393,7 +393,7 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
     } else {
         var optionDialog = new ScreenCaptureOptionDialog();
         optionDialog.callback(executer);
-        optionDialog.open();
+        optionDialog.open(provider);
     }
 };
 
