@@ -1575,7 +1575,7 @@ Controller.prototype.handleGlobalScreencapture = function (mode) {
     }
 
 
-    ImageData.fromScreenshot(function (imageData, error) {
+    ImageData.fromScreenshot(function (imageData, options, error) {
         if (imageData) {
             electron.remote.getCurrentWindow().show();
             electron.remote.getCurrentWindow().focus();

@@ -38,7 +38,10 @@
         hbox.Entry > label + input[type] {
             margin-left: 0.4em;
         }
-        @optionPane > hbox + hbox {
+        .OptionPane {
+            padding-left: 1em;
+        }
+        .OptionPane > hbox + hbox {
             margin-left: 2em;
         }
         label.Subtitle {
@@ -65,9 +68,14 @@
         <button anon-id="fullscreenButton" flex="1"><i>tv</i><span>Fullscreen</span></button>
     </hbox>
     <label class="Subtitle">Other options:</label>
-    <hbox anon-id="optionPane">
+    <hbox class="OptionPane">
         <hbox class="Entry"><input type="checkbox" anon-id="hideCursorCheckbox" checked="true" /><label for="hideCursorCheckbox">Hide pointer</label></hbox>
         <hbox class="Entry"><input type="checkbox" anon-id="hidePencilCheckbox" checked="true" /><label for="hidePencilCheckbox">Hide Pencil</label></hbox>
         <hbox class="Entry"><label for="delayInput">Delay:</label><input type="number" anon-id="delayInput" min="0" value="0" size="2" /><label for="delayInput">seconds</label></hbox>
+    </hbox>
+    <label class="Subtitle">Image insert options:</label>
+    <hbox class="OptionPane">
+        <hbox class="Entry"><input type="radio" anon-id="normalBitmapRadio" checked="true" name="captureOptionImageInsertMode" /><label for="normalBitmapRadio">Normal bitmap</label></hbox>
+        <hbox class="Entry"><input type="radio" anon-id="nPatchBitmapRadio" name="captureOptionImageInsertMode" /><label for="nPatchBitmapRadio">N-patch scalable bitmap</label></hbox>
     </hbox>
 </vbox>

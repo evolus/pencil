@@ -242,13 +242,15 @@ CanvasMenu.prototype.setup = function () {
         isValid: function () { return Pencil.activeCanvas; },
         icon: "camera",
         run: function () {
-            ImageData.fromScreenshot(function (imageData, error) {
+            ImageData.fromScreenshot(function (imageData, options, error) {
                 if (!imageData) return;
                 
                 electron.remote.getCurrentWindow().show();
                 electron.remote.getCurrentWindow().focus();
 
-                var def = CollectionManager.shapeDefinition.locateDefinition(Config.get(Config.CAPTURE_INSERT_BITMAP_AS_DEFID));
+                var def = CollectionManager.shapeDefinition.locateDefinition(
+                    options.useNormalBitmap ? PNGImageXferHelper.SHAPE_DEF_ID : PNGImageXferHelper.SHAPE_DEF_ID_2 
+                );
                 if (!def) return;
 
                 Pencil.activeCanvas.insertShape(def, null);

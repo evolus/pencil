@@ -379,11 +379,11 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
                 ImageData.fromExternalToImageData(localPath, function (imageData) {
                     var fs = require("fs");
                     fs.unlinkSync(localPath);
-                    callback(imageData);
+                    callback(imageData, options);
                 });
             }).catch(function (error) {
                 if (options.hidePencil) win.show();
-                callback(null, error);
+                callback(null, options, error);
             });
         }, delay);
     };
