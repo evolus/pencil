@@ -71,6 +71,51 @@ GnomeScreenshotService.prototype.isSupported = function (options) {
 };
 
 
+function MacScreenshotService() {
+    BaseCmdCaptureService.call(this);
+
+    this.id = "MacScreenshotService";
+    this.supportPointerHiding = true;
+}
+
+MacScreenshotService.prototype = new BaseCmdCaptureService();
+
+Config.CAPTURE_MAC_EXEC_PATH = Config.define("capture.mac_screenshot.exec_path", "/usr/sbin/screencapture");
+
+MacScreenshotService.prototype.buildCommandLine = function (options) {
+    var cmd = {
+        path: this.getExecPath(),
+        args: []
+    };
+
+    if (options.mode == BaseCaptureService.MODE_AREA) {
+        cmd.args.push("-i");
+        cmd.args.push("-s");
+    }
+    if (options.mode == BaseCaptureService.MODE_WINDOW) {
+        cmd.args.push("-i");
+        cmd.args.push("-w");
+        cmd.args.push("-W");
+    }
+
+    if (options.includePointer) cmd.args.push("-C");
+
+    if (options.outputType == BaseCaptureService.OUTPUT_CLIPBOARD) {
+         cmd.args.push("-c");
+    } else {
+         cmd.args.push(options.outputPath);
+    }
+
+    return cmd;
+};
+MacScreenshotService.prototype.getExecPath = function () {
+    return Config.get(Config.CAPTURE_MAC_EXEC_PATH);
+};
+MacScreenshotService.prototype.isSupported = function (options) {
+    return process.platform == "darwin" && fs.existsSync(this.getExecPath());
+};
+
+
 function WindowsSnippingToolScreenshotService() {
     BaseCmdCaptureService.call(this);
 
@@ -130,20 +175,20 @@ ElectronScreenshotService.prototype.capture = function (options) {
     return new Promise(function (resolve, reject) {
         const { app, BrowserWindow } = require('electron').remote;
         const ipcRenderer = require('electron').ipcRenderer;
-        
+
         function canvasToFileProcessor(canvas, context) {
             var dataURL = canvas.toDataURL("image/png");
             var ni = nativeImage.createFromDataURL(dataURL);
-            
+
             var tmp = require("tmp");
             var filePath = tmp.tmpNameSync();
             fs.writeFileSync(filePath, ni.toPNG());
-            
+
             return filePath;
         };
-        
+
         var displays = electron.remote.screen.getAllDisplays();
-        
+
         var imageFilePaths = [];
         var index = -1;
         (function next(){
@@ -152,9 +197,9 @@ ElectronScreenshotService.prototype.capture = function (options) {
                 onFinishedCapturing();
                 return;
             }
-            
+
             var display = displays[index];
-            
+
             new Capturer().captureFullScreenData({
                     x: display.bounds.x,
                     y: display.bounds.y,
@@ -167,7 +212,7 @@ ElectronScreenshotService.prototype.capture = function (options) {
                         reject(error);
                         return;
                     }
-                    
+
                     imageFilePaths[index] = {
                         filePath: filePath,
                         display: display
@@ -175,20 +220,20 @@ ElectronScreenshotService.prototype.capture = function (options) {
                     next();
                 });
         })();
-        
+
         var currentWindow = require('electron').remote.getCurrentWindow();
-        
+
         function onFinishedCapturing() {
             if (options && options.mode == "fullscreen") {
                 if (options.outputType == "file") {
                     fs.createReadStream(imageFilePaths[0].filePath).pipe(fs.createWriteStream(options.outputPath));
                 }
-                
+
                 window.setTimeout(resolve, 200);
-                
+
                 return;
             }
-            
+
             imageFilePaths.forEach(function (info, index) {
                 var browserWindow = new BrowserWindow({
                         x: info.display.bounds.x,
@@ -201,7 +246,7 @@ ElectronScreenshotService.prototype.capture = function (options) {
                         frame: false,
                         transparent: false,
                         alwaysOnTop: true,
-                        fullscreen: false,
+                        fullscreen: true,
                         webPreferences: {
                             webSecurity: false,
                             allowRunningInsecureContent: true,
@@ -210,7 +255,7 @@ ElectronScreenshotService.prototype.capture = function (options) {
                             nodeIntegration: true
                         }
                     });
-                    
+
                 var url = "file://" + app.getAppPath() + "/screenshot.xhtml?" +
                             "i=" + encodeURIComponent(ImageData.filePathToURL(info.filePath)) +
                             "&index=" + index +
@@ -221,25 +266,25 @@ ElectronScreenshotService.prototype.capture = function (options) {
                     browserWindow.focus();
                     browserWindow.setSize(info.display.bounds.width, info.display.bounds.height, false);
                 });
-                
+
                 info.browserWindow = browserWindow;
             });
         }
-        
+
         ipcRenderer.once("region-canceled", function (event, args) {
             imageFilePaths.forEach(function (info) {
                 try {
                     info.browserWindow.destroy();
                 } catch (e) {}
-                
+
                 try {
                     fs.unlinkSync(info.filePath);
                 } catch (e) {}
             });
-            
+
             reject("canceled");
         });
-        
+
         ipcRenderer.once("region-selected", function (event, args) {
             console.log("region-selected, args", args);
             imageFilePaths.forEach(function (info) {
@@ -247,9 +292,9 @@ ElectronScreenshotService.prototype.capture = function (options) {
                     info.browserWindow.destroy();
                 } catch (e) {}
             });
-            
+
             var selectedPath = imageFilePaths[args.index].filePath;
-            
+
             var image = new Image();
             image.onload = function () {
                 var canvas = document.createElement("canvas");
@@ -261,19 +306,19 @@ ElectronScreenshotService.prototype.capture = function (options) {
 
                 var dataURL = canvas.toDataURL("image/png");
                 var ni = nativeImage.createFromDataURL(dataURL);
-                
+
                 fs.writeFileSync(options.outputPath, ni.toPNG());
 
                 canvas = null;
                 image.src = "";
                 image = null;
-                
+
                 imageFilePaths.forEach(function (info) {
                     try {
                         fs.unlinkSync(info.filePath);
                     } catch (e) {}
                 });
-                
+
                 resolve();
             };
             image.src = ImageData.filePathToURL(selectedPath);
@@ -289,35 +334,35 @@ ElectronScreenshotService.prototype.isSupported = function () {
 function Capturer() {}
 Capturer.prototype.captureFullScreenData = function (options, callback) {
     const {desktopCapturer, remote} = require("electron");
-    
+
     var displays = remote.screen.getAllDisplays();
-    
+
     var maxWidth = 0;
     var maxHeight = 0;
     displays.forEach(function (d) {
         maxWidth = Math.max(maxWidth, d.bounds.x + d.bounds.width);
         maxHeight = Math.max(maxHeight, d.bounds.y + d.bounds.height);
     });
-    
+
     function onStreamReceived(stream) {
         var video = document.createElement("video");
         video.style.cssText = "position: absolute; top: -9999px; left: -9999px; width: 100px; height: 100px;";
         video.onloadedmetadata = function () {
             video.style.cssText = "position: absolute; top: -9999px; left: -9999px; width: " + options.width + "px; height: " + options.height + "px;";
-            
+
             window.setTimeout(function () {
                 var canvas = document.createElement("canvas");
                 canvas.width = options.width;
                 canvas.height = options.height;
                 var ctx = canvas.getContext("2d");
                 ctx.drawImage(video, options.x || 0, options.y || 0, options.width, options.height, 0, 0, options.width, options.height);
-                
+
                 var processor = options.processor || function (canvas, ctx) {
                     return canvas.toDataURL("image/png");
                 };
-                
+
                 callback(processor(canvas, ctx));
-                
+
                 video.remove();
                 try {
                     stream.getTracks()[0].stop();
@@ -360,7 +405,7 @@ Capturer.prototype.captureFullScreenData = function (options, callback) {
                 return;
             }
         }
-        
+
         callback(null, "No screen found");
     });
 };
@@ -427,8 +472,6 @@ ScreenCaptureProvider.getActiveProvider = function () {
     return null;
 };
 
-// ScreenCaptureProvider.register(new GnomeScreenshotService());
-// ScreenCaptureProvider.register(new WindowsSnippingToolScreenshotService());
-ScreenCaptureProvider.register(new ElectronScreenshotService());
-
-
+ScreenCaptureProvider.register(new GnomeScreenshotService());
+ScreenCaptureProvider.register(new WindowsSnippingToolScreenshotService());
+ScreenCaptureProvider.register(new MacScreenshotService());
