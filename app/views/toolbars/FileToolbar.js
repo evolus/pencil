@@ -106,8 +106,10 @@ FileToolbar.prototype.registerCommands = function () {
     UICommandManager.register({
         key: "exportSelectionAsPNGButton",
         label: "Export selection as PNG...",
-        run: function () {
-            Pencil.controller.rasterizeSelection();
+        run: function (event) {
+            Pencil.controller.rasterizeSelection({
+                target: event.shiftKey ? "clipboard" : "file"
+            });
         },
         shortcut: "Ctrl+Alt+E"
     });

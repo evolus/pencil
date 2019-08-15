@@ -16,7 +16,7 @@ function Menu() {
                 console.log("checkbox.checked: " + checkbox.checked);
                 item.handleAction(checkbox.checked);
             } else if (item.run) {
-                item.run(checkbox.checked);
+                item.run(checkbox.checked, event);
             }
             thiz.closeUpward();
         } else if (item.type == "SubMenu") {
@@ -36,9 +36,9 @@ function Menu() {
             }
         } else {
             if (item.handleAction) {
-                item.handleAction();
+                item.handleAction(event);
             } else if (item.run) {
-                item.run();
+                item.run(event);
             }
             thiz.closeUpward();
         }

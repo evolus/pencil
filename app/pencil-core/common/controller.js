@@ -1113,33 +1113,47 @@ Controller.prototype.copyPageBitmap = function (targetPage) {
         thiz.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
             if (!error) {
                 clipboard.writeImage(filePath);
-
+                fs.unlinkSync(filePath);
                 NotificationPopup.show("Page bitmap copied into clipboard.");
             }
         });
     }, 100);
 };
 
-Controller.prototype.rasterizeSelection = function () {
+Controller.prototype.rasterizeSelection = function (options) {
     var target = Pencil.activeCanvas.currentController;
     if (!target || !target.getGeometry) return;
-
-    dialog.showSaveDialog({
-        title: "Export selection as PNG",
-        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), ""),
-        filters: [
-            { name: "PNG Image (*.png)", extensions: ["png"] }
-        ]
-    }, function (filePath) {
-        if (!filePath) return;
+    
+    if (options && options.target == "clipboard") {
+        var tmp = require("tmp");
+        var filePath = tmp.tmpNameSync();
+        
         this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
             if (!error) {
-                NotificationPopup.show("Selection exprted as '" + path.basename(filePath) + "'.", "View", function () {
-                    shell.openItem(filePath);
-                });
+                clipboard.writeImage(filePath);
+                fs.unlinkSync(filePath);
+                NotificationPopup.show("Page bitmap copied into clipboard.");
             }
         });
-    }.bind(this));
+    } else {
+        dialog.showSaveDialog({
+            title: "Export selection as PNG",
+            defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), ""),
+            filters: [
+                { name: "PNG Image (*.png)", extensions: ["png"] }
+            ]
+        }, function (filePath) {
+            if (!filePath) return;
+            this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
+                if (!error) {
+                    NotificationPopup.show("Selection exprted as '" + path.basename(filePath) + "'.", "View", function () {
+                        shell.openItem(filePath);
+                    });
+                }
+            });
+        }.bind(this));
+    }
+
 };
 
 Controller.prototype.copyAsRef = function (sourcePath, callback) {
