@@ -336,7 +336,7 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
         if (base64Data.startsWith(prefix)) base64Data = base64Data.substring(prefix.length);
 
         var buffer = new Buffer(base64Data, "base64");
-        fs.writeFile(actualPath, buffer, {}, buffer.length, function (err) {
+        fs.writeFile(actualPath, buffer, {}, function (err) {
             callback(actualPath, err);
         });
     });

@@ -918,7 +918,7 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
                 if (options.testMode) {
                     if (onBuildDoneCallback) onBuildDoneCallback();
                 } else {
-                    if (stencilPath == options.outputPath || dirPath == path.dirname(options.outputPath)) {
+                    if (stencilPath == options.outputPath || (dirPath && dirPath.indexOf(path.dirname(options.outputPath)) >= 0)) {
                         CollectionManager.reloadDeveloperStencil(false);
                         NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.\n\nDeveloper stencil was also reloaded.", "View", function () {
                             shell.openItem(options.outputPath);

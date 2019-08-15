@@ -30,7 +30,11 @@ CollectionManager.shapeDefinition.locateBuiltinPrivateShapeDef = function (shape
     for (var collection of CollectionManager.shapeDefinition.collections) {
         if (!collection.builtinPrivateCollection || !collection.builtinPrivateCollection.map) continue;
         var def = collection.builtinPrivateCollection.map[shapeDefId];
-        if (def) return def;
+        if (def) {
+            console.log("Found built-in private shape def", def);
+            console.log(" Owning collection", collection);
+            return def;
+        }
     }
     return null;
 };
@@ -144,10 +148,11 @@ CollectionManager._loadDeveloperStencil = function () {
 		if (!dirPath || dirPath == "none" || dirPath == "null") {
 			Config.set("dev.stencil.dir", "none");
 		} else {
-
-			if (!fs.existsSync(dirPath)) return;
-
-			CollectionManager._loadUserDefinedStencilsIn(dirPath, null, "isSystem", "isDeveloperStencil");
+            var dirPaths = dirPath.split(/;/);
+            dirPaths.forEach(function (p) {
+                if (!fs.existsSync(p)) return;
+    			CollectionManager._loadUserDefinedStencilsIn(p, null, "isSystem", "isDeveloperStencil");
+            });
 		}
 	} catch (e) {
         Console.dumpError(e);
