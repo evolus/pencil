@@ -207,6 +207,12 @@ DocumentExportManager.prototype._getPageLinks = function (page, pageExtraInfos, 
 
     return validLinks;
 };
+DocumentExportManager._cleanupParseError = function (node) {
+    Dom.workOn("//html:parsererror", node, function (errorNode) {
+        var b = errorNode.parentNode;
+        b.parentNode.removeChild(b);
+    });
+};
 DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pageExtraInfos, destFile, exportSelection, callback) {
     var exporter = Pencil.getDocumentExporterById(exportSelection.exporterId);
 
@@ -332,6 +338,8 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
             //debug("Created link from: " + page.properties.name + " to: " + targetPage.properties.name);
         }
     }
+    
+    DocumentExportManager._cleanupParseError(dom);
 
     var xmlFile = tmp.fileSync({postfix: ".xml", keep: false});
     Dom.serializeNodeToFile(dom, xmlFile.name);
