@@ -60,6 +60,9 @@ EpgzHandler.prototype.saveDocument = function (documentPath) {
             fromBase: true,
             readerFilter: function (one, two, three) {
                 var p = one && one.path ? one.path : null;
+                if (one && one.size === 0) {
+                    // console.log("Empty file found: ", p);
+                }
                 var re = process.platform === "win32" ? /refs\\([^\\]+)$/ : /refs\/([^\/]+)$/;
                 if (p && p.match(re)) {
                     var id = RegExp.$1;

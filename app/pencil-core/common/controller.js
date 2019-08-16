@@ -297,11 +297,9 @@ Controller.prototype.countResourceReferences = function (page) {
         Dom.workOn("./p:metadata/p:property", node, function (propNode) {
             var name = propNode.getAttribute("name");
             var propDef = def.getProperty(name);
-            if (!propDef) return;
-
             var value = propNode.textContent;
 
-            if (propDef.type == Font) {
+            if (propDef && propDef.type == Font) {
                 var font = Font.fromString(value);
                 if (!font) return;
 
@@ -310,7 +308,7 @@ Controller.prototype.countResourceReferences = function (page) {
                     holders.push(node);
                 }
                 result.fontFaces[font.family] = holders;
-            } else if (propDef.type == ImageData) {
+            } else if ((!propDef && value.startsWith("ref://")) || (propDef && propDef.type == ImageData)) {
                 var imageData = ImageData.fromString(value);
                 if (!imageData || !imageData.data) return;
 
