@@ -552,17 +552,26 @@ ColorSelector.prototype.onColorPickingCanceled = function () {
     document.body.removeAttribute("color-picker-active");
     BaseWidget.closableProcessingDisabled = false;
     ColorSelector.currentPickerInstance = null;
+    BaseWidget.unregisterClosable(ColorSelector._pickerClosable);
 };
 ColorSelector.prototype.onColorPicked = function (color) {
     document.body.removeAttribute("color-picker-active");
     BaseWidget.closableProcessingDisabled = false;
-
+    BaseWidget.unregisterClosable(ColorSelector._pickerClosable);
+    
     var a = this.color.a;
     this.color = Color.fromString(color);
     this.color.a = a;
     this.onValueChanged(this.pickerButton);
     this._emitCloseEvent();
 };
+
+ColorSelector._pickerClosable = {
+    close: function () {
+        if (ColorSelector.currentPickerInstance) ColorSelector.currentPickerInstance.onColorPickingCanceled();
+    }
+};
+
 ColorSelector.prototype.pickColor = function () {
     ColorSelector.installGlobalListeners();
 
@@ -570,9 +579,5 @@ ColorSelector.prototype.pickColor = function () {
     BaseWidget.closableProcessingDisabled = true;
 
     ColorSelector.currentPickerInstance = this;
-    BaseWidget.registerClosable({
-        close: function () {
-            if (ColorSelector.currentPickerInstance) ColorSelector.currentPickerInstance.onColorPickingCanceled();
-        }
-    });
+    BaseWidget.registerClosable(ColorSelector._pickerClosable);
 };
