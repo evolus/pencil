@@ -377,6 +377,13 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
             provider.capture(options).then(function () {
                 if (options.hidePencil) win.show();
                 ImageData.fromExternalToImageData(localPath, function (imageData) {
+                    //As the image is getting directly from device screenshot, the number of pixel was already multiplied by the scale
+                    var ratio = remote.screen.getPrimaryDisplay().scaleFactor;
+                    if (ratio > 1) {
+                        imageData.width = Math.round(imageData.width / ratio);
+                        imageData.height = Math.round(imageData.height / ratio);
+                    }
+                    
                     var fs = require("fs");
                     fs.unlinkSync(localPath);
                     callback(imageData, options);
