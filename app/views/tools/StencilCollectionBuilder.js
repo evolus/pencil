@@ -577,7 +577,9 @@ StencilCollectionBuilder.prototype.toCollectionReadyImageData = function (imageD
             if (!fs.existsSync(dir)) fs.mkdirSync(dir);
 
             var targetPath = path.join(dir, bitmapImageFileName);
-            fs.writeFileSync(targetPath, fs.readFileSync(filePath));
+            if (fs.existsSync(filePath)) {
+                fs.writeFileSync(targetPath, fs.readFileSync(filePath));
+            }
 
             value = new ImageData(value.w, value.h, "collection://" + (resourceType) + "/" + bitmapImageFileName, value.xCells, value.yCells);
 
@@ -1752,3 +1754,4 @@ StencilCollectionBuilder.prototype.generatePrivateShapeDef = function (target, c
         });
     });
 };
+
