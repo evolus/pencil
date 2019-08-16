@@ -380,8 +380,8 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
                     //As the image is getting directly from device screenshot, the number of pixel was already multiplied by the scale
                     var ratio = remote.screen.getPrimaryDisplay().scaleFactor;
                     if (ratio > 1) {
-                        imageData.width = Math.round(imageData.width / ratio);
-                        imageData.height = Math.round(imageData.height / ratio);
+                        imageData.w = Math.round(imageData.w / ratio);
+                        imageData.h = Math.round(imageData.h / ratio);
                     }
                     
                     var fs = require("fs");
