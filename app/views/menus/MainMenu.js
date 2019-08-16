@@ -193,6 +193,17 @@ MainMenu.prototype.setup = function () {
             new StencilCollectionBuilder(Pencil.controller).build();
         }
     }));
+    
+    developerToolSubItems.push(UICommandManager.register({
+        key: "checkMissingResources",
+        label: "Check Missing Resources...",
+        isAvailable: function () { return Pencil.controller && Pencil.controller.doc; },
+        run: function () {
+            new DocumentDiagTools.checkMissingResources();
+        }
+    }));
+
+    
     developerToolSubItems.push(Menu.SEPARATOR);
 
     developerToolSubItems.push({
