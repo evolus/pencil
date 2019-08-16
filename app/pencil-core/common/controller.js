@@ -292,32 +292,46 @@ Controller.prototype.countResourceReferences = function (page) {
     Dom.workOn(".//svg:g[@p:type='Shape']", contextNode, function (node) {
         var defId = node.getAttributeNS(PencilNamespaces.p, "def");
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-        if (!def) return;
 
         Dom.workOn("./p:metadata/p:property", node, function (propNode) {
             var name = propNode.getAttribute("name");
-            var propDef = def.getProperty(name);
             var value = propNode.textContent;
-
-            if (propDef && propDef.type == Font) {
-                var font = Font.fromString(value);
-                if (!font) return;
-
-                var holders = result.fontFaces[font.family] || [];
-                if (holders.length || FontLoader.instance.isFontExisting(font.family)) {
-                    holders.push(node);
-                }
-                result.fontFaces[font.family] = holders;
-            } else if ((!propDef && value.startsWith("ref://")) || (propDef && propDef.type == ImageData)) {
+            
+            if (value && value.match(/^[0-9\,]+ref:\/\//)) {
                 var imageData = ImageData.fromString(value);
-                if (!imageData || !imageData.data) return;
+                if (!imageData || !imageData.data) {
+                    console.error("Invalid image data for value: ", value);
+                    return;
+                }
 
                 var id = ImageData.refStringToId(imageData.data);
-                if (!id) return;
+                if (!id) {
+                    console.error("Unable to parse refId from data: ", imageData.data);
+                    return;
+                }
 
                 var holders = result.resources[id] || [];
                 holders.push(node);
                 result.resources[id] = holders;
+                
+                return;
+            }
+            
+            if (def) {
+                var propDef = def.getProperty(name);
+
+                if (propDef && propDef.type == Font) {
+                    var font = Font.fromString(value);
+                    if (!font) return;
+
+                    var holders = result.fontFaces[font.family] || [];
+                    if (holders.length || FontLoader.instance.isFontExisting(font.family)) {
+                        holders.push(node);
+                    }
+                    result.fontFaces[font.family] = holders;
+                    
+                    return;
+                }
             }
         });
     });
