@@ -8,6 +8,7 @@ const path     = require("path");
 app.commandLine.appendSwitch("allow-file-access-from-files");
 app.commandLine.appendSwitch("allow-file-access");
 app.commandLine.appendSwitch("disable-smooth-scrolling");
+app.commandLine.appendSwitch("disable-site-isolation-trials");
 
 // Disable hardware acceleration by default for Linux
 // TODO: implement a setting for this one and requires a restart after changing that value
