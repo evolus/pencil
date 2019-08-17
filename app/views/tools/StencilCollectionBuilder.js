@@ -1449,6 +1449,8 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
                 }
                 
                 symbolNameMap[symbolName] = true;
+                
+                console.log("found symbol:", symbolName, def);
 
                 var spec = {
                     _name: "Shortcut",
@@ -1703,10 +1705,10 @@ StencilCollectionBuilder.prototype.generateCollectionLayout = function (collecti
             var link = items[i];
             var img = document.createElementNS(PencilNamespaces.html, "img");
             img.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=");
-            if (link.sc) {
-                img.setAttribute("sc-ref", link.sc);
-            } else if (link.symbolName && link.symbolName != "@shape" && !link.privateRefId) {
+            if (link.symbolName && link.symbolName != "@shape" && !link.privateRefId) {
                 img.setAttribute("sc-ref", link.symbolName);
+            } else if (link.sc) {
+                img.setAttribute("sc-ref", link.sc);
             } else if (link.privateRefId) {
                 img.setAttribute("pr-ref", link.privateRefId);
             } else {
