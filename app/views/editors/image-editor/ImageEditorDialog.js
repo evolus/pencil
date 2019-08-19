@@ -23,8 +23,15 @@ ImageEditorDialog.prototype.__init = function () {
     this.selectionCanvasCtx = this.selectionCanvas.getContext("2d");
 };
 ImageEditorDialog.prototype.__initTools = function () {
-    var nodes = this.toolbarContainer.querySelectorAll(".PopupToggler");
     var thiz = this;
+
+    this.toolbarContainer.childNodes.forEach(function (node) {
+        if (node.__widget && node.__widget instanceof BaseTemplatedWidget && node.__widget.setup) {
+            node.__widget.setup(thiz.getImageSource());
+        }
+    });
+    
+    var nodes = this.toolbarContainer.querySelectorAll(".PopupToggler");
     for (var i = 0; i < nodes.length; i++) {
         nodes[i].addEventListener("click", function (event) {
             var toggler = Dom.findParentWithClass(event.target, "PopupToggler");
@@ -73,16 +80,6 @@ ImageEditorDialog.prototype.__initTools = function () {
     };
 
     registerSeekInputListener(this, this.zoomPercentInput, this.zoomSeeker, this.zoom);
-    registerSeekInputListener(this, this.brightnessPercentInput, this.brightnessSeeker,
-                              this.brightness, parse_11RangeValue, function (value) {
-                                  return parseInt(value, 10) * 2;
-                              });
-    registerSeekInputListener(this, this.contrastPercentInput, this.contrastSeeker,
-                              this.contrast, parse_11RangeValue, function (value) {
-                                  return parseInt(value, 10) * 2;
-                              });
-    registerSeekInputListener(this, this.fadePercentInput, this.fadeSeeker, this.fade);
-    registerSeekInputListener(this, this.opacityPercentInput, this.opacitySeeker, this.opacity);
 
     this.bind("click", function (event) {
         this.busy();
@@ -319,14 +316,35 @@ ImageEditorDialog.prototype.zoom = function (r) {
     this._invalidateUI();
 };
 
+ImageEditorDialog._cloneWithAlpha = function (source, callback) {
+    new jimp(source.bitmap.width + 10, source.bitmap.height + 10, 0xffffff00, function (error, image) {
+        console.log("new image alpha", image.hasAlpha());
+        image.composite(source, 0, 0, function () {
+            console.log("  > after composite", image.hasAlpha());
+            callback(image);
+        });
+    });
+};
+
 ImageEditorDialog.prototype._beginRepeatableImageAction = function (callback) {
+    this.__backupImage = this.editingImage.clone();
     if (!this.currentRange) {
         this._targetImage = this.editingImage;
         if (callback) callback();
     } else {
         this._targetImage = this.editingImage.clone();
+        console.log("Alpha after clone: ", this._targetImage.hasAlpha());
+        var thiz = this;
         this._targetImage.crop(this.currentRange.x, this.currentRange.y, this.currentRange.width, this.currentRange.height, function () {
-            if (callback) callback();
+            thiz._targetImage.bitmap.data[3] = 0xfe;
+            if (!thiz._targetImage.hasAlpha()) {
+                ImageEditorDialog._cloneWithAlpha(thiz._targetImage, function (newImage) {
+                    thiz._targetImage = newImage;
+                    if (callback) callback();
+                });
+            } else {
+                if (callback) callback();
+            }
         });
     }
 };
@@ -353,71 +371,49 @@ ImageEditorDialog.prototype._performActionOnSelection = function (performer, cal
     }
 };
 
-ImageEditorDialog.prototype.brightness = function (val) {
-    this.busy();
-    var that = this;
-    this._performActionOnSelection(
-        function (image, callback) {
-            image.brightness(val, callback);
-        },
-        function () {
-            // that.invalidateImage(function () {
-            //     this.brightnessPercentInput.value = 100;
-            //     this.brightnessSeeker.value = 50;
-            // });
-        }
-    );
-};
+ImageEditorDialog.prototype.getImageSource = function () {
+    var thiz = this;
 
-ImageEditorDialog.prototype.contrast = function (val) {
-    this.busy();
-    var that = this;
-    
-    this._performActionOnSelection(
-        function (image, callback) {
-            image.contrast(val, callback);
-        },
-        function () {
-            that.invalidateImage(function () {
-                that.contrastPercentInput.value = 100;
-                that.contrastSeeker.value = 50;
-            });
-        }
-    );
-};
+    if (!this.__imageSource) {
+        this.__imageSource = {
+            start: function (callback) {
+                thiz._beginRepeatableImageAction(callback);
+            },
+            
+            get: function () {
+                return thiz._targetImage;
+            },
+            
+            set: function (image, options, callback) {
+                console.log("options", options);
+                if (!thiz.currentRange || options.replace) {
+                    thiz.editingImage = image;
+                    thiz.currentRange = null;
+                    thiz.invalidateImage(callback);
+                } else {
+                    thiz.editingImage.blit(image, thiz.currentRange.x, thiz.currentRange.y, function () {
+                        thiz.invalidateImage(callback);
+                    });
+                }
+            },
+            
+            rollback: function (callback) {
+                thiz.editingImage = thiz.__backupImage;
+                thiz._endRepeatableImageAction();
+                thiz.invalidateImage(function () {
+                    thiz.__backupImage = null;
+                    callback();
+                });
+            },
 
-ImageEditorDialog.prototype.fade = function (val) {
-    this.busy();
-    var that = this;
+            commit: function (callback) {
+                thiz._endRepeatableImageAction();
+                thiz.__backupImage = null;
+            }
+        };
+    }
     
-    this._performActionOnSelection(
-        function (image, callback) {
-            image.fade(val, callback);
-        },
-        function () {
-            that.invalidateImage(function () {
-                that.fadePercentInput.value = 0;
-                that.fadeSeeker.value = 0;
-            });
-        }
-    );
-};
-
-ImageEditorDialog.prototype.opacity = function (val) {
-    this.busy();
-    var that = this;
-    
-    this._performActionOnSelection(
-        function (image, callback) {
-            image.opacity(val, callback);
-        },
-        function () {
-            that.invalidateImage(function () {
-                this.opacityPercentInput.value = 100;
-                this.opacitySeeker.value = 100;
-            });
-        }
-    );
+    return this.__imageSource;
 };
 
 ImageEditorDialog.prototype.rotate = function (val) {

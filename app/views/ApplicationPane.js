@@ -112,8 +112,21 @@ ApplicationPane.prototype.onAttached = function () {
     this.invalidateUIForConfig();
     this.showStartupPane();
     // window.setTimeout(function () {
-    //     thiz.controller.newDocument();
+    //     Pencil.documentHandler.newDocument();
+    //     console.log("starting image editor...");
+    //     ImageData.fromExternalToImageData("/home/dgthanhan/Pictures/pencil-mac-dragto.png", function (imageData) {
+    //         console.log("image data", imageData);
+    //         var dialog = new ImageEditorDialog();
+    //         dialog.open({
+    //             imageData: imageData,
+    //             onDone: function (newImageData) {
+    //                 console.log("Updated data:", newImageData);
+    //             }
+    //         });
+    //     });
     // }, 100);
+    
+    
 };
 ApplicationPane.prototype.invalidateUIForConfig = function () {
     debug("BOOT: invalidating UI using configuration");

@@ -126,13 +126,15 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                     },
                     handleAction: function () {
                         var propName = this.property;
-                        var dialog = new ImageEditorDialog();
+                        var dialog = new ExternalImageEditorDialog();
                         dialog.open({
                             imageData: this.imageData,
-                            onDone: function (newImageData) {
+                            onDone: function (newImageData, options) {
                                 thiz.targetObject.setProperty(propName, newImageData);
-                                var dim = new Dimension(newImageData.w, newImageData.h);
-                                thiz.targetObject.setProperty("box", dim);
+                                if (options && options.updateBox) {
+                                    var dim = new Dimension(newImageData.w, newImageData.h);
+                                    thiz.targetObject.setProperty("box", dim);
+                                }
                             }
                         });
                     }

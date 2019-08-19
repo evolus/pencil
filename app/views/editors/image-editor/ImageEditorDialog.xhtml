@@ -163,7 +163,10 @@
         }
 
         
-        
+        body .EditImageDialog {
+            border: solid 1px #333;
+        }
+
         body .EditImageDialog .AnonId_dialogHeaderPane {
             padding-top: 0em;
             padding-bottom: 0em;
@@ -181,6 +184,18 @@
             position: absolute;
             top: 0em;
             right: 0em;
+            padding: 0.4em;
+            background: transparent;
+            
+            & button {
+                height: 1.9em;
+                line-height: 1.9em;
+                min-width: 4em;
+                
+                &[mode="accept"] {
+                    color: darken(@primary_color, 20%);
+                }
+            }
         }
         body .EditImageDialog .BusyOverlay {
             position: absolute;
@@ -238,8 +253,8 @@
                     </hbox>
                     <hbox anon-id="cropContainer" class="ButtonGroup">
                         <button anon-id="autoCropButton" mode="icon" title="Auto Crop"><i>crop_free</i></button>
-                        <button anon-id="cropButton" mode="icon" title="Crop"><i>crop</i></button>
                     </hbox>
+                    <ui:CropToSelectionTool></ui:CropToSelectionTool>
                     <hbox anon-id="flipContainer" class="ButtonGroup">
                         <button anon-id="hFlipButton" mode="icon" title="Flip Horizontally"><i>flip</i></button>
                         <button anon-id="vFlipButton" mode="icon" title="Flip Vertically"><i>flip</i></button>
@@ -248,42 +263,12 @@
                         <button anon-id="greyscaleButton" mode="icon" title="Grayscale"><i>filter_vintage</i></button>
                         <button anon-id="invertButton" mode="icon" title="Invert"><i>invert_colors</i></button>
                     </hbox>
-                    <hbox anon-id="brightnessGroupContainer">
-                        <button anon-id="brightnessButton" class="PopupToggler" mode="icon" title="Brightness"><i>settings_brightness</i><i>arrow_drop_down</i></button>
-                        <ui:Popup class="PopupContainer">
-                            <hbox class="EditImagePopupContainer">
-                                <input type="range" anon-id="brightnessSeeker" min="0" max="100" value="50" />
-                                <input anon-id="brightnessPercentInput" type="number" title="Brightness Percent" value="100" maxlength="4" />
-                            </hbox>
-                        </ui:Popup>
-                    </hbox>
-                    <hbox anon-id="contrastGroupContainer">
-                        <button anon-id="contrastButton" class="PopupToggler" mode="icon" title="Contrast"><i>exposure</i><i>arrow_drop_down</i></button>
-                        <ui:Popup class="PopupContainer">
-                            <hbox class="EditImagePopupContainer">
-                                <input type="range" anon-id="contrastSeeker" min="0" max="100" value="50" />
-                                <input anon-id="contrastPercentInput" type="number" title="Contrast Percent" value="100" maxlength="4" />
-                            </hbox>
-                        </ui:Popup>
-                    </hbox>
-                    <hbox anon-id="fadeGroupContainer">
-                        <button anon-id="fadeButton" class="PopupToggler" mode="icon" title="Fade"><i>flip_to_back</i><i>arrow_drop_down</i></button>
-                        <ui:Popup class="PopupContainer">
-                            <hbox class="EditImagePopupContainer">
-                                <input type="range" anon-id="fadeSeeker" min="0" max="100" value="0" />
-                                <input anon-id="fadePercentInput" type="number" title="Fade Percent" value="0" maxlength="4" />
-                            </hbox>
-                        </ui:Popup>
-                    </hbox>
-                    <hbox anon-id="opacityGroupContainer">
-                        <button anon-id="opacityButton" class="PopupToggler" mode="icon" title="Opacity"><i>opacity</i><i>arrow_drop_down</i></button>
-                        <ui:Popup class="PopupContainer">
-                            <hbox class="EditImagePopupContainer">
-                                <input anon-id="opacityPercentInput" type="number" title="Opacity Percent" value="100" maxlength="4" />
-                                <input type="range" anon-id="opacitySeeker" min="0" max="100" value="100" />
-                            </hbox>
-                        </ui:Popup>
-                    </hbox>
+                    
+                    <ui:BrightnessAdjustTool></ui:BrightnessAdjustTool>
+                    <ui:ContrastAdjustTool></ui:ContrastAdjustTool>
+                    <!-- <ui:FadeAdjustTool></ui:FadeAdjustTool> -->
+                    <ui:OpacityAdjustTool></ui:OpacityAdjustTool>
+                    
                     <hbox anon-id="rotationGroup" class="ButtonGroup">
                         <button anon-id="rotateButton" mode="icon" title="Rotate"><i>rotate_right</i></button>
                         <input anon-id="degreeOfRotationInput" type="number" title="Number of degrees" value="90" maxlength="4" />

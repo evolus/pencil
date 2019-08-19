@@ -148,10 +148,10 @@ WindowsSnippingToolScreenshotService.prototype.buildCommandLine = function (opti
     return cmd;
 };
 WindowsSnippingToolScreenshotService.prototype.getExecPath = function () {
-    return Config.get(Config.CAPTURE_GNOME_EXEC_PATH);
+    return Config.get(Config.CAPTURE_SNIPPING_TOOL_EXEC_PATH);
 };
 WindowsSnippingToolScreenshotService.prototype.isSupported = function (options) {
-    return process.platform == "linux" && fs.existsSync(this.getExecPath());
+    return process.platform == "win32" && fs.existsSync(this.getExecPath());
 };
 
 
