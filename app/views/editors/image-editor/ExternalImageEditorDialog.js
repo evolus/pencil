@@ -24,7 +24,7 @@ ExternalImageEditorDialog.prototype.setup = function (options) {
     this.thumbnailImageViewer.style.backgroundImage = "url(" + url + ")";
     this.filePath = Pencil.controller.refIdToFilePath(this.refId);
     
-    this.tmpFile = tmp.fileSync({mode: 0666, postfix: "." + ext});
+    this.tmpFile = tmp.fileSync({mode: 0666, discardDescriptor: true, postfix: "." + ext});
     fs.copyFileSync(this.filePath, this.tmpFile.name);
     
     var stat = fs.statSync(this.tmpFile.name);
