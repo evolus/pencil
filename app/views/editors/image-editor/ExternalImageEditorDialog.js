@@ -10,34 +10,40 @@ ExternalImageEditorDialog.prototype.setup = function (options) {
     if (options.imageData.data.match(/^ref:\/\/.*\.(gif|jpg|png)$/)) {
         ext = RegExp.$1;
     }
-    
+
     var executableConfig = ExternalEditorSupports.getEditorPath(ext);
     if (!executableConfig) {
         Dialog.error("No external editor configured.", "Please configure the external bitmap editor in 'Settings > External Editors'");
         this.close(null);
         return;
     }
-    
+
     this.refId = ImageData.refStringToId(options.imageData.data);
     var url = Pencil.controller.refIdToUrl(this.refId);
-    
+
     this.thumbnailImageViewer.style.backgroundImage = "url(" + url + ")";
     this.filePath = Pencil.controller.refIdToFilePath(this.refId);
-    
+
     var thiz = this;
-    
+
     this.tmpFile = {
-        name: tmp.tmpNameSync() + "." + ext,
+        name: "",
         removeCallback: function () {
             fs.unlinkSync(thiz.tmpFile.name);
         }
     };
-    
+
+    if (process.platform == "darwin") {
+        this.tmpFile.name = Config.getDataFilePath("tmp_editFile") + "." + ext;
+    } else {
+        this.tmpFile.name = tmp.tmpNameSync() + "." + ext;
+    }
+
     fs.copyFileSync(this.filePath, this.tmpFile.name);
-    
+
     var stat = fs.statSync(this.tmpFile.name);
     this.initialModificationTime = stat.mtime.getTime();
-    
+
     executableConfig = executableConfig.replace(/^(.+)\.exe/, function (zero, one) {
         return one.replace(/[ ]/g, "@space@") + ".exe";
     });
@@ -59,18 +65,18 @@ ExternalImageEditorDialog.prototype.setup = function (options) {
     if (!hasFileArgument) {
         params.push(this.tmpFile.name);
     }
-    
+
     const spawn = require("child_process").spawn;
 
-    var process = spawn(executablePath, params);
-    
+    var proc = spawn(executablePath, params);
+
     var thiz = this;
     (function check() {
         if (!thiz.tmpFile) return;
         try {
             thiz._checkStatus();
         } catch (e) {
-            
+
         } finally {
             window.setTimeout(check, 1000);
         }
@@ -79,13 +85,13 @@ ExternalImageEditorDialog.prototype.setup = function (options) {
 ExternalImageEditorDialog.prototype._checkStatus = function () {
     var stat = fs.statSync(this.tmpFile.name);
     if (!stat) return;
-    
+
     var newModificationTime = stat.mtime.getTime();
     var previouslyUpdated = this.updated;
     this.updated = newModificationTime > this.initialModificationTime;
     this.lastModifyLabel.innerHTML = this.updated ? moment(stat.mtime).fromNow() : "Not modified";
     Dom.toggleClass(this.lastModifyLabel, "Updated", this.updated);
-    
+
     if (!previouslyUpdated && this.updated) this.invalidateElements();
 };
 ExternalImageEditorDialog.prototype.onClosed = function () {
@@ -101,16 +107,16 @@ ExternalImageEditorDialog.prototype.save = function (resRefs, updateAllRefs) {
     updateAllRefs = updateAllRefs || !resRefs || resRefs.total === 1;
 
     var refId = this.refId;
-    
+
     var next = function () {
         var url = Pencil.controller.refIdToUrl(refId);
         var image = new Image();
         image.onload = function () {
             var newImageData = new ImageData(image.width, image.height, ImageData.idToRefString(refId));
             image.src = "";
-            
+
             var sizeChanged = newImageData.w != this.options.imageData.w || newImageData.h != this.options.imageData.h;
-            
+
             var finish = function (options) {
                 if (updateAllRefs && resRefs && resRefs.references) {
                     // update references in the swap-in pages
@@ -120,12 +126,12 @@ ExternalImageEditorDialog.prototype.save = function (resRefs, updateAllRefs) {
                         if (!canvas) continue;
 
                         if (page != Pencil.controller.activePage) canvas.__dirtyGraphic = true;
-                        
+
                         var holders = resRefs.references[i].holders || [];
                         for (var j = 0; j < holders.length; j++) {
                             var controller = canvas.createControllerFor(holders[j]);
                             controller.setProperty("imageData", newImageData);
-                            
+
                             if (options && options.updateBox) {
                                 var dim = new Dimension(newImageData.w, newImageData.h);
                                 controller.setProperty("box", dim);
@@ -138,7 +144,7 @@ ExternalImageEditorDialog.prototype.save = function (resRefs, updateAllRefs) {
                 this.close();
 
             }.bind(this);
-            
+
             if (!sizeChanged) {
                 finish({
                     updateBox: false
@@ -156,13 +162,13 @@ ExternalImageEditorDialog.prototype.save = function (resRefs, updateAllRefs) {
                         });
                     });
             }
-            
+
         }.bind(this);
         image.src = url;
-        
+
 
     }.bind(this);
-    
+
     if (updateAllRefs) {
         var filePath = Pencil.controller.refIdToFilePath(refId);
         fs.copyFileSync(this.tmpFile.name, filePath);
