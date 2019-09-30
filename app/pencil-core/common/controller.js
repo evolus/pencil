@@ -1203,7 +1203,7 @@ Controller.prototype.copyAsRef = function (sourcePath, callback) {
     rd.pipe(wr);
 };
 Controller.prototype.generateCollectionResourceRefId = function (collection, resourcePath) {
-    var id = "collection " + collection.id + " " + resourcePath;
+    var id = "collection " + collection.id + "@" + collection.parsedAt + " " + resourcePath;
     var md5 = require("md5");
     id = md5(id) + path.extname(resourcePath);
 

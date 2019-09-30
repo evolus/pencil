@@ -193,6 +193,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, 
     var collection = new ShapeDefCollection();
     collection.url = uri ? uri : dom.documentURI;
     collection.installDirPath = path.dirname(uri);
+    collection.parsedAt = new Date().getTime();
 
     collection.customLayout = this.loadCustomLayout(collection.installDirPath, collection);
     collection.builtinPrivateCollection = this.loadBuiltinPrivateCollection(collection.installDirPath);
