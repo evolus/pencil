@@ -642,7 +642,6 @@ Pencil.behaviors.NPatchDomContent = function (nPatch, dim) {
     Dom.empty(this);
     this.appendChild(buildNPatchDomFragment(nPatch, dim));
 };
-
 Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim, xAnchorMaps, yAnchorMaps) {
     //sorting
     var xCells = imageData.xCells;
@@ -795,3 +794,5 @@ Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim, xAnchorMa
 
     this.appendChild(Dom.newDOMElement(outerSpec));
 };
+Pencil.behaviors.NPatchDomContentFromImage._offScreenSupport = true;
+
