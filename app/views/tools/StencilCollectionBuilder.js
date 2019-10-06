@@ -674,6 +674,10 @@ StencilCollectionBuilder.prototype.cleanupShapeTest = function () {
         this.tempOutputDir = null;
     }
 }
+
+StencilCollectionBuilder.cleanup = function () {
+    StencilCollectionBuilder.activeCollectionInfo = null;
+};
 StencilCollectionBuilder.prototype.build = function () {
     var thiz = this;
     function next(options, outputPath) {
@@ -719,6 +723,10 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
     this.boundDependencyCache = {};
     var dir = options.outputPath;
     this.iconDir = path.join(dir, "icons");
+    
+    StencilCollectionBuilder.activeCollectionInfo = {
+        dir: dir
+    };
 
     var thiz = this;
 
@@ -829,8 +837,6 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
             }
         }
 
-        console.log(thiz.collectedResourceTypes);
-
         for (var rt in thiz.collectedResourceTypes) {
             if (thiz.collectedResourceTypes[rt]) {
                 resourceList.push({
@@ -843,15 +849,13 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
 
         console.log(resourceList);
 
-        if (resourceList.length > 0) {
-            var script = "collection.RESOURCE_LIST = " + JSON.stringify(resourceList) + ";\n" + StencilCollectionBuilder.COLLECTION_RESOURCE_SCRIPT;
-            shapes.appendChild(Dom.newDOMElement({
-                _name: "Script",
-                _uri: PencilNamespaces.p,
-                comments: "Resource script",
-                _cdata: "\n" + script+ "\n"
-            }));
-        }
+        var script = "collection.RESOURCE_LIST = " + JSON.stringify(resourceList) + ";\n" + StencilCollectionBuilder.COLLECTION_RESOURCE_SCRIPT;
+        shapes.appendChild(Dom.newDOMElement({
+            _name: "Script",
+            _uri: PencilNamespaces.p,
+            comments: "Resource script",
+            _cdata: "\n" + script+ "\n"
+        }));
 
         //add fonts
         if (options.embedReferencedFonts && embeddableFontFaces.length > 0) {
@@ -920,21 +924,20 @@ StencilCollectionBuilder.prototype.buildImpl = function (options, onBuildDoneCal
                 if (options.testMode) {
                     if (onBuildDoneCallback) onBuildDoneCallback();
                 } else {
-                    if (stencilPath == options.outputPath || (dirPath && dirPath.indexOf(path.dirname(options.outputPath)) >= 0)) {
-                        CollectionManager.reloadDeveloperStencil(false);
-                        NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.\n\nDeveloper stencil was also reloaded.", "View", function () {
-                            shell.openItem(options.outputPath);
-                        });
-                    } else {
-                        NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.", "View", function () {
-                            shell.openItem(options.outputPath);
-                        });
-                    }
+                    CollectionManager.reloadActiveBuilderCollection(false);
+                    NotificationPopup.show("Stencil collection '" + options.displayName + "' was successfully built.\n\Builder stencil was also reloaded.", "View", function () {
+                        shell.openItem(options.outputPath);
+                    });
                 }
             };
 
             if (layoutPage) {
-                thiz.generateCollectionLayout(options.id, dir, layoutPage, showDone);
+                window.setTimeout(function () {
+                    ApplicationPane._instance.activatePage(layoutPage);
+                    window.setTimeout(function () {
+                        thiz.generateCollectionLayout(options.id, dir, layoutPage, showDone);
+                    }, 500);
+                }, 500);
             } else {
                 showDone();
             }
@@ -1378,7 +1381,7 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
     this.saveResultDom(dom, null, dir, options, function () {
 
         //parse the resulted collection
-        var collection = new ShapeDefCollectionParser().parseURL(path.join(dir, "Definition.xml"));
+        var collection = options.testMode ? new ShapeDefCollectionParser().parseURL(path.join(dir, "Definition.xml")) : CollectionManager.reloadActiveBuilderCollection();
         var shortcutSpecs = [];
         var symbolNameMap = {};
         
@@ -1576,7 +1579,6 @@ StencilCollectionBuilder.prototype.processShortcuts = function (pages, dom, dir,
     });
 };
 StencilCollectionBuilder.prototype.generateCollectionLayout = function (collectionId, dir, page, callback) {
-    ApplicationPane._instance.activatePage(page);
     var container = page.canvas.drawingLayer;
     var pageMargin = StencilCollectionBuilder.INSTANCE.getPageMargin();
 
