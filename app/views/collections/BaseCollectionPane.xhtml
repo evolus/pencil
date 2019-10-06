@@ -86,6 +86,9 @@
         @selectorPane .Item:not(.TypeSystem) {
             border-left: solid 2px rgba(33, 66, 99, 1);
         }
+        @selectorPane .Item.TypeBuilder {
+            border-left: solid 2px red;
+        }
         @selectorPane .Item.TypeDeveloper::after {
             @iconify();
             content: "build";

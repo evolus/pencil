@@ -110,7 +110,7 @@ CollectionManager.reloadDeveloperStencil = function (showNotification) {
     this._loadDeveloperStencil();
     ApplicationPane._instance.unbusy();
 
-    Pencil.collectionPane.reloadDeveloperCollections();
+    Pencil.collectionPane.reload();
 
     if (showNotification) NotificationPopup.show("Developer collections were reloaded.");
 };
@@ -158,7 +158,57 @@ CollectionManager._loadDeveloperStencil = function () {
         Console.dumpError(e);
         // Util.error("Failed to load developer stencil", ex.message + "\n" + definitionFile.path, Util.getMessage("button.cancel.close"));
 	}
+    
+    CollectionManager._addActiveBuilderCollection();    
 };
+CollectionManager._addActiveBuilderCollection = function () {
+    CollectionManager._builderCollection = null;
+    if (!StencilCollectionBuilder.activeCollectionInfo) return;
+    
+    try {
+        var collection = new ShapeDefCollectionParser().parseURL(path.join(StencilCollectionBuilder.activeCollectionInfo.dir, "Definition.xml"));
+        collection.installDirPath = StencilCollectionBuilder.activeCollectionInfo.dir;
+        collection.developerStencil = true;
+        collection.builderStencil = true;
+        CollectionManager.addShapeDefCollection(collection);
+        //CollectionManager.installCollectionFonts(collection);
+        CollectionManager._builderCollection = collection;
+    } catch (e) {
+        console.error(e);
+    }
+};
+CollectionManager.reloadActiveBuilderCollection = function () {
+    ApplicationPane._instance.busy();
+
+    var collections = [];
+    for (var collection of CollectionManager.shapeDefinition.collections) {
+        if (collection.builderStencil) {
+            for (var item in collection.shapeDefs) {
+                var shapeDef = collection.shapeDefs[item];
+                if (shapeDef.constructor == Shortcut) {
+                    delete CollectionManager.shapeDefinition.shortcutMap[shapeDef.id];
+                } else {
+                    delete CollectionManager.shapeDefinition.shapeDefMap[shapeDef.id];
+                }
+            }
+            continue;
+        }
+        collections.push(collection);
+    }
+
+    CollectionManager.shapeDefinition.collections = collections;
+    CollectionManager._addActiveBuilderCollection();
+    ApplicationPane._instance.unbusy();
+
+    Pencil.collectionPane.reload();
+
+    return CollectionManager._builderCollection;
+
+};
+CollectionManager.getActiveBuilderCollection = function () {
+    return CollectionManager._builderCollection;
+};
+
 CollectionManager._loadStencil = function (dir, parser, isSystem, isDeveloperStencil) {
 
     var definitionFile = CollectionManager.findDefinitionFile(dir);

@@ -147,6 +147,7 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
         if(this.isShowCollection(collection)) {
             var icon = this.getCollectionIcon(collection);
             var typeClass = collection.developerStencil ? "TypeDeveloper" : (collection.userDefined ? "TypeUser" : "TypeSystem");
+            if (collection.builderStencil) typeClass += " TypeBuilder";
             var node = Dom.newDOMElement({
                 _name: "vbox",
                 "class": "Item" + (collection.previewURL ? " WithPreview" : "") + " " + typeClass,
