@@ -25,7 +25,7 @@ Rasterizer.ipcBasedBackend = {
     init: function () {
         ipcRenderer.send("render-init", {});
     },
-    rasterize: function (svgNode, width, height, scale, callback, parseLinks) {
+    rasterize: function (svgNode, width, height, scale, callback, parseLinks, options) {
         var id = Util.newUUID();
 
         ipcRenderer.once(id, function (event, data) {
@@ -48,7 +48,7 @@ Rasterizer.ipcBasedBackend = {
         }
 
         var xml = Controller.serializer.serializeToString(svgNode);
-        ipcRenderer.send("render-request", {svg: xml, width: w, height: h, scale: 1, id: id, processLinks: parseLinks});
+        ipcRenderer.send("render-request", {svg: xml, width: w, height: h, scale: 1, id: id, processLinks: parseLinks, options: options});
 
         var work = {};
         work.timeoutId = window.setTimeout(function () {
@@ -199,7 +199,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
             svg.setAttribute("width", w);
             svg.setAttribute("height", h);
         }
-        thiz.getBackend().rasterize(svg, w, h, s, callback, parseLinks);
+        thiz.getBackend().rasterize(svg, w, h, s, callback, parseLinks, { heavy: page.canvas ? false : true });
     };
 
     if (page.backgroundPage) {
@@ -282,6 +282,7 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, s
 
         var buffer = new Buffer(base64Data, "base64");
         fs.writeFile(actualPath, buffer, "utf8", function (err) {
+            console.log("Finish rasterizing page: ", page.name, actualPath);
             callback(parseLinks ? {actualPath: actualPath, objectsWithLinking: data.objectsWithLinking} : actualPath, err);
         });
     }, scale, parseLinks);

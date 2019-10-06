@@ -78,6 +78,7 @@ module.exports = function () {
                 if (err) throw err;
 
                 var svg = data.svg;
+                var delay = 10;
 
                 //path
                 svg = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -94,12 +95,14 @@ module.exports = function () {
  + '    var ipcRenderer = require("electron").ipcRenderer;\n'
  + '    window.addEventListener("load", function () {\n'
  + '        postProcess();\n'
- + '        window.requestAnimationFrame(function () {\n'
+ + '        window.setTimeout(function () {\n'
  + '            window.requestAnimationFrame(function () {\n'
- + '                ipcRenderer.send("render-rendered", {objectsWithLinking: window.objectsWithLinking});\n'
- + '                console.log("Rendered signaled");\n'
+ + '                window.requestAnimationFrame(function () {\n'
+ + '                    ipcRenderer.send("render-rendered", {objectsWithLinking: window.objectsWithLinking});\n'
+ + '                    console.log("Rendered signaled");\n'
+ + '                });\n'
  + '            });\n'
- + '        })\n'
+ + '        }, ' + delay + ');\n'
  + '    }, false);\n'
  + '</script>\n'
  + '</head>\n'
