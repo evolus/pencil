@@ -167,11 +167,11 @@ NPatchSpecEditorDialog.prototype.setup = function (options) {
     var maxH = window.innerHeight - 20 * Util.em();
 
     var r0 = Math.max(this.options.imageData.w / maxW, this.options.imageData.h / maxH);
-    var r1 = Math.min(this.options.imageData.w / minSize, this.options.imageData.h / minSize);
+    // var r1 = Math.min(this.options.imageData.w / minSize, this.options.imageData.h / minSize);
 
     this.image.src = this.options.imageData.toImageSrc();
 
-    var r = r1 < 1 ? r1 : r0;
+    var r = r0 > 1 ? r0 : 1;
     this.setZoom(r);
 
     console.log("setup for", this.options.imageData);
