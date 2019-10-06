@@ -61,6 +61,11 @@ Controller.prototype.confirmAndclose = function (onClose) {
 
         this.sayControllerStatusChanged();
         ShapeTestCanvasPane._instance.quitTesting();
+        
+        if (StencilCollectionBuilder.activeCollectionInfo) {
+            StencilCollectionBuilder.cleanup();
+            CollectionManager.reloadActiveBuilderCollection();
+        }
 
         if (onClose) onClose();
     }.bind(this);
@@ -227,7 +232,6 @@ Controller.prototype.serializeDocument = function (onDone) {
             FontLoader.instance.embedToDocumentRepo(embeddableFontFaces);
         }
 
-        //console.log("Referenced resources: ", refResourceIds);
         thiz.registeredResourceIds = refResourceIds;
     }
 
@@ -297,7 +301,7 @@ Controller.prototype.countResourceReferences = function (page) {
             var name = propNode.getAttribute("name");
             var value = propNode.textContent;
             
-            if (value && value.match(/^[0-9\,]+ref:\/\//)) {
+            if (value && value.match(/^[0-9\,\-]+ref:\/\//)) {
                 var imageData = ImageData.fromString(value);
                 if (!imageData || !imageData.data) {
                     console.error("Invalid image data for value: ", value);
@@ -408,7 +412,6 @@ Controller.prototype.getResourceReferences = function (resourceId, pages) {
 //     handler();
 // };
 Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
-
     var invalidateTasks = [];
     var invalidationIndex = -1;
 
@@ -440,21 +443,49 @@ Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
     Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
         var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-        if (!def) return;
+        
+        if (def) {
+            Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
+                var name = propertyNode.getAttribute("name");
+                var propertyDef = def.propertyMap[name];
+                if (!propertyDef || !propertyDef.type.invalidateValue) return;
+                var type = propertyDef.type;
 
-        Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
-            var name = propertyNode.getAttribute("name");
-            var propertyDef = def.propertyMap[name];
-            if (!propertyDef || !propertyDef.type.invalidateValue) return;
-            var type = propertyDef.type;
+                invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
 
-            invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
-
-        });
+            });
+        } else {
+            // Adhoc invalidation for rasterized image reference from within missing shapes
+            this.invalidateBrokenImageRefs(shapeNode);
+        }
+        
     });
-
-
+    
+    
     runNextValidation(onDoneCallback);
+};
+
+Controller.prototype.invalidateBrokenImageRefs = function (contentNode) {
+    Dom.workOn(".//html:img", contentNode, function (imgNode) {
+        var src = imgNode.getAttribute("src");
+        if (!src) return;
+        if (!src.match(/^file:\/\/([^\?]+)(\?.+)?$/)) return;
+        var filePath = RegExp.$1;
+        if (!filePath.match(/^.*\/refs\/([^\/]+)$/)) return;
+        var refId = RegExp.$1;
+        
+        var realFilePath = filePath;
+        if (process.platform == "win32") {
+            realFilePath = filePath.replace(/\//g, "\\");
+            if (realFilePath.match(/^\\(.*)$/)) realFilePath = RegExp.$1;
+        }
+        
+        if (fs.existsSync(realFilePath)) return;
+        var realFilePath = this.refIdToFilePath(refId);
+        if (!fs.existsSync(realFilePath)) return;
+        var url = this.refIdToUrl(refId);
+        imgNode.setAttribute("src", url);
+    }.bind(this));
 };
 
 Controller.THUMB_CACHE_DIR = "thumbs";
@@ -783,6 +814,8 @@ Controller.prototype.invalidatePageContent = function (page, callback) {
 
         if (callback) callback();
     });
+    
+    this.invalidateBrokenImageRefs(page.canvas.drawingLayer);
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {
