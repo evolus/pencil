@@ -173,8 +173,8 @@ Dialog.prototype.show = function () {
     BaseWidget.registerClosable(this);
 };
 Dialog.prototype.invalidatePosition = function () {
-    var screenW = window.innerWidth - 20;
-    var screenH = window.innerHeight - 20;
+    var screenW = window.innerWidth - (this.widthMargin || 20);
+    var screenH = window.innerHeight - (this.heightMargin || 20);
 
     var w = this.dialogFrame.offsetWidth;
     var h = this.dialogFrame.offsetHeight;

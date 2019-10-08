@@ -1758,4 +1758,173 @@ StencilCollectionBuilder.prototype.generatePrivateShapeDef = function (target, c
         });
     });
 };
+StencilCollectionBuilder.prototype.deploy = function (callback) {
+    var currentOptions = StencilCollectionBuilder.getCurrentDocumentOptions();
+    if (!currentOptions || !currentOptions.outputPath || !fs.existsSync(currentOptions.outputPath)) {
+        Dialog.error("No build available.");
+        return;
+    }
+    
+    var consoleOutputDialog = new ConsoleOutputDialog();
+    consoleOutputDialog.open();
+    
+    function appendOutput(message, important) {
+        consoleOutputDialog.append(message, "message", important);
+    }
+    
+    function appendError(message, important) {
+        consoleOutputDialog.append(message, "error", important);
+    }
+    
+    function exec(cmd, args, cwd, callback) {
+        var childProcess = spawn(cmd, args,
+            {
+                cwd: cwd
+            });
+            
+        childProcess.stdout.on("data", (data) => {
+            appendOutput(data.toString());
+        });
+        
+        childProcess.stderr.on("data", (data) => {
+            appendError(data.toString());
+        });
+        
+        childProcess.on("close", function (code) {
+            callback(code == 0);
+        });
+    }
+    
+    function execCommandList(list, callback) {
+        var index = -1;
+        (function next() {
+            index ++;
+            if (index >= list.length) {
+                callback(true);
+                return;
+            }
+            
+            var spec = list[index];
+            if (spec.message) {
+                appendOutput(spec.message, true);
+            }
+            exec(spec.cmd, spec.args, spec.cwd, function (successful) {
+                if (successful) {
+                    next();
+                } else {
+                    callback(false, spec);
+                }
+            });
+        })();
+    };
+    
+    const { spawn } = require("child_process");
+    
+    var repoDirPath = Config.get("collection.deploy.git_repo_path", "/home/dgthanhan/Projects/Pencil/V3/Stencils/Git/stencils-repository");
+    var repoDownloadBaseURL = Config.get("collection.deploy.git_repo_baseurl", "https://raw.githubusercontent.com/evolus/stencils-repository/master/");
+    if (!repoDownloadBaseURL.endsWith("/")) repoDownloadBaseURL += "/";
+    
+    var collectionSubDirPath = repoDirPath + (repoDirPath.endsWith("/") ? "" : "/") + currentOptions.id;
+    var zipFileName = currentOptions.id.replace(/[^a-zA-Z0-9]+/gi, "_") + "-" + (currentOptions.version || "1.0").replace(/[^a-z0-9-A-Z\.]/gi, "") + ".zip";
+    var collectionZipFilePath = collectionSubDirPath + "/" + zipFileName;
+    var xmlFileName = Config.get("collection.deploy.git_repo_xml_file", "repository-evolus.xml");
+    var repoXMLFilePath = repoDirPath + (repoDirPath.endsWith("/") ? "" : "/") + xmlFileName;
+    
+    var commands = [
+        {cmd: "/usr/bin/git", args: ["clean", "-df"], cwd: repoDirPath, message: "Cleaning up local GIT repository..."},
+        {cmd: "/usr/bin/git", args: ["reset", "--hard"], cwd: repoDirPath},
+        {cmd: "/usr/bin/git", args: ["pull"], cwd: repoDirPath},
+        {cmd: "/usr/bin/mkdir", args: ["-p", collectionSubDirPath], cwd: repoDirPath, message: "Generating collection archive..."},
+        {cmd: "/usr/bin/zip", args: ["-r", collectionZipFilePath, "."], cwd: currentOptions.outputPath},
+        {cmd: "/usr/bin/cp", args: ["-f", "layout_image.png", collectionSubDirPath + "/"], cwd: currentOptions.outputPath},
+        {cmd: "/usr/bin/ls", args: ["-alh", collectionSubDirPath], cwd: currentOptions.outputPath},
+    ];
+    
+    function updateCollectionNode(filePath, callback) {
+        var fs = require("fs");
+        fs.readFile(filePath, "utf8", function (err, data) {
+            if (err) {
+                callback(false, err);
+                return;
+            }
+            
+            var dom = new DOMParser().parseFromString(data, "text/xml");
+            var collectionNode = Dom.getSingle("/p:Collections/p:Collection[p:id/text()='" + currentOptions.id + "']", dom);
+            if (collectionNode) {
+                while (collectionNode.firstChild) collectionNode.removeChild(collectionNode.firstChild);
+            } else {
+                collectionNode = dom.createElementNS(PencilNamespaces.p, "Collection");
+                dom.documentElement.appendChild(collectionNode);
+            }
+            
+            function attr(name, value) {
+                var node = dom.createElementNS(PencilNamespaces.p, name);
+                node.appendChild(dom.createTextNode(value));
+                collectionNode.appendChild(node);
+            }
+            
+            attr("id", currentOptions.id);
+            attr("displayName", currentOptions.displayName);
+            attr("description", currentOptions.description);
+            attr("author", currentOptions.author);
+            attr("website", currentOptions.website || "https://pencil.evolus.vn/");
+            attr("version", currentOptions.version);
+            attr("updated", moment().format("YYYY-MM-DD[T]HH:mm:ss.SSSZZ"));
+            attr("license", currentOptions.license || "MIT");
+            attr("url", repoDownloadBaseURL + currentOptions.id + "/" + zipFileName + "?t=" + (new Date().getTime()));
+            attr("thumbnail", repoDownloadBaseURL + currentOptions.id + "/layout_image.png?t=" + (new Date().getTime()));
+            attr("icon", "");
+            
+            var xsltDOM = Dom.parseDocument(
+`<xsl:stylesheet version="1.0"
+ xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+ xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+ <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" indent-amount="4"/>
+
+    <xsl:template match="node()|@*">
+      <xsl:copy>
+        <xsl:apply-templates select="node()|@*"/>
+      </xsl:copy>
+    </xsl:template>
+</xsl:stylesheet>`
+            );
+            var xsltProcessor = new XSLTProcessor();
+            xsltProcessor.importStylesheet(xsltDOM);
+
+            var result = xsltProcessor.transformToDocument(dom);
+
+            Dom.serializeNodeToFile(result, filePath);
+            
+            callback(true);
+        });
+    }
+    
+    execCommandList(commands, function (successful, failedCommand) {
+        updateCollectionNode(repoXMLFilePath, function (successful, error) {
+            if (!successful) {
+                console.error(error);
+                return;
+            }
+            
+            commands = [
+                {cmd: "/usr/bin/git", args: ["add", "."], cwd: repoDirPath, message: "Uploading to GIT..."},
+                {cmd: "/usr/bin/git", args: ["commit", "-m", "Pencil build on " + (new Date())], cwd: repoDirPath},
+                {cmd: "/usr/bin/git", args: ["push"], cwd: repoDirPath}
+            ];
+            
+            execCommandList(commands, function (successful, failedCommand) {
+                appendOutput("Done.", true);
+            });
+        });
+    });
+};
+
+
+
+
+
+
+
+
+
 

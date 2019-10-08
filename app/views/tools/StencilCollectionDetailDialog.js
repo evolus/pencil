@@ -73,6 +73,7 @@ StencilCollectionDetailDialog.prototype.setup = function (options) {
     this.descriptionInput.value = options.description || "";
     this.authorNameInput.value = options.author || systemUsername;
     this.urlInput.value = options.url || "";
+    this.versionInput.value = options.version || "1.0";
 
     this.initialScriptValue = options.extraScript || "";
     this.scriptInput.value = this.initialScriptValue;
@@ -106,6 +107,7 @@ StencilCollectionDetailDialog.prototype.save = function () {
         options.description = this.descriptionInput.value;
         options.author = getRequiredValue(this.authorNameInput, "Please enter author's name.");
         options.url = getRequiredValue(this.urlInput, "Please enter a valid URL.", /^(http(s?):\/\/.+)?$/);
+        options.version = this.versionInput.value.trim() || "1.0";
 
         options.extraScript = this.scriptEditor ? this.scriptEditor.getValue() : this.initialScriptValue;
         options.embedReferencedFonts = this.embedReferencedFontsCheckbox.checked;

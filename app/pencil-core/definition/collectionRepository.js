@@ -1,8 +1,58 @@
 'use strict';
 
-const STENCILS_REPO_URL = "https://raw.githubusercontent.com/mbrainiac/stencils-repository/master/repository.xml";
+Config.CORE_COLLECTION_REPO_URL = Config.define("collection.repo.core_repo_urls", "https://raw.githubusercontent.com/evolus/stencils-repository/master/repository.xml");
+Config.OUTDATED_COLLECTION_REPO_URL = Config.define("collection.repo.outdated_repo_urls", "https://raw.githubusercontent.com/evolus/stencils-repository/master/repository-outdated.xml");
+Config.EXTRA_COLLECTION_REPO_URLS = Config.define("collection.repo.extra_repo_urls", "");
 
 var CollectionRepository = {
+};
+
+CollectionRepository.getCollectionRepos = function () {
+    var repos = [];
+    
+    var core = Config.get(Config.CORE_COLLECTION_REPO_URL);
+    if (core) {
+        repos.push({
+            name: "Official Repository",
+            id: "sys:official",
+            url: core
+        });
+    }
+    
+    var extras = Config.get(Config.EXTRA_COLLECTION_REPO_URLS);
+    if (extras) {
+        var untitledCount = 0;
+        repos = repos.concat(extras.split(/\|/).map(function (item) {
+            if (item.match(/^([^:]+)=(.+)$/)) {
+                var name = RegExp.$1;
+                var url = RegExp.$2;
+                
+                return {
+                    name: name,
+                    id: name.replace(/[^a-z0-9\-]+/gi, "-").toLowerCase(),
+                    url: url
+                };
+            } else {
+                untitledCount ++;
+                return {
+                    name: "Untitled " + untitledCount,
+                    id: "untitled_" + untitledCount,
+                    url: item
+                };
+            }
+        }));
+    }
+
+    var outdated = Config.get(Config.OUTDATED_COLLECTION_REPO_URL);
+    if (outdated) {
+        repos.push({
+            name: "Outdated Collections",
+            id: "sys:outdated",
+            url: outdated
+        });
+    }
+    
+    return repos;
 };
 
 CollectionRepository.loadCollections = function(url) {
@@ -51,9 +101,9 @@ CollectionRepository.parseFile = function(url, callback) {
             var content = data;
             var domParser = new DOMParser();
             var dom = domParser.parseFromString(content, "text/xml");
-            var collections = CollectionRepository.parse(dom, url);
+            var repo = CollectionRepository.parse(dom, url);
 
-            return callback(collections);
+            return callback(repo);
         });
     } catch (e) {
         console.error(e);
@@ -92,7 +142,10 @@ CollectionRepository.parse = function(dom, url) {
         }
     });
 
-    return collections;
+    return {
+        collections: collections,
+        metadata: metadata
+    };
 };
 
 CollectionRepository.parseCollection = function(collectionNode) {

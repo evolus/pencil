@@ -195,6 +195,16 @@ MainMenu.prototype.setup = function () {
     }));
     
     developerToolSubItems.push(UICommandManager.register({
+        key: "deployStencilCollection",
+        label: "Deploy Stencil Collection...",
+        shortcut: "Ctrl+Shift+D",
+        isAvailable: function () { return Pencil.controller && Pencil.controller.doc; },
+        run: function () {
+            new StencilCollectionBuilder(Pencil.controller).deploy();
+        }
+    }));
+    
+    developerToolSubItems.push(UICommandManager.register({
         key: "checkMissingResources",
         label: "Check Missing Resources...",
         isAvailable: function () { return Pencil.controller && Pencil.controller.doc; },
