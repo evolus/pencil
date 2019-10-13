@@ -240,7 +240,7 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                         data.value = value;
                         var result = value;
                         if (data.type != "string") {
-                            result = parseInt(value);
+                            result = parseFloat(value);
                             if (data.name == "view.undoLevel" || data.name == "edit.gridSize" ) {
                                 if (!result || parseInt(result) == 0 ) {
                                     if (data.name == "view.undoLevel") {

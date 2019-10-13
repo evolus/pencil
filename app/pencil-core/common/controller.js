@@ -112,7 +112,19 @@ Controller.prototype.findPageByName = function (name) {
 
     return null;
 };
-Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId, activateAfterCreate) {
+Controller.prototype.newPage = function (options) {
+    if (!options) options = {};
+    
+    var name = options.name || "Untitled Page";
+    var width = options.width || 100;
+    var height = options.height || 100;
+    var backgroundPageId = options.backgroundPageId || null;
+    var backgroundColor = options.backgroundColor || null;
+    var note = options.node || "";
+    var parentPageId = options.parentPageId || null;
+    var activateAfterCreate = options.activateAfterCreate || false;
+    var copyBackgroundLinks = options.copyBackgroundLinks || false;
+    
     var id = Util.newUUID();
     var pageFileName = "page_" + id + ".xml";
 
@@ -130,6 +142,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     if (backgroundPageId) {
         page.backgroundPageId = backgroundPageId;
         page.backgroundPage = this.findPageById(backgroundPageId);
+        page.copyBackgroundLinks = copyBackgroundLinks;
     }
 
     page.canvas = null;
@@ -166,8 +179,10 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     var width = page.width;
     var height = page.height;
     var backgroundPageId;
+    var copyBackgroundLinks = false;
     if(page.backgroundPage) {
         backgroundPageId = page.backgroundPage.id;
+        copyBackgroundLinks = page.copyBackgroundLinks || false;
     }
     var backgroundColor;
     if (page.backgroundColor) {
@@ -181,8 +196,20 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
         name = page.name  + " (" + seed + ")";
         seed ++;
     };
+    
+    var options = {
+        name: name,
+        width: width,
+        height: height,
+        backgroundPageId: backgroundPageId,
+        backgroundColor: backgroundColor,
+        note: note,
+        parentPageId: parentPageId,
+        copyBackgroundLinks: copyBackgroundLinks,
+        activateAfterCreate: false
+    };
 
-    var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
+    var newPage = this.newPage(options);
     newPage.canvas = null;
 
     // retrieve new page
@@ -1114,6 +1141,16 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
     if (!page) {
         return;
     }
+    
+    var options = {};
+    if (this.activePage && this.activePage.backgroundColor) {
+        options.backgroundColor = this.activePage.backgroundColor.toRGBString();
+    } else {
+        var color = Config.get(Config.EXPORT_DEFAULT_BACKGROUND_COLOR, "");
+        if (color) {
+            options.backgroundColor = color;
+        }
+    }
 
     dialog.showSaveDialog({
         title: "Export page as PNG",
@@ -1129,7 +1166,7 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
                     shell.openItem(filePath);
                 });
             }
-        });
+        }, undefined, false, options);
     }.bind(this));
 };
 
@@ -1137,6 +1174,16 @@ Controller.prototype.copyPageBitmap = function (targetPage) {
     var page = targetPage ? targetPage : (this.activePage ? this.activePage : null);
     if (!page) {
         return;
+    }
+    
+    var options = {};
+    if (this.activePage && this.activePage.backgroundColor) {
+        options.backgroundColor = this.activePage.backgroundColor.toRGBString();
+    } else {
+        var color = Config.get(Config.EXPORT_DEFAULT_BACKGROUND_COLOR, "");
+        if (color) {
+            options.backgroundColor = color;
+        }
     }
 
     var crop = Config.get(Config.EXPORT_CROP_FOR_CLIPBOARD, false);
@@ -1161,13 +1208,23 @@ Controller.prototype.copyPageBitmap = function (targetPage) {
                 fs.unlinkSync(filePath);
                 NotificationPopup.show("Page bitmap copied into clipboard.");
             }
-        });
+        }, undefined, false, options);
     }, 100);
 };
 
 Controller.prototype.rasterizeSelection = function (options) {
     var target = Pencil.activeCanvas.currentController;
     if (!target || !target.getGeometry) return;
+    
+    if (!options) options = {};
+    if (this.activePage && this.activePage.backgroundColor) {
+        options.backgroundColor = this.activePage.backgroundColor.toRGBString();
+    } else {
+        var color = Config.get(Config.EXPORT_DEFAULT_BACKGROUND_COLOR, "");
+        if (color) {
+            options.backgroundColor = color;
+        }
+    }
     
     if (options && options.target == "clipboard") {
         var tmp = require("tmp");
@@ -1179,7 +1236,7 @@ Controller.prototype.rasterizeSelection = function (options) {
                 fs.unlinkSync(filePath);
                 NotificationPopup.show("Page bitmap copied into clipboard.");
             }
-        });
+        }, undefined, options);
     } else {
         dialog.showSaveDialog({
             title: "Export selection as PNG",
@@ -1195,7 +1252,7 @@ Controller.prototype.rasterizeSelection = function (options) {
                         shell.openItem(filePath);
                     });
                 }
-            });
+            }, undefined, options);
         }.bind(this));
     }
 
@@ -1358,11 +1415,22 @@ Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) 
         if (p.backgroundPageId == page.id) this.invalidateBitmapFilePath(p, invalidatedIds);
     }
 };
-Controller.prototype.updatePageProperties = function (page, name, backgroundColor, backgroundPageId, parentPageId, width, height) {
+Controller.prototype.updatePageProperties = function (page, options) {
+    if (!options) options = {};
+    
+    var name = options.name || "Untitled Page";
+    var width = options.width || 100;
+    var height = options.height || 100;
+    var backgroundPageId = options.backgroundPageId || null;
+    var backgroundColor = options.backgroundColor || null;
+    var parentPageId = options.parentPageId || null;
+    var copyBackgroundLinks = options.copyBackgroundLinks || false;
+    
     page.name = name;
     page.backgroundColor = backgroundColor;
     page.backgroundPageId = backgroundPageId;
     page.backgroundPage = backgroundPageId ? this.findPageById(backgroundPageId) : null;
+    page.copyBackgroundLinks = copyBackgroundLinks || false;
 
     if (parentPageId) {
         if (page.parentPageId != parentPageId) {
@@ -1640,7 +1708,18 @@ Controller.prototype.handleGlobalScreencapture = function (mode) {
             electron.remote.getCurrentWindow().focus();
 
             if (!newDocumentCreated) {
-                this.newPage("Capture " + new Date(), imageData.w, imageData.h, null, Color.fromString("#FFFFFFFF"), "", null, true);
+                var options = {
+                    name: "Capture " + new Date(),
+                    width: imageData.w,
+                    height: imageData.h,
+                    backgroundPageId: null,
+                    backgroundColor: Color.fromString("#FFFFFFFF"),
+                    note: "",
+                    parentPageId: null,
+                    activateAfterCreate: true
+                };
+                
+                this.newPage(options);
             } else {
                 this.setActiveCanvasSize(imageData.w, imageData.h)
             }

@@ -79,16 +79,30 @@ module.exports = function () {
 
                 var svg = data.svg;
                 var delay = 10;
-
+                console.log("data.scale", data.scale);
+                var scale = typeof(data.scale) == "number" ? data.scale : 1;
+                
+                var bgColor = (data.options && data.options.backgroundColor) ? data.options.backgroundColor : "transparent";
+                
+                var extraCSS = `
+                    body {
+                        background-color: ${bgColor} !important;
+                        overflow: hidden;
+                        transform: scale(${scale});
+                        transform-origin: left top;
+                    }
+                    svg {
+                        line-height: 1.428;
+                    }
+                ` + fontFaceCSS;
+                
                 //path
                 svg = '<?xml version="1.0" encoding="UTF-8"?>\n'
  + '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n'
  + '    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n'
  + '<html xmlns="http://www.w3.org/1999/xhtml"><head>\n'
  + '<style type="text/css">\n'
- + 'body { background: transparent !important; overflow: hidden; }\n'
- + 'svg { line-height: 1.428; }\n'
- + fontFaceCSS + "\n"
+ + extraCSS + "\n"
  + '</style>\n'
  + '<script type="text/javascript">\n'
  + extraJS + '\n'
@@ -112,7 +126,7 @@ module.exports = function () {
  + '</html>\n';
                 fs.writeFileSync(path, svg, "utf8");
 
-                rendererWindow.setSize(Math.round(data.width), Math.round(data.height), false);
+                rendererWindow.setSize(Math.round(data.width * scale), Math.round(data.height * scale), false);
 
                 var url = "file://" + path;
                 rendererWindow.loadURL(url);
@@ -121,14 +135,21 @@ module.exports = function () {
 
                 currentRenderHandler = function (renderedEvent, renderedData) {
                     capturePendingTaskId = null;
-                    rendererWindow.capturePage(function (nativeImage) {
-                        var dataURL = nativeImage.toDataURL();
-
+                    if (data.options && data.options.linksOnly) {
                         cleanupCallback();
                         currentRenderHandler = null;
-                        event.sender.send(data.id, {url: dataURL, objectsWithLinking: renderedData.objectsWithLinking});
+                        event.sender.send(data.id, {url: "", objectsWithLinking: renderedData.objectsWithLinking});
                         __callback();
-                    });
+                    } else {
+                        rendererWindow.capturePage(function (nativeImage) {
+                            var dataURL = nativeImage.toDataURL();
+
+                            cleanupCallback();
+                            currentRenderHandler = null;
+                            event.sender.send(data.id, {url: dataURL, objectsWithLinking: renderedData.objectsWithLinking});
+                            __callback();
+                        });
+                    }
                 };
 
             });

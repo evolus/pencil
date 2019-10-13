@@ -202,7 +202,7 @@ ExportDialog.prototype.getDialogActions = function () {
                     options: {}
                 };
 
-                result.options.copyBGLinks = thiz.copyBgLinks.checked;
+                result.options.copyBGLinks = true;
 
                 if (this.propertyEditors) {
                     for (var name in this.propertyEditors) {

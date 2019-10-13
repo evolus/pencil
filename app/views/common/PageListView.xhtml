@@ -57,6 +57,12 @@
             height: 6em;
             align-items: center;
         }
+        
+        body[compact-layout='true'] @pageListContainer {
+            padding: 0.5em;
+        }
+
+        
         @pageListContainer > .widget_PageThumbnailView + .widget_PageThumbnailView {
             margin-left: 1em;
         }
