@@ -8,7 +8,7 @@ function PageDetailDialog() {
     };
     this.pageCombo.decorator = function (node, canvas) {
         if (canvas._level) {
-            node.style.paddingLeft = canvas._level + "em";
+            node.style.paddingLeft = (parseInt(canvas._level, 10) * 2) + "em";
         }
     };
 
@@ -28,7 +28,7 @@ function PageDetailDialog() {
 
     this.backgroundCombo.decorator = function (node, item) {
         if (item._level) {
-            node.style.paddingLeft = item._level + "em";
+            node.style.paddingLeft = (parseInt(item._level, 10) * 2) + "em";
         }
     };
 
@@ -45,7 +45,7 @@ function PageDetailDialog() {
     this.backgroundCombo.addEventListener("p:ItemSelected", function (event) {
         thiz.populatePageSizeSelector();
         var background = thiz.backgroundCombo.getSelectedItem();
-        thiz.colorButton.disabled = background.value ? true : false;
+        thiz.invalidateBackgroundElements();
         thiz.modified = true;
     }, false);
 
@@ -251,8 +251,17 @@ PageDetailDialog.prototype.setup = function (options) {
         this.heightInput.value = this._defaultSize.h;
     }
 
-    var background = thiz.backgroundCombo.getSelectedItem();
-    thiz.colorButton.disabled = background.value ? true : false;
+    this.invalidateBackgroundElements();
+};
+
+PageDetailDialog.prototype.invalidateBackgroundElements = function () {
+    var background = this.backgroundCombo.getSelectedItem();
+    console.log(background);
+    this.colorButton.disabled = background.value ? true : false;
+    
+    var usingBackgroundPage = background.value && background.value != "transparent";
+    this.copyLinksCheckbox.disabled = !usingBackgroundPage;
+    this.copyLinksLabel.style.opacity = usingBackgroundPage ? "1" : "0.5";
 };
 
 PageDetailDialog.prototype.populatePageSizeSelector = function () {
@@ -335,8 +344,10 @@ PageDetailDialog.prototype.updateUIWith = function (page) {
             name: "Transparent Background",
             value: "transparent"
         });
-        this.colorButton.disabled = true;
+        this.invalidateBackgroundElements();
     }
+    
+    this.copyLinksCheckbox.checked = (page.backgroundPageId && page.copyBackgroundLinks) || false;
 }
 
 PageDetailDialog.prototype.createPage = function () {
@@ -356,8 +367,20 @@ PageDetailDialog.prototype.createPage = function () {
             backgroundPageId = background.value;
         }
     }
+    
+    var options = {
+        name: name,
+        width: width,
+        height: height,
+        backgroundPageId: backgroundPageId,
+        backgroundColor: backgroundColor,
+        note: "",
+        parentPageId: this.pageCombo.getSelectedItem().id,
+        copyBackgroundLinks: background.value && background.value != "transparent" && this.copyLinksCheckbox.checked,
+        activateAfterCreate: false
+    };
 
-    var page = Pencil.controller.newPage(name, width, height, backgroundPageId, backgroundColor, "", this.pageCombo.getSelectedItem().id);
+    var page = Pencil.controller.newPage(options);
 
     Config.set("lastSize", [width, height].join("x"));
     return page;
@@ -389,7 +412,18 @@ PageDetailDialog.prototype.updatePage = function() {
     }
 
     var parentPageId = this.pageCombo.getSelectedItem().id;
-    Pencil.controller.updatePageProperties(page, name, backgroundColor, backgroundPageId, parentPageId, width, height);
+    
+    var options = {
+        name: name,
+        width: width,
+        height: height,
+        backgroundPageId: backgroundPageId,
+        backgroundColor: backgroundColor,
+        parentPageId: parentPageId,
+        copyBackgroundLinks: background.value && background.value != "transparent" && this.copyLinksCheckbox.checked
+    };
+    Pencil.controller.updatePageProperties(page, options);
+    
     return page;
 }
 PageDetailDialog.prototype.getDialogActions = function () {

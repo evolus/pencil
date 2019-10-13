@@ -49,6 +49,13 @@
         @pageTitle {
             min-width: 30em;
         }
+        @copyLinksBox {
+            align-items: center;
+            margin-top: 0.5em;
+        }
+        @colorButton {
+            margin-left: 0.5em;
+        }
     </style>
     <div class="Description">
         Please enter the page properties:
@@ -75,12 +82,18 @@
     </hbox>
     <hbox class="InputRow">
         <label for="backgroundColorCombo">Background:</label>
-        <ui:ComboManager flex="1" anon-id="backgroundCombo"/>
-        <hbox>
-            <button anon-id="colorButton" value="choose" ><i>color_lens</i></button>
-            <ui:Popup anon-id="selectorContainer">
-                <ui:ColorSelector anon-id="selector" />
-            </ui:Popup>
-        </hbox>
+        <vbox flex="1">
+            <hbox>
+                <ui:ComboManager flex="1" anon-id="backgroundCombo"/>
+                <button anon-id="colorButton" value="choose" ><i>color_lens</i></button>
+                <ui:Popup anon-id="selectorContainer">
+                    <ui:ColorSelector anon-id="selector" />
+                </ui:Popup>
+            </hbox>
+            <hbox anon-id="copyLinksBox">
+                <input type="checkbox" anon-id="copyLinksCheckbox" />
+                <label for="copyLinksCheckbox" anon-id="copyLinksLabel">Copy links from background page</label>
+            </hbox>
+        </vbox>
     </hbox>
 </vbox>

@@ -225,7 +225,17 @@ ApplicationPane.prototype.activatePage = function (page) {
 }
 ApplicationPane.prototype.testSave = function () {
     this.documentHandler.newDocument();
-    var page = this.controller.newPage("Sample page", 1000, 1000, null, null, "");
+    var options = {
+        name: "Sample page",
+        width: 1000,
+        height: 1000,
+        backgroundPageId: null,
+        backgroundColor: null,
+        note: "",
+        parentPageId: null,
+        activateAfterCreate: false
+    };
+    var page = this.controller.newPage(options);
     page.canvas = Pencil.activeCanvas;
 
     this.controller.serializePage(page, page.tempFilePath);
