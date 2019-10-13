@@ -1868,7 +1868,7 @@ StencilCollectionBuilder.prototype.deploy = function (callback) {
             attr("description", currentOptions.description);
             attr("author", currentOptions.author);
             attr("website", currentOptions.website || "https://pencil.evolus.vn/");
-            attr("version", currentOptions.version);
+            attr("version", currentOptions.version || "1.0");
             attr("updated", moment().format("YYYY-MM-DD[T]HH:mm:ss.SSSZZ"));
             attr("license", currentOptions.license || "MIT");
             attr("url", repoDownloadBaseURL + currentOptions.id + "/" + zipFileName + "?t=" + (new Date().getTime()));
