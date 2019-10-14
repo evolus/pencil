@@ -1375,6 +1375,26 @@ Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
 
     if (!left) targetIndex ++;
     list.splice(targetIndex, 0, page);
+    
+    //sort the whole tree
+    function assignIndexes(pages, level, parentPage) {
+        pages.forEach(function (page, index) {
+            if (!parentPage && page.parentPage) return;
+            page._tempIndex = (parentPage ? parentPage._tempIndex : 0) +  (index + 1) / level;
+            
+            if (page.children) assignIndexes(page.children, level * 100, page);
+        });
+    }
+
+    assignIndexes(this.doc.pages, 1, null);
+
+    this.doc.pages.sort(function (p1, p2) {
+        return p1._tempIndex - p2._tempIndex;
+    });
+    
+    this.doc.pages.forEach(function (page) {
+        delete page._tempIndex;
+    });
 
     this.sayDocumentChanged();
 };
