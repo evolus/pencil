@@ -6,6 +6,7 @@ body, html {
     margin: 0px;
     padding: 0px;
     overflow: hidden;
+    font-family: "Product Sans", "Liberation Sans", Arial, sans-serif;
 }
 
 #documentMetadata,
