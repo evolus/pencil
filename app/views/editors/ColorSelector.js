@@ -318,38 +318,36 @@ ColorSelector.prototype.setGridSelectorColor = function () {
         }
     });
 };
+ColorSelector.prototype.loadRecentlyUsedColors = function () {
+    var colors = Config.get("gridcolorpicker.recentlyUsedColors");
+    
+    this._lastUsedColors = colors;
+    var c = colors.split(",");
+    this.recentlyUsedColors = c;
+    var el = this.recentlyUsedColorElements;
+    for (var i = 0; i < Math.min(el.length, c.length); i++) {
+        var color = c[i];
+        if (color.length > 7) {
+            color = color.substring(0, 7);
+        }
+        if (el[i].hasAttribute && el[i].hasAttribute("color")) {
+            el[i].setAttribute("color", color);
+            el[i].setAttribute("style", "background-color: " + color);
+        }
+    }
+};
 ColorSelector.prototype.initializeGridSelector = function () {
     if (this._initialized) return;
     this._initialized = true;
 
     var thiz = this;
-    var el = [];
+    this.recentlyUsedColorElements = [];
     Dom.doOnAllChildren(this.recentlyUsedColor, function (n) {
         if (n.hasAttribute && n.hasAttribute("color")) {
-            el.push(n);
+            thiz.recentlyUsedColorElements.push(n);
         }
     });
-    if (this._timer) clearInterval(this._timer);
-    this._timer = setInterval(function () {
-        var colors = Config.get("gridcolorpicker.recentlyUsedColors");
-
-        if (colors != thiz._lastUsedColors) {
-            thiz._lastUsedColors = colors;
-            var c = colors.split(",");
-            thiz.recentlyUsedColors = c;
-            for (var i = 0; i < Math.min(el.length, c.length); i++) {
-                var color = c[i];
-                if (color.length > 7) {
-                    color = color.substring(0, 7);
-                }
-                //debug("color: " + color);
-                if (el[i].hasAttribute && el[i].hasAttribute("color")) {
-                    el[i].setAttribute("color", color);
-                    el[i].setAttribute("style", "background-color: " + color);
-                }
-            }
-        }
-    }, 300);
+    this.loadRecentlyUsedColors();
 };
 ColorSelector.prototype.updateRecentlyUsedColors = function () {
     var aColor = this.color;

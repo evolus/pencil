@@ -37,6 +37,7 @@ SharedColorEditor.prototype.setup = function () {
         }
         if (!thiz.color) return;
         thiz.selector.setColor(thiz.color);
+        thiz.selector.loadRecentlyUsedColors();
         thiz.selectorContainer.show(thiz.node(), "left-inside", "bottom", 0, 5);
         event.cancelBubble = true;
     }, false);

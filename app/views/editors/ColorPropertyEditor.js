@@ -22,6 +22,7 @@ ColorPropertyEditor.prototype.setup = function () {
             return;
         }
         thiz.selector.setColor(thiz.color);
+        thiz.selector.loadRecentlyUsedColors();
         thiz.selectorContainer.show(thiz.colorButton, "left-inside", "bottom", 0, 5);
         event.cancelBubble = true;
     }, false);
