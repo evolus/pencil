@@ -353,7 +353,7 @@ ColorSelector.prototype.setupColors = function () {
     this.loadDocumentColors();
 };
 ColorSelector.prototype.loadRecentlyUsedColors = function () {
-    var colors = Config.get("gridcolorpicker.recentlyUsedColors");
+    var colors = Config.get("gridcolorpicker.recentlyUsedColors", "");
     
     this._lastUsedColors = colors;
     var c = colors.split(",");
