@@ -1674,7 +1674,7 @@ Util.openDonate = function () {
     //     var uri = ioservice.newURI(link, null, null);
     //     protoservice.loadUrl(uri);
     // }
-    require("shell").openExternal("http://pencil.evolus.vn/Donation.aspx");
+    require("shell").openExternal("http://pencil.evolus.vn/Donation.html");
 };
 Util.getMessage = function (msg, args) {
     var text = MESSAGES[msg];
