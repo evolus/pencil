@@ -20,11 +20,23 @@ CollectionManager.addShapeDefCollection = function (collection) {
             CollectionManager.shapeDefinition.shapeDefMap[shapeDef.id] = shapeDef;
         }
     }
-
+    debug("   Loaded: " + collection.displayName);
 };
 CollectionManager.shapeDefinition.locateDefinition = function (shapeDefId) {
     var def = CollectionManager.shapeDefinition.shapeDefMap[shapeDefId];
     return def;
+};
+CollectionManager.shapeDefinition.locateBuiltinPrivateShapeDef = function (shapeDefId) {
+    for (var collection of CollectionManager.shapeDefinition.collections) {
+        if (!collection.builtinPrivateCollection || !collection.builtinPrivateCollection.map) continue;
+        var def = collection.builtinPrivateCollection.map[shapeDefId];
+        if (def) {
+            console.log("Found built-in private shape def", def);
+            console.log(" Owning collection", collection);
+            return def;
+        }
+    }
+    return null;
 };
 CollectionManager.shapeDefinition.locateShortcut = function (shortcutId) {
     return CollectionManager.shapeDefinition.shortcutMap[shortcutId];
@@ -98,7 +110,7 @@ CollectionManager.reloadDeveloperStencil = function (showNotification) {
     this._loadDeveloperStencil();
     ApplicationPane._instance.unbusy();
 
-    Pencil.collectionPane.reloadDeveloperCollections();
+    Pencil.collectionPane.reload();
 
     if (showNotification) NotificationPopup.show("Developer collections were reloaded.");
 };
@@ -136,16 +148,67 @@ CollectionManager._loadDeveloperStencil = function () {
 		if (!dirPath || dirPath == "none" || dirPath == "null") {
 			Config.set("dev.stencil.dir", "none");
 		} else {
-
-			if (!fs.existsSync(dirPath)) return;
-
-			CollectionManager._loadUserDefinedStencilsIn(dirPath, null, "isSystem", "isDeveloperStencil");
+            var dirPaths = dirPath.split(/;/);
+            dirPaths.forEach(function (p) {
+                if (!fs.existsSync(p)) return;
+    			CollectionManager._loadUserDefinedStencilsIn(p, null, "isSystem", "isDeveloperStencil");
+            });
 		}
 	} catch (e) {
         Console.dumpError(e);
         // Util.error("Failed to load developer stencil", ex.message + "\n" + definitionFile.path, Util.getMessage("button.cancel.close"));
 	}
+    
+    CollectionManager._addActiveBuilderCollection();    
 };
+CollectionManager._addActiveBuilderCollection = function () {
+    CollectionManager._builderCollection = null;
+    if (!StencilCollectionBuilder.activeCollectionInfo) return;
+    
+    try {
+        var collection = new ShapeDefCollectionParser().parseURL(path.join(StencilCollectionBuilder.activeCollectionInfo.dir, "Definition.xml"));
+        collection.installDirPath = StencilCollectionBuilder.activeCollectionInfo.dir;
+        collection.developerStencil = true;
+        collection.builderStencil = true;
+        CollectionManager.addShapeDefCollection(collection);
+        //CollectionManager.installCollectionFonts(collection);
+        CollectionManager._builderCollection = collection;
+    } catch (e) {
+        console.error(e);
+    }
+};
+CollectionManager.reloadActiveBuilderCollection = function () {
+    ApplicationPane._instance.busy();
+
+    var collections = [];
+    for (var collection of CollectionManager.shapeDefinition.collections) {
+        if (collection.builderStencil) {
+            for (var item in collection.shapeDefs) {
+                var shapeDef = collection.shapeDefs[item];
+                if (shapeDef.constructor == Shortcut) {
+                    delete CollectionManager.shapeDefinition.shortcutMap[shapeDef.id];
+                } else {
+                    delete CollectionManager.shapeDefinition.shapeDefMap[shapeDef.id];
+                }
+            }
+            continue;
+        }
+        collections.push(collection);
+    }
+
+    CollectionManager.shapeDefinition.collections = collections;
+    CollectionManager._addActiveBuilderCollection();
+    ApplicationPane._instance.unbusy();
+
+    Pencil.collectionPane.reload();
+
+    return CollectionManager._builderCollection;
+
+};
+CollectionManager.getActiveBuilderCollection = function () {
+    return CollectionManager._builderCollection;
+};
+
 CollectionManager._loadStencil = function (dir, parser, isSystem, isDeveloperStencil) {
 
     var definitionFile = CollectionManager.findDefinitionFile(dir);
@@ -202,21 +265,24 @@ CollectionManager.loadStencils = function(showNotification) {
 
     //load all system stencils
     var parser = new ShapeDefCollectionParser();
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Common/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/BasicWebElements/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Gtk.GUI/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/SketchyGUI/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/WindowsXP-GUI/Definition.xml"));
 
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/CommonShapes_Flowchart/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Android.GUI/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/iOS.GUI/Definition.xml"));
-    CollectionManager.addShapeDefCollection(parser.parseURL("stencils/iOS-Wireframe/Definition.xml"));
-    // CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Windows7/Definition.xml"));
-	CollectionManager.addShapeDefCollection(parser.parseURL("stencils/Prototype_GUI/Definition.xml"));
+    debug("Start loading built-in stencil collections:");
+    CollectionManager._loadStencil(getStaticFilePath("stencils/Common"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/BasicWebElements"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/Gtk.GUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/SketchyGUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/WindowsXP-GUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/CommonShapes_Flowchart"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/Android.GUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/iOS.GUI"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/iOS-Wireframe"), parser, true, false);
+    CollectionManager._loadStencil(getStaticFilePath("stencils/Prototype_GUI"), parser, true, false);
+
+    debug("Start loading installed stencil collections:");
     CollectionManager._loadUserDefinedStencilsIn(Config.getDataFilePath(Config.STENCILS_DIR_NAME));
 
 
+    debug("Start loading developer stencil collections:");
     CollectionManager._loadDeveloperStencil();
 
     var config = Config.get("Collection.collectionPosition");
@@ -227,6 +293,8 @@ CollectionManager.loadStencils = function(showNotification) {
         var indexB = collectionOrder.indexOf(b.id);
         return indexA - indexB;
     });
+
+    debug("Finished loading collections, showing collection pane...");
 
     CollectionManager.reloadCollectionPane();
 

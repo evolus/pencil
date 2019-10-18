@@ -107,12 +107,14 @@
 </xsl:variable>
 <xsl:variable name="imageWidth" select="$blockWidth" />
 <xsl:variable name="imageHeight" select="$blockHeight - $pageNameHeight - $calculatedPageNotePadding" />
+<xsl:variable name="bitmapScale" select="/p:Document/p:Properties/p:Property[@name='bitmapScale']/text()" />
 
 <xsl:key name="pageById" match="p:Page" use="@id"/>
 
     <xsl:template match="/">
         <html>
             <head>
+                <meta charset="utf-8" />
                 <title>
                     <xsl:value-of select="/p:Document/p:Properties/p:Property[@name='friendlyName']/text()"/> - <xsl:value-of select="$blockWidth" /> x <xsl:value-of select="$blockHeight" />
                 </title>
@@ -154,8 +156,9 @@
                                 border: solid 0.1mm #333;
                             </xsl:if>
                         }
-                        body > .Page > .SVGContainerInner {
+                        body > .Page .SVGContainerInner {
                             overflow: hidden;
+                            position: relative;
                         }
                         body > .Page > .SVGContainer > .Notes {
                             width: <xsl:value-of select="$imageWidth - 1"/>mm;
@@ -254,20 +257,29 @@
                                     <xsl:apply-templates select="p:Content/*" mode="copy" />
                                 </g>
                             </svg>
+                            <div>
+                                <xsl:apply-templates select="p:Links/p:Link">
+                                    <xsl:with-param name="width" select="p:Properties/p:Property[@name='width']/text()" />
+                                    <xsl:with-param name="height" select="p:Properties/p:Property[@name='height']/text()" />
+                                </xsl:apply-templates>
+                            </div>
                         </xsl:when>
                         <xsl:otherwise>
-                            <div>
+                            <div style="position: relative;">
                                 <xsl:call-template name="calculateImageSize">
                                     <xsl:with-param name="width" select="p:Properties/p:Property[@name='width']/text()" />
                                     <xsl:with-param name="height" select="p:Properties/p:Property[@name='height']/text()" />
                                 </xsl:call-template>
                                 <img src="{@rasterized}"
                                     style="width: 100%; height: 100%;"
-                                    usemap="#map_{p:Properties/p:Property[@name='fid']/text()}"/>
+                                    usemapx="#map_{p:Properties/p:Property[@name='fid']/text()}"/>
+                                <div>
+                                    <xsl:apply-templates select="p:Links/p:Link">
+                                        <xsl:with-param name="width" select="p:Properties/p:Property[@name='width']/text()" />
+                                        <xsl:with-param name="height" select="p:Properties/p:Property[@name='height']/text()" />
+                                    </xsl:apply-templates>
+                                </div>
                             </div>
-                            <map name="map_{p:Properties/p:Property[@name='fid']/text()}">
-                                <xsl:apply-templates select="p:Links/p:Link" />
-                            </map>
                         </xsl:otherwise>
                     </xsl:choose>
                 </div>
@@ -354,8 +366,16 @@
         <xsl:copy-of select="."/>
     </xsl:template>
     <xsl:template match="p:Link">
-        <area shape="rect"
-            coords="{@x},{@y},{@x+@w},{@y+@h}" href="#{@targetFid}_page" title="Go to page '{@targetName}'"/>
+        <xsl:param name="width" />
+        <xsl:param name="height" />
+        <xsl:variable name="scaleFactor">
+            <xsl:choose>
+                <xsl:when test="($height div $imageHeight) > ($width div $imageWidth)"><xsl:value-of select="$height div $imageHeight * $bitmapScale" /></xsl:when>
+                <xsl:otherwise><xsl:value-of select="$width div $imageWidth * $bitmapScale" /></xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+
+        <a title="Go to '{@targetName}'" style="overflow: hidden; position: absolute; display: block; top: {@y div $scaleFactor}mm; left: {@x div $scaleFactor}mm; width: {@w div $scaleFactor}mm; height: {@h div $scaleFactor}mm;" href="#{@targetFid}_page"></a>
     </xsl:template>
     <xsl:template match="html:*" mode="processing-notes">
         <xsl:copy>

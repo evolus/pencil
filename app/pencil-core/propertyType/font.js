@@ -4,36 +4,49 @@ function Font() {
     this.weight = "normal";
     this.size = "12px";
     this.decor = "none";
+    this.lineHeight = 0;
 }
 Font.REG_EX = /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([0-9]+[a-z]+)$/i;
 Font.REG_EX_2 = /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([0-9]+[a-z]+)\|([^\|]+)$/i;
+Font.REG_EX_3 = /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([0-9]+[a-z]+)\|([^\|]+)\|([0-9\.]+)$/i;
 Font.fromString = function (literal) {
     var font = new Font();
+    font.decor = "none";
+    font.lineHeight = 0;
     if (literal.match(Font.REG_EX)) {
         font.family = RegExp.$1;
         font.weight = RegExp.$2;
         font.style = RegExp.$3;
         font.size = RegExp.$4;
-        font.decor = "none";
     } else if (literal.match(Font.REG_EX_2)) {
         font.family = RegExp.$1;
         font.weight = RegExp.$2;
         font.style = RegExp.$3;
         font.size = RegExp.$4;
         font.decor = RegExp.$5;
+    } else if (literal.match(Font.REG_EX_3)) {
+        font.family = RegExp.$1;
+        font.weight = RegExp.$2;
+        font.style = RegExp.$3;
+        font.size = RegExp.$4;
+        font.decor = RegExp.$5;
+        font.lineHeight = parseFloat(RegExp.$6);
     }
     return font;
 };
 Font.prototype.getPixelHeight = function() {
-    if (this.size.match(/^([0-9]+)px$/)) {
+    return Font.parsePixelHeight(this.size);
+};
+Font.parsePixelHeight = function (size) {
+    if (size.match(/^([0-9]+)px$/)) {
         return parseInt(RegExp.$1, 10);
-    } else return parseInt(this.size, 10);
+    } else return parseInt(size, 10);
 };
 Font.prototype.isUnderlined = function () {
     return this.decor == "underline";
 };
 Font.prototype.toString = function () {
-    return [this.family, this.weight, this.style, this.size, this.decor].join('|');
+    return [this.family, this.weight, this.style, this.size, this.decor, this.lineHeight].join('|');
 };
 Font.prototype.toCSSFontString = function () {
     return [this.weight, this.style, this.size, this.family].join(" ");

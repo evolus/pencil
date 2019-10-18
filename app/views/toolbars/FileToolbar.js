@@ -94,10 +94,22 @@ FileToolbar.prototype.registerCommands = function () {
     });
 
     UICommandManager.register({
+        key: "copyPageBitmapCommand",
+        label: "Copy Page Bitmap",
+        isValid: function () { return true; },
+        run: function () {
+            Pencil.controller.copyPageBitmap(Pencil.controller.activePage);
+        },
+        shortcut: "Ctrl+Shift+C"
+    });
+
+    UICommandManager.register({
         key: "exportSelectionAsPNGButton",
         label: "Export selection as PNG...",
-        run: function () {
-            Pencil.controller.rasterizeSelection();
+        run: function (event) {
+            Pencil.controller.rasterizeSelection({
+                target: event.shiftKey ? "clipboard" : "file"
+            });
         },
         shortcut: "Ctrl+Alt+E"
     });

@@ -1,6 +1,12 @@
 html {
 }
+
 body {
+    text-rendering: optimizeLegibility !important;
+    font-weight: normal;
+}
+strong {
+    font-weight: 600;
 }
 /* MATERIAL */
 button {

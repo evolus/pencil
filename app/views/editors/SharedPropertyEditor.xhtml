@@ -14,20 +14,64 @@
         @propertyContainer > .Group + .Group {
             margin-top: 2em;
         }
-        @propertyContainer > .Group > .Wrapper {
-            align-items: center;
+        @propertyContainer > .Group {
             padding-left: 1em;
         }
+        @propertyContainer > .Group > .Wrapper {
+            align-items: center;
+            padding: 1ex 0em;
+        }
+        
+        @propertyContainer > .Group > .Wrapper.Type_ShadowStyle {
+            flex-direction: column;
+            align-items: stretch;
+            
+            & > .Label {
+                flex: 0;
+                margin-bottom: 0.2ex;
+                
+                & + * {
+                    align-self: flex-end;
+                }
+            }
+        }
+        
+        @propertyContainer > .Group > .Wrapper .widget_ShadowStyleEditor {
+            & input {
+                padding-right: 0px;
+                width: 5.5ex;
+            }
+            &  > vbox + vbox > input {
+                border-top-left-radius: 0px;
+                border-bottom-left-radius: 0px;
+                border-left: none;
+            }
+            
+            & > vbox:not(:last-child) > input {
+                border-top-right-radius: 0px;
+                border-bottom-right-radius: 0px;
+            }
+            & > vbox:last-child > label {
+                visibility: hidden;
+                width: 1ex;
+                overflow: hidden;
+            }
+        }
+        
         @propertyContainer > .Group > .Label + .Wrapper {
             margin-top: 0.5em;
         }
+        @propertyContainer > .Group > .Wrapper:not(:last-child) {
+            border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+        }
         @propertyContainer > .Group > .Wrapper + .Wrapper {
-            padding-top: 0.5ex;
+            border-top: solid 1px rgba(255, 255, 255, 0.4);
         }
         @propertyContainer > .Group > div.Label.Group {
             font-weight: bold;
-            color: darken(@app_bg, 50%);
+            margin-left: -1em;
             text-shadow: 1px 1px 0px lighten(@app_bg, 20%);
+            text-transform: uppercase;
         }
         @propertyContainer > .Group > .Wrapper > div.Label {
             white-space: nowrap;
@@ -50,16 +94,27 @@
         }
         @propertyContainer button {
             min-width: 1.8em;
-        }
-        @propertyContainer button > i {
-            font-size: 1.4em;
-            line-height: 1.286em;
+            
+            & > i {
+                font-size: 1.4em;
+                line-height: 1.286em;
+            }
+            &[checked="true"] {
+                color: darken(@primary_color, 20%);
+            }
         }
 
         @propertyContainer input[type='text'],
         @propertyContainer input[type='number'] {
             border: solid 1px rgba(0, 0, 0, 0.2);
             padding: 0em 0.2em;
+        }
+        
+        @propertyContainer .widget_ShadowStyleEditor vbox {
+            flex: 1 1 5ex;
+        }
+        @propertyContainer .widget_ShadowStyleEditor vbox input {
+            min-width: 3ex; 
         }
 
         @noTargetMessagePane {
@@ -71,17 +126,20 @@
             justify-content: center;
             padding: 2em;
         }
-        @propertyContainer .DefaultButton {
-            min-width: 10em;
-            margin-top: 3em;
-            padding-left: 1em;
-            padding-right: 1em;
-            height: 2.4em;
-            vertical-align: middle;;
-            align-items: center;
-            font-weight: bold;
-            line-height: 2.4
+        @propertyContainer .FooterActions {
+            margin-top: 2em;
+            border-top: solid 2px rgba(0, 0, 0, 0.05);
+            & .DefaultButton {
+                margin-top: 0.5em;
+                padding-left: 1em;
+                padding-right: 1em;
+                height: 2em;
+                vertical-align: middle;;
+                align-items: center;
+                line-height: 2em
+            }
         }
+        
         @propertyContainer .SymbolNameContainer {
             margin-top: 1em;
             border-top: solid 1px rgba(0, 0, 0, 0.2);

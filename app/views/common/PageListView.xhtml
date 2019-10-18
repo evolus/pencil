@@ -14,6 +14,11 @@
             min-height: 2.8em;
         }
 
+        body[compact-layout='true'] @header,
+        body[compact-layout='true'] @filterContainer {
+            min-height: 1.8em;
+        }
+
         @filterContainer {
             padding: 3px;
         }
@@ -52,6 +57,12 @@
             height: 6em;
             align-items: center;
         }
+        
+        body[compact-layout='true'] @pageListContainer {
+            padding: 0.5em;
+        }
+
+        
         @pageListContainer > .widget_PageThumbnailView + .widget_PageThumbnailView {
             margin-left: 1em;
         }
@@ -84,6 +95,13 @@
             cursor: default;
             min-height: 1.8em;
         }
+
+        body[compact-layout='true'] @pageBreadcrumb,
+        body[compact-layout='true'] @childPageContainer,
+        body[compact-layout='true'] @nameTextBoxContainer {
+            min-height: 1.2em;
+        }
+
         @childPageSrollView {
             background: #FFF;
             border: solid 1px darken(@app_bg, 15%);
@@ -100,6 +118,14 @@
             line-height: 1.6em;
             position: relative;
         }
+
+        body[compact-layout='true'] @pageBreadcrumb > hbox,
+        body[compact-layout='true'] @childPageContainer > hbox,
+        body[compact-layout='true'] @nameTextBoxContainer > hbox {
+            line-height: 1.2em;
+            font-size: 0.9em;
+        }
+
         @childPageContainer > hbox {
             background: #F7F7F7;
         }

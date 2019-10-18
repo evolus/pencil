@@ -25,6 +25,7 @@ EpzHandler.prototype.loadDocument = function(filePath) {
     });
 };
 
+/*
 EpzHandler.prototype.saveDocument = function (documentPath, callback) {
     var thiz = this;
 
@@ -50,3 +51,4 @@ EpzHandler.prototype.saveDocument = function (documentPath, callback) {
         });
     });
 };
+*/

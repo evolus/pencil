@@ -163,7 +163,7 @@ Group.calculateLayout = function (ePos0, eSize0, gSize0, posPolicy, sizePolicy, 
 	var layout = {};
 
 	if (sizePolicy == "relative") {
-		layout.size = eSize0 * size / gSize0;
+		layout.size = Math.round(eSize0 * size / gSize0);
 	} else if (sizePolicy == "start-end") {
 		var d = gSize0 - ePos0 - eSize0;
 		layout.size = size - d - ePos0;
@@ -174,9 +174,9 @@ Group.calculateLayout = function (ePos0, eSize0, gSize0, posPolicy, sizePolicy, 
 	if (posPolicy == "start") {
 		layout.pos = ePos0;
 	} else if (posPolicy == "middle") {
-		layout.pos = (size - layout.size) / 2;
+		layout.pos = Math.round((size - layout.size) / 2);
 	} else if (posPolicy == "relative") {
-		layout.pos = ePos0 * size / gSize0;
+		layout.pos = Math.round(ePos0 * size / gSize0);
 	} else {
 		var d = gSize0 - ePos0 - eSize0;
 		layout.pos = size - d - layout.size;
@@ -496,6 +496,13 @@ Group.prototype.processNewGroup = function () {
         Util.setCustomProperty(target.svg, "sizing-oh", targetGeo.dim.h);
     }
 };
+Group.prototype.validateAll = function () {
+    for (t in this.targets) {
+        var target = this.targets[t];
+        target.validateAll();
+    }
+};
+
 
 Group.getSizingPolicy = function (target) {
 	return {

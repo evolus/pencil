@@ -76,6 +76,64 @@
         @selectorPane .Item {
             color: rgba(0, 0, 0, 0.5);
             transition: background 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.9999;
+        }
+        @selectorPane .Item::after {
+            
+        }
+        @selectorPane .Item:not(.TypeSystem) {
+            border-left: solid 2px rgba(33, 66, 99, 1);
+        }
+        @selectorPane .Item.TypeBuilder {
+            border-left: solid 2px red;
+        }
+        @selectorPane .Item.TypeDeveloper::after {
+            @iconify();
+            content: "build";
+
+            position: absolute;
+            opacity: 0.3;
+            transition: opacity 0.2s ease;
+            
+            padding: 0.2em;
+            background: #F00;
+            color: #FFF;
+            border-radius: 50%;
+            font-size: 0.7em;
+            bottom: 0.3em;
+            right: 0.3em;
+        }
+        @selectorPane .Item:hover::after {
+            opacity: 1;
+        }
+
+        @selectorPane .Item:not(.WithPreview) > .Preview {
+            display: none;
+        }
+        @selectorPane .Item > .Preview {
+            position: absolute;
+            z-index: -1;
+            top: 0.5em;
+            left: 0.5em;
+            right: 0.5em;
+            bottom: 0.5em;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        @selectorPane .Item.WithPreview {
+            min-height: 5em;
+        }
+        @selectorPane .Item.WithPreview .ItemInner i {
+            display: none;
+        }
+        @selectorPane .Item > .Preview img {
+            width: 100%;
+        }
+        @selectorPane .Item:not([active='true']) > .Preview {
+            opacity: 0.5;
         }
         @selectorPane .Item > .ItemInner {
             text-align: center;
@@ -108,6 +166,10 @@
             margin-top: 1ex;
             font-size: 0.9em;
         }
+        @selectorPane .Item.WithPreview span {
+            display: none;
+        }
+        
         @selectorPane .Item + .Item {
             border-top: solid 2px rgba(0, 0, 0, 0.05);
         }
@@ -261,12 +323,26 @@
         @searchButton {
             margin-left: 0.5em;
         }
+        @collectionLayoutContainer *[draggable] {
+            transition: all 0.5s ease;
+            background-color: transparent;
+            opacity: 0;
+        }
         @collectionLayoutContainer *[draggable]:hover {
             outline: dashed 1px rgba(33, 66, 99, 0.4);
+            cursor: pointer;
         }
         @collectionLayoutContainer *[draggable][matched='true'] {
             outline: solid 1px rgba(255, 0, 0, 0.6);
             outline-offset: 3px;
+        }
+        @collectionLayoutContainer:hover *[draggable] {
+            background-color: @app_bg;
+            opacity: 0.3;
+        }
+        @collectionLayoutContainer:hover *[draggable]:hover {
+            background: transparent;
+            opacity: 1;
         }
     </style>
     <hbox anon-id="filter">

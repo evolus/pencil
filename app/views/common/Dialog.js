@@ -39,6 +39,7 @@ Dialog.prototype.buildDOMNode = function () {
     //please note that the binding will be done for both templates
     var contentNode = this.buildContentNode();
     this.dialogBody.appendChild(contentNode);
+    this.dialogContentNode = contentNode;
 
     return node;
 };
@@ -160,17 +161,7 @@ Dialog.prototype.show = function () {
 
     var thiz = this;
     setTimeout(function () {
-        var screenW = window.innerWidth;
-        var screenH = window.innerHeight - 20;
-
-        var w = thiz.dialogFrame.offsetWidth;
-        var h = thiz.dialogFrame.offsetHeight;
-
-        var x = (screenW - w) / 2;
-        var y = (screenH - h) / 2;
-
-        thiz.moveTo(x, y);
-
+        thiz.invalidatePosition();
         thiz.dialogFrame.style.visibility = "visible";
         thiz.dialogFrame.style.opacity = "1";
 
@@ -180,6 +171,31 @@ Dialog.prototype.show = function () {
     }, 100);
 
     BaseWidget.registerClosable(this);
+};
+Dialog.prototype.invalidatePosition = function () {
+    var screenW = window.innerWidth - (this.widthMargin || 20);
+    var screenH = window.innerHeight - (this.heightMargin || 20);
+
+    var w = this.dialogFrame.offsetWidth;
+    var h = this.dialogFrame.offsetHeight;
+    
+    if (this.grabHeight || h > screenH) {
+        h = screenH;
+        this.dialogFrame.style.height = h + "px";
+        this.dialogContentNode.setAttribute("flex", "1");
+    } else {
+        this.dialogContentNode.removeAttribute("flex");
+    }
+    
+    if (this.grabWidth) {
+        w = screenW;
+        this.dialogFrame.style.width = w + "px";
+    }
+    
+    var x = (window.innerWidth - w) / 2;
+    var y = (window.innerHeight - h) / 2;
+
+    this.moveTo(x, y);
 };
 Dialog.prototype.moveTo = function (x, y) {
     this.dialogFrame.style.left = x + "px";
@@ -535,7 +551,6 @@ Dialog.select = function (items, callback, selectedItems, options) {
             }
 
             var div = document.createElement("div");
-            div.style.textAlign = "center";
             this.inputs = [];
             for (var i = 0; i < items.length; i ++) {
                 var id = "cb_" + widget.random();
@@ -588,4 +603,14 @@ Dialog.select = function (items, callback, selectedItems, options) {
         ]
     };
     new BuilderBasedDialog(builder).open();
+};
+Dialog.selectDir = function (title, defaultPath, callback) {
+    dialog.showOpenDialog(remote.getCurrentWindow(), {
+        title: title,
+        defaultPath: defaultPath || (path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), "")),
+        properties: ["openDirectory"]
+    }, function (dirPath) {
+        if (!dirPath) return;
+        callback(dirPath)
+    });
 };

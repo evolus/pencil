@@ -234,12 +234,24 @@ UICommandManager.checkAndRunFunction = function (event) {
 UICommandManager.isValidFunction = function (event) {
     return UICommandManager.isApplicable(this, UICommandManager.currentFocusedElement) && (!this._isValid || this._isValid());
 };
+UICommandManager.shouldBeHandled = function (event) {
+    // Don't handle the key press when
+    return !(
+        // There is an open dialog
+        Dialog.hasOpenDialog()
+        // There is an open popup
+        || Popup.hasShowPopup()
+        // We are typing in a text input
+        || (UICommandManager.currentFocusedElement instanceof HTMLInputElement && UICommandManager.currentFocusedElement.type == 'text')
+        || UICommandManager.currentFocusedElement instanceof HTMLTextAreaElement
+    );
+};
 UICommandManager.handleKeyEvent = function (event) {
     if ((IS_MAC ? event.metaKey : event.ctrlKey) && event.altKey && event.shiftKey && event.keyCode == 80) {
         Pencil.app.mainWindow.openDevTools();
     }
 
-    if (Dialog.hasOpenDialog() || Popup.hasShowPopup()) return;
+    if (!UICommandManager.shouldBeHandled(event)) return;
 
     for (var i = 0; i < UICommandManager.commands.length; i ++) {
         var command = UICommandManager.commands[i];

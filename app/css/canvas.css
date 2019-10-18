@@ -148,3 +148,42 @@ window[p|hide-heavy='true'] *[pencil-canvas='true'] svg|*[p|filter] {
 *[is-dragover='true'] > .DragOverlay {
     display: block;
 }
+
+*[pencil-canvas='true'] > .CanvasResizer {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 1em;
+    height: 1em;
+    background-image: url(images/resizer.png);
+    background-repeat: no-repeat;
+    background-position: right bottom;
+    background-size: 1em;
+    background-origin: padding-box;
+    border: none;
+    outline: none;
+    display: block;
+    padding: 1px;
+
+    visibility: hidden;
+    overflow: visible;
+}
+
+*[pencil-canvas='true'][resizing='true'] > .CanvasResizer {
+    visibility: visible;
+}
+*[pencil-canvas='true'][resizing='true'] {
+    cursor: nwse-resize;
+}
+*[pencil-canvas='true'][resizing='true'] > .CanvasResizer > span {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+    background: #333;
+    color: #FFF;
+    opacity: 0.5;
+    padding: 0.2em;
+    line-height: 1em;
+    border-radius: 0.3ex;
+    white-space: nowrap;
+}

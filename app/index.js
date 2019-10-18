@@ -7,12 +7,18 @@ const path     = require("path");
 
 app.commandLine.appendSwitch("allow-file-access-from-files");
 app.commandLine.appendSwitch("allow-file-access");
+app.commandLine.appendSwitch("disable-smooth-scrolling");
+app.commandLine.appendSwitch("disable-site-isolation-trials");
 
 // Disable hardware acceleration by default for Linux
 // TODO: implement a setting for this one and requires a restart after changing that value
 if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAcceleration) {
-    console.log("Hardware acceleration disabled for Linux.");
-    app.disableHardwareAcceleration();
+    if (process.argv.indexOf("--with-hwa") < 0) {
+        console.log("Hardware acceleration disabled for Linux.");
+        app.disableHardwareAcceleration();
+    } else {
+        console.log("Hardware acceleration forcibly enabled.");
+    }
 }
 
 global.sharedObject = { appArguments: process.argv };
@@ -31,7 +37,8 @@ function createWindow() {
           webSecurity: false,
           allowRunningInsecureContent: true,
           allowDisplayingInsecureContent: true,
-          defaultEncoding: "UTF-8"
+          defaultEncoding: "UTF-8",
+          nodeIntegration: true
         },
     };
 
@@ -120,6 +127,9 @@ app.on('ready', function() {
 
     const webPrinter = require("./pencil-core/common/webPrinter");
     webPrinter.start();
+
+    const globalShortcutMainService = require("./tools/global-shortcut-main.js");
+    globalShortcutMainService.start();
 });
 app.on("activate", function() {
     // On OS X it's common to re-create a window in the app when the
@@ -129,6 +139,10 @@ app.on("activate", function() {
     } else {
         app.show();
     }
+});
+
+app.on("will-quit", function () {
+  require("electron").globalShortcut.unregisterAll()
 });
 
 process.on('uncaughtException', function (error) {

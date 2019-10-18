@@ -58,6 +58,26 @@
         @resourceTab .Set > hbox > * + * {
             margin-left: 0.3ex;
         }
+        @scriptInput {
+            width: 100%;
+            height: 100%;
+        }
+        .CodeMirror {
+            font-family: "Liberation Mono", monospace;
+            font-size: 0.9em;
+            border: solid 1px #999;
+            line-height: 1.1em;
+            height: 100%;
+        }
+        @scriptInputContainer {
+            height: 25em;
+        }
+
+        @scriptTab[large="true"] @scriptInputContainer {
+            height: 50em;
+            width: 80em;
+        }
+
     </style>
     <hbox flex="1">
         <ui:TabPane anon-id="settingTabPane">
@@ -84,11 +104,18 @@
                     <label for="urlInput">URL:</label>
                     <input type="text" anon-id="urlInput" flex="1" />
                 </hbox>
+                <hbox class="Entry">
+                    <label for="versionInput">Version:</label>
+                    <input type="text" anon-id="versionInput" />
+                </hbox>
             </vbox>
             <vbox anon-id="scriptTab" flex="1" tab-title="Scripts">
                 <vbox class="Entry" flex="1">
-                    <label>Additional collection script:</label>
-                    <textarea anon-id="scriptInput" flex="1"/>
+                    <hbox>
+                        <label flex="1">Additional collection script:</label>
+                        <hbox class="Entry"><input type="checkbox" anon-id="largeScriptViewCheckbox" /><label for="largeScriptViewCheckbox">Large view</label></hbox>
+                    </hbox>
+                    <div flex="1" anon-id="scriptInputContainer"><textarea anon-id="scriptInput" flex="1"/></div>
                 </vbox>
             </vbox>
             <vbox anon-id="resourceTab" flex="1" tab-title="Fonts &amp; Resources">

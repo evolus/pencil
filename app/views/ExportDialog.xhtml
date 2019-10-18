@@ -53,12 +53,16 @@
             width: 9em;
             margin-left: 0.8em;
         }
+        @optionEditorPane input[type="text"],
         @optionEditorPane button {
             height: 1.65em;
             line-height: 1.65em;
         }
         @optionPane.ForcedExporter > @exporterLabel,
         @optionPane.ForcedExporter > @exporterCombo {
+            display: none;
+        }
+        @optionPane:not(.LinkingSupported) @copyBgLinksBox {
             display: none;
         }
         @copyBgLinksBox {
@@ -79,10 +83,6 @@
         <ui:ComboManager anon-id="exporterCombo" />
         <label>Template:</label>
         <ui:ComboManager anon-id="templateCombo" />
-        <hbox class="InputRow" anon-id="copyBgLinksBox" flex="1">
-            <input type="checkBox" anon-id="copyBgLinks" checked="true"/>
-            <label for="copyBgLinks">Copy links from background pages</label>
-        </hbox>
         <hbox anon-id="warningBox">
             <i>warning</i>
             <div flex="1" anon-id="warningContent"></div>

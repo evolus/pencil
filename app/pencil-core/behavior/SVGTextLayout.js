@@ -7,6 +7,7 @@ function SVGHTMLRenderer() {
         fontStyle: "normal",
         textDecoration: "none",
         textTransform: "none",
+        lineHeight: 0,
         color: null,
         backgroundColor: null
     };
@@ -132,7 +133,6 @@ SVGHTMLRenderer.LIST_HANDLER = function (node, view) {
     var parentComputedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
     var marginTop  = parseFloat(parentComputedStyle.marginTop);
     var marginBottom  = parseFloat(parentComputedStyle.marginBottom);
-    console.log("marginTop, marginBottom", marginTop, marginBottom);
     var layouts = [new BlankLayout(view.x, view.y, marginTop, marginTop)];
 
     var itemIndex = 0;
@@ -408,14 +408,28 @@ SVGTextLayout.prototype.add = function (text, styles, respectNewlinesAndSpaces) 
 
     if (!this.currentRow) this.newLine();
 
+    var lineHeightFactor = 0;
+    var fontSize = 10;
+
+    var lineHeightValue = this.defaultStyle.lineHeight;
+    if (lineHeightValue) {
+        lineHeightFactor = parseFloat(lineHeightValue);
+    }
+
     for (var styleName in this.defaultStyle) {
         var value = styles[styleName] || this.defaultStyle[styleName];
         if (value != null) {
             SVGTextLayout.tspan.style[styleName] = value;
+            if (styleName == "fontSize") {
+                fontSize = Font.parsePixelHeight(value);
+            }
         } else {
             delete SVGTextLayout.tspan.style[styleName];
         }
     }
+
+    var lineHeight = fontSize * lineHeightFactor;
+
     // this.tspan.style.fontFamily = "";
     // this.tspan.style.fontFamily = styles.fontFamily || this.defaultStyle.fontFamily;
 
@@ -458,7 +472,7 @@ SVGTextLayout.prototype.add = function (text, styles, respectNewlinesAndSpaces) 
 
             //commit the segment
             if (originalS.length > 0) {
-                this._appendSegment(originalS, styles, previousBBox || box);
+                this._appendSegment(originalS, styles, previousBBox || box, lineHeight);
             }
 
             s = "";
@@ -466,7 +480,7 @@ SVGTextLayout.prototype.add = function (text, styles, respectNewlinesAndSpaces) 
         }
 
         if (s.length > 0) {
-            this._appendSegment(s, styles, box);
+            this._appendSegment(s, styles, box, lineHeight);
         }
     }
 };
@@ -477,14 +491,20 @@ Object.defineProperty(SVGTextLayout.prototype, "height", {
         return last.y + last.height;
     }
 });
-SVGTextLayout.prototype._appendSegment = function (text, styles, bbox) {
+SVGTextLayout.prototype._appendSegment = function (text, styles, bbox, adjustedLineHeight) {
+    var h = bbox.height;
+    var dy = bbox.y;
+    if (adjustedLineHeight > 0) {
+        dy -= (adjustedLineHeight - h) / 2;
+        h = adjustedLineHeight;
+    }
     var segment = {
         text: text,
         styles: styles,
         x: this.currentRow.width,
-        dy: bbox.y,
+        dy: dy,
         width: bbox.width,
-        height: bbox.height
+        height: h
     };
 
     this.currentRow.segments.push(segment);

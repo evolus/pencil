@@ -106,31 +106,9 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
 
 
 DocumentHandler.prototype.loadDocumentFromArguments = function (filePath) {
-    var ext = path.extname(filePath);
-    var handler = this.handlerRegistry[ext];
-    if (handler && handler.loadDocument) {
-        var thiz = this;
-        if (!fs.existsSync(filePath)) {
-            callback({
-                error: FileHandler.ERROR_NOT_FOUND,
-                message: "File doesn't exist"
-            });
-
-            return;
-        };
-
-        ApplicationPane._instance.busy();
-
-        handler.loadDocument(filePath)
-            .then(function () {
-                thiz.controller.modified = false;
-                ApplicationPane._instance.unbusy();
-            })
-            .catch(function (err) {
-                thiz.controller.modified = false;
-                ApplicationPane._instance.unbusy();
-            });
-    }
+    console.log("Loading file from argument: " + filePath);
+    this.loadDocument(filePath, function () {
+    });
 }
 
 DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
@@ -274,7 +252,18 @@ DocumentHandler.prototype.newDocument = function () {
         // thiz.sayDocumentChanged();
         setTimeout(function () {
             var size = thiz.controller.applicationPane.getPreferredCanvasSize();
-            var page = thiz.controller.newPage("Untitled Page", size.w, size.h, null, null, "", null, "activatePage");
+            var options = {
+                name: "Untitled Page",
+                width: size.w,
+                height: size.h,
+                backgroundPageId: null,
+                backgroundColor: null,
+                note: "",
+                parentPageId: null,
+                activateAfterCreate: "activatePage"
+            };
+            
+            var page = thiz.controller.newPage(options);
             thiz.controller.modified = false;
         }, 50);
     };
@@ -300,4 +289,9 @@ DocumentHandler.prototype.resetDocument = function () {
 
     this.controller.applicationPane.pageListView.currentParentPage = null;
     FontLoader.instance.setDocumentRepoDir(path.join(this.tempDir.name, "fonts"));
+    
+    if (StencilCollectionBuilder.activeCollectionInfo) {
+        StencilCollectionBuilder.cleanup();
+        CollectionManager.reloadActiveBuilderCollection();
+    }
 };

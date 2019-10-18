@@ -109,10 +109,30 @@ function ApplicationPane() {
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {
     var thiz = this;
+    this.invalidateUIForConfig();
     this.showStartupPane();
     // window.setTimeout(function () {
-    //     thiz.controller.newDocument();
+    //     Pencil.documentHandler.newDocument();
+    //     console.log("starting image editor...");
+    //     ImageData.fromExternalToImageData("/home/dgthanhan/Pictures/pencil-mac-dragto.png", function (imageData) {
+    //         console.log("image data", imageData);
+    //         var dialog = new ImageEditorDialog();
+    //         dialog.open({
+    //             imageData: imageData,
+    //             onDone: function (newImageData) {
+    //                 console.log("Updated data:", newImageData);
+    //             }
+    //         });
+    //     });
     // }, 100);
+    
+    
+};
+ApplicationPane.prototype.invalidateUIForConfig = function () {
+    debug("BOOT: invalidating UI using configuration");
+    var useCompactLayout = Config.get("view.useCompactLayout", false);
+    document.body.setAttribute("compact-layout", useCompactLayout);
+    this.toolBarSrollView.invalidate();
 };
 ApplicationPane.prototype.invalidateUIForControllerStatus = function () {
     if (this.controller.doc) {
@@ -151,7 +171,21 @@ ApplicationPane.prototype.createCanvas = function () {
 
     var stencilToolbar = new StencilShapeCanvasToolbar().into(wrapper);
 
-    var canvas = new Canvas(container);
+    var canvas = null;
+    
+    
+    scrollPane.addEventListener("mousedown", function (e) {
+        scrollPane._mouseDownAt = e.timeStamp;
+    });
+    
+    scrollPane.addEventListener("mouseup", function (e) {
+        if (!scrollPane._mouseDownAt || (e.timeStamp - scrollPane._mouseDownAt) > 150) return;
+        if (!Dom.findParentWithClass(e.target, "CanvasWrapper")) {
+            if (!canvas.isSelectingRange) canvas.selectNone();
+        }
+    });
+    
+    canvas = new Canvas(container, null, scrollPane);
 
     this.getCanvasContainer().appendChild(scrollPane);
     wrapper._canvas = canvas;
@@ -191,7 +225,17 @@ ApplicationPane.prototype.activatePage = function (page) {
 }
 ApplicationPane.prototype.testSave = function () {
     this.documentHandler.newDocument();
-    var page = this.controller.newPage("Sample page", 1000, 1000, null, null, "");
+    var options = {
+        name: "Sample page",
+        width: 1000,
+        height: 1000,
+        backgroundPageId: null,
+        backgroundColor: null,
+        note: "",
+        parentPageId: null,
+        activateAfterCreate: false
+    };
+    var page = this.controller.newPage(options);
     page.canvas = Pencil.activeCanvas;
 
     this.controller.serializePage(page, page.tempFilePath);
@@ -213,6 +257,10 @@ ApplicationPane.prototype.setActiveCanvas = function (canvas) {
 
     if (canvas != null) {
         this.startupDocumentView.node().style.display = "none";
+        if (canvas.__dirtyGraphic) {
+            canvas.invalidateAll();
+            canvas.__dirtyGraphic = false;
+        }
         canvas.focus();
     }
 
@@ -225,6 +273,7 @@ ApplicationPane.prototype.invalidateZoom = function () {
     this.zoomToolbar.setAttribute("label", Pencil.activeCanvas ? (Math.round(Pencil.activeCanvas.zoom * 100) + "%") : "100%") ;
 };
 ApplicationPane.prototype.showStartupPane = function () {
+    debug("BOOT: Showing startup pane...");
     Pencil.documentHandler.preDocument = null;
     if (Pencil.controller.activePage) {
         Pencil.controller.activePage.canvas.selectNone();
@@ -234,8 +283,13 @@ ApplicationPane.prototype.showStartupPane = function () {
     this.startupDocumentView.node().style.display = "flex";
 
     this.invalidateUIForControllerStatus();
+    debug("BOOT:   >> Done");
 };
 const NO_CONTENT_VALUE = 22;
+ApplicationPane.prototype.getNoContentValue = function () {
+    var compact = Config.get("view.useCompactLayout", false);
+    return compact ? 0 : NO_CONTENT_VALUE;
+}
 ApplicationPane.prototype.getCanvasToolbarHeight = function () {
     return StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection() ? Math.round(3 * Util.em()) : 0;
 };
@@ -243,21 +297,21 @@ ApplicationPane.prototype.getPreferredCanvasSize = function () {
     var toolbarPadding = this.getCanvasToolbarHeight();
 
     return {
-        w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - NO_CONTENT_VALUE,
-        h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - NO_CONTENT_VALUE - toolbarPadding
+        w: Math.round(this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding()) - this.getNoContentValue(),
+        h: Math.round(this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding()) - this.getNoContentValue() - toolbarPadding
     }
 };
 ApplicationPane.prototype.getBestFitSize = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
     var toolbarPadding = this.getCanvasToolbarHeight();
 
-    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE),
-            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE - toolbarPadding)].join("x");
+    return [zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - this.getNoContentValue()),
+            zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - this.getNoContentValue() - toolbarPadding)].join("x");
 };
 ApplicationPane.prototype.getBestFitSizeObject = function () {
     var zoom = Pencil.activeCanvas ? (1 / Pencil.activeCanvas.zoom) : 1;
     var toolbarPadding = this.getCanvasToolbarHeight();
-    return {width: zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE), height: zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - NO_CONTENT_VALUE - toolbarPadding)};
+    return {width: zoom * (this.contentBody.offsetWidth - 2 * Pencil._getCanvasPadding() - this.getNoContentValue()), height: zoom * (this.contentBody.offsetHeight - 2 * Pencil._getCanvasPadding() - this.getNoContentValue() - toolbarPadding)};
 };
 ApplicationPane.prototype.showBusyIndicator = function () {
     this.currentBusyOverlay = document.createElement("div");

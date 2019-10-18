@@ -2,7 +2,7 @@
   "name": "Pencil",
   "productName": "Pencil",
   "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
-  "version": "3.0.4",
+  "version": "3.1.0",
   "author": {
     "name": "Evolus",
     "url": "http://evolus.vn",
@@ -41,14 +41,15 @@
   ],
   "dependencies": {
     "adm-zip": "^0.4.7",
-    "archive-type": "^3.2.0",
-    "archiver": "^1.3.0",
+    "archive-type": "^4.0.0",
+    "archiver": "^3.0.0",
     "decompress": "^4.0.0",
     "decompress-targz": "^4.0.0",
-    "easy-zip2": "^1.0.0",
-    "electron-log": "^1.3.0",
-    "electron-updater": "^1.4.1",
-    "less": "~2.7.1",
+    "easy-zip2": "^3.0.0",
+    "electron-log": "^2.2.17",
+    "electron-updater": "^3.1.2",
+    "jimp": "^0.6.4",
+    "less": "~3.8.1",
     "lodash": "^4.13.1",
     "md5": "^2.2.1",
     "moment": "^2.13.0",
@@ -57,9 +58,11 @@
     "rimraf": "^2.5.4",
     "tar": "https://github.com/dgthanhan/node-tar/archive/6086b1ea82137c61eea4efe882dd514590e5b7a8.tar.gz",
     "tar-fs": "^1.15.2",
-    "tar.gz": "^1.0.5",
-    "tmp": "0.0.31",
-    "unzip2": "^0.2.5"
+    "tar.gz": "https://github.com/dgthanhan/node-tar.gz/archive/e1a5ee27a620aa1bc1a421a8d797c843609e88eb.tar.gz",
+    "tmp": "0.0.33"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "electron-rebuild": "^1.8.5"
+  }
 }

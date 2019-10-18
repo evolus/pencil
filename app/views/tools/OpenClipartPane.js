@@ -100,8 +100,10 @@ OpenClipartPane.prototype.search = function () {
     this.searchAborted = true;
 
     var thiz = this;
+    this.loader.style.display = "";
     this.backend.search(this.searchInput.value, this.searchOptions, function (result) {
         thiz.renderResult(result);
+        thiz.loader.style.display = "none";
     });
 };
 OpenClipartPane.prototype.renderResult = function (result) {

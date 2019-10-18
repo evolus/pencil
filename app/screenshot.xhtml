@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://evolus.vn/Namespaces/WebUI/1.0">
+    <head>
+        <title>RENDERER</title>
+        <style type="text/css">
+            #selectedAreaPane {
+                background-color: transparent;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                right: 0px;
+                bottom: 0px;
+                
+                box-sizing: border-box;
+                border: solid 1px rgba(0, 0, 0, 0.4);
+                border-width: 50px 300px 200px 200px;
+            }
+            html, body {
+                margin: 0px;
+                padding: 0px;
+                width: 100%;
+                height: 100%;
+                
+                background-repeat: no-repeat;
+                overflow: hidden;
+            }
+            #text { 
+                color: #FFF;
+            }
+        </style>
+        
+        <script type="text/javascript" src="tools/screenshot-renderer.js"></script>
+    </head>
+    <body>
+        <div id="selectedAreaPane">
+        </div>
+    </body>
+</html>

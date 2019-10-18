@@ -1,4 +1,4 @@
-function Canvas(element, options) {
+function Canvas(element, options, containerScrollPane) {
     this.element = element;
     this.oldElement = "";
     this.__delegate("addEventListener", "hasAttribute", "getAttribute", "setAttribute", "setAttributeNS", "removeAttribute", "removeAttributeNS", "dispatchEvent");
@@ -180,7 +180,7 @@ function Canvas(element, options) {
     this.svg.addEventListener("click", function (event) {
         thiz.handleClick(event);
     }, false);
-    this.svg.addEventListener("mousedown", function (event) {
+    (containerScrollPane || this.svg).addEventListener("mousedown", function (event) {
         thiz.movementDisabled = Pencil.controller.movementDisabled || event.ctrlKey;
         // document.commandDispatcher.advanceFocus();
         thiz.focus();
@@ -347,6 +347,26 @@ function Canvas(element, options) {
         this.snappingHelper.rebuildSnappingGuide();
     }.bind(this));
 
+    this.resizer = this.element.ownerDocument.createElement("div");
+    this.element.appendChild(this.resizer);
+    Dom.addClass(this.resizer, "CanvasResizer");
+    this.resizeInfoLabel = this.element.ownerDocument.createElement("span");
+    this.resizer.appendChild(this.resizeInfoLabel);
+
+    this.resizer.addEventListener("mousedown", function (event) {
+        event.preventDefault();
+        if (this.element.hasAttribute("resizing")) {
+            this.resizing = true;
+            this.resizeInfo = {
+                ox: event.clientX,
+                oy: event.clientY,
+                ow: this.width,
+                oh: this.height
+            };
+            this.resizeInfoLabel.innerHTML = this.width + " x " + this.height;
+            return;
+        }
+    }.bind(this), false);
 }
 
 SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(elem) {
@@ -603,8 +623,8 @@ Canvas.prototype.getZoomedGeo = function (target) {
 Canvas.prototype.getSize = function () {
 
     return {
-        width : parseInt(this.getAttribute("width"), 10),
-        height : parseInt(this.getAttribute("height"), 10),
+        width : parseInt(this.svg.getAttribute("width"), 10),
+        height : parseInt(this.svg.getAttribute("height"), 10),
     };
 
 };
@@ -868,7 +888,6 @@ Canvas.prototype.handleMouseWheel = function(event) {
 
         var drawingX = this.lastMouse.x;
         var drawingY = this.lastMouse.y;
-        console.log("drawing pos", [drawingX, drawingY]);
         var dx = drawingX * this.zoom + padding - this._scrollPane.scrollLeft;
         var dy = drawingY * this.zoom + padding - this._scrollPane.scrollTop;
 
@@ -941,6 +960,11 @@ Canvas.prototype.handleScrollPane = function(event) {
 }
 
 Canvas.prototype.handleMouseUp = function (event) {
+    if (this.resizing) {
+        this.commitResize(event);
+        this.isSelectingRange = false;
+        return;
+    }
 
     if (this.reClick && !this.hasMoved) {
         for (editor in this.onScreenEditors)
@@ -957,6 +981,8 @@ Canvas.prototype.handleMouseUp = function (event) {
                 setter : null
             });
         }
+        
+        Connector.prepareInvalidation(this);
 
         if (this.currentController.invalidateOutboundConnections) {
             this.currentController.invalidateOutboundConnections();
@@ -964,6 +990,8 @@ Canvas.prototype.handleMouseUp = function (event) {
         if (this.currentController.invalidateInboundConnections) {
             this.currentController.invalidateInboundConnections();
         }
+        
+        Connector.finishInvalidation();
     }
     if (this.controllerHeld && this.hasMoved) {
         // just to save state
@@ -977,7 +1005,7 @@ Canvas.prototype.handleMouseUp = function (event) {
     this.hasMoved = true;
 
     this.controllerHeld = false;
-
+    
     if (this.isSelectingRange) {
         this.setRangeBoundVisibility(false);
         this.isSelectingRange = false;
@@ -1115,7 +1143,73 @@ Canvas.prototype.handleClick = function (event) {
     }
 
 };
+Canvas.prototype.commitResize = function (event) {
+    this.resizing = false;
+    if (this.resizeInfo && this.resizeInfo.lastSize) {
+        Pencil.controller.setActiveCanvasSize(this.resizeInfo.lastSize.w, this.resizeInfo.lastSize.h)
+    }
+    this.resizeInfo = null;
+    this.element.removeAttribute("resizing");
+};
+Canvas.prototype.handleResizeMouseMove = function (event) {
+    if (this.resizing) {
+
+        var dw = Math.round((event.clientX - this.resizeInfo.ox) / this.zoom);
+        var dh = Math.round((event.clientY - this.resizeInfo.oy) / this.zoom);
+        
+        if (event.shiftKey) dw = 0;
+
+        var newW = this.resizeInfo.ow + dw;
+        var newH = this.resizeInfo.oh + dh;
+
+        if (event.ctrlKey) {
+            newW = Math.round(newW / 10) * 10;
+            newH = Math.round(newH / 10) * 10;
+        }
+
+        this.resizeInfo.lastSize = {
+            w: newW,
+            h: newH
+        };
+
+        var w = Math.ceil(newW * this.zoom);
+        var h = Math.ceil(newH * this.zoom);
+        this.element.style.width = w + "px";
+        this.element.style.height = h + "px";
+
+        this.resizeInfoLabel.innerHTML = w + " x " + h;
+
+        return;
+    }
+
+    var rect = this.svg.parentNode.getBoundingClientRect();
+    var bound = {
+        x: rect.left + rect.width - this.resizer.offsetWidth,
+        y: rect.top + rect.height - this.resizer.offsetHeight,
+        width: this.resizer.offsetWidth,
+        height: this.resizer.offsetHeight
+    };
+
+    var thiz = this;
+    if (event.clientX >= bound.x && event.clientX <= bound.x + bound.width
+        && event.clientY >= bound.y && event.clientY <= bound.y + bound.width) {
+        if (!this.showResizerTimeout) {
+            this.showResizerTimeout = window.setTimeout(function () {
+                thiz.showResizerTimeout = null;
+                thiz.element.setAttribute("resizing", "true");
+                thiz.resizeInfoLabel.innerHTML = thiz.width + " x " + thiz.height;
+            }, 1000);
+        }
+    } else {
+        if (this.showResizerTimeout) window.clearTimeout(this.showResizerTimeout);
+        this.element.removeAttribute("resizing");
+        this.showResizerTimeout = null;
+    }
+    return false;
+};
 Canvas.prototype.handleMouseMove = function (event, fake) {
+    if (!fake && this.handleResizeMouseMove(event)) return;
+
     try {
         if (this.duplicateMode && !this.mouseUp) {
             if(this.duplicateFunc) {
@@ -1170,6 +1264,12 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                 if (this.movementDisabled) return;
             }
 
+            //avoid accidental move when user is trying to select the object
+            var msFromClick = event.timeStamp - this._mouseDownAt;
+            if (msFromClick < 100) {
+                return;
+            }
+
             if (this.currentController.markAsMoving)
                 this.currentController.markAsMoving(true);
             var newX = Math.round(event.clientX / this.zoom);
@@ -1177,6 +1277,10 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
 
             var dx = newX - this.oX;
             var dy = newY - this.oY;
+            
+            //direction ratios
+            var hdr = event.ctrlKey && Math.abs(dx) < Math.abs(dy) ? 0 : 1;
+            var vdr = event.ctrlKey && Math.abs(dx) >= Math.abs(dy) ? 0 : 1;
 
             var accX = Math.abs(newX - this._lastNewX) < 2;
             var accY = Math.abs(newY - this._lastNewY) < 2;
@@ -1222,8 +1326,9 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
             // this.snappedY]);
             if (!event.shiftKey
                     && snap
-                    && ((snap.dx != 0 && !this.snappingHelper.snappedX && accX) || (snap.dy != 0
-                            && !this.snappingHelper.snappedY && accY))) {
+                    && ((snap.dx != 0 && !this.snappingHelper.snappedX && accX)
+                            || (snap.dy != 0 && !this.snappingHelper.snappedY && accY)
+                        )) {
                 if (snap.dx != 0 && !this.snappingHelper.snappedX) {
                     this.snappingHelper.snappedX = true;
                     this.snappingHelper.snapX = newX;
@@ -1236,7 +1341,7 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                     this.currentController._pSnapshot.lastDY += snap.dy;
                     // debug("snapY");
                 }
-                this.currentController.moveBy(snap.dx, snap.dy);
+                this.currentController.moveBy(snap.dx * hdr, snap.dy * vdr);
             } else {
                 var unsnapX = event.shiftKey
                         || (this.snappingHelper.snapX != 0 && (Math
@@ -1248,20 +1353,20 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
 
                 if (!this.snappingHelper.snappedX
                         && !this.snappingHelper.snappedY) {
-                    this.currentController.moveFromSnapshot(dx, dy);
+                    this.currentController.moveFromSnapshot(dx * hdr, dy * vdr);
                 } else {
                     if (unsnapX || !this.snappingHelper.snappedX) {
                         this.currentController
                                 .moveFromSnapshot(
-                                        dx,
-                                        this.snappingHelper.snappedY ? this.currentController._pSnapshot.lastDY
-                                                : dy);
+                                        dx * hdr,
+                                        this.snappingHelper.snappedY ? this.currentController._pSnapshot.lastDY * vdr
+                                                : dy * vdr);
                     }
                     if (unsnapY || !this.snappingHelper.snappedY) {
                         this.currentController
                                 .moveFromSnapshot(
-                                        this.snappingHelper.snappedX ? this.currentController._pSnapshot.lastDX
-                                                : dx, dy);
+                                        this.snappingHelper.snappedX ? this.currentController._pSnapshot.lastDX * hdr
+                                                : dx * hdr, dy * vdr);
                         this.snappingHelper.snapY = 0;
                         this.snappingHelper.snappedY = false;
                     }
@@ -1269,6 +1374,7 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
                         this.snappingHelper.snapX = 0;
                         this.snappingHelper.snappedX = false;
                     }
+                    
                     if (unsnapX) {
                         this.snappingHelper.clearSnappingGuideX();
                     }
@@ -1368,13 +1474,15 @@ Canvas.prototype.handleKeyPress = function (event) {
         this.run(function () {
             // this.currentController.moveBy(dx, dy);
             this.currentController.moveBy(dx, dy, false, true);
-
+            
+            Connector.prepareInvalidation(this);
             if (this.currentController.invalidateOutboundConnections) {
                 this.currentController.invalidateOutboundConnections();
             }
             if (this.currentController.invalidateInboundConnections) {
                 this.currentController.invalidateInboundConnections();
             }
+            Connector.finishInvalidation();
 
         }, this, Util.getMessage("action.move.shape"));
 
@@ -1871,7 +1979,7 @@ Canvas.prototype.focus = function () {
     // document.getElementById("richTextEditorToolbar").focus();
     // document.commandDispatcher.rewindFocus();
     // document.commandDispatcher.advanceFocus();
-    this.focusableBox.focus("");
+    this.focusableBox.focus();
 
 };
 Canvas.prototype.doCopy = function () {
@@ -1993,7 +2101,7 @@ Canvas.prototype.doPaste = function (withAlternative) {
     }
 
     if (formats.indexOf(RichTextXferHelper.MIME_TYPE) >= 0) {
-        var html = clipboard.readHtml();
+        var html = clipboard.readHTML();
         if (html) {
             contents.push({
                 type: RichTextXferHelper.MIME_TYPE,
@@ -2007,7 +2115,7 @@ Canvas.prototype.doPaste = function (withAlternative) {
         if (image) {
             var id = Pencil.controller.nativeImageToRefSync(image);
             var size = image.getSize();
-
+            
             contents.push({
                 type: PNGImageXferHelper.MIME_TYPE,
                 data: new ImageData(size.width, size.height, ImageData.idToRefString(id))
@@ -2040,6 +2148,7 @@ Canvas.prototype.doPaste = function (withAlternative) {
 };
 
 Canvas.prototype.handleMouseDown = function (event) {
+    this._mouseDownAt = event.timeStamp;
     event.preventDefault();
 
     tick("begin");
@@ -2060,16 +2169,15 @@ Canvas.prototype.handleMouseDown = function (event) {
     var isInControlLayer = Dom.findUpward(event.originalTarget, function (node) {
         return (node == thiz.controlLayer);
     });
-    if (isInControlLayer)
-        return;
+    if (isInControlLayer) return;
 
     var top = Dom.findTop(event.originalTarget, function (node) {
         return node.hasAttributeNS
                 && node.hasAttributeNS(PencilNamespaces.p, "type");
     });
-    if (top && this.isShapeLocked(top))
-        top = null;
-
+    
+    if (top && this.isShapeLocked(top)) top = null;
+        
     if (!top) {
         this.lastTop = null;
         // this.clearSelection();
@@ -2088,7 +2196,7 @@ Canvas.prototype.handleMouseDown = function (event) {
             width : 0,
             height : 0
         };
-
+        
         this._sayTargetChanged();
         this.endFormatPainter();
 
@@ -2332,6 +2440,8 @@ Canvas.prototype.doUnGroupImpl_ = function () {
             this.snappingHelper
                     .updateSnappingGuide(this.currentController.targets[t]);
         }
+    } else {
+        this.snappingHelper.updateSnappingGuide(this.currentController);
     }
 
 };
@@ -2764,8 +2874,8 @@ Canvas.prototype.insertPrivateShapeImpl_ = function (shapeDef, bound) {
             var bbox = this.currentController.getBounding();
             //note: the returned bbox is NOT zoomed
             this.currentController.moveBy(
-                    (bound.x - bbox.x - Math.round(bbox.width / 2)),
-                    (bound.y - bbox.y - Math.round(bbox.height / 2)),
+                    Math.round(bound.x - bbox.x - bbox.width / 2),
+                    Math.round(bound.y - bbox.y - bbox.height / 2),
                     true);
         }
         shape.style.visibility = "visible";

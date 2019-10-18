@@ -1,0 +1,129 @@
+/*
+    place extra stylesheet here
+*/
+
+body, html {
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+    font-family: "Product Sans", "Liberation Sans", Arial, sans-serif;
+}
+
+#documentMetadata,
+#documentTitle {
+    display: none;
+}
+
+.Page {
+    position: absolute;
+    left: 230px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #00000077;
+}
+.Page:not(:target) {
+    display: none;
+}
+
+.Page > h2 {
+    display: none;
+}
+.Page .ImageContainer {
+    box-shadow: 0px 0px 1em #00000077;
+}
+
+.Page .ImageContainer {
+    position: relative;
+}
+.Page .ImageContainer > .Links > a {
+    position: absolute;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+}
+body.Active .Page .ImageContainer > .Links > a {
+    background-color: #E79A0F11;
+}
+.Page .ImageContainer > .Links > a:hover {
+    background-color: #FFFFFF55 !important;
+}
+
+.TOC {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    width: 230px;
+    display: flex;
+    flex-direction: column;
+    
+    overflow-y: auto;
+    overflow-x: visible;
+    z-index: 2;
+    background: #444;
+}
+.TOC > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1em;
+    background: transparent;
+    transition: background 0.2s ease;
+}
+.TOC > div.Focused {
+    background: #5294E2;
+}
+.TOC > div:not(.Focused):hover {
+    background: #5294E266;
+}
+.TOC > div + div {
+    margin-top: 1em;
+}
+
+.TOC > div > a {
+    display: block;
+    border: solid 2px #FFF;
+    box-shadow: 0px 0px 5px #000;
+}
+
+.TOC > div > strong {
+    display: block;
+    text-align: center;
+    color: #FFF;
+    font-weight: normal;
+    margin-top: 0.3em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

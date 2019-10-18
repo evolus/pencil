@@ -3,7 +3,31 @@ function StencilCollectionDetailDialog(acceptActionLabel) {
     this.title = "Stencil Collection Details";
     this.acceptActionLabel = acceptActionLabel;
 
+
+    this.bind("e:TabChange", function () {
+        if (this.settingTabPane.getActiveTabPane() == this.scriptTab) {
+            if (this.scriptEditor) return;
+
+            this.scriptEditor = CodeMirror.fromTextArea(this.scriptInput, {
+              mode:  "javascript",
+              indentUnit: 4,
+              lineNumbers: true,
+              showCursorWhenSelecting: true
+            });
+
+            //    this.scriptEditor.setValue();
+
+
+            var thiz = this;
+            window.setTimeout(function () {
+                thiz.scriptEditor.focus();
+                thiz.scriptEditor.setCursor(0);
+            }, 100);
+        }
+    }, this.settingTabPane.node());
+
     this.bind("click", this.handleSetBrowseEvent, this.setContainer);
+    this.bind("click", this.toggleLargeScriptView, this.largeScriptViewCheckbox);
 }
 __extend(Dialog, StencilCollectionDetailDialog);
 
@@ -49,8 +73,10 @@ StencilCollectionDetailDialog.prototype.setup = function (options) {
     this.descriptionInput.value = options.description || "";
     this.authorNameInput.value = options.author || systemUsername;
     this.urlInput.value = options.url || "";
+    this.versionInput.value = options.version || "1.0";
 
-    this.scriptInput.value = options.extraScript || "";
+    this.initialScriptValue = options.extraScript || "";
+    this.scriptInput.value = this.initialScriptValue;
 
     this.embedReferencedFontsCheckbox.checked = typeof(options.embedReferencedFonts) != "boolean" ? true : options.embedReferencedFonts;
 
@@ -81,8 +107,9 @@ StencilCollectionDetailDialog.prototype.save = function () {
         options.description = this.descriptionInput.value;
         options.author = getRequiredValue(this.authorNameInput, "Please enter author's name.");
         options.url = getRequiredValue(this.urlInput, "Please enter a valid URL.", /^(http(s?):\/\/.+)?$/);
+        options.version = this.versionInput.value.trim() || "1.0";
 
-        options.extraScript = this.scriptInput.value;
+        options.extraScript = this.scriptEditor ? this.scriptEditor.getValue() : this.initialScriptValue;
         options.embedReferencedFonts = this.embedReferencedFontsCheckbox.checked;
 
         options.resourceSets = [];
@@ -102,6 +129,13 @@ StencilCollectionDetailDialog.prototype.save = function () {
         handleCommonValidationError(e);
         return false;
     }
+};
+
+StencilCollectionDetailDialog.prototype.toggleLargeScriptView = function () {
+    var large = this.largeScriptViewCheckbox.checked;
+    this.scriptTab.setAttribute("large", large);
+    this.settingTabPane.ensureSizing();
+    this.invalidatePosition();
 };
 
 StencilCollectionDetailDialog.prototype.getDialogActions = function () {

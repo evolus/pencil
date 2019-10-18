@@ -61,6 +61,11 @@ Controller.prototype.confirmAndclose = function (onClose) {
 
         this.sayControllerStatusChanged();
         ShapeTestCanvasPane._instance.quitTesting();
+        
+        if (StencilCollectionBuilder.activeCollectionInfo) {
+            StencilCollectionBuilder.cleanup();
+            CollectionManager.reloadActiveBuilderCollection();
+        }
 
         if (onClose) onClose();
     }.bind(this);
@@ -107,7 +112,19 @@ Controller.prototype.findPageByName = function (name) {
 
     return null;
 };
-Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId, activateAfterCreate) {
+Controller.prototype.newPage = function (options) {
+    if (!options) options = {};
+    
+    var name = options.name || "Untitled Page";
+    var width = options.width || 100;
+    var height = options.height || 100;
+    var backgroundPageId = options.backgroundPageId || null;
+    var backgroundColor = options.backgroundColor || null;
+    var note = options.node || "";
+    var parentPageId = options.parentPageId || null;
+    var activateAfterCreate = options.activateAfterCreate || false;
+    var copyBackgroundLinks = options.copyBackgroundLinks || false;
+    
     var id = Util.newUUID();
     var pageFileName = "page_" + id + ".xml";
 
@@ -125,6 +142,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     if (backgroundPageId) {
         page.backgroundPageId = backgroundPageId;
         page.backgroundPage = this.findPageById(backgroundPageId);
+        page.copyBackgroundLinks = copyBackgroundLinks;
     }
 
     page.canvas = null;
@@ -161,8 +179,10 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     var width = page.width;
     var height = page.height;
     var backgroundPageId;
+    var copyBackgroundLinks = false;
     if(page.backgroundPage) {
         backgroundPageId = page.backgroundPage.id;
+        copyBackgroundLinks = page.copyBackgroundLinks || false;
     }
     var backgroundColor;
     if (page.backgroundColor) {
@@ -176,8 +196,20 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
         name = page.name  + " (" + seed + ")";
         seed ++;
     };
+    
+    var options = {
+        name: name,
+        width: width,
+        height: height,
+        backgroundPageId: backgroundPageId,
+        backgroundColor: backgroundColor,
+        note: note,
+        parentPageId: parentPageId,
+        copyBackgroundLinks: copyBackgroundLinks,
+        activateAfterCreate: false
+    };
 
-    var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
+    var newPage = this.newPage(options);
     newPage.canvas = null;
 
     // retrieve new page
@@ -219,16 +251,21 @@ Controller.prototype.serializeDocument = function (onDone) {
     var thiz = this;
 
     var embeddableFontFaces = [];
+    var refResourceIds = [];
 
-    function embedFonts() {
-        if (embeddableFontFaces.length <= 0) return;
-        FontLoader.instance.embedToDocumentRepo(embeddableFontFaces);
+    function postProcess() {
+        if (embeddableFontFaces.length > 0) {
+            //console.log("Fonts to embed:", embeddableFontFaces);
+            FontLoader.instance.embedToDocumentRepo(embeddableFontFaces);
+        }
+
+        thiz.registeredResourceIds = refResourceIds;
     }
 
     function next() {
         index ++;
         if (index >= thiz.doc.pages.length) {
-            embedFonts();
+            postProcess();
             if (onDone) onDone();
             return;
         }
@@ -239,10 +276,18 @@ Controller.prototype.serializeDocument = function (onDone) {
             thiz.serializePage(page, page.tempFilePath);
         }
 
-        var pageEmbeddableFontFaces = thiz.findEmbeddableFontFaces(page);
+        var resourceReferences = thiz.findResourceReferences(page);
+
+        var pageEmbeddableFontFaces = resourceReferences.fontFaces;
         if (pageEmbeddableFontFaces) {
             pageEmbeddableFontFaces.forEach(function (face) {
                 if (embeddableFontFaces.indexOf(face) < 0) embeddableFontFaces.push(face);
+            });
+        }
+        var pageRefResourceIds = resourceReferences.resourceIds;
+        if (pageRefResourceIds) {
+            pageRefResourceIds.forEach(function (id) {
+                if (refResourceIds.indexOf(id) < 0) refResourceIds.push(id);
             });
         }
 
@@ -261,7 +306,12 @@ Controller.prototype.serializeDocument = function (onDone) {
     next();
 };
 
-Controller.prototype.findEmbeddableFontFaces = function (page) {
+Controller.prototype.countResourceReferences = function (page) {
+    var result = {
+        fontFaces: {},
+        resources: {}
+    };
+
     var contextNode = null;
     if (page.canvas) {
         contextNode = page.canvas.drawingLayer;
@@ -270,28 +320,96 @@ Controller.prototype.findEmbeddableFontFaces = function (page) {
         contextNode = Dom.getSingle("/p:Page/p:Content", dom);
     }
 
-    var faces = [];
-
     Dom.workOn(".//svg:g[@p:type='Shape']", contextNode, function (node) {
         var defId = node.getAttributeNS(PencilNamespaces.p, "def");
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-        if (!def) return;
 
         Dom.workOn("./p:metadata/p:property", node, function (propNode) {
             var name = propNode.getAttribute("name");
-            var propDef = def.getProperty(name);
-            if (!propDef || propDef.type != Font) return;
             var value = propNode.textContent;
-            var font = Font.fromString(value);
-            if (!font) return;
+            
+            if (value && value.match(/^[0-9\,\-]+ref:\/\//)) {
+                var imageData = ImageData.fromString(value);
+                if (!imageData || !imageData.data) {
+                    console.error("Invalid image data for value: ", value);
+                    return;
+                }
 
-            if (faces.indexOf(font.family) < 0 && FontLoader.instance.isFontExisting(font.family)) {
-                faces.push(font.family);
+                var id = ImageData.refStringToId(imageData.data);
+                if (!id) {
+                    console.error("Unable to parse refId from data: ", imageData.data);
+                    return;
+                }
+
+                var holders = result.resources[id] || [];
+                holders.push(node);
+                result.resources[id] = holders;
+                
+                return;
+            }
+            
+            if (def) {
+                var propDef = def.getProperty(name);
+
+                if (propDef && propDef.type == Font) {
+                    var font = Font.fromString(value);
+                    if (!font) return;
+
+                    var holders = result.fontFaces[font.family] || [];
+                    if (holders.length || FontLoader.instance.isFontExisting(font.family)) {
+                        holders.push(node);
+                    }
+                    result.fontFaces[font.family] = holders;
+                    
+                    return;
+                }
             }
         });
     });
 
-    return faces;
+    return result;
+};
+Controller.prototype.findResourceReferences = function (page) {
+    var refs = this.countResourceReferences(page);
+    
+    
+    return {
+        fontFaces: Object.keys(refs.fontFaces),
+        resourceIds: Object.keys(refs.resources)
+    };
+};
+Controller.prototype.getResourceReferences = function (resourceId, pages) {
+    if (!pages) pages = this.doc.pages;
+    else if (!Array.isArray(pages)) pages = [pages];
+
+    var result = {
+        fontFaces: {},
+        resources: {}
+    };
+    function appendRef(overall, refs) {
+        for (var k in refs) {
+            var ri = overall[k] || {
+                total: 0,
+                references: []
+            };
+            var holders = refs[k];
+            var n = holders ? holders.length : 0;
+            ri.total += n;
+            ri.references.push({"count": n, "page": page, "holders": holders});
+
+            overall[k] = ri;
+        }
+        return overall;
+    };
+    for (var i = 0; i < pages.length; i++) {
+        var page = pages[i];
+        var refs = this.countResourceReferences(page);
+
+        result.fontFaces = appendRef(result.fontFaces, refs.fontFaces);
+        result.resources = appendRef(result.resources, refs.resources);
+    }
+
+    return resourceId ? (result.resources[resourceId] || result.fontFaces[resourceId]) : result;
 };
 
 // Controller.prototype.openDocument = function (callback) {
@@ -321,7 +439,6 @@ Controller.prototype.findEmbeddableFontFaces = function (page) {
 //     handler();
 // };
 Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
-
     var invalidateTasks = [];
     var invalidationIndex = -1;
 
@@ -353,21 +470,49 @@ Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
     Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
         var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-        if (!def) return;
+        
+        if (def) {
+            Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
+                var name = propertyNode.getAttribute("name");
+                var propertyDef = def.propertyMap[name];
+                if (!propertyDef || !propertyDef.type.invalidateValue) return;
+                var type = propertyDef.type;
 
-        Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
-            var name = propertyNode.getAttribute("name");
-            var propertyDef = def.propertyMap[name];
-            if (!propertyDef || !propertyDef.type.invalidateValue) return;
-            var type = propertyDef.type;
+                invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
 
-            invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
-
-        });
+            });
+        } else {
+            // Adhoc invalidation for rasterized image reference from within missing shapes
+            this.invalidateBrokenImageRefs(shapeNode);
+        }
+        
     });
-
-
+    
+    
     runNextValidation(onDoneCallback);
+};
+
+Controller.prototype.invalidateBrokenImageRefs = function (contentNode) {
+    Dom.workOn(".//html:img", contentNode, function (imgNode) {
+        var src = imgNode.getAttribute("src");
+        if (!src) return;
+        if (!src.match(/^file:\/\/([^\?]+)(\?.+)?$/)) return;
+        var filePath = RegExp.$1;
+        if (!filePath.match(/^.*\/refs\/([^\/]+)$/)) return;
+        var refId = RegExp.$1;
+        
+        var realFilePath = filePath;
+        if (process.platform == "win32") {
+            realFilePath = filePath.replace(/\//g, "\\");
+            if (realFilePath.match(/^\\(.*)$/)) realFilePath = RegExp.$1;
+        }
+        
+        if (fs.existsSync(realFilePath)) return;
+        var realFilePath = this.refIdToFilePath(refId);
+        if (!fs.existsSync(realFilePath)) return;
+        var url = this.refIdToUrl(refId);
+        imgNode.setAttribute("src", url);
+    }.bind(this));
 };
 
 Controller.THUMB_CACHE_DIR = "thumbs";
@@ -696,6 +841,8 @@ Controller.prototype.invalidatePageContent = function (page, callback) {
 
         if (callback) callback();
     });
+    
+    this.invalidateBrokenImageRefs(page.canvas.drawingLayer);
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {
@@ -954,6 +1101,17 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
         this.sayDocumentChanged();
     }
 };
+Controller.prototype.setActiveCanvasSize = function (width, height) {
+    var canvas = this.activePage.canvas;
+    if (!canvas) return;
+    var newSize = this.applicationPane.getBestFitSizeObject();
+    canvas.setSize(width, height);
+    this.activePage.width = width;
+    this.activePage.height = height;
+    Config.set("lastSize", [width, height].join("x"));
+    this.invalidateBitmapFilePath(this.activePage);
+    this.sayDocumentChanged();
+};
 Controller.prototype.getBestFitSize = function () {
     return this.applicationPane.getBestFitSize();
 };
@@ -983,6 +1141,16 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
     if (!page) {
         return;
     }
+    
+    var options = {};
+    if (this.activePage && this.activePage.backgroundColor) {
+        options.backgroundColor = this.activePage.backgroundColor.toRGBString();
+    } else {
+        var color = Config.get(Config.EXPORT_DEFAULT_BACKGROUND_COLOR, "");
+        if (color) {
+            options.backgroundColor = color;
+        }
+    }
 
     dialog.showSaveDialog({
         title: "Export page as PNG",
@@ -998,30 +1166,96 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
                     shell.openItem(filePath);
                 });
             }
-        });
+        }, undefined, false, options);
     }.bind(this));
 };
 
-Controller.prototype.rasterizeSelection = function () {
+Controller.prototype.copyPageBitmap = function (targetPage) {
+    var page = targetPage ? targetPage : (this.activePage ? this.activePage : null);
+    if (!page) {
+        return;
+    }
+    
+    var options = {};
+    if (this.activePage && this.activePage.backgroundColor) {
+        options.backgroundColor = this.activePage.backgroundColor.toRGBString();
+    } else {
+        var color = Config.get(Config.EXPORT_DEFAULT_BACKGROUND_COLOR, "");
+        if (color) {
+            options.backgroundColor = color;
+        }
+    }
+
+    var crop = Config.get(Config.EXPORT_CROP_FOR_CLIPBOARD, false);
+
+    if (crop) {
+        page.canvas.selectAll();
+        page.canvas.doGroup();
+        page.canvas.sizeToContent(20, 20);
+
+        page.width = page.canvas.width;
+        page.height = page.canvas.height;
+    }
+
+    var thiz = this;
+
+    window.setTimeout(function () {
+        var tmp = require("tmp");
+        var filePath = tmp.tmpNameSync();
+        thiz.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
+            if (!error) {
+                clipboard.writeImage(filePath);
+                fs.unlinkSync(filePath);
+                NotificationPopup.show("Page bitmap copied into clipboard.");
+            }
+        }, undefined, false, options);
+    }, 100);
+};
+
+Controller.prototype.rasterizeSelection = function (options) {
     var target = Pencil.activeCanvas.currentController;
     if (!target || !target.getGeometry) return;
-
-    dialog.showSaveDialog({
-        title: "Export selection as PNG",
-        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), ""),
-        filters: [
-            { name: "PNG Image (*.png)", extensions: ["png"] }
-        ]
-    }, function (filePath) {
-        if (!filePath) return;
+    
+    if (!options) options = {};
+    if (this.activePage && this.activePage.backgroundColor) {
+        options.backgroundColor = this.activePage.backgroundColor.toRGBString();
+    } else {
+        var color = Config.get(Config.EXPORT_DEFAULT_BACKGROUND_COLOR, "");
+        if (color) {
+            options.backgroundColor = color;
+        }
+    }
+    
+    if (options && options.target == "clipboard") {
+        var tmp = require("tmp");
+        var filePath = tmp.tmpNameSync();
+        
         this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
             if (!error) {
-                NotificationPopup.show("Selection exprted as '" + path.basename(filePath) + "'.", "View", function () {
-                    shell.openItem(filePath);
-                });
+                clipboard.writeImage(filePath);
+                fs.unlinkSync(filePath);
+                NotificationPopup.show("Page bitmap copied into clipboard.");
             }
-        });
-    }.bind(this));
+        }, undefined, options);
+    } else {
+        dialog.showSaveDialog({
+            title: "Export selection as PNG",
+            defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), ""),
+            filters: [
+                { name: "PNG Image (*.png)", extensions: ["png"] }
+            ]
+        }, function (filePath) {
+            if (!filePath) return;
+            this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
+                if (!error) {
+                    NotificationPopup.show("Selection exprted as '" + path.basename(filePath) + "'.", "View", function () {
+                        shell.openItem(filePath);
+                    });
+                }
+            }, undefined, options);
+        }.bind(this));
+    }
+
 };
 
 Controller.prototype.copyAsRef = function (sourcePath, callback) {
@@ -1059,7 +1293,7 @@ Controller.prototype.copyAsRef = function (sourcePath, callback) {
     rd.pipe(wr);
 };
 Controller.prototype.generateCollectionResourceRefId = function (collection, resourcePath) {
-    var id = "collection " + collection.id + " " + resourcePath;
+    var id = "collection " + collection.id + "@" + collection.parsedAt + " " + resourcePath;
     var md5 = require("md5");
     id = md5(id) + path.extname(resourcePath);
 
@@ -1092,7 +1326,14 @@ Controller.prototype.collectionResourceAsRefSync = function (collection, resourc
 Controller.prototype.nativeImageToRefSync = function (nativeImage) {
     var id = Util.newUUID() + ".png";
     var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
-    fs.writeFileSync(filePath, nativeImage.toPng());
+    fs.writeFileSync(filePath, nativeImage.toPNG());
+
+    return id;
+};
+Controller.prototype.svgImageToRefSync = function (svg) {
+    var id = Util.newUUID() + "_svg";
+    var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+    fs.writeFileSync(filePath, svg, "utf8");
 
     return id;
 };
@@ -1134,6 +1375,26 @@ Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
 
     if (!left) targetIndex ++;
     list.splice(targetIndex, 0, page);
+    
+    //sort the whole tree
+    function assignIndexes(pages, level, parentPage) {
+        pages.forEach(function (page, index) {
+            if (!parentPage && page.parentPage) return;
+            page._tempIndex = (parentPage ? parentPage._tempIndex : 0) +  (index + 1) / level;
+            
+            if (page.children) assignIndexes(page.children, level * 100, page);
+        });
+    }
+
+    assignIndexes(this.doc.pages, 1, null);
+
+    this.doc.pages.sort(function (p1, p2) {
+        return p1._tempIndex - p2._tempIndex;
+    });
+    
+    this.doc.pages.forEach(function (page) {
+        delete page._tempIndex;
+    });
 
     this.sayDocumentChanged();
 };
@@ -1174,11 +1435,22 @@ Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) 
         if (p.backgroundPageId == page.id) this.invalidateBitmapFilePath(p, invalidatedIds);
     }
 };
-Controller.prototype.updatePageProperties = function (page, name, backgroundColor, backgroundPageId, parentPageId, width, height) {
+Controller.prototype.updatePageProperties = function (page, options) {
+    if (!options) options = {};
+    
+    var name = options.name || "Untitled Page";
+    var width = options.width || 100;
+    var height = options.height || 100;
+    var backgroundPageId = options.backgroundPageId || null;
+    var backgroundColor = options.backgroundColor || null;
+    var parentPageId = options.parentPageId || null;
+    var copyBackgroundLinks = options.copyBackgroundLinks || false;
+    
     page.name = name;
     page.backgroundColor = backgroundColor;
     page.backgroundPageId = backgroundPageId;
     page.backgroundPage = backgroundPageId ? this.findPageById(backgroundPageId) : null;
+    page.copyBackgroundLinks = copyBackgroundLinks || false;
 
     if (parentPageId) {
         if (page.parentPageId != parentPageId) {
@@ -1438,7 +1710,105 @@ Controller.prototype.getDocumentPageMargin = function () {
 Controller.prototype.logShapeReparationRequest = function (shapeNode) {
     if (!this.repairingShapes) this.repairingShapes = [];
     this.repairingShapes.push(shape);
-}
+};
+
+Config.CAPTURE_INSERT_BITMAP_AS_DEFID = Config.define("capture.insert_bitmap_shape_id", "Evolus.Common:Bitmap");
+
+Controller.prototype.handleGlobalScreencapture = function (mode) {
+    var newDocumentCreated = false;
+    if (!this.doc) {
+        Pencil.documentHandler.newDocument();
+        newDocumentCreated = true;
+    }
+
+
+    ImageData.fromScreenshot(function (imageData, options, error) {
+        if (imageData) {
+            electron.remote.getCurrentWindow().show();
+            electron.remote.getCurrentWindow().focus();
+
+            if (!newDocumentCreated) {
+                var options = {
+                    name: "Capture " + new Date(),
+                    width: imageData.w,
+                    height: imageData.h,
+                    backgroundPageId: null,
+                    backgroundColor: Color.fromString("#FFFFFFFF"),
+                    note: "",
+                    parentPageId: null,
+                    activateAfterCreate: true
+                };
+                
+                this.newPage(options);
+            } else {
+                this.setActiveCanvasSize(imageData.w, imageData.h)
+            }
+
+            var page = this.activePage;
+
+            var def = CollectionManager.shapeDefinition.locateDefinition(Config.get(Config.CAPTURE_INSERT_BITMAP_AS_DEFID));
+            if (!def) return;
+
+            page.canvas.insertShape(def, null);
+            if (!page.canvas.currentController) return;
+
+            var controller = page.canvas.currentController;
+
+            var dim = new Dimension(imageData.w, imageData.h);
+            page.canvas.currentController.setProperty("imageData", imageData);
+            page.canvas.currentController.setProperty("box", dim);
+            page.canvas.invalidateEditors();
+        }
+    }.bind(this), mode ? {
+        mode: mode,
+        includePointer: false,
+        hidePencil: false,
+        delay: 0
+    } : undefined);
+};
+
+Controller.prototype.getDocumentColorPalette = function () {
+    if (!this.doc) return null;
+    var colors = this.doc.properties.colorPalette;
+    if (!colors) return [];
+    return colors.split(",").map(function (c) {
+        return Color.fromString(c);
+    });
+};
+Controller.prototype.addColorIntoDocumentPalette = function (color) {
+    if (!this.doc) return;
+    var colors = this.getDocumentColorPalette();
+    if (typeof(color) == "string") color = Color.fromString(color);
+    
+    var found = false;
+    colors.forEach(function (c) {
+        if (c.toString() == color.toString()) {
+            found = true;
+        }
+    });
+    
+    if (found) return;
+    
+    colors.push(color);
+    
+    this.doc.properties.colorPalette = colors.map(function (c) {
+        return c.toString();
+    }).join(",");
+};
+
+Controller.prototype.removeColorFromDocumentPalette = function (color) {
+    if (!this.doc) return;
+    var colors = this.getDocumentColorPalette();
+    if (typeof(color) == "string") color = Color.fromString(color);
+    
+    colors = colors.filter(function (c) {
+        return c.toString() != color.toString();
+    });
+    
+    this.doc.properties.colorPalette = colors.map(function (c) {
+        return c.toString();
+    }).join(",");
+};
 
 
 window.addEventListener("beforeunload", function (event) {
@@ -1469,4 +1839,11 @@ window.addEventListener("beforeunload", function (event) {
         event.returnValue = false;
         return;
     }
+});
+Config.SHORTCUT_GLOBALSCREENCAPTURE_AREA = Config.define("shortcut.global.screencapture_area", "Super+F12");
+GlobalShortcutHelper.register("global-screencapture-area", Config.get(Config.SHORTCUT_GLOBALSCREENCAPTURE_AREA), function () {
+    console.log("global-screencapture-area triggered");
+    if (!Controller._instance) return;
+
+    Controller._instance.handleGlobalScreencapture(BaseCaptureService.MODE_AREA);
 });

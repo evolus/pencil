@@ -37,24 +37,24 @@ ShapeDefCollectionParser.prototype.injectEntityDefs = function (content, file) {
 	return content;
 };
 ShapeDefCollectionParser.prototype.injectEntityDefsFromUrl = function (content, url) {
-    try {
-        //getting the current local
-        var locale = "en-US";
-        var dtdUrl = url.replace(/Definition\.xml$/, locale + ".dtd");
-
-        var request = new XMLHttpRequest();
-        request.open("GET", dtdUrl, false);
-        request.send("");
-        var doctypeContent = request.responseText;
-        if (doctypeContent && doctypeContent.length && request.status != 404) {
-            doctypeContent = "<!DOCTYPE Shapes [\n" + doctypeContent + "\n]>\n";
-
-            content = content.replace(/(<Shapes)/, function (zero, one) {
-                return doctypeContent + one;
-            });
-        }
-    } catch (ex) {
-    }
+    // try {
+    //     //getting the current local
+    //     var locale = "en-US";
+    //     var dtdUrl = url.replace(/Definition\.xml$/, locale + ".dtd");
+    //
+    //     var request = new XMLHttpRequest();
+    //     request.open("GET", dtdUrl, false);
+    //     request.send("");
+    //     var doctypeContent = request.responseText;
+    //     if (doctypeContent && doctypeContent.length && request.status != 404) {
+    //         doctypeContent = "<!DOCTYPE Shapes [\n" + doctypeContent + "\n]>\n";
+    //
+    //         content = content.replace(/(<Shapes)/, function (zero, one) {
+    //             return doctypeContent + one;
+    //         });
+    //     }
+    // } catch (ex) {
+    // }
 	return content;
 };
 ShapeDefCollectionParser.CHARSET = "UTF-8";
@@ -64,13 +64,18 @@ ShapeDefCollectionParser.getCollectionPropertyConfigName = function (collectionI
 
 /* public ShapeDefCollection */ ShapeDefCollectionParser.prototype.parseURL = function (url) {
     try {
-        var request = new XMLHttpRequest();
-        request.open("GET", url, false);
-        request.send("");
+        var dom = null;
+        if (url.match(/^[a-z]+:\/\/.*/)) {
+            var request = new XMLHttpRequest();
+            request.open("GET", url, false);
+            request.send("");
 
-        var content = this.injectEntityDefsFromUrl(request.responseText, url)
-        var domParser = new DOMParser();
-        var dom = domParser.parseFromString(content, "text/xml");
+            var content = this.injectEntityDefsFromUrl(request.responseText, url)
+            var domParser = new DOMParser();
+            var dom = domParser.parseFromString(content, "text/xml");
+        } else {
+            dom = Dom.parseFile(url);
+        }
 
         var collection = this.parse(dom, url);
         collection._location = url;
@@ -135,7 +140,16 @@ ShapeDefCollectionParser.getCollectionPropertyConfigName = function (collectionI
         Console.dumpError(e, "stdout");
     }
 };
-ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) {
+
+ShapeDefCollectionParser.prototype.loadBuiltinPrivateCollection = function (installDirPath) {
+    var collectionFile = path.join(installDirPath, "PrivateCollection.xml");
+    if (!fs.existsSync(collectionFile)) return null;
+    
+    var collection = PrivateCollectionManager.parseSingleCollectionFile(collectionFile);
+    return collection;
+};
+
+ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, collection) {
     var layoutUri = path.join(installDirPath, "Layout.xhtml");
     if (!fs.existsSync(layoutUri)) return null;
 
@@ -163,6 +177,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
                 for (var p of parts) src = path.join(src, p);
 
                 image.setAttribute("src", src);
+                if (collection) collection.previewURL = src;
             }
         });
 
@@ -178,8 +193,10 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
     var collection = new ShapeDefCollection();
     collection.url = uri ? uri : dom.documentURI;
     collection.installDirPath = path.dirname(uri);
+    collection.parsedAt = new Date().getTime();
 
-    collection.customLayout = this.loadCustomLayout(collection.installDirPath);
+    collection.customLayout = this.loadCustomLayout(collection.installDirPath, collection);
+    collection.builtinPrivateCollection = this.loadBuiltinPrivateCollection(collection.installDirPath);
 
     var s1 = collection.url.toString();
     var s2 = window.location.href.toString();
@@ -218,7 +235,6 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
             if (filePath) font[variantName] = filePath;
         }
 
-        console.log("Font:", font);
         collection.fonts.push(font);
     });
 
@@ -234,7 +250,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath) 
         }
 
     });
-
+    
     return collection;
 };
 

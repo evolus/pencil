@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FontRegistry xmlns="http://www.evolus.vn/Namespace/Pencil">
+    <Font name="Sans" location="Sans" source="" auto-embed="false">
+        <FontStyle weight="100" style="normal" href="Sans-100-normal.ttf" />
+        <FontStyle weight="100" style="italic" href="Sans-100-italic.ttf" />
+        <FontStyle weight="300" style="normal" href="Sans-300-normal.ttf" />
+        <FontStyle weight="300" style="italic" href="Sans-300-italic.ttf" />
+        <FontStyle weight="normal" style="normal" href="Sans-normal-normal.ttf" />
+        <FontStyle weight="normal" style="italic" href="Sans-normal-italic.ttf" />
+        <FontStyle weight="bold" style="normal" href="Sans-bold-normal.ttf" />
+        <FontStyle weight="bold" style="italic" href="Sans-bold-italic.ttf" />
+        <FontStyle weight="900" style="normal" href="Sans-900-normal.ttf" />
+        <FontStyle weight="900" style="italic" href="Sans-900-italic.ttf" />
+    </Font>
+    <Font name="Serif" location="Serif" source="" auto-embed="false">
+        <FontStyle weight="normal" style="normal" href="Serif-normal-normal.ttf" />
+        <FontStyle weight="normal" style="italic" href="Serif-normal-italic.ttf" />
+        <FontStyle weight="bold" style="normal" href="Serif-bold-normal.ttf" />
+        <FontStyle weight="bold" style="italic" href="Serif-bold-italic.ttf" />
+    </Font>
+    <Font name="Monospace" location="Monospace" source="" auto-embed="false">
+        <FontStyle weight="normal" style="normal" href="Monospace-normal-normal.ttf" />
+        <FontStyle weight="bold" style="normal" href="Monospace-bold-normal.ttf" />
+    </Font>
+    <Font name="Handwriting" location="Handwriting" source="" auto-embed="false">
+        <FontStyle weight="normal" style="normal" href="Handwriting-normal-normal.ttf" />
+    </Font>
+    <Font name="PencilUI" location="GoogleRoboto" source="dgthanhan.AndroidNougatWireframe" auto-embed="false">
+      <FontStyle weight="100" style="normal" href="Android-Roboto-100-normal.ttf" />
+      <FontStyle weight="100" style="italic" href="Android-Roboto-100-italic.ttf" />
+      <FontStyle weight="300" style="normal" href="Android-Roboto-300-normal.ttf" />
+      <FontStyle weight="300" style="italic" href="Android-Roboto-300-italic.ttf" />
+      <FontStyle weight="normal" style="normal" href="Android-Roboto-normal-normal.ttf" />
+      <FontStyle weight="normal" style="italic" href="Android-Roboto-normal-italic.ttf" />
+      <FontStyle weight="500" style="normal" href="Android-Roboto-500-normal.ttf" />
+      <FontStyle weight="500" style="italic" href="Android-Roboto-500-italic.ttf" />
+      <FontStyle weight="bold" style="normal" href="Android-Roboto-bold-normal.ttf" />
+      <FontStyle weight="bold" style="italic" href="Android-Roboto-bold-italic.ttf" />
+      <FontStyle weight="900" style="normal" href="Android-Roboto-900-normal.ttf" />
+      <FontStyle weight="900" style="italic" href="Android-Roboto-900-italic.ttf" />
+   </Font>
+</FontRegistry>
+

@@ -10,8 +10,8 @@ var Pencil = {};
 
 pencilSandbox.Pencil = Pencil;
 
-Pencil.SNAP = 4;
-Pencil.UNSNAP = 4;
+Pencil.SNAP = 10;
+Pencil.UNSNAP = 10;
 Pencil.editorClasses = [];
 Pencil.registerEditor = function (editorClass) {
     Pencil.editorClasses.push(editorClass);
@@ -79,6 +79,7 @@ Pencil.fixUI = function () {
 Pencil.boot = function (event) {
     try {
         if (Pencil.booted) return;
+        debug("BOOT: Initializing Pencil core");
 
         Pencil.app = require('electron').remote.app;
 
@@ -86,11 +87,15 @@ Pencil.boot = function (event) {
         Pencil.window = document.documentElement;
         Pencil.rasterizer = new Rasterizer("image/png");
 
+        debug("BOOT:   Loading stencils");
         CollectionManager.loadStencils();
+        debug("BOOT:   Loading export templates");
         ExportTemplateManager.loadTemplates();
+        debug("BOOT:   Configuring export manager");
         Pencil.documentExportManager = new DocumentExportManager();
 
         Pencil.activeCanvas = null;
+        debug("BOOT:   Setting up UI commands");
         Pencil.setupCommands();
 
         Pencil.undoMenuItem = document.getElementById("editUndoMenu");
@@ -99,6 +104,8 @@ Pencil.boot = function (event) {
         Pencil.sideBoxFloat = document.getElementById("sideBoxFloat");
         var collectionPaneSizeGrip = document.getElementById("collectionPaneSizeGrip");
 
+        debug("BOOT:   Registering global event handlers");
+        debug("BOOT:     - Collection pane collapsing event");
         window.addEventListener("mousedown", function (event) {
             var target = event.target;
             if (target.className && target.className == "CollectionPane") {
@@ -129,43 +136,55 @@ Pencil.boot = function (event) {
         //     }
         // };
 
+        debug("BOOT:     - Global scroll event");
         document.addEventListener("scroll", function (event) {
             if (document.body.scrollTop != 0 && event.target === document) {
                 document.body.scrollTop = 0;
             }
         }, false);
 
+        debug("BOOT:     - Booting shared editors.");
         //booting shared editors
         for (var i in Pencil.sharedEditors) {
             try {
+                debug("BOOT:         " + Pencil.sharedEditors[i].constructor.name);
                 Pencil.sharedEditors[i].setup();
             } catch (e) {
                 Console.dumpError(e, "stdout");
             }
         }
 
+        debug("BOOT:     - p:CanvasChanged event.");
         document.documentElement.addEventListener("p:CanvasChanged", Pencil.handleCanvasChange, false);
+        debug("BOOT:     - p:TargetChanged event.");
         document.documentElement.addEventListener("p:TargetChanged", Pencil.handleTargetChange, false);
 
+        debug("BOOT:     - p:ContentModified event.");
         document.documentElement.addEventListener("p:ContentModified", Pencil._setupUndoRedoCommand, false);
+        debug("BOOT:     - p:UserFontLoaded event.");
         document.documentElement.addEventListener("p:UserFontLoaded", function () {
             if (ApplicationPane._instance) ApplicationPane._instance.sharedFontEditor.reloadFontItems();
         }, false);
 
+        debug("BOOT:     - Fallback scroll event.");
         document.body.onscroll = function (event) {
             if (document.body.scrollTop != 0) {
                 document.body.scrollTop = 0;
             }
         };
+        debug("BOOT:   Done initializing Pencil core.");
     } catch (e) {
-        Console.dumpError(e, "stdout");
+        console.error(e);
     }
 };
 Pencil.handleArguments = function() {
 	var remote = require('electron').remote;
 	var appArguments = remote.getGlobal('sharedObject').appArguments;
 	if (appArguments && appArguments.length > 1) {
-		Pencil.documentHandler.loadDocumentFromArguments(appArguments[1]);
+        var arg = appArguments[1];
+        if (arg != "app" && arg != "./app") {
+            Pencil.documentHandler.loadDocumentFromArguments(arg);
+        }
 	}
 };
 Pencil.setTitle = function (s) {

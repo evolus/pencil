@@ -52,10 +52,32 @@ EpgzHandler.prototype.loadDocument = function(filePath) {
 }
 
 EpgzHandler.prototype.saveDocument = function (documentPath) {
+    var thiz = this;
     return new Promise(function (resolve, reject) {
         var path = null;
         var targz = require('tar.gz');
-        new targz({}, {fromBase: true}).compress(Pencil.documentHandler.tempDir.name, documentPath)
+        var tarOptions = {
+            fromBase: true,
+            readerFilter: function (one, two, three) {
+                var p = one && one.path ? one.path : null;
+                if (one && one.size === 0) {
+                    // console.log("Empty file found: ", p);
+                }
+                var re = process.platform === "win32" ? /refs\\([^\\]+)$/ : /refs\/([^\/]+)$/;
+                if (p && p.match(re)) {
+                    var id = RegExp.$1;
+                    if (thiz.controller.registeredResourceIds && thiz.controller.registeredResourceIds.indexOf(id) < 0) {
+                        console.log("Ignoring: " + id);
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
+
+        var compressor = new targz({}, tarOptions);
+        console.log(compressor._options);
+        compressor.compress(Pencil.documentHandler.tempDir.name, documentPath)
         .then(resolve).catch(reject);
     });
 };

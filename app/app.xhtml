@@ -11,6 +11,11 @@
         <link rel="stylesheet" href="css/canvas.css" />
         <link rel="stylesheet" href="css/theme.css"/>
 
+        <!-- Code mirror -->
+        <script type="text/javascript" src="lib/codemirror/codemirror.js"></script>
+        <link rel="stylesheet" href="lib/codemirror/codemirror.css"/>
+        <script type="text/javascript" src="lib/codemirror/javascript.js"></script>
+
         <!-- Pencil Core -->
         <script type="text/javascript" src="pencil-core/common/pencilNamespaces.js"></script>
         <script type="text/javascript" src="pencil-core/common/nsDragAndDrop2.js"></script>
@@ -31,9 +36,11 @@
 
         <script type="text/javascript" src="pencil-core/common/config.js"></script>
 
+        <script type="text/javascript" src="tools/capture-services.js"></script>
+        <script type="text/javascript" src="tools/global-shortcut.js"></script>
+
         <script type="text/javascript" src="pencil-core/common/FontLoader.js"></script>
         <script type="text/javascript" src="pencil-core/common/FontLoaderUtil.js"></script>
-
 
         <script type="text/javascript" src="pencil-core/canvasHelper/canvasCareTaker.js"></script>
         <script type="text/javascript" src="pencil-core/canvasHelper/canvasMemento.js"></script>
@@ -189,6 +196,12 @@
         <script type="text/javascript" src="views/editors/StrokeStyleEditor.js"></script>
         <script type="text/javascript" src="views/editors/TextToolOverlay.js"></script>
         <script type="text/javascript" src="views/editors/NPatchSpecEditorDialog.js"></script>
+        
+        <script type="text/javascript" src="views/editors/image-editor/ExternalImageEditorDialog.js"></script>
+        <script type="text/javascript" src="views/editors/image-editor/ImageEditorDialog.js"></script>
+        <script type="text/javascript" src="views/editors/image-editor/tools/BaseSimpleArgumentTool.js"></script>
+        <script type="text/javascript" src="views/editors/image-editor/tools/BaseImmediateActionTool.js"></script>
+        
         <script type="text/javascript" src="views/EditPageNoteDialog.js"></script>
         <script type="text/javascript" src="views/ExportDialog.js"></script>
         <script type="text/javascript" src="views/menus/Menu.js"></script>
@@ -210,11 +223,15 @@
         <script type="text/javascript" src="views/tools/SettingDialog.js"></script>
         <script type="text/javascript" src="views/tools/SizingPolicyDialog.js"></script>
         <script type="text/javascript" src="views/tools/StencilGeneratorDialog.js"></script>
+        <script type="text/javascript" src="views/tools/DocumentDiagTools.js"></script>
         <script type="text/javascript" src="views/tools/TemplateManagementDialog.js"></script>
         <script type="text/javascript" src="views/tools/StencilCollectionBuilder.js"></script>
         <script type="text/javascript" src="views/tools/StencilCollectionDetailDialog.js"></script>
+        <script type="text/javascript" src="views/tools/ConsoleOutputDialog.js"></script>
+        <script type="text/javascript" src="views/tools/ScriptEditorDialog.js"></script>
         <script type="text/javascript" src="views/tools/StencilShapeCanvasToolbar.js"></script>
         <script type="text/javascript" src="views/tools/ShapeTestCanvasPane.js"></script>
+        <script type="text/javascript" src="views/tools/ScreenCaptureOptionDialog.js"></script>
         <script type="text/javascript" src="pencil-core/common/EpzHandler.js"></script>
         <script type="text/javascript" src="pencil-core/common/EpgzHandler.js"></script>
         <script type="text/javascript" src="pencil-core/common/EpHandler.js"></script>
@@ -236,6 +253,7 @@
         <script type="text/javascript" src="views/collections/CollectionResourceBrowserDialog.js"></script>
 
         <script type="text/javascript" src="pencil-core/definition/collectionRepository.js"></script>
+        <script type="text/javascript" src="views/collections/CollectionRepoBrowserView.js"></script>
         <script type="text/javascript" src="views/collections/CollectionBrowserDialog.js"></script>
 
     </head>

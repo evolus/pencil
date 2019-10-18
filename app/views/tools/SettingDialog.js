@@ -13,7 +13,8 @@ function SettingDialog() {
         "edit.cutAndPasteAtTheSamePlace": this.cutAndPasteAtTheSamePlace,
         "view.undo.enabled": this.undoEnabled,
         "view.undoLevel": this.textboxUndoLevel,
-        "view.uiTextScale": this.textScaleInput
+        "view.uiTextScale": this.textScaleInput,
+        "view.useCompactLayout": this.useCompactLayout
     };
 
     this.bind("click", function (event) {
@@ -74,6 +75,8 @@ function SettingDialog() {
                 widget.reloadDesktopFont().then(function () {});
             }
         }
+
+        ApplicationPane._instance.invalidateUIForConfig();
     }, this.settingTabPane);
 
     this.bind("input", function (event) {
@@ -171,6 +174,8 @@ SettingDialog.prototype.setup = function () {
     }
     this.textScaleInput.value = Config.get("view.uiTextScale");
 
+    this.useCompactLayout.checked = Config.get("view.useCompactLayout", false);
+
     var svgurl = Config.get("external.editor.vector.path", "/usr/bin/inkscape");
     var bitmapurl = Config.get("external.editor.bitmap.path", "/usr/bin/gimp");
 
@@ -235,7 +240,7 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                         data.value = value;
                         var result = value;
                         if (data.type != "string") {
-                            result = parseInt(value);
+                            result = parseFloat(value);
                             if (data.name == "view.undoLevel" || data.name == "edit.gridSize" ) {
                                 if (!result || parseInt(result) == 0 ) {
                                     if (data.name == "view.undoLevel") {

@@ -1,4 +1,4 @@
-function Popup() {
+function Popup(node) {
     BaseTemplatedWidget.call(this);
 
     this.forceInside = true;
@@ -6,6 +6,10 @@ function Popup() {
     this.visible = false;
     this.shouldDetach = true;
     Dom.addClass(this.popupContainer, "UIWidget");
+    if (node && node.getAttribute) {
+        var popupClass = node.getAttribute("popup-class");
+        if (popupClass) Dom.addClass(this.popupContainer, popupClass);
+    }
 
     Popup.registerGlobalListeners();
 }
@@ -299,8 +303,8 @@ Popup.prototype._setPosition = function (x, y) {
     this.popupContainer.style.left = x + "px";
     this.popupContainer.style.top = y + "px";
 };
-Popup.prototype.close = function () {
-    this.hide();
+Popup.prototype.close = function (reason, event) {
+    this.hide(undefined, reason, event);
 };
 Popup.prototype.getClosableContainer = function () {
     return this.popupContainer;
@@ -310,10 +314,10 @@ Popup.prototype.hidePopupContainer = function () {
     this.popupContainer.style.visibility = "hidden";
     this.visible = false;
 }
-Popup.prototype.hide = function (silent) {
+Popup.prototype.hide = function (silent, reason, event) {
     this.hidePopupContainer();
     if (!silent) Dom.emitEvent("p:PopupHidden", this.node());
-    if (this.onHide) this.onHide();
+    if (this.onHide) this.onHide(reason, event);
 
     BaseWidget.unregisterClosable(this);
     if (this.e(this.shouldDetach)) this.detach();

@@ -117,6 +117,10 @@ function StartUpDocumentView() {
         UICommandManager.installControl(command, n);
     });
 
+    this.bind("click", function () {
+        Controller._instance.handleGlobalScreencapture();
+    }, this.takeScreenshotButton);
+
 }
 
 __extend(BaseTemplatedWidget, StartUpDocumentView);

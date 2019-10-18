@@ -1,5 +1,8 @@
-<vbox class="Form">
+<vbox class="Form CollectionManagementDialog">
     <style>
+        body .CollectionManagementDialog {
+            overflow: hidden;
+        }
         @collectionContainer > vbox[hover="true"] {
             outline: solid 2px fadeout(@selected_bg, 30%);
             outline-offset: 0px;
@@ -20,7 +23,7 @@
             justify-content: space-between;
             overflow: auto;
             width: 50em;
-            max-height: 40em;
+            max-height: 60em;
             padding: 0em 1em 1em 0em;
         }
         @collectionContainer > .CollectionView {
@@ -30,6 +33,7 @@
             padding: 1em;
             box-shadow: @card_shadow;
             text-align: left;
+            background-color: #FFF;
         }
         @collectionContainer > .CollectionView:not([visible="true"]) > * {
             opacity: 0.3;

@@ -47,7 +47,7 @@ PageMenu.prototype.setup = function () {
            }
            Pencil.controller.duplicatePage(thiz.page, onDone());
        }
-   });
+    });
     this.register({
         key: "PageDelete",
         icon : "remove",
@@ -156,24 +156,18 @@ PageMenu.prototype.setup = function () {
 
     this.separator();
 
-    this.register({
-        key: "PageProperties",
-        isEnabled: function () { return thiz.page },
-        getLabel: function () { return "Properties..." },
-        isValid: function () { return true },
-        run: function () {
-            var dialog = new PageDetailDialog();
-            dialog.title = "Edit Page Properties";
-            dialog.open({
-                defaultPage : thiz.page,
-                onDone: function(page) {
-                }
-            });
-        },
-    });
     UICommandManager.getCommand("exportPageAsPNGButton").isEnabled = function () {return thiz.page};
     UICommandManager.getCommand("exportPageAsPNGButton").page = thiz.page;
     this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
+
+    this.register({
+        key: "copyPageBitmapCommand",
+        label: "Copy Page Bitmap",
+        run: function () {
+            Pencil.controller.copyPageBitmap(thiz.page);
+        },
+        shortcut: "Ctrl+Shift+C"
+    });
 
     this.separator();
 
@@ -189,6 +183,21 @@ PageMenu.prototype.setup = function () {
                 onDone: function (editor) {
                     console.log("Complete note");
                     thiz.page.note = editor;
+                }
+            });
+        },
+    });
+    this.register({
+        key: "PageProperties",
+        isEnabled: function () { return thiz.page },
+        getLabel: function () { return "Properties..." },
+        isValid: function () { return true },
+        run: function () {
+            var dialog = new PageDetailDialog();
+            dialog.title = "Edit Page Properties";
+            dialog.open({
+                defaultPage : thiz.page,
+                onDone: function(page) {
                 }
             });
         },

@@ -1,9 +1,19 @@
-<hbox>
+<vbox>
     <style>
         @textarea {
-            width: 2em;
+            min-width: 2em;
             height: 3em;
+        }
+        @launchScriptEditorButton {
+            font-size: 0.85em !important;
+            font-weight: bold;
+            margin-bottom: 1.5em;
+            padding: 0.5em 0.2em;
+            color: #2381C5;
         }
     </style>
     <textarea anon-id="textarea" rows="1" cols="50" flex="1"></textarea>
-</hbox>
+    <hbox>
+        <button anon-id="launchScriptEditorButton">Launch Script Editor...</button>
+    </hbox>
+</vbox>

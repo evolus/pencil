@@ -3,12 +3,12 @@ var PrivateCollectionManager = {};
 PrivateCollectionManager.privateShapeDef = {};
 PrivateCollectionManager.privateShapeDef.shapeDefMap = {};
 PrivateCollectionManager.privateShapeDef.collections = [];
+PrivateCollectionManager.privateShapeDef.builtinCollections = [];
 
 PrivateCollectionManager.loadPrivateCollections = function () {
 
     try {
         var privateCollectionXmlLocation = path.join(PrivateCollectionManager.getPrivateCollectionDirectory(), "PrivateCollection.xml");
-        debug("loading private collections: " + privateCollectionXmlLocation.path);
 
         // privateCollectionXmlLocation.append("PrivateCollection.xml");
         var stat = fs.statSync(privateCollectionXmlLocation);
@@ -35,21 +35,8 @@ PrivateCollectionManager.loadPrivateCollections = function () {
 PrivateCollectionManager.savePrivateCollections = function () {
     try {
         debug("saving private collections...");
-        var xml = '<?xml version="1.0"?>\n' +
-                    '<p:Collections xmlns="http://www.w3.org/2000/svg"\n' +
-                      '\txmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"\n' +
-                      '\txmlns:html="http://www.w3.org/1999/xhtml"\n' +
-                      '\txmlns:svg="http://www.w3.org/2000/svg"\n' +
-                      '\txmlns:xlink="http://www.w3.org/1999/xlink"\n' +
-                      '\txmlns:p="http://www.evolus.vn/Namespace/Pencil">\n';
-
-        for (var i = 0; i < PrivateCollectionManager.privateShapeDef.collections.length; i++) {
-            xml += PrivateCollectionManager.privateShapeDef.collections[i].toXMLDom();
-        }
-
-        xml += '</p:Collections>';
-        //debug(xml);
-
+        var xml = PrivateCollectionManager.getCollectionsExportedXML(PrivateCollectionManager.privateShapeDef.collections);
+        
         var privateCollectionFile = PrivateCollectionManager.getPrivateCollectionFile();
         fs.writeFileSync(privateCollectionFile, xml, ShapeDefCollectionParser.CHARSET);
     } catch (ex) {
@@ -149,17 +136,29 @@ PrivateCollectionManager.deleteAllCollection = function () {
         PrivateCollectionManager.reloadCollectionPane();
     }, "Cancel", function () {});
 };
+PrivateCollectionManager.getCollectionsExportedXML = function (collections) {
+    var xml = '<?xml version="1.0"?>\n' +
+                '<p:Collections xmlns="http://www.w3.org/2000/svg"\n' +
+                  '\txmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"\n' +
+                  '\txmlns:html="http://www.w3.org/1999/xhtml"\n' +
+                  '\txmlns:svg="http://www.w3.org/2000/svg"\n' +
+                  '\txmlns:xlink="http://www.w3.org/1999/xlink"\n' +
+                  '\txmlns:p="http://www.evolus.vn/Namespace/Pencil">\n';
+
+    for (var i = 0; i < collections.length; i++) {
+        xml += collections[i].toXMLDom();
+    }
+
+    xml += '</p:Collections>';
+    
+    return xml;
+};
+
 PrivateCollectionManager.exportCollection = function (collection) {
     try {
         debug("exporting collection " + collection.displayName);
         var fileName = collection.displayName + ".zip";
-        var xml = '<?xml version="1.0"?>\n' +
-                    '<p:Collections xmlns="http://www.w3.org/2000/svg"\n' +
-                      '\txmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"\n' +
-                      '\txmlns:html="http://www.w3.org/1999/xhtml"\n' +
-                      '\txmlns:svg="http://www.w3.org/2000/svg"\n' +
-                      '\txmlns:xlink="http://www.w3.org/1999/xlink"\n' +
-                      '\txmlns:p="http://www.evolus.vn/Namespace/Pencil">\n' + collection.toXMLDom() + "</p:Collections>";
+        var xml = PrivateCollectionManager.getCollectionsExportedXML([collection]);
 
         dialog.showSaveDialog({
             title: "Save as",
@@ -212,6 +211,22 @@ PrivateCollectionManager.importNewCollection = function () {
         PrivateCollectionManager.installCollectionFromFile(file);
     });
 };
+PrivateCollectionManager.parseSingleCollectionFile = function (definitionFile) {
+    var collection = null;
+
+    var fileContents = fs.readFileSync(definitionFile, ShapeDefCollectionParser.CHARSET);
+    var domParser = new DOMParser();
+    var dom = domParser.parseFromString(fileContents, "text/xml");
+    if (dom != null) {
+        var dom = dom.documentElement;
+        var parser = new PrivateShapeDefParser();
+        Dom.workOn("./p:Collection", dom, function (node) {
+            collection = parser.parseNode(node);
+        });
+    };
+    
+    return collection;
+};
 PrivateCollectionManager.installCollectionFromFile = function (file) {
     ApplicationPane._instance.busy();
     var filePath = file.path;
@@ -235,19 +250,7 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
                 var definitionFile = path.join(targetDir, "Definition.xml");
                 if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
 
-                var fileContents = fs.readFileSync(definitionFile, ShapeDefCollectionParser.CHARSET);
-
-                var domParser = new DOMParser();
-
-                var collection = null;
-                var dom = domParser.parseFromString(fileContents, "text/xml");
-                if (dom != null) {
-                    var dom = dom.documentElement;
-                    var parser = new PrivateShapeDefParser();
-                    Dom.workOn("./p:Collection", dom, function (node) {
-                        collection = parser.parseNode(node);
-                    });
-                };
+                var collection = PrivateCollectionManager.parseSingleCollectionFile(definitionFile);
 
                 if (collection && collection.id) {
                     //check for duplicate of name

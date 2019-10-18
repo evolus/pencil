@@ -147,7 +147,7 @@ function init() {
         function onConversionDone() {
             // it looks like that the bigger images embedded, the longer time we need to wait for the image to be fully painted into the canvas
             var cssDelay = combinedCSS ? combinedCSS.length / 120 : 0;
-            var delay = Math.max(combinedCSS ? 500 : 500, totalImageLength / 30000 + cssDelay);
+            var delay = Math.max(1000, totalImageLength / 30000 + cssDelay);
             console.log("DELAY -> " + delay + " ms");
 
             document.body.innerHTML = "";

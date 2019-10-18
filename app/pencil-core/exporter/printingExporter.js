@@ -2,6 +2,7 @@ function PrintingExporter(pdfOutput) {
     this.pdfOutput = pdfOutput;
     this.name = pdfOutput ? "Portable Document Format (PDF)" : "Print";
     this.id = pdfOutput ? "PDFExporter" : "PrintingExporter";
+    this.linkingSupported = pdfOutput ? true : false;
 }
 PrintingExporter.HTML_FILE = "index.html";
 PrintingExporter.prototype = new BaseExporter();
@@ -125,10 +126,9 @@ PrintingExporter.prototype.export = function (doc, options, targetFile, xmlFile,
         }.bind(this));
 
         ipcRenderer.send("printer-request", data);
-        console.log("RASTER: Printing request sent for ", data);
     }.bind(this);
 
-    var fontFaces = FontLoader.instance.allFaces;
+    var fontFaces = [].concat(FontLoader.systemRepo.faces).concat(FontLoader.instance.allFaces);
 
     console.log(result.documentElement);
 

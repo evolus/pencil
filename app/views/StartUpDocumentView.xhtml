@@ -135,6 +135,10 @@
         @recentDocumentPane .GridSelect .Active{
             background: #dddddd;
         }
+        
+        @takeScreenshotButton {
+            display: none;
+        }
     </style>
     <vbox>
         <vbox anon-id="recentDocumentPane">
@@ -161,6 +165,7 @@
         <hbox anon-id="otherOptionPane">
             <button command="openDocumentCommand"><i>open_in_browser</i>Open a Document...</button>
             <button command="newDocumentCommand"><i>note_add</i>Create a New Document</button>
+            <button anon-id="takeScreenshotButton"><i>camera</i>Take Screenshot</button>
         </hbox>
     </vbox>
 </vbox>

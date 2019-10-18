@@ -96,7 +96,7 @@ SharedFontEditor.prototype.setup = function () {
     this.weightCombo.useHtml = true;
     this.weightCombo.renderer = function (weight, buttonDisplay) {
         var w = FontRepository.WEIGHT_MAP[weight];
-        return "<span style=\"font-family: " + this.fontCombo.getSelectedItem().family + "; font-weight: " + weight + ";\">" + (buttonDisplay ? w.shortName : w.displayName) + "</span>";
+        return "<span style=\"font-family: " + (this.fontCombo.getSelectedItem().family || "").replace(/"/g, "'") + "; font-weight: " + weight + ";\">" + (buttonDisplay ? w.shortName : w.displayName) + "</span>";
     }.bind(this);
 
     Pencil.formatPainterButton = this.formatPainterButton;
@@ -108,7 +108,7 @@ SharedFontEditor.prototype.invalidateWeightCombo = function () {
 
     if (this.font && this.font.weight) this.weightCombo.selectItem(this.font.weight);
 
-    this.useToggle = (font.weights.length <= 2 && (font.weights.indexOf("normal") >= 0 || font.weights.indexOf("bold") >= 0));
+    this.useToggle = !font.weights || (font.weights.length <= 2 && (font.weights.indexOf("normal") >= 0 || font.weights.indexOf("bold") >= 0));
     this.node().setAttribute("use-toggle", this.useToggle);
 };
 SharedFontEditor.prototype.reloadFontItems = function () {

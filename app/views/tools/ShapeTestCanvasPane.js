@@ -9,10 +9,9 @@ function ShapeTestCanvasPane() {
     var thiz = this;
     var f = function () {
         thiz.invalidateSizing();
-        window.setTimeout(f, 1000);
     };
 
-    f();
+    window.setTimeout(f, 1000);
 }
 
 __extend(BaseTemplatedWidget, ShapeTestCanvasPane);

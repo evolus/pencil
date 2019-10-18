@@ -363,7 +363,6 @@ Object.defineProperty(Event.prototype, "originalTarget", {
 (function(){
   var attachEvent = document.attachEvent;
   var isIE = navigator.userAgent.match(/Trident/);
-  console.log(isIE);
   var requestFrame = (function(){
     var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
         function(fn){ return window.setTimeout(fn, 20); };
@@ -471,12 +470,8 @@ Object.defineProperty(Event.prototype, "originalTarget", {
 var domParser = new DOMParser();
 
 /* public static XmlDocument */ Dom.loadSystemXml = function (relPath) {
-    var request = new XMLHttpRequest();
-    request.open("GET", relPath, false);
-    request.send("");
-    var dom = domParser.parseFromString(request.responseText, "text/xml");;
-
-    return dom;
+    var absPath = getStaticFilePath(relPath);
+    return Dom.parseFile(absPath);
 };
 
 Dom.isElementExistedInDocument = function(element) {
@@ -634,6 +629,12 @@ Dom.findParentWithClass = function (node, className) {
             }
         });
 };
+Dom.findParentByTagName = function (node, tagName) {
+    tagName = tagName.toUpperCase();
+    return Dom.findUpward(node, function (n) {
+        return n.tagName && n.tagName.toUpperCase && (n.tagName.toUpperCase() == tagName);
+    });
+}
 Dom.doOnChildRecursively = function (node, evaluator, worker) {
     if (!node || !node.childNodes) return null;
 
@@ -1200,28 +1201,6 @@ Local.getInstalledFonts = function () {
 
     Local.sortFont(localFonts);
 
-    var fonts = fontManager.getAvailableFontsSync();
-
-    var systemFonts = [];
-    for (var i in fonts) {
-        var contained = false;
-        for (var j in systemFonts) {
-            if (systemFonts[j].family == fonts[i].family) {
-                contained = true;
-                break;
-            }
-        }
-        if (contained) continue;
-
-        systemFonts.push({
-            family: fonts[i].family,
-            weights: ["normal", "bold"]
-        });
-    }
-
-    Local.sortFont(systemFonts);
-
-    localFonts = localFonts.concat(systemFonts)
     Local.cachedLocalFonts = localFonts;
 
     return localFonts;
@@ -1695,7 +1674,7 @@ Util.openDonate = function () {
     //     var uri = ioservice.newURI(link, null, null);
     //     protoservice.loadUrl(uri);
     // }
-    require("shell").openExternal("http://pencil.evolus.vn/Donation.aspx");
+    require("shell").openExternal("http://pencil.evolus.vn/Donation.html");
 };
 Util.getMessage = function (msg, args) {
     var text = MESSAGES[msg];
@@ -1777,11 +1756,10 @@ if (typeof(console) == "undefined") {
     };
 }
 
-function debug(value) {
-	//DEBUG_BEGIN
+const DEV_ENABLED = require("electron").remote.app.devEnable ? true : false;
 
-    //console.info(value ? value : "NULL VALUE");
-    //DEBUG_END
+function debug() {
+    //if (DEV_ENABLED) console.log.apply(console, ["DEBUG>"].concat(Array.prototype.slice.call(arguments)));
 }
 function stackTrace() {
 	//DEBUG_BEGIN
@@ -2541,5 +2519,82 @@ function handleCommonValidationError(e) {
         throw e;
     }
 }
+
+function contains(list, item, comparer) {
+    return findItemByComparer(list, item, comparer) >= 0;
+}
+
+function sameList(a, b, comparer) {
+    return containsAll(a, b, comparer) && containsAll(b, a, comparer);
+};
+function containsAll(a, b, comparer) {
+    var c = comparer || sameId;
+    for (var i = 0; i < b.length; i ++) {
+        if (!contains(a, b[i], c)) return false;
+    }
+
+    return true;
+};
+function intersect(a, b, comparer) {
+    if (!a || !b) return [];
+    var items = [];
+    for (var i = 0; i < a.length; i ++) {
+        if (contains(b, a[i], comparer)) {
+            items.push(a[i]);
+        }
+    }
+
+    return items;
+};
+
+function findItemByComparer(list, item, comparer) {
+    for (var i = 0; i < list.length; i ++) {
+        if (comparer(list[i], item)) return i;
+    }
+
+    return -1;
+}
+function removeItemByComparer(list, item, comparer) {
+    var result = [];
+    for (var i = 0; i < list.length; i ++) {
+        if (!comparer(list[i], item)) {
+            result.push(list[i]);
+        }
+    }
+
+    return result;
+}
+function find(list, matcher) {
+    for (var i = 0; i < list.length; i ++) {
+        if (matcher(list[i])) return list[i];
+    }
+
+    return null;
+}
+function findById(list, id) {
+    return find(list, function (u) { return u.id == id; });
+}
+function _export() {
+    var obj = {};
+    for (var i = 0; i < arguments.length; i ++) {
+        var f = arguments[i];
+        if (typeof(f) != "function") continue;
+        obj[f.name] = f;
+    }
+
+    return obj;
+}
+function sameId(a, b) {
+    if (!a) return !b;
+    if (!b) return false;
+    return a.id == b.id;
+}
+function sameRelax(a, b) {
+    return a == b;
+}
+
+process.on('uncaughtException', function (e) {
+    console.error("UNCAUGHT EXCPTION", e);
+});
 
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);

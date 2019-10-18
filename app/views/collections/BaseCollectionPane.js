@@ -146,12 +146,24 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
         var collection = collections[i];
         if(this.isShowCollection(collection)) {
             var icon = this.getCollectionIcon(collection);
+            var typeClass = collection.developerStencil ? "TypeDeveloper" : (collection.userDefined ? "TypeUser" : "TypeSystem");
+            if (collection.builderStencil) typeClass += " TypeBuilder";
             var node = Dom.newDOMElement({
                 _name: "vbox",
-                "class": "Item",
+                "class": "Item" + (collection.previewURL ? " WithPreview" : "") + " " + typeClass,
                 "tabindex": "0",
                 title: collection.displayName,
                 _children: [
+                    {
+                        _name: "div",
+                        "class": "Preview",
+                        _children: [
+                            {
+                                _name: "img",
+                                src: collection.previewURL
+                            }
+                        ]
+                    },
                     {
                         _name: "div",
                         "class": "ItemInner",
@@ -345,9 +357,18 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
                 n.removeAttribute("matched");
             }
         });
+        Dom.workOn(".//*[@pr-ref]", this.collectionLayoutContainer, function (n) {
+            if (!collection.builtinPrivateCollection || !collection.builtinPrivateCollection.map) return;
+            var defId = n.getAttribute("pr-ref");
+            var def = collection.builtinPrivateCollection.map[defId];
+            if (!def) return;
+            n._def = def;
+            n.setAttribute("draggable", "true");
+            n.setAttribute("title", def.displayName);
+        });
 
         this.collectionLayoutContainer.style.display = "block";
-        this.collectionLayoutContainer.style.overflow = "hidden";
+        // this.collectionLayoutContainer.style.overflow = "hidden";
         this.collectionLayoutContainer.style.visibility = "hidden";
         this.collectionLayoutContainer.style.height = "1px";
 

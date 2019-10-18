@@ -38,6 +38,11 @@ __extend(Dialog, ExportDialog);
 
 ExportDialog.prototype.invalidateUIByExporter = function () {
     var exporter = this.exporterCombo.getSelectedItem();
+    if (exporter.linkingSupported) {
+        Dom.addClass(this.optionPane, "LinkingSupported");
+    } else {
+        Dom.removeClass(this.optionPane, "LinkingSupported");
+    }
     if (exporter.supportTemplating()) {
         var templates = exporter.getTemplates();
         console.log(templates);
@@ -133,7 +138,10 @@ ExportDialog.prototype.setup = function (options) {
         Dom.addClass(this.optionPane, "ForcedExporter");
 
         var exporter = this.exporterCombo.getSelectedItem();
-        if (exporter) this.title = exporter.name;
+        if (exporter) {
+            this.title = exporter.name;
+            
+        }
     }
 
     var options = options || {};
@@ -194,7 +202,7 @@ ExportDialog.prototype.getDialogActions = function () {
                     options: {}
                 };
 
-                result.options.copyBGLinks = thiz.copyBgLinks.checked;
+                result.options.copyBGLinks = true;
 
                 if (this.propertyEditors) {
                     for (var name in this.propertyEditors) {

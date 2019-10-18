@@ -179,28 +179,24 @@ SnappingHelper.prototype.findSnapping = function (drawX, drawY, ghost, snap, shi
         if (shift) {
             _snap = 1;
         }
+        
+        var b = !ghost ? this.canvas.currentController.getSnappingGuide() : ghost;
 
-        var snappingData = this.findSnappingImpl(this.canvas.currentController, ghost, _snap, grid);
+        var snappingData = this.findSnappingImpl(this.canvas.currentController, b, _snap, grid);
         var currentDx = Pencil.SNAP + 10;
         var currentDy = Pencil.SNAP + 10;
         if (grid) {
             currentDx = Pencil.getGridSize().w;
             currentDy = Pencil.getGridSize().h;
         }
-        var b = !ghost ? this.canvas.currentController.getSnappingGuide() : ghost;
 
         var snapDelta = {
             dx: 0, dy: 0
         };
 
-        if (snappingData.verticals.length > 0) {
-            for (var k = 0; k < b.vertical.length; k++) {
-                var ve = true;
-                if (!snappingData.verticals[0].disabled && !b.vertical[k].disabled
-                    && Math.abs(snappingData.verticals[0].x.pos - b.vertical[k].pos) < Math.abs(currentDx)
-                    && this.allowSnapping(b.vertical[k], snappingData.verticals[0].x)) {
-                        currentDx = snappingData.verticals[0].x.pos - b.vertical[k].pos;
-                }
+        if (snappingData.bestVertical) {
+            if (Math.abs(snappingData.bestVertical.dx) < Math.abs(currentDx)) {
+                currentDx = snappingData.bestVertical.dx;
             }
 
             if (Math.abs(currentDx) < _snap) {
@@ -228,13 +224,9 @@ SnappingHelper.prototype.findSnapping = function (drawX, drawY, ghost, snap, shi
             }
         }
 
-        if (snappingData.horizontals.length > 0) {
-            for (var k = 0; k < b.horizontal.length; k++) {
-                if (!snappingData.horizontals[0].disabled && !b.horizontal[k].disabled
-                    && Math.abs(snappingData.horizontals[0].y.pos - b.horizontal[k].pos) < Math.abs(currentDy)
-                    && this.allowSnapping(b.horizontal[k], snappingData.horizontals[0].y)) {
-                        currentDy = snappingData.horizontals[0].y.pos - b.horizontal[k].pos;
-                }
+        if (snappingData.bestHorizontal) {
+            if (Math.abs(snappingData.bestHorizontal.dy) < Math.abs(currentDy)) {
+                currentDy = snappingData.bestHorizontal.dy;
             }
             if (Math.abs(currentDy) < _snap) {
                 if (drawY && !grid) {
@@ -305,14 +297,26 @@ SnappingHelper.prototype.findSnappingImpl = function(controller, ghost, snap, gr
         var y = this.lastYData;
 
         var _minsnap = snap ? snap : Pencil.SNAP;
+        
+        var bestV = null;
         for (var v = 0; v < c.vertical.length; v++) {
             var vertical = { };
             for (var i = 0; i < x.length; i++) {
-                if (!x[i].disabled && !c.vertical[v].disabled && x[i].id != currentControllerId && this.allowSnapping(c.vertical[v], x[i])) {
-                    if ((grid && x[i].type == "GridSnap" && Math.abs(x[i].pos - c.vertical[v].pos) <= _minsnap) || (!grid && x[i].type != "GridSnap" && Math.abs(x[i].pos - c.vertical[v].pos) <= _minsnap)) {
+                if (!x[i].disabled
+                    && !c.vertical[v].disabled
+                    && x[i].id != currentControllerId
+                    && (!controller.containsControllerId || !controller.containsControllerId(x[i].id))
+                    && this.allowSnapping(c.vertical[v], x[i])) {
+                    if ((grid && x[i].type == "GridSnap" && Math.abs(x[i].pos - c.vertical[v].pos) <= _minsnap)
+                        || (!grid && x[i].type != "GridSnap" && Math.abs(x[i].pos - c.vertical[v].pos) <= _minsnap)) {
+                            
                         _minsnap = Math.abs(x[i].pos - c.vertical[v].pos);
                         vertical.x = x[i];
                         vertical.dx = x[i].pos - c.vertical[v].pos;
+                        
+                        if (!bestV || Math.abs(bestV.dx > vertical.dx)) {
+                            bestV = vertical;
+                        }
                     }
                 }
             }
@@ -326,22 +330,34 @@ SnappingHelper.prototype.findSnappingImpl = function(controller, ghost, snap, gr
         //    debug(verticals[v].toSource());
         //}
 
-        if (verticals.length > 0) {
-            while (Math.abs(verticals[0].dx) != Math.abs(verticals[verticals.length - 1].dx)) {
-                //debug("delete");
-                verticals.splice(0, 1);
-            }
-        }
+        // if (verticals.length > 0) {
+        //     while (Math.abs(verticals[0].dx) != Math.abs(verticals[verticals.length - 1].dx)) {
+        //         //debug("delete");
+        //         verticals.splice(0, 1);
+        //     }
+        // }
 
         var _minsnap = snap ? snap : Pencil.SNAP;
+        
+        var bestH = null;
         for (var v = 0; v < c.horizontal.length; v++) {
             var horizontal = { };
             for (var i = 0; i < y.length; i++) {
-                if (!y[i].disabled && !c.horizontal[v].disabled && y[i].id != currentControllerId && this.allowSnapping(c.horizontal[v], y[i])) {
-                    if ((grid && y[i].type == "GridSnap" && Math.abs(y[i].pos - c.horizontal[v].pos) <= _minsnap) || (!grid && y[i].type != "GridSnap" && Math.abs(y[i].pos - c.horizontal[v].pos) <= _minsnap)) {
+                if (!y[i].disabled
+                    && !c.horizontal[v].disabled
+                    && y[i].id != currentControllerId
+                    && (!controller.containsControllerId || !controller.containsControllerId(y[i].id))
+                    && this.allowSnapping(c.horizontal[v], y[i])) {
+                    if ((grid && y[i].type == "GridSnap" && Math.abs(y[i].pos - c.horizontal[v].pos) <= _minsnap)
+                        || (!grid && y[i].type != "GridSnap" && Math.abs(y[i].pos - c.horizontal[v].pos) <= _minsnap)) {
+                            
                         _minsnap = Math.abs(y[i].pos - c.horizontal[v].pos);
                         horizontal.y = y[i];
                         horizontal.dy = y[i].pos - c.horizontal[v].pos;
+                        
+                        if (!bestH || Math.abs(bestH.dy > horizontal.dy)) {
+                            bestH = horizontal;
+                        }
                     }
                 }
             }
@@ -355,15 +371,17 @@ SnappingHelper.prototype.findSnappingImpl = function(controller, ghost, snap, gr
         //    debug(horizontals[v].toSource());
         //}
 
-        if (horizontals.length > 0) {
-            while (Math.abs(horizontals[0].dy) != Math.abs(horizontals[horizontals.length - 1].dy)) {
-                horizontals.splice(0, 1);
-            }
-        }
+        // if (horizontals.length > 0) {
+        //     while (Math.abs(horizontals[0].dy) != Math.abs(horizontals[horizontals.length - 1].dy)) {
+        //         horizontals.splice(0, 1);
+        //     }
+        // }
 
         return {
-            verticals: verticals,
-            horizontals: horizontals
+            verticals: verticals.sort(function (a, b) { return Math.abs(a.dx) - Math.abs(b.dx)}),
+            horizontals: horizontals.sort(function (a, b) { return Math.abs(a.dy) - Math.abs(b.dy)}),
+            bestVertical: bestV,
+            bestHorizontal: bestH
         };
     } catch(e) {
         Console.dumpError(e);

@@ -104,20 +104,26 @@ widget.Util = function() {
 
                 if (processedCSS[templateName]) return "";
 
-                var css = content.replace(/([\r\n ]+)([^\{\}\$;]+)\{/g, function (zero, leading, selectors) {
-                    selectors = selectors.replace(/^@this/gi, prefix);
-                    selectors = selectors.replace(/(\.widget_[^\r\n\,]+ )@([a-z])/gi, "$1 .AnonId_$2");
-                    if (!selectors.match(/^[ \t]*@media /)) {
-                        selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
-                    }
-                    selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
-                    if (!selectors.match(/^[ \t]*body[ \.\[:]/) && !selectors.match(/^[ \t]*@media /)) {
-                        selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
-                    }
+                var css = content.replace(/([^\{\}\$;]+)\{((?:[^\}\{]+\{[^\}]*\})*)([^\}]*\})/g, function (zero, start, blocks, end) {
+                    if (start.match(/^[\s]*@(keyframes|-webkit-keyframes)/)) return zero;
 
-                    var modified = leading + selectors + "{";
+                    return zero.replace(/([\r\n ]+)([^\{\}\$;]+)\{/g, function (zero, leading, selectors) {
+                        selectors = selectors.replace(/^@this/gi, prefix);
+                        selectors = selectors.replace(/(\.widget_[^\r\n\,]+ )@([a-z])/gi, "$1 .AnonId_$2");
+                        if (!selectors.match(/^[ \t]*@(media) /)) {
+                            selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
+                        }
+                        selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
+                        if (!selectors.match(/^[ \t]*body[ \.\[:]/)
+                                && !selectors.match(/^[ \t]*@(media) /)
+                                && !selectors.match(/^[ \t]*&/)) {
+                            selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
+                        }
 
-                    return modified;
+                        var modified = leading + selectors + "{";
+
+                        return modified;
+                    });
                 });
                 css = css.replace(/\$([a-z0-9_]+)/g, "@$1");
 
@@ -601,13 +607,17 @@ document.addEventListener("DOMContentLoaded", function () {
     var index = -1;
 
     function onLoadDone() {
+        debug("BOOT: Configuring DOM event.");
         BaseWidget.registerDOMMutationHandler();
         window.globalViews = {};
+        debug("BOOT: Initiating UI auto-binding.");
         widget.Util.performAutoBinding(document.body, window.globalViews);
+        debug("BOOT: Setting up popup handlers.");
         widget.Util.registerPopopCloseHandler();
 
         window.setTimeout(function () {
             document.body.setAttribute("loaded", "true");
+            debug("BOOT: Revealing user-interface.");
         }, 300);
     }
     function loadNext() {
@@ -627,26 +637,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var path = BaseTemplatedWidget.getTemplatePathForViewClass(clazz);
 
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function() {
-            if (request.readyState == 4) {
-                var html = request.responseText;
-                html = widget.Util.processLocalizationMacros(html);
-                widget.Util.getTemplateCache()[path] = html;
+        var viewFilePath = getStaticFilePath(path);
+        const fs = require("fs");
+        fs.readFile(viewFilePath, "utf8", function (error, html) {
+            html = widget.Util.processLocalizationMacros(html || "");
+            widget.Util.getTemplateCache()[path] = html;
 
-                var templateName = path.replace(/[^a-z0-9]+/gi, "_");
-                var className = "DynamicTemplate" + templateName;
-                var processedHtml = widget.Util._processTemplateStyleSheet(html, "." + className, templateName);
+            var templateName = path.replace(/[^a-z0-9]+/gi, "_");
+            var className = "DynamicTemplate" + templateName;
+            var processedHtml = widget.Util._processTemplateStyleSheet(html, "." + className, templateName);
 
-                loadNext();
-            }
-        };
-
-        request.open("GET", widget.STATIC_BASE + path + "?t=" + widget.CACHE_RANDOM, true);
-        request.send(null);
+            loadNext();
+        });
     }
 
-    widget.reloadDesktopFont().then(loadNext);
+    debug("BOOT: Loading desktop font configuration.");
+    widget.reloadDesktopFont().then(function () {
+        debug("BOOT: Loading view definition files");
+        loadNext();
+    });
 
 }, false);
 
@@ -748,7 +757,11 @@ BaseWidget.registerDOMMutationHandler = function () {
             if (mutation.type == "childList" && mutation.addedNodes && mutation.addedNodes.length > 0) {
                 for (var i = 0; i < mutation.addedNodes.length; i ++) {
                     var node = mutation.addedNodes[i];
-                    BaseWidget.handleOnAttached(node);
+                    try {
+                        BaseWidget.handleOnAttached(node);
+                    } catch (e) {
+                        console.error(e);
+                    }
                 }
             }
         });
@@ -785,7 +798,7 @@ BaseWidget.getTopClosable = function (event) {
     return BaseWidget.closables[BaseWidget.closables.length - 1];
 };
 BaseWidget.handleGlobalMouseDown = function (event) {
-    if (BaseWidget.closables.length == 0) return;
+    if (BaseWidget.closables.length == 0 || BaseWidget.closableProcessingDisabled) return;
     var closable = BaseWidget.closables[BaseWidget.closables.length - 1];
 
     BaseWidget.tryCloseClosableOnBlur(closable, event);

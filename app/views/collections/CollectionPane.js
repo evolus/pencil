@@ -35,6 +35,9 @@ CollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
     if (def.shape) {
         event.dataTransfer.setData("pencil/shortcut", def.id);
         nsDragAndDrop.setData("pencil/shortcut", def.id);
+    } else if (def instanceof PrivateShapeDef) {
+        event.dataTransfer.setData("pencil/privatedef", def.id);
+        nsDragAndDrop.setData("pencil/privatedef", def.id);
     } else {
         event.dataTransfer.setData("pencil/def", def.id);
         nsDragAndDrop.setData("pencil/def", def.id);
@@ -44,7 +47,12 @@ CollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
     nsDragAndDrop.setData("collectionId", def.collection ? def.collection.id : 0);
 };
 CollectionPane.prototype.getCollections = function () {
-    return CollectionManager.shapeDefinition.collections;
+    return [].concat(CollectionManager.shapeDefinition.collections).sort(function (a, b) {
+        var o1 = (a.builderStencil ? 0 : (a.developerStencil ? 1 : 2));
+        var o2 = (b.builderStencil ? 0 : (b.developerStencil ? 1 : 2));
+        
+        return o1 - o2;
+    });
 };
 CollectionPane.prototype.isShowCollection = function (collection) {
     return collection.visible == true;

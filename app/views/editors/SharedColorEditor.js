@@ -11,7 +11,7 @@ function SharedColorEditor() {
         Dom.emitEvent("p:PopupClosed", this.node(), {});
     }, this.selectorContainer.node());
 
-    this.selectorContainer.setPopupClass("SharedColorEditorPopup");
+    this.selectorContainer.setPopupClass("SharedColorEditorPopup ColorPopup");
     var thiz = this;
     this.selectorContainer.shouldCloseOnBlur = function(event) {
         var found = Dom.findUpward(event.target, function (node) {
@@ -37,12 +37,14 @@ SharedColorEditor.prototype.setup = function () {
         }
         if (!thiz.color) return;
         thiz.selector.setColor(thiz.color);
+        thiz.selector.setupColors();
         thiz.selectorContainer.show(thiz.node(), "left-inside", "bottom", 0, 5);
         event.cancelBubble = true;
     }, false);
 
     this.selector.addEventListener("ValueChange", function (event) {
         thiz.color = thiz.selector.getColor();
+        console.log("ValueChange", thiz.color);
         if (thiz.selectorContainer.isVisible()) {
             thiz._applyValue();
         }

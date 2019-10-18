@@ -22,15 +22,22 @@ Setting up
 Pencil uses [Atom Electron](http://electron.atom.io/) as the runtime, follow the these steps to setup the environment:
 
   * Clone this repository
-  * Make sure you are using *nodejs 5+*
+  * Make sure you are using *nodejs 5+* (Pencil development only needs *npm* for package management. Node runtime is _not_ required.)
+  * Checkout this _development_ branch:
+  
+    ```bash
+    $ git checkout development
+    ```
+    
   * Install dependencies:
 
       ```bash
       $ npm install
       ```
+      
   * Start Pencil using the prebuilt version of Electron
 
-      ```bash
+    ```bash
       $ npm start
     ```
 
