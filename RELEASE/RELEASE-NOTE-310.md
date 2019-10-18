@@ -1,4 +1,4 @@
-#RELEASE NOTE 3.1.0
+# RELEASE NOTE 3.1.0
  
 - Support for compact layout
 - Optimize output file by removing unused/gabbage resources
