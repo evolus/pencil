@@ -183,16 +183,26 @@ function ColorSelector() {
         thiz._emitCloseEvent();
     }, false);
 
-    this.recentlyUsedColor.addEventListener("click", function (event) {
+    function colorListSelectHandler(event) {
         var colorCell = Dom.findUpward(event.target, function (n) {
             return n.hasAttribute("color");
         });
         if (!colorCell) return;
         thiz.selectColorCell(colorCell, true);
         thiz._emitCloseEvent();
-    }, false);
+    }
+    this.recentlyUsedColor.addEventListener("click", colorListSelectHandler, false);
+    this.documentPaletteContainer.addEventListener("click", colorListSelectHandler, false);
+    
+    this.bind("contextmenu", function (event) {
+        var color = Dom.findUpwardForData(event.target, "_color");
+        if (!color) return;
 
+        ColorSelector._handlePaletteMenu(thiz, color, event);
+    }, this.documentPaletteContainer);
+    
     this.bind("click", this.pickColor, this.pickerButton);
+    this.bind("click", this.addToPalette, this.addToPaletteButton);
 }
 __extend(BaseTemplatedWidget, ColorSelector);
 
@@ -211,6 +221,26 @@ document.addEventListener("mouseup", function () {
     ColorSelector.heldInstance._handleMouseUp(event);
     ColorSelector.heldInstance = null;
 }, false);
+
+
+ColorSelector._handlePaletteMenu = function (thiz, color, event) {
+    if (!ColorSelector._paletteMenu) {
+        ColorSelector._paletteMenu = new Menu();
+        ColorSelector._paletteMenu.register({
+            getLabel: function () { return "Remove" },
+            icon: "delete",
+            run: function () {
+                Pencil.controller.removeColorFromDocumentPalette(ColorSelector._colorToRemove);
+                ColorSelector._instanceForMenu.loadDocumentColors();
+            }
+        });
+    }
+    
+    ColorSelector._colorToRemove = color;
+    ColorSelector._instanceForMenu = thiz;
+    ColorSelector._paletteMenu.showMenuAt(event.clientX, event.clientY);
+};
+
 ColorSelector.prototype.onInsertedIntoDocument = function () {
     var thiz = this;
     window.setTimeout(function () {
@@ -318,6 +348,10 @@ ColorSelector.prototype.setGridSelectorColor = function () {
         }
     });
 };
+ColorSelector.prototype.setupColors = function () {
+    this.loadRecentlyUsedColors();
+    this.loadDocumentColors();
+};
 ColorSelector.prototype.loadRecentlyUsedColors = function () {
     var colors = Config.get("gridcolorpicker.recentlyUsedColors");
     
@@ -336,6 +370,35 @@ ColorSelector.prototype.loadRecentlyUsedColors = function () {
         }
     }
 };
+ColorSelector.prototype.addToPalette = function () {
+    if (!Pencil.controller || !Pencil.controller.doc) return;
+    Pencil.controller.addColorIntoDocumentPalette(this.getColor());
+    this.loadDocumentColors();
+};
+ColorSelector.prototype.loadDocumentColors = function () {
+    Dom.toggleClass(this.documentPalettePane, "NoDocument", Pencil.controller && Pencil.controller.doc ? false : true);
+    if (!Pencil.controller || !Pencil.controller.doc) return;
+    
+    Dom.setInnerText(this.paletteTitle, (Pencil.controller.doc.name || "Untitled Document") + " color palette:")
+    
+    var colors = Pencil.controller.getDocumentColorPalette();
+    if (!colors || colors.length == 0) {
+        Dom.addClass(this.documentPalettePane, "Empty");
+    } else {
+        Dom.removeClass(this.documentPalettePane, "Empty");
+    }
+    
+    Dom.empty(this.documentPaletteContainer);
+    colors.forEach(function (c) {
+        var cell = document.createElement("div");
+        cell.setAttribute("class", "colorpickertile");
+        cell.setAttribute("title", c.toString());
+        cell.setAttribute("color", c.toString());
+        cell._color = c;
+        cell.setAttribute("style", "background-color: " + c.toRGBAString() + ";")
+        this.documentPaletteContainer.appendChild(cell);
+    }.bind(this));
+};
 ColorSelector.prototype.initializeGridSelector = function () {
     if (this._initialized) return;
     this._initialized = true;
@@ -347,7 +410,7 @@ ColorSelector.prototype.initializeGridSelector = function () {
             thiz.recentlyUsedColorElements.push(n);
         }
     });
-    this.loadRecentlyUsedColors();
+    this.setupColors();
 };
 ColorSelector.prototype.updateRecentlyUsedColors = function () {
     var aColor = this.color;

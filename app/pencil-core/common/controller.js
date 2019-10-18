@@ -1767,6 +1767,49 @@ Controller.prototype.handleGlobalScreencapture = function (mode) {
     } : undefined);
 };
 
+Controller.prototype.getDocumentColorPalette = function () {
+    if (!this.doc) return null;
+    var colors = this.doc.properties.colorPalette;
+    if (!colors) return [];
+    return colors.split(",").map(function (c) {
+        return Color.fromString(c);
+    });
+};
+Controller.prototype.addColorIntoDocumentPalette = function (color) {
+    if (!this.doc) return;
+    var colors = this.getDocumentColorPalette();
+    if (typeof(color) == "string") color = Color.fromString(color);
+    
+    var found = false;
+    colors.forEach(function (c) {
+        if (c.toString() == color.toString()) {
+            found = true;
+        }
+    });
+    
+    if (found) return;
+    
+    colors.push(color);
+    
+    this.doc.properties.colorPalette = colors.map(function (c) {
+        return c.toString();
+    }).join(",");
+};
+
+Controller.prototype.removeColorFromDocumentPalette = function (color) {
+    if (!this.doc) return;
+    var colors = this.getDocumentColorPalette();
+    if (typeof(color) == "string") color = Color.fromString(color);
+    
+    colors = colors.filter(function (c) {
+        return c.toString() != color.toString();
+    });
+    
+    this.doc.properties.colorPalette = colors.map(function (c) {
+        return c.toString();
+    }).join(",");
+};
+
 
 window.addEventListener("beforeunload", function (event) {
     // Due to a change of Chrome 51, returning non-empty strings or true in beforeunload handler now prevents the page to unload
