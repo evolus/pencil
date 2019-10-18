@@ -51,4 +51,3 @@
 - Fix child pages ordering not saved
 - Fix performance problem caused by timer leaking in color selector
 - Add support for document color palette in color pickers
-- 
