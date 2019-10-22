@@ -224,12 +224,13 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
 BaseCollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
     this.clearTextButton.style.display = filter != null && filter.length > 0 ? "block" : "none"
-    var collectionNodes = Dom.getList(".//*[@class='Item']", this.selectorPane);
+    var collectionNodes = this.selectorPane.querySelectorAll(".Item");
     var hasLast = false;
     var firstNode = null;
     for (var i in collectionNodes) {
         var collectionNode = collectionNodes[i];
         var collection = collectionNodes[i]._collection;
+        if (!collection) continue;
         collection._shapeCount = 0;
         collection._filteredShapes = [];
         if (!filter) {
@@ -244,6 +245,7 @@ BaseCollectionPane.prototype.filterCollections = function () {
                 collection._filteredShapes.push(def);
             }
         }
+        
         if (collection._shapeCount <= 0) {
             collectionNode.setAttribute("_hidden", true);
             collectionNode.style.display = "none";
@@ -256,7 +258,7 @@ BaseCollectionPane.prototype.filterCollections = function () {
             collectionNode.style.visibility = "visible";
         }
     }
-
+    
     if (hasLast) {
         this.openCollection(this.last);
     } else if (firstNode != null){
