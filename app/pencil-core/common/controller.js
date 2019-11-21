@@ -1421,7 +1421,7 @@ Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) 
         for (var key in page.bitmapCache) {
             var filePath = page.bitmapCache[key];
             try {
-                fs.unlinkSync(page.bitmapFilePath);
+                fs.unlinkSync(filePath);
             } catch (e) {
             }
         }
