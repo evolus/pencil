@@ -4,6 +4,7 @@ const {app, protocol, shell, BrowserWindow} = require("electron");
 const pkg      = require("./package.json");
 const fs       = require("fs");
 const path     = require("path");
+const os       = require("os");
 
 app.commandLine.appendSwitch("allow-file-access-from-files");
 app.commandLine.appendSwitch("allow-file-access");
@@ -13,14 +14,25 @@ app.commandLine.appendSwitch("disable-site-isolation-trials");
 // Disable hardware acceleration by default for Linux
 // TODO: implement a setting for this one and requires a restart after changing that value
 if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAcceleration) {
-    if (process.argv.indexOf("--with-hwa") < 0) {
+    var useHWAConfig = getAppConfig("core.useHardwareAcceleration");
+    console.log("useHWAConfig: ", useHWAConfig);
+    if (process.argv.indexOf("--with-hwa") < 0 && !useHWAConfig) {
         console.log("Hardware acceleration disabled for Linux.");
         app.disableHardwareAcceleration();
     } else {
         console.log("Hardware acceleration forcibly enabled.");
     }
 }
-
+function getAppConfig(name) {
+    var p = path.join(path.join(os.homedir(), ".pencil"), "config.json");
+    try {
+        var json = fs.readFileSync(p, "utf8");
+        var data = JSON.parse(json);
+        return data[name];
+    } catch (e) {
+        return undefined;
+    }
+}
 global.sharedObject = { appArguments: process.argv };
 
 var handleRedirect = (e, url) => {

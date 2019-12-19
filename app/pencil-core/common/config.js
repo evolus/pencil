@@ -73,3 +73,4 @@ Config.DEVICE_ADB_PATH = Config.define("device.adb_path", "adb");
 Config.EXPORT_CROP_FOR_CLIPBOARD = Config.define("export.crop_for_clipboard", false);
 Config.EXPORT_DEFAULT_SCALE = Config.define("export.default_scale", 1);
 Config.EXPORT_DEFAULT_BACKGROUND_COLOR = Config.define("export.default_background_color", "");
+Config.CORE_USE_HWA = Config.define("core.useHardwareAcceleration", false);

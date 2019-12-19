@@ -71,7 +71,7 @@
     "postinstall": "install-app-deps",
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
     "start": "./node_modules/.bin/electron ./app",
-    "start:dev": "./node_modules/.bin/electron ./app --enable-dev --enable-transparent-visuals --disable-gpu",
+    "start:dev": "./node_modules/.bin/electron ./app --enable-dev --enable-transparent-visuals",
     "start:mac": "./node_modules/.bin/electron ./app --enable-dev",
     "clean": "rimraf dist",
     "pack": "build",
