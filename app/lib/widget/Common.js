@@ -597,6 +597,13 @@ widget.reloadDesktopFont = function() {
                         }
                         document.body.style.fontSize = size;
                     }
+                    
+                    var family = Config.get(Config.UI_CUSTOM_FONT_FAMILY);
+                    if (family) document.body.style.fontFamily = family;
+                    
+                    var size = Config.get(Config.UI_CUSTOM_FONT_SIZE);
+                    if (size) document.body.style.fontSize = size;
+                    
                     resolve(config);
             });
         });

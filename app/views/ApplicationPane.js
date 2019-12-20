@@ -128,10 +128,21 @@ ApplicationPane.prototype.onAttached = function () {
     
     
 };
+
+Config.UI_CUSTOM_FONT_FAMILY = Config.define("ui.customUIFontFamily", "");
+Config.UI_CUSTOM_FONT_SIZE = Config.define("ui.customUIFontSize", "");
+
 ApplicationPane.prototype.invalidateUIForConfig = function () {
     debug("BOOT: invalidating UI using configuration");
     var useCompactLayout = Config.get("view.useCompactLayout", false);
     document.body.setAttribute("compact-layout", useCompactLayout);
+    
+    var family = Config.get(Config.UI_CUSTOM_FONT_FAMILY);
+    if (family) document.body.style.fontFamily = family;
+    
+    var size = Config.get(Config.UI_CUSTOM_FONT_SIZE);
+    if (size) document.body.style.fontSize = size;
+
     this.toolBarSrollView.invalidate();
 };
 ApplicationPane.prototype.invalidateUIForControllerStatus = function () {
@@ -288,7 +299,7 @@ ApplicationPane.prototype.showStartupPane = function () {
 const NO_CONTENT_VALUE = 22;
 ApplicationPane.prototype.getNoContentValue = function () {
     var compact = Config.get("view.useCompactLayout", false);
-    return compact ? 0 : NO_CONTENT_VALUE;
+    return compact ? 10 : NO_CONTENT_VALUE;
 }
 ApplicationPane.prototype.getCanvasToolbarHeight = function () {
     return StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection() ? Math.round(3 * Util.em()) : 0;
