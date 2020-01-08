@@ -2466,6 +2466,33 @@ function copyFolderRecursiveSync(source, target) {
     }
 }
 
+function PropertyMask(names) {
+    this.names = (typeof(names) == "string") ? [names] : names;
+}
+PropertyMask.prototype.and = function (other) {
+    return new PropertyMask(this.names.concat.other.names);
+};
+PropertyMask.prototype.contains = function (name) {
+    return this.names.indexOf(name) >= 0;
+};
+PropertyMask.prototype.apply = function (original, newValue) {
+    if (!original || !newValue) return original;
+    var value = new original.constructor();
+    for (var name in original) {
+        if (original.hasOwnProperty(name)) {
+            value[name] = original[name];
+        }
+    }
+    
+    for (var name of this.names) {
+        if (newValue.hasOwnProperty(name)) {
+            value[name] = newValue[name];
+        }
+    }
+    
+    return value;
+};
+
 function getStaticFilePath(subPath) {
     var filePath = __dirname;
     if (!subPath) return filePath;

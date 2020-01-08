@@ -64,9 +64,9 @@ TargetSet.prototype.applyBehaviorForProperty = function (name) {
 TargetSet.prototype.getPropertyGroups = function () {
     return [this.propertyGroup];
 };
-TargetSet.prototype.setProperty = function (name, value) {
+TargetSet.prototype.setProperty = function (name, value, nested, mask) {
     for (t in this.targets) {
-        this.targets[t].setProperty(name, value);
+        this.targets[t].setProperty(name, value, nested, mask);
     }
 };
 TargetSet.prototype.getProperty = function (name, any) {

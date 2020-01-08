@@ -362,7 +362,10 @@ Shape.prototype.evalExpression = function (expression, value) {
         return defaultValue;
     }
 };
-Shape.prototype.setProperty = function (name, value, nested) {
+Shape.prototype.setProperty = function (name, value, nested, mask) {
+    if (mask) {
+        value = mask.apply(this.getProperty(name), value);
+    }
     if (!nested) {
         this._appliedTargets = [];
         this.canvas.run( function () {
