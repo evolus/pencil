@@ -72,7 +72,7 @@ function createWindow() {
     mainWindow.maximize();
 
     if (devEnable) {
-        mainWindow.webContents.openDevTools();
+        //mainWindow.webContents.openDevTools();
     } else {
         mainWindow.setMenu(null);
     }
