@@ -15,7 +15,7 @@ AlignEditor.prototype._handleClick = function (event) {
         b.setAttribute("checked", b == button);
     });
     
-    this.fireChangeEvent();
+    this.fireChangeEvent(button.parentNode == this.horizontalGroup ? Alignment.H : Alignment.V);
 };
 AlignEditor.prototype.setValue = function (alignment) {
     this.horizontalGroup.querySelectorAll("button").forEach(function (button) {

@@ -1925,7 +1925,7 @@ Canvas.prototype.invalidateEditors = function (source) {
             e.invalidate();
     }
 
-    // Pencil.invalidateSharedEditor();
+    Pencil.invalidateSharedEditor();
     // invalidates all selections
     for (var i = 0; i < this.selectionContainer.childNodes.length; i++) {
         var rect = this.selectionContainer.childNodes[i];

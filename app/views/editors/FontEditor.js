@@ -37,14 +37,14 @@ FontEditor._loadFontItems = function (fontCombo, withNullValue) {
 FontEditor.prototype.setup = function () {
     var thiz = this;
     FontEditor._setupFontCombo(this.fontCombo, function () {
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(Font.FAMILY);
     });
 
     this.bind("p:ItemSelected", this.invalidateWeightCombo, this.fontCombo);
 
     this.pixelFontSize.addEventListener("input", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) return;
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(Font.SIZE);
     }, false);
     this.pixelFontSize.addEventListener("keyup", function(event) {
         if (event.keyCode == 13 || event.keyCode == 10) {
@@ -52,19 +52,19 @@ FontEditor.prototype.setup = function () {
             if (thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) {
                 thiz.pixelFontSize.value = 5;
             }
-            thiz.fireChangeEvent();
+            thiz.fireChangeEvent(Font.SIZE);
         }
     }, false);
     this.pixelFontSize.addEventListener("wheel", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing || thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) return;
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(Font.SIZE);
     });
     this.pixelFontSize.addEventListener("change", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
         if (thiz.pixelFontSize.value == "" || thiz.pixelFontSize.value < 5) {
             thiz.pixelFontSize.value = 5;
         }
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(Font.SIZE);
     }, false);
 
     this.boldButton.addEventListener("click", function(event) {
@@ -76,12 +76,12 @@ FontEditor.prototype.setup = function () {
             thiz.boldButton.setAttribute("checked", "true");
             checked = true;
         }
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(Font.WEIGHT);
     }, false);
 
     this.bind("p:ItemSelected", function () {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(Font.WEIGHT);
     }, this.weightCombo);
 
     this.italicButton.addEventListener("click", function(event) {
@@ -94,7 +94,7 @@ FontEditor.prototype.setup = function () {
             checked = true;
         }
 
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(Font.STYLE);
     }, false);
 
     this.lineHeight.addEventListener("keyup", function(event) {
@@ -103,19 +103,19 @@ FontEditor.prototype.setup = function () {
             if (thiz.lineHeight.value == "" || thiz.lineHeight.value < 0) {
                 thiz.lineHeight.value = 0;
             }
-            thiz.fireChangeEvent();
+            thiz.fireChangeEvent(Font.WEIGHT);
         }
     }, false);
     this.lineHeight.addEventListener("wheel", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing || thiz.lineHeight.value == "" || thiz.lineHeight.value < 0) return;
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(Font.LINE_HEIGHT);
     });
     this.lineHeight.addEventListener("change", function(event) {
         if (!thiz.font || OnScreenTextEditor.isEditing) return;
         if (thiz.lineHeight.value == "" || thiz.lineHeight.value < 0) {
             thiz.lineHeight.value = 0;
         }
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(Font.LINE_HEIGHT);
     }, false);
 
 

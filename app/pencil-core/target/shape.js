@@ -364,7 +364,10 @@ Shape.prototype.evalExpression = function (expression, value) {
 };
 Shape.prototype.setProperty = function (name, value, nested, mask) {
     if (mask) {
-        value = mask.apply(this.getProperty(name), value);
+        try {
+            value = mask.apply(this.getProperty(name), value);
+        } catch (e) {
+        }
     }
     if (!nested) {
         this._appliedTargets = [];

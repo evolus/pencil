@@ -18,7 +18,7 @@ SharedPropertyEditor.prototype.setup = function () {
         if (!editor) return;
 
         var propertyName = editor._property.name;
-        thiz.target.setProperty(propertyName, thiz.propertyEditor[propertyName].getValue());
+        thiz.target.setProperty(propertyName, thiz.propertyEditor[propertyName].getValue(), false, event.mask);
 
         thiz.validationEditorUI();
     }, false);
