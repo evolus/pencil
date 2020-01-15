@@ -407,25 +407,10 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
             if (!locking.ratio) {
                 var snapping = this._lastGuides.left ? this._lastGuides.left.clone() :
                             new SnappingData("Left", bound.x, "Left", true, Util.newUUID());
-                snapping.pos += dx;
-                var snap = this.canvas.snappingHelper.findSnapping(true, false, {
-                    vertical: [ snapping ], horizontal: []
-                }, (grid.w / 2) - 1);
-
-                if (snap && (snap.dx != 0 && !this.canvas.snappingHelper.snappedX)) {
-                    this.canvas.snappingHelper.snappedX = true;
-                    this.canvas.snappingHelper.snapX = newX;
-                    delta = snap.dx;
-                } else {
-                    var unsnapX = (this.canvas.snappingHelper.snapX != 0 && (Math.abs(this.canvas.snappingHelper.snapX - newX) > grid.w / 2));
-                    if (unsnapX || !this.canvas.snappingHelper.snappedX) {
-                        this.canvas.snappingHelper.snapX = 0;
-                        this.canvas.snappingHelper.snappedX = false;
-                        this.canvas.snappingHelper.clearSnappingGuideX();
-                    } else {
-                        delta = snap.dx;
-                    }
-                }
+                            
+                var xsnap = this.canvas.snappingHelper.applySnappingValue(dx, [snapping], this.canvas.snappingHelper.lastXData, this.canvas.currentController);
+                if (xsnap) delta = xsnap.d - dx;
+                this.canvas.snappingHelper.drawSnaps(xsnap, null);
             }
 
             dx += delta;
@@ -440,26 +425,11 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
             if (!locking.ratio) {
                 var snapping = this._lastGuides.right ? this._lastGuides.right.clone() :
-                new SnappingData("Right", bound.x + bound.width, "Right", true, Util.newUUID());
-                snapping.pos += dw;
-
-                var snap = this.canvas.snappingHelper.findSnapping(true, false, {
-                    vertical: [snapping], horizontal: []
-                }, (grid.w / 2) - 1);
-                if (snap && (snap.dx != 0 && !this.canvas.snappingHelper.snappedX)) {
-                    this.canvas.snappingHelper.snappedX = true;
-                    this.canvas.snappingHelper.snapX = newX2;
-                    delta = snap.dx;
-                } else {
-                    var unsnapX = (this.canvas.snappingHelper.snapX != 0 && (Math.abs(this.canvas.snappingHelper.snapX - newX2) > grid.w / 2));
-                    if (unsnapX || !this.canvas.snappingHelper.snappedX) {
-                        this.canvas.snappingHelper.snapX = 0;
-                        this.canvas.snappingHelper.snappedX = false;
-                        this.canvas.snappingHelper.clearSnappingGuideX();
-                    } else {
-                        delta = snap.dx;
-                    }
-                }
+                                    new SnappingData("Right", bound.x + bound.width, "Right", true, Util.newUUID());
+                
+                var xsnap = this.canvas.snappingHelper.applySnappingValue(dw, [snapping], this.canvas.snappingHelper.lastXData, this.canvas.currentController);
+                if (xsnap) delta = xsnap.d - dw;
+                this.canvas.snappingHelper.drawSnaps(xsnap, null);
             }
 
             dw += delta;
@@ -483,27 +453,11 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
             if (!locking.ratio) {
                 var snapping = this._lastGuides.top ? this._lastGuides.top.clone() :
-                new SnappingData("Top", bound.y, "Top", true, Util.newUUID());
-                snapping.pos += dy;
-
-                var snap = this.canvas.snappingHelper.findSnapping(false, true, {
-                    vertical: [],
-                    horizontal: [snapping]
-                }, (grid.w / 2) - 1);
-                if (snap && (snap.dy != 0 && !this.canvas.snappingHelper.snappedY)) {
-                    this.canvas.snappingHelper.snappedY = true;
-                    this.canvas.snappingHelper.snapY = newY;
-                    delta = snap.dy;
-                } else {
-                    var unsnapY = (this.canvas.snappingHelper.snapY != 0 && (Math.abs(this.canvas.snappingHelper.snapY - newY) > grid.w / 2));
-                    if (unsnapY || !this.canvas.snappingHelper.snappedY) {
-                        this.canvas.snappingHelper.snapY = 0;
-                        this.canvas.snappingHelper.snappedY = false;
-                        this.canvas.snappingHelper.clearSnappingGuideY();
-                    } else {
-                        delta = snap.dy;
-                    }
-                }
+                                    new SnappingData("Top", bound.y, "Top", true, Util.newUUID());
+                                    
+                var ysnap = this.canvas.snappingHelper.applySnappingValue(dy, [snapping], this.canvas.snappingHelper.lastYData, this.canvas.currentController);
+                if (ysnap) delta = ysnap.d - dy;
+                this.canvas.snappingHelper.drawSnaps(null, ysnap);
             }
 
             dy += delta;
@@ -517,28 +471,11 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
             if (!locking.ratio) {
                 var snapping = this._lastGuides.bottom ? this._lastGuides.bottom.clone() :
-                new SnappingData("Bottom", bound.y + bound.height, "Bottom", true, Util.newUUID());
-                snapping.pos += dh;
-
-
-                var snap = this.canvas.snappingHelper.findSnapping(false, true, {
-                    vertical: [],
-                    horizontal: [snapping]
-                }, (grid.w / 2) - 1);
-                if (snap && (snap.dy != 0 && !this.canvas.snappingHelper.snappedY)) {
-                    this.canvas.snappingHelper.snappedY = true;
-                    this.canvas.snappingHelper.snapY = newY2;
-                    delta = snap.dy;
-                } else {
-                    var unsnapY = (this.canvas.snappingHelper.snapY != 0 && (Math.abs(this.canvas.snappingHelper.snapY - newY2) > grid.w / 2));
-                    if (unsnapY || !this.canvas.snappingHelper.snappedY) {
-                        this.canvas.snappingHelper.snapY = 0;
-                        this.canvas.snappingHelper.snappedY = false;
-                        this.canvas.snappingHelper.clearSnappingGuideY();
-                    } else {
-                        delta = snap.dy;
-                    }
-                }
+                                    new SnappingData("Bottom", bound.y + bound.height, "Bottom", true, Util.newUUID());
+                                    
+                var ysnap = this.canvas.snappingHelper.applySnappingValue(dh, [snapping], this.canvas.snappingHelper.lastXData, this.canvas.currentController);
+                if (ysnap) delta = ysnap.d - dh;
+                this.canvas.snappingHelper.drawSnaps(null, ysnap);
             }
 
             dh += delta;
