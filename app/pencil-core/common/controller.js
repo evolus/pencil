@@ -486,7 +486,7 @@ Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
             this.invalidateBrokenImageRefs(shapeNode);
         }
         
-    });
+    }.bind(this));
     
     
     runNextValidation(onDoneCallback);
