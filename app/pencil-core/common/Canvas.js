@@ -171,6 +171,7 @@ function Canvas(element, options, containerScrollPane) {
             "RangeBound");
 
     this.snappingHelper = new SnappingHelper(this);
+    new GestureHelper(this);
 
     this.idSeed = 1;
 
@@ -1300,9 +1301,11 @@ Canvas.prototype.handleMouseMove = function (event, fake) {
             dx = dx * hdr;
             dy = dy * vdr;
             
-            var snapResult = this.snappingHelper.applySnapping(dx, dy, this.currentController);
-            if (snapResult && snapResult.xsnap) dx = snapResult.xsnap.d;
-            if (snapResult && snapResult.ysnap) dy = snapResult.ysnap.d;
+            if (!event.shiftKey) {
+                var snapResult = this.snappingHelper.applySnapping(dx, dy, this.currentController);
+                if (snapResult && snapResult.xsnap) dx = snapResult.xsnap.d;
+                if (snapResult && snapResult.ysnap) dy = snapResult.ysnap.d;
+            }
             
             this.currentController.moveFromSnapshot(dx, dy);
             

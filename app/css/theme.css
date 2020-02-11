@@ -18,7 +18,7 @@ button {
     white-space: nowrap;
     vertical-align: middle;
     cursor: pointer;
-    border: 1px solid #CCC;
+    border: none;
     border-radius: 4px;
 
     line-height: 2.4em;
@@ -27,11 +27,11 @@ button {
 
     border-radius: 0.3ex;
 
-    background: #FFF;
+    background: #FEFEFE;
+    color: #000000DD;
     outline: none;
 
     text-shadow: 0px 1px 0px #FFF;
-    background-image: linear-gradient(to bottom, #FFF 0px, #E0E0E0 100%);
     background-repeat: repeat-x;
     display: inline-flex;
     align-items: center;

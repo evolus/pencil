@@ -407,7 +407,8 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
 
     try {
         exporter.export(this.doc, exportSelection, destFile, xmlFile.name, function () {
-            xmlFile.removeCallback();
+            console.log("xmlFile:" + xmlFile.name);
+            //xmlFile.removeCallback();
             callback();
         });
     } catch (e) {

@@ -4,8 +4,6 @@ function SnappingHelper(canvas) {
         Config.set("object.snapping.enabled", true);
     }
     this.init();
-
-    //var this = new SnappingHelper
 };
 SnappingHelper.prototype.isGridSnappingEnabled = function () {
     return Config.get("edit.snap.grid") == true;
@@ -127,7 +125,6 @@ SnappingHelper.prototype.rebuildSnappingGuide = function () {
             ]
     };
     this.snappingGuide[uid] = snap;
-    console.log("Margin snap", snap);
 
     this.sortData();
 };
@@ -190,10 +187,10 @@ SnappingHelper.prototype.drawSnaps = function (xsnap, ysnap) {
             var verticalGuide = document.createElementNS(PencilNamespaces.svg, "line");
 
             verticalGuide.setAttribute("class", guide.type);
-            verticalGuide.setAttribute("x1", Math.round(guide.pos) * thiz.canvas.zoom);
+            verticalGuide.setAttribute("x1", Math.round(guide.pos * thiz.canvas.zoom));
             verticalGuide.setAttribute("y1", 0);
-            verticalGuide.setAttribute("x2", Math.round(guide.pos) * thiz.canvas.zoom);
-            verticalGuide.setAttribute("y2", thiz.canvas.height * thiz.canvas.zoom);
+            verticalGuide.setAttribute("x2", Math.round(guide.pos * thiz.canvas.zoom));
+            verticalGuide.setAttribute("y2", Math.round(thiz.canvas.height * thiz.canvas.zoom));
 
             thiz.snappingGuideContainerX.appendChild(verticalGuide);
 
@@ -207,10 +204,10 @@ SnappingHelper.prototype.drawSnaps = function (xsnap, ysnap) {
             var horizontalGuide = document.createElementNS(PencilNamespaces.svg, "line");
 
             horizontalGuide.setAttribute("class", guide.type);
-            horizontalGuide.setAttribute("x1", 0 * thiz.canvas.zoom);
-            horizontalGuide.setAttribute("y1", Math.round(guide.pos) * thiz.canvas.zoom);
-            horizontalGuide.setAttribute("x2", thiz.canvas.width * thiz.canvas.zoom);
-            horizontalGuide.setAttribute("y2", Math.round(guide.pos) * thiz.canvas.zoom);
+            horizontalGuide.setAttribute("x1", 0);
+            horizontalGuide.setAttribute("y1", Math.round(guide.pos * thiz.canvas.zoom));
+            horizontalGuide.setAttribute("x2", Math.round(thiz.canvas.width * thiz.canvas.zoom));
+            horizontalGuide.setAttribute("y2", Math.round(guide.pos * thiz.canvas.zoom));
 
             thiz.snappingGuideContainerY.appendChild(horizontalGuide);
 
@@ -255,6 +252,14 @@ SnappingHelper.prototype.applySnappingValue = function (d, controllerPositions, 
 };
 
 SnappingHelper.prototype.sort = function(d) {
+    // var d2 = [];
+    // var positions = [];
+    // d.forEach(function (v) {
+    //     if (positions.indexOf(v.pos) >= 0) return;
+    //     d2.push(v);
+    //     positions.push(v.pos);
+    // });
+    // d = d2;
     for (var i = 0; i < d.length - 1; i++) {
         for (var j = i + 1; j < d.length; j++) {
             if (d[j].pos < d[i].pos) {
