@@ -224,7 +224,7 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
 BaseCollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
     this.clearTextButton.style.display = filter != null && filter.length > 0 ? "block" : "none"
-    var collectionNodes = Dom.getList(".//*[@class='Item']", this.selectorPane);
+    var collectionNodes = Dom.getList(".//*[contains(@class, 'Item')][not(contains(@class, 'ItemInner'))]", this.selectorPane);
     var hasLast = false;
     var firstNode = null;
     for (var i in collectionNodes) {
