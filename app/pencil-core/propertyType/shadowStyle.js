@@ -8,7 +8,7 @@ function ShadowStyle() {
 
 ShadowStyle.DEFAULT_COLOR = "#000000";
 
-ShadowStyle.DX = new PropertyMask("family");
+ShadowStyle.DX = new PropertyMask("dx");
 ShadowStyle.DY = new PropertyMask("dy");
 ShadowStyle.SIZE = new PropertyMask("size");
 ShadowStyle.OPACITY = new PropertyMask("opacity");
