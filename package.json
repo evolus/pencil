@@ -1,10 +1,10 @@
 {
   "name": "Pencil",
-  "devDependencies": {
-    "electron": "6.0.1",
-    "electron-builder": "20.28.4",
-    "electron-rebuild": "^1.8.5",
-    "rimraf": "^2.5.4"
+  "dependencies": {
+    "electron": "^8.2.0",
+    "electron-builder": "^22.4.1",
+    "electron-rebuild": "^1.10.1",
+    "rimraf": "^3.0.2"
   },
   "build": {
     "appId": "vn.evolus.pencil",
@@ -68,8 +68,7 @@
     }
   },
   "scripts": {
-    "postinstall": "install-app-deps",
-    "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
+    "postinstall": "electron-builder install-app-deps",
     "start": "./node_modules/.bin/electron ./app",
     "start:dev": "./node_modules/.bin/electron ./app --enable-dev --enable-transparent-visuals --disable-gpu",
     "start:mac": "./node_modules/.bin/electron ./app --enable-dev",
