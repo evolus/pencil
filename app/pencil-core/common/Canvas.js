@@ -2215,7 +2215,7 @@ Canvas.prototype.handleMouseDown = function (event) {
             break;
         }
     }
-    if (event.shiftKey) {
+    if (event.altKey) {
         if (!foundTarget && top) {
             thiz.clearSelection();
             thiz.addToSelection(thiz.createControllerFor(top));
@@ -2357,7 +2357,7 @@ Canvas.prototype.handleMouseDown = function (event) {
 };
 
 Canvas.prototype.isEventWithControl = function (event) {
-    return (event.ctrlKey && !IS_MAC) || (event.metaKey && IS_MAC);
+    return event.shiftKey;
 };
 Canvas.prototype.doGroup = function () {
 
