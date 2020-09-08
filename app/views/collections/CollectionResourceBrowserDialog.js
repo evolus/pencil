@@ -23,6 +23,7 @@ function CollectionResourceBrowserDialog (collection, options) {
     var availableCollections = collection.RESOURCE_LIST ? [collection] : [];
     var selectedCollection = null;
     for (var c of CollectionManager.shapeDefinition.collections) {
+        // console.log(c)
         if (c.id == collection.id || !c.RESOURCE_LIST) continue;
 
         if (this.options.type) {
@@ -287,20 +288,28 @@ CollectionResourceBrowserDialog.prototype.handleListKeyDown = function (e) {
         this.returnData(view._data);
     }
 };
+var crypto = require('crypto');
 CollectionResourceBrowserDialog.prototype.getMatchingResources = function (dirPath, relativePath, keyword) {
     return new Promise(function (resolve, reject) {
         var items = [];
+        var duplicate = {};
         var pending = [{
             abs: dirPath,
             rel: relativePath
         }];
+
+        var decoder = new TextDecoder("utf-8");
+        var ab2str = function (buf) {
+            return decoder.decode(new Uint8Array(buf));
+        }
+
         var next = function() {
             if (pending.length == 0) {
                 resolve(items);
                 return;
             }
             var current = pending.shift();
-            fs.readdir(current.abs, "utf8", function (err, files) {
+            fs.readdir(current.abs, "utf8", async function (err, files) {
                 if (err) {
                     reject(err);
                     return;
@@ -317,12 +326,26 @@ CollectionResourceBrowserDialog.prototype.getMatchingResources = function (dirPa
                     } else {
                         if (!this.type || name.endsWith(this.type)) {
                             if (name.toLowerCase().indexOf(keyword) >= 0) {
-                                items.push({
-                                    path: p,
-                                    container: current.rel,
-                                    relativePath: (current.rel ? (current.rel + "/") : "") + name,
-                                    name: name
-                                });
+                                data = fs.readFileSync(p);
+                                var pmd5 = crypto.subtle.digest('SHA-1', data)
+                                var handler = function (name, p) {
+                                    return function (md5) {
+                                        var smd5 = ab2str(md5)
+                                        if (!duplicate[smd5]) {
+                                            console.log('Push to list ' + name)
+                                            items.push({
+                                                path: p,
+                                                container: current.rel,
+                                                relativePath: (current.rel ? (current.rel + "/") : "") + name,
+                                                name: name
+                                            });
+                                            duplicate[smd5] = 'OK'
+                                        } else {
+                                            console.log('Ignore duplicated')
+                                        }
+                                    }
+                                }
+                                await pmd5.then(handler(name, p))
                             }
                         }
                     }
@@ -334,6 +357,7 @@ CollectionResourceBrowserDialog.prototype.getMatchingResources = function (dirPa
         };
 
         next();
+        //console.log('Done with search')
     });
 };
 
