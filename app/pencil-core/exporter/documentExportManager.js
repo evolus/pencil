@@ -141,7 +141,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                             thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
                                 listener.onTaskDone();
                                 NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
-                                    shell.openItem(destFile);
+                                    shell.openPath(destFile);
                                 });
                             });
                         })
@@ -186,7 +186,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                         listener.onTaskDone();
                         if (destFile) {
                             NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
-                                shell.openItem(destFile);
+                                shell.openPath(destFile);
                             });
                         } else {
                             NotificationPopup.show("Document has been exported.");
