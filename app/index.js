@@ -50,7 +50,8 @@ function createWindow() {
           allowRunningInsecureContent: true,
           allowDisplayingInsecureContent: true,
           defaultEncoding: "UTF-8",
-          nodeIntegration: true
+          nodeIntegration: true,
+          enableRemoteModule: true
         },
     };
 
@@ -118,9 +119,9 @@ app.on('ready', function() {
 
         fs.readFile(path, function (err, data) {
             if (err) {
-                callback({mimeType: "text/html", data: new Buffer("Not found")});
+                callback({mimeType: "text/html", data: Buffer.from("Not found")});
             } else {
-                callback({mimeType: "image/jpeg", data: new Buffer(data)});
+                callback({mimeType: "image/jpeg", data: Buffer.from(data)});
             }
         });
 

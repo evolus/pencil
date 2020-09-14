@@ -16,6 +16,7 @@ GeometryEditor.prototype.resetAccomulatedChanges = function () {
 };
 GeometryEditor.prototype.install = function (canvas) {
     this.canvas = canvas;
+    this.canvas.geometryEditor = this;
     this.canvas.onScreenEditors.push(this);
     this.svgElement = canvas.ownerDocument.importNode(Dom.getSingle("/p:Config/svg:g", GeometryEditor.configDoc), true);
 
@@ -314,6 +315,7 @@ GeometryEditor.prototype.handleMouseUp = function (event) {
             }, this, Util.getMessage("action.move.shape"));
         }
     } finally {
+        console.log("Setting currentAnchor = null");
         this.currentAnchor = null;
     }
 };
@@ -360,6 +362,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
     var uPoint1 = Svg.vectorInCTM(new Point(this.oX, this.oY), this.geo.ctm);
     var uPoint2 = Svg.vectorInCTM(new Point(event.clientX, event.clientY), this.geo.ctm);
+    
 
     var matrix = this.currentAnchor._matrix;
     var t = event.shiftKey ? {x: 1, y: 1} : this.getGridSize(); //Svg.vectorInCTM(this.getGridSize(), this.geo.ctm, true);
@@ -406,7 +409,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
             var delta = newXNormalized - newX;
 
-            if (!locking.ratio) {
+            if (!locking.ratio && !event.shiftKey) {
                 var snapping = this._lastGuides.left ? this._lastGuides.left.clone() :
                             new SnappingData("Left", bound.x, "Left", true, Util.newUUID());
                             
@@ -425,7 +428,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
             var delta = newX2Normalized - newX2;
 
-            if (!locking.ratio) {
+            if (!locking.ratio && !event.shiftKey) {
                 var snapping = this._lastGuides.right ? this._lastGuides.right.clone() :
                                     new SnappingData("Right", bound.x + bound.width, "Right", true, Util.newUUID());
                 
@@ -453,7 +456,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
             var delta = newYNormalized - newY;
 
-            if (!locking.ratio) {
+            if (!locking.ratio && !event.shiftKey) {
                 var snapping = this._lastGuides.top ? this._lastGuides.top.clone() :
                                     new SnappingData("Top", bound.y, "Top", true, Util.newUUID());
                                     
@@ -471,7 +474,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
             var delta = newY2Normalized - newY2;
 
-            if (!locking.ratio) {
+            if (!locking.ratio && !event.shiftKey) {
                 var snapping = this._lastGuides.bottom ? this._lastGuides.bottom.clone() :
                                     new SnappingData("Bottom", bound.y + bound.height, "Bottom", true, Util.newUUID());
                                     

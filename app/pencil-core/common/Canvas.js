@@ -961,6 +961,8 @@ Canvas.prototype.handleScrollPane = function(event) {
 }
 
 Canvas.prototype.handleMouseUp = function (event) {
+    if (this.gestureHelper && this.gestureHelper.handleMouseUp(event)) return;
+    
     if (this.resizing) {
         this.commitResize(event);
         this.isSelectingRange = false;
@@ -2079,7 +2081,9 @@ Canvas.prototype.handleMouseDown = function (event) {
 
     tick("begin");
     Dom.emitEvent("p:CanvasMouseDown", this.element, {});
-
+    
+    if (this.gestureHelper && this.gestureHelper.handleMouseDown(event)) return;
+    
     var canvasList = Pencil.getCanvasList();
     for (var i = 0; i < canvasList.length; i++) {
         if (canvasList[i] != this) {
@@ -2908,6 +2912,9 @@ Canvas.prototype.__dragenter = function (event) {
 };
 Canvas.prototype.__dragleave = function (event) {
     // this.element.removeAttribute("p:selection");
+    this.element.removeAttribute("is-dragover");
+    this.element.removeAttribute("p:holding");
+    
     if (!this.currentDragObserver)
         return;
     try {
@@ -2915,8 +2922,6 @@ Canvas.prototype.__dragleave = function (event) {
     } catch (e) {
         Console.dumpError(e);
     }
-    this.element.removeAttribute("is-dragover");
-    this.element.removeAttribute("p:holding");
 };
 Canvas.prototype.__dragend = function (event) {
     this.element.removeAttribute("is-dragover");
