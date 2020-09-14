@@ -46,11 +46,11 @@ DocumentHandler.prototype.openDocument = function (callback) {
             filters: [
                 { name: "Pencil Documents", extensions: thiz.getAllSupportedExtensions(false) }
             ]
-        }, function (filenames) {
-            if (!filenames || filenames.length <= 0) return;
-            Config.set("document.open.recentlyDirPath", path.dirname(filenames[0]));
+        }).then(function (res) {
+            if (!res || !res.filePaths || res.filePaths.length <= 0) return;
+            Config.set("document.open.recentlyDirPath", path.dirname(res.filePaths[0]));
 
-            thiz.loadDocument(filenames[0], callback);
+            thiz.loadDocument(res.filePaths[0], callback);
 
         });
     };
@@ -146,8 +146,9 @@ DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
         title: "Save as",
         defaultPath: defaultPath,
         filters: filters
-    }, function (filePath) {
-        if (filePath) {
+    }).then(function (res) {
+        if (res && res.filePath) {
+            var filePath = res.filePath;
             var ext = path.extname(filePath);
             if (ext != defaultFileType && fs.existsSync(filePath)) {
                 Dialog.confirm("Are you sure you want to overwrite the existing file?", filePath,
@@ -166,7 +167,7 @@ DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
             Config.set("document.save.recentlyDirPath", path.dirname(filePath));
         }
         if (callback) {
-            callback(filePath);
+            callback(res.filePath);
         }
     });
 };

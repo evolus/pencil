@@ -243,10 +243,10 @@ ExportDialog.prototype.getDialogActions = function () {
                         }
 
                         dialogOptions.filters = filters;
-                        console.log("dialogOptions", dialogOptions);
-                        dialog.showSaveDialog(dialogOptions, function (filename) {
-                            if (!filename) return;
-                            result.targetPath = filename;
+                        dialog.showSaveDialog(dialogOptions).then(function (res) {
+                            if (!res || !res.filePath) return;
+                            result.targetPath = res.filePath;
+                            console.log("Selected", res.filePath);
 
                             this.close(result);
 
@@ -262,9 +262,9 @@ ExportDialog.prototype.getDialogActions = function () {
                             }
                         }
 
-                        dialog.showOpenDialog(dialogOptions, function (filenames) {
-                            if (!filenames || filenames.length <= 0) return;
-                            result.targetPath = filenames[0];
+                        dialog.showOpenDialog(dialogOptions).then(function (res) {
+                            if (!res || !res.filePaths || res.filePaths.length <= 0) return;
+                            result.targetPath = res.filePaths[0];
 
                             this.close(result);
 

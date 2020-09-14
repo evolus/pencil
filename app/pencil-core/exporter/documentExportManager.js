@@ -36,6 +36,7 @@ DocumentExportManager.prototype.generateFriendlyId = function (page, usedFriendl
     return name;
 };
 DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, forcedExporterId, params) {
+    console.log("Export requested...");
     var exporter = Pencil.getDocumentExporterById(params.exporterId);
     if (!exporter) return;
 
@@ -147,6 +148,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                         return;
                     }
                     var page = pages[pageIndex];
+                    console.log("Rasiterizing " + page.name);
 
                     //signal progress
                     var task = Util.getMessage("exporting.page.no.prefix", page.name);
