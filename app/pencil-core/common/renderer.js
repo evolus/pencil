@@ -141,7 +141,7 @@ module.exports = function () {
                         event.sender.send(data.id, {url: "", objectsWithLinking: renderedData.objectsWithLinking});
                         __callback();
                     } else {
-                        rendererWindow.capturePage(function (nativeImage) {
+                        rendererWindow.capturePage().then(function (nativeImage) {
                             var dataURL = nativeImage.toDataURL();
 
                             cleanupCallback();

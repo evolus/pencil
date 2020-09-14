@@ -125,7 +125,7 @@ Rasterizer.inProcessCanvasBasedBackend = {
             if (ext == ".png") mine = "image/png";
 
             fs.readFile(sourcePath, function (error, bitmap) {
-                var url = "data:" + mime + ";base64," + new Buffer(bitmap).toString("base64");
+                var url = "data:" + mime + ";base64," + Buffer.from(bitmap).toString("base64");
 
                 image.setAttributeNS(PencilNamespaces.xlink, "href", url);
                 totalImageLength += url.length;
@@ -281,7 +281,7 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, s
         var base64Data = dataURI;
         if (base64Data.startsWith(prefix)) base64Data = base64Data.substring(prefix.length);
 
-        var buffer = new Buffer(base64Data, "base64");
+        var buffer = Buffer.from(base64Data, "base64");
         fs.writeFile(actualPath, buffer, "utf8", function (err) {
             console.log("Finish rasterizing page: ", page.name, actualPath);
             callback(parseLinks ? {actualPath: actualPath, objectsWithLinking: data.objectsWithLinking} : actualPath, err);
@@ -347,7 +347,7 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
         var base64Data = dataURI;
         if (base64Data.startsWith(prefix)) base64Data = base64Data.substring(prefix.length);
 
-        var buffer = new Buffer(base64Data, "base64");
+        var buffer = Buffer.from(base64Data, "base64");
         fs.writeFile(actualPath, buffer, {}, function (err) {
             callback(actualPath, err);
         });
