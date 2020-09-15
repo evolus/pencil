@@ -2154,13 +2154,20 @@ Util.imageOnloadListener = function (event) {
 
 };
 Util.setupImage = function (image, src, mode, allowUpscale) {
-    image.onload = Util.imageOnloadListener;
-    image.style.visibility = "hidden";
-    image.style.width = "0px";
-    image.style.height = "0px";
-    image._mode = mode;
-    image._allowUpscale = allowUpscale;
+    // image.onload = Util.imageOnloadListener;
+    // image.style.visibility = "hidden";
+    image.style.width = "100%";
+    image.style.height = "100%";
+    image.style.opacity = "0";
     image.src = src;
+    
+    mode = mode || "center-crop";
+    
+    var hp = (mode.indexOf("left") >= 0) ? "left" : ((mode.indexOf("right") >= 0) ? "right" : " center");
+    var vp = (mode.indexOf("top") >= 0) ? "top" : ((mode.indexOf("bottom") >= 0) ? "bottom" : " center");
+    image.parentNode.style.backgroundImage = "url('" + src + "')";
+    image.parentNode.style.backgroundPosition = hp + " " + vp;
+    image.parentNode.style.backgroundSize = (mode.indexOf("crop") >= 0) ? "cover" : "contain";
 };
 
 Util.isDev = function() {
