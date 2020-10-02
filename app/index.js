@@ -6,8 +6,9 @@ const fs       = require("fs");
 const path     = require("path");
 const os       = require("os");
 
-app.commandLine.appendSwitch("allow-file-access-from-files");
-app.commandLine.appendSwitch("allow-file-access");
+app.commandLine.appendSwitch("no-sandbox");
+app.commandLine.appendSwitch("allow-file-access-from-files", "1");
+app.commandLine.appendSwitch("allow-file-access", "1");
 app.commandLine.appendSwitch("disable-smooth-scrolling");
 app.commandLine.appendSwitch("disable-site-isolation-trials");
 

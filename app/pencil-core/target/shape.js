@@ -1137,6 +1137,10 @@ Shape.prototype.getSnappingGuide = function () {
 
     var customSnappingData = this.performAction("getSnappingGuide");
     if (customSnappingData) {
+        if (customSnappingData._ignoreBuiltIns) {
+            vertical.length = 0;
+            horizontal.length = 0;
+        }
         for (var i = 0; i < customSnappingData.length; i++) {
             var data = customSnappingData[i];
             var m = this.svg.getTransformToElement(this.canvas.drawingLayer);
@@ -1152,7 +1156,7 @@ Shape.prototype.getSnappingGuide = function () {
                         ik = k;
                     }
                 }
-                if (ik != -1) {
+                if (ik != -1 && !customSnappingData._allowTypeDuplications) {
                     vertical[ik] = data;
                 } else {
                     vertical.push(data);
@@ -1167,7 +1171,7 @@ Shape.prototype.getSnappingGuide = function () {
                         ik = k;
                     }
                 }
-                if (ik != -1) {
+                if (ik != -1 && !customSnappingData._allowTypeDuplications) {
                     horizontal[ik] = data;
                 } else {
                     horizontal.push(data);
