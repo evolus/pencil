@@ -167,9 +167,67 @@ Rasterizer.inProcessCanvasBasedBackend = {
         convertNext();
     }
 };
+Rasterizer.inProcessFileCanvasBasedBackend = {
+    init: function () {
+        //the in-process rasterize requires basicly nothing to init :)
+    },
+    rasterize: function (svgNode, width, height, s, callback, parseLinks, options) {
+        console.log("rasterize() called", [svgNode, width, height, s, callback, parseLinks, options]);
+        var images = svgNode.querySelectorAll("image");
+        var totalImageLength = 0;
 
+        for (var i = 0; i < images.length; i ++) {
+            var image = images[i];
+            var href = image.getAttributeNS(PencilNamespaces.xlink, "href");
+            if (href && href.match("^file://(.+)$")) {
+                var sourcePath = decodeURI(RegExp.$1);
+                try {
+                    fs.accessSync(sourcePath, fs.R_OK);
+                    image.setAttribute("crossorigin", "anonymous");
+                } catch (e) {
+                    image.setAttributeNS(PencilNamespaces.xlink, "href", "");
+                }
+            }
+        }
+        
+        var tempFile = tmp.fileSync({postfix: ".svg" });
+        fs.writeFileSync(tempFile.name, Controller.serializer.serializeToString(svgNode), XMLDocumentPersister.CHARSET);
+
+        var delay = 500;
+
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("style", "display: none;");
+        canvas.setAttribute("width", width * s);
+        canvas.setAttribute("height", height * s);
+        document.body.appendChild(canvas);
+        var ctx = canvas.getContext("2d");
+
+        var img = document.createElement("img");
+
+        img.onload = function () {
+            ctx.save();
+            ctx.scale(s, s);
+            ctx.drawImage(img, 0, 0);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+            setTimeout(function () {
+                callback(canvas.toDataURL());
+                ctx.restore();
+                img.onload = null;
+                img.src = "";
+            }, delay);
+        };
+
+        img.setAttribute("crossorigin", "anonymous");
+        img.setAttribute("style", "display: none;");
+        document.body.appendChild(img);
+        
+        img.setAttribute("src", "file://" + tempFile.name);
+    }
+};
 Rasterizer.prototype.getBackend = function () {
     //TODO: options or condition?
+    // return Rasterizer.inProcessFileCanvasBasedBackend;
     return Rasterizer.ipcBasedBackend;
     // return Rasterizer.outProcessCanvasBasedBackend;
 };

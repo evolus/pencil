@@ -1158,12 +1158,13 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
         filters: [
             { name: "PNG Image (*.png)", extensions: ["png"] }
         ]
-    }, function (filePath) {
-        if (!filePath) return;
+    }).then(function (res) {
+        if (!res || !res.filePath) return;
+        var filePath = res.filePath;
         this.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
             if (!error) {
                 NotificationPopup.show("Page exprted as '" + path.basename(filePath) + "'.", "View", function () {
-                    shell.showItemInFolder(filePath);
+                    shell.openPath(filePath);
                 });
             }
         }, undefined, false, options);
@@ -1246,12 +1247,13 @@ Controller.prototype.rasterizeSelection = function (options) {
             filters: [
                 { name: "PNG Image (*.png)", extensions: ["png"] }
             ]
-        }, function (filePath) {
-            if (!filePath) return;
+        }).then(function (res) {
+            if (!res || !res.filePath) return;
+            var filePath = res.filePath;
             this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
                 if (!error) {
                     NotificationPopup.show("Selection exprted as '" + path.basename(filePath) + "'.", "View", function () {
-                        shell.openItem(filePath);
+                        shell.openPath(filePath);
                     });
                 }
             }, undefined, options);
@@ -1686,14 +1688,14 @@ Controller.prototype.exportAsLayout = function () {
         title: "Export Layout",
         defaultPath: defaultPath,
         filters: [{name: 'XHTML Layout', extensions: ["xhtml"]}]
-    }, function (filePath) {
-        if (filePath) {
-            outputPath = filePath;
-            outputImage = path.join(path.dirname(outputPath), IMAGE_FILE);
-            Pencil.rasterizer.rasterizePageToFile(thiz.activePage, outputImage, function (p, error) {
-                done();
-            });
-        }
+    }).then(function (res) {
+        if (!res || !res.filePath) return;
+        var filePath = res.filePath;
+        outputPath = filePath;
+        outputImage = path.join(path.dirname(outputPath), IMAGE_FILE);
+        Pencil.rasterizer.rasterizePageToFile(thiz.activePage, outputImage, function (p, error) {
+            done();
+        });
     });
 };
 
