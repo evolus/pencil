@@ -6,6 +6,15 @@ ExternalEditorSupports.getEditorPath = function (extension) {
         || extension == "gif"
         || extension == "png") return Config.get("external.editor.bitmap.path", "/usr/bin/gimp -n %f");
 
+    var configName = "external.editor." + extension + ".path";
+    var p = Config.get(configName, null);
+    
+    if (p) {
+        return p;
+    } else if (p == null) {
+        Config.define(configName, "");
+    }
+    
     throw Util.getMessage("unsupported.type", extension);
 };
 ExternalEditorSupports.queue = [];
@@ -46,7 +55,9 @@ ExternalEditorSupports.handleEditRequest = function (contentProvider, contentRec
             try {
                 contentReceiver.update(tmpFile.name);
                 if (timeOutId) window.clearTimeout(timeOutId);
-                tmpFile.removeCallback();
+                window.setTimeout(function () {
+                    tmpFile.removeCallback();
+                }, 3000);
             } catch (e) {
                 console.error(e);
             }
