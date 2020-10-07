@@ -48,10 +48,16 @@ ExternalEditorSupports.handleEditRequest = function (contentProvider, contentRec
             params.push(tmpFile.name);
         }
 
+        var startedAt = new Date().getTime();
         var process = spawn(executablePath, params);
 
         var timeOutId = null;
         process.on("close", function () {
+            var closedAt = new Date().getTime();
+            console.log("Closed: ", closedAt - startedAt);
+            if (closedAt - startedAt < 2000) {
+                Dialog.alert("Editor exited almost immediately", "The external edit has exited almost immediately after be launched. This is usually caused by the case where an existing instance of the editor software is running. Please make sure that is not the case.");
+            }
             try {
                 contentReceiver.update(tmpFile.name);
                 if (timeOutId) window.clearTimeout(timeOutId);
