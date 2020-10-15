@@ -313,10 +313,10 @@ CollectionManager.installNewCollection = function (callback) {
             { name: "Stencil files", extensions: ["zip", "epc"] }
         ]
 
-    }, function (filenames) {
-        if (!filenames || filenames.length <= 0) return;
-        Config.set("collection.install.recentlyDirPath", path.dirname(filenames[0]));
-        CollectionManager.installCollectionFromFilePath(filenames[0], callback);
+    }).then(function (res) {
+        if (!res || !res.filePaths || res.filePaths.length <= 0) return;
+        Config.set("collection.install.recentlyDirPath", path.dirname(res.filePaths[0]));
+        CollectionManager.installCollectionFromFilePath(res.filePaths[0], callback);
     });
 };
 
