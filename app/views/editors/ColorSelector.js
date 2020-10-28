@@ -611,12 +611,14 @@ ColorSelector.installGlobalListeners = function () {
 };
 ColorSelector.prototype.onColorPickingCanceled = function () {
     document.body.removeAttribute("color-picker-active");
+    document.body.removeAttribute("color-picker-active-external");
     BaseWidget.closableProcessingDisabled = false;
     ColorSelector.currentPickerInstance = null;
     BaseWidget.unregisterClosable(ColorSelector._pickerClosable);
 };
 ColorSelector.prototype.onColorPicked = function (color) {
     document.body.removeAttribute("color-picker-active");
+    document.body.removeAttribute("color-picker-active-external");
     BaseWidget.closableProcessingDisabled = false;
     BaseWidget.unregisterClosable(ColorSelector._pickerClosable);
     
@@ -633,7 +635,42 @@ ColorSelector._pickerClosable = {
     }
 };
 
-ColorSelector.prototype.pickColor = function () {
+ColorSelector.CONFIG_EXTERNAL_COLOR_PICKER_PATH = Config.define("color.external_picker_path", "");
+
+ColorSelector.prototype.pickColor = function (event) {
+    var externalPickerPath = Config.get(ColorSelector.CONFIG_EXTERNAL_COLOR_PICKER_PATH, "");
+    if (!externalPickerPath) {
+        this.pickColorUsingElectronCapture();
+        return;
+    }
+    
+    var thiz = this;
+    
+    if (event && event.shiftKey) {
+        window.setTimeout(function () {
+            thiz.pickColorUsingExternalTool(externalPickerPath);
+        }, 2000);
+    } else {
+        thiz.pickColorUsingExternalTool(externalPickerPath);
+    }
+};
+ColorSelector.prototype.pickColorUsingExternalTool = function (externalPickerPath) {
+    var thiz = this;
+    
+    document.body.setAttribute("color-picker-active-external", true);
+    var exec = require("child_process").exec;
+    exec(externalPickerPath, function (error, stdout, stderr) {
+        var color = stdout;
+        console.log("Color: " + color);
+        if (color) {
+            thiz.onColorPicked(color.replace(/[^0-9#A-F]+/gi, ""));
+        } else {
+            thiz.onColorPickingCanceled();
+        }
+    });
+}
+
+ColorSelector.prototype.pickColorUsingElectronCapture = function () {
     ColorSelector.installGlobalListeners();
 
     document.body.setAttribute("color-picker-active", true);
