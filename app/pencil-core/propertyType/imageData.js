@@ -70,7 +70,7 @@ ImageData.invalidateValue = function (oldData, callback) {
         } catch (e) {
             console.e(e);
         }
-        
+
         if (!image) {
             callback(null);
             return;
@@ -383,7 +383,7 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
                         imageData.w = Math.round(imageData.w / ratio);
                         imageData.h = Math.round(imageData.h / ratio);
                     }
-                    
+
                     var fs = require("fs");
                     fs.unlinkSync(localPath);
                     callback(imageData, options);

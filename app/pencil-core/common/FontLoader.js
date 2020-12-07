@@ -1,7 +1,7 @@
 function FontLoader() {
     this.userRepo = new FontRepository(Config.getDataFilePath("fonts"), FontRepository.TYPE_USER);
     this.documentRepo = null;
-    
+
     // //TODO: remove this test
     // var face = new FontFace(null, "url(file:///home/dgthanhan/.fonts/Signika-Bold.ttf) format('truetype')");
     // var addPromise = document.fonts.add(face);
@@ -105,7 +105,7 @@ FontLoader.prototype.getAllInstalledFonts = function () {
 
     var fonts = [];
     var fontNames = [];
-    
+
     if (FontLoader.systemRepo.fonts.length > 0) {
         for (var font of FontLoader.systemRepo.fonts) {
             var font = JSON.parse(JSON.stringify(font));

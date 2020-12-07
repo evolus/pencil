@@ -1,33 +1,33 @@
 function BaseParamEditor() {
-    
+
 }
 BaseParamEditor.prototype._construct = function (param) {
     this.param = param;
-    
+
     this.buildUI();
     this.containerElement._paramEditor = this;
     this.rendered = true;
     this.enabled = true;
 };
 BaseParamEditor.prototype.init = function () {};
-BaseParamEditor.prototype.invalidate = function (valueMap) { 
-    
+BaseParamEditor.prototype.invalidate = function (valueMap) {
+
 };
 BaseParamEditor.prototype.emitChangeEvent = function (valueMap) {
     Dom.emitEvent("pe.ValueChange", this.containerElement, {});
     if (this.param.rerenderPageOnChange) {
         Dom.emitEvent("pe.RerenderRequested", this.containerElement, {});
     }
-    
+
 };
 BaseParamEditor.prototype.setEnabled = function (enabled) {
-    
+
     if (!enabled) {
         Dom.addClass(this.containerElement, "Disabled");
     } else {
         Dom.removeClass(this.containerElement, "Disabled");
     }
-    
+
     this.enabled = enabled;
     Dom.doOnChildRecursively(this.containerElement, {
         eval: function (node) {
@@ -35,7 +35,7 @@ BaseParamEditor.prototype.setEnabled = function (enabled) {
             }
         },
         function (control) {
-        
+
         control.disabled = !enabled;
     });
 };
@@ -68,9 +68,9 @@ BaseParamEditor.prototype.buildUI = function () {
             _id: "postLabelElement"
         }]
     }, document, this);
-    
+
     Dom.toggleClass(this.containerElement, "Required", this.param.required);
-    
+
     var preLabel = this.getPreLabel();
     if (preLabel) {
         this.preLabelElement.innerHTML = Dom.htmlEncode(preLabel + (this.noBody ? "" : ":"));
@@ -78,7 +78,7 @@ BaseParamEditor.prototype.buildUI = function () {
     } else {
         Dom.addClass(this.containerElement, "NoPreLabel");
     }
-    
+
     var postLabel = this.getPostLabel();
     if (postLabel) {
         this.postLabelElement.innerHTML = Dom.htmlEncode(postLabel);
@@ -88,7 +88,7 @@ BaseParamEditor.prototype.buildUI = function () {
     } else {
         Dom.addClass(this.containerElement, "NoPostLabel");
     }
-    
+
     this.buildBodyUI(); // @abstract @protected
     this.afterBuild();
 };
@@ -135,7 +135,7 @@ BaseParamEditor.newEditor = function (param) {
     if (param.type == "composite_and") return new CompositeAndParamEditor(param);
     if (param.type == "composite_or") return new CompositeOrParamEditor(param);
     if (param.type == "composite_boolean") return new CompositeBooleanParamEditor(param);
-    
+
     return null;
 };
 

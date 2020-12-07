@@ -1,5 +1,5 @@
 function BaseCompositeParamEditor() {
-    
+
 }
 BaseCompositeParamEditor.prototype = new BaseParamEditor();
 
@@ -19,13 +19,13 @@ BaseCompositeParamEditor.prototype.buildBodyUI = function () {
     this.childEditors = [];
     var w = 0;
     this.selectionGroupName = "cpgname_" + widget.random();
-    
+
     var thiz = this;
     var selectionHandler = function (e) {
         var target = Dom.getTarget(e)
         thiz.validateEditors(target._editor);
     };
-    
+
     for (var i = 0; i < this.param.params.length; i ++) {
         var holder = {};
         var row = Dom.newDOMElement({
@@ -41,22 +41,22 @@ BaseCompositeParamEditor.prototype.buildBodyUI = function () {
                 _id: "childEditorContainer"
             }]
         }, document, holder);
-        
+
         var editor = BaseParamEditor.newEditor(this.param.params[i]);
         holder.childEditorContainer.appendChild(editor.getUIElement());
         this.childEditors.push(editor);
         editor.parentCompositeBodyElement = row;
-        
+
         var input = this.buildSelectionUI(holder.selectionContainer, editor);
         if (input) {
             Dom.registerEvent(input, "click", selectionHandler, false);
         }
-        
+
         w = Math.max(w, editor.getPreferredLeadingSize());
-        
+
         this.bodyElement.appendChild(row);
     }
-    
+
     for (var i = 0; i < this.childEditors.length; i ++) {
         var editor = this.childEditors[i];
         editor.setLeadingSize(w);
@@ -74,7 +74,7 @@ BaseCompositeParamEditor.prototype.init = function () {
 };
 
 BaseCompositeParamEditor.prototype.setValue = function (value) {
-    
+
 };
 
 function CompositeAndParamEditor(param) {
@@ -113,7 +113,7 @@ CompositeOrParamEditor.prototype.buildSelectionUI = function (selectionContainer
         id: id,
         name: this.selectionGroupName
     });
-    
+
     cb._editor = editor;
     editor._cb = cb;
     selectionContainer.appendChild(cb);
@@ -126,10 +126,10 @@ CompositeOrParamEditor.prototype.saveValue = function (valueMap) {
         if (this.childEditors[i]._cb.checked) {
             editor = this.childEditors[i];
         }
-        
-        this.childEditors[i].saveValue(valueMap);        
+
+        this.childEditors[i].saveValue(valueMap);
     }
-    
+
     if (editor) {
         valueMap[this.param.key] = editor.param.key
     } else {
@@ -153,10 +153,10 @@ CompositeOrParamEditor.prototype.loadValue = function (valueMap) {
             editor.setEnabled(false);
         }
     }
-    
+
 };
 CompositeOrParamEditor.prototype.afterBuild = function() {
-    
+
     for (var i = 0; i < this.childEditors.length; i ++) {
         if (this.childEditors[i]._cb.checked) {
            //console.log("AFTER BUILD" , this.childEditors[i]);
@@ -178,12 +178,12 @@ CompositeBooleanParamEditor.prototype.buildSelectionUI = function (selectionCont
         id: id,
         name: this.selectionGroupName
     });
-    
+
     cb._editor = editor;
     editor._cb = cb;
     selectionContainer.appendChild(cb);
     editor.connectPreLabelToInput(id);
-    
+
     return cb;
 };
 CompositeBooleanParamEditor.prototype.saveValue = function (valueMap) {
@@ -196,13 +196,13 @@ CompositeBooleanParamEditor.prototype.saveValue = function (valueMap) {
             editor.saveValue(valueMap);
         }
     }
-    
+
     valueMap[this.param.key] = keys;
 };
 CompositeBooleanParamEditor.prototype.loadValue = function (valueMap) {
     var keys = valueMap[this.param.key];
     if (typeof (keys) == "undefined") keys = this.param.defaultValue;
-    
+
     if (keys) {
         keys = keys.split(/\,/);
     } else {
@@ -226,5 +226,5 @@ CompositeBooleanParamEditor.prototype.loadValue = function (valueMap) {
             editor.setEnabled(false);
         }
     }
-    
+
 };

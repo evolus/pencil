@@ -14,7 +14,7 @@ if (typeof(JSIO) != 'boolean') {
 	var JSIO = true;
 
 	/////////////////////////////////////////////////
-	// Basic file IO object based on Mozilla source 
+	// Basic file IO object based on Mozilla source
 	// code post at forums.mozillazine.org
 	/////////////////////////////////////////////////
 
@@ -76,7 +76,7 @@ if (typeof(JSIO) != 'boolean') {
 					data = this.toUnicode(charset, data);
 				}
 				return data;
-			} 
+			}
 			catch(e) {
 				return false;
 			}
@@ -140,7 +140,7 @@ if (typeof(JSIO) != 'boolean') {
 									.createInstance(this.suniconvIID);
 				uniConv.charset = charset;
 				data = uniConv.ConvertToUnicode(data);
-			} 
+			}
 			catch(e) {
 				// foobar!
 			}
@@ -165,7 +165,7 @@ if (typeof(JSIO) != 'boolean') {
 
 
 	/////////////////////////////////////////////////
-	// Basic Directory IO object based on JSLib 
+	// Basic Directory IO object based on JSLib
 	// source code found at jslib.mozdev.org
 	/////////////////////////////////////////////////
 
@@ -207,9 +207,9 @@ if (typeof(JSIO) != 'boolean') {
 		sep        : '/',
 
 		dirservCID : '@mozilla.org/file/directory_service;1',
-	
+
 		propsIID   : Components.interfaces.nsIProperties,
-	
+
 		fileIID    : Components.interfaces.nsIFile,
 
 		get    : function(type) {
@@ -302,7 +302,7 @@ if (typeof(JSIO) != 'boolean') {
 			var arr = str.split(/\/|\\/), i;
 			str = new String();
 			for (i = 0; i < arr.length; ++i) {
-				str += arr[i] + ((i != arr.length - 1) ? 
+				str += arr[i] + ((i != arr.length - 1) ?
 										join : '');
 			}
 			return str;
@@ -312,12 +312,12 @@ if (typeof(JSIO) != 'boolean') {
 			var arr = str.split(split), i;
 			str = new String();
 			for (i = 0; i < arr.length; ++i) {
-				str += arr[i] + ((i != arr.length - 1) ? 
+				str += arr[i] + ((i != arr.length - 1) ?
 										this.sep : '');
 			}
 			return str;
 		}
-	
+
 	}
 
 	if (navigator.platform.toLowerCase().indexOf('win') > -1) {

@@ -9,7 +9,7 @@ var CollectionRepository = {
 
 CollectionRepository.getCollectionRepos = function () {
     var repos = [];
-    
+
     var core = Config.get(Config.CORE_COLLECTION_REPO_URL);
     if (core) {
         repos.push({
@@ -18,7 +18,7 @@ CollectionRepository.getCollectionRepos = function () {
             url: core
         });
     }
-    
+
     var extras = Config.get(Config.EXTRA_COLLECTION_REPO_URLS);
     if (extras) {
         var untitledCount = 0;
@@ -26,7 +26,7 @@ CollectionRepository.getCollectionRepos = function () {
             if (item.match(/^([^:]+)=(.+)$/)) {
                 var name = RegExp.$1;
                 var url = RegExp.$2;
-                
+
                 return {
                     name: name,
                     id: name.replace(/[^a-z0-9\-]+/gi, "-").toLowerCase(),
@@ -51,7 +51,7 @@ CollectionRepository.getCollectionRepos = function () {
             url: outdated
         });
     }
-    
+
     return repos;
 };
 

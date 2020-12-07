@@ -1,7 +1,7 @@
 function ScriptEditorDialog(large) {
     Dialog.call(this);
     this.title = "Script Editor";
-    
+
     if (large) {
         Dom.addClass(this.scriptInputContainer, "Large");
     }

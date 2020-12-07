@@ -13,7 +13,7 @@ BooleanEditor.prototype.createMenuItem = function (doc) {
     } else {
         item.setAttributeNS(PencilNamespaces.p, "p:tristate", true);
     }
-    
+
     var thiz = this;
     item.addEventListener("command", function () {
         var bool = Bool.fromString(item.getAttribute("checked"));
@@ -21,7 +21,7 @@ BooleanEditor.prototype.createMenuItem = function (doc) {
     }, false);
 
     return item;
-    
+
 };
 OnMenuEditor.registerTypeEditor(Bool, BooleanEditor);
 
@@ -35,7 +35,7 @@ function EnumEditor(def, value, target) {
 EnumEditor.prototype.createMenuItem = function (doc) {
     var menu = doc.createElementNS(PencilNamespaces.xul, "menu");
     menu.setAttribute("label", this.def.displayName);
-    
+
     var popup = doc.createElementNS(PencilNamespaces.xul, "menupopup");
     menu.appendChild(popup);
 
@@ -46,15 +46,15 @@ EnumEditor.prototype.createMenuItem = function (doc) {
         item.setAttribute("label", enumValues[i].label);
         item._value = enumValues[i].value;
         item._isEnumEditor = true;
-        
+
         if (this.value && this.value.equals(enumValues[i].value)) {
             item.setAttribute("checked", true);
         }
-        
+
         popup.appendChild(item);
-        
+
     }
-    
+
     var thiz = this;
     popup.addEventListener("command", function (event) {
         if (event.originalTarget._isEnumEditor) {
@@ -63,7 +63,7 @@ EnumEditor.prototype.createMenuItem = function (doc) {
     }, false);
 
     return menu;
-    
+
 };
 
 OnMenuEditor.registerTypeEditor(Enum, EnumEditor);

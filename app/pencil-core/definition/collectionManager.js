@@ -158,13 +158,13 @@ CollectionManager._loadDeveloperStencil = function () {
         Console.dumpError(e);
         // Util.error("Failed to load developer stencil", ex.message + "\n" + definitionFile.path, Util.getMessage("button.cancel.close"));
 	}
-    
-    CollectionManager._addActiveBuilderCollection();    
+
+    CollectionManager._addActiveBuilderCollection();
 };
 CollectionManager._addActiveBuilderCollection = function () {
     CollectionManager._builderCollection = null;
     if (!StencilCollectionBuilder.activeCollectionInfo) return;
-    
+
     try {
         var collection = new ShapeDefCollectionParser().parseURL(path.join(StencilCollectionBuilder.activeCollectionInfo.dir, "Definition.xml"));
         collection.installDirPath = StencilCollectionBuilder.activeCollectionInfo.dir;

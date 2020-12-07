@@ -11,10 +11,10 @@ ValueParamEditor.prototype.buildBodyUI = function () {
     for (name in extraPrototype) {
         this[name] = extraPrototype[name];
     }
-    
+
     this.buildBodyControl();
 //    this.bodyElement.setAttribute("title", this.param.valueParamType.name);
-    
+
     var thiz = this;
 //    Dom.registerEvent(this.containerElement, "dblclick", function () {
 //        console.log("------------------ " + thiz.param.key + " -------------------");
@@ -50,7 +50,7 @@ ValueParamEditor.PARAM_TYPES = {
                 withExtraNull: false, //!thiz.param.required,
                 useHtml: true
             });
-            
+
             if (this.param.options) this.comboManager.setItems(this.param.options);
         },
         setValue: function (value) {
@@ -63,10 +63,10 @@ ValueParamEditor.PARAM_TYPES = {
                     break;
                 }
             }
-            
+
             if (option) {
                 this.comboManager.selectItem(option);
-            } 
+            }
         },
         getValue: function () {
             var selectedItem = this.comboManager.getSelectedItem();
@@ -76,7 +76,7 @@ ValueParamEditor.PARAM_TYPES = {
             if (this.param.options && this.param.options.length > 0) {
                 return; //invalidate is needed for dynamic list only
             }
-            
+
             var thiz = this;
             var context = thiz.param._context;
             $reportTemplateService.loadTreeByRetriever(context.type, context.id, thiz.param.key, context.getValueMap(), function (options) {
@@ -100,14 +100,14 @@ ValueParamEditor.PARAM_TYPES = {
                 title: this.getPreLabel() || Messages[this.param.displayedName],
                 format: function (item) {
                     if (item.icon) {
-                        return "<span class=\"IconicLabel\"><img width=\"16\" height=\"16\" src=\""+ CONTEXT_PATH + item.icon + "\"/></span> " + 
+                        return "<span class=\"IconicLabel\"><img width=\"16\" height=\"16\" src=\""+ CONTEXT_PATH + item.icon + "\"/></span> " +
                         "<span>" + item.name + "</span>";
                     } else {
                         if (thiz.param.key == "query_param_dep_id") {
-                            return "<span class=\"IconicLabel\"><img width=\"16\" height=\"16\" src=\""+ CONTEXT_PATH + "/images/department_icon_32X32.gif" + "\"/></span> " + 
+                            return "<span class=\"IconicLabel\"><img width=\"16\" height=\"16\" src=\""+ CONTEXT_PATH + "/images/department_icon_32X32.gif" + "\"/></span> " +
                             "<span>" + item.name + "</span>";
                         }
-                        
+
                         return item.name;
                     }
                 },
@@ -128,7 +128,7 @@ ValueParamEditor.PARAM_TYPES = {
                                         return;
                                     }
                                 }
-                                
+
                                 callback(results);
                             } else {
                                 callback(item.children);
@@ -161,7 +161,7 @@ ValueParamEditor.PARAM_TYPES = {
                     }
                 }
             }
-            
+
             if (list && list.length > 0) {
                 var thiz = this;
                 var context = this.param._context;
@@ -176,7 +176,7 @@ ValueParamEditor.PARAM_TYPES = {
             var list = this.selectionEditor.getValue();
             var value = [];
             for (var i = 0; i < list.length; i ++) value.push(list[i].id);
-            
+
             return Util.join(value, ",");
         }
     },
@@ -188,7 +188,7 @@ ValueParamEditor.PARAM_TYPES = {
                 title: this.getPreLabel(),
                 format: function (item) {
                     if (item.icon) {
-                        return "<span class=\"IconicLabel\"><img width=\"16\" height=\"16\" src=\""+ CONTEXT_PATH + item.icon + "\"/></span> " + 
+                        return "<span class=\"IconicLabel\"><img width=\"16\" height=\"16\" src=\""+ CONTEXT_PATH + item.icon + "\"/></span> " +
                         "<span>" + item.name + "</span>";
                     } else {
                         return item.name;
@@ -216,11 +216,11 @@ ValueParamEditor.PARAM_TYPES = {
                                             selectable: true
                                         });
                                     }
-                                    
+
                                     callback(convertedList);
                                     return;
                                 }
-                                
+
                                 if (results.length == 1) {
                                     var root = results[0];
                                     if (root.invisble) {
@@ -260,7 +260,7 @@ ValueParamEditor.PARAM_TYPES = {
                     }
                 }
             }
-            
+
             function setItemsWithConversion(items) {
                 var c = [];
                 for (var i = 0; i < items.length; i ++) {
@@ -271,13 +271,13 @@ ValueParamEditor.PARAM_TYPES = {
                         icon: items[i].icon || ""
                     });
                 }
-                
+
                 thiz.selectionEditor.setValue(c);
             }
-            
+
             if (list && list.length > 0) {
                 var thiz = this;
-                
+
                 if (this.param.options && this.param.options.length > 0) {
                     var items = [];
                     for (var i = 0; i < list.length; i ++) {
@@ -289,7 +289,7 @@ ValueParamEditor.PARAM_TYPES = {
                             }
                         }
                     }
-                    
+
                     setItemsWithConversion(items);
                 } else {
                     var context = this.param._context;
@@ -305,7 +305,7 @@ ValueParamEditor.PARAM_TYPES = {
             var list = this.selectionEditor.getValue();
             var value = [];
             for (var i = 0; i < list.length; i ++) value.push(list[i].id);
-            
+
             return Util.join(value, ",");
         }
     },
@@ -317,9 +317,9 @@ ValueParamEditor.PARAM_TYPES = {
                 type: "checkbox",
                 "id": id
             });
-            
+
             this.bodyElement.appendChild(this.checkBox);
-            
+
             this.postLabelElement.setAttribute("for", id);
         },
         setValue: function (value) {
@@ -353,7 +353,7 @@ ValueParamEditor.PARAM_TYPES = {
                 }]
             }, document, this);
             this.bodyElement.appendChild(button);
-            
+
             Dom.registerEvent(button, "click", function(e){
                 Dom.cancelEvent(e);
                 widget.Dialog.select(thiz.param.options, function (items) {
@@ -380,7 +380,7 @@ ValueParamEditor.PARAM_TYPES = {
                     if (item) this.items.push(item);
                 }
             }
-            
+
             this.invalidateSelectedItemDisplay();
         },
         getValue: function () {
@@ -388,7 +388,7 @@ ValueParamEditor.PARAM_TYPES = {
             for (var i = 0; i < this.items.length; i ++) {
                 values.push(this.items[i].value);
             }
-            
+
             return Util.join(values, ",");
         },
         invalidateSelectedItemDisplay: function () {
@@ -410,7 +410,7 @@ ValueParamEditor.PARAM_TYPES = {
                 "class": "form-control",
                 "id": id
             });
-            
+
             this.bodyElement.appendChild(this.input);
             if (this.param.fieldSize) {
                 this.input.style.width = this.param.fieldSize + "px";
@@ -432,14 +432,14 @@ ValueParamEditor.PARAM_TYPES = {
                 "class": "form-control",
                 "id": id
             });
-            
+
             this.bodyElement.appendChild(this.input);
             if (this.param.fieldSize) {
                 this.input.style.width = this.param.fieldSize + "px";
             } else {
                 this.input.style.width = "70px";
             }
-            
+
             this.input._integer = true;
             Util.enforceNumberInput(this.input);
         },
@@ -460,7 +460,7 @@ ValueParamEditor.PARAM_TYPES = {
                 "id": id,
                 "style": "width: 17ex"
             });
-            
+
             this.bodyElement.appendChild(this.input);
             widget.Util.installAutoComplete(this.input,
                     function (query, callback) {    //SOURCE
@@ -484,12 +484,12 @@ ValueParamEditor.PARAM_TYPES = {
                                 getExtraStyle: function (tag) { return "font-weight: bold; margin-right: 1em;" }
                             }
                     ),
-                    
+
                     function (tag) {  //INPUT TEXT BUILDER
                         return tag.networkId
                     },
                     null, null, //NO FILTER, NO SORTER
-                    
+
                     {   //EVENT LISTENER
                         onItemSelected: function (tag) {
                         },
@@ -525,9 +525,9 @@ ValueParamEditor.PARAM_TYPES = {
                 "id": id,
                 "style": "width: 17ex"
             });
-            
+
             this.bodyElement.appendChild(this.input);
-            
+
             widget.Util.installAutoComplete(this.input,
                     function (query, callback) {    //SOURCE
                         var config = {
@@ -542,7 +542,7 @@ ValueParamEditor.PARAM_TYPES = {
                         $assetService.assetAutoCompleteSearch(query, 0, config, function (result) {
                             callback(result.results);
                         }, function () {});
-                        
+
                     },
                     widget.Util.makeMultiColumnItemRenderer(    //ITEM RENDERER
                             {
@@ -558,12 +558,12 @@ ValueParamEditor.PARAM_TYPES = {
                                 getText: function (asset) { return asset.assetDTO.primaryCategory.name; }
                             }
                     ),
-                    
+
                     function (asset) {  //INPUT TEXT BUILDER
                         return asset.assetDTO.name;
                     },
                     null, null, //NO FILTER, NO SORTER
-                    
+
                     {   //EVENT LISTENER
                         onItemSelected: function (asset) {
                         },
@@ -579,7 +579,7 @@ ValueParamEditor.PARAM_TYPES = {
                    if (asset && asset.assetDTO) {
                        thiz.input.value = asset.assetDTO.name;
                        thiz.assetId = asset.assetDTO.id;
-                   } 
+                   }
                 });
             }
         },
@@ -610,22 +610,22 @@ ValueParamEditor.PARAM_TYPES = {
                 }]
             }, document, this.bodyElement);
             this.bodyElement.appendChild(button);
-            
+
             this.renderer = function(items) {
                 var html = "";
                 for (var i = 0; i < items.length; i++) {
-                    html += "<span class=\"IconicLabel\"><img width=\"16\" height=\"16\" src=\""+ CONTEXT_PATH + items[i].assetDTO.primaryCategory.icon + "\"/></span> " + 
+                    html += "<span class=\"IconicLabel\"><img width=\"16\" height=\"16\" src=\""+ CONTEXT_PATH + items[i].assetDTO.primaryCategory.icon + "\"/></span> " +
                     "<span>" + items[i].assetDTO.name + "</span> ";
                 }
-                
+
                 if (items.length > 0) {
                 } else {
                     html = "&nbsp;";
                 }
-                
+
                 thiz.bodyElement.assetView.innerHTML = html;
             };
-            
+
             Dom.registerEvent(button, "click", function(e){
                 Dom.cancelEvent(e);
                 new MultiAssetSelectionDialog(function(items){
@@ -646,7 +646,7 @@ ValueParamEditor.PARAM_TYPES = {
             for (var i = 0; i < this.items.length; i++) {
                 list.push(this.items[i].assetDTO.id);
             }
-            
+
             return Util.join(list, ",");
         }
     },
@@ -673,25 +673,25 @@ ValueParamEditor.PARAM_TYPES = {
                 }]
             }, document, this.bodyElement);
             this.bodyElement.appendChild(button);
-            
+
             this.source = [{
                 name: "AASEDA",
                 id: "214324"
-                
+
             }, {
                 name: "GSFWE",
                 id: "45534234"
             }];
-            
+
             this.renderer = function(item) {
                 return item.name;
             };
-            
+
             this.comparer = function(a, b) {
                 if (a.id == b.id) return true;
                 return false;
             };
-            
+
             Dom.registerEvent(button, "click", function(e){
                 Dom.cancelEvent(e);
                 var context = thiz.param._context;
@@ -700,7 +700,7 @@ ValueParamEditor.PARAM_TYPES = {
                     thiz.getDisplayText(item.id, function (name) {
                         thiz.bodyElement.itemView.innerHTML = Dom.htmlEncode(name);
                     });
-                     
+
                 }, context, thiz.param.key, thiz.item, thiz.getPreLabel()).open();
             });
         },

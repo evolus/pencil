@@ -72,7 +72,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
         var p = doc.pages[i];
         var fid = this.generateFriendlyId(p, usedFriendlyIds);
         p.fid = fid;
-        
+
         pageMap[p.id] = p;
     }
 
@@ -84,28 +84,28 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
     params.options.bitmapScale = Rasterizer.getExportScale(params.options.bitmapScale);
 
     var pageExtraInfos = {};
-    
+
     var linkRequiredPageIds = [];
-    
+
     function addLinkRequiredPage(pageId) {
         var page = pageMap[pageId];
         if (!page) return;
-        
+
         if (linkRequiredPageIds.indexOf(pageId) < 0) linkRequiredPageIds.push(pageId);
         if (page && page.backgroundPageId && page.copyBackgroundLinks) {
             addLinkRequiredPage(page.backgroundPageId);
         }
     }
-    
+
     pages.forEach(function (p) {
         addLinkRequiredPage(p.id);
     });
-    
+
     var processMissingBackgroundLinks = function (callback, listener) {
         var missingLinkRequiredPageIds = linkRequiredPageIds.filter(function (id) {
             return !pageExtraInfos[id];
         });
-        
+
         var backgroundIndex = -1;
         (function next() {
             backgroundIndex ++;
@@ -113,14 +113,14 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                 callback();
                 return;
             }
-            
+
             var page = pageMap[missingLinkRequiredPageIds[backgroundIndex]];
-            
+
             if (listener) {
                 var task = Util.getMessage("exporting.page.no.prefix", page.name);
                 listener.onProgressUpdated(task, backgroundIndex + 1, missingLinkRequiredPageIds.length);
             }
-            
+
             Pencil.rasterizer.rasterizePageToUrl(page, function (data) {
                 pageExtraInfos[page.id] = {
                     objectsWithLinking: data.objectsWithLinking
@@ -129,7 +129,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
             }, params.bitmapScale, "parseLinks", {linksOnly: true});
         })();
     };
-    
+
     if (requireRasterizedData) {
         starter = function (listener) {
             var rasterizeNext = function () {
@@ -399,7 +399,7 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
             //debug("Created link from: " + page.properties.name + " to: " + targetPage.properties.name);
         }
     }
-    
+
     DocumentExportManager._cleanupParseError(dom);
 
     var xmlFile = tmp.fileSync({postfix: ".xml", keep: false});

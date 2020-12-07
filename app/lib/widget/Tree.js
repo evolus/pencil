@@ -89,7 +89,7 @@ widget.Tree = function() {
         var target = Dom.getTarget(event);
         if (!target || !Dom.hasClass(target, "Checkbox") || target.nodeName.toLowerCase() != "input") return;
         if (target.disabled) return;
-        
+
         if (event.which == 2) target.checked = !target.checked;
 
         var treeContainer = Dom.findUpward(target, {
@@ -191,13 +191,13 @@ widget.Tree = function() {
             this.ensureNodeExpanded(itemNode);
         }
     };
-    
+
     /*
     Tree.prototype.sort = function(item) {
         if (item.sort) return;
         if (item.children && item.children.length > 0) {
             item.children.sort(sortNameByAsc);
-            
+
             for (var i = 0; i < item.children.length; i++) {
                 if (item.children[i].children && item.children[i].children.length > 0) {
                     this.sort(item.children[i]);
@@ -206,11 +206,11 @@ widget.Tree = function() {
         }
     };
     */
-    
+
     Tree.prototype.loadChildren = function(parentItem, childrenContainer, callback) {
         Dom.addClass(childrenContainer, "Loading");
         var thiz = this;
-        
+
         this.source(parentItem, function(children) {
             childrenContainer.innerHTML = "";
             if (!children) children = [];
@@ -458,7 +458,7 @@ widget.Tree = function() {
         this.listener = listener;
         return this;
     };
-    
+
     Tree.prototype.findParentItem = function (contextNode) {
         var thiz = this;
         var node = Dom.findUpward(contextNode, {
@@ -466,15 +466,15 @@ widget.Tree = function() {
                 return n._item || n == thiz.container;
             }
         });
-        
+
         if (!node || !node._item) return null;
-        
+
         node = Dom.findUpward(node.parentNode, {
             eval: function (n) {
                 return n._item || n == thiz.container;
             }
         });
-        
+
         if (node && node._item) return node._item;
         return null;
     };

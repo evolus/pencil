@@ -30,7 +30,7 @@ ImageEditorDialog.prototype.__initTools = function () {
             node.__widget.setup(thiz.getImageSource());
         }
     });
-    
+
     var nodes = this.toolbarContainer.querySelectorAll(".PopupToggler");
     for (var i = 0; i < nodes.length; i++) {
         nodes[i].addEventListener("click", function (event) {
@@ -41,7 +41,7 @@ ImageEditorDialog.prototype.__initTools = function () {
                 thiz._beginRepeatableImageAction();
             }
         });
-        
+
         nodes[i].parentNode.querySelector(".PopupContainer").__widget.onHide = function () {
             thiz._endRepeatableImageAction();
         };
@@ -210,7 +210,7 @@ ImageEditorDialog.prototype.doSave = function (refId, buffer, resRefs, updateAll
             if (!canvas) continue;
 
             if (page != Pencil.controller.activePage) canvas.__dirtyGraphic = true;
-            
+
             var holders = resRefs.references[i].holders || [];
             for (var j = 0; j < holders.length; j++) {
                 var controller = canvas.createControllerFor(holders[j]);
@@ -233,7 +233,7 @@ ImageEditorDialog.prototype.getRefId = function () {
 ImageEditorDialog.prototype._getImageSize = function () {
     var w = this.editingImage && this.editingImage.bitmap ? this.editingImage.bitmap.width : this.options.imageData.w;
     var h = this.editingImage && this.editingImage.bitmap ? this.editingImage.bitmap.height : this.options.imageData.h;
-    
+
     return {
         w: w,
         h: h
@@ -242,7 +242,7 @@ ImageEditorDialog.prototype._getImageSize = function () {
 
 ImageEditorDialog.prototype._getDisplaySize = function () {
     var size = this._getImageSize();
-    
+
     return {
         w: Math.round(size.w * this.zoomRatio),
         h: Math.round(size.h * this.zoomRatio)
@@ -250,7 +250,7 @@ ImageEditorDialog.prototype._getDisplaySize = function () {
 };
 ImageEditorDialog.prototype._invalidateDisplaySize = function () {
     var size = this._getDisplaySize();
-    
+
     var padding = 1 * Util.em();
 
     this.drawingContainer.style.width = Math.round(size.w) + "px";
@@ -278,7 +278,7 @@ ImageEditorDialog.prototype.setupEditSpace = function (callback) {
         that.editingImage = image;
         that.editingImage.quality(100);
         that.editingImage.rgba(true);
-        
+
         if (callback) callback();
     });
 };
@@ -296,9 +296,9 @@ ImageEditorDialog.prototype.invalidateImage = function (onDoneCallback) {
             that.options.imageData.w = this.bitmap.width;
             that.options.imageData.h = this.bitmap.height;
             if (typeof(onDoneCallback) == "function") onDoneCallback.call(that);
-            
+
             that._invalidateDisplaySize();
-            
+
             that.unbusy();
         });
     } else {
@@ -379,11 +379,11 @@ ImageEditorDialog.prototype.getImageSource = function () {
             start: function (callback) {
                 thiz._beginRepeatableImageAction(callback);
             },
-            
+
             get: function () {
                 return thiz._targetImage;
             },
-            
+
             set: function (image, options, callback) {
                 console.log("options", options);
                 if (!thiz.currentRange || options.replace) {
@@ -396,7 +396,7 @@ ImageEditorDialog.prototype.getImageSource = function () {
                     });
                 }
             },
-            
+
             rollback: function (callback) {
                 thiz.editingImage = thiz.__backupImage;
                 thiz._endRepeatableImageAction();
@@ -412,7 +412,7 @@ ImageEditorDialog.prototype.getImageSource = function () {
             }
         };
     }
-    
+
     return this.__imageSource;
 };
 
@@ -420,7 +420,7 @@ ImageEditorDialog.prototype.rotate = function (val) {
     this.busy();
     var degree = parseInt(val, 10);
     var that = this;
-    
+
     this._performActionOnSelection(
         function (image, callback) {
             image.rotate(degree, that.keepSizeCheckbox.checked ? jimp.RESIZE_BICUBIC : false, callback);
@@ -435,7 +435,7 @@ ImageEditorDialog.prototype.blur = function (val) {
     this.busy();
     val = parseInt(val, 10);
     var that = this;
-    
+
     this._performActionOnSelection(
         function (image, callback) {
             image.blur(val, callback);
@@ -551,7 +551,7 @@ ImageEditorDialog.prototype.handleSelectionMouseDown = function (event) {
         this.lastMouseDownLocation = this.getEventLocation(event);
         return;
     }
-    
+
     this.lastMouseDownLocation = this.getEventLocation(event);
     this.currentRange = {
         x : this.lastMouseDownLocation.x,
@@ -560,7 +560,7 @@ ImageEditorDialog.prototype.handleSelectionMouseDown = function (event) {
         height : 0
     };
     this._moved = false;
-    
+
     this._validateSelectionRange();
 };
 ImageEditorDialog._getNumberAttr = function (node, name) {
@@ -573,14 +573,14 @@ ImageEditorDialog.prototype.handleSelectionHandleMove = function (event) {
     var end = this.getEventLocation(event);
     var dx = end.x - this.lastMouseDownLocation.x;
     var dy = end.y - this.lastMouseDownLocation.y;
-    
+
     var spec = this.currentRangeHandle._spec;
-    
+
     this.currentRange.x = this._originalRange.x + spec.dx * dx;
     this.currentRange.y = this._originalRange.y + spec.dy * dy;
     this.currentRange.width = this._originalRange.width + spec.dw * dx;
     this.currentRange.height = this._originalRange.height + spec.dh * dy;
-    
+
     this._validateSelectionRange();
     this.drawSelectingRect();
 };
@@ -590,17 +590,17 @@ ImageEditorDialog.prototype.handleSelectionMouseMove = function (event) {
         this.handleSelectionHandleMove(event);
         return;
     }
-    
+
     if (!this.lastMouseDownLocation) return;
     Dom.cancelEvent(event);
 
     var end = this.getEventLocation(event);
-    
+
     var dx = Math.abs(end.x - this.lastMouseDownLocation.x);
     var dy = Math.abs(end.y - this.lastMouseDownLocation.y);
-    
+
     if (dx > 2 || dy > 2) this._moved = true;
-    
+
     var x1 = Math.min(end.x, this.lastMouseDownLocation.x);
     var x2 = Math.max(end.x, this.lastMouseDownLocation.x);
     var y1 = Math.min(end.y, this.lastMouseDownLocation.y);
@@ -615,7 +615,7 @@ ImageEditorDialog.prototype.handleSelectionMouseMove = function (event) {
         width : w,
         height : h
     };
-    
+
     this._validateSelectionRange();
     this.drawSelectingRect();
 };
@@ -626,7 +626,7 @@ ImageEditorDialog.prototype.handleSelectionMouseUp = function (event) {
         this.selectionRangeListener.apply(this);
         this.selectionRangeListener = null;
     }
-    
+
     if (!this._moved) this.currentRange = null;
     this.drawSelectingRect();
 };

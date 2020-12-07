@@ -178,7 +178,7 @@ Dialog.prototype.invalidatePosition = function () {
 
     var w = this.dialogFrame.offsetWidth;
     var h = this.dialogFrame.offsetHeight;
-    
+
     if (this.grabHeight || h > screenH) {
         h = screenH;
         this.dialogFrame.style.height = h + "px";
@@ -186,12 +186,12 @@ Dialog.prototype.invalidatePosition = function () {
     } else {
         this.dialogContentNode.removeAttribute("flex");
     }
-    
+
     if (this.grabWidth) {
         w = screenW;
         this.dialogFrame.style.width = w + "px";
     }
-    
+
     var x = (window.innerWidth - w) / 2;
     var y = (window.innerHeight - h) / 2;
 

@@ -1,5 +1,5 @@
 function DocumentDiagTools() {
-    
+
 }
 
 DocumentDiagTools.checkMissingResources = function () {
@@ -8,11 +8,11 @@ DocumentDiagTools.checkMissingResources = function () {
         var svg = page.canvas.svg;
         console.log("Page: " + page.name);
         Dom.workOn(".//svg:g[@p:type='Shape']", svg, function (shapeNode) {
-            
+
             var symbolName = Svg.getSymbolName(shapeNode);
             var eNameNode = Dom.getSingle("./p:metadata/p:property[name='elementName']", shapeNode);
             var eName = eNameNode ? eNameNode.textContent : null;
-            
+
             Dom.workOn("./p:metadata/p:property", shapeNode, function (propNode) {
                 var name = propNode.getAttribute("name");
                 var n = name.toLowerCase();
@@ -32,5 +32,5 @@ DocumentDiagTools.checkMissingResources = function () {
                 }
             });
         });
-    });    
+    });
 };

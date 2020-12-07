@@ -58,12 +58,12 @@ function disableGroup(name, disabled) {
 
 function handleOnloadImpl() {
     valueHolder = window.arguments[0];
-    
+
     setPolicyValue("w", valueHolder.input.wPolicy);
     setPolicyValue("h", valueHolder.input.hPolicy);
     setPolicyValue("x", valueHolder.input.xPolicy);
     setPolicyValue("y", valueHolder.input.yPolicy);
-    
+
     validateXPolicySelection();
     validateYPolicySelection();
 }
@@ -74,7 +74,7 @@ function handleDialogAccept() {
 		wPolicy: getPolicyValue("w"),
 		hPolicy: getPolicyValue("h")
 	};
-	
+
     return true;
 }
 window.addEventListener("load", handleOnload, false);

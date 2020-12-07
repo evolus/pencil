@@ -2160,9 +2160,9 @@ Util.setupImage = function (image, src, mode, allowUpscale) {
     image.style.height = "100%";
     image.style.opacity = "0";
     image.src = src;
-    
+
     mode = mode || "center-crop";
-    
+
     var hp = (mode.indexOf("left") >= 0) ? "left" : ((mode.indexOf("right") >= 0) ? "right" : " center");
     var vp = (mode.indexOf("top") >= 0) ? "top" : ((mode.indexOf("bottom") >= 0) ? "bottom" : " center");
     image.parentNode.style.backgroundImage = "url('" + src + "')";
@@ -2490,13 +2490,13 @@ PropertyMask.prototype.apply = function (original, newValue) {
             value[name] = original[name];
         }
     }
-    
+
     for (var name of this.names) {
         if (newValue.hasOwnProperty(name)) {
             value[name] = newValue[name];
         }
     }
-    
+
     return value;
 };
 

@@ -1,6 +1,6 @@
 var RichTextDialog = {};
 RichTextDialog.handleLoad = function (event) {
-    
+
     try {
         //setup font list
         var fontPopup = document.getElementById("fontPopup");
@@ -11,9 +11,9 @@ RichTextDialog.handleLoad = function (event) {
             item.setAttribute("value", localFonts[i]);
             fontPopup.appendChild(item);
         }
-        RichTextDialog.editor = document.getElementById("editor");        
+        RichTextDialog.editor = document.getElementById("editor");
         RichTextDialog.editor.contentDocument.designMode = "on";
-        
+
         RichTextDialog.textEditingInfo = window.arguments[0];
         RichTextDialog.returnValueHolder = window.arguments[1];
 
@@ -56,14 +56,14 @@ RichTextDialog.doApply = function () {
     if (html.match(/^<body[^>]*>([^\0]*)<\/body>$/)) {
         html = RegExp.$1;
     }
-    
+
     RichTextDialog.returnValueHolder.ok = true;
     RichTextDialog.returnValueHolder.html = html;
     return true;
 };
 
 function runEditorCommand(command, arg) {
-    
+
     try {
         if (typeof(arg) != "undefined") RichTextDialog.editor.contentDocument.execCommand(command, false, arg);
         else RichTextDialog.editor.contentDocument.execCommand(command, false, null);

@@ -1,32 +1,32 @@
 function BaseSimpleArgumentTool() {
     BaseTemplatedWidget.call(this);
-    
+
     this.icon.innerHTML = this.getIcon ? this.getIcon() : "";
-    
+
     var label = this.getLabel ? this.getLabel() : "";
     this.buttonLabel.innerHTML = label;
-    
+
     var toolTip = this.getToolTip ? this.getToolTip() : "";
     this.label.innerHTML = toolTip;
     this.button.setAttribute("title", toolTip);
-    
+
     var min = this.getMin ? this.getMin() : -100;
     var max = this.getMax ? this.getMax() : 100;
     var initial = this.getInitial ? this.getInitial() : 0;
     var step = this.getStep ? this.getStep() : ((max - initial) / 100);
-    
+
     this.seeker.min = this.percentInput.min = min;
     this.seeker.max = this.percentInput.max = max;
     this.seeker.value = this.percentInput.value = this.initial = initial;
     this.seeker.step = this.percentInput.step = step;
-    
+
     console.log(this.getLabel(), initial);
-    
+
     var unit = this.getUnit ? this.getUnit() : "%";
     this.unitLabel.innerHTML = unit;
 
     var thiz = this;
-    
+
     this.popup.onHide = function (reason, event) {
         if (this.imageSource) {
             if (reason == "onBlur") {
@@ -36,31 +36,31 @@ function BaseSimpleArgumentTool() {
             }
         }
     }.bind(this);
-    
+
     this.bind("keypress", function (event) {
         if (event.keyCode != DOM_VK_RETURN) return;
         event.cancelBubble = true;
-        
+
         this.imageSource.commit(function () {
             thiz.imageSource = null;
             thiz.popup.close()
         });
-        
+
     }, this.percentInput);
-    
+
     this.bind("input", function(event) {
         this.percentInput.value = this.seeker.valueAsNumber;
-        
+
         if (this.seeker._held) {
             this.seeker._changed = true;
             return;
         }
-        
+
         if (this.imageSource) {
             this._run(this.seeker.valueAsNumber);
         }
     }, this.seeker);
-    
+
     this.bind("mousedown", function(event) {
         this.seeker._changed = false;
         this.seeker._held = true;
@@ -75,23 +75,23 @@ function BaseSimpleArgumentTool() {
             }
         }
     }, this.seeker);
-    
+
     this._applyInputChange = function () {
         this._applyInputChangeTimer = null;
         if (this.imageSource) {
             this._run(this.percentInput.valueAsNumber);
         }
     }.bind(this);
-    
+
     this.bind("input", function(event) {
         this.seeker.value = this.percentInput.valueAsNumber;
         if (this._applyInputChangeTimer) {
             window.clearTimeout(this._applyInputChangeTimer);
         }
-        
+
         this._applyInputChangeTimer = window.setTimeout(this._applyInputChange, 200);
     }, this.percentInput);
-    
+
     this.bind("click", this.start.bind(this, this.button), this.button);
 }
 __extend(BaseTemplatedWidget, BaseSimpleArgumentTool);
@@ -117,7 +117,7 @@ BaseSimpleArgumentTool.prototype.setup = function (imageSource) {
 BaseSimpleArgumentTool.prototype.start = function (uiAnchorNode) {
     this.seeker.value = this.initial;
     this.percentInput.value = this.initial;
-    
+
     var thiz = this;
     this.imageSource.start(function () {
         thiz.originalImage = thiz.imageSource.get();

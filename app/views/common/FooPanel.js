@@ -1,6 +1,6 @@
 function FooPanel() {
     BaseTemplatedWidget.call(this);
-    
+
     this.time.innerHTML = new Date().toString();
 }
 __extend(BaseTemplatedWidget, FooPanel);

@@ -14,7 +14,7 @@ TestDialog.prototype.getDialogActions = function () {
         //     new TestDialog().open();
         //     return false;
         // }},
-        
+
         { type: "accept", title: "Ok", run: function () {
             alert("close");
             return true;

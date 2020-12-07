@@ -140,7 +140,7 @@ ExportDialog.prototype.setup = function (options) {
         var exporter = this.exporterCombo.getSelectedItem();
         if (exporter) {
             this.title = exporter.name;
-            
+
         }
     }
 

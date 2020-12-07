@@ -14,7 +14,7 @@ function loadLicenseIn(url) {
 
 	req.open("GET", url, false);
 	req.send(null);
-	
+
 	document.getElementById("licenseText").value = req.responseText;
 }
 

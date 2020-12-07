@@ -193,7 +193,7 @@ MainMenu.prototype.setup = function () {
             new StencilCollectionBuilder(Pencil.controller).build();
         }
     }));
-    
+
     developerToolSubItems.push(UICommandManager.register({
         key: "deployStencilCollection",
         label: "Deploy Stencil Collection...",
@@ -203,7 +203,7 @@ MainMenu.prototype.setup = function () {
             new StencilCollectionBuilder(Pencil.controller).deploy();
         }
     }));
-    
+
     developerToolSubItems.push(UICommandManager.register({
         key: "checkMissingResources",
         label: "Check Missing Resources...",
@@ -213,7 +213,7 @@ MainMenu.prototype.setup = function () {
         }
     }));
 
-    
+
     developerToolSubItems.push(Menu.SEPARATOR);
 
     developerToolSubItems.push({

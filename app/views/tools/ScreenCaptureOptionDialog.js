@@ -20,7 +20,7 @@ function ScreenCaptureOptionDialog() {
     this.hidePencilCheckbox.checked = Config.get(Config.CAPTURE_OPTIONS_HIDE_PENCIL_WINDOW, true);
     this.delayInput.value = Config.get(Config.CAPTURE_OPTIONS_DELAY, true);
     var normalBitmap = Config.get(Config.CAPTURE_OPTIONS_INSERT_MODE, Config.CAPTURE_OPTIONS_INSERT_MODE_NORMAL) == Config.CAPTURE_OPTIONS_INSERT_MODE_NORMAL;
-    
+
     this.normalBitmapRadio.checked = normalBitmap;
     this.nPatchBitmapRadio.checked = !normalBitmap;
 };
@@ -40,11 +40,11 @@ ScreenCaptureOptionDialog.prototype.setup = function (provider) {
         captureFullscreen: true,
         canHideCursor: true
     };
-    
+
     this.areaButton.disabled = !providedCaps.captureArea;
     this.windowButton.disabled = !providedCaps.captureWindow;
     this.fullscreenButton.disabled = !providedCaps.captureFullscreen;
-    
+
     if (!providedCaps.canHideCursor) {
         this.hideCursorCheckbox.checked = false;
         this.hideCursorCheckbox.disabled = true;

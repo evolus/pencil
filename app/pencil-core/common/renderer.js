@@ -81,9 +81,9 @@ module.exports = function () {
                 var delay = 500;
                 console.log("data.scale", data.scale);
                 var scale = typeof(data.scale) == "number" ? data.scale : 1;
-                
+
                 var bgColor = (data.options && data.options.backgroundColor) ? data.options.backgroundColor : "transparent";
-                
+
                 var extraCSS = `
                     body {
                         background-color: ${bgColor} !important;
@@ -95,7 +95,7 @@ module.exports = function () {
                         line-height: 1.428;
                     }
                 ` + fontFaceCSS;
-                
+
                 //path
                 svg = '<?xml version="1.0" encoding="UTF-8"?>\n'
  + '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n'
@@ -208,7 +208,7 @@ module.exports = function () {
             console.log("RENDERER re-started.");
         }
         rendererWindow.loadURL("about:blank");
-        
+
         initialized = true;
     }
     function initOutProcessCanvasBasedRenderer() {

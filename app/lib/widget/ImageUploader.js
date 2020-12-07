@@ -12,14 +12,14 @@ widget.ImageUploader = function () {
                     tip.innerHTML = imageUploader.option.tip;
                     container.appendChild(tip);
                 }
-                
+
                 var object = createUploadForm(container, imageUploader);
                 this.form = object.form;
                 this.iframe = object.iframe;
                 this.picker = object.picker;
             },
             onOpen : function() {
-                
+
             },
             actions : [{
                  title: Messages["upload"],
@@ -37,9 +37,9 @@ widget.ImageUploader = function () {
                          } else {
                              widget.Dialog.error(Messages["upload_error_msg"]);
                          }
-                         
+
                      });
-                     
+
                      var extensions = ["png", "jpg", "gif", "bmp"];
                      var fileExt = this.picker.value.split(".").pop().toLowerCase();
                      if (this.picker.value.length > 0) {
@@ -47,7 +47,7 @@ widget.ImageUploader = function () {
                              widget.Dialog.error(Messages["upload_not_supported_files_msg"]);
                              return false;
                          }
-                         
+
                          if (this.picker.files && this.picker.files.length > 0 && this.picker.files[0].size >= FILE_SIZE) {
                              widget.Dialog.error(String.format(Messages["file_is_too_large_msg"], 5));
                              return false;
@@ -56,10 +56,10 @@ widget.ImageUploader = function () {
                      } else {
                          widget.Dialog.error(Messages["no_file_uploaded_msg"]);
                      }
-                     
+
                      return false;
                  }
-             }, 
+             },
              {
                 title : Messages["cancel"],
                 isCloseHandler : true,
@@ -71,7 +71,7 @@ widget.ImageUploader = function () {
 
         new widget.Dialog(builder).show();
     }
-    
+
     function imageRemoverClickHandler(event) {
         var imageUploader = ImageUploader.findInstance(event);
         var container = imageUploader.container;
@@ -91,7 +91,7 @@ widget.ImageUploader = function () {
                                         if (imageUploader.option.fallbackUrl) {
                                             imageUploader.imageDisplay._fallbackRequested = false;
                                         }
-            
+
                                         imageUploader.setImage();
                                         thiz.iframe.remove();
                                         thiz.form.remove();
@@ -100,13 +100,13 @@ widget.ImageUploader = function () {
                             widget.Dialog.error(Messages["remove_image_failed_msg"]);
                         }
                     });
-                    
+
                 },
                 Messages["cancel"], function () {
                 }
         );
     }
-    
+
     function createUploadForm(container, imageUploader) {
         var iframe = document.createElement("iframe");
         iframe.setAttribute("name", "iframe");
@@ -115,33 +115,33 @@ widget.ImageUploader = function () {
         iframe.setAttribute("width", "0");
         iframe.setAttribute("frameborder", "0");
         iframe = iframe;
-        
+
         form = document.createElement("form");
         form.setAttribute("action", CONTEXT_PATH + "/amw/upload");
         form.setAttribute("method", "POST");
         form.setAttribute("enctype", "multipart/form-data");
         form.setAttribute("target", "iframe");
-        
+
         var picker = document.createElement("input");
         picker.setAttribute("type", "file");
         picker.setAttribute("name", "file");
         picker.setAttribute("id", "file");
         form.appendChild(picker);
-        
+
         var entityType = document.createElement("input");
         entityType.setAttribute("type", "hidden");
         entityType.setAttribute("name", "entityType");
         entityType.setAttribute("id", "entityType");
         entityType.value = imageUploader.option.type;
         form.appendChild(entityType);
-        
+
         var entityId = document.createElement("input");
         entityId.setAttribute("type", "hidden");
         entityId.setAttribute("name", "entityId");
         entityId.setAttribute("id", "entityId");
         entityId.value = imageUploader.option.id;
         form.appendChild(entityId);
-        
+
         container.appendChild(iframe);
         container.appendChild(form);
         return {
@@ -150,12 +150,12 @@ widget.ImageUploader = function () {
             picker: picker
         };
     }
-    
+
     function ImageUploader(container, option) {
         this.container = widget.get(container);
         this.option = option || {};
         this.isModified = false;
-        
+
         this.wrapper = document.createElement("div");
         this.wrapper.className = "ImageUploader";
         this.wrapper._imageUploader = this;
@@ -164,13 +164,13 @@ widget.ImageUploader = function () {
         } else {
             Dom.addClass(this.wrapper, "NonEditable");
         }
-        
+
         this.imagePicker = document.createElement("div");
         this.imagePicker.style.position = "absolute";
         this.imagePicker.className = "ImagePicker";
         this.imagePicker.innerHTML = "<a href=\"#\"><i class=\"fa fa-plus\"></i>" + Messages["add_picture"] +"</a>";
         this.wrapper.appendChild(this.imagePicker);
-        
+
         this.imageDisplay = document.createElement("img");
         this.imageDisplay.className = "ImageDisplay";
         this.wrapper.appendChild(this.imageDisplay);
@@ -185,14 +185,14 @@ widget.ImageUploader = function () {
         this.imageReplacer.setAttribute("title", Messages["replace"]);
         this.imageReplacer.innerHTML = this.option.smallArea ? "<i class=\"fa fa-exchange\"></i>" : ("<i class=\"fa fa-exchange\"></i>" + Messages["replace"]);
         this.imageEditor.appendChild(this.imageReplacer);
-        
+
         this.imageRemover = document.createElement("a");
         this.imageRemover.href = "#";
         this.imageRemover.setAttribute("title", Messages["remove"]);
         this.imageRemover.innerHTML = this.option.smallArea ? "<i class=\"fa fa-times\"></i>" : ("<i class=\"fa fa-times\"></i>" + Messages["remove"]);
         this.imageEditor.appendChild(this.imageRemover);
         this.wrapper.appendChild(this.imageEditor);
-        
+
         this.container.appendChild(this.wrapper);
         Dom.registerEvent(this.imagePicker, "click", imageUploaderClickHandler, false);
         Dom.registerEvent(this.imageReplacer, "click", imageUploaderClickHandler, false);
@@ -202,7 +202,7 @@ widget.ImageUploader = function () {
             Dom.addClass(this.wrapper, "Fallback");
         }
     }
-    
+
     ImageUploader.prototype.centerPicker = function() {
         var containerBox = this.container.getBoundingClientRect();
         var pickerBox = this.imagePicker.getBoundingClientRect();
@@ -212,7 +212,7 @@ widget.ImageUploader = function () {
             // TODO: handle exception
         }
     };
-    
+
     ImageUploader.prototype.setImage = function() {
         var url = CONTEXT_PATH + "/amw-im?entityType=" + this.option.type + "&entityId=" + this.option.id + "&time=" + new Date().getTime();
         this.imageDisplay.src = url;
@@ -224,22 +224,22 @@ widget.ImageUploader = function () {
             Dom.addClass(thiz.wrapper, "Display");
             centerCrop(this);
         };
-        
+
         this.imageDisplay.onerror = function(e){
             if (thiz.option.fallbackUrl) thiz.imageRemover.style.display = "none";
             Dom.removeClass(thiz.wrapper, "Display");
             showFallback(this);
         };
     };
-    
+
     ImageUploader.prototype.enableEditMode = function() {
         Dom.addClass(this.wrapper, "Editable");
     };
-    
+
     ImageUploader.prototype.disableEditMode = function() {
         Dom.removeClass(this.wrapper, "Editable");
     };
-    
+
     ImageUploader.findInstance = function(event) {
         var target = Dom.getTarget(event);
         var node = Dom.findUpward(target, {
@@ -252,7 +252,7 @@ widget.ImageUploader = function () {
 
         return node._imageUploader;
     };
-    
+
     return ImageUploader;
 }();
 

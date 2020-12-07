@@ -9,7 +9,7 @@ Geometry.prototype.clone = function (svg) {
     } else {
         geo.dim = new Dimension(this.dim.w, this.dim.h);
     }
-    
+
     if (this.ctm == null) {
         geo.ctm = null;
     } else {
@@ -18,6 +18,6 @@ Geometry.prototype.clone = function (svg) {
     if (this.loc) {
         geo.loc = {x: this.loc.x, y: this.loc.y};
     }
-    
+
     return geo;
 };

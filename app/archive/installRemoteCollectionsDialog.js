@@ -3,7 +3,7 @@ InstallRemoteCollectionsDialog.currentPage = 1;
 InstallRemoteCollectionsDialog.collectionLength = 0;
 InstallRemoteCollectionsDialog.totalPages = 0;
 InstallRemoteCollectionsDialog.collectionsPerPage = 4;
-InstallRemoteCollectionsDialog.collections = [];                    
+InstallRemoteCollectionsDialog.collections = [];
 InstallRemoteCollectionsDialog.init = function () {
     InstallRemoteCollectionsDialog.manager = window.opener.CollectionManager;
     Dom.populate(InstallRemoteCollectionsDialog, ["collectionListContent", "backBtn", "nextBtn", "pagingLabel"]);
@@ -12,12 +12,12 @@ InstallRemoteCollectionsDialog.init = function () {
 InstallRemoteCollectionsDialog.loadNewData = function() {
     var start = (InstallRemoteCollectionsDialog.currentPage - 1) * InstallRemoteCollectionsDialog.collectionsPerPage;
     var xml = InstallRemoteCollectionsDialog.getXmlFromServer("http://localhost:8080/pencil/collection/getAllCollections?start=" + start +"&count="+InstallRemoteCollectionsDialog.collectionsPerPage+"&t="+new Date().getDate());
-    
+
     InstallRemoteCollectionsDialog.parseXML(xml);
     InstallRemoteCollectionsDialog.totalPages = Math.ceil(InstallRemoteCollectionsDialog.collectionLength / InstallRemoteCollectionsDialog.collectionsPerPage);
-    
+
     InstallRemoteCollectionsDialog.setNextBackButtonStatus();
-    
+
     InstallRemoteCollectionsDialog.loadCollections();
 };
 InstallRemoteCollectionsDialog.loadPreviousPage = function() {
@@ -36,7 +36,7 @@ InstallRemoteCollectionsDialog.setNextBackButtonStatus = function() {
     } else {
         InstallRemoteCollectionsDialog.backBtn.setAttribute("disabled", false);
     }
-    
+
     if(InstallRemoteCollectionsDialog.totalPages == 1 || InstallRemoteCollectionsDialog.currentPage == InstallRemoteCollectionsDialog.totalPages) {
         InstallRemoteCollectionsDialog.nextBtn.setAttribute("disabled", true);
     } else {
@@ -47,7 +47,7 @@ InstallRemoteCollectionsDialog.loadCollections = function() {
     var rows = [];
     for (var i = 0; i < InstallRemoteCollectionsDialog.collections.length; i ++) {
         var collection = InstallRemoteCollectionsDialog.collections[i];
-        
+
         var row = {
             _name: "hbox",
             _uri: PencilNamespaces.xul,
@@ -142,7 +142,7 @@ InstallRemoteCollectionsDialog.downloadAndInstall = function (url, downloadTarge
     var channel = ioService.newChannelFromURI(uri);
 
     var httpChannel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
-    
+
     var listener = {
         foStream: null,
         file: downloadTargetFile,
@@ -156,18 +156,18 @@ InstallRemoteCollectionsDialog.downloadAndInstall = function (url, downloadTarge
         },
         onStartRequest: function (request, context) {
             this.writeMessage("Request started");
-            
+
         },
         onDataAvailable: function (request, context, stream, sourceOffset, length) {
-            
+
             //if (this.canceled) return;
 
             try {
-                
-                if (!this.foStream) {    
+
+                if (!this.foStream) {
                     this.foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
                                             .createInstance(Components.interfaces.nsIFileOutputStream);
-                                            
+
                     debug("Start receiving file...");
 
                     this.downloaded = 0;
@@ -177,9 +177,9 @@ InstallRemoteCollectionsDialog.downloadAndInstall = function (url, downloadTarge
 
                 try {
                     this.size = parseInt(httpChannel.getResponseHeader("Content-Length"), 10);
-                    
+
                 } catch (e) {
-                    
+
                 }
 
                 var bStream = Components.classes["@mozilla.org/binaryinputstream;1"].
@@ -204,7 +204,7 @@ InstallRemoteCollectionsDialog.downloadAndInstall = function (url, downloadTarge
         },
         onStopRequest: function (request, context, status) {
             var self = this;
-            
+
             progress.setAttribute("hidden", true);
             button.setAttribute("hidden", false);
             if(this.size > 0) {
@@ -212,13 +212,13 @@ InstallRemoteCollectionsDialog.downloadAndInstall = function (url, downloadTarge
                 var callback = function() {
                     self.file.remove(true);
                 };
-            
+
                 InstallRemoteCollectionsDialog.manager.installCollectionFromFile(this.file, callback);
-                
+
             } else {
                 Util.error("This collection has been removed!");
             }
-            
+
             InstallRemoteCollectionsDialog.loadNewData();
             //this.listener.onDone();
         },
@@ -273,13 +273,13 @@ InstallRemoteCollectionsDialog.downloadAndInstall = function (url, downloadTarge
 
     channel.notificationCallbacks = listener;
     channel.asyncOpen(listener, null);
-    
+
 };
 InstallRemoteCollectionsDialog.downloadAndInstallRemoteCollection = function (event) {
     if(event.originalTarget.getAttribute("disabled") == "true") return;
     var button = event.originalTarget;
     var collectionURL = button.getAttribute("collection-url");
-    
+
     if(collectionURL) {
         var progress = document.getElementById(button.getAttribute("collection-id"));
         progress.setAttribute("hidden", false);
@@ -288,8 +288,8 @@ InstallRemoteCollectionsDialog.downloadAndInstallRemoteCollection = function (ev
         try {
             var targetDir = InstallRemoteCollectionsDialog.manager.getUserStencilDirectory();
             var targetPath = targetDir.path;
-            var file = Components.classes["@mozilla.org/file/local;1"].  
-                   createInstance(Components.interfaces.nsILocalFile);  
+            var file = Components.classes["@mozilla.org/file/local;1"].
+                   createInstance(Components.interfaces.nsILocalFile);
             file.initWithPath(targetPath);
             file.append("file.zip");
             InstallRemoteCollectionsDialog.downloadAndInstall(collectionURL, file, null, null, button, progress);
@@ -314,7 +314,7 @@ InstallRemoteCollectionsDialog.getXmlFromServer = function(url) {
     }
     return xml;
 };
-InstallRemoteCollectionsDialog.parseXML = function(xml) {    
+InstallRemoteCollectionsDialog.parseXML = function(xml) {
     var node = Dom.getSingle("/Collections", xml.documentElement);
     InstallRemoteCollectionsDialog.collectionLength = node.getAttribute("max");
     InstallRemoteCollectionsDialog.currentPage = node.getAttribute("start") / InstallRemoteCollectionsDialog.collectionsPerPage + 1;

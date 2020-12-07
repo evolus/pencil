@@ -128,7 +128,7 @@ CollapseablePanel.prototype.onAttached = function () {
         if (inside) return;
         this.collapseAll();
     }.bind(this), false);
-    
+
     if (float) this.collapseAll();
 };
 

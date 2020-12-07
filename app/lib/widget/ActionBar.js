@@ -6,26 +6,26 @@ widget.ActionBar = function () {
                 return n._action;
             }
         });
-        
+
         if (!button) return;
         if (button.disabled) return;
-        
+
         Dom.cancelEvent(event);
-        
+
         var action = button._action;
-        
+
         action.run();
-        
+
     }
-    
+
     function ActionBar(container) {
         this.container = widget.get(container);
         this.actions = [];
-        
+
         this.buttonGroupDiv = document.createElement("div");
         Dom.addClass(this.buttonGroupDiv, "btn-group nav-pills");
         this.container.appendChild(this.buttonGroupDiv);
-        
+
         Dom.registerEvent(this.buttonGroupDiv, "click", actionBarClickHandler, false);
     }
     ActionBar.prototype.register = function (action) {
@@ -37,7 +37,7 @@ widget.ActionBar = function () {
         for (var i = 0; i < this.actions.length; i ++) {
             var action = this.actions[i];
             if (action.isVisible && !action.isVisible()) continue;
-            
+
             var disabled = action.isApplicable && !action.isApplicable();
             var button = document.createElement("button");
             button.setAttribute("type", "button");
@@ -51,7 +51,7 @@ widget.ActionBar = function () {
             button._action = action;
         }
     };
-    
+
     return ActionBar;
 }();
 

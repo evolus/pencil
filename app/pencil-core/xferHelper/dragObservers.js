@@ -159,7 +159,7 @@ PrivateShapeDefDragObserver.prototype = {
 
         var def = PrivateCollectionManager.locateShapeDefinition(defId);
         if (!def) def = CollectionManager.shapeDefinition.locateBuiltinPrivateShapeDef(defId);
-        
+
         if (!def) {
             console.log("Private def not found", defId);
             return;

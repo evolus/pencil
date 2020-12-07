@@ -7,29 +7,29 @@ widget.ColorPicker = function () {
     function colorPickerClickHandler(event) {
         var colorPicker = ColorPicker.findInstance(event);
         if (!colorPicker || !colorPicker.enabled) return;
-        
+
         if (colorPicker.option.editMode) {
             var editModeObject = Dom.findUpward(Dom.getTarget(event), {
                 eval: function(n){
                     return Dom.hasClass(n, "EditModeActivated");
                 }
             });
-            
+
             if (!editModeObject) {
                 return;
             }
         }
-        
+
         var colorInput = Dom.findUpward(Dom.getTarget(event), {
             eval: function(n){
                 return n == colorPicker.colorInput
             }
-        }); 
-        
+        });
+
         if (colorInput) {
             if (colorPicker.value != "null" && typeof (colorPicker.value) != "undefined") return;
         }
-        
+
         var builder = {
             title : Messages["select_color_title"],
             size : "250",
@@ -48,11 +48,11 @@ widget.ColorPicker = function () {
                             style: "background: " + ColorPicker.COLOR[i]
                         }]
                     });
-                    
+
                     li._color = ColorPicker.COLOR[i];
                     ul.appendChild(li);
                 }
-        
+
                 var thiz = this;
                 this._colorPicker = colorPicker;
                 container.appendChild(ul);
@@ -63,25 +63,25 @@ widget.ColorPicker = function () {
                             return n._color;
                         }
                     });
-                    
+
                     if (colorObject) {
                         colorPicker.setValue(colorObject._color);
                         thiz._dialog.quit();
                     }
                 });
-                
+
                 var basicContainer = document.createElement("div");
                 basicContainer.className = "BasicContainer";
-                
+
                 var advancedButton = document.createElement("a");
                 advancedButton = Dom.newDOMElement({
                     _name: "a",
                     href: "#",
                     _html: Messages["advanced_color"]
                 });
-                
+
                 basicContainer.appendChild(advancedButton);
-                
+
                 var noColorContainer = document.createElement("div");
                 var noColorCheckbox = Dom.newDOMElement({
                     _name: "input",
@@ -89,16 +89,16 @@ widget.ColorPicker = function () {
                     "class": "Checkbox",
                     id: "color_picker_cb"  + widget.random()
                 });
-                
+
                 if (colorPicker.isNoColor) noColorCheckbox.checked = true;
                 noColorContainer.appendChild(noColorCheckbox);
-                
+
                 var title = Dom.newDOMElement({
                     _name: "label",
                     _html: Messages["color_selection_no_color"],
                     "for": noColorCheckbox.id
                 });
-                
+
                 noColorContainer.appendChild(title);
                 basicContainer.appendChild(noColorContainer);
                 container.appendChild(basicContainer);
@@ -107,14 +107,14 @@ widget.ColorPicker = function () {
                     _name: "div",
                     "class": "AdvancedContainer"
                 });
-                
+
                 var hsvContainer = document.createElement("div");
                 hsvContainer.className = "HSVContainer";
                 var hsvMask = document.createElement("div");
                 hsvMask.className = "HSVMark";
                 this.hsvMask = hsvMask;
                 hsvContainer.appendChild(hsvMask);
-                
+
                 var hsvPicker = document.createElement("div");
                 hsvPicker.className = "HSVPicker";
                 this.hsvPicker = hsvPicker;
@@ -123,7 +123,7 @@ widget.ColorPicker = function () {
                 this.hsvPicker._lastScreenX = 0;
                 this.hsvPicker._lastScreenX = 0;
                 hsvMask.appendChild(hsvPicker);
-                
+
                 var hsvBar = document.createElement("div");
                 hsvBar.className = "HSVBar";
                 this.hsvBar = hsvBar;
@@ -132,63 +132,63 @@ widget.ColorPicker = function () {
                     "class": "HsvBarIndicator",
                     _html: "<i class=\"fa fa-caret-right\"></i>"
                 });
-                
+
                 this.hsvBarIndicator = hsvBarIndicator;
                 this.hsvBarIndicator._y = 0;
                 hsvBar.appendChild(hsvBarIndicator);
                 hsvContainer.appendChild(hsvBar);
-                
+
                 advancedContainer.appendChild(hsvContainer);
-                
+
                 var extraContainer = document.createElement("div");
                 extraContainer.className = "Extra";
-                
+
                 var advancedColorDisplay = document.createElement("div");
                 advancedColorDisplay.className = "AdvancedColorDisplay";
                 this.advancedColorDisplay = advancedColorDisplay;
                 extraContainer.appendChild(advancedColorDisplay);
-                
+
                 var basicButton = Dom.newDOMElement({
                     _name: "a",
                     href: "#",
                     _html: Messages["basic_color_label"],
                     "class": "Basic"
                 });
-                
+
                 extraContainer.appendChild(basicButton);
-                
+
                 var advancedInput = Dom.newDOMElement({
                     _name: "input",
                     type: "text",
                     "class": "form-control Control AdvancedInput"
                 });
-                
+
                 this.advancedInput = advancedInput;
                 extraContainer.appendChild(advancedInput);
-                
+
                 advancedContainer.appendChild(extraContainer);
                 container.appendChild(advancedContainer);
-                
+
                 Dom.registerEvent(noColorCheckbox, "click", function(){
                     colorPicker.setNoColor(this.checked);
                     thiz._dialog.quit();
                 });
-                
+
                 Dom.registerEvent(advancedButton, "click", function(){
                     Dom.addClass(container, "AdvanceMode");
                     if (!colorPicker.isNoColor) {
                         initColor(colorPicker.value, thiz);
                     }
                 });
-                
+
                 Dom.registerEvent(basicButton, "click", function(){
                     Dom.removeClass(container, "AdvanceMode");
                 });
-                
+
                 Dom.registerEvent(hsvMask, "mousedown", hsvMaskMouseDownHandler, false);
                 Dom.registerEvent(document, "mousemove", hsvMaskMouseMoveHandler, false);
                 Dom.registerEvent(document, "mouseup", hsvMaskMouseUpHandler, false);
-                
+
                 Dom.registerEvent(hsvBar, "mousedown", hsvBarIndicatorMouseDownHandler, false);
                 Dom.registerEvent(document, "mousemove", hsvBarIndicatorMouseMoveHandler, false);
                 Dom.registerEvent(document, "mouseup", hsvBarIndicatorMouseUpHandler, false);
@@ -215,7 +215,7 @@ widget.ColorPicker = function () {
         dialog.show();
         ColorPicker.dialog = dialog;
     }
-    
+
     function getColor(event) {
         var re = COLOR_PATTERN;
         var colorPicker = ColorPicker.findInstance(event);
@@ -225,7 +225,7 @@ widget.ColorPicker = function () {
             colorPicker.setValue(validColor[0]);
         }
     }
-    
+
     function checkColor(event) {
         var re = COLOR_PATTERN;
         var colorPicker = ColorPicker.findInstance(event);
@@ -233,7 +233,7 @@ widget.ColorPicker = function () {
         var validColor = re.exec(color);
         colorPicker.setValue(validColor ? validColor[0] : (colorPicker.isNoColor && colorPicker.option.nullValue ? colorPicker.option.nullValue : colorPicker.originalColor));
     }
-    
+
     function hsvMaskMouseDownHandler(e) {
         Dom.cancelEvent(e);
         var target = Dom.getTarget(e);
@@ -242,12 +242,12 @@ widget.ColorPicker = function () {
                 return n._dialog;
             }
         });
-        
+
         if (!container) return;
         if (target == container._dialog.builder.hsvPicker) {
             onHoldPicker = true;
         }
-        
+
         container._dialog.builder.hsvPicker._lastScreenX = Dom.getEventScreenX(e);
         container._dialog.builder.hsvPicker._lastScreenY = Dom.getEventScreenY(e);
         var offsetX = 0;
@@ -257,7 +257,7 @@ widget.ColorPicker = function () {
             offsetX = ne.x;
             offsetY = ne.y;
         }
-        
+
         var box = Dom.getBoundingClientRect(container._dialog.builder.hsvPicker);
         var maskBox = Dom.getBoundingClientRect(container._dialog.builder.hsvMask);
         var alphaX = box.width / 2;
@@ -274,20 +274,20 @@ widget.ColorPicker = function () {
         container._dialog.builder.hsvPicker._y = y;
         getHSV(container._dialog);
     }
-    
+
     function hsvMaskMouseMoveHandler(e) {
         Dom.cancelEvent(e);
         if (!onHoldPicker) return;
         movePicker(ColorPicker.dialog, e);
         ColorPicker.dialog.builder.hsvMask.style.cursor = "default";
     }
-    
+
     function hsvMaskMouseUpHandler(e) {
         Dom.cancelEvent(e);
         onHoldPicker = false;
         ColorPicker.dialog.builder.hsvMask.style.cursor = "crosshair";
     }
-    
+
     function hsvBarIndicatorMouseDownHandler(e) {
         Dom.cancelEvent(e);
         onHoldIndicator = true;
@@ -296,7 +296,7 @@ widget.ColorPicker = function () {
                 return n._dialog;
             }
         });
-        
+
         if (!container) return;
         var dialog = container._dialog;
         var offsetX = 0;
@@ -306,7 +306,7 @@ widget.ColorPicker = function () {
             offsetX = ne.x;
             offsetY = ne.y;
         }
-        
+
         var box = Dom.getBoundingClientRect(dialog.builder.hsvBarIndicator);
         var barBox = Dom.getBoundingClientRect(dialog.builder.hsvBar);
         var y = offsetY - (box.height / 2) - 1;
@@ -320,7 +320,7 @@ widget.ColorPicker = function () {
         dialog.builder.hsvBarIndicator._y = y;
         getHSV(dialog);
     }
-    
+
     function hsvBarIndicatorMouseMoveHandler(e) {
         Dom.cancelEvent(e);
         if (!onHoldIndicator) return;
@@ -329,10 +329,10 @@ widget.ColorPicker = function () {
                 return n._dialog;
             }
         });
-        
+
         if (!container) return;
         var dialog = container._dialog;
-        var box = Dom.getBoundingClientRect(dialog.builder.hsvBarIndicator); 
+        var box = Dom.getBoundingClientRect(dialog.builder.hsvBarIndicator);
         var barBox = Dom.getBoundingClientRect(dialog.builder.hsvBar);
         var minY = -(box.height / 2);
         var maxY = barBox.height - ((box.height / 2));
@@ -345,12 +345,12 @@ widget.ColorPicker = function () {
         dialog.builder.hsvBarIndicator._lastScreenY = e.screenY;
         getHSV(dialog);
     }
-    
+
     function hsvBarIndicatorMouseUpHandler(e) {
         Dom.cancelEvent(e);
         onHoldIndicator = false;
     }
-    
+
     function movePicker(dialog, e) {
         var dx = Dom.getEventScreenX(e) - dialog.builder.hsvPicker._lastScreenX;
         var dy = Dom.getEventScreenY(e) - dialog.builder.hsvPicker._lastScreenY;
@@ -368,14 +368,14 @@ widget.ColorPicker = function () {
         if (newY <= -alphaY) newY = -alphaY - 1;
         if (newX >= maxX) newX = maxX - 1;
         if (newY >= maxY) newY = maxY - 1;
-        
-        dialog.builder.hsvPicker.style.left = newX + "px"; 
+
+        dialog.builder.hsvPicker.style.left = newX + "px";
         dialog.builder.hsvPicker.style.top = newY + "px";
         dialog.builder.hsvPicker._x = newX;
         dialog.builder.hsvPicker._y = newY;
         getHSV(dialog);
     }
-    
+
     function getHSV(dialog) {
         var maskBox = Dom.getBoundingClientRect(dialog.builder.hsvMask);
         var pickerBox = Dom.getBoundingClientRect(dialog.builder.hsvPicker);
@@ -387,24 +387,24 @@ widget.ColorPicker = function () {
         hue = hue < 0 ? 0 : (Math.round(hue) > 360 ? 360 : Math.round(hue));
         sat = sat < 0 ? 0 : (Math.round(sat) > 100 ? 100 : Math.round(sat));
         value = value < 0 ? 0 : (Math.round(value) > 100 ? 100 : Math.round(value));
-        
+
         var color = Color.fromHSV(hue, sat, value);
         var hex = RGB2Hex(color.r, color.g, color.b);
         var color = "#" + hex;
         dialog.builder.advancedInput.value = color;
         dialog.builder.advancedColorDisplay.style.background = color;
         dialog.builder._colorPicker.setValue(color);
-        
+
         var topColor = Color.fromHSV(hue, sat, 100);
         var bottomColor = Color.fromHSV(hue, sat, 0);
         var gradient = makeGradientStyle("#" + RGB2Hex(topColor.r, topColor.g, topColor.b), "#" + RGB2Hex(bottomColor.r, bottomColor.g, bottomColor.b))
         dialog.builder.hsvBar.setAttribute("style", gradient);
     }
-    
+
     function initColor(color, container) {
        var colorObject = Color.fromString(color);
        var hsvObject = colorObject.getHSV();
-       
+
        var maskBox = Dom.getBoundingClientRect(container.hsvMask);
        var pickerBox = Dom.getBoundingClientRect(container.hsvPicker);
        var indicatorBox = Dom.getBoundingClientRect(container.hsvBarIndicator);
@@ -412,20 +412,20 @@ widget.ColorPicker = function () {
        var pickerX = (hsvObject.hue * maskBox.width / 360) - (pickerBox.width / 2);
        var pickerY = ((hsvObject.saturation) * maskBox.height / 100) - (pickerBox.height / 2);
        var indicatorY = ((hsvObject.value) * barBox.height / 100) - (indicatorBox.height / 2);
-       
+
        var alphaX = pickerBox.width / 2;
        var alphaY = pickerBox.height / 2;
        var maxX = maskBox.width - alphaX;
        var maxY = maskBox.height - alphaY;
-       
+
        pickerY = 100 - pickerY;
        indicatorY = 100 - indicatorY;
-       
+
        if (pickerX <= -alphaX) pickerX = -alphaX - 1;
        if (pickerY <= -alphaY) pickerY = -alphaY - 1;
        if (pickerX >= maxX) pickerX = maxX - 1;
        if (pickerY >= maxY) pickerY = maxY - 1;
-       
+
        var indicatorMinY = -(indicatorBox.height / 2);
        var indicatorMaxY = barBox.height - (indicatorBox.height / 2);
        if (indicatorY <= indicatorMinY) indicatorY = indicatorMinY - 1;
@@ -442,7 +442,7 @@ widget.ColorPicker = function () {
        var gradient = makeGradientStyle("#" + RGB2Hex(topColor.r, topColor.g, topColor.b), "#" + RGB2Hex(bottomColor.r, bottomColor.g, bottomColor.b))
        container.hsvBar.setAttribute("style", gradient);
     }
-    
+
     function ColorPicker(container, option) {
         this.container = widget.get(container);
         this.value = null;
@@ -451,38 +451,38 @@ widget.ColorPicker = function () {
         this.originalColor = null;
         this.isNoColor = false;
         this.enabled = true;
-        
+
         this.wrapper = Dom.newDOMElement({
             _name: "div",
             "class": "ColorPicker"
         });
-        
+
         this.wrapper._colorPicker = this;
         this.container.appendChild(this.wrapper);
-        
+
         this.color = Dom.newDOMElement({
             _name: "span",
             "class": "Color"
         });
-        
+
         this.wrapper.appendChild(this.color);
-        
+
         this.colorTitle = Dom.newDOMElement({
             _name: "span",
             "class": "ColorTitle"
         });
-        
+
         this.wrapper.appendChild(this.colorTitle);
-        
+
         this.colorInput = Dom.newDOMElement({
             _name: "input",
             type: "text",
             maxLength: "7",
             "class": "form-control Control"
         });
-        
+
         this.wrapper.appendChild(this.colorInput);
-        
+
         this.editModeActivated = false;
         Dom.registerEvent(this.wrapper, "click", colorPickerClickHandler, false);
         Dom.registerEvent(this.colorInput, "keyup", getColor, false);
@@ -492,7 +492,7 @@ widget.ColorPicker = function () {
             this.color.style.cursor = "default";
         }
     }
-    
+
     ColorPicker.prototype.setValue = function(value) {
         if (!this.originalColor) this.originalColor = value;
         this.value = value;
@@ -514,23 +514,23 @@ widget.ColorPicker = function () {
             this.color.style.background = "#FFF";
             this.colorTitle.innerHTML = "";
         }
-        
+
         if (this.value == null || (this.option.nullValue && this.option.nullValue == this.value)) {
             this.isNoColor = true;
         } else {
             this.isNoColor = false;
         }
     };
-    
+
     ColorPicker.prototype.getNullTitle = function() {
-        return this.option.nullTitle ? this.option.nullTitle : Messages["none"]; 
+        return this.option.nullTitle ? this.option.nullTitle : Messages["none"];
     };
-    
+
     ColorPicker.prototype.getValue = function() {
         if (this.option.nullValue && this.value == null) return this.option.nullValue;
         return this.value;
     };
-    
+
     ColorPicker.prototype.setNoColor = function(isNoColor) {
         this.isNoColor = isNoColor;
         if (isNoColor) {
@@ -557,7 +557,7 @@ widget.ColorPicker = function () {
 
         return node._colorPicker;
     };
-    
+
     ColorPicker.COLOR = {
             1: "#FFFFFF",
             2: "#FFCCCC",
@@ -620,7 +620,7 @@ widget.ColorPicker = function () {
             59: "#330099",
             60: "#330033",
     };
-    
+
     return ColorPicker;
 }();
 
@@ -631,7 +631,7 @@ var makeGradientStyle = function(){
         "background: -ms-linear-gradient(top,  {colour1}, {colour2});" +
         "background: linear-gradient(top,  {colour1}, {colour2});" +
         "filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=\"{colour1}\", endColorstr=\"{colour2}\",GradientType=0 );";
-    
+
     return function(colour1, colour2){
         return gradientString.replace(/\{colour1\}/g, colour1).replace(/\{colour2\}/g, colour2);
     }
