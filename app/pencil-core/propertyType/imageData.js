@@ -70,7 +70,7 @@ ImageData.invalidateValue = function (oldData, callback) {
         } catch (e) {
             console.e(e);
         }
-        
+
         if (!image) {
             callback(null);
             return;
@@ -149,17 +149,16 @@ ImageData.refStringToUrl = function (refString) {
 };
 
 ImageData.prompt = function (callback, ext) {
-    dialog.showOpenDialog(remote.getCurrentWindow(), {
+    var filenames = dialog.showOpenDialogSync(remote.getCurrentWindow(), {
         title: "Select Image",
         defaultPath: os.homedir(),
         filters: [
             { name: "Image files", extensions: ext || ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
         ]
 
-    }, function (filenames) {
-        if (!filenames || filenames.length <= 0) return;
-        ImageData.fromExternalToImageData(filenames[0], callback);
     });
+    if (!filenames || filenames.length <= 0) return;
+    ImageData.fromExternalToImageData(filenames[0], callback);
 };
 
 ImageData.fromExternalToImageData = function (filePath, callback) {
@@ -383,7 +382,7 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
                         imageData.w = Math.round(imageData.w / ratio);
                         imageData.h = Math.round(imageData.h / ratio);
                     }
-                    
+
                     var fs = require("fs");
                     fs.unlinkSync(localPath);
                     callback(imageData, options);
