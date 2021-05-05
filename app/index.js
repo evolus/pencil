@@ -52,6 +52,7 @@ function createWindow() {
           allowDisplayingInsecureContent: true,
           defaultEncoding: "UTF-8",
           nodeIntegration: true,
+          contextIsolation: false,
           enableRemoteModule: true
         },
     };
