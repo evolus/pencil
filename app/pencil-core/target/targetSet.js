@@ -69,6 +69,14 @@ TargetSet.prototype.setProperty = function (name, value, nested, mask) {
         this.targets[t].setProperty(name, value, nested, mask);
     }
 };
+TargetSet.prototype.setMetadata = function (name, value) {
+    for (var t in this.targets) {
+        this.targets[t].setMetadata(name, value);
+    }
+};
+TargetSet.prototype.getMetadata = function (name) {
+    return null;
+};
 TargetSet.prototype.getProperty = function (name, any) {
     if (name == "box") return null;
     var firstValue = this.targets[0].getProperty(name);

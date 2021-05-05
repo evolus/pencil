@@ -78,7 +78,7 @@ module.exports = function () {
                 if (err) throw err;
 
                 var svg = data.svg;
-                var delay = 500;
+                var delay = 50;
                 console.log("data.scale", data.scale);
                 var scale = typeof(data.scale) == "number" ? data.scale : 1;
                 
@@ -115,7 +115,7 @@ module.exports = function () {
  + '                    window.setTimeout(function () {\n'
      + '                    ipcRenderer.send("render-rendered", {objectsWithLinking: window.objectsWithLinking});\n'
      + '                    console.log("Rendered signaled");\n'
-     + '                }, 500);\n'
+     + '                }, 10);\n'
  + '                });\n'
  + '            });\n'
  + '        }, ' + delay + ');\n'

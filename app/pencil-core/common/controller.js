@@ -1718,6 +1718,42 @@ Controller.prototype.logShapeReparationRequest = function (shapeNode) {
 
 Config.CAPTURE_INSERT_BITMAP_AS_DEFID = Config.define("capture.insert_bitmap_shape_id", "Evolus.Common:Bitmap");
 
+Controller.prototype.handleNewDocumentFromImage = function (filePath) {
+    ImageData.fromExternalToImageData(filePath, function (imageData) {
+        if (!imageData) return;
+        
+        var ratio = window.devicePixelRatio || 1;
+        var dim = new Dimension(Math.round(imageData.w / ratio), Math.round(imageData.h / ratio));
+        
+        var options = {
+            name: path.basename(filePath),
+            width: dim.w,
+            height: dim.h,
+            backgroundPageId: null,
+            backgroundColor: Color.fromString("#FFFFFFFF"),
+            note: "",
+            parentPageId: null,
+            activateAfterCreate: true
+        };
+        
+        this.newPage(options);
+        
+        var page = this.activePage;
+
+        var def = CollectionManager.shapeDefinition.locateDefinition(Config.get(Config.CAPTURE_INSERT_BITMAP_AS_DEFID));
+        if (!def) return;
+
+        page.canvas.insertShape(def, null);
+        if (!page.canvas.currentController) return;
+
+        var controller = page.canvas.currentController;
+
+        page.canvas.currentController.setProperty("imageData", imageData);
+        page.canvas.currentController.setProperty("box", dim);
+        page.canvas.invalidateEditors();
+    }.bind(this));
+};
+
 Controller.prototype.handleGlobalScreencapture = function (mode) {
     var newDocumentCreated = false;
     if (!this.doc) {

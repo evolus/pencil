@@ -154,6 +154,63 @@ WindowsSnippingToolScreenshotService.prototype.isSupported = function (options) 
     return process.platform == "win32" && fs.existsSync(this.getExecPath());
 };
 
+function GenericCmdCaptureService() {
+    BaseCmdCaptureService.call(this);
+
+    this.id = "GenericScreenshotService";
+    this.supportPointerHiding = false;
+}
+
+GenericCmdCaptureService.prototype = new BaseCmdCaptureService();
+
+Config.CAPTURE_GENERIC_TOOL_EXEC_PATH = Config.define("capture.generic_capture.exec_path", "");
+Config.CAPTURE_GENERIC_TOOL_AREA_MODE_OPTION = Config.define("capture.generic_capture.options.area_mode", "");
+Config.CAPTURE_GENERIC_TOOL_WINDOW_MODE_OPTION = Config.define("capture.generic_capture.options.window_mode", "");
+Config.CAPTURE_GENERIC_TOOL_FULLSCREEN_MODE_OPTION = Config.define("capture.generic_capture.options.fullscreen_mode", "");
+Config.CAPTURE_GENERIC_TOOL_CLIPBOARD_OUTPUT_OPTION = Config.define("capture.generic_capture.options.clipboard_output", "");
+Config.CAPTURE_GENERIC_TOOL_FILE_OUTPUT_OPTION = Config.define("capture.generic_capture.options.file_output", "");
+
+GenericCmdCaptureService.prototype.buildCommandLine = function (options) {
+    var cmd = {
+        path: this.getExecPath(),
+        args: []
+    };
+    var opt = Config.get(Config.CAPTURE_GENERIC_TOOL_FULLSCREEN_MODE_OPTION);
+    
+    if (options.mode == BaseCaptureService.MODE_AREA) {
+        opt = Config.get(Config.CAPTURE_GENERIC_TOOL_AREA_MODE_OPTION);
+    } else if (options.mode == BaseCaptureService.MODE_WINDOW) {
+        opt = Config.get(Config.CAPTURE_GENERIC_TOOL_WINDOW_MODE_OPTION);
+    }
+    
+    if (opt) cmd.args.push(opt);
+    
+    if (options.outputType == BaseCaptureService.OUTPUT_CLIPBOARD) {
+        opt = Config.get(Config.CAPTURE_GENERIC_TOOL_CLIPBOARD_OUTPUT_OPTION);
+        if (opt) cmd.args.push(opt);
+    } else {
+        opt = Config.get(Config.CAPTURE_GENERIC_TOOL_FILE_OUTPUT_OPTION);
+        if (opt) {
+            opt.split(/[ ]+/gi).forEach(function (p) {
+                if (p == "%f") {
+                    cmd.args.push(options.outputPath);
+                } else {
+                    cmd.args.push(p);
+                }
+            });
+        }
+    }
+
+    return cmd;
+};
+GenericCmdCaptureService.prototype.getExecPath = function () {
+    return Config.get(Config.CAPTURE_GENERIC_TOOL_EXEC_PATH);
+};
+GenericCmdCaptureService.prototype.isSupported = function (options) {
+    return true;
+};
+
+
 
 function ElectronScreenshotService() {
     BaseCmdCaptureService.call(this);
@@ -475,3 +532,4 @@ ScreenCaptureProvider.getActiveProvider = function () {
 ScreenCaptureProvider.register(new GnomeScreenshotService());
 ScreenCaptureProvider.register(new WindowsSnippingToolScreenshotService());
 ScreenCaptureProvider.register(new MacScreenshotService());
+ScreenCaptureProvider.register(new GenericCmdCaptureService());

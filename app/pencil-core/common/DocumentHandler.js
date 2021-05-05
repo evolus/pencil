@@ -106,9 +106,15 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
 
 
 DocumentHandler.prototype.loadDocumentFromArguments = function (filePath) {
-    console.log("Loading file from argument: " + filePath);
-    this.loadDocument(filePath, function () {
-    });
+    if (filePath.match(/^.*\.(ep|epgz)$/)) {
+        this.loadDocument(filePath, function () { });
+    } else if (filePath.match(/^.*\.(png|jpg|jpeg|gif|bmp)$/)) {
+        this.resetDocument();
+        this.controller.sayControllerStatusChanged();
+        FontLoader.instance.loadFonts();
+        this.controller.handleNewDocumentFromImage(filePath);
+    }
+    
 }
 
 DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
