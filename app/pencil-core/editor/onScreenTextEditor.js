@@ -9,13 +9,13 @@ OnScreenTextEditor._activeEditor = null;
 
 OnScreenTextEditor.initialize = function (canvas) {
 	if (OnScreenTextEditor._initialized) return;
-	
-	
+
+
 	OnScreenTextEditor.htmlDiv = canvas.ownerDocument.importNode(Dom.getSingle("/p:Config/html:div", OnScreenTextEditor.configDoc), true);
 
 	OnScreenTextEditor.htmlDiv.style.display = "none";
     //canvas.installControlSVGElement(this.svgElement);
-    
+
     var mainBoxStack = document.getElementById("mainBoxStack");
     mainBoxStack.appendChild(OnScreenTextEditor.htmlDiv);
 
@@ -26,7 +26,7 @@ OnScreenTextEditor.initialize = function (canvas) {
 
     OnScreenTextEditor.singleTextEditor._editor = "plainText";
     OnScreenTextEditor.multiTextEditor._editor = "plainText";
-    
+
     OnScreenTextEditor.addEditorEvent("keypress", function (event) {
         event.cancelBubble = true;
         if (OnScreenTextEditor._activeEditor) OnScreenTextEditor._activeEditor.handleKeyPress(event);
@@ -55,12 +55,12 @@ OnScreenTextEditor.prototype.install = function (canvas) {
 
     this.canvas = canvas;
     this.canvas.onScreenEditors.push(this);
-    
+
     OnScreenTextEditor.initialize(canvas);
-    
-    
+
+
     var thiz = this;
-    
+
     this.canvas.addEventListener("p:ShapeInserted", function (ev) {
         if (thiz.passivated) {
             thiz.canvas.removeEventListener("p:ShapeInserted", arguments.callee, false);
@@ -83,7 +83,7 @@ OnScreenTextEditor.prototype.install = function (canvas) {
         }
         thiz.handleShapeDoubleClicked(ev);
     }, false);
-    
+
 };
 OnScreenTextEditor.addEditorEvent = function (name, handler) {
 	OnScreenTextEditor.singleTextEditor.addEventListener(name, handler, false);
@@ -185,7 +185,7 @@ OnScreenTextEditor.prototype._setupEditor = function () {
     if (height + y > boxObject.height) {
         height = boxObject.height - y;
     }
-    
+
     width = Math.max(width, 60);
 
     OnScreenTextEditor.htmlDiv.setAttribute("left", x);
@@ -200,7 +200,7 @@ OnScreenTextEditor.prototype._setupEditor = function () {
     //this.textEditor.style.marginTop = "" + dy + "px";
     this.textEditor.style.width = "" + width + "px";
     Svg.setStyle(this.textEditor, "height", this.textEditingInfo.multi ? (height + "px") : null);
-    
+
     this.textEditor.style.fontFamily = this.textEditingInfo.font.family;
     this.textEditor.style.fontSize = this.textEditingInfo.font.size;
     this.textEditor.style.lineHeight = this.textEditingInfo.font.size;
@@ -213,7 +213,7 @@ OnScreenTextEditor.prototype._setupEditor = function () {
     this._cachedVisibility = this.textEditingInfo.target.style.visibility;
     this.textEditingInfo.target.style.visibility = "hidden";
     OnScreenTextEditor.htmlDiv.style.display = "";
-    
+
     OnScreenTextEditor._activeEditor = this;
 
     var thiz = this;

@@ -14,7 +14,7 @@ widget.ComboManager = function() {
         Dom.cancelEvent(event);
         var index = parseInt(itemNode.getAttribute("item-index"), 10);
         combo.selectItem(combo.items[index]);
-        
+
         if (combo.options && combo.options.onItemSelected) {
         	combo.options.onItemSelected(true);
         }
@@ -23,14 +23,14 @@ widget.ComboManager = function() {
     function ComboManager(container, options) {
         this.container = widget.get(container);
         this.options = options ? options : null;
-        
+
         var comparerImpl = this.options ? options.comparer : null;
         if (!comparerImpl) {
             comparerImpl = function (a, b) {
 	        	return a == b;
 	        };
         }
-        
+
         this.comparer = function (a, b) {
             if (!a) {
                 return !b;
@@ -54,13 +54,13 @@ widget.ComboManager = function() {
 
         return node._combo;
     };
-    
+
     ComboManager.prototype.fireSelectionEvent = function (fromUserAction) {
         if (this.options && this.options.onItemSelected) {
             this.options.onItemSelected(fromUserAction ? true : false);
         }
     };
-    
+
     ComboManager.prototype.setEnable = function (enable) {
         var button = Dom.findDescendantWithClass(this.dropdown, "dropdown-toggle");
         button.disabled = !enable;
@@ -73,8 +73,8 @@ widget.ComboManager = function() {
         if (this.options && this.options.withExtraNull) {
             this.items.unshift(null);
         }
-        
-        
+
+
         var html = "<div class=\"dropdown\" id=\"" + id
                 + "\"><button class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\" type=\"button\">"
                 + "<span class=\"combo-display\"></span>&#160;&#160;&#160;" + "<span class=\"caret\"></span></button>"
@@ -94,9 +94,9 @@ widget.ComboManager = function() {
         this.container.innerHTML = html;
         this.dropdown = this.container.firstChild;
         this.dropdown._combo = this;
-        
+
         var thiz = this;
-        
+
         $(this.dropdown).on("shown.bs.dropdown", function () {
             var list = Dom.findDescendantWithClass(thiz.dropdown, "dropdown-list");
             var button = Dom.findDescendantWithClass(thiz.dropdown, "dropdown-toggle");
@@ -106,32 +106,32 @@ widget.ComboManager = function() {
             var y = Dom.getOffsetTop(button) + Dom.getOffsetHeight(button) + 1;
             list.style.top = y + "px";
             list.style.left = Dom.getOffsetLeft(button) + "px";
-            
+
             var h = Dom.getOffsetHeight(list);
             var H = Dom.getWindowHeight();
-            
+
             list.style.position = "absolute";
-            
+
             if (thiz.options.forceWidth) {
                list.style.width = thiz.options.forceWidth;
             }
-            
+
             if (thiz.options.forceAbove) {
                 list.style.top = (0 - h - 5) + "px";
                 list.style.left = "0px";
             } else {
                 list.style.top = Dom.getOffsetHeight(button) + "px";
                 list.style.left = "0px";
-                
+
                 if (y + h > H) {
                     h = H - y - 5;
                     list.style.height = h + "px";
                 }
             }
-           
+
             var li = Dom.findDescendantWithClass(list, "Selected");
             if (li) {
-               li.focus(); 
+               li.focus();
                var sp = (Dom.getOffsetHeight(list) - Dom.getOffsetHeight(li))/2;
                list.scrollTop = (li.offsetTop - sp);
             }
@@ -158,12 +158,12 @@ widget.ComboManager = function() {
                 break;
             }
         }
-        
+
         if (found) {
             this.selectItem(item);
             return true;
         }
-        
+
         return false;
     };
     ComboManager.prototype.selectItemByProperty = function (propertyName, propertyValue) {
@@ -176,15 +176,15 @@ widget.ComboManager = function() {
                 break;
             }
         }
-        
+
         if (found) {
             this.selectItem(item);
             return true;
         }
-        
+
         return false;
     };
-    
+
     ComboManager.prototype.selectItemByValue = function (value) {
         var item = null;
         var found = false;
@@ -196,15 +196,15 @@ widget.ComboManager = function() {
                 }
             }
         }
-        
+
         if (found) {
             this.selectItem(item);
             return true;
         }
-        
+
         return false;
     };
-    
+
     ComboManager.prototype.selectItem = function (selectedItem) {
         var thiz = this;
         Dom.doOnChildRecursively(this.dropdown, {
@@ -216,7 +216,7 @@ widget.ComboManager = function() {
             var html = (thiz.options && thiz.options.useHtml) ? value : Dom.htmlEncode(value);
             c.innerHTML = html;
         });
-        
+
         this.selectedItem = selectedItem;
         if (this.options.markSelectedItem || true) {
             var index = -1;
@@ -226,7 +226,7 @@ widget.ComboManager = function() {
                     break;
                 }
             }
-            
+
             Dom.doOnChildRecursively(this.dropdown, {
                 eval: function(n) {
                     return n.getAttribute && n.getAttribute("role") == "presentation";
@@ -244,7 +244,7 @@ widget.ComboManager = function() {
     ComboManager.prototype.getSelectedItem = function() {
         return typeof(this.selectedItem) == "undefined" ? null : this.selectedItem;
     };
-    
+
     ComboManager.prototype.getItems = function() {
         return this.items;
     };

@@ -3,7 +3,7 @@ function ConsoleOutputDialog(acceptActionLabel) {
     this.widthMargin = 30 * Util.em();
     this.grabHeight = true;
     this.heightMargin = 5 * Util.em();
-    
+
     Dialog.call(this);
     this.title = "Stencil Deploy";
 }
@@ -17,7 +17,7 @@ ConsoleOutputDialog.prototype.append = function (message, type, important) {
     if (important) Dom.addClass(div, "Important");
     div.appendChild(document.createTextNode(message));
     div.setAttribute("type", type || "");
-    
+
     this.output.appendChild(div);
     this.output.scrollTop = this.output.scrollHeight;
 };

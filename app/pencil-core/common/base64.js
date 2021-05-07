@@ -19,7 +19,7 @@ var Base64 = {
 		if (!isBinaryData) {
 			input = Base64._utf8_encode(input);
 		}
-		
+
 		while (i < input.length) {
 
 			chr1 = input.charCodeAt(i++);

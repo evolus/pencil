@@ -35,7 +35,7 @@ PrivateCollectionManager.savePrivateCollections = function () {
     try {
         debug("saving private collections...");
         var xml = PrivateCollectionManager.getCollectionsExportedXML(PrivateCollectionManager.privateShapeDef.collections);
-        
+
         var privateCollectionFile = PrivateCollectionManager.getPrivateCollectionFile();
         fs.writeFileSync(privateCollectionFile, xml, ShapeDefCollectionParser.CHARSET);
     } catch (ex) {
@@ -149,7 +149,7 @@ PrivateCollectionManager.getCollectionsExportedXML = function (collections) {
     }
 
     xml += '</p:Collections>';
-    
+
     return xml;
 };
 
@@ -223,7 +223,7 @@ PrivateCollectionManager.parseSingleCollectionFile = function (definitionFile) {
             collection = parser.parseNode(node);
         });
     };
-    
+
     return collection;
 };
 PrivateCollectionManager.installCollectionFromFile = function (file) {

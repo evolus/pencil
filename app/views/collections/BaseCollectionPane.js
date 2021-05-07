@@ -245,7 +245,7 @@ BaseCollectionPane.prototype.filterCollections = function () {
                 collection._filteredShapes.push(def);
             }
         }
-        
+
         if (collection._shapeCount <= 0) {
             collectionNode.setAttribute("_hidden", true);
             collectionNode.style.display = "none";
@@ -258,7 +258,7 @@ BaseCollectionPane.prototype.filterCollections = function () {
             collectionNode.style.visibility = "visible";
         }
     }
-    
+
     if (hasLast) {
         this.openCollection(this.last);
     } else if (firstNode != null){

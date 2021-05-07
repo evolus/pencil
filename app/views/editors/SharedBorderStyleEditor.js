@@ -31,7 +31,7 @@ SharedBorderStyleEditor.prototype.handleCommandEvent = function (mask) {
 	var thiz = this;
     var style = thiz.editor.getValue();
     Pencil.activeCanvas.run(function () {
-    	this.setProperty(SharedBorderStyleEditor.PROPERTY_NAME, thiz.editor.getValue(), false, mask);
+        this.setProperty(SharedBorderStyleEditor.PROPERTY_NAME, thiz.editor.getValue(), false, mask);
         Pencil.activeCanvas.snappingHelper.updateSnappingGuide(this);
         thiz.invalidate();
         Pencil.activeCanvas.invalidateEditors(thiz);

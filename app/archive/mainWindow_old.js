@@ -33,7 +33,7 @@ Pencil.postBoot = function() {
         }, false);
 
         Pencil.buildRecentFileMenu();
-        
+
         var toolBox = document.getElementById("navigator-toolbox");
         toolBox.addEventListener("mouseup", function (event) {
             Pencil.activeCanvas.endFormatPainter();
@@ -186,9 +186,9 @@ Pencil.selectDeveloperStencilDir = function () {
     var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     fp.init(window, "Select Developer Stencil 'Definition.xml' file", nsIFilePicker.modeGetFile);
     fp.appendFilter("Definition.xml", "Definition.xml");
-    
+
     if (fp.show() != nsIFilePicker.returnOK) return;
-    
+
     var path = fp.file.parent.path;
     Config.set("dev.stencil.path", path);
     CollectionManager.loadStencils();

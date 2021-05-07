@@ -9,9 +9,9 @@ function CollectionBrowserDialog (collectionPanel, managerDialog) {
     this.managerDialog = managerDialog;
     this.title = "Collection Repository";
     this.subTitle = "Browse the user-contributed collection repository."
-    
+
     var thiz = this;
-    
+
     this.bind("e:TabChange", function (event) {
         var tab = this.tabPane.getActiveTabPane();
         if (!tab._initialized) {

@@ -6,21 +6,21 @@ widget.Scale = function () {
                 return n._action;
             }
         });
-        
+
         if (!button) return;
         if (button.disabled) return;
-        
+
         var action = button._action;
-        
+
         action.run();
     }
-    
+
     function handleMouseMove(e) {
         if (!Scale.heldData) return;
         Dom.cancelEvent(e);
         var event = Dom.getEvent(e);
         var x = event.screenX;
-        
+
         var thiz = Scale.heldData.instance;
         var dx = x - Scale.heldData.x;
         var dvalue = Math.round(dx * thiz.max / Dom.getOffsetWidth(thiz.track));
@@ -34,25 +34,25 @@ widget.Scale = function () {
         var event = Dom.getEvent(e);
         var x = event.screenX;
         var thiz = Scale.heldData.instance;
-        
+
         if (Scale.heldData.changed) {
             if (thiz.options.onValueChangeFinished) {
                 thiz.options.onValueChangeFinished(thiz.value);
             }
         }
-        
+
         Scale.heldData = null;
     }
-    
+
     Dom.registerEvent(window, "load", function () {
         Dom.registerEvent(document, "mousemove", handleMouseMove);
         Dom.registerEvent(document, "mouseup", handleMouseUp);
     });
-    
+
     function Scale(container, options) {
         this.container = widget.get(container);
         this.options = options || {};
-        
+
         this.container.style.display = "inline-block";
         this.container.appendChild(Dom.newDOMElement({
             _name: "span",
@@ -77,10 +77,10 @@ widget.Scale = function () {
                 }]
             }]
         }, document, this));
-        
+
         this.wrapper._scale = this;
         var thiz = this;
-        
+
         Dom.registerEvent(this.thumb, "mousedown", function (e) {
             var event = Dom.getEvent(e);
             Scale.heldData = {
@@ -101,17 +101,17 @@ widget.Scale = function () {
                 thiz.options.onValueChangeFinished(value);
             }
         };
-        
+
         Dom.registerEvent(this.total, "click", clickHandle , false);
         Dom.registerEvent(this.finishedTrack, "click", clickHandle , false);
-        
+
         this.setMax(100);
         this.setValue(25);
     }
-    
+
     Scale.prototype.register = function (action) {
     };
-    
+
     Scale.prototype.setMax = function (max) {
         this.max = max;
     };
@@ -124,12 +124,12 @@ widget.Scale = function () {
     };
     Scale.prototype.invalidate = function () {
         var px = Math.round(Dom.getOffsetWidth(this.track) * this.value / this.max);
-        
+
         this.currentThumbLeft = px;
         this.thumb.style.left = px + "px";
         this.finishedTrack.style.width = px + "px";
     };
-    
+
     return Scale;
 }();
 

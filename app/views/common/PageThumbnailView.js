@@ -5,18 +5,18 @@ function PageThumbnailView() {
     //     var H = this.pageThumbnailContainer.offsetHeight - 2;
     //     var w = this.pageThumbnail.naturalWidth;
     //     var h = this.pageThumbnail.naturalHeight;
-    // 
+    //
     //     var r = Math.min(w/W, h/H);
-    // 
+    //
     //     w /= r;
     //     h /= r;
-    // 
+    //
     //     this.pageThumbnail.style.width = w + "px";
     //     this.pageThumbnail.style.height = h + "px";
-    // 
+    //
     //     this.pageThumbnail.style.left = (W - w) / 2 + "px";
     //     this.pageThumbnail.style.top = (H - h) / 2 + "px";
-    // 
+    //
     //     this.pageThumbnail.style.visibility = "visible";
     // }, this.pageThumbnail);
 

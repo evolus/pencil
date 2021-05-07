@@ -144,7 +144,7 @@ ShapeDefCollectionParser.getCollectionPropertyConfigName = function (collectionI
 ShapeDefCollectionParser.prototype.loadBuiltinPrivateCollection = function (installDirPath) {
     var collectionFile = path.join(installDirPath, "PrivateCollection.xml");
     if (!fs.existsSync(collectionFile)) return null;
-    
+
     var collection = PrivateCollectionManager.parseSingleCollectionFile(collectionFile);
     return collection;
 };
@@ -250,7 +250,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, 
         }
 
     });
-    
+
     return collection;
 };
 

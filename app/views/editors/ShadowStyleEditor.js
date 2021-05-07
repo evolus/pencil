@@ -1,6 +1,6 @@
 function ShadowStyleEditor() {
     PropertyEditor.call(this);
-    
+
     var thiz = this;
     this.selectorContainer.shouldCloseOnBlur = function(event) {
         var found = Dom.findUpward(event.target, function (node) {
@@ -13,7 +13,7 @@ __extend(PropertyEditor, ShadowStyleEditor);
 
 ShadowStyleEditor.prototype.setup = function () {
     var thiz = this;
-    
+
     this.colorButton.addEventListener("click", function (event) {
         if (thiz.selectorContainer.isVisible()) {
             thiz.selectorContainer.hide();

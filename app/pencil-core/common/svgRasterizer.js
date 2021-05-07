@@ -44,7 +44,7 @@ Rasterizer.ipcBasedBackend = {
         // if (scale != 1) {
         //     svgNode.setAttribute("width", w + "px");
         //     svgNode.setAttribute("height", h + "px");
-        // 
+        //
         //     svgNode.setAttribute("viewBox", "0 0 " + width + " " + height);
         // }
 
@@ -189,7 +189,7 @@ Rasterizer.inProcessFileCanvasBasedBackend = {
                 }
             }
         }
-        
+
         var tempFile = tmp.fileSync({postfix: ".svg" });
         fs.writeFileSync(tempFile.name, Controller.serializer.serializeToString(svgNode), XMLDocumentPersister.CHARSET);
 
@@ -221,7 +221,7 @@ Rasterizer.inProcessFileCanvasBasedBackend = {
         img.setAttribute("crossorigin", "anonymous");
         img.setAttribute("style", "display: none;");
         document.body.appendChild(img);
-        
+
         img.setAttribute("src", "file://" + tempFile.name);
     }
 };
@@ -252,7 +252,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
                 g.appendChild(svg.removeChild(svg.firstChild));
             }
             svg.appendChild(g);
-            
+
             w -= 2 * m;
             h -= 2 * m;
             svg.setAttribute("width", w);
@@ -348,7 +348,7 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, s
 };
 Rasterizer.getExportScale = function (inputScale) {
     if (typeof(inputScale) == "number") return inputScale;
-    
+
     var configScale = Config.get(Config.EXPORT_DEFAULT_SCALE, 1.0);
     if (typeof(configScale) == "number") {
         return configScale;

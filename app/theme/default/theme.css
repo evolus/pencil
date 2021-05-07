@@ -29,11 +29,11 @@ button, input[type='button'] {
     padding: 0em 1em;
     border: solid 1px transparent;
     border-radius: 0.3em;
-    
+
     background: transparent linear-gradient(#F2F2F2, #D9D9D9) repeat scroll 0% 0%;
     border-color: #E6E6E6;
     box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px, inset rgba(255, 255, 255, 0.88) 0px 1px 3px -1px;
-        
+
     height: 2.4em;
     box-sizing: border-box;
     color: #555;

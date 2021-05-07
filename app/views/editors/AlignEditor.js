@@ -10,11 +10,11 @@ AlignEditor.prototype.setup = function () {
 AlignEditor.prototype._handleClick = function (event) {
     var button = Dom.findParentByTagName(event.target, "button");
     if (!button) return;
-    
+
     button.parentNode.querySelectorAll("button").forEach(function (b) {
         b.setAttribute("checked", b == button);
     });
-    
+
     this.fireChangeEvent(button.parentNode == this.horizontalGroup ? Alignment.H : Alignment.V);
 };
 AlignEditor.prototype.setValue = function (alignment) {

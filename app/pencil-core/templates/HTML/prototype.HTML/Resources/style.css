@@ -24,7 +24,7 @@ body, html {
     text-align: center;
 }
 body:not(.ExpandMode) .Page {
-    display: flex;    
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -71,7 +71,7 @@ body.Active .Page .ImageContainer > .Links > a {
     width: 230px;
     display: flex;
     flex-direction: column;
-    
+
     overflow-y: auto;
     overflow-x: visible;
     z-index: 2;
@@ -128,7 +128,7 @@ body.Active .Page .ImageContainer > .Links > a {
     background: url(expand.png) 50% 50% no-repeat #CCCCCC;
     background-origin: content-box;
     background-size: contain;
-    
+
     border: solid 1px #777;
 }
 .ToggleZoomButton:active {

@@ -4,7 +4,7 @@ function AlwaysTrueParamEditor(param) {
 }
 AlwaysTrueParamEditor.prototype = new BaseParamEditor();
 AlwaysTrueParamEditor.prototype.buildBodyUI = function () {
-    
+
 };
 AlwaysTrueParamEditor.prototype.getValue = function () {
     return "true";

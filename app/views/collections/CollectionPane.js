@@ -50,7 +50,7 @@ CollectionPane.prototype.getCollections = function () {
     return [].concat(CollectionManager.shapeDefinition.collections).sort(function (a, b) {
         var o1 = (a.builderStencil ? 0 : (a.developerStencil ? 1 : 2));
         var o2 = (b.builderStencil ? 0 : (b.developerStencil ? 1 : 2));
-        
+
         return o1 - o2;
     });
 };

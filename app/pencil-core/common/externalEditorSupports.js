@@ -8,13 +8,13 @@ ExternalEditorSupports.getEditorPath = function (extension) {
 
     var configName = "external.editor." + extension + ".path";
     var p = Config.get(configName, null);
-    
+
     if (p) {
         return p;
     } else if (p == null) {
         Config.define(configName, "");
     }
-    
+
     throw Util.getMessage("unsupported.type", extension);
 };
 ExternalEditorSupports.queue = [];

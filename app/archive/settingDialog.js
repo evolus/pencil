@@ -32,7 +32,7 @@ handleOnLoad = function () {
     var path = Config.get("export.oo.converter.uno.path", "/bin/sh");
     document.getElementById("jodConverterUrl").value = url;
     document.getElementById("unoConverterUrl").value = path;
-    
+
     */
 
     var w = Config.get("clipartbrowser.scale.width");

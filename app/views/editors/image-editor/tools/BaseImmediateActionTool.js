@@ -1,14 +1,14 @@
 function BaseImmediateActionTool() {
     BaseTemplatedWidget.call(this);
-    
+
     this.icon.innerHTML = this.getIcon ? this.getIcon() : "";
     this.button.setAttribute("title", this.getToolTip ? this.getToolTip() : "");
-    
+
     var label = this.getLabel ? this.getLabel() : "";
     this.buttonLabel.innerHTML = label;
-    
+
     var thiz = this;
-    
+
     this.bind("click", this._run, this.button);
 }
 __extend(BaseTemplatedWidget, BaseImmediateActionTool);
@@ -23,7 +23,7 @@ BaseImmediateActionTool.prototype._run = function () {
 
     this.imageSource.start(function () {
         var image = thiz.imageSource.get();
-        
+
         thiz.modifyImage(image, function (error) {
             if (!error) {
                 thiz.imageSource.set(image, thiz.getImageCommitOptions(), function () {

@@ -16,6 +16,6 @@ function GUIPushButtonEditor() {
 GUIPushButtonEditor.prototype = AbstractEditor;
 
 GUIPushButtonEditor.prototype.onNodeAttached = function () {
-    
+
 };
 
