@@ -195,7 +195,7 @@
             <For ref="text">
                 <Fill>$textColor</Fill>
                 <Font>$textFont</Font>
-                <DomContent>F.buildTextWrapDomContent(F._target, $label.value, $fixedWidth.value ? $width.x : 2000, $textAlign)</DomContent>
+                <DomContent>F.buildTextWrapDomContent(F._target, $label.value, $fixedWidth.value ? $width.x : 2000, $textAlign, true)</DomContent>
             </For>
             <For ref="bgRect">
                 <Visibility>$fixedWidth</Visibility>

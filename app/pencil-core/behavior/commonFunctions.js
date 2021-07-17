@@ -183,78 +183,146 @@ F.parseTextArray = function (text) {
 
     return a;
 };
-F.buildTextWrapDomContent = function (textElement, text, width, align) {
-    var lines = text.split("\n");
-    var tspans = [];
-    var lastHeight = 0;
+/**
+ * 
+ * @param {object} textElement - an SVG element.
+ * @param {string} text - the text to write, newlines '\n' will split into lines. 
+ * @param {number} width - the width of the container used for automatic wrapping and alignment. 
+ * @param {number} align - the text alignment, 0: left, 1: center, 2: right.
+ * @param {boolean} [isWidthDynamic] - whether the width is dynamically sized (ignore width).
+ */
+F.buildTextWrapDomContent = function (textElement, text, width, align, isWidthDynamic) {
+    const widths = []
+    const strings = []
+    const yOffsets = []
+
+    var currentYOffset = 0
     var lastLineHeight = 0;
-    for (var j = 0; j < lines.length; j ++) {
-        var line = lines[j];
-        if (line.length == 0) {
-            lastHeight += lastLineHeight;
-            continue;
-        }
-        var words = line.split(' ');
-        var i = 0;
-        var s = "";
-        var lastBBoxWidth = 0;
-        while (i < words.length) {
-            if (s.length > 0) s += " ";
-            s += words[i];
+    var maxWidth = 0
 
-            Dom.empty(textElement);
-            textElement.appendChild(textElement.ownerDocument.createTextNode(s));
-            var box = textElement.getBBox();
+    function measureText(str) {
+        Dom.empty(textElement);
+        textElement.appendChild(textElement.ownerDocument.createTextNode(str));
+        var box = textElement.getBBox();
+        return box
+    }
 
-            i ++;
+    function measureAndSplitText() {
 
-            if (box.width < width) {
-                lastBBoxWidth = box.width;
+        const lines = text.split('\n')
+
+        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+            const line = lines[lineIndex];
+            if (line.length === 0) {
+                currentYOffset += lastLineHeight
+                continue
+            }
+            
+            let boundingBox = measureText(line)
+
+            // Happy-path, fits in 1 go
+            const fits = boundingBox.width <= width
+            if (fits) {
+                if (boundingBox.width > maxWidth) {
+                    maxWidth = boundingBox.width
+                }
+                widths.push(boundingBox.width)
+                strings.push(line)
+                yOffsets.push(currentYOffset)
+                currentYOffset += boundingBox.height
                 continue;
             }
 
-            //now add the tspan
+            const words = line.split(' ')
+            let wordIndex = 0
+            let stringBuilder = ''
+            let lastLine = ''
+            let lastLineWidth = 0
+            while (wordIndex < words.length) {
+                if (stringBuilder.length > 0) {
+                    stringBuilder += ' '
+                }
 
-            var index = s.lastIndexOf(" ");
-            var line = "";
+                stringBuilder += words[wordIndex]
+                wordIndex++;
 
-            if (index > 0) {
-                line = s.substring(0, index);
-                i --;
-            } else {
-                line = s;
-                lastBBoxWidth = box.width;
+                boundingBox = measureText(stringBuilder)
+                if (boundingBox.width <= width) {
+                    // The generated string is still within the max width, then just store
+                    // it and try adding the next word.
+                    lastLineWidth = boundingBox.width
+                    lastLineHeight = boundingBox.height
+                    lastLine = stringBuilder
+                    continue;
+                }
+
+                // We exceeded the width in a single-word, append it anyway and continue
+                if (lastLine === '') {
+                    widths.push(boundingBox.width)
+                    strings.push(stringBuilder)
+                    yOffsets.push(currentYOffset)
+                    currentYOffset += boundingBox.height
+                    lastLineWidth = 0
+                    lastLineHeight = 0
+                    stringBuilder = ''
+                    continue
+                }
+
+                // Adding the next word exceeded the allowable width, use the previous string.
+                widths.push(lastLineWidth)
+                strings.push(lastLine)
+                yOffsets.push(currentYOffset)
+                currentYOffset += lastLineHeight
+
+                if (lastLineWidth > maxWidth) {
+                    maxWidth = lastLineWidth
+                }
+
+                // Set the next word as the word we just tried which caused the width to be exceeded.
+                wordIndex -= 1
+                stringBuilder = ''
+                lastLine = ''
+                lastLineWidth = 0
+                lastLineHeight = 0
             }
-            s = "";
 
-            tspans.push({
-                _name: "tspan",
-                _uri: "http://www.w3.org/2000/svg",
-                _text: line,
-                x: (align ? align.h : 0) * (width - lastBBoxWidth) / 2,
-                y: lastHeight
-            });
-
-            lastHeight += box.height;
-            lastLineHeight = box.height;
-
+            if (stringBuilder.length > 0) {
+                widths.push(lastLineWidth)
+                strings.push(stringBuilder)
+                yOffsets.push(currentYOffset)
+                
+                if (lastLineWidth > maxWidth) {
+                    maxWidth = lastLineWidth
+                }
+                currentYOffset += lastLineHeight
+                lastLineWidth = 0
+            }
         }
-        if (s.length > 0) {
-            Dom.empty(textElement);
-            textElement.appendChild(textElement.ownerDocument.createTextNode(s));
-            var box = textElement.getBBox();
-
-            tspans.push({
-                _name: "tspan",
-                _uri: "http://www.w3.org/2000/svg",
-                _text: s,
-                x: (align ? align.h : 0) * (width - box.width) / 2,
-                y: lastHeight
-            });
-            lastHeight += box.height;
-        }
-
     }
+
+    measureAndSplitText()
+    console.log('text is, dynamic is, max width is', text, isWidthDynamic, maxWidth)
+
+    const tspans = [];
+    for (let finalLineIndex = 0; finalLineIndex < strings.length; finalLineIndex++) {
+        const str = strings[finalLineIndex];
+        const w = widths[finalLineIndex];
+        const y = yOffsets[finalLineIndex];
+        
+        var xMultiplier = (align ? align.h : 0)
+
+        var widthToUse = isWidthDynamic ? maxWidth : width
+
+        var x = xMultiplier * (widthToUse - w) / 2;
+        tspans.push({
+            _name: "tspan",
+            _uri: "http://www.w3.org/2000/svg",
+            _text: str,
+            x:  x,
+            y: y
+        });
+    }
+    
     var frag = Dom.newDOMFragment(tspans, textElement.ownerDocument);
 
     return frag;
