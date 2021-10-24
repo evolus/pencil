@@ -1759,7 +1759,7 @@ if (typeof(console) == "undefined") {
 const DEV_ENABLED = require("electron").remote.app.devEnable ? true : false;
 
 function debug() {
-    //if (DEV_ENABLED) console.log.apply(console, ["DEBUG>"].concat(Array.prototype.slice.call(arguments)));
+    if (DEV_ENABLED) console.log.apply(console, ["DEBUG>"].concat(Array.prototype.slice.call(arguments)));
 }
 function stackTrace() {
 	//DEBUG_BEGIN

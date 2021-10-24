@@ -84,7 +84,7 @@ function createWindow() {
     mainWindow.loadURL(mainUrl);
     mainWindow.show();
 
-    //mainWindow.webContents.openDevTools();
+    if (devEnable) mainWindow.webContents.openDevTools();
 
     mainWindow.on("closed", function() {
         mainWindow = null;
