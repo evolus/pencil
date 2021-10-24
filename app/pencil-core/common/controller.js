@@ -61,7 +61,7 @@ Controller.prototype.confirmAndclose = function (onClose) {
 
         this.sayControllerStatusChanged();
         ShapeTestCanvasPane._instance.quitTesting();
-        
+
         if (StencilCollectionBuilder.activeCollectionInfo) {
             StencilCollectionBuilder.cleanup();
             CollectionManager.reloadActiveBuilderCollection();
@@ -114,7 +114,7 @@ Controller.prototype.findPageByName = function (name) {
 };
 Controller.prototype.newPage = function (options) {
     if (!options) options = {};
-    
+
     var name = options.name || "Untitled Page";
     var width = options.width || 100;
     var height = options.height || 100;
@@ -124,7 +124,7 @@ Controller.prototype.newPage = function (options) {
     var parentPageId = options.parentPageId || null;
     var activateAfterCreate = options.activateAfterCreate || false;
     var copyBackgroundLinks = options.copyBackgroundLinks || false;
-    
+
     var id = Util.newUUID();
     var pageFileName = "page_" + id + ".xml";
 
@@ -196,7 +196,7 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
         name = page.name  + " (" + seed + ")";
         seed ++;
     };
-    
+
     var options = {
         name: name,
         width: width,
@@ -327,7 +327,7 @@ Controller.prototype.countResourceReferences = function (page) {
         Dom.workOn("./p:metadata/p:property", node, function (propNode) {
             var name = propNode.getAttribute("name");
             var value = propNode.textContent;
-            
+
             if (value && value.match(/^[0-9\,\-]+ref:\/\//)) {
                 var imageData = ImageData.fromString(value);
                 if (!imageData || !imageData.data) {
@@ -344,10 +344,10 @@ Controller.prototype.countResourceReferences = function (page) {
                 var holders = result.resources[id] || [];
                 holders.push(node);
                 result.resources[id] = holders;
-                
+
                 return;
             }
-            
+
             if (def) {
                 var propDef = def.getProperty(name);
 
@@ -360,7 +360,7 @@ Controller.prototype.countResourceReferences = function (page) {
                         holders.push(node);
                     }
                     result.fontFaces[font.family] = holders;
-                    
+
                     return;
                 }
             }
@@ -371,8 +371,8 @@ Controller.prototype.countResourceReferences = function (page) {
 };
 Controller.prototype.findResourceReferences = function (page) {
     var refs = this.countResourceReferences(page);
-    
-    
+
+
     return {
         fontFaces: Object.keys(refs.fontFaces),
         resourceIds: Object.keys(refs.resources)
@@ -470,7 +470,7 @@ Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
     Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
         var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-        
+
         if (def) {
             Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
                 var name = propertyNode.getAttribute("name");
@@ -485,10 +485,10 @@ Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
             // Adhoc invalidation for rasterized image reference from within missing shapes
             this.invalidateBrokenImageRefs(shapeNode);
         }
-        
+
     });
-    
-    
+
+
     runNextValidation(onDoneCallback);
 };
 
@@ -500,13 +500,13 @@ Controller.prototype.invalidateBrokenImageRefs = function (contentNode) {
         var filePath = RegExp.$1;
         if (!filePath.match(/^.*\/refs\/([^\/]+)$/)) return;
         var refId = RegExp.$1;
-        
+
         var realFilePath = filePath;
         if (process.platform == "win32") {
             realFilePath = filePath.replace(/\//g, "\\");
             if (realFilePath.match(/^\\(.*)$/)) realFilePath = RegExp.$1;
         }
-        
+
         if (fs.existsSync(realFilePath)) return;
         var realFilePath = this.refIdToFilePath(refId);
         if (!fs.existsSync(realFilePath)) return;
@@ -841,7 +841,7 @@ Controller.prototype.invalidatePageContent = function (page, callback) {
 
         if (callback) callback();
     });
-    
+
     this.invalidateBrokenImageRefs(page.canvas.drawingLayer);
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
@@ -1141,7 +1141,7 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
     if (!page) {
         return;
     }
-    
+
     var options = {};
     if (this.activePage && this.activePage.backgroundColor) {
         options.backgroundColor = this.activePage.backgroundColor.toRGBString();
@@ -1176,7 +1176,7 @@ Controller.prototype.copyPageBitmap = function (targetPage) {
     if (!page) {
         return;
     }
-    
+
     var options = {};
     if (this.activePage && this.activePage.backgroundColor) {
         options.backgroundColor = this.activePage.backgroundColor.toRGBString();
@@ -1217,7 +1217,7 @@ Controller.prototype.copyPageBitmap = function (targetPage) {
 Controller.prototype.rasterizeSelection = function (options) {
     var target = Pencil.activeCanvas.currentController;
     if (!target || !target.getGeometry) return;
-    
+
     if (!options) options = {};
     if (this.activePage && this.activePage.backgroundColor) {
         options.backgroundColor = this.activePage.backgroundColor.toRGBString();
@@ -1227,11 +1227,11 @@ Controller.prototype.rasterizeSelection = function (options) {
             options.backgroundColor = color;
         }
     }
-    
+
     if (options && options.target == "clipboard") {
         var tmp = require("tmp");
         var filePath = tmp.tmpNameSync();
-        
+
         this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
             if (!error) {
                 var image = nativeImage.createFromPath(filePath);
@@ -1379,13 +1379,13 @@ Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
 
     if (!left) targetIndex ++;
     list.splice(targetIndex, 0, page);
-    
+
     //sort the whole tree
     function assignIndexes(pages, level, parentPage) {
         pages.forEach(function (page, index) {
             if (!parentPage && page.parentPage) return;
             page._tempIndex = (parentPage ? parentPage._tempIndex : 0) +  (index + 1) / level;
-            
+
             if (page.children) assignIndexes(page.children, level * 100, page);
         });
     }
@@ -1395,7 +1395,7 @@ Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
     this.doc.pages.sort(function (p1, p2) {
         return p1._tempIndex - p2._tempIndex;
     });
-    
+
     this.doc.pages.forEach(function (page) {
         delete page._tempIndex;
     });
@@ -1441,7 +1441,7 @@ Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) 
 };
 Controller.prototype.updatePageProperties = function (page, options) {
     if (!options) options = {};
-    
+
     var name = options.name || "Untitled Page";
     var width = options.width || 100;
     var height = options.height || 100;
@@ -1449,7 +1449,7 @@ Controller.prototype.updatePageProperties = function (page, options) {
     var backgroundColor = options.backgroundColor || null;
     var parentPageId = options.parentPageId || null;
     var copyBackgroundLinks = options.copyBackgroundLinks || false;
-    
+
     page.name = name;
     page.backgroundColor = backgroundColor;
     page.backgroundPageId = backgroundPageId;
@@ -1721,10 +1721,10 @@ Config.CAPTURE_INSERT_BITMAP_AS_DEFID = Config.define("capture.insert_bitmap_sha
 Controller.prototype.handleNewDocumentFromImage = function (filePath) {
     ImageData.fromExternalToImageData(filePath, function (imageData) {
         if (!imageData) return;
-        
+
         var ratio = window.devicePixelRatio || 1;
         var dim = new Dimension(Math.round(imageData.w / ratio), Math.round(imageData.h / ratio));
-        
+
         var options = {
             name: path.basename(filePath),
             width: dim.w,
@@ -1735,9 +1735,9 @@ Controller.prototype.handleNewDocumentFromImage = function (filePath) {
             parentPageId: null,
             activateAfterCreate: true
         };
-        
+
         this.newPage(options);
-        
+
         var page = this.activePage;
 
         var def = CollectionManager.shapeDefinition.locateDefinition(Config.get(Config.CAPTURE_INSERT_BITMAP_AS_DEFID));
@@ -1778,7 +1778,7 @@ Controller.prototype.handleGlobalScreencapture = function (mode) {
                     parentPageId: null,
                     activateAfterCreate: true
                 };
-                
+
                 this.newPage(options);
             } else {
                 this.setActiveCanvasSize(imageData.w, imageData.h)
@@ -1819,18 +1819,18 @@ Controller.prototype.addColorIntoDocumentPalette = function (color) {
     if (!this.doc) return;
     var colors = this.getDocumentColorPalette();
     if (typeof(color) == "string") color = Color.fromString(color);
-    
+
     var found = false;
     colors.forEach(function (c) {
         if (c.toString() == color.toString()) {
             found = true;
         }
     });
-    
+
     if (found) return;
-    
+
     colors.push(color);
-    
+
     this.doc.properties.colorPalette = colors.map(function (c) {
         return c.toString();
     }).join(",");
@@ -1840,11 +1840,11 @@ Controller.prototype.removeColorFromDocumentPalette = function (color) {
     if (!this.doc) return;
     var colors = this.getDocumentColorPalette();
     if (typeof(color) == "string") color = Color.fromString(color);
-    
+
     colors = colors.filter(function (c) {
         return c.toString() != color.toString();
     });
-    
+
     this.doc.properties.colorPalette = colors.map(function (c) {
         return c.toString();
     }).join(",");
@@ -1859,7 +1859,6 @@ window.addEventListener("beforeunload", function (event) {
         return;
     }
 
-    var remote = require("electron").remote;
     if (remote.app.devEnable) return;
 
     if (Controller.ignoreNextClose) {

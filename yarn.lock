@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@electron/get@^1.0.1":
+"@electron/get@^1.13.0":
   "integrity" "sha512-+SjZhRuRo+STTO1Fdhzqnv9D2ZhjxXP6egsJ9kiO8dtP68cDx7dFCwWi64dlMQV7sWcfW1OYCW4wviEBzmRsfQ=="
   "resolved" "https://registry.npmjs.org/@electron/get/-/get-1.13.0.tgz"
   "version" "1.13.0"
@@ -18,6 +18,11 @@
     "global-agent" "^2.0.2"
     "global-tunnel-ng" "^2.7.1"
 
+"@electron/remote@^2.0.1":
+  "integrity" "sha512-bGX4/yB2bPZwXm1DsxgoABgH0Cz7oFtXJgkerB8VrStYdTyvhGAULzNLRn9rVmeAuC3VUDXaXpZIlZAZHpsLIA=="
+  "resolved" "https://registry.npmjs.org/@electron/remote/-/remote-2.0.1.tgz"
+  "version" "2.0.1"
+
 "@sindresorhus/is@^0.14.0":
   "integrity" "sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ=="
   "resolved" "https://registry.npmjs.org/@sindresorhus/is/-/is-0.14.0.tgz"
@@ -30,10 +35,10 @@
   dependencies:
     "defer-to-connect" "^1.0.1"
 
-"@types/node@^12.0.12":
-  "integrity" "sha512-5XmYX2GECSa+CxMYaFsr2mrql71Q4EvHjKS+ox/SiwSdaASMoBIWE6UmZqFO+VX1jIcsYLStI4FFoB6V7FeIYw=="
-  "resolved" "https://registry.npmjs.org/@types/node/-/node-12.20.33.tgz"
-  "version" "12.20.33"
+"@types/node@^14.6.2":
+  "integrity" "sha512-sd4CHI9eTJXTH2vF3RGtGkqvWRwhsSSUFsXD4oG38GZzSZ0tNPbWikd2AbOAcKxCXhOg57fL8FPxjpfSzb2pIQ=="
+  "resolved" "https://registry.npmjs.org/@types/node/-/node-14.17.29.tgz"
+  "version" "14.17.29"
 
 "7zip-bin@~4.0.2":
   "integrity" "sha512-XtGk+IF57pr852UK1AhQJXqmm1WmSgS5uISL+LPs0z/iAxXouMvdlLJrHPeukP6gd7yR2rDTMSMkHNODgwIq7A=="
@@ -725,13 +730,13 @@
     "spawn-rx" "^3.0.0"
     "yargs" "^13.2.2"
 
-"electron@11.5.0":
-  "integrity" "sha512-WjNDd6lGpxyiNjE3LhnFCAk/D9GIj1rU3GSDealVShhkkkPR3Vh4q8ErXGDl1OAO/faomVa10KoFPUN/pLbNxg=="
-  "resolved" "https://registry.npmjs.org/electron/-/electron-11.5.0.tgz"
-  "version" "11.5.0"
+"electron@>= 10.0.0-beta.1", "electron@15.2.0":
+  "integrity" "sha512-kg0JdlsVbJgD/hO/A7o9VH8U44pQWkIsyt/sALxH6g8CiHQxMujLn2JfB2gyUfHXPT7m8vD4Z+CurS2KodEsWw=="
+  "resolved" "https://registry.npmjs.org/electron/-/electron-15.2.0.tgz"
+  "version" "15.2.0"
   dependencies:
-    "@electron/get" "^1.0.1"
-    "@types/node" "^12.0.12"
+    "@electron/get" "^1.13.0"
+    "@types/node" "^14.6.2"
     "extract-zip" "^1.0.3"
 
 "emoji-regex@^7.0.1":

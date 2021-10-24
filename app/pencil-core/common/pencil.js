@@ -81,7 +81,7 @@ Pencil.boot = function (event) {
         if (Pencil.booted) return;
         debug("BOOT: Initializing Pencil core");
 
-        Pencil.app = require('electron').remote.app;
+        Pencil.app = require('@electron/remote').app;
 
         Pencil.booted = true;
         Pencil.window = document.documentElement;
@@ -178,7 +178,6 @@ Pencil.boot = function (event) {
     }
 };
 Pencil.handleArguments = function() {
-	var remote = require('electron').remote;
 	var appArguments = remote.getGlobal('sharedObject').appArguments;
     console.log("appArguments", appArguments);
 	if (appArguments && appArguments.length > 1) {

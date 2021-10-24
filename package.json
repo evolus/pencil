@@ -1,7 +1,7 @@
 {
   "name": "Pencil",
   "devDependencies": {
-    "electron": "11.5.0",
+    "electron": "15.2.0",
     "electron-builder": "20.28.4",
     "electron-rebuild": "^1.8.5",
     "rimraf": "^2.5.4"
@@ -81,5 +81,8 @@
     "dist:win32": "./node_modules/.bin/build --windows --ia32 --x64",
     "dist:osx": "./node_modules/.bin/build --macos"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@electron/remote": "^2.0.1"
+  }
 }

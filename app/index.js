@@ -12,6 +12,9 @@ app.commandLine.appendSwitch("allow-file-access", "1");
 app.commandLine.appendSwitch("disable-smooth-scrolling");
 app.commandLine.appendSwitch("disable-site-isolation-trials");
 
+const remoteMain = require("@electron/remote/main");
+remoteMain.initialize();
+
 // Disable hardware acceleration by default for Linux
 // TODO: implement a setting for this one and requires a restart after changing that value
 if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAcceleration) {
@@ -61,6 +64,7 @@ function createWindow() {
     mainWindowProperties.icon = path.join(__dirname, iconFile);
 
     mainWindow = new BrowserWindow(mainWindowProperties);
+    remoteMain.enable(mainWindow.webContents)
 
     var devEnable = false;
     if (process.argv.indexOf("--enable-dev") >= 0) {

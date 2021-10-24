@@ -193,14 +193,14 @@ function ColorSelector() {
     }
     this.recentlyUsedColor.addEventListener("click", colorListSelectHandler, false);
     this.documentPaletteContainer.addEventListener("click", colorListSelectHandler, false);
-    
+
     this.bind("contextmenu", function (event) {
         var color = Dom.findUpwardForData(event.target, "_color");
         if (!color) return;
 
         ColorSelector._handlePaletteMenu(thiz, color, event);
     }, this.documentPaletteContainer);
-    
+
     this.bind("click", this.pickColor, this.pickerButton);
     this.bind("click", this.addToPalette, this.addToPaletteButton);
 }
@@ -235,7 +235,7 @@ ColorSelector._handlePaletteMenu = function (thiz, color, event) {
             }
         });
     }
-    
+
     ColorSelector._colorToRemove = color;
     ColorSelector._instanceForMenu = thiz;
     ColorSelector._paletteMenu.showMenuAt(event.clientX, event.clientY);
@@ -354,7 +354,7 @@ ColorSelector.prototype.setupColors = function () {
 };
 ColorSelector.prototype.loadRecentlyUsedColors = function () {
     var colors = Config.get("gridcolorpicker.recentlyUsedColors", "");
-    
+
     this._lastUsedColors = colors;
     var c = colors.split(",");
     this.recentlyUsedColors = c;
@@ -378,16 +378,16 @@ ColorSelector.prototype.addToPalette = function () {
 ColorSelector.prototype.loadDocumentColors = function () {
     Dom.toggleClass(this.documentPalettePane, "NoDocument", Pencil.controller && Pencil.controller.doc ? false : true);
     if (!Pencil.controller || !Pencil.controller.doc) return;
-    
+
     Dom.setInnerText(this.paletteTitle, (Pencil.controller.doc.name || "Untitled Document") + " color palette:")
-    
+
     var colors = Pencil.controller.getDocumentColorPalette();
     if (!colors || colors.length == 0) {
         Dom.addClass(this.documentPalettePane, "Empty");
     } else {
         Dom.removeClass(this.documentPalettePane, "Empty");
     }
-    
+
     Dom.empty(this.documentPaletteContainer);
     colors.forEach(function (c) {
         var cell = document.createElement("div");
@@ -538,25 +538,25 @@ ColorSelector.installGlobalListeners = function () {
 
         var electron = require("electron");
 
-        var displays = electron.remote.screen.getAllDisplays();
+        var displays = remote.screen.getAllDisplays();
         if (!displays || displays.length <= 0) {
             ColorSelector.currentPickerInstance.onColorPickingCanceled();
             return;
         }
-        
+
         var maxWidth = 0;
         var maxHeight = 0;
         displays.forEach(function (d) {
             maxWidth = Math.max(maxWidth, d.bounds.x + d.bounds.width);
             maxHeight = Math.max(maxHeight, d.bounds.y + d.bounds.height);
         });
-        
+
 
         document.body.setAttribute("color-picker-active", "picking");
-        
+
         var x = event.screenX;
         var y = event.screenY;
-        
+
         new Capturer().captureFullScreenData(
             {
                 x: 0,
@@ -574,7 +574,7 @@ ColorSelector.installGlobalListeners = function () {
                     ColorSelector.currentPickerInstance.onColorPickingCanceled();
                     return;
                 }
-                
+
                 ColorSelector.currentPickerInstance.onColorPicked(color);
                 ColorSelector.currentPickerInstance = null;
             });
@@ -621,7 +621,7 @@ ColorSelector.prototype.onColorPicked = function (color) {
     document.body.removeAttribute("color-picker-active-external");
     BaseWidget.closableProcessingDisabled = false;
     BaseWidget.unregisterClosable(ColorSelector._pickerClosable);
-    
+
     var a = this.color.a;
     this.color = Color.fromString(color);
     this.color.a = a;
@@ -643,9 +643,9 @@ ColorSelector.prototype.pickColor = function (event) {
         this.pickColorUsingElectronCapture();
         return;
     }
-    
+
     var thiz = this;
-    
+
     if (event && event.shiftKey) {
         window.setTimeout(function () {
             thiz.pickColorUsingExternalTool(externalPickerPath);
@@ -656,7 +656,7 @@ ColorSelector.prototype.pickColor = function (event) {
 };
 ColorSelector.prototype.pickColorUsingExternalTool = function (externalPickerPath) {
     var thiz = this;
-    
+
     document.body.setAttribute("color-picker-active-external", true);
     var exec = require("child_process").exec;
     exec(externalPickerPath, function (error, stdout, stderr) {

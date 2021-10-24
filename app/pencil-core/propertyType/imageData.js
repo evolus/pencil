@@ -362,10 +362,10 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
     var executer = function (options) {
         var tmp = require("tmp");
         var localPath = tmp.tmpNameSync({postfix: ".png"});
-        
+
         console.log("Requested local path: ", localPath);
 
-        var win = require("electron").remote.getCurrentWindow();
+        var win = remote.getCurrentWindow();
 
         if (options.hidePencil) win.hide();
 

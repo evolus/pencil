@@ -1,4 +1,4 @@
-const {clipboard, remote, nativeImage, shell, ipcRenderer, webFrame} = require("electron");
+const {clipboard, nativeImage, shell, ipcRenderer, webFrame} = require("electron");
 
 const _             = require("lodash");
 const rimraf        = require("rimraf");

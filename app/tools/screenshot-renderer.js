@@ -15,15 +15,15 @@ var url = null;
 
 function boot() {
     selectedAreaPane = document.getElementById("selectedAreaPane");
-    
+
     if (window.location.href.match(/^[^\?]+\?i=([^&]+)&index=([^&]+)&id=([^&]+)$/)) {
         url = decodeURIComponent(RegExp.$1);
         document.body.style.backgroundImage = "url(" + url + ")";
-        
+
         index = parseInt(RegExp.$2, 10);
         parentId = parseInt(RegExp.$3, 10);
     }
-    
+
     document.addEventListener("mousedown", function (event) {
         ox = event.clientX;
         oy = event.clientY;
@@ -33,29 +33,29 @@ function boot() {
         if (!held) return;
         x = Math.min(ox, event.clientX);
         y = Math.min(oy, event.clientY);
-        
+
         w = Math.abs(ox - event.clientX);
         h = Math.abs(oy - event.clientY);
-        
+
         redraw();
     }, false);
-    
+
     document.addEventListener("mouseup", function (event) {
         held = false;
         redraw();
-        const { app, BrowserWindow } = require('electron').remote;
+        const { app, BrowserWindow } = require('@electron/remote');
         var parentWindow = BrowserWindow.fromId(parentId);
         parentWindow.webContents.send("region-selected", {x: x, y: y, width: w, height: h, index: index});
     });
-    
+
     window.addEventListener("keyup", function (event) {
         if (event.keyCode == 27) {
-            const { app, BrowserWindow } = require('electron').remote;
+            const { app, BrowserWindow } = require('@electron/remote');
             var parentWindow = BrowserWindow.fromId(parentId);
             parentWindow.webContents.send("region-canceled", {});
         }
     }, false);
-    
+
     redraw();
 }
 

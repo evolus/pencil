@@ -235,7 +235,7 @@ CanvasMenu.prototype.setup = function () {
             Group.openSizingPolicyDialog(Pencil.activeCanvas.currentController); // FIXME: bug
         }
     });
-    
+
     UICommandManager.register({
       key: "insertScreenshotCommand",
         label: "Insert Screenshot...",
@@ -244,12 +244,12 @@ CanvasMenu.prototype.setup = function () {
         run: function () {
             ImageData.fromScreenshot(function (imageData, options, error) {
                 if (!imageData) return;
-                
-                electron.remote.getCurrentWindow().show();
-                electron.remote.getCurrentWindow().focus();
+
+                remote.getCurrentWindow().show();
+                remote.getCurrentWindow().focus();
 
                 var def = CollectionManager.shapeDefinition.locateDefinition(
-                    options.useNormalBitmap ? PNGImageXferHelper.SHAPE_DEF_ID : PNGImageXferHelper.SHAPE_DEF_ID_2 
+                    options.useNormalBitmap ? PNGImageXferHelper.SHAPE_DEF_ID : PNGImageXferHelper.SHAPE_DEF_ID_2
                 );
                 if (!def) return;
 
@@ -318,9 +318,9 @@ CanvasMenu.prototype.setup = function () {
 
     };
     this.register(UICommandManager.getCommand("exportSelectionAsPNGButton"));
-    
+
     this.register(UICommandManager.getCommand("insertScreenshotCommand"));
-    
+
     this.separator();
 
     this.register({

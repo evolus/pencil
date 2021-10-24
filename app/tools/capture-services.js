@@ -176,15 +176,15 @@ GenericCmdCaptureService.prototype.buildCommandLine = function (options) {
         args: []
     };
     var opt = Config.get(Config.CAPTURE_GENERIC_TOOL_FULLSCREEN_MODE_OPTION);
-    
+
     if (options.mode == BaseCaptureService.MODE_AREA) {
         opt = Config.get(Config.CAPTURE_GENERIC_TOOL_AREA_MODE_OPTION);
     } else if (options.mode == BaseCaptureService.MODE_WINDOW) {
         opt = Config.get(Config.CAPTURE_GENERIC_TOOL_WINDOW_MODE_OPTION);
     }
-    
+
     if (opt) cmd.args.push(opt);
-    
+
     if (options.outputType == BaseCaptureService.OUTPUT_CLIPBOARD) {
         opt = Config.get(Config.CAPTURE_GENERIC_TOOL_CLIPBOARD_OUTPUT_OPTION);
         if (opt) cmd.args.push(opt);
@@ -230,7 +230,7 @@ ElectronScreenshotService.prototype = new BaseCmdCaptureService();
 ElectronScreenshotService.prototype.capture = function (options) {
     console.log("options", options);
     return new Promise(function (resolve, reject) {
-        const { app, BrowserWindow } = require('electron').remote;
+        const { app, BrowserWindow } = require('@electron/remote');
         const ipcRenderer = require('electron').ipcRenderer;
 
         function canvasToFileProcessor(canvas, context) {
@@ -244,7 +244,7 @@ ElectronScreenshotService.prototype.capture = function (options) {
             return filePath;
         };
 
-        var displays = electron.remote.screen.getAllDisplays();
+        var displays = remote.screen.getAllDisplays();
 
         var imageFilePaths = [];
         var index = -1;
@@ -278,7 +278,7 @@ ElectronScreenshotService.prototype.capture = function (options) {
                 });
         })();
 
-        var currentWindow = require('electron').remote.getCurrentWindow();
+        var currentWindow = remote.getCurrentWindow();
 
         function onFinishedCapturing() {
             if (options && options.mode == "fullscreen") {
@@ -390,7 +390,7 @@ ElectronScreenshotService.prototype.isSupported = function () {
 
 function Capturer() {}
 Capturer.prototype.captureFullScreenData = function (options, callback) {
-    const {desktopCapturer, remote} = require("electron");
+    const {desktopCapturer} = require("electron");
 
     var displays = remote.screen.getAllDisplays();
 
