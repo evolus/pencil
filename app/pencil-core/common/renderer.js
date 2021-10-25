@@ -79,11 +79,12 @@ module.exports = function () {
 
                 var svg = data.svg;
                 var delay = 50;
-                console.log("data.scale", data.scale);
                 var scale = typeof(data.scale) == "number" ? data.scale : 1;
-                
+
                 var bgColor = (data.options && data.options.backgroundColor) ? data.options.backgroundColor : "transparent";
-                
+
+                var uuid = "task_" + (new Date().getTime()) + "_" + Math.round(100000 * Math.random());
+
                 var extraCSS = `
                     body {
                         background-color: ${bgColor} !important;
@@ -95,47 +96,52 @@ module.exports = function () {
                         line-height: 1.428;
                     }
                 ` + fontFaceCSS;
-                
+
                 //path
-                svg = '<?xml version="1.0" encoding="UTF-8"?>\n'
- + '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n'
- + '    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n'
- + '<html xmlns="http://www.w3.org/1999/xhtml"><head>\n'
- + '<style type="text/css">\n'
- + extraCSS + "\n"
- + '</style>\n'
- + '<script type="text/javascript">\n'
- + extraJS + '\n'
- + '    var ipcRenderer = require("electron").ipcRenderer;\n'
- + '    window.addEventListener("load", function () {\n'
- + '        postProcess();\n'
- + '        window.setTimeout(function () {\n'
- + '            window.requestAnimationFrame(function () {\n'
- + '                window.requestAnimationFrame(function () {\n'
- + '                    window.setTimeout(function () {\n'
-     + '                    ipcRenderer.send("render-rendered", {objectsWithLinking: window.objectsWithLinking});\n'
-     + '                    console.log("Rendered signaled");\n'
-     + '                }, 10);\n'
- + '                });\n'
- + '            });\n'
- + '        }, ' + delay + ');\n'
- + '    }, false);\n'
- + '</script>\n'
- + '</head>\n'
- + '<body style="padding: 0px; margin: 0px;">\n'
- + svg
- + '</body>\n'
- + '</html>\n';
-                fs.writeFileSync(path, svg, "utf8");
+                var content = `<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+ <html xmlns="http://www.w3.org/1999/xhtml"><head>
+ <style type="text/css">
+ ${extraCSS}
+ </style>
+ <script type="text/javascript">
+ ${extraJS}
+     var ipcRenderer = require("electron").ipcRenderer;
+     ipcRenderer.on("webcontent-did-load", function (event, data) {
+         console.log("external signal: webcontent-did-load");
+         postProcess();
+         window.setTimeout(function () {
+             // window.requestAnimationFrame(function () {
+             //     window.requestAnimationFrame(function () {
+             //         window.setTimeout(function () {
+             //         }, 10);
+             //     });
+             // });
+             ipcRenderer.send("render-rendered", {objectsWithLinking: window.objectsWithLinking, uuid: "${uuid}"});
+             console.log("Rendered signaled");
+         }, ${delay});
+     });
+ </script>
+ </head>
+ <body style="padding: 0px; margin: 0px;">
+ ${svg}
+ </body>
+ </html>`;
+                fs.writeFileSync(path, content, "utf8");
 
                 rendererWindow.setSize(Math.round(data.width * scale), Math.round(data.height * scale), false);
 
                 var url = "file://" + path;
+
                 rendererWindow.loadURL(url);
 
                 var capturePendingTaskId = null;
 
                 currentRenderHandler = function (renderedEvent, renderedData) {
+                    if (renderedData.uuid != uuid) {
+                        return;
+                    }
                     capturePendingTaskId = null;
                     if (data.options && data.options.linksOnly) {
                         cleanupCallback();
@@ -143,16 +149,30 @@ module.exports = function () {
                         event.sender.send(data.id, {url: "", objectsWithLinking: renderedData.objectsWithLinking});
                         __callback();
                     } else {
-                        rendererWindow.capturePage().then(function (nativeImage) {
+                        rendererWindow.webContents.capturePage().then(function (nativeImage) {
                             var dataURL = nativeImage.toDataURL();
 
                             cleanupCallback();
                             currentRenderHandler = null;
                             event.sender.send(data.id, {url: dataURL, objectsWithLinking: renderedData.objectsWithLinking});
                             __callback();
+                        }).catch(function (e) {
+                            console.error(e);
                         });
                     }
                 };
+
+                // rendererWindow.webContents.on("paint", (paintEvent, dirty, nativeImage) => {
+                //     console.log("Got paint event");
+                //     var dataURL = nativeImage.toDataURL();
+                //
+                //     console.log("Clean up called for " + path);
+                //     cleanupCallback();
+                //     currentRenderHandler = null;
+                //     console.log("Returning rasterized data...");
+                //     event.sender.send(data.id, {url: dataURL, objectsWithLinking: []});
+                //     __callback();
+                // });
 
             });
         };
@@ -177,14 +197,21 @@ module.exports = function () {
             autoHideMenuBar: true,
             transparent: true,
             webPreferences: {
+                offscreen: true,
                 webSecurity: false,
                 allowRunningInsecureContent: true,
                 allowDisplayingInsecureContent: true,
                 defaultEncoding: "UTF-8",
-                nodeIntegration: true
+                nodeIntegration: true,
+                contextIsolation: false,
+                enableRemoteModule: true
             }
         });
         // rendererWindow.webContents.openDevTools();
+
+        rendererWindow.webContents.on("did-finish-load", function () {
+            rendererWindow.webContents.send("webcontent-did-load", {});
+        });
 
         queueHandler.tasks = [];
 
@@ -208,7 +235,7 @@ module.exports = function () {
             console.log("RENDERER re-started.");
         }
         rendererWindow.loadURL("about:blank");
-        
+
         initialized = true;
     }
     function initOutProcessCanvasBasedRenderer() {
