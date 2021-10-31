@@ -40,6 +40,7 @@
     "drawing"
   ],
   "dependencies": {
+    "@electron/remote": "^2.0.1",
     "adm-zip": "^0.4.7",
     "archive-type": "^4.0.0",
     "archiver": "^3.0.0",
