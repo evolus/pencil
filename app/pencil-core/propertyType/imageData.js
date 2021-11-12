@@ -149,16 +149,19 @@ ImageData.refStringToUrl = function (refString) {
 };
 
 ImageData.prompt = function (callback, ext) {
-    var filenames = dialog.showOpenDialogSync(remote.getCurrentWindow(), {
+    dialog.showOpenDialog(remote.getCurrentWindow(), {
         title: "Select Image",
-        defaultPath: os.homedir(),
+        defaultPath: Config.get("document.open.recentlyImagePath", null) || os.homedir(),
         filters: [
             { name: "Image files", extensions: ext || ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
         ]
+    }).then(function (res) {
+        if (!res || !res.filePaths || res.filePaths.length <= 0) return;
+        var p = res.filePaths[0];
+        Config.set("document.open.recentlyImagePath", path.dirname(p));
 
+        ImageData.fromExternalToImageData(p, callback);
     });
-    if (!filenames || filenames.length <= 0) return;
-    ImageData.fromExternalToImageData(filenames[0], callback);
 };
 
 ImageData.fromExternalToImageData = function (filePath, callback) {
