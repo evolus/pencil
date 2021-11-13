@@ -149,6 +149,7 @@ function TextToolOverlay() {
     var changeColorListener = function (control, commandName) {
         var color = thiz.getColorByCommandValue(commandName);
         thiz.selector.setColor(color);
+        thiz.selector.setupColors();
         thiz.selector._commandName = commandName;
         thiz.selector._control = control;
 
