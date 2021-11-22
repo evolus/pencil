@@ -219,7 +219,7 @@ input[type="number"]:focus {
     cursor: pointer;
 
     display: inline-block;
-    font-family: 'Material Icons';
+    font-family: 'Material Icons Original';
     font-weight: bold;
     font-style: normal;
     letter-spacing: normal;
@@ -248,4 +248,22 @@ input[type="number"]:focus {
 }
 .UIWidget:not(.widget_ApplicationPane) input[type='radio']:checked:after {
     content:'\E837';
+}
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    position: absolute !important;
+    overflow: visible;
+}
+*:not(:hover)::-webkit-scrollbar {
+}
+::-webkit-scrollbar-track {
+    background: #DDD;
+}
+::-webkit-scrollbar-thumb {
+    background: #00000022;
+    transition: background-color 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #00000044;
 }
