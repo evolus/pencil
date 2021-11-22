@@ -315,7 +315,6 @@ GeometryEditor.prototype.handleMouseUp = function (event) {
             }, this, Util.getMessage("action.move.shape"));
         }
     } finally {
-        console.log("Setting currentAnchor = null");
         this.currentAnchor = null;
     }
 };
@@ -362,7 +361,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
     var uPoint1 = Svg.vectorInCTM(new Point(this.oX, this.oY), this.geo.ctm);
     var uPoint2 = Svg.vectorInCTM(new Point(event.clientX, event.clientY), this.geo.ctm);
-    
+
 
     var matrix = this.currentAnchor._matrix;
     var t = event.shiftKey ? {x: 1, y: 1} : this.getGridSize(); //Svg.vectorInCTM(this.getGridSize(), this.geo.ctm, true);
@@ -392,7 +391,7 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
 
     var controller = this.canvas.currentController;
     var bound = controller.getBounding();
-    
+
     var xsnap = null;
 
     //HORIZONTAL
@@ -405,14 +404,14 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
         if (matrix.dx != 0) {
             var newX = e + dx;
             var newXNormalized = locking.ratio ? newX : Util.gridNormalize(newX, grid.w);
-            if (newXNormalized > this._maxX1) newXNormalized = this._maxX1;
+            //if (newXNormalized > this._maxX1) newXNormalized = this._maxX1;
 
             var delta = newXNormalized - newX;
 
             if (!locking.ratio && !event.shiftKey) {
                 var snapping = this._lastGuides.left ? this._lastGuides.left.clone() :
                             new SnappingData("Left", bound.x, "Left", true, Util.newUUID());
-                            
+
                 xsnap = this.canvas.snappingHelper.applySnappingValue(dx, [snapping], this.canvas.snappingHelper.lastXData, this.canvas.currentController);
                 if (xsnap) delta = xsnap.d - dx;
                 this.canvas.snappingHelper.drawSnaps(xsnap, null);
@@ -424,14 +423,14 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
         } else {
             var newX2 = e + this._w + dw;
             var newX2Normalized = locking.ratio ? newX2 : Util.gridNormalize(newX2, grid.w);
-            if (newX2Normalized < this._minX2) newX2Normalized = this._minX2;
+            //if (newX2Normalized < this._minX2) newX2Normalized = this._minX2;
 
             var delta = newX2Normalized - newX2;
 
-            if (!locking.ratio && !event.shiftKey) {
+            if (!locking.ratio && !event.shiftKey && matrix.dw != 0) {
                 var snapping = this._lastGuides.right ? this._lastGuides.right.clone() :
                                     new SnappingData("Right", bound.x + bound.width, "Right", true, Util.newUUID());
-                
+
                 xsnap = this.canvas.snappingHelper.applySnappingValue(dw, [snapping], this.canvas.snappingHelper.lastXData, this.canvas.currentController);
                 if (xsnap) delta = xsnap.d - dw;
                 this.canvas.snappingHelper.drawSnaps(xsnap, null);
@@ -452,14 +451,14 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
         if (matrix.dy != 0) {
             var newY = f + dy;
             var newYNormalized = locking.ratio ? newY : Util.gridNormalize(newY, grid.h);
-            if (newYNormalized > this._maxY1) newYNormalized = this._maxY1;
+            // if (newYNormalized > this._maxY1) newYNormalized = this._maxY1;
 
             var delta = newYNormalized - newY;
 
             if (!locking.ratio && !event.shiftKey) {
                 var snapping = this._lastGuides.top ? this._lastGuides.top.clone() :
                                     new SnappingData("Top", bound.y, "Top", true, Util.newUUID());
-                                    
+
                 var ysnap = this.canvas.snappingHelper.applySnappingValue(dy, [snapping], this.canvas.snappingHelper.lastYData, this.canvas.currentController);
                 if (ysnap) delta = ysnap.d - dy;
                 this.canvas.snappingHelper.drawSnaps(xsnap, ysnap);
@@ -470,14 +469,14 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
         } else {
             var newY2 = f + this._h + dh;
             var newY2Normalized = locking.ratio ? newY2 : Util.gridNormalize(newY2, grid.h);
-            if (newY2Normalized < this._minY2) newY2Normalized = this._minY2;
+            // if (newY2Normalized < this._minY2) newY2Normalized = this._minY2;
 
             var delta = newY2Normalized - newY2;
 
             if (!locking.ratio && !event.shiftKey) {
                 var snapping = this._lastGuides.bottom ? this._lastGuides.bottom.clone() :
                                     new SnappingData("Bottom", bound.y + bound.height, "Bottom", true, Util.newUUID());
-                                    
+
                 var ysnap = this.canvas.snappingHelper.applySnappingValue(dh, [snapping], this.canvas.snappingHelper.lastYData, this.canvas.currentController);
                 if (ysnap) delta = ysnap.d - dh;
                 this.canvas.snappingHelper.drawSnaps(xsnap, ysnap);
@@ -516,7 +515,30 @@ GeometryEditor.prototype.handleMouseMove = function (event) {
         newGeo.dim = new Dimension(Math.round(this.oGeo.dim.w + dw), Math.round(this.oGeo.dim.h + dh));
     }
 
-
+    if (newGeo.dim.w < 0) {
+        newGeo.dim.w = 0 - newGeo.dim.w;
+        if (matrix.dx > 0) {
+            dx = this.oGeo.dim.w;
+            newGeo.ctm = this.oGeo.ctm.translate(dx, dy);
+        } else {
+            var t = 0 - matrix.dw * newGeo.dim.w;
+            newGeo.ctm = newGeo.ctm.translate(t, 0);
+            dx += t;
+        }
+        dw = newGeo.dim.w - this.oGeo.dim.w;
+    }
+    if (newGeo.dim.h < 0) {
+        newGeo.dim.h = 0 - newGeo.dim.h;
+        if (matrix.dy > 0) {
+            dy = this.oGeo.dim.h;
+            newGeo.ctm = this.oGeo.ctm.translate(dx, dy);
+        } else {
+            var t = 0 - matrix.dh * newGeo.dim.h;
+            newGeo.ctm = newGeo.ctm.translate(0, t);
+            dy += t;
+        }
+        dh = newGeo.dim.h - this.oGeo.dim.h;
+    }
 
     var p = Svg.vectorInCTM(new Point(dx, dy), this.geo.ctm.inverse(), true);
     this.adx = p.x;
