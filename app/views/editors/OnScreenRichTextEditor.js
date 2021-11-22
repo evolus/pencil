@@ -66,7 +66,7 @@ OnScreenRichTextEditor.prototype.invalidate = function () {
 OnScreenRichTextEditor.prototype.nextTool = function () {
 };
 OnScreenRichTextEditor.prototype.dettach = function () {
-
+    this.textToolOverlay.active = false;
 };
 
 OnScreenRichTextEditor.prototype.handleShapeDoubleClicked = function (event) {
@@ -185,6 +185,7 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
 
     this.textToolOverlay._richTextEditor = this;
     this.textToolOverlay.node().style.visibility = "hidden";
+    this.textToolOverlay.active = true;
 
     OnScreenRichTextEditor._activeEditor = this;
 
@@ -195,6 +196,8 @@ OnScreenRichTextEditor.prototype._setupEditor = function () {
         thiz.textToolOverlay.runEditorCommand("selectAll");
         thiz.textToolOverlay.node().style.top = "-" + (thiz.textToolOverlay.node().offsetHeight + 8) + "px";
         thiz.textToolOverlay.node().style.visibility = "visible";
+
+        thiz.textToolOverlay.updateToolbarState();
     }, 10);
 };
 OnScreenRichTextEditor.MIN_AC_LENGTH = 5;

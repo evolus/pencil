@@ -87,17 +87,27 @@ SharedColorEditor.prototype._applyValue = function () {
 
     this.updateDisplayColor();
 };
+SharedColorEditor.BACKGROUND = Color.fromString("#FFFFFFFF");
+SharedColorEditor.MIN_CONTRAST = 2;
+
 SharedColorEditor.prototype.updateDisplayColor = function (defaultValue) {
     var thiz = this;
+    var lowContrast = this.color ? (this.color.getContrastTo(SharedColorEditor.BACKGROUND) < SharedColorEditor.MIN_CONTRAST) : true;
+
+    this.colorDisplay.setAttribute("property-name", this.propertyName);
+
     var handler = {
         textColor: function () {
             thiz.colorDisplay.style.color = (thiz.color) ? thiz.color.toRGBAString() : defaultValue;
+            Dom.toggleClass(thiz.colorDisplay, "LowContrast", lowContrast);
         },
         fillColor: function () {
             thiz.colorDisplay.style.backgroundColor = (thiz.color) ? thiz.color.toRGBAString() : defaultValue;
+            Dom.toggleClass(thiz.colorDisplay, "LowContrast", lowContrast);
         },
         strokeColor: function () {
             thiz.colorDisplay.style.borderColor = (thiz.color) ? thiz.color.toRGBAString() : defaultValue;
+            Dom.toggleClass(thiz.colorDisplay, "LowContrast", lowContrast);
         }
     }[this.propertyName];
 
