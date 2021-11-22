@@ -10,8 +10,8 @@ var Pencil = {};
 
 pencilSandbox.Pencil = Pencil;
 
-Pencil.SNAP = 10;
-Pencil.UNSNAP = 10;
+Pencil.SNAP = 5;
+Pencil.UNSNAP = 5;
 Pencil.editorClasses = [];
 Pencil.registerEditor = function (editorClass) {
     Pencil.editorClasses.push(editorClass);
