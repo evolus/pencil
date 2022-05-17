@@ -70,9 +70,9 @@
   "scripts": {
     "postinstall": "install-app-deps",
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
-    "start": "./node_modules/.bin/electron ./app",
-    "start:dev": "./node_modules/.bin/electron ./app --enable-dev --enable-transparent-visuals --disable-gpu",
-    "start:mac": "./node_modules/.bin/electron ./app --enable-dev",
+    "start": "./node_modules/.bin/electron --disable-seccomp-filter-sandbox ./app",
+    "start:dev": "./node_modules/.bin/electron --disable-seccomp-filter-sandbox ./app --enable-dev --enable-transparent-visuals --disable-gpu",
+    "start:mac": "./node_modules/.bin/electron --disable-seccomp-filter-sandbox ./app --enable-dev",
     "clean": "rimraf dist",
     "pack": "build",
     "dist": "build",
