@@ -95,7 +95,6 @@ SharedFontEditor.prototype.setup = function () {
 
     this.weightCombo.useHtml = true;
     this.weightCombo.renderer = function (weight, buttonDisplay) {
-        console.log('>>>>>>>>>>> FontRepository', FontRepository.WEIGHT_MAP, weight);
         var w = FontRepository.WEIGHT_MAP[weight];
         return "<span style=\"font-family: " + (this.fontCombo.getSelectedItem().family || "").replace(/"/g, "'") + "; font-weight: " + weight + ";\">" + (buttonDisplay ? w.shortName : w.displayName) + "</span>";
     }.bind(this);
