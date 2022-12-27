@@ -141,7 +141,7 @@ SharedGeomtryEditor.prototype._applyValue = function () {
     }, this.target);
 };
 SharedGeomtryEditor.prototype.attach = function (targetObject) {
-    if (this.isDisabled() || targetObject.constructor == TargetSet) {
+    if (this.isDisabled() || targetObject.constructor == TargetSet || targetObject.geometryUnsupported) {
         this.detach();
         return;
     }

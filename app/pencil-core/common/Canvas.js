@@ -171,7 +171,8 @@ function Canvas(element, options, containerScrollPane) {
             "RangeBound");
 
     this.snappingHelper = new SnappingHelper(this);
-    new GestureHelper(this);
+
+    this.eventHooks = [];
 
     this.idSeed = 1;
 
@@ -368,6 +369,14 @@ function Canvas(element, options, containerScrollPane) {
             return;
         }
     }.bind(this), false);
+
+    Canvas.lifeCycleListeners.forEach(function (listener) {
+        try {
+            listener.onNewInstance(thiz);
+        } catch (e) {
+            console.error(e);
+        }
+    });
 }
 
 SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(elem) {
@@ -379,6 +388,23 @@ Object.defineProperty(Canvas.prototype, "ownerDocument", {
         return this.element.ownerDocument;
     }
 });
+
+Canvas.lifeCycleListeners = [];
+
+Canvas.registerLifeCycleListener = function (listener) {
+    Canvas.lifeCycleListeners.push(listener);
+};
+
+Canvas.prototype.registerEventHook = function (hook) {
+    this.eventHooks.push(hook);
+};
+Canvas.prototype.executeEventHooks = function (event, name) {
+    return !this.eventHooks.every(function (hook) {
+        var f = hook[name || event.type];
+        if (!f) return true;
+        return !f.call(hook, event);
+    });
+};
 
 Canvas.prototype.createElementByName = function (name) {
     return this.element.ownerDocument.createElement("span");
@@ -961,7 +987,8 @@ Canvas.prototype.handleScrollPane = function(event) {
 }
 
 Canvas.prototype.handleMouseUp = function (event) {
-    if (this.gestureHelper && this.gestureHelper.handleMouseUp(event)) return;
+    if (this.executeEventHooks(event)) return;
+    //if (this.gestureHelper && this.gestureHelper.handleMouseUp(event)) return;
 
     if (this.resizing) {
         this.commitResize(event);
@@ -1212,6 +1239,7 @@ Canvas.prototype.handleResizeMouseMove = function (event) {
 };
 Canvas.prototype.handleMouseMove = function (event, fake) {
     if (!fake && this.handleResizeMouseMove(event)) return;
+    if (this.executeEventHooks(event)) return;
 
     try {
         if (this.duplicateMode && !this.mouseUp) {
@@ -2084,7 +2112,8 @@ Canvas.prototype.handleMouseDown = function (event) {
     tick("begin");
     Dom.emitEvent("p:CanvasMouseDown", this.element, {});
 
-    if (this.gestureHelper && this.gestureHelper.handleMouseDown(event)) return;
+    if (this.executeEventHooks(event)) return;
+    //if (this.gestureHelper && this.gestureHelper.handleMouseDown(event)) return;
 
     var canvasList = Pencil.getCanvasList();
     for (var i = 0; i < canvasList.length; i++) {

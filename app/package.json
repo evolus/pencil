@@ -55,6 +55,7 @@
     "md5": "^2.2.1",
     "moment": "^2.13.0",
     "nugget": "^2.0.0",
+    "perfect-freehand": "^1.0.16",
     "q": "^1.4.1",
     "rimraf": "^2.5.4",
     "tar": "https://github.com/dgthanhan/node-tar/archive/6086b1ea82137c61eea4efe882dd514590e5b7a8.tar.gz",

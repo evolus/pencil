@@ -14,7 +14,7 @@ CanvasMenu.prototype.setup = function () {
     UICommandManager.register({
         key: "undoCommand",
         shortcut: "Ctrl+Z",
-        getLabel: function () { return "Undo" + Pencil.activeCanvas.careTaker.getCurrentAction(); },
+        getLabel: function () { return "Undo: " + Pencil.activeCanvas.careTaker.getCurrentAction(); },
         icon: "undo",
         isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.careTaker.canUndo(); },
         applyWhenClass: "CanvasScrollPane",
@@ -25,7 +25,7 @@ CanvasMenu.prototype.setup = function () {
     UICommandManager.register({
         key: "redoCommand",
         shortcut: "Ctrl+Y",
-        getLabel: function () { return "Redo" + Pencil.activeCanvas.careTaker.getPrevAction(); },
+        getLabel: function () { return "Redo: " + Pencil.activeCanvas.careTaker.getPrevAction(); },
         icon: "redo",
         isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.careTaker.canRedo(); },
         applyWhenClass: "CanvasScrollPane",

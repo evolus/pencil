@@ -188,72 +188,75 @@ SharedPropertyEditor.prototype.attach = function (target) {
             return;
         }
 
-        var property = properties.shift();
-        if (!currentGroupNode || currentGroupNode._group != property._group) {
-            currentGroupNode = Dom.newDOMElement({
-                _name: "vbox",
-                "class": "Group"
-            });
+        try {
+            var property = properties.shift();
+            if (!currentGroupNode || currentGroupNode._group != property._group) {
+                currentGroupNode = Dom.newDOMElement({
+                    _name: "vbox",
+                    "class": "Group"
+                });
 
-            currentGroupNode._group = property._group;
-            var titleNode = Dom.newDOMElement({
-                _name: "div",
-                _text: property._group.name,
-                "class": "Label Group"
-            });
-            currentGroupNode.appendChild(titleNode);
-            thiz.propertyContainer.appendChild(currentGroupNode);
-            groupNodes.push(currentGroupNode);
-        }
-        var propName = property.displayName ? property.displayName.trim() : null;
-        var groupName = property._group.name ? property._group.name.trim() : null;
-
-        if (!propName || !groupName) { return; }
-
-        if (propName.indexOf(groupName) == 0) {
-            propName = propName.substring(groupName.length);
-        }
-
-        var editorWrapper = Dom.newDOMElement({
-            _name: "hbox",
-            "class": "Wrapper Type_" + property.type.name,
-            _children: [
-                {
+                currentGroupNode._group = property._group;
+                var titleNode = Dom.newDOMElement({
                     _name: "div",
-                    "class": "Label Property",
-                    "flex": "2",
-                    _text: propName + ":"
-                }
-            ]
-        });
+                    _text: property._group.name,
+                    "class": "Label Group"
+                });
+                currentGroupNode.appendChild(titleNode);
+                thiz.propertyContainer.appendChild(currentGroupNode);
+                groupNodes.push(currentGroupNode);
+            }
+            var propName = property.displayName ? property.displayName.trim() : null;
+            var groupName = property._group.name ? property._group.name.trim() : null;
 
-        var editor = TypeEditorRegistry.getTypeEditor(property.type);
-        if (!editor) return;
+            if (!propName || !groupName) { return; }
 
-        var constructeur = window[editor];
-        var editorWidget = new constructeur();
+            if (propName.indexOf(groupName) == 0) {
+                propName = propName.substring(groupName.length);
+            }
 
-        editorWrapper.appendChild(editorWidget.node());
-        editorWidget.setAttribute("flex", "3");
-        if (editorWidget.setTypeMeta) {
-            editorWidget.setTypeMeta(property.meta, property);
+            var editorWrapper = Dom.newDOMElement({
+                _name: "hbox",
+                "class": "Wrapper Type_" + property.type.name,
+                _children: [
+                    {
+                        _name: "div",
+                        "class": "Label Property",
+                        "flex": "2",
+                        _text: propName + ":"
+                    }
+                ]
+            });
+
+            var editor = TypeEditorRegistry.getTypeEditor(property.type);
+            if (!editor) return;
+
+            var constructeur = window[editor];
+            var editorWidget = new constructeur();
+
+            editorWrapper.appendChild(editorWidget.node());
+            editorWidget.setAttribute("flex", "3");
+            if (editorWidget.setTypeMeta) {
+                editorWidget.setTypeMeta(property.meta, property);
+            }
+            editorWidget.setValue(thiz.target.getProperty(property.name));
+            thiz.propertyEditor[property.name] = editorWidget;
+            editorWrapper._property = property;
+
+            var meta = property.meta["disabled"];
+
+            if (meta) {
+                if (!thiz.validationEditor) thiz.validationEditor = [];
+                thiz.validationEditor.push(editorWrapper);
+
+                var disabled = !allowDisabled && thiz.target.evalExpression(meta, true);
+                editorWrapper.style.display = disabled ? "none" : "flex";
+            }
+
+            currentGroupNode.appendChild(editorWrapper);
+        } finally {
+            window.setTimeout(executor, 40);
         }
-        editorWidget.setValue(thiz.target.getProperty(property.name));
-        thiz.propertyEditor[property.name] = editorWidget;
-        editorWrapper._property = property;
-
-        var meta = property.meta["disabled"];
-
-        if (meta) {
-            if (!thiz.validationEditor) thiz.validationEditor = [];
-            thiz.validationEditor.push(editorWrapper);
-
-            var disabled = !allowDisabled && thiz.target.evalExpression(meta, true);
-            editorWrapper.style.display = disabled ? "none" : "flex";
-        }
-
-        currentGroupNode.appendChild(editorWrapper);
-        window.setTimeout(executor(), 40);
     };
     executor();
     this.properties = this.target.getProperties();

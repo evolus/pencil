@@ -290,6 +290,7 @@
                         <ui:ColorEditor label="Colors" />
                         <ui:SharedBorderStyleEditor label="Line style" />
                         <ui:SharedGeomtryEditor />
+                        <ui:GestureModeToolbar />
                     </hbox>
                 </ui:ScrollableView>
             </vbox>
@@ -301,7 +302,7 @@
                 <ui:OpenClipartPane anon-id="openClipartPane"/>
             </ui:CollapseablePanel>
             <vbox flex="1" anon-id="documentContainer">
-                <hbox anon-id="contentBody" flex="1" style="position: relative;">
+                <hbox anon-id="contentBody" flex="1" style="position: relative;" gesture-mode="selection">
                     <ui:StartUpDocumentView anon-id="startupDocumentView" flex="1" />
                     <ui:ShapeTestCanvasPane anon-id="shapeTestPane" />
                 </hbox>

@@ -610,11 +610,13 @@ ColorSelector.installGlobalListeners = function () {
     }, true);
 };
 ColorSelector.prototype.onColorPickingCanceled = function () {
-    document.body.removeAttribute("color-picker-active");
-    document.body.removeAttribute("color-picker-active-external");
-    BaseWidget.closableProcessingDisabled = false;
-    ColorSelector.currentPickerInstance = null;
-    BaseWidget.unregisterClosable(ColorSelector._pickerClosable);
+    setTimeout(function () {
+        document.body.removeAttribute("color-picker-active");
+        document.body.removeAttribute("color-picker-active-external");
+        BaseWidget.closableProcessingDisabled = false;
+        ColorSelector.currentPickerInstance = null;
+        BaseWidget.unregisterClosable(ColorSelector._pickerClosable);
+    }, 200);
 };
 ColorSelector.prototype.onColorPicked = function (color) {
     document.body.removeAttribute("color-picker-active");
@@ -636,15 +638,27 @@ ColorSelector._pickerClosable = {
 };
 
 ColorSelector.CONFIG_EXTERNAL_COLOR_PICKER_PATH = Config.define("color.external_picker_path", "");
-
+ColorSelector.eyeDropper = new EyeDropper();
 ColorSelector.prototype.pickColor = function (event) {
+    var thiz = this;
+    // document.body.setAttribute("color-picker-active", true);
+    // ColorSelector.eyeDropper.open().then(function (color) {
+    //     if (color && color.sRGBHex) {
+    //         thiz.onColorPicked(color.sRGBHex.toUpperCase());
+    //     } else {
+    //         thiz.onColorPickingCanceled();
+    //     }
+    // }).catch(function () {
+    //     thiz.onColorPickingCanceled();
+    // });
+    // return;
+
     var externalPickerPath = Config.get(ColorSelector.CONFIG_EXTERNAL_COLOR_PICKER_PATH, "");
     if (!externalPickerPath) {
         this.pickColorUsingElectronCapture();
         return;
     }
 
-    var thiz = this;
 
     if (event && event.shiftKey) {
         window.setTimeout(function () {
