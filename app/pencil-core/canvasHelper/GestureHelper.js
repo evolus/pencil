@@ -67,7 +67,7 @@ GestureHelper.prototype.updateKeyCodes = function () {
         if (this.activeGestureDef) break;
     }
 
-    GestureHelper._output.innerHTML = this.heldKeyCodes.join(", ");
+    GestureHelper._output.innerHTML = this.heldKeyCodes.join(", ") + ":" + this.heldKeyCodes.map(c => {return String.fromCharCode(c)}).join(", ");
 };
 
 GestureHelper.fromCanvas = function (canvas) {
