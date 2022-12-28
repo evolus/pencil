@@ -13,8 +13,8 @@
     "mac": {
       "category": "public.app-category.graphics-design",
       "target": [{
-           "target": "default",
-           "arch": "universal"
+           "target": "dmg",
+           "arch": ["arm64"]
       }]
     },
     "dmg": {
