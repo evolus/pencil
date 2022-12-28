@@ -11,7 +11,11 @@
     "productName": "Pencil",
     "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
     "mac": {
-      "category": "public.app-category.graphics-design"
+      "category": "public.app-category.graphics-design",
+      "target": [{
+           "target": "default",
+           "arch": "universal"
+      }]
     },
     "dmg": {
       "contents": [
