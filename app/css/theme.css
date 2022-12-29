@@ -40,6 +40,10 @@ button:focus {
     outline: dotted 1px rgba(0, 0, 0, 0.3);
     outline-offset: -0.3em;
 }
+button:hover {
+    background: #dbeeff;
+}
+
 button[disabled] {
     background: rgba(255, 255, 255, 0.2);
     cursor: default;
@@ -134,7 +138,7 @@ hbox.ButtonGroup {
 
 button[selected='true'],
 button[checked='true'] {
-    background: #C8C8C8;
+    background: #c6e4ff;
 }
 button[active='true'],
 button:active:not([disabled]) {
