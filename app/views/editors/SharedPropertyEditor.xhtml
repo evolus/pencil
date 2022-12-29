@@ -18,25 +18,24 @@
             padding-left: 1em;
         }
         @propertyContainer > .Group > .Wrapper {
-            align-items: center;
-            padding: 1ex 0em;
+            padding: 2ex 0em;
         }
-        
-        @propertyContainer > .Group > .Wrapper.Type_ShadowStyle {
+
+        @propertyContainer > .Group > .Wrapper.Type_ShadowStyle1 {
             flex-direction: column;
             align-items: stretch;
-            
+
             & > .Label {
                 flex: 0;
                 margin-bottom: 0.2ex;
-                
+
                 & + * {
                     align-self: flex-end;
                 }
             }
         }
-        
-        @propertyContainer > .Group > .Wrapper .widget_ShadowStyleEditor {
+
+        @propertyContainer > .Group > .Wrapper .widget_ShadowStyleEditor1 {
             & input {
                 padding-right: 0px;
                 width: 5.5ex;
@@ -46,7 +45,7 @@
                 border-bottom-left-radius: 0px;
                 border-left: none;
             }
-            
+
             & > vbox:not(:last-child) > input {
                 border-top-right-radius: 0px;
                 border-bottom-right-radius: 0px;
@@ -57,30 +56,29 @@
                 overflow: hidden;
             }
         }
-        
+
         @propertyContainer > .Group > .Label + .Wrapper {
             margin-top: 0.5em;
         }
         @propertyContainer > .Group > .Wrapper:not(:last-child) {
-            border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+            border-bottom: solid 1px rgba(0, 0, 0, 0.07);
         }
         @propertyContainer > .Group > .Wrapper + .Wrapper {
-            border-top: solid 1px rgba(255, 255, 255, 0.4);
         }
         @propertyContainer > .Group > div.Label.Group {
             font-weight: bold;
             margin-left: -1em;
             text-shadow: 1px 1px 0px lighten(@app_bg, 20%);
-            text-transform: uppercase;
         }
         @propertyContainer > .Group > .Wrapper > div.Label {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             font-size: 0.9em;
+            opacity: 0.7;
+            margin-bottom: 0.2em;
         }
         @propertyContainer > .Group > .Wrapper > * {
-            flex-basis: 2em;
         }
 
         @propertyContainer input[type='text'],
@@ -94,7 +92,7 @@
         }
         @propertyContainer button {
             min-width: 1.8em;
-            
+
             & > i {
                 font-size: 1.4em;
                 line-height: 1.286em;
@@ -109,12 +107,9 @@
             border: solid 1px rgba(0, 0, 0, 0.2);
             padding: 0em 0.2em;
         }
-        
-        @propertyContainer .widget_ShadowStyleEditor vbox {
-            flex: 1 1 5ex;
-        }
+
         @propertyContainer .widget_ShadowStyleEditor vbox input {
-            min-width: 3ex; 
+            min-width: 1.5ex;
         }
 
         @noTargetMessagePane {
@@ -139,7 +134,7 @@
                 line-height: 2em
             }
         }
-        
+
         @propertyContainer .SymbolNameContainer {
             margin-top: 1em;
             border-top: solid 1px rgba(0, 0, 0, 0.2);

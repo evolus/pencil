@@ -169,6 +169,17 @@ input[type="number"] {
 input[type=number]::-webkit-inner-spin-button {
     height: 2.4em;
 }
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+   opacity: 0.2;
+}
+
+input[type=number]:focus::-webkit-inner-spin-button,
+input[type=number]:focus::-webkit-outer-spin-button,
+input[type=number]:hover::-webkit-inner-spin-button,
+input[type=number]:hover::-webkit-outer-spin-button {
+   opacity: 1;
+}
 textarea {
     font: inherit;
     font-size: 1em;
@@ -194,7 +205,7 @@ input[type="text"]:focus,
 textarea:focus,
 input[type="number"]:focus {
     border-color: #336699;
-    box-shadow: 0px 0px 0.3ex #336699;
+    background-color: #e5f3ff;
 }
 
 .UIWidget:not(.widget_ApplicationPane) input[type='checkbox'],

@@ -78,7 +78,7 @@ function createWindow() {
 
     app.devEnable = devEnable;
 
-    mainWindow.hide();
+    //mainWindow.hide();
     mainWindow.maximize();
 
     if (devEnable) {

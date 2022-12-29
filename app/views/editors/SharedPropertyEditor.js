@@ -207,6 +207,8 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 groupNodes.push(currentGroupNode);
             }
             var propName = property.displayName ? property.displayName.trim() : null;
+            if (!propName) propName = property.type.name;
+
             var groupName = property._group.name ? property._group.name.trim() : null;
 
             if (!propName || !groupName) { return; }
@@ -216,13 +218,12 @@ SharedPropertyEditor.prototype.attach = function (target) {
             }
 
             var editorWrapper = Dom.newDOMElement({
-                _name: "hbox",
+                _name: "vbox",
                 "class": "Wrapper Type_" + property.type.name,
                 _children: [
                     {
                         _name: "div",
                         "class": "Label Property",
-                        "flex": "2",
                         _text: propName + ":"
                     }
                 ]
@@ -235,7 +236,6 @@ SharedPropertyEditor.prototype.attach = function (target) {
             var editorWidget = new constructeur();
 
             editorWrapper.appendChild(editorWidget.node());
-            editorWidget.setAttribute("flex", "3");
             if (editorWidget.setTypeMeta) {
                 editorWidget.setTypeMeta(property.meta, property);
             }
@@ -255,7 +255,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
 
             currentGroupNode.appendChild(editorWrapper);
         } finally {
-            window.setTimeout(executor, 40);
+            window.setTimeout(executor, 20);
         }
     };
     executor();
