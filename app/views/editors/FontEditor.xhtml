@@ -1,5 +1,8 @@
 <hbox use-toggle="true">
     <style>
+        @optionGroup {
+            overflow: hidden;
+        }
         @optionGroup > * + * {
             border-top-left-radius:  0px !important;
             border-bottom-left-radius:  0px !important;
@@ -14,11 +17,13 @@
             @number_input();
         }
         @lineHeight {
-            width: 3.2em;
+            width: 2.5em;
             @number_input();
         }
         @fontCombo {
             flex-basis: 2em;
+            min-width: 2em;
+            overflow: hidden;
         }
         @fontCombo .AnonId_buttonDisplay {
             width: 100%;
