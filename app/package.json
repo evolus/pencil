@@ -65,7 +65,7 @@
   "private": true,
   "devDependencies": {
     "electron": "16.0.0",
-    "electron-builder": "23.3.3",
+    "electron-builder": "23.6.0",
     "electron-rebuild": "^1.8.5",
     "electron-updater": "^5.3.0"
   },
@@ -77,7 +77,7 @@
       "category": "public.app-category.graphics-design",
       "target": [{
            "target": "dmg",
-           "arch": ["arm64"]
+           "arch": ["universal"]
       }]
     },
     "dmg": {
@@ -103,7 +103,8 @@
       "target": [
         "deb",
         "rpm",
-        "tar.gz"
+        "tar.gz",
+        "freebsd"
       ],
       "category": "Graphics",
       "packageCategory": "graphics"
@@ -117,7 +118,6 @@
       "allowToChangeInstallationDirectory": true
     },
     "electronDownload": {
-      "cache": ".electron-cache"
     },
     "fileAssociations": {
       "ext": [
