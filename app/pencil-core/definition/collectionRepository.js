@@ -9,7 +9,7 @@ var CollectionRepository = {
 
 CollectionRepository.getCollectionRepos = function () {
     var repos = [];
-    
+
     var core = Config.get(Config.CORE_COLLECTION_REPO_URL);
     if (core) {
         repos.push({
@@ -18,7 +18,7 @@ CollectionRepository.getCollectionRepos = function () {
             url: core
         });
     }
-    
+
     var extras = Config.get(Config.EXTRA_COLLECTION_REPO_URLS);
     if (extras) {
         var untitledCount = 0;
@@ -26,7 +26,7 @@ CollectionRepository.getCollectionRepos = function () {
             if (item.match(/^([^:]+)=(.+)$/)) {
                 var name = RegExp.$1;
                 var url = RegExp.$2;
-                
+
                 return {
                     name: name,
                     id: name.replace(/[^a-z0-9\-]+/gi, "-").toLowerCase(),
@@ -51,7 +51,7 @@ CollectionRepository.getCollectionRepos = function () {
             url: outdated
         });
     }
-    
+
     return repos;
 };
 
@@ -73,10 +73,10 @@ CollectionRepository.loadCollections = function(url) {
             if (errors) {
                 var error = errors[0] // nugget returns an array of errors but we only need 1st because we only have 1 url
                 if (error.message.indexOf('404') === -1) {
-                    Dialog.error(`Can not download stencil reposiroty file: ${error.message}`);
+                    Dialog.error(`Can not download stencil repository file: ${error.message}`);
                     return reject(error);
                 }
-                Dialog.error(`Failed to download reposiroty at ${url}`);
+                Dialog.error(`Failed to download repository at ${url}`);
                 return reject(error);
             }
 
