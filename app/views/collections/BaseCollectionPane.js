@@ -245,7 +245,7 @@ BaseCollectionPane.prototype.filterCollections = function () {
                 collection._filteredShapes.push(def);
             }
         }
-        
+
         if (collection._shapeCount <= 0) {
             collectionNode.setAttribute("_hidden", true);
             collectionNode.style.display = "none";
@@ -258,7 +258,7 @@ BaseCollectionPane.prototype.filterCollections = function () {
             collectionNode.style.visibility = "visible";
         }
     }
-    
+
     if (hasLast) {
         this.openCollection(this.last);
     } else if (firstNode != null){
@@ -292,6 +292,18 @@ BaseCollectionPane.prototype.ensureVisibleShapeIcons = function () {
     }
 };
 BaseCollectionPane.prototype.updateLayoutSize = function () {
+    var size = "large";
+    if (this.node().offsetWidth / Util.em() <= 20) {
+        size = "small";
+    }
+
+    var currentLevel = this.node().getAttribute("size-level");
+    if (currentLevel != size) {
+        this.node().setAttribute("size-level", size);
+        this.collectionScrollView.invalidate();
+    }
+
+
     if (!this.last || !this.last.customLayout) return;
 
     this.layoutOriginalSize = {
