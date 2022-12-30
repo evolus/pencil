@@ -1,15 +1,14 @@
 <vbox>
     <style>
-        $selector_item_width: 3em;
+        $selector_item_width: 4em;
         $selector_item_height: 12em;
-        $unselected_item_bg: #999999;
+        $unselected_item_bg: #AAAAAA;
 
         body .widget_CollectionPane {
             overflow: hidden;
         }
 
         @filter {
-            background: #D3DADE;
             position: relative;
         }
         @filter .fa-search {
@@ -19,10 +18,16 @@
             margin-top: -0.5em;
         }
         @filter @form {
-            padding: 1em;
+            padding: 0.5em;
+            padding-bottom: 1em;
         }
         @filter @logo {
             display: none;
+        }
+
+        @filter @form input {
+            line-height: 1.8;
+            height: auto;
         }
         @contentPane {
             overflow: hidden;
@@ -37,6 +42,11 @@
             position: relative;
             opacity: 0.999999;
         }
+
+        body *[size-level="small"] @selectorPane {
+            width: @selector_item_width / 2;
+        }
+
         @selectorPane::after {
             content: " ";
             display: block;
@@ -134,7 +144,7 @@
             width: 100%;
         }
         @selectorPane .Item:not([active='true']) > .Preview {
-            opacity: 0.5;
+            opacity: 0.75;
         }
         @selectorPane .Item > .ItemInner {
             text-align: center;
@@ -144,6 +154,11 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+        }
+
+        body *[size-level="small"] @selectorPane .Item > .ItemInner {
+            width: @selector_item_width / 2;
+            padding: 0.25em;
         }
         @selectorPane .Item:focus {
             /*outline: dashed 1px rgba(255, 255, 255, 0.5);*/
@@ -167,12 +182,13 @@
             margin-top: 1ex;
             font-size: 0.8em;
         }
+        body *[size-level="small"] @selectorPane .Item span,
         @selectorPane .Item.WithPreview span {
             display: none;
         }
 
         @selectorPane .Item:not([active='true']) + .Item:not([active='true']) {
-            margin-top: 1px;
+            border-top: solid 1px fadeout(@app_bg, 60%);
         }
         @selectorPane .Item[active='true'] {
             color: #000;
@@ -180,10 +196,6 @@
             z-index: 3;
             position: relative;
             box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-        }
-        @selectorPane .Item[active='true'],
-        @selectorPane .Item[active='true'] + .Item {
-            border-top-color: transparent;
         }
         @selectorPane .Item:not([active='true']):hover {
             background: rgba(255, 255, 255, 0.2);
@@ -223,7 +235,7 @@
             cursor: default;
         }
         .ShapeList li .Shape:hover {
-            background: lighten(@selected_bg, 10%);
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 0.2em;
         }
 
@@ -252,19 +264,14 @@
             text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
             color: #000;
         }
-        .ShapeList li .Shape:hover span {
-            color: @selected_fg;
-            opacity: 1;
-            text-shadow: none;
-        }
         @collectionInfoPane {
-            padding: 1em;
-            padding-bottom: 0.5em;
+            padding: 0em 0em 0.5em 1em;
             color: #000;
             overflow: hidden;
         }
         @collectionIcon {
             @iconify();
+            display: none;
             color: rgba(0, 0, 0, 0.8);
             font-size: 3em;
             margin-right: 0.3em;
@@ -275,13 +282,22 @@
             display: block;
         }
         @collectionDescription {
-            opacity: 0.5;
+            opacity: 0.35;
             font-size: 0.9em;
             text-overflow: ellipsis;
             overflow: hidden;
+
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
         }
         @collectionTitle {
-            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.9);
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         @collectionManagementButton:not(:hover) {
