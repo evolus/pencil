@@ -205,6 +205,14 @@
             transform: translateZ(0);
         }
 
+        @contentSection > * + .widget_CollapseablePanel[closed="false"] {
+            background-color: @pane_bg;
+            border-color: @pane_bg;
+        }
+
+        @contentSection > * + .widget_CollapseablePanel {
+        }
+
         body:not(.Fullscreen) @contentSection > .widget_CollapseablePanel:not([float='true']):first-child {
             margin-left: -3em;
         }

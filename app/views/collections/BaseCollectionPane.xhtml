@@ -1,14 +1,14 @@
 <vbox>
     <style>
-        $selector_item_width: 5em;
+        $selector_item_width: 3em;
         $selector_item_height: 12em;
+        $unselected_item_bg: #AAAAAA;
 
         body .widget_CollectionPane {
             overflow: hidden;
         }
 
         @filter {
-            background: #D3DADE;
             position: relative;
         }
         @filter .fa-search {
@@ -18,17 +18,18 @@
             margin-top: -0.5em;
         }
         @filter @form {
-            padding: 1em;
+            padding: 0.5em;
         }
         @filter @logo {
             display: none;
         }
+        @filter @form
         @contentPane {
             overflow: hidden;
         }
         @selectorPane {
             width: @selector_item_width;
-            background: fadeout(desaturate(@selected_bg, 5%), 30%);
+            background: $unselected_item_bg;
             font-size: 0.95em;
             cursor: default;
             overflow: hidden;
@@ -81,7 +82,7 @@
             opacity: 0.9999;
         }
         @selectorPane .Item::after {
-            
+
         }
         @selectorPane .Item:not(.TypeSystem) {
             border-left: solid 2px rgba(33, 66, 99, 1);
@@ -96,7 +97,7 @@
             position: absolute;
             opacity: 0.3;
             transition: opacity 0.2s ease;
-            
+
             padding: 0.2em;
             background: #F00;
             color: #FFF;
@@ -164,14 +165,14 @@
             overflow: hidden;
             text-align: center;
             margin-top: 1ex;
-            font-size: 0.9em;
+            font-size: 0.8em;
         }
         @selectorPane .Item.WithPreview span {
             display: none;
         }
-        
-        @selectorPane .Item + .Item {
-            border-top: solid 2px rgba(0, 0, 0, 0.05);
+
+        @selectorPane .Item:not([active='true']) + .Item:not([active='true']) {
+            border-top: solid 1px fadeout(@app_bg, 60%);
         }
         @selectorPane .Item[active='true'] {
             color: #000;
@@ -179,10 +180,6 @@
             z-index: 3;
             position: relative;
             box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-        }
-        @selectorPane .Item[active='true'],
-        @selectorPane .Item[active='true'] + .Item {
-            border-top-color: transparent;
         }
         @selectorPane .Item:not([active='true']):hover {
             background: rgba(255, 255, 255, 0.2);
