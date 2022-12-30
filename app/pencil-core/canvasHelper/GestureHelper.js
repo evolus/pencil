@@ -110,9 +110,6 @@ GestureHelper.prototype.getPropertyProvider = function () {
     var mode = this.getActiveMode();
     return mode && mode.getPropertyProvider && mode.getPropertyProvider();
 };
-
-const freehand = require("perfect-freehand");
-
 GestureHelper.BASE_MODE = {
 
 };

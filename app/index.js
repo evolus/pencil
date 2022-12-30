@@ -134,10 +134,6 @@ app.on('ready', function() {
             }
         });
 
-    }, function (error, scheme) {
-        if (error) {
-            console.log("ERROR REGISTERING", error);
-        }
     });
 
 
