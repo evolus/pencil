@@ -11,7 +11,6 @@
             padding-right: 0.3em;
             position: relative;
             overflow: visible;
-            min-height: 2.8em;
         }
 
         body[compact-layout='true'] @header,
@@ -50,12 +49,14 @@
             line-height: 1.555555556;
             font-size: 0.9em;
         }
+        @header > hbox {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         @pageListContainer {
-            padding: 1em;
+            padding: 0.7em;
             overflow-y: none;
             overflow-x: none;
-            height: 6em;
-            align-items: center;
         }
         
         body[compact-layout='true'] @pageListContainer {
@@ -64,7 +65,7 @@
 
         
         @pageListContainer > .widget_PageThumbnailView + .widget_PageThumbnailView {
-            margin-left: 1em;
+            margin-left: 0.7em;
         }
 
         @pageListContainer > .widget_PageThumbnailView[dragged] {
@@ -217,18 +218,17 @@
             outline-offset: 0px;
         }
         @childPageContainer .button_Down {
-            padding: 0em 0.3em;
+            padding: 0em 0.2em;
             border: none;
             border-radius: 0em;
             background: transparent;
-            margin-left: 0.4em;
         }
         @childPageContainer .button_Down > i {
             line-height: 1.5em;
         }
 
         hbox > .button_Down:hover {
-            background: rgba(0, 0, 0, 0.1);
+            background: #dbeeff;
         }
         hbox[selected="true"] > .button_Down:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -262,6 +262,7 @@
 
         body .widget_PageListView:not(.Collapsed) @childPageSrollView {
             visibility: hidden;
+            display: none;
         }
         body .widget_PageListView.Collapsed @pageListSrollView {
             display: none;
