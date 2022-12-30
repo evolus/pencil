@@ -9,6 +9,13 @@ __extend(BaseTemplatedWidget, SharedPropertyEditor);
 SharedPropertyEditor.prototype.setup = function () {
     this.propertyContainer.innerHTML = "";
     var thiz = this;
+    
+    var handleUpdatePageProperties = function () {
+        if (thiz.updatePagePropertiesTimer) window.clearTimeout(thiz.updatePagePropertiesTimer);
+        thiz.updatePagePropertiesTimer = window.setTimeout(function () {
+            thiz.savePageProperties();
+        }, 300);
+    };
 
     this.propertyContainer.addEventListener("p:ValueChanged", function(event) {
         if (!thiz.target) return;
@@ -33,6 +40,13 @@ SharedPropertyEditor.prototype.setup = function () {
         if (event.target != thiz.symbolNameInput || !thiz.target || !thiz.target.setSymbolName) return;
         thiz.target.setSymbolName(event.target.value.trim());
     }, false);
+    this.propertyContainer.addEventListener("change", function(event) {
+        if (!thiz.isPagePropertyMode()) return;
+        handleUpdatePageProperties();
+    });
+    this.propertyContainer.addEventListener("p:ItemSelected", function(event) {
+        thiz.savePageProperties(true);
+    });
 };
 SharedPropertyEditor.prototype.getTitle = function() {
 	return "Properties";
@@ -104,9 +118,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var thiz = this;
     var currentGroupNode = null;
 
-    this.propertyContainer.style.display = "none";
-    this.propertyContainer.style.opacity = "0";
-    this.noTargetMessagePane.style.display = "none";
+    this.node().setAttribute("mode", "Target");
 
     var uuid = Util.newUUID();
     this.currentExecutorUUID = uuid;
@@ -286,11 +298,41 @@ SharedPropertyEditor.prototype.setDefaultProperties = function() {
 }
 
 SharedPropertyEditor.prototype.detach = function () {
-    this.propertyContainer.style.display = "none";
-    this.noTargetMessagePane.style.display = "flex";
     this.propertyContainer.innerHTML = "";
     this.target = null;
+    if (Pencil.controller.activePage) {
+        this.node().setAttribute("mode", "Page");
+        this.pagePropertyWidget = new PageDetailDialog();
+        this.pagePropertyWidget.setup({
+            defaultPage : Pencil.controller.activePage,
+            onDone: function(page) {
+            }
+        });
+        this.propertyContainer.appendChild(this.pagePropertyWidget.dialogBody);
+    } else {
+        this.node().setAttribute("mode", "None");
+        this.pagePropertyWidget = null;
+    }
     Dom.emitEvent("p:TitleChanged", this.node(), {});
+};
+SharedPropertyEditor.prototype.savePageProperties = function (shouldReloadOnSaved) {
+    console.log("savePageProperties");
+    if (!this.isPagePropertyMode()) return;
+    if (!this.pagePropertyWidget.isPageInfoValid()) {
+        this.pagePropertyWidget.setup({
+            defaultPage : Pencil.controller.activePage
+        });
+        return;
+    }
+    var updatedPage = this.pagePropertyWidget.updatePage();
+    if (shouldReloadOnSaved) {
+        this.pagePropertyWidget.setup({
+            defaultPage : updatedPage
+        });
+    }
+};
+SharedPropertyEditor.prototype.isPagePropertyMode = function () {
+    return this.node().getAttribute("mode") == "Page";
 };
 SharedPropertyEditor.prototype.invalidate = function () {
     if (!this.target) {

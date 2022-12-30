@@ -1,5 +1,11 @@
 <vbox>
     <style>
+        body .widget_SharedPropertyEditor[mode="None"] @propertyContainer,
+        body .widget_SharedPropertyEditor[mode="Target"] @noTargetMessagePane,
+        body .widget_SharedPropertyEditor[mode="Page"] @noTargetMessagePane {
+            display: none;
+        }
+        
         button {
             box-shadow: none;
         }
@@ -113,7 +119,7 @@
         }
 
         @noTargetMessagePane {
-            color: #BBB;
+            color: #666;
             text-shadow: 1px 1px 0px rgba(255, 255, 255, .8);
             text-align: center;
             vertical-align: middle;
@@ -146,6 +152,34 @@
         input[type="number"]::-webkit-textfield-decoration-container {
             font-size: 0.8em;
         }
+        body .widget_SharedPropertyEditor[mode="Page"] @propertyContainer .Form > hbox.InputRow {
+            flex-direction: column;
+            -webkit-flex-direction: column;
+            display: flex;
+            
+            align-items: start;
+            & > * {
+                margin-left: 0px;
+                flex: 1 1 auto;
+                -webkit-flex: 1 1 auto;
+                width: 100%;
+            }
+            & > label {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 0.9em;
+                opacity: 0.7;
+                margin-bottom: 0.2em;
+            }
+            & .AnonId_pageTitle {
+                min-width: auto;
+            }
+        }
+        body .widget_SharedPropertyEditor[mode="Page"] @propertyContainer .Form .Description {
+            margin-bottom: 0px;
+        }
+        
     </style>
     <vbox anon-id="noTargetMessagePane" flex="1">
         <span>Select objects in the canvas to edit properties.</span>
