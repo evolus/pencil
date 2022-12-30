@@ -143,7 +143,17 @@
         @childPageContainer > hbox:hover {
             color: @selected_bg;
         }
-
+        
+        @pageBreadcrumb > hbox[selected="true"] > button {
+            background: @selected_bg;
+            color: @selected_fg;
+            border-color: @selected_fg;
+            text-shadow: none;
+        }
+        
+        @pageBreadcrumb > hbox[selected="true"] > button > span:hover {
+            color: @selected_fg;
+        }
 
         @pageBreadcrumb > hbox > span{
             padding: 0em 0.5em;
@@ -177,6 +187,7 @@
 
         @childPageContainer > hbox {
             border: 1px solid #CCC;
+            border-radius: 0.3ex;
             padding: 0px 0.5em;
             cursor: pointer;
             align-items: center;
