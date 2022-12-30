@@ -75,6 +75,7 @@
     "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
     "mac": {
       "category": "public.app-category.graphics-design",
+	  "icon": "build/icon.icns",
       "target": [{
            "target": "dmg",
            "arch": ["universal"]
