@@ -61,11 +61,11 @@ StrokeEditor.prototype.setup = function () {
     this.styleCombo.setItems(strokeItems);
     var thiz = this;
     this.styleCombo.addEventListener("p:ItemSelected", function (event) {
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(StrokeStyle.ARRAY);
     }, false);
     this.strokeWidth.addEventListener("input", function (event) {
         if (thiz.strokeWidth.value == "") thiz.strokeWidth.value = 1;
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(StrokeStyle.W);
     }, false);
 
 };

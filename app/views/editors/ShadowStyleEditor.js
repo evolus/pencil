@@ -27,7 +27,7 @@ ShadowStyleEditor.prototype.setup = function () {
     this.selector.addEventListener("ValueChange", function (event) {
         thiz.color = thiz.selector.getColor().toRGBString();
         thiz.invalidateColorDisplay();
-        thiz.fireChangeEvent();
+        thiz.fireChangeEvent(ShadowStyle.COLOR);
     }, false);
 
     this.selector.addEventListener("p:CloseColorSelector", function (event) {
@@ -37,8 +37,17 @@ ShadowStyleEditor.prototype.setup = function () {
         }
     }, false);
 
-    this.node().addEventListener("change", function (event) {
-        thiz.fireChangeEvent();
+    this.dx.addEventListener("change", function (event) {
+        thiz.fireChangeEvent(ShadowStyle.DX);
+    }, false);
+    this.dy.addEventListener("change", function (event) {
+        thiz.fireChangeEvent(ShadowStyle.DY);
+    }, false);
+    this.size.addEventListener("change", function (event) {
+        thiz.fireChangeEvent(ShadowStyle.SIZE);
+    }, false);
+    this.opacity.addEventListener("change", function (event) {
+        thiz.fireChangeEvent(ShadowStyle.OPACITY);
     }, false);
 };
 ShadowStyleEditor.prototype.setValue = function (shadowStyle) {

@@ -36,6 +36,7 @@ DocumentExportManager.prototype.generateFriendlyId = function (page, usedFriendl
     return name;
 };
 DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, forcedExporterId, params) {
+    console.log("Export requested...");
     var exporter = Pencil.getDocumentExporterById(params.exporterId);
     if (!exporter) return;
 
@@ -140,13 +141,14 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                             thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
                                 listener.onTaskDone();
                                 NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
-                                    shell.openItem(destFile);
+                                    shell.openPath(destFile);
                                 });
                             });
                         })
                         return;
                     }
                     var page = pages[pageIndex];
+                    console.log("Rasiterizing " + page.name);
 
                     //signal progress
                     var task = Util.getMessage("exporting.page.no.prefix", page.name);
@@ -184,7 +186,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                         listener.onTaskDone();
                         if (destFile) {
                             NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
-                                shell.openItem(destFile);
+                                shell.openPath(destFile);
                             });
                         } else {
                             NotificationPopup.show("Document has been exported.");
@@ -407,7 +409,8 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
 
     try {
         exporter.export(this.doc, exportSelection, destFile, xmlFile.name, function () {
-            xmlFile.removeCallback();
+            console.log("xmlFile:" + xmlFile.name);
+            //xmlFile.removeCallback();
             callback();
         });
     } catch (e) {

@@ -151,7 +151,7 @@ FontLoader.prototype.embedToDocumentRepo = function (faces) {
         var font = this.userRepo.getFont(f);
         var userFont = this.documentRepo.getFont(f);
         if (userFont) {
-            if (!font.autoEmbed) {
+            if (font && !font.autoEmbed) {
                 this.documentRepo.removeFont(userFont);
             }
             return;

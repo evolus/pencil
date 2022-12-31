@@ -15,10 +15,10 @@
 }
 *[pencil-canvas='true'] svg {
 }
-*[pencil-canvas='true'] svg|g[p|type='Shape'] {
+.AnonId_contentBody[gesture-mode='selection'] *[pencil-canvas='true'] svg|g[p|type='Shape'] {
 	cursor: move;
 }
-*[pencil-canvas='true'] svg|g[p|type='Shape'][p|locked='true'] {
+.AnonId_contentBody[gesture-mode='selection'] *[pencil-canvas='true'] svg|g[p|type='Shape'][p|locked='true'] {
 	cursor: default;
 }
 body[format-painter='true'] *[pencil-canvas='true'],

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://evolus.vn/Namespaces/WebUI/1.0">
     <head>
         <title>Pencil</title>
-
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="css/material-icons.css" />
 
         <link rel="stylesheet" href="css/pencil.css"/>
@@ -15,6 +15,7 @@
         <script type="text/javascript" src="lib/codemirror/codemirror.js"></script>
         <link rel="stylesheet" href="lib/codemirror/codemirror.css"/>
         <script type="text/javascript" src="lib/codemirror/javascript.js"></script>
+        <script type="text/javascript" src="lib/codemirror/xml.js"></script>
 
         <!-- Pencil Core -->
         <script type="text/javascript" src="pencil-core/common/pencilNamespaces.js"></script>
@@ -86,6 +87,7 @@
         <script type="text/javascript" src="pencil-core/propertyType/alignment.js"></script>
         <script type="text/javascript" src="pencil-core/propertyType/strokeStyle.js"></script>
         <script type="text/javascript" src="pencil-core/propertyType/bool.js"></script>
+        <script type="text/javascript" src="pencil-core/propertyType/num.js"></script>
         <script type="text/javascript" src="pencil-core/propertyType/enum.js"></script>
         <script type="text/javascript" src="pencil-core/propertyType/plainText.js"></script>
         <script type="text/javascript" src="pencil-core/propertyType/richText.js"></script>
@@ -147,7 +149,9 @@
 
         <script type="text/javascript" src="pencil-core/clipartBrowser/webUtil.js"></script>
         <script type="text/javascript" src="pencil-core/clipartBrowser/searchEngine.js"></script>
-        <script type="text/javascript" src="pencil-core/clipartBrowser/openClipartSearch.js"></script>
+        <script type="text/javascript" src="pencil-core/clipartBrowser/newOpenClipartSearch.js"></script>
+
+        <script type="text/javascript" src="pencil-core/canvasHelper/GestureHelper.js"></script>
 
         <!--<script type="text/javascript" src="pencil-core/mainWindow.js"></script>-->
 
@@ -181,6 +185,7 @@
         <script type="text/javascript" src="views/editors/ComboTest.js"></script>
         <script type="text/javascript" src="views/editors/DataTable.js"></script>
         <script type="text/javascript" src="views/editors/EnumEditor.js"></script>
+        <script type="text/javascript" src="views/editors/NumEditor.js"></script>
         <script type="text/javascript" src="views/editors/FontEditor.js"></script>
         <script type="text/javascript" src="views/editors/OnMenuEditor.js"></script>
         <script type="text/javascript" src="views/editors/OnScreenRichTextEditor.js"></script>
@@ -196,12 +201,12 @@
         <script type="text/javascript" src="views/editors/StrokeStyleEditor.js"></script>
         <script type="text/javascript" src="views/editors/TextToolOverlay.js"></script>
         <script type="text/javascript" src="views/editors/NPatchSpecEditorDialog.js"></script>
-        
+
         <script type="text/javascript" src="views/editors/image-editor/ExternalImageEditorDialog.js"></script>
         <script type="text/javascript" src="views/editors/image-editor/ImageEditorDialog.js"></script>
         <script type="text/javascript" src="views/editors/image-editor/tools/BaseSimpleArgumentTool.js"></script>
         <script type="text/javascript" src="views/editors/image-editor/tools/BaseImmediateActionTool.js"></script>
-        
+
         <script type="text/javascript" src="views/EditPageNoteDialog.js"></script>
         <script type="text/javascript" src="views/ExportDialog.js"></script>
         <script type="text/javascript" src="views/menus/Menu.js"></script>
@@ -216,6 +221,7 @@
         <script type="text/javascript" src="views/toolbars/FileToolbar.js"></script>
         <script type="text/javascript" src="views/toolbars/SizeToolbar.js"></script>
         <script type="text/javascript" src="views/toolbars/ZoomToolbar.js"></script>
+        <script type="text/javascript" src="views/toolbars/GestureModeToolbar.js"></script>
         <script type="text/javascript" src="views/tools/FontDetailDialog.js"></script>
         <script type="text/javascript" src="views/tools/FontManagementDialog.js"></script>
         <script type="text/javascript" src="views/tools/NPatchDialog.js"></script>

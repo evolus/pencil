@@ -1,7 +1,7 @@
 // Copyright (c) Evolus Solutions. All rights reserved.
 // License: GPL/MPL
 // $Id$
-
+const remote = require('@electron/remote');
 
 const IS_MAC = process && /^darwin/.test(process.platform);
 const IS_WIN32 = process && /^win/.test(process.platform);
@@ -1756,10 +1756,10 @@ if (typeof(console) == "undefined") {
     };
 }
 
-const DEV_ENABLED = require("electron").remote.app.devEnable ? true : false;
+const DEV_ENABLED = remote.app.devEnable ? true : false;
 
 function debug() {
-    //if (DEV_ENABLED) console.log.apply(console, ["DEBUG>"].concat(Array.prototype.slice.call(arguments)));
+    if (DEV_ENABLED) console.log.apply(console, ["DEBUG>"].concat(Array.prototype.slice.call(arguments)));
 }
 function stackTrace() {
 	//DEBUG_BEGIN
@@ -2154,13 +2154,20 @@ Util.imageOnloadListener = function (event) {
 
 };
 Util.setupImage = function (image, src, mode, allowUpscale) {
-    image.onload = Util.imageOnloadListener;
-    image.style.visibility = "hidden";
-    image.style.width = "0px";
-    image.style.height = "0px";
-    image._mode = mode;
-    image._allowUpscale = allowUpscale;
+    // image.onload = Util.imageOnloadListener;
+    // image.style.visibility = "hidden";
+    image.style.width = "100%";
+    image.style.height = "100%";
+    image.style.opacity = "0";
     image.src = src;
+
+    mode = mode || "center-crop";
+
+    var hp = (mode.indexOf("left") >= 0) ? "left" : ((mode.indexOf("right") >= 0) ? "right" : " center");
+    var vp = (mode.indexOf("top") >= 0) ? "top" : ((mode.indexOf("bottom") >= 0) ? "bottom" : " center");
+    image.parentNode.style.backgroundImage = "url('" + src + "')";
+    image.parentNode.style.backgroundPosition = hp + " " + vp;
+    image.parentNode.style.backgroundSize = (mode.indexOf("crop") >= 0) ? "cover" : "contain";
 };
 
 Util.isDev = function() {
@@ -2465,6 +2472,33 @@ function copyFolderRecursiveSync(source, target) {
         });
     }
 }
+
+function PropertyMask(names) {
+    this.names = (typeof(names) == "string") ? [names] : names;
+}
+PropertyMask.prototype.and = function (other) {
+    return new PropertyMask(this.names.concat.other.names);
+};
+PropertyMask.prototype.contains = function (name) {
+    return this.names.indexOf(name) >= 0;
+};
+PropertyMask.prototype.apply = function (original, newValue) {
+    if (!original || !newValue) return original;
+    var value = new original.constructor();
+    for (var name in original) {
+        if (original.hasOwnProperty(name)) {
+            value[name] = original[name];
+        }
+    }
+
+    for (var name of this.names) {
+        if (newValue.hasOwnProperty(name)) {
+            value[name] = newValue[name];
+        }
+    }
+
+    return value;
+};
 
 function getStaticFilePath(subPath) {
     var filePath = __dirname;

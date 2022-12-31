@@ -1,8 +1,8 @@
 {
   "name": "Pencil",
   "devDependencies": {
-    "electron": "6.0.1",
-    "electron-builder": "20.28.4",
+    "electron": "16.0.0",
+    "electron-builder": "23.3.3",
     "electron-rebuild": "^1.8.5",
     "rimraf": "^2.5.4"
   },
@@ -11,7 +11,11 @@
     "productName": "Pencil",
     "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
     "mac": {
-      "category": "public.app-category.graphics-design"
+      "category": "public.app-category.graphics-design",
+      "target": [{
+           "target": "dmg",
+           "arch": ["arm64"]
+      }]
     },
     "dmg": {
       "contents": [
@@ -71,7 +75,7 @@
     "postinstall": "install-app-deps",
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
     "start": "./node_modules/.bin/electron ./app",
-    "start:dev": "./node_modules/.bin/electron ./app --enable-dev --enable-transparent-visuals --disable-gpu",
+    "start:dev": "./node_modules/.bin/electron ./app --enable-dev --enable-transparent-visuals",
     "start:mac": "./node_modules/.bin/electron ./app --enable-dev",
     "clean": "rimraf dist",
     "pack": "build",
@@ -81,5 +85,8 @@
     "dist:win32": "./node_modules/.bin/build --windows --ia32 --x64",
     "dist:osx": "./node_modules/.bin/build --macos"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@electron/remote": "^2.0.1"
+  }
 }

@@ -34,6 +34,17 @@
         @popupToolbar .ButtonGroup > button:hover {
             background: #D9D9D9;
         }
+
+        @mtextColorButton.LowContrast,
+        @mhilightColorButton.LowContrast {
+            text-shadow: 1px 1px 2px #00000044, -1px -1px 2px #00000044, -1px 1px 2px #00000044, 1px -1px 2px #00000044;
+        }
+        @colorDisplay[property-name="fillColor"].LowContrast {
+            box-shadow: 0px 0px 3px #00000044;
+        }
+        @colorDisplay[property-name="strokeColor"].LowContrast {
+            filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.5));
+        }
     </style>
     <div anon-id="popupContainer">
          <vbox anon-id="popupToolbar">
@@ -58,7 +69,7 @@
                     <button mode="icon" anon-id="medOutdentButton" title="Outdent" command="outdent"><i>format_indent_decrease</i></button>
                 </hbox>
                 <hbox class="ButtonGroup">
-                    <button mode="icon" anon-id="medCleanUpButton" title="Clean Up" command="removeformat"><i>clear</i></button>
+                    <button mode="icon" anon-id="medCleanUpButton" title="Clean Up" command="removeformat"><i>format_clear</i></button>
                 </hbox>
             </hbox>
 
@@ -73,12 +84,12 @@
                     <button mode="icon" anon-id="medIncreaseFontButton" title="Increase Font Size" command="increaseFontSize"><i>format_size</i></button>
                     <button mode="icon" anon-id="medDecreaseFontButton" title="Decrease Font Size" command="decreaseFontSize"><i>text_fields</i></button>
                 </hbox>
-                <hbox class="ButtonGroup">
+                <hbox class="ButtonGroup ColorButtonGroup">
                     <button anon-id="mtextColorButton" title="Text Color">
                         <i>format_color_text</i>
                     </button>
                     <button anon-id="mhilightColorButton" title="Highlight color">
-                        <i>high_quality</i>
+                        <i>font_download</i>
                         <!-- <span anon-id="colorDisplay" class="ColorDisplay"></span> -->
                     </button>
                 </hbox>

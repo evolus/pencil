@@ -132,7 +132,8 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                             onDone: function (newImageData, options) {
                                 thiz.targetObject.setProperty(propName, newImageData);
                                 if (options && options.updateBox) {
-                                    var dim = new Dimension(newImageData.w, newImageData.h);
+                                    var ratio = window.devicePixelRatio || 1;
+                                    var dim = new Dimension(Math.round(newImageData.w / ratio), Math.round(newImageData.h / ratio));
                                     thiz.targetObject.setProperty("box", dim);
                                 }
                             }

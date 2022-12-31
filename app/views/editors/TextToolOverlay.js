@@ -38,25 +38,7 @@ function TextToolOverlay() {
 
 
     var selectListener = function (event) {
-        // var temp = OnScreenTextEditor.isEditing;
-        // OnScreenTextEditor.isEditing = false;
-
-        thiz.updateListByCommandValue("fontname", thiz.fontCombo);
-        thiz.fontSizeCombo.selectItem(thiz.queryFontSizeValue());
-
-        thiz.updateButtonByCommandState("bold", thiz.medBoldButton);
-        thiz.updateButtonByCommandState("italic", thiz.medItalicButton);
-        thiz.updateButtonByCommandState("underline", thiz.medUnderlineButton);
-        thiz.updateButtonByCommandState("strikethrough", thiz.medStrikeButton);
-
-        thiz.updateButtonByCommandState("justifyleft", thiz.malignLeftCommand);
-        thiz.updateButtonByCommandState("justifycenter", thiz.malignCenterCommand);
-        thiz.updateButtonByCommandState("justifyright", thiz.malignRightCommand);
-
-        thiz.updateColorButtonByCommandValue("forecolor", thiz.mtextColorButton);
-        // thiz.updateColorButtonByCommandValue("hiliteColor", thiz.mhilightColorButton);
-
-        // OnScreenTextEditor.isEditing = temp;
+        thiz.updateToolbarState();
     };
     window.document.body.addEventListener("mouseup", selectListener, false);
 
@@ -149,12 +131,13 @@ function TextToolOverlay() {
     var changeColorListener = function (control, commandName) {
         var color = thiz.getColorByCommandValue(commandName);
         thiz.selector.setColor(color);
+        thiz.selector.setupColors();
         thiz.selector._commandName = commandName;
         thiz.selector._control = control;
 
         thiz.selectorContainer.show(control, "left-inside", "bottom", 0, 5);
         Dom.addClass(thiz._richTextEditor.textEditorWrapper, "ChoosingColor");
-        thiz.selector.focus();
+        // thiz.selector.focus();
     };
     this.selectorContainer.addEventListener("p:PopupHidden", function() {
         Dom.removeClass(thiz._richTextEditor.textEditorWrapper, "ChoosingColor");
@@ -165,7 +148,7 @@ function TextToolOverlay() {
     }, false);
 
     this.mhilightColorButton.addEventListener("click", function (event) {
-        changeColorListener(thiz.mhilightColorButton, "hilitecolor");
+        changeColorListener(thiz.mhilightColorButton, "backcolor");
         event.cancelBubble = true;
     }, false);
 
@@ -174,7 +157,7 @@ function TextToolOverlay() {
         var control = thiz.selector._control;
         var commandName = thiz.selector._commandName;
         thiz.runEditorCommand(commandName, color.toRGBAString());
-        thiz.updateButtonColor(control, color.toRGBAString());
+        thiz.updateButtonColor(control, color);
     }, false);
 
     this.selector.addEventListener("p:CloseColorSelector", function (event) {
@@ -230,6 +213,25 @@ TextToolOverlay.prototype.queryFontSizeValue = function () {
     return found;
 };
 
+TextToolOverlay.prototype.updateToolbarState = function () {
+    if (!this.active) return;
+
+    this.updateListByCommandValue("fontname", this.fontCombo);
+    this.fontSizeCombo.selectItem(this.queryFontSizeValue());
+
+    this.updateButtonByCommandState("bold", this.medBoldButton);
+    this.updateButtonByCommandState("italic", this.medItalicButton);
+    this.updateButtonByCommandState("underline", this.medUnderlineButton);
+    this.updateButtonByCommandState("strikethrough", this.medStrikeButton);
+
+    this.updateButtonByCommandState("justifyleft", this.malignLeftCommand);
+    this.updateButtonByCommandState("justifycenter", this.malignCenterCommand);
+    this.updateButtonByCommandState("justifyright", this.malignRightCommand);
+
+    this.updateColorButtonByCommandValue("forecolor", this.mtextColorButton);
+    this.updateColorButtonByCommandValue("backcolor", this.mhilightColorButton);
+};
+
 TextToolOverlay.prototype.updateListByCommandValue = function (commandName, control) {
     var value = null;
     try {
@@ -265,16 +267,21 @@ TextToolOverlay.prototype.getColorByCommandValue = function (commandName) {
 
 TextToolOverlay.prototype.updateColorButtonByCommandValue = function (commandName, control) {
     var value = this.getColorByCommandValue(commandName);
+    if (value == null) value = Color.fromString("#FFFFFF00");
     if (control.localName == "button") {
-        if (value == null) return;
-        this.updateButtonColor(control, value.toRGBString());
+        this.updateButtonColor(control, value);
     }
 };
-TextToolOverlay.prototype.updateButtonColor = function (control, value) {
+TextToolOverlay.prototype.updateButtonColor = function (control, color) {
+    var lowContrast = color ? (color.getContrastTo(SharedColorEditor.BACKGROUND) < SharedColorEditor.MIN_CONTRAST) : true;
+
+    var value = color.toRGBString();
     if (control == this.mhilightColorButton) {
-        // this.mhilightColorButton.style.color = value;
+        this.mhilightColorButton.style.color = value;
+        Dom.toggleClass(this.mhilightColorButton, "LowContrast", lowContrast);
     } else if (control == this.mtextColorButton) {
         this.mtextColorButton.style.color = value;
+        Dom.toggleClass(this.mtextColorButton, "LowContrast", lowContrast);
     }
 };
 TextToolOverlay.prototype.updateButtonByCommandState = function (commandName, control) {

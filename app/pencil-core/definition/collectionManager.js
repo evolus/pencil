@@ -158,13 +158,13 @@ CollectionManager._loadDeveloperStencil = function () {
         Console.dumpError(e);
         // Util.error("Failed to load developer stencil", ex.message + "\n" + definitionFile.path, Util.getMessage("button.cancel.close"));
 	}
-    
-    CollectionManager._addActiveBuilderCollection();    
+
+    CollectionManager._addActiveBuilderCollection();
 };
 CollectionManager._addActiveBuilderCollection = function () {
     CollectionManager._builderCollection = null;
     if (!StencilCollectionBuilder.activeCollectionInfo) return;
-    
+
     try {
         var collection = new ShapeDefCollectionParser().parseURL(path.join(StencilCollectionBuilder.activeCollectionInfo.dir, "Definition.xml"));
         collection.installDirPath = StencilCollectionBuilder.activeCollectionInfo.dir;
@@ -313,10 +313,10 @@ CollectionManager.installNewCollection = function (callback) {
             { name: "Stencil files", extensions: ["zip", "epc"] }
         ]
 
-    }, function (filenames) {
-        if (!filenames || filenames.length <= 0) return;
-        Config.set("collection.install.recentlyDirPath", path.dirname(filenames[0]));
-        CollectionManager.installCollectionFromFilePath(filenames[0], callback);
+    }).then(function (res) {
+        if (!res || !res.filePaths || res.filePaths.length <= 0) return;
+        Config.set("collection.install.recentlyDirPath", path.dirname(res.filePaths[0]));
+        CollectionManager.installCollectionFromFilePath(res.filePaths[0], callback);
     });
 };
 
@@ -616,7 +616,7 @@ CollectionManager.uninstallCollection = function (collection, callback) {
 CollectionManager.selectDeveloperStencilDir = function () {
 	//alert("Please select the directory that contains the 'Definition.xml' file of your stencil");
     dialog.showOpenDialog({
-        title: "Select Developer Stetcil 'Definition.xml' file",
+        title: "Select Developer Stencil 'Definition.xml' file",
         defaultPath: Config.get("dev.stencil.path") || os.homedir(),
         filters: [
             { name: "Definition.xml", extensions: ["xml"] }

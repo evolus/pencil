@@ -94,7 +94,7 @@ function init() {
             if (ext == ".png") mine = "image/png";
 
             fs.readFile(sourcePath, function (error, bitmap) {
-                var url = "data:" + mime + ";base64," + new Buffer(bitmap).toString("base64");
+                var url = "data:" + mime + ";base64," + Buffer.from(bitmap).toString("base64");
 
                 image.setAttributeNS(xlink, "href", url);
                 totalImageLength += url.length;

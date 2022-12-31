@@ -10,6 +10,13 @@ SharedPropertyEditor.prototype.setup = function () {
     this.propertyContainer.innerHTML = "";
     var thiz = this;
 
+    var handleUpdatePageProperties = function () {
+        if (thiz.updatePagePropertiesTimer) window.clearTimeout(thiz.updatePagePropertiesTimer);
+        thiz.updatePagePropertiesTimer = window.setTimeout(function () {
+            thiz.savePageProperties();
+        }, 300);
+    };
+
     this.propertyContainer.addEventListener("p:ValueChanged", function(event) {
         if (!thiz.target) return;
         var editor = Dom.findUpward(event.target, function (n) {
@@ -18,11 +25,11 @@ SharedPropertyEditor.prototype.setup = function () {
         if (!editor) return;
 
         var propertyName = editor._property.name;
-        thiz.target.setProperty(propertyName, thiz.propertyEditor[propertyName].getValue());
+        thiz.target.setProperty(propertyName, thiz.propertyEditor[propertyName].getValue(), false, event.mask);
 
         thiz.validationEditorUI();
     }, false);
-    this.propertyContainer.style.display = "none";
+    this.node().setAttribute("mode", "None");
 
     this.propertyContainer.addEventListener("click", function(event) {
         if (event.target.getAttribute("command") && event.target.getAttribute("command") == "setDefault") {
@@ -33,6 +40,13 @@ SharedPropertyEditor.prototype.setup = function () {
         if (event.target != thiz.symbolNameInput || !thiz.target || !thiz.target.setSymbolName) return;
         thiz.target.setSymbolName(event.target.value.trim());
     }, false);
+    this.propertyContainer.addEventListener("change", function(event) {
+        if (!thiz.isPagePropertyMode()) return;
+        handleUpdatePageProperties();
+    });
+    this.propertyContainer.addEventListener("p:ItemSelected", function(event) {
+        thiz.savePageProperties(true);
+    });
 };
 SharedPropertyEditor.prototype.getTitle = function() {
 	return "Properties";
@@ -61,7 +75,6 @@ SharedPropertyEditor.prototype.validationEditorUI = function() {
 };
 
 SharedPropertyEditor.prototype.attach = function (target) {
-
     if (!target) return;
     if (target && target.getAttributeNS && target.getAttributeNS(PencilNamespaces.p, "locked") == "true") { return; }
 
@@ -104,9 +117,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var thiz = this;
     var currentGroupNode = null;
 
-    this.propertyContainer.style.display = "none";
-    this.propertyContainer.style.opacity = "0";
-    this.noTargetMessagePane.style.display = "none";
+    this.node().setAttribute("mode", "Target");
 
     var uuid = Util.newUUID();
     this.currentExecutorUUID = uuid;
@@ -114,6 +125,8 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var definedGroups = this.target.getPropertyGroups();
     this.propertyEditor = {};
     this.propertyContainer.innerHTML = "";
+    this.addPropertyTitle(this.target.def ? this.target.def.displayName : "");
+
     var definedGroups = this.target.getPropertyGroups();
     var groupNodes = [];
 
@@ -136,9 +149,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var thiz = this;
     var currentGroupNode = null;
 
-    this.propertyContainer.style.display = "none";
     this.propertyContainer.style.opacity = "0";
-    this.noTargetMessagePane.style.display = "none";
 
     var uuid = Util.newUUID();
     this.currentExecutorUUID = uuid;
@@ -182,78 +193,82 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 }, document, thiz));
             }
 
-            thiz.propertyContainer.style.display = "flex";
             thiz.propertyContainer.style.opacity = "1";
             thiz.validationEditorUI();
             return;
         }
 
-        var property = properties.shift();
-        if (!currentGroupNode || currentGroupNode._group != property._group) {
-            currentGroupNode = Dom.newDOMElement({
-                _name: "vbox",
-                "class": "Group"
-            });
+        try {
+            var property = properties.shift();
+            if (!currentGroupNode || currentGroupNode._group != property._group) {
+                currentGroupNode = Dom.newDOMElement({
+                    _name: "vbox",
+                    "class": "Group"
+                });
 
-            currentGroupNode._group = property._group;
-            var titleNode = Dom.newDOMElement({
-                _name: "div",
-                _text: property._group.name,
-                "class": "Label Group"
-            });
-            currentGroupNode.appendChild(titleNode);
-            thiz.propertyContainer.appendChild(currentGroupNode);
-            groupNodes.push(currentGroupNode);
-        }
-        var propName = property.displayName ? property.displayName.trim() : null;
-        var groupName = property._group.name ? property._group.name.trim() : null;
-
-        if (!propName || !groupName) { return; }
-
-        if (propName.indexOf(groupName) == 0) {
-            propName = propName.substring(groupName.length);
-        }
-
-        var editorWrapper = Dom.newDOMElement({
-            _name: "hbox",
-            "class": "Wrapper Type_" + property.type.name,
-            _children: [
-                {
-                    _name: "div",
-                    "class": "Label Property",
-                    "flex": "2",
-                    _text: propName + ":"
+                currentGroupNode._group = property._group;
+                if (definedGroups.length > 1) {
+                    var titleNode = Dom.newDOMElement({
+                        _name: "div",
+                        _text: property._group.name,
+                        "class": "Label Group"
+                    });
+                    currentGroupNode.appendChild(titleNode);
                 }
-            ]
-        });
+                thiz.propertyContainer.appendChild(currentGroupNode);
+                groupNodes.push(currentGroupNode);
+            }
+            var propName = property.displayName ? property.displayName.trim() : null;
+            if (!propName) propName = property.type.name;
 
-        var editor = TypeEditorRegistry.getTypeEditor(property.type);
-        if (!editor) return;
+            var groupName = property._group.name ? property._group.name.trim() : null;
 
-        var constructeur = window[editor];
-        var editorWidget = new constructeur();
+            if (!propName || !groupName) { return; }
 
-        editorWrapper.appendChild(editorWidget.node());
-        editorWidget.setAttribute("flex", "3");
-        if (editorWidget.setTypeMeta) {
-            editorWidget.setTypeMeta(property.meta, property);
+            if (propName.indexOf(groupName) == 0) {
+                propName = propName.substring(groupName.length);
+            }
+
+            var editorWrapper = Dom.newDOMElement({
+                _name: "vbox",
+                "class": "Wrapper Type_" + property.type.name,
+                _children: [
+                    {
+                        _name: "div",
+                        "class": "Label Property",
+                        _text: propName + ":"
+                    }
+                ]
+            });
+
+            var editor = TypeEditorRegistry.getTypeEditor(property.type);
+            if (!editor) return;
+
+            var constructeur = window[editor];
+            var editorWidget = new constructeur();
+
+            editorWrapper.appendChild(editorWidget.node());
+            if (editorWidget.setTypeMeta) {
+                editorWidget.setTypeMeta(property.meta, property);
+            }
+            editorWidget.setValue(thiz.target.getProperty(property.name));
+            thiz.propertyEditor[property.name] = editorWidget;
+            editorWrapper._property = property;
+
+            var meta = property.meta["disabled"];
+
+            if (meta) {
+                if (!thiz.validationEditor) thiz.validationEditor = [];
+                thiz.validationEditor.push(editorWrapper);
+
+                var disabled = !allowDisabled && thiz.target.evalExpression(meta, true);
+                editorWrapper.style.display = disabled ? "none" : "flex";
+            }
+
+            currentGroupNode.appendChild(editorWrapper);
+        } finally {
+            window.setTimeout(executor, 20);
         }
-        editorWidget.setValue(thiz.target.getProperty(property.name));
-        thiz.propertyEditor[property.name] = editorWidget;
-        editorWrapper._property = property;
-
-        var meta = property.meta["disabled"];
-
-        if (meta) {
-            if (!thiz.validationEditor) thiz.validationEditor = [];
-            thiz.validationEditor.push(editorWrapper);
-
-            var disabled = !allowDisabled && thiz.target.evalExpression(meta, true);
-            editorWrapper.style.display = disabled ? "none" : "flex";
-        }
-
-        currentGroupNode.appendChild(editorWrapper);
-        window.setTimeout(executor(), 40);
     };
     executor();
     this.properties = this.target.getProperties();
@@ -282,12 +297,50 @@ SharedPropertyEditor.prototype.setDefaultProperties = function() {
     }
 }
 
+SharedPropertyEditor.prototype.addPropertyTitle = function (title) {
+    var title = Dom.newDOMElement({
+        _name: "strong",
+        _text: title,
+        "class": "ObjectTitle"
+    });
+    this.propertyContainer.appendChild(title);
+};
 SharedPropertyEditor.prototype.detach = function () {
-    this.propertyContainer.style.display = "none";
-    this.noTargetMessagePane.style.display = "flex";
     this.propertyContainer.innerHTML = "";
     this.target = null;
+    if (Pencil.controller.doc && Pencil.controller.activePage) {
+        this.node().setAttribute("mode", "Page");
+        this.addPropertyTitle(Pencil.controller.activePage.name);
+        this.pagePropertyWidget = new PageDetailDialog();
+        this.pagePropertyWidget.setup({
+            defaultPage : Pencil.controller.activePage,
+            onDone: function(page) {
+            }
+        });
+        this.propertyContainer.appendChild(this.pagePropertyWidget.dialogBody);
+    } else {
+        this.node().setAttribute("mode", "None");
+        this.pagePropertyWidget = null;
+    }
     Dom.emitEvent("p:TitleChanged", this.node(), {});
+};
+SharedPropertyEditor.prototype.savePageProperties = function (shouldReloadOnSaved) {
+    if (!this.isPagePropertyMode()) return;
+    if (!this.pagePropertyWidget.isPageInfoValid()) {
+        this.pagePropertyWidget.setup({
+            defaultPage : Pencil.controller.activePage
+        });
+        return;
+    }
+    var updatedPage = this.pagePropertyWidget.updatePage();
+    if (shouldReloadOnSaved) {
+        this.pagePropertyWidget.setup({
+            defaultPage : updatedPage
+        });
+    }
+};
+SharedPropertyEditor.prototype.isPagePropertyMode = function () {
+    return this.node().getAttribute("mode") == "Page";
 };
 SharedPropertyEditor.prototype.invalidate = function () {
     if (!this.target) {

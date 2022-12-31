@@ -64,10 +64,18 @@ TargetSet.prototype.applyBehaviorForProperty = function (name) {
 TargetSet.prototype.getPropertyGroups = function () {
     return [this.propertyGroup];
 };
-TargetSet.prototype.setProperty = function (name, value) {
+TargetSet.prototype.setProperty = function (name, value, nested, mask) {
     for (t in this.targets) {
-        this.targets[t].setProperty(name, value);
+        this.targets[t].setProperty(name, value, nested, mask);
     }
+};
+TargetSet.prototype.setMetadata = function (name, value) {
+    for (var t in this.targets) {
+        this.targets[t].setMetadata(name, value);
+    }
+};
+TargetSet.prototype.getMetadata = function (name) {
+    return null;
 };
 TargetSet.prototype.getProperty = function (name, any) {
     if (name == "box") return null;

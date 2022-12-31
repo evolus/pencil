@@ -9,6 +9,14 @@ function Font() {
 Font.REG_EX = /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([0-9]+[a-z]+)$/i;
 Font.REG_EX_2 = /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([0-9]+[a-z]+)\|([^\|]+)$/i;
 Font.REG_EX_3 = /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([0-9]+[a-z]+)\|([^\|]+)\|([0-9\.]+)$/i;
+
+Font.FAMILY = new PropertyMask("family");
+Font.STYLE = new PropertyMask("style");
+Font.WEIGHT = new PropertyMask("weight");
+Font.SIZE = new PropertyMask("size");
+Font.DECOR = new PropertyMask("decor");
+Font.LINE_HEIGHT = new PropertyMask("lineHeight");
+
 Font.fromString = function (literal) {
     var font = new Font();
     font.decor = "none";

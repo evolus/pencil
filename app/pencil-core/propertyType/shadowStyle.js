@@ -8,6 +8,12 @@ function ShadowStyle() {
 
 ShadowStyle.DEFAULT_COLOR = "#000000";
 
+ShadowStyle.DX = new PropertyMask("dx");
+ShadowStyle.DY = new PropertyMask("dy");
+ShadowStyle.SIZE = new PropertyMask("size");
+ShadowStyle.OPACITY = new PropertyMask("opacity");
+ShadowStyle.COLOR = new PropertyMask("color");
+
 ShadowStyle.REG_EX = /^([^\|]+)\|([^\|]+)\|([^\|]+)(\|([^\|]+))?(\|([^\|]+))?$/i;
 ShadowStyle.fromString = function (literal) {
     var shadowStyle = new ShadowStyle();

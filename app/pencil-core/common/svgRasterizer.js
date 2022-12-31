@@ -20,7 +20,7 @@ Rasterizer.prototype.getImageDataFromUrl = function (url, callback) {
 };
 
 Rasterizer.ipcBasedBackend = {
-    TIME_OUT: 10000,
+    TIME_OUT: 15000,
     pendingWorkMap: {},
     init: function () {
         ipcRenderer.send("render-init", {});
@@ -44,7 +44,7 @@ Rasterizer.ipcBasedBackend = {
         // if (scale != 1) {
         //     svgNode.setAttribute("width", w + "px");
         //     svgNode.setAttribute("height", h + "px");
-        // 
+        //
         //     svgNode.setAttribute("viewBox", "0 0 " + width + " " + height);
         // }
 
@@ -52,16 +52,16 @@ Rasterizer.ipcBasedBackend = {
         ipcRenderer.send("render-request", {svg: xml, width: w, height: h, scale: scale, id: id, processLinks: parseLinks, options: options});
 
         var work = {};
-        work.timeoutId = window.setTimeout(function () {
-            var work = Rasterizer.ipcBasedBackend.pendingWorkMap[id];
-            if (!work) return;
-            callback("");
-            delete Rasterizer.ipcBasedBackend.pendingWorkMap[id];
-
-            console.log("Rasterizer seems to be crashed, restarting now!!!");
-            ipcRenderer.send("render-restart", {});
-
-        }, Rasterizer.ipcBasedBackend.TIME_OUT);
+        // work.timeoutId = window.setTimeout(function () {
+        //     var work = Rasterizer.ipcBasedBackend.pendingWorkMap[id];
+        //     if (!work) return;
+        //     callback("");
+        //     delete Rasterizer.ipcBasedBackend.pendingWorkMap[id];
+        //
+        //     console.log("Rasterizer seems to be crashed, restarting now!!!");
+        //     ipcRenderer.send("render-restart", {});
+        //
+        // }, Rasterizer.ipcBasedBackend.TIME_OUT);
 
         Rasterizer.ipcBasedBackend.pendingWorkMap[id] = work;
     }
@@ -125,7 +125,7 @@ Rasterizer.inProcessCanvasBasedBackend = {
             if (ext == ".png") mine = "image/png";
 
             fs.readFile(sourcePath, function (error, bitmap) {
-                var url = "data:" + mime + ";base64," + new Buffer(bitmap).toString("base64");
+                var url = "data:" + mime + ";base64," + Buffer.from(bitmap).toString("base64");
 
                 image.setAttributeNS(PencilNamespaces.xlink, "href", url);
                 totalImageLength += url.length;
@@ -167,9 +167,67 @@ Rasterizer.inProcessCanvasBasedBackend = {
         convertNext();
     }
 };
+Rasterizer.inProcessFileCanvasBasedBackend = {
+    init: function () {
+        //the in-process rasterize requires basicly nothing to init :)
+    },
+    rasterize: function (svgNode, width, height, s, callback, parseLinks, options) {
+        console.log("rasterize() called", [svgNode, width, height, s, callback, parseLinks, options]);
+        var images = svgNode.querySelectorAll("image");
+        var totalImageLength = 0;
 
+        for (var i = 0; i < images.length; i ++) {
+            var image = images[i];
+            var href = image.getAttributeNS(PencilNamespaces.xlink, "href");
+            if (href && href.match("^file://(.+)$")) {
+                var sourcePath = decodeURI(RegExp.$1);
+                try {
+                    fs.accessSync(sourcePath, fs.R_OK);
+                    image.setAttribute("crossorigin", "anonymous");
+                } catch (e) {
+                    image.setAttributeNS(PencilNamespaces.xlink, "href", "");
+                }
+            }
+        }
+
+        var tempFile = tmp.fileSync({postfix: ".svg" });
+        fs.writeFileSync(tempFile.name, Controller.serializer.serializeToString(svgNode), XMLDocumentPersister.CHARSET);
+
+        var delay = 500;
+
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("style", "display: none;");
+        canvas.setAttribute("width", width * s);
+        canvas.setAttribute("height", height * s);
+        document.body.appendChild(canvas);
+        var ctx = canvas.getContext("2d");
+
+        var img = document.createElement("img");
+
+        img.onload = function () {
+            ctx.save();
+            ctx.scale(s, s);
+            ctx.drawImage(img, 0, 0);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+            setTimeout(function () {
+                callback(canvas.toDataURL());
+                ctx.restore();
+                img.onload = null;
+                img.src = "";
+            }, delay);
+        };
+
+        img.setAttribute("crossorigin", "anonymous");
+        img.setAttribute("style", "display: none;");
+        document.body.appendChild(img);
+
+        img.setAttribute("src", "file://" + tempFile.name);
+    }
+};
 Rasterizer.prototype.getBackend = function () {
     //TODO: options or condition?
+    // return Rasterizer.inProcessFileCanvasBasedBackend;
     return Rasterizer.ipcBasedBackend;
     // return Rasterizer.outProcessCanvasBasedBackend;
 };
@@ -194,7 +252,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
                 g.appendChild(svg.removeChild(svg.firstChild));
             }
             svg.appendChild(g);
-            
+
             w -= 2 * m;
             h -= 2 * m;
             svg.setAttribute("width", w);
@@ -281,7 +339,7 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, s
         var base64Data = dataURI;
         if (base64Data.startsWith(prefix)) base64Data = base64Data.substring(prefix.length);
 
-        var buffer = new Buffer(base64Data, "base64");
+        var buffer = Buffer.from(base64Data, "base64");
         fs.writeFile(actualPath, buffer, "utf8", function (err) {
             console.log("Finish rasterizing page: ", page.name, actualPath);
             callback(parseLinks ? {actualPath: actualPath, objectsWithLinking: data.objectsWithLinking} : actualPath, err);
@@ -290,7 +348,7 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, s
 };
 Rasterizer.getExportScale = function (inputScale) {
     if (typeof(inputScale) == "number") return inputScale;
-    
+
     var configScale = Config.get(Config.EXPORT_DEFAULT_SCALE, 1.0);
     if (typeof(configScale) == "number") {
         return configScale;
@@ -347,7 +405,7 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
         var base64Data = dataURI;
         if (base64Data.startsWith(prefix)) base64Data = base64Data.substring(prefix.length);
 
-        var buffer = new Buffer(base64Data, "base64");
+        var buffer = Buffer.from(base64Data, "base64");
         fs.writeFile(actualPath, buffer, {}, function (err) {
             callback(actualPath, err);
         });

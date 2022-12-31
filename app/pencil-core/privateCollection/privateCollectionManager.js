@@ -11,8 +11,7 @@ PrivateCollectionManager.loadPrivateCollections = function () {
         var privateCollectionXmlLocation = path.join(PrivateCollectionManager.getPrivateCollectionDirectory(), "PrivateCollection.xml");
 
         // privateCollectionXmlLocation.append("PrivateCollection.xml");
-        var stat = fs.statSync(privateCollectionXmlLocation);
-        if (!stat) return;
+        if (!fs.existsSync(privateCollectionXmlLocation)) return;
 
         // var fileContents = FileIO.read(privateCollectionXmlLocation, ShapeDefCollectionParser.CHARSET);
         var fileContents = fs.readFileSync(privateCollectionXmlLocation, ShapeDefCollectionParser.CHARSET);

@@ -75,9 +75,9 @@ Group.prototype.getProperties = function () {
 Group.prototype.getPropertyGroups = function () {
     return [this.propertyGroup];
 };
-Group.prototype.setProperty = function (name, value) {
+Group.prototype.setProperty = function (name, value, nested, mask) {
     for (t in this.targets) {
-        this.targets[t].setProperty(name, value);
+        this.targets[t].setProperty(name, value, nested, mask);
     }
 };
 Group.prototype.getProperty = function (name) {

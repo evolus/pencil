@@ -156,12 +156,13 @@ FontDetailDialog.prototype.handleClick = function (event) {
         filters: [
             { name: "Fonts", extensions: ["ttf", "otf", "woff"] }
         ]
-    }, function (filePaths) {
-        if (!filePaths || filePaths.length <= 0) {
+    }).then(function (res) {
+        console.log(res);
+        if (!res || !res.filePaths || res.filePaths.length <= 0) {
             this.setPathToInput(input, "");
         } else {
-            Config.set("document.open.recentlyDirPath", path.dirname(filePaths[0]));
-            this.setPathToInput(input, filePaths[0]);
+            Config.set("document.open.recentlyDirPath", path.dirname(res.filePaths[0]));
+            this.setPathToInput(input, res.filePaths[0]);
         }
     }.bind(this));
 };

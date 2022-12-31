@@ -5,31 +5,37 @@
             & + .Group {
                 margin-left: 1ex;
             }
-            
+
+            & > button {
+                padding: 0.4em !important;
+                height: auto !important;
+                justify-content: center;
+            }
+
             & > button + button {
                 border-left: none;
                 border-top-left-radius: 0px;
                 border-bottom-left-radius: 0px;
             }
-            
+
             & > button:not(:last-child) {
                 border-top-right-radius: 0px;
                 border-bottom-right-radius: 0px;
             }
-            
+
             & button:not([checked="true"]) i {
                 opacity: 0.8;
             }
         }
     </style>
-    <hbox class="Group Horz" anon-id="horizontalGroup">
-        <button data="0"><i>format_align_left</i></button>
-        <button data="1"><i>format_align_center</i></button>
-        <button data="2"><i>format_align_right</i></button>
+    <hbox class="Group Horz" anon-id="horizontalGroup" flex="1">
+        <button data="0" flex="1"><i>format_align_left</i></button>
+        <button data="1" flex="1"><i>format_align_center</i></button>
+        <button data="2" flex="1"><i>format_align_right</i></button>
     </hbox>
-    <hbox class="Group Vert" anon-id="verticalGroup">
-        <button data="0"><i>vertical_align_top</i></button>
-        <button data="1"><i>vertical_align_center</i></button>
-        <button data="2"><i>vertical_align_bottom</i></button>
+    <hbox class="Group Vert" anon-id="verticalGroup" flex="1">
+        <button data="0" flex="1"><i>vertical_align_top</i></button>
+        <button data="1" flex="1"><i>vertical_align_center</i></button>
+        <button data="2" flex="1"><i>vertical_align_bottom</i></button>
     </hbox>
 </hbox>

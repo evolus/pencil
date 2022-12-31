@@ -32,7 +32,8 @@ PNGImageXferHelper.prototype.handleDataImpl = function (imageData, shapeId) {
         this.canvas.insertShape(bitmapDef, this.canvas.lastMouse || {x: 10, y: 10});
 
         if (this.canvas.currentController) {
-            var dim = new Dimension(imageData.w, imageData.h);
+            var ratio = window.devicePixelRatio || 1;
+            var dim = new Dimension(Math.round(imageData.w / ratio), Math.round(imageData.h / ratio));
             this.canvas.currentController.setProperty("imageData", imageData);
             this.canvas.currentController.setProperty("box", dim);
             this.canvas.invalidateEditors();
@@ -67,7 +68,8 @@ JPGGIFImageXferHelper.prototype.handleData = function (url) {
         var thiz = this;
 
         var handler = function (imageData) {
-            var dim = new Dimension(imageData.w, imageData.h);
+            var ratio = window.devicePixelRatio || 1;
+            var dim = new Dimension(Math.round(imageData.w / ratio), Math.round(imageData.h / ratio));
             thiz.canvas.currentController.setProperty("imageData", imageData);
             thiz.canvas.currentController.setProperty("box", dim);
             thiz.canvas.invalidateEditors();

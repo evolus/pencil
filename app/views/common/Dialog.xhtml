@@ -52,8 +52,8 @@
             background: rgba(0, 0, 0, 0.05);
         }
         body @dialogFrame @dialogTitle {
-            color: #555555;
-            font-size: 1em;
+            color: #567ab4;
+            font-size: 1.3em;
             display: block;
         }
         body @dialogFrame @dialogSubTitle {
@@ -63,18 +63,18 @@
             display: none;
         }
         body @dialogFrame @dialogTitleContainer {
-            padding: 0.5em;
         }
         body @dialogFrame @dialogHeaderPane {
             margin-bottom: 0em;
-            background: #d3d3d3;
         }
         body @dialogFrame @dialogBody {
             padding: 1.2em;
             overflow: hidden;
         }
         body @dialogFrame @dialogHeaderPane {
-            padding: 0.4em 0.7em;
+            padding: 1.2em;
+            padding-bottom: 0.2em;
+            align-items: center;
         }
         body @dialogFrame @dialogBody {
             padding-bottom: 0em;
@@ -96,6 +96,8 @@
             min-width: 6em;
             text-align: center;
             display: inline-block;
+            font-weight: bold;
+            text-transform: capitalize;
         }
 
         body @dialogFooter > hbox > button[mode='accept'] {

@@ -25,12 +25,6 @@
         @contentContainer > hbox[active='true'] {
             display: flex;
         }
-        body * > * + .widget_CollapseablePanel @controlContainer {
-            order: 1;
-        }
-        body * > * + .widget_CollapseablePanel @contentContainer {
-            order: 0;
-        }
 
         body .widget_CollapseablePanel[orient='horizontal'] {
             border-right: solid 1px darken(@app_bg, 10%);
@@ -81,9 +75,6 @@
         }
         @titleContainer .TitleElement button > * + * {
             margin-left: 0.5em;
-        }
-        @titleContainer .TitleElement:hover button {
-            background: lighten(@selected_button_bg, 18%);
         }
         @titleContainer .TitleElement[active='true'] button {
             background: @selected_button_bg;

@@ -4,7 +4,7 @@ function PropertyEditor() {
 }
 __extend(BaseTemplatedWidget, PropertyEditor);
 
-PropertyEditor.prototype.fireChangeEvent = function () {
+PropertyEditor.prototype.fireChangeEvent = function (mask) {
     this.modified = true;
-    Dom.emitEvent("p:ValueChanged", this.node(), {});
+    Dom.emitEvent("p:ValueChanged", this.node(), {mask: mask});
 };

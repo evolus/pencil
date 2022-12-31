@@ -2,6 +2,10 @@ function StrokeStyle(w, array) {
     this.w = (typeof(w) == "number") ? w : 1;
     this.array = typeof(array) != "undefined" ? array : null;
 }
+
+StrokeStyle.W = new PropertyMask("w");
+StrokeStyle.ARRAY = new PropertyMask("array");
+
 StrokeStyle.REG_EX = /^([0-9]+)\|([0-9 \,]*)$/;
 StrokeStyle.fromString = function(literal) {
     var style = new StrokeStyle();

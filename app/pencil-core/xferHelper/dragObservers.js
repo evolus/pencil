@@ -392,10 +392,12 @@ function FileDragObserver(canvas) {
 }
 FileDragObserver.prototype = {
     acceptsDataTransfer : function (dataTransfer) {
+        console.log("accept checking: ", dataTransfer);
         return dataTransfer && dataTransfer.files && dataTransfer.files.length > 0;
     },
     onDragOver: function (evt, flavour, session){},
     onDrop: function (evt, dataTransfer, session) {
+        console.log("OnDrop, dataTransfer = ", dataTransfer);
 
         for (var i = 0; i < dataTransfer.files.length; i ++) {
             var file = dataTransfer.files[i];

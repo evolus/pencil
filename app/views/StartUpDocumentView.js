@@ -24,7 +24,7 @@ function StartUpDocumentView() {
                 if (pinDocs && pinDocs.indexOf(filePath) >= 0) Dom.addClass(binding.pin, "Unpin");
                 if (thumbPath) {
                     window.setTimeout(function () {
-                        Util.setupImage(binding.thumbnailImage, ImageData.filePathToURL(thumbPath), "center-crop", "allowUpscale");
+                        Util.setupImage(binding.thumbnailImage, ImageData.filePathToURL(thumbPath), "center-top-crop", "allowUpscale");
                     }, 10);
                 }
                 binding._node._filePath = filePath;
