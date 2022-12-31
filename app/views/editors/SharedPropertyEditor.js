@@ -9,7 +9,7 @@ __extend(BaseTemplatedWidget, SharedPropertyEditor);
 SharedPropertyEditor.prototype.setup = function () {
     this.propertyContainer.innerHTML = "";
     var thiz = this;
-    
+
     var handleUpdatePageProperties = function () {
         if (thiz.updatePagePropertiesTimer) window.clearTimeout(thiz.updatePagePropertiesTimer);
         thiz.updatePagePropertiesTimer = window.setTimeout(function () {
@@ -75,7 +75,6 @@ SharedPropertyEditor.prototype.validationEditorUI = function() {
 };
 
 SharedPropertyEditor.prototype.attach = function (target) {
-
     if (!target) return;
     if (target && target.getAttributeNS && target.getAttributeNS(PencilNamespaces.p, "locked") == "true") { return; }
 
@@ -126,6 +125,8 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var definedGroups = this.target.getPropertyGroups();
     this.propertyEditor = {};
     this.propertyContainer.innerHTML = "";
+    this.addPropertyTitle(this.target.def ? this.target.def.displayName : "");
+
     var definedGroups = this.target.getPropertyGroups();
     var groupNodes = [];
 
@@ -209,12 +210,14 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 });
 
                 currentGroupNode._group = property._group;
-                var titleNode = Dom.newDOMElement({
-                    _name: "div",
-                    _text: property._group.name,
-                    "class": "Label Group"
-                });
-                currentGroupNode.appendChild(titleNode);
+                if (definedGroups.length > 1) {
+                    var titleNode = Dom.newDOMElement({
+                        _name: "div",
+                        _text: property._group.name,
+                        "class": "Label Group"
+                    });
+                    currentGroupNode.appendChild(titleNode);
+                }
                 thiz.propertyContainer.appendChild(currentGroupNode);
                 groupNodes.push(currentGroupNode);
             }
@@ -297,11 +300,20 @@ SharedPropertyEditor.prototype.setDefaultProperties = function() {
     }
 }
 
+SharedPropertyEditor.prototype.addPropertyTitle = function (title) {
+    var title = Dom.newDOMElement({
+        _name: "strong",
+        _text: title,
+        "class": "ObjectTitle"
+    });
+    this.propertyContainer.appendChild(title);
+};
 SharedPropertyEditor.prototype.detach = function () {
     this.propertyContainer.innerHTML = "";
     this.target = null;
     if (Pencil.controller.activePage) {
         this.node().setAttribute("mode", "Page");
+        this.addPropertyTitle(Pencil.controller.activePage.name);
         this.pagePropertyWidget = new PageDetailDialog();
         this.pagePropertyWidget.setup({
             defaultPage : Pencil.controller.activePage,

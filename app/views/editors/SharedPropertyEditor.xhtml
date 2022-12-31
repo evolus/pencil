@@ -5,7 +5,7 @@
         body .widget_SharedPropertyEditor[mode="Page"] @noTargetMessagePane {
             display: none;
         }
-        
+
         button {
             box-shadow: none;
         }
@@ -16,6 +16,10 @@
             transition: opacity 1s;
             font-size: 0.9em;
             padding: 0.5em;
+        }
+        @propertyContainer .ObjectTitle {
+            font-size: 1.2em;
+            margin-bottom: 0.5em;
         }
         @propertyContainer > .Group + .Group {
             margin-top: 2em;
@@ -74,7 +78,6 @@
         @propertyContainer > .Group > div.Label.Group {
             font-weight: bold;
             margin-left: -1em;
-            text-shadow: 1px 1px 0px lighten(@app_bg, 20%);
         }
         @propertyContainer > .Group > .Wrapper > div.Label {
             white-space: nowrap;
@@ -156,7 +159,7 @@
             flex-direction: column;
             -webkit-flex-direction: column;
             display: flex;
-            
+
             align-items: start;
             & > * {
                 margin-left: 0px;
@@ -179,7 +182,7 @@
         body .widget_SharedPropertyEditor[mode="Page"] @propertyContainer .Form .Description {
             margin-bottom: 0px;
         }
-        
+
     </style>
     <vbox anon-id="noTargetMessagePane" flex="1">
         <span>Select objects in the canvas to edit properties.</span>
