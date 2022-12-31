@@ -29,7 +29,7 @@ SharedPropertyEditor.prototype.setup = function () {
 
         thiz.validationEditorUI();
     }, false);
-    this.propertyContainer.style.display = "none";
+    this.node().setAttribute("mode", "None");
 
     this.propertyContainer.addEventListener("click", function(event) {
         if (event.target.getAttribute("command") && event.target.getAttribute("command") == "setDefault") {
@@ -149,9 +149,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
     var thiz = this;
     var currentGroupNode = null;
 
-    this.propertyContainer.style.display = "none";
     this.propertyContainer.style.opacity = "0";
-    this.noTargetMessagePane.style.display = "none";
 
     var uuid = Util.newUUID();
     this.currentExecutorUUID = uuid;
@@ -195,7 +193,6 @@ SharedPropertyEditor.prototype.attach = function (target) {
                 }, document, thiz));
             }
 
-            thiz.propertyContainer.style.display = "flex";
             thiz.propertyContainer.style.opacity = "1";
             thiz.validationEditorUI();
             return;
@@ -311,7 +308,7 @@ SharedPropertyEditor.prototype.addPropertyTitle = function (title) {
 SharedPropertyEditor.prototype.detach = function () {
     this.propertyContainer.innerHTML = "";
     this.target = null;
-    if (Pencil.controller.activePage) {
+    if (Pencil.controller.doc && Pencil.controller.activePage) {
         this.node().setAttribute("mode", "Page");
         this.addPropertyTitle(Pencil.controller.activePage.name);
         this.pagePropertyWidget = new PageDetailDialog();
@@ -328,7 +325,6 @@ SharedPropertyEditor.prototype.detach = function () {
     Dom.emitEvent("p:TitleChanged", this.node(), {});
 };
 SharedPropertyEditor.prototype.savePageProperties = function (shouldReloadOnSaved) {
-    console.log("savePageProperties");
     if (!this.isPagePropertyMode()) return;
     if (!this.pagePropertyWidget.isPageInfoValid()) {
         this.pagePropertyWidget.setup({

@@ -179,7 +179,6 @@ Pencil.boot = function (event) {
 };
 Pencil.handleArguments = function() {
 	var appArguments = remote.getGlobal('sharedObject').appArguments;
-    console.log("appArguments", appArguments);
 	if (appArguments && appArguments.length > 1) {
         var filePath = null;
         for (var i = 1; i < appArguments.length; i ++) {
