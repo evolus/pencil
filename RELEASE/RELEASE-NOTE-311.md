@@ -1,0 +1,70 @@
+# RELEASE NOTES 3.1.1
+
+- Add object name in property page
+- Fix side pane status and style
+- Implement showing page properties in PropertyPane
+- Fix font editor sizing in property page
+- Added missing change for new collection pane style
+- Strong hover effect for collection pane
+- Update page list view styling
+- Increase version to 3.1.1 and remove dep on electron-rebuild
+- Use smaller collection selector in smaller screens
+- Fixed freehand reference
+- Move OSX icon into build
+- Move build into app
+- Fix package.json for electron-builder
+- Refactor page list navigation
+- New collection pane color theme
+- Fixed typo
+- Fix editor styling
+- Add button global style for buttons
+- Add icon.icns support to OS X
+- change configuration for mac arm build
+- Use arm64 as mac arch
+- Use universal as mac arch
+- Use electron-builder 23.3.3
+- Temporarily disable gesture toolbar
+- Add support for free hand drawing
+- UI: change alignment toolbar icons
+- Add utilities for calculating color contrast
+- Use less aggressive snapping
+- Fix: improve color icon display
+- Fix incorrect rounding when calculating snapping positions
+- Fix: geometry editor failed to flip shapes
+- UI Refresh: use two-tone variant to replace the classic one in material icons
+- Fix: Rich text color choose not loading recently used colors
+- Fix open dialog and shell API changes
+- Add @electron/remote
+- Rasterizer: fix page capturing for Electron 15
+- Upgrade to Electron 15.2.0
+- Fix psating of bitmap when clipboard containing also HTML content enriched by browser
+- Explicitly use .png for screenshot tmp file
+- Update to electron 11.4.4
+- Add support for generic external commandline-based screenshooter
+- Fixed load file for image data prompt
+- Add delay to renderer
+- Fix collection installer open dialog API changes caused by Electron 10
+- Show error message when editor quits to fast
+- Allow external editor for unlisted extensions
+- Fix progress dialog annoying text jump
+- Upgrade to Electron 10.1.3
+- Add xml syntax for code editor
+- Add xml syntax for code editor
+- Improve recent document and page thumbnail views
+- Additional API fix for electron 9.3.0 that affects export
+- Fix file dialog API when saving and loading
+- New gesture and experimental clipart search
+- Migrate to electron 9.3.0
+- Fix error during save if document contains font which is not installed
+- Fix: changing shadow dx has no effect
+- fix snapping and prototype export
+- Refactor how snapping was calculated and handled
+- Implement partial property changes for all remaining types
+- Disable dev tool auto open in dev mode
+- Adding support for property change mask to partially change a property in a group of targets
+- Fix wrong image size when pasting from clipboard in hidpi screens
+- Fix clickable prototype export template
+- Remove error log when no private collection was found
+- Add support for specifying custom UI font
+- Add configuration to enable hardware acceleration in Linux
+- Fix #577 - v3.1.0 break search bar
