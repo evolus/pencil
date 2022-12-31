@@ -111,6 +111,10 @@ ApplicationPane.prototype.onAttached = function () {
     var thiz = this;
     this.invalidateUIForConfig();
     this.showStartupPane();
+    window.setTimeout(function () {
+        this.leftSidePane.invalidateUI();
+        this.rightSidePane.invalidateUI();
+    }.bind(this), 200);
     // window.setTimeout(function () {
     //     Pencil.documentHandler.newDocument();
     //     console.log("starting image editor...");
