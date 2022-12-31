@@ -64,7 +64,7 @@
   },
   "private": true,
   "devDependencies": {
-    "electron": "16.0.0",
+    "electron": "18.3.7",
     "electron-builder": "23.6.0",
     "electron-updater": "^5.3.0"
   },
