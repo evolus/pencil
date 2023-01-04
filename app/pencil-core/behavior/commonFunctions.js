@@ -85,6 +85,10 @@ F.newDOMElement = function (spec) {
         e.setAttribute(name, spec[name]);
     }
 
+    if (spec._html) {
+        e.innerHTML = spec._html;
+    }
+
     if (spec._text) {
         e.appendChild(e.ownerDocument.createTextNode(spec._text));
     }
