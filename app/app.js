@@ -14,7 +14,7 @@ const pkgInfo       = require("./package.json");
 const QueueHandler  = require("./pencil-core/common/QueueHandler");
 const sharedUtil    = require("./pencil-core/common/shared-util");
 const dialog        = remote.dialog;
-
+const freehand      = require("perfect-freehand");
 tmp.setGracefulCleanup();
 
 // webFrame.registerURLSchemeAsPrivileged("file");
