@@ -984,6 +984,8 @@ MenuItem]]></Property>
                         css.set("height", height+"px" );
                         css.set("line-height", height+"px" );
                         css.set("padding", "0px 5px");
+                        css.set("text-align", $textAlign.h == 0 ? "left" : ($textAlign.h == 1 ? "center" : "right"));
+                        css.set("vertical-align", $textAlign.v == 0 ? "top" : ($textAlign.v == 1 ? "middle" : "bottom"));
                         if (title.match(/^(.+)\*[ ]*$/)) {
                             title = RegExp.$1;
                             css.set("background", $fillColor.shaded(0.1).toRGBString());
