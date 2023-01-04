@@ -878,16 +878,7 @@ Shape.prototype.getTextEditingInfo = function (editingEvent) {
                             }
                         }
                         var targetObject = Dom.getSingle(".//*[@p:name='" + target + "']", this.svg);
-                        //checking if the target is ok for use to base the location calculation
-                        var ok = true;
-                        try {
-                            var clientRect = targetObject.getBoundingClientRect();
-                            if (clientRect.width == 0 || clientRect.height == 0) {
-                                ok = false;
-                            }
-                        } catch (e) {}
-
-                        if (ok) {
+                        if (targetObject) {
                             info = {prop: prop,
                                     value: this.getProperty(name),
                                     targetName: target,
