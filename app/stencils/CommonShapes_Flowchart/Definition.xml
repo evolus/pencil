@@ -297,7 +297,7 @@
                 <DomContent>F.buildTextWrapDomContent(F._target, $textContent.value, $box.w - $textFont.getPixelHeight(), $textAlign)</DomContent>
                 <BoxFit>
                     <Arg>Bound.fromBox($box, $textFont.getPixelHeight() / 2)</Arg>
-                    <Arg>new Alignment(1,1)</Arg>
+                    <Arg>$textAlign</Arg>
                 </BoxFit>
             </For>
 
