@@ -106,7 +106,8 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                             if (!checked) return;
                             thiz.targetObject.setProperty(this.property, new Enum(this.value));
                             var editors = Pencil.controller.applicationPane.sharedPropertyEditor.propertyEditor;
-                            editors[this.property].setValue(this.value);
+                            var editor = editors[this.property];
+                            if (editor) editor.setValue(this.value);
                             Pencil.controller.applicationPane.sharedPropertyEditor.validationEditorUI();
                         }
                     });
