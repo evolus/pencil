@@ -223,7 +223,7 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
     thiz = this;
     try {
         if (index < stencils.length) {
-            if ("png|jpg|gif|bmp".indexOf(stencils[index]._ext) != -1) {
+            if ("png|jpg|gif|bmp".indexOf(("" + stencils[index]._ext).toLowerCase()) != -1) {
                 var img = new Image();
 
                 img._stencils = stencils;
