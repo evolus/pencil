@@ -49,8 +49,6 @@ function SettingDialog() {
     }, this.textboxGridSize);
 
     this.bind("change", function (event) {
-        console.log("On Event Change:", event.target);
-
         var node = Dom.findUpward(event.target, function (n) {
             return n.getAttribute && n.getAttribute("configName");
         });

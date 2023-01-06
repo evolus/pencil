@@ -92,7 +92,7 @@ function StencilGeneratorDialog() {
 __extend(WizardDialog, StencilGeneratorDialog);
 
 StencilGeneratorDialog.prototype.invalidateFinish = function () {
-    for (var i in thiz.imagePaths) {
+    for (var i in this.imagePaths) {
         if (this.imagePaths[i].checked)
         this.stencils.push(this.imagePaths[i]._stencil);
     }
@@ -153,6 +153,7 @@ StencilGeneratorDialog.prototype.onSelectionChanged = function () {
 StencilGeneratorDialog.prototype.initStencils = function () {
     var thiz = this;
     this.preloadStencils(function (stencils, listener) {
+        thiz.stencils = stencils;
         for (i in thiz.imagePaths) {
             thiz.imagePaths[i]._stencil = stencils[i];
             if (thiz.imagePaths[i].checked != null) {
@@ -282,15 +283,15 @@ StencilGeneratorDialog.prototype.generateId = function (s) {
 };
 StencilGeneratorDialog.prototype.createCollection = function () {
     var thiz = this;
-
     dialog.showSaveDialog({
         title: "Save as",
         defaultPath: os.homedir(),
         filters: [
             { name: "Stencil file", extensions: ["zip"] }
         ]
-    }, function (filePath) {
-        if (!filePath) return;
+    }).then(function (fileSelection) {
+        if (!fileSelection || fileSelection.canceled || !fileSelection.filePath) return;
+        var filePath = fileSelection.filePath;
         var starter = function (listener) {
             try {
                 var s = "<Shapes xmlns=\"http://www.evolus.vn/Namespace/Pencil\" \n" +
@@ -310,22 +311,23 @@ StencilGeneratorDialog.prototype.createCollection = function () {
                         index++;
                         if (index >= thiz.stencils.length) {
                             s += "</Shapes>";
-
                             try {
                                 var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
 
                                 var file = fs.createWriteStream(tempDir.name + "/" + "Definition.xml");
+                                file.on('open', function() {
+                                    fs.writeFile(file.path, s, (err) => {
+                                        if (err) throw err;
+                                        var iconFolder = fs.mkdirSync(tempDir.name + "/" + "icon");
 
-                                fs.writeFile(file.path, s, (err) => {
-                                    if (err) throw err;
-                                    var iconFolder = fs.mkdirSync(tempDir.name + "/" + "icon");
-
-                                    var archiver = require("archiver");
-                                    var archive = archiver("zip");
-                                    var output = fs.createWriteStream(filePath);
-                                    archive.pipe(output);
-                                    archive.directory(tempDir.name, "/", {});
-                                    archive.finalize();
+                                        var archiver = require("archiver");
+                                        var archive = archiver("zip");
+                                        var output = fs.createWriteStream(filePath);
+                                        
+                                        archive.pipe(output);
+                                        archive.directory(tempDir.name, "/", {});
+                                        archive.finalize();
+                                    });
                                 });
                             } catch (e5) {
                                 console.log(e5);
