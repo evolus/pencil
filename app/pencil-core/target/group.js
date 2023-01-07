@@ -440,6 +440,16 @@ Group.prototype.createTransferableData = function () {
             dataNode: this.svg.cloneNode(true)
            };
 };
+Group.prototype.processExportingTransferableProperties = function () {
+    for (t in this.targets) {
+        this.targets[t].processExportingTransferableProperties();
+    }
+};
+Group.prototype.processImportedTransferableProperties = function () {
+    for (t in this.targets) {
+        this.targets[t].processImportedTransferableProperties();
+    }
+};
 Group.prototype.lock = function () {
     this.svg.setAttributeNS(PencilNamespaces.p, "p:locked", "true");
 };
