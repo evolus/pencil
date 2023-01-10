@@ -86,8 +86,8 @@ FileToolbar.prototype.registerCommands = function () {
         label: "Export page as PNG...",
         isValid: function () { return true; },
         run: function () {
-            if (this.page) {
-                Pencil.controller.rasterizeCurrentPage(this.page);
+            if (Pencil.controller.activePage) {
+                Pencil.controller.rasterizeCurrentPage(Pencil.controller.activePage);
             }
         },
         shortcut: "Ctrl+E"
