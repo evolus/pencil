@@ -423,7 +423,7 @@ ColorSelector.prototype.updateRecentlyUsedColors = function () {
         }
     }
     this.recentlyUsedColors.push(aColor);
-    if (this.recentlyUsedColors.length > 10) {
+    if (this.recentlyUsedColors.length > 16) {
         this.recentlyUsedColors.shift();
     }
     var colors = this.recentlyUsedColors.join(",");
