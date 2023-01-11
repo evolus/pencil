@@ -1402,16 +1402,41 @@
                 <InnerText>$textContent</InnerText>
                 <Attr>
                     <Arg>"dy"</Arg>
-                    <Arg>0 - $textFont.getPixelHeight() / 3</Arg>
+                    <Arg>
+                        var dy = 0;
+                        if ($textAlign.v == 0) dy -= $textFont.getPixelHeight() / 3;
+                        if ($textAlign.v == 1) dy += $textFont.getPixelHeight() / 3;
+                        if ($textAlign.v == 2) dy += $textFont.getPixelHeight();
+                        dy;
+                    </Arg>
                 </Attr>
                 <Attr>
                     <Arg>"dx"</Arg>
                     <Arg>
                         var arrowLength = Math.max($strokeStyle.w * 4, 6) * 2;
                         var dx = 0;
-                        if ($withStartArrow.value) dx += arrowLength;
-                        if ($withEndArrow.value) dx -= arrowLength;
+                        if ($textAlign.h == 2) dx -= arrowLength;
                         dx;
+                    </Arg>
+                </Attr>
+            </For>
+            <For ref="textPath">
+                <Attr>
+                    <Arg>"startOffset"</Arg>
+                    <Arg>
+                        var offset = "50%";
+                        if ($textAlign.h == 0) offset = "5%";
+                        if ($textAlign.h == 2) offset = "95%";
+                        offset;
+                    </Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"text-anchor"</Arg>
+                    <Arg>
+                        var anchor = "middle";
+                        if ($textAlign.h == 0) anchor = "start";
+                        if ($textAlign.h == 2) anchor = "end";
+                        anchor;
                     </Arg>
                 </Attr>
             </For>
@@ -1440,7 +1465,7 @@
             <use xlink:href="#path" stroke-width="10" stroke-opacity="0" stroke="#FF0000" />
             <use xlink:href="#path" id="outArrow1" />
             <text id="text">
-                <textPath xlink:href="#path" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                <textPath id="textPath" xlink:href="#path" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
                     <tspan id="textSpan" dy="-5">Text along a curved path</tspan>
                 </textPath>
             </text>
