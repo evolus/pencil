@@ -17,12 +17,12 @@ remoteMain.initialize();
 
 // Disable hardware acceleration by default for Linux
 // TODO: implement a setting for this one and requires a restart after changing that value
-if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAcceleration) {
+//if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAcceleration) {
     var useHWAConfig = getAppConfig("core.useHardwareAcceleration");
-    console.log("useHWAConfig: ", useHWAConfig);
-    if (process.argv.indexOf("--with-hwa") < 0 && !useHWAConfig) {
-        console.log("**************** Hardware acceleration disabled for Linux.");
-        app.disableHardwareAcceleration();
+//   console.log("useHWAConfig: ", useHWAConfig);
+    if (process.argv.indexOf("--with-hwa") < 1 && !useHWAConfig) {
+//        console.log("**************** Hardware acceleration disabled for Linux.");
+//        app.disableHardwareAcceleration();
     } else {
         console.log("Hardware acceleration forcibly enabled.");
     }
