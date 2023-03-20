@@ -114,7 +114,7 @@ DocumentHandler.prototype.loadDocumentFromArguments = function (filePath) {
         FontLoader.instance.loadFonts();
         this.controller.handleNewDocumentFromImage(filePath);
     }
-    
+
 }
 
 DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
@@ -269,7 +269,7 @@ DocumentHandler.prototype.newDocument = function () {
                 parentPageId: null,
                 activateAfterCreate: "activatePage"
             };
-            
+
             var page = thiz.controller.newPage(options);
             thiz.controller.modified = false;
         }, 50);
@@ -296,9 +296,11 @@ DocumentHandler.prototype.resetDocument = function () {
 
     this.controller.applicationPane.pageListView.currentParentPage = null;
     FontLoader.instance.setDocumentRepoDir(path.join(this.tempDir.name, "fonts"));
-    
+
     if (StencilCollectionBuilder.activeCollectionInfo) {
         StencilCollectionBuilder.cleanup();
         CollectionManager.reloadActiveBuilderCollection();
     }
+
+    Pencil.invalidateSharedEditor();
 };

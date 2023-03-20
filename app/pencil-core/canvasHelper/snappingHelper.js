@@ -170,9 +170,9 @@ SnappingHelper.prototype.applySnapping = function (dx, dy, controller) {
 
     var xsnap = this.applySnappingValue(dx, this.lastSnappingGuideSnapshot.vertical, this.lastXData, controller);
     var ysnap = this.applySnappingValue(dy, this.lastSnappingGuideSnapshot.horizontal, this.lastYData, controller);
-    
+
     this.drawSnaps(xsnap, ysnap);
-    
+
     return {
         xsnap: xsnap,
         ysnap: ysnap
@@ -197,7 +197,7 @@ SnappingHelper.prototype.drawSnaps = function (xsnap, ysnap) {
             thiz._snappingGuideContainerXEmpty = false;
         });
     }
-    
+
     this.clearSnappingGuideY();
     if (ysnap && ysnap.matchingGuides) {
         ysnap.matchingGuides.forEach(function (guide) {
@@ -224,10 +224,10 @@ SnappingHelper.prototype.applySnappingValue = function (d, controllerPositions, 
     canvasPositions.forEach(function (canvasGuide) {
         if (!canvasGuide || canvasGuide.id == currentControllerId || canvasGuide.disabled) return;
         if (controller.containsControllerId && controller.containsControllerId(canvasGuide.id)) return;
-        
+
         controllerPositions.forEach(function (controllerGuide) {
             if (!controllerGuide || controllerGuide.disabled) return;
-            
+
             var delta = canvasGuide.pos - (controllerGuide.pos + d);
             var distance = Math.abs(delta);
             if (distance < closestDistance) {
@@ -240,7 +240,7 @@ SnappingHelper.prototype.applySnappingValue = function (d, controllerPositions, 
             }
         });
     });
-    
+
     if (closestDistance <= Pencil.SNAP) {
         return {
             d: d + closestDelta,

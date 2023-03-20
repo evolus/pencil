@@ -1,7 +1,7 @@
 // Copyright (c) Evolus Solutions. All rights reserved.
 // License: GPL/MPL
 // $Id$
-
+const remote = require('@electron/remote');
 
 const IS_MAC = process && /^darwin/.test(process.platform);
 const IS_WIN32 = process && /^win/.test(process.platform);
@@ -469,9 +469,9 @@ Object.defineProperty(Event.prototype, "originalTarget", {
 
 var domParser = new DOMParser();
 
-/* public static XmlDocument */ Dom.loadSystemXml = function (relPath) {
+/* public static XmlDocument */ Dom.loadSystemXml = function (relPath, preProcessFileContent) {
     var absPath = getStaticFilePath(relPath);
-    return Dom.parseFile(absPath);
+    return Dom.parseFile(absPath, preProcessFileContent);
 };
 
 Dom.isElementExistedInDocument = function(element) {
@@ -917,8 +917,9 @@ Dom.swapNode = function (node1, node2) {
     parentNode.removeChild(node1);
     parentNode.insertBefore(node1, ref);
 };
-Dom.parseFile = function (file) {
+Dom.parseFile = function (file, preProcessFileContent) {
     var fileContents = fs.readFileSync(file, "utf8");
+    if (preProcessFileContent) fileContents = preProcessFileContent(fileContents);
     var dom = Dom.parser.parseFromString(fileContents, "text/xml");
     return dom;
 };
@@ -1756,10 +1757,10 @@ if (typeof(console) == "undefined") {
     };
 }
 
-const DEV_ENABLED = require("electron").remote.app.devEnable ? true : false;
+const DEV_ENABLED = remote.app.devEnable ? true : false;
 
 function debug() {
-    //if (DEV_ENABLED) console.log.apply(console, ["DEBUG>"].concat(Array.prototype.slice.call(arguments)));
+    if (DEV_ENABLED) console.log.apply(console, ["DEBUG>"].concat(Array.prototype.slice.call(arguments)));
 }
 function stackTrace() {
 	//DEBUG_BEGIN
@@ -2160,9 +2161,9 @@ Util.setupImage = function (image, src, mode, allowUpscale) {
     image.style.height = "100%";
     image.style.opacity = "0";
     image.src = src;
-    
+
     mode = mode || "center-crop";
-    
+
     var hp = (mode.indexOf("left") >= 0) ? "left" : ((mode.indexOf("right") >= 0) ? "right" : " center");
     var vp = (mode.indexOf("top") >= 0) ? "top" : ((mode.indexOf("bottom") >= 0) ? "bottom" : " center");
     image.parentNode.style.backgroundImage = "url('" + src + "')";
@@ -2490,13 +2491,13 @@ PropertyMask.prototype.apply = function (original, newValue) {
             value[name] = original[name];
         }
     }
-    
+
     for (var name of this.names) {
         if (newValue.hasOwnProperty(name)) {
             value[name] = newValue[name];
         }
     }
-    
+
     return value;
 };
 

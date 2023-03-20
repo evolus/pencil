@@ -12,13 +12,16 @@ app.commandLine.appendSwitch("allow-file-access", "1");
 app.commandLine.appendSwitch("disable-smooth-scrolling");
 app.commandLine.appendSwitch("disable-site-isolation-trials");
 
+const remoteMain = require("@electron/remote/main");
+remoteMain.initialize();
+
 // Disable hardware acceleration by default for Linux
 // TODO: implement a setting for this one and requires a restart after changing that value
 if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAcceleration) {
     var useHWAConfig = getAppConfig("core.useHardwareAcceleration");
     console.log("useHWAConfig: ", useHWAConfig);
     if (process.argv.indexOf("--with-hwa") < 0 && !useHWAConfig) {
-        console.log("Hardware acceleration disabled for Linux.");
+        console.log("**************** Hardware acceleration disabled for Linux.");
         app.disableHardwareAcceleration();
     } else {
         console.log("Hardware acceleration forcibly enabled.");
@@ -53,7 +56,10 @@ function createWindow() {
           defaultEncoding: "UTF-8",
           nodeIntegration: true,
           contextIsolation: false,
-          enableRemoteModule: true
+          enableRemoteModule: true,
+          experimentalFeatures: true,
+          disableDialogs: true,
+          enableBlinkFeatures: "FontAccess"
         },
     };
 
@@ -61,6 +67,7 @@ function createWindow() {
     mainWindowProperties.icon = path.join(__dirname, iconFile);
 
     mainWindow = new BrowserWindow(mainWindowProperties);
+    remoteMain.enable(mainWindow.webContents)
 
     var devEnable = false;
     if (process.argv.indexOf("--enable-dev") >= 0) {
@@ -71,7 +78,7 @@ function createWindow() {
 
     app.devEnable = devEnable;
 
-    mainWindow.hide();
+    //mainWindow.hide();
     mainWindow.maximize();
 
     if (devEnable) {
@@ -84,7 +91,7 @@ function createWindow() {
     mainWindow.loadURL(mainUrl);
     mainWindow.show();
 
-    //mainWindow.webContents.openDevTools();
+    if (devEnable) mainWindow.webContents.openDevTools();
 
     mainWindow.on("closed", function() {
         mainWindow = null;
@@ -127,10 +134,6 @@ app.on('ready', function() {
             }
         });
 
-    }, function (error, scheme) {
-        if (error) {
-            console.log("ERROR REGISTERING", error);
-        }
     });
 
 

@@ -87,8 +87,38 @@ ImageData.invalidateValue = function (oldData, callback) {
                 callback(null, error);
             }
         });
+    } else if (oldData.data.match(/^(ref:\/\/([^@]+))@(.+)$/)) {
+        var ref = RegExp.$1;
+        var fp = RegExp.$3;
+        var id = ImageData.refStringToId(ref);
+        var refFilePath = Pencil.controller.refIdToFilePath(id);
+
+        const fs = require("fs");
+        // assume that the ref is local to this document, generate the local file path and check it
+        if (fsExistSync(refFilePath)) {
+            callback(new ImageData(oldData.w, oldData.h, ref, null));
+        } else {
+            Pencil.controller.copyAsRef(fp, function (id, error) {
+                if (id) {
+                    callback(new ImageData(oldData.w, oldData.h, ImageData.idToRefString(id)), null);
+                } else {
+                    callback(null, error);
+                }
+            });
+        }
     } else {
         callback(null);
+    }
+};
+ImageData.prepareForTransferable = function (imageData, propDef) {
+    if (imageData.data.match(/^ref:\/\//)) {
+        var data = imageData.data;
+        if (imageData.data.match(/^(ref:\/\/[^@]+)(@.+)$/)) data = RegExp.$1;
+        var id = ImageData.refStringToId(data);
+        if (!id) return;
+        var filePath = Pencil.controller.refIdToFilePath(id);
+        data = data + "@" + filePath;
+        imageData.data = data;
     }
 };
 ImageData.prepareForEmbedding = function (oldData, callback) {
@@ -149,16 +179,19 @@ ImageData.refStringToUrl = function (refString) {
 };
 
 ImageData.prompt = function (callback, ext) {
-    var filenames = dialog.showOpenDialogSync(remote.getCurrentWindow(), {
+    dialog.showOpenDialog(remote.getCurrentWindow(), {
         title: "Select Image",
-        defaultPath: os.homedir(),
+        defaultPath: Config.get("document.open.recentlyImagePath", null) || os.homedir(),
         filters: [
             { name: "Image files", extensions: ext || ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
         ]
+    }).then(function (res) {
+        if (!res || !res.filePaths || res.filePaths.length <= 0) return;
+        var p = res.filePaths[0];
+        Config.set("document.open.recentlyImagePath", path.dirname(p));
 
+        ImageData.fromExternalToImageData(p, callback);
     });
-    if (!filenames || filenames.length <= 0) return;
-    ImageData.fromExternalToImageData(filenames[0], callback);
 };
 
 ImageData.fromExternalToImageData = function (filePath, callback) {
@@ -362,10 +395,10 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
     var executer = function (options) {
         var tmp = require("tmp");
         var localPath = tmp.tmpNameSync({postfix: ".png"});
-        
+
         console.log("Requested local path: ", localPath);
 
-        var win = require("electron").remote.getCurrentWindow();
+        var win = remote.getCurrentWindow();
 
         if (options.hidePencil) win.hide();
 

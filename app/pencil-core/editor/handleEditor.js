@@ -3,7 +3,15 @@ function HandleEditor() {
     this.canvas = null;
 }
 HandleEditor.ANCHOR_SIZE = 6;
-HandleEditor.configDoc = Dom.loadSystemXml("pencil-core/editor/handleEditor.config.xml");
+HandleEditor.configDoc = Dom.loadSystemXml("pencil-core/editor/handleEditor.config.xml", function (fileContent) {
+    if (!fileContent) return "";
+    var newContent = fileContent
+    .replace("$handle_fill_color", Config.get("handle.fill_color", "#ff0"))
+    .replace("$handle_stroke_color",Config.get("handle.stroke_color", "#0a0"))
+    .replace("$handle_focused_stroke_color", Config.get("handle.focused_stroke_color", "#f00"))
+    .replace("$handle_connected_stroke_color", Config.get("handle.connected_stroke_color", "#f00"));
+    return newContent;
+});
 HandleEditor.prototype.install = function (canvas) {
     this.canvas = canvas;
     this.canvas.onScreenEditors.push(this);
@@ -91,9 +99,10 @@ HandleEditor.prototype.findHandle = function (element) {
 
     return handle;
 };
-HandleEditor.prototype.handleMouseDown = function (event) {
+HandleEditor.prototype.handleMouseDown = function (event, handle) {
+    if (!this.targetObject) return;
 	this.lastMatchedOutlet = null;
-    this.currentHandle = this.findHandle(event.originalTarget);
+    this.currentHandle = handle || this.findHandle(event.originalTarget);
 
     if (!event.fake) {
         this.focusedHandleName = (this.currentHandle == null ? null : this.currentHandle._def.name);
@@ -113,11 +122,9 @@ HandleEditor.prototype.handleMouseDown = function (event) {
         } else {
             this.currentMatchingOutlets = [];
         }
-
-        debug("matching outlets: " + this.currentMatchingOutlets.length);
     }
 };
-HandleEditor.prototype.handleMouseUp = function (event) {
+HandleEditor.prototype.handleMouseUp = function (event, liveUpdate) {
     try {
         if (this.currentHandle && this.targetObject) {
             //commiting the change
@@ -148,13 +155,15 @@ HandleEditor.prototype.handleMouseUp = function (event) {
                 }
             }
 
-            this.canvas.invalidateEditors(this);
+            if (!liveUpdate) this.canvas.invalidateEditors(this);
         }
     } finally {
-        this.currentHandle = null;
+        if (!liveUpdate) this.currentHandle = null;
     }
 };
 HandleEditor.prototype.handleKeyPressEvent = function (event) {
+    if (!this.targetObject) return;
+
 	if (!this.focusedHandleName
         || (event.keyCode != DOM_VK_UP
         && event.keyCode != DOM_VK_DOWN
@@ -184,6 +193,9 @@ HandleEditor.prototype.handleKeyPressEvent = function (event) {
     this.handleMouseDown(fakeEvent);
 	var gridSize = Pencil.getGridSize().w;
 	var d = event.ctrlKey ? gridSize : (event.shiftKey ? gridSize * 4 : 1);
+
+    var ignore = false;
+
     switch(event.keyCode) {
         case DOM_VK_UP:
             fakeEvent.clientY -= d; break;
@@ -193,14 +205,19 @@ HandleEditor.prototype.handleKeyPressEvent = function (event) {
             fakeEvent.clientX -= d; break;
         case DOM_VK_RIGHT:
             fakeEvent.clientX += d; break;
+        default:
+            ignore = true;
     }
 
-	this.handleMouseMove(fakeEvent);
-	this.handleMouseUp(fakeEvent);
+    if (!ignore) {
+        this.handleMouseMove(fakeEvent);
+    	this.handleMouseUp(fakeEvent);
+    }
 
-	return true;
+	return !ignore;
 };
 HandleEditor.prototype.handleMouseMove = function (event) {
+    if (!this.targetObject) return;
     if (!this.currentHandle) return;
     event.preventDefault();
 
@@ -278,7 +295,6 @@ HandleEditor.prototype.handleMoveTo = function (x, y, event) {
             Svg.setX(handle, outlet.x * this.canvas.zoom);
             Svg.setY(handle, outlet.y * this.canvas.zoom);
 
-            debug("Found matching outlet: " + outlet.id);
             found = true;
             break;
         }
@@ -289,6 +305,11 @@ HandleEditor.prototype.handleMoveTo = function (x, y, event) {
         this.lastMatchedOutlet = null;
     }
 
+};
+HandleEditor.prototype.applyCurrentHandleValue = function () {
+    if (!this.currentHandle || !this.targetObject) return;
+    var h = new Handle(Math.round(this.currentHandle._newX / this.canvas.zoom), Math.round(this.currentHandle._newY / this.canvas.zoom));
+    this.targetObject.setProperty(this.currentHandle._def.name, h);
 };
 HandleEditor.prototype.getPropertyConstraints = function (handle) {
     if (!this.currentHandle) return {};
@@ -325,7 +346,7 @@ HandleEditor.prototype.invalidateFocusedHandle = function () {
 };
 HandleEditor.prototype.createHandle = function (def, value) {
     var p = value;
-    if (!p) return;
+    if (!p) return null;
 
     p.x *= this.canvas.zoom;
     p.y *= this.canvas.zoom;
@@ -358,10 +379,13 @@ HandleEditor.prototype.createHandle = function (def, value) {
     } catch (e) {
         Console.dumpError(e, "stdout");
     }
+
+    return rect;
 };
 HandleEditor.prototype.setupHandles = function () {
     //remove all handles
     while (this.svgElement.lastChild._isHandle) this.svgElement.removeChild(this.svgElement.lastChild);
+    this.handleNodeMap = {};
 
     var properties = this.targetObject.getProperties();
     var def = this.targetObject.def;
@@ -372,7 +396,7 @@ HandleEditor.prototype.setupHandles = function () {
             continue;
         }
 
-        this.createHandle(def.propertyMap[name], value);
+        this.handleNodeMap[name] = this.createHandle(def.propertyMap[name], value);
     }
 
     this.invalidateFocusedHandle();

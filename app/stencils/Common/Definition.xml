@@ -1179,6 +1179,48 @@
             <path style="fill:none; stroke: #ACA899; stroke-width: 1px;" d="M 0,0 L 4,4 L 0,8 z" id="line1" />
         </p:Content>
     </Shape>
+    <Shape id="FreehandPath" systemx="true" displayName="Freehand Path" icon="Icons/hline.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">170,10</Property>
+                <Property name="originalDim" type="Dimension">170,10</Property>
+                <Property name="data" type="PlainText" p:editablex="false">[[0,0]]</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Line">
+                <Property name="strokeColor" displayName="Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Thickness" type="StrokeStyle">10|</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Handwriting">
+                <Property name="thinning" type="Num" displayName="Thinning" p:step="0.05" p:max="1" p:min="0">0.5</Property>
+                <Property name="smoothing" type="Num" displayName="Smoothing" p:step="0.1" p:max="3" p:min="0">0.5</Property>
+                <Property name="streamline" type="Num" displayName="Streamline" p:step="0.05" p:max="1" p:min="0">0.5</Property>
+                <Property name="simulatePressure" type="Bool" displayName="Simulate Pressure">true</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="line1">
+                <D><![CDATA[
+                    (function () {
+                        return GestureHelper.getSvgPathFromStroke($data.value, {
+                            size: $strokeStyle.w,
+                            thinning: $thinning.value,
+                            smoothing: $smoothing.value,
+                            streamline: $streamline.value,
+                            simulatePressure: $simulatePressure.value
+                        });
+                    })()
+                    ]]></D>
+                <Fill>$strokeColor</Fill>
+                <Transform>[scale($box.w / $originalDim.w, $box.h / $originalDim.h)]</Transform>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path style="fill:none; stroke: none;" d="M 0,0 L 4,4 L 0,8 z" id="line1" />
+        </p:Content>
+    </Shape>
     <Shape id="Triangle" displayName="Triangle" icon="Icons/triangle.png">
         <Properties>
             <PropertyGroup>
@@ -1435,7 +1477,7 @@
             <path id="path" fill="none" style="stroke-linejoin: round;" />
         </p:Content>
     </Shape>
-    <Shape id="SVGImage" system="true" displayName="SVG Image" icon="Icons/bitmap.png" xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <Shape id="SVGImage" system="false" displayName="SVG Image" icon="Icons/bitmap.png" xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:xlink="http://www.w3.org/1999/xlink">
         <Properties>
             <PropertyGroup>
                 <Property name="box" type="Dimension">48,48</Property>
@@ -1619,6 +1661,7 @@
         <Properties>
             <PropertyGroup>
                 <Property name="box" type="Dimension" p:lockRatio="true">30,30</Property>
+                <Property name="isSquare" type="Bool" displayName="Square Bullet">false</Property>
                 <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
@@ -1654,6 +1697,15 @@
                 <Fill>$fillColor</Fill>
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Visibility>new Bool(!$isSquare.value)</Visibility>
+            </For>
+            <For ref="rect">
+                <Box>$box.narrowed($strokeStyle.w)</Box>
+                <Transform>[translate(($strokeStyle.w / 2), ($strokeStyle.w / 2))]</Transform>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Visibility>$isSquare</Visibility>
             </For>
             <For ref="text">
                 <TextContent>$textContent</TextContent>
@@ -1673,6 +1725,7 @@
                     var box = this.getProperty("box");
                     var size = Math.max(box.w, box.h);
                     this.setProperty("box", new Dimension(size, size));
+                    this.setProperty("isSquare", true);
                 ]]>
                 </Impl>
             </Action>
@@ -1685,6 +1738,7 @@
                 </filter>
                 <g id="container">
                     <ellipse id="ellipse" />
+                    <rect id="rect" width="30" height="30" />
                 </g>
             </defs>
             <use xlink:href="#container" id="bgCopy" transform="translate(1, 1)" p:filter="url(#imageShading)" style=" opacity:0.6;" p:heavy="true" />

@@ -10,8 +10,8 @@ var Pencil = {};
 
 pencilSandbox.Pencil = Pencil;
 
-Pencil.SNAP = 10;
-Pencil.UNSNAP = 10;
+Pencil.SNAP = 5;
+Pencil.UNSNAP = 5;
 Pencil.editorClasses = [];
 Pencil.registerEditor = function (editorClass) {
     Pencil.editorClasses.push(editorClass);
@@ -81,7 +81,7 @@ Pencil.boot = function (event) {
         if (Pencil.booted) return;
         debug("BOOT: Initializing Pencil core");
 
-        Pencil.app = require('electron').remote.app;
+        Pencil.app = require('@electron/remote').app;
 
         Pencil.booted = true;
         Pencil.window = document.documentElement;
@@ -178,9 +178,7 @@ Pencil.boot = function (event) {
     }
 };
 Pencil.handleArguments = function() {
-	var remote = require('electron').remote;
 	var appArguments = remote.getGlobal('sharedObject').appArguments;
-    console.log("appArguments", appArguments);
 	if (appArguments && appArguments.length > 1) {
         var filePath = null;
         for (var i = 1; i < appArguments.length; i ++) {
@@ -210,7 +208,23 @@ Pencil.handleTargetChange = function (event) {
 };
 Pencil.invalidateSharedEditor = function() {
     var canvas = Pencil.activeCanvas;
-    var target = canvas ? canvas.currentController : null;
+    var target = null;
+    var gesturePropertyProvider = null;
+
+    if (canvas) {
+        var gestureHelper = GestureHelper.fromCanvas(canvas);
+        if (gestureHelper.getActiveMode()) {
+            gesturePropertyProvider = gestureHelper.getPropertyProvider();
+        }
+
+        target = canvas.currentController;
+
+        if (gesturePropertyProvider && target) {
+            target = new TargetSet(canvas, [gesturePropertyProvider, target]);
+        } else if (gesturePropertyProvider) {
+            target = gesturePropertyProvider;
+        }
+    }
 
     if (!target) {
         for (var i in Pencil.sharedEditors) {

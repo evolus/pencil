@@ -11,6 +11,7 @@
         }
         @pixelFontSize {
             width: 4em;
+            @number_input();
         }
 
         .widget_ComboManager @buttonDisplay {
@@ -20,7 +21,13 @@
             width: 10em;
         }
         @weightCombo {
-            width: 4.7em !important;
+            width: 2.95em !important;
+            position: relative;
+        }
+        @weightCombo > i {
+            position: absolute;
+            font-size: 0.9em;
+            right: 0.2em;
         }
         body .widget_SharedFontEditor[use-toggle="false"] @boldButton,
         body .widget_SharedFontEditor[use-toggle="true"] @weightCombo {

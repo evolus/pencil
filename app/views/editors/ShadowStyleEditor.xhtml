@@ -1,36 +1,48 @@
 <hbox>
     <style>
-        input[type='number'] {
-            width: 3.5em;
+        vbox {
+            min-width: 2em;
         }
         vbox > label {
-            opacity: 0.4;
+            opacity: 0.3;
+            font-size: 0.8em;
         }
         @colorButton {
             width: 1.5em;
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
         }
         @colorButton:hover {
             opacity: 0.9;
         }
+        input[type=number] {
+            @number_input();
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+        }
+        vbox:not(:first-child) > input[type=number] {
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+        }
     </style>
-    <vbox>
-        <label>dx:</label>
+    <vbox flex="1">
+        <label>dx</label>
         <input type="number" min="-30" max="30" size="2" anon-id="dx" title="X offset" />
     </vbox>
-    <vbox>
-        <label>dy:</label>
+    <vbox flex="1">
+        <label>dy</label>
         <input type="number" min="-30" max="30" size="2" anon-id="dy" title="Y offset" />
     </vbox>
-    <vbox>
-        <label>blur:</label>
+    <vbox flex="1">
+        <label>blur</label>
         <input type="number" min="-30" max="30" size="2" anon-id="size" title="Blur radius" />
     </vbox>
-    <vbox>
-        <label>opacity:</label>
+    <vbox flex="1">
+        <label>opacity</label>
         <input type="number" min="0" max="1" step="0.1" size="2" anon-id="opacity" title="Shadow opacity" />
     </vbox>
     <vbox>
-        <label>color:</label>
+        <label>color</label>
         <button anon-id="colorButton" value="choose"></button>
         <ui:Popup anon-id="selectorContainer">
             <ui:ColorSelector anon-id="selector" />

@@ -14,8 +14,8 @@ Pencil.behaviors.Box = function (box) {
 Pencil.behaviors.Bound = function (bound) {
     this.setAttribute("x", bound.x);
     this.setAttribute("y", bound.y);
-    this.setAttribute("width", bound.w);
-    this.setAttribute("height", bound.h);
+    this.setAttribute("width", Math.max(bound.w, 0));
+    this.setAttribute("height", Math.max(bound.h, 0));
 };
 Pencil.behaviors.Radius = function (rx, ry) {
     this.setAttribute("rx", rx);
@@ -555,13 +555,14 @@ Pencil.behaviors.MaintainGlobalDef = function (id, contentFragement) {
 /* n-Patch supports */
 
 function imageNodeForPatch(patch, x, y, w, h) {
+    var r = window.devicePixelRatio || 1;
     return {
         _name: "image",
         _uri: PencilNamespaces.svg,
-        x: x,
-        y: y,
-        width: w,
-        height: h,
+        x: x / r,
+        y: y / r,
+        width: w / r,
+        height: h / r,
         preserveAspectRatio: "none",
         //transform: "translate(" + x + ", " + y + ") scale(" + (w / patch.w) + ", " + (h / patch.h) + ")",
         "xlink:href": patch.url
@@ -795,4 +796,3 @@ Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim, xAnchorMa
     this.appendChild(Dom.newDOMElement(outerSpec));
 };
 Pencil.behaviors.NPatchDomContentFromImage._offScreenSupport = true;
-

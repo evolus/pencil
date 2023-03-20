@@ -984,6 +984,8 @@ MenuItem]]></Property>
                         css.set("height", height+"px" );
                         css.set("line-height", height+"px" );
                         css.set("padding", "0px 5px");
+                        css.set("text-align", $textAlign.h == 0 ? "left" : ($textAlign.h == 1 ? "center" : "right"));
+                        css.set("vertical-align", $textAlign.v == 0 ? "top" : ($textAlign.v == 1 ? "middle" : "bottom"));
                         if (title.match(/^(.+)\*[ ]*$/)) {
                             title = RegExp.$1;
                             css.set("background", $fillColor.shaded(0.1).toRGBString());
@@ -1488,7 +1490,7 @@ MenuItem]]></Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
                 <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Window Title]]></Property>
-                <Property name="textFont" displayName="Default Font" type="Font">'Comic Sans MS'|Bold|normal|12px</Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
                 <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
                 <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
             </PropertyGroup>

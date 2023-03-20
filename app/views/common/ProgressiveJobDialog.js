@@ -8,7 +8,7 @@ ProgressiveJobDialog.prototype.setup = function (options) {
     this.options = options || {};
     this.starter = this.options.starter;
     this.title = this.options.title || "Progress";
-    this.subTitle = this.options.subTitle || "Please wait while Pencil is excuting job";
+    this.subTitle = this.options.subTitle || "Please wait while Pencil is executing job";
 
     var thiz = this;
     var listener = {

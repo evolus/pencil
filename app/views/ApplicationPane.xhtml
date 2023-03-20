@@ -205,6 +205,14 @@
             transform: translateZ(0);
         }
 
+        @contentSection > * + .widget_CollapseablePanel[closed="false"] {
+            background-color: @pane_bg;
+            border-color: @pane_bg;
+        }
+
+        @contentSection > * + .widget_CollapseablePanel {
+        }
+
         body:not(.Fullscreen) @contentSection > .widget_CollapseablePanel:not([float='true']):first-child {
             margin-left: -3em;
         }
@@ -290,6 +298,7 @@
                         <ui:ColorEditor label="Colors" />
                         <ui:SharedBorderStyleEditor label="Line style" />
                         <ui:SharedGeomtryEditor />
+                        <!-- <ui:GestureModeToolbar /> -->
                     </hbox>
                 </ui:ScrollableView>
             </vbox>
@@ -298,16 +307,15 @@
             <ui:CollapseablePanel orient="horizontal" name="left_pane" anon-id="leftSidePane" controls-location="top">
                 <ui:CollectionPane anon-id="collectionPane"/>
                 <ui:MyCollectionPane anon-id="myCollectionPane"/>
-                <ui:OpenClipartPane anon-id="openClipartPane"/>
             </ui:CollapseablePanel>
             <vbox flex="1" anon-id="documentContainer">
-                <hbox anon-id="contentBody" flex="1" style="position: relative;">
+                <hbox anon-id="contentBody" flex="1" style="position: relative;" gesture-mode="selection">
                     <ui:StartUpDocumentView anon-id="startupDocumentView" flex="1" />
                     <ui:ShapeTestCanvasPane anon-id="shapeTestPane" />
                 </hbox>
                 <ui:PageListView anon-id="pageListView" />
             </vbox>
-            <ui:CollapseablePanel orient="horizontal" name="right_pane" anon-id="rightSidePane" float="true">
+            <ui:CollapseablePanel orient="horizontal" name="right_pane" anon-id="rightSidePane" float="true" controls-location="top">
                 <ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />
             </ui:CollapseablePanel>
         </hbox>

@@ -193,7 +193,7 @@ MainMenu.prototype.setup = function () {
             new StencilCollectionBuilder(Pencil.controller).build();
         }
     }));
-    
+
     developerToolSubItems.push(UICommandManager.register({
         key: "deployStencilCollection",
         label: "Deploy Stencil Collection...",
@@ -203,7 +203,7 @@ MainMenu.prototype.setup = function () {
             new StencilCollectionBuilder(Pencil.controller).deploy();
         }
     }));
-    
+
     developerToolSubItems.push(UICommandManager.register({
         key: "checkMissingResources",
         label: "Check Missing Resources...",
@@ -213,7 +213,7 @@ MainMenu.prototype.setup = function () {
         }
     }));
 
-    
+
     developerToolSubItems.push(Menu.SEPARATOR);
 
     developerToolSubItems.push({
@@ -269,7 +269,6 @@ MainMenu.prototype.setup = function () {
         isValid: function () { return true; },
         shortcut: "Ctrl+Q",
         run: function () {
-            let remote = require("electron").remote;
             let currentWindow = remote.getCurrentWindow();
             currentWindow.close();
         }

@@ -20,7 +20,7 @@ Rasterizer.prototype.getImageDataFromUrl = function (url, callback) {
 };
 
 Rasterizer.ipcBasedBackend = {
-    TIME_OUT: 10000,
+    TIME_OUT: 15000,
     pendingWorkMap: {},
     init: function () {
         ipcRenderer.send("render-init", {});
@@ -44,7 +44,7 @@ Rasterizer.ipcBasedBackend = {
         // if (scale != 1) {
         //     svgNode.setAttribute("width", w + "px");
         //     svgNode.setAttribute("height", h + "px");
-        // 
+        //
         //     svgNode.setAttribute("viewBox", "0 0 " + width + " " + height);
         // }
 
@@ -52,16 +52,16 @@ Rasterizer.ipcBasedBackend = {
         ipcRenderer.send("render-request", {svg: xml, width: w, height: h, scale: scale, id: id, processLinks: parseLinks, options: options});
 
         var work = {};
-        work.timeoutId = window.setTimeout(function () {
-            var work = Rasterizer.ipcBasedBackend.pendingWorkMap[id];
-            if (!work) return;
-            callback("");
-            delete Rasterizer.ipcBasedBackend.pendingWorkMap[id];
-
-            console.log("Rasterizer seems to be crashed, restarting now!!!");
-            ipcRenderer.send("render-restart", {});
-
-        }, Rasterizer.ipcBasedBackend.TIME_OUT);
+        // work.timeoutId = window.setTimeout(function () {
+        //     var work = Rasterizer.ipcBasedBackend.pendingWorkMap[id];
+        //     if (!work) return;
+        //     callback("");
+        //     delete Rasterizer.ipcBasedBackend.pendingWorkMap[id];
+        //
+        //     console.log("Rasterizer seems to be crashed, restarting now!!!");
+        //     ipcRenderer.send("render-restart", {});
+        //
+        // }, Rasterizer.ipcBasedBackend.TIME_OUT);
 
         Rasterizer.ipcBasedBackend.pendingWorkMap[id] = work;
     }
@@ -189,7 +189,7 @@ Rasterizer.inProcessFileCanvasBasedBackend = {
                 }
             }
         }
-        
+
         var tempFile = tmp.fileSync({postfix: ".svg" });
         fs.writeFileSync(tempFile.name, Controller.serializer.serializeToString(svgNode), XMLDocumentPersister.CHARSET);
 
@@ -221,7 +221,7 @@ Rasterizer.inProcessFileCanvasBasedBackend = {
         img.setAttribute("crossorigin", "anonymous");
         img.setAttribute("style", "display: none;");
         document.body.appendChild(img);
-        
+
         img.setAttribute("src", "file://" + tempFile.name);
     }
 };
@@ -252,7 +252,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
                 g.appendChild(svg.removeChild(svg.firstChild));
             }
             svg.appendChild(g);
-            
+
             w -= 2 * m;
             h -= 2 * m;
             svg.setAttribute("width", w);
@@ -348,7 +348,7 @@ Rasterizer.prototype.rasterizePageToFile = function (page, filePath, callback, s
 };
 Rasterizer.getExportScale = function (inputScale) {
     if (typeof(inputScale) == "number") return inputScale;
-    
+
     var configScale = Config.get(Config.EXPORT_DEFAULT_SCALE, 1.0);
     if (typeof(configScale) == "number") {
         return configScale;
@@ -359,6 +359,8 @@ Rasterizer.getExportScale = function (inputScale) {
 }
 Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, callback, scale, options) {
     var geo = target.getGeometry();
+    var rect = target.svg.getBoundingClientRect();
+
     if (!geo) {
         //Util.showStatusBarWarning(Util.getMessage("the.selected.objects.cannot.be.exported"), true);
         alert(Util.getMessage("the.selected.objects.cannot.be.exported"));
@@ -373,8 +375,8 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
         padding += strokeStyle.w;
     }
 
-    var w = geo.dim.w + padding;
-    var h = geo.dim.h + padding;
+    var w = rect.width + padding;
+    var h = rect.height + padding;
 
     debug("w: " + w);
 
@@ -382,18 +384,15 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
     svg.setAttribute("width", "" + w  + "px");
     svg.setAttribute("height", "" + h  + "px");
 
+    var wrapper = document.createElementNS(PencilNamespaces.svg, "g");
+    var prect = target.svg.ownerSVGElement.getBoundingClientRect();
+    wrapper.setAttribute("transform", "translate(" + (prect.x - rect.x) + ", " + (prect.y - rect.y) + ")");
+
     var content = target.svg.cloneNode(true);
-    content.removeAttribute("transform");
     content.removeAttribute("id");
 
-    try  {
-        var dx = Math.round((w - geo.dim.w) / 2);
-        var dy = Math.round((h - geo.dim.h) / 2);
-        content.setAttribute("transform", "translate(" + dx + ", " + dy + ")");
-    } catch (e) {
-        Console.dumpError(e);
-    }
-    svg.appendChild(content);
+    svg.appendChild(wrapper);
+    wrapper.appendChild(content);
 
     var thiz = this;
     var s = Rasterizer.getExportScale(scale);
@@ -411,7 +410,6 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
         });
     }, false, options);
 };
-
 Rasterizer.prototype._prepareWindowForRasterization = function(backgroundColor) {
     var h = 0;
     var w = 0;

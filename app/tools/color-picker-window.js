@@ -22,7 +22,7 @@ function init(requester, message) {
 
     var display = displays[0];
 
-    var win = electron.remote.getCurrentWindow();
+    var win = remote.getCurrentWindow();
     console.log(display);
 
     capturer.takeScreenshot({x: display.bounds.x, y: display.bounds.y, width: display.bounds.width, height: display.bounds.height, sourceId: display.id})
@@ -31,7 +31,7 @@ function init(requester, message) {
             win.show();
             window.setTimeout(function () {
                 console.log("Sending back..." + message.messageId);
-                const BrowserWindow = electron.remote.BrowserWindow;
+                const BrowserWindow = remote.BrowserWindow;
                 var requesterWindow = BrowserWindow.fromId(message.senderId);
                 requesterWindow.webContents.send(message.messageId, capturedImageURL);
             }, 100);

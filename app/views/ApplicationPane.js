@@ -111,6 +111,10 @@ ApplicationPane.prototype.onAttached = function () {
     var thiz = this;
     this.invalidateUIForConfig();
     this.showStartupPane();
+    window.setTimeout(function () {
+        this.leftSidePane.invalidateUI();
+        this.rightSidePane.invalidateUI();
+    }.bind(this), 200);
     // window.setTimeout(function () {
     //     Pencil.documentHandler.newDocument();
     //     console.log("starting image editor...");
@@ -125,8 +129,8 @@ ApplicationPane.prototype.onAttached = function () {
     //         });
     //     });
     // }, 100);
-    
-    
+
+
 };
 
 Config.UI_CUSTOM_FONT_FAMILY = Config.define("ui.customUIFontFamily", "");
@@ -136,10 +140,10 @@ ApplicationPane.prototype.invalidateUIForConfig = function () {
     debug("BOOT: invalidating UI using configuration");
     var useCompactLayout = Config.get("view.useCompactLayout", false);
     document.body.setAttribute("compact-layout", useCompactLayout);
-    
-    var family = Config.get(Config.UI_CUSTOM_FONT_FAMILY);
+
+    var family = "system-ui"; //Config.get(Config.UI_CUSTOM_FONT_FAMILY);
     if (family) document.body.style.fontFamily = family;
-    
+
     var size = Config.get(Config.UI_CUSTOM_FONT_SIZE);
     if (size) document.body.style.fontSize = size;
 
@@ -183,19 +187,19 @@ ApplicationPane.prototype.createCanvas = function () {
     var stencilToolbar = new StencilShapeCanvasToolbar().into(wrapper);
 
     var canvas = null;
-    
-    
+
+
     scrollPane.addEventListener("mousedown", function (e) {
         scrollPane._mouseDownAt = e.timeStamp;
     });
-    
+
     scrollPane.addEventListener("mouseup", function (e) {
         if (!scrollPane._mouseDownAt || (e.timeStamp - scrollPane._mouseDownAt) > 150) return;
         if (!Dom.findParentWithClass(e.target, "CanvasWrapper")) {
             if (!canvas.isSelectingRange) canvas.selectNone();
         }
     });
-    
+
     canvas = new Canvas(container, null, scrollPane);
 
     this.getCanvasContainer().appendChild(scrollPane);

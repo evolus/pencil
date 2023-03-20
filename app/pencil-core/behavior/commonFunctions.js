@@ -84,8 +84,9 @@ F.newDOMElement = function (spec) {
         if (name.match(/^_/)) continue;
         e.setAttribute(name, spec[name]);
     }
-
-    if (spec._text) {
+    if (spec._html) {
+        e.innerHTML = spec._html;
+    } else if (spec._text) {
         e.appendChild(e.ownerDocument.createTextNode(spec._text));
     }
     if (spec._children && spec._children.length > 0) {
