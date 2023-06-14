@@ -1163,7 +1163,7 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
         var filePath = res.filePath;
         this.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
             if (!error) {
-                NotificationPopup.show("Page exprted as '" + path.basename(filePath) + "'.", "View", function () {
+                NotificationPopup.show("Page exported as '" + path.basename(filePath) + "'.", "View", function () {
                     shell.openPath(filePath);
                 });
             }
@@ -1252,7 +1252,7 @@ Controller.prototype.rasterizeSelection = function (options) {
             var filePath = res.filePath;
             this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
                 if (!error) {
-                    NotificationPopup.show("Selection exprted as '" + path.basename(filePath) + "'.", "View", function () {
+                    NotificationPopup.show("Selection exported as '" + path.basename(filePath) + "'.", "View", function () {
                         shell.openPath(filePath);
                     });
                 }

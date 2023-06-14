@@ -21,7 +21,7 @@
             align-items: center;
         }
         @sizeInputContainer > div + * {
-            margin-left: 0.4em;
+            margin-left: 0.5em;
         }
         @sizeInputContainer > div {
             position: relative;
@@ -40,6 +40,9 @@
             margin-top: -0.5em;
             opacity: 0.5;
         }
+        @pageSizeCombo {
+            margin-left: 0.5em;
+        }
         @widthWrapper::after {
             content: "W:";
         }
@@ -53,13 +56,13 @@
             align-items: center;
             margin-top: 0.5em;
         }
+        @copyLinksBox > * + * {
+            margin-left: 0.5em;
+        }
         @colorButton {
             margin-left: 0.5em;
         }
     </style>
-    <div class="Description">
-        Please enter the page properties:
-    </div>
     <hbox class="InputRow">
         <label for="pageCombo">Child of:</label>
         <ui:ComboManager flex="1" anon-id="pageCombo"/>
@@ -70,15 +73,17 @@
     </hbox>
     <hbox class="InputRow">
         <label for="pageSizeCombo">Page Size:</label>
-        <hbox anon-id="sizeInputContainer">
-            <div anon-id="widthWrapper">
-                <input type="number" anon-id="widthInput" min="24" value="24"/>
-            </div>
-            <div anon-id="heightWrapper">
-                <input type="number" anon-id="heightInput" min="24" value="24"/>
-            </div>
+        <hbox flex="1">
+            <hbox anon-id="sizeInputContainer">
+                <div anon-id="widthWrapper">
+                    <input type="number" anon-id="widthInput" min="24" value="24"/>
+                </div>
+                <div anon-id="heightWrapper">
+                    <input type="number" anon-id="heightInput" min="24" value="24"/>
+                </div>
+            </hbox>
+            <ui:ComboManager anon-id="pageSizeCombo"/>
         </hbox>
-        <ui:ComboManager anon-id="pageSizeCombo"/>
     </hbox>
     <hbox class="InputRow">
         <label for="backgroundColorCombo">Background:</label>

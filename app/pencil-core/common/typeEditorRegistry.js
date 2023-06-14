@@ -14,6 +14,7 @@ TypeEditorRegistry.registerTypeEditor(Font, "FontEditor");
 TypeEditorRegistry.registerTypeEditor(Alignment, "AlignEditor");
 TypeEditorRegistry.registerTypeEditor(StrokeStyle, "StrokeStyleEditor");
 TypeEditorRegistry.registerTypeEditor(Enum, "EnumEditor");
+TypeEditorRegistry.registerTypeEditor(Num, "NumEditor");
 TypeEditorRegistry.registerTypeEditor(PlainText, "PlainTextEditor");
 TypeEditorRegistry.registerTypeEditor(ShadowStyle, "ShadowStyleEditor");
 

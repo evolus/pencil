@@ -426,6 +426,21 @@ PageDetailDialog.prototype.updatePage = function() {
     
     return page;
 }
+PageDetailDialog.prototype.isPageInfoValid = function () {
+    var pageName = this.pageTitle.value;
+    if (pageName == "" ) {
+        Dialog.error("The page name is invalid. Please enter the valid page name.");
+        return;
+    }
+
+    if (this.originalPage && this.originalPage.name != pageName || !this.originalPage) {
+        if (Pencil.controller.findPageByName(pageName)) {
+            Dialog.error("The page name '" + pageName + "' already exists.");
+            return false;
+        }
+    }
+    return true;
+};
 PageDetailDialog.prototype.getDialogActions = function () {
     var thiz = this;
 

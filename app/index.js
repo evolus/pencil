@@ -21,7 +21,7 @@ if (process.platform.trim().toLowerCase() == "linux" && app.disableHardwareAccel
     var useHWAConfig = getAppConfig("core.useHardwareAcceleration");
     console.log("useHWAConfig: ", useHWAConfig);
     if (process.argv.indexOf("--with-hwa") < 0 && !useHWAConfig) {
-        console.log("Hardware acceleration disabled for Linux.");
+        console.log("**************** Hardware acceleration disabled for Linux.");
         app.disableHardwareAcceleration();
     } else {
         console.log("Hardware acceleration forcibly enabled.");
@@ -56,7 +56,10 @@ function createWindow() {
           defaultEncoding: "UTF-8",
           nodeIntegration: true,
           contextIsolation: false,
-          enableRemoteModule: true
+          enableRemoteModule: true,
+          experimentalFeatures: true,
+          disableDialogs: true,
+          enableBlinkFeatures: "FontAccess"
         },
     };
 
@@ -75,7 +78,7 @@ function createWindow() {
 
     app.devEnable = devEnable;
 
-    mainWindow.hide();
+    //mainWindow.hide();
     mainWindow.maximize();
 
     if (devEnable) {
@@ -131,10 +134,6 @@ app.on('ready', function() {
             }
         });
 
-    }, function (error, scheme) {
-        if (error) {
-            console.log("ERROR REGISTERING", error);
-        }
     });
 
 

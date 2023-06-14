@@ -62,26 +62,13 @@ function PageListView() {
         });
         if (!node) return;
         var page = node._page;
-        if ((page == null && this.currentParentPage == null) || (page && this.currentParentPage && page.id == this.currentParentPage.id)) return;
-
-        var newActivePage = null;
-        if (this.currentParentPage
-            && (!page && !this.currentParentPage.parentPage
-                    || (page && this.currentParentPage.parentPage && page.id == this.currentParentPage.parentPage.id))) {
-            newActivePage = this.currentParentPage;
-        } else {
-            if (page) {
-                newActivePage = page.children[0];
-            } else {
-                for (var i in this.controller.doc.pages) {
-                    if (!this.controller.doc.pages[i].parentPage) {
-                        newActivePage = this.controller.doc.pages[i];
-                        break;
-                    }
-                }
-            }
+        if (node._isDocumentNode && this.controller.doc.pages && this.controller.doc.pages.length) {
+            this.activatePage(this.currentPage && !this.currentPage.parentPage ? this.currentPage : this.controller.doc.pages[0]);
+            return;
         }
-        this.activatePage(newActivePage);
+        if (page == null || (page && this.currentPage && page.id == this.currentPage.id)) return;
+        this.activatePage(page, true);
+
     }, this.pageBreadcrumb);
 
     var thiz = this;
@@ -317,11 +304,14 @@ PageListView.prototype.setController = function (controller) {
     this.controller = controller;
     this.currentParentPage = null;
     this.currentPage = null;
+    this._isParentPageActivated = false;
     this.renderPages();
 };
-PageListView.prototype.activatePage = function (page) {
+PageListView.prototype.activatePage = function (page, isParentPageActivated) {
     this.controller.activatePage(page);
+    this._isParentPageActivated = isParentPageActivated;
     this.renderPages();
+    this.invalidateSelectedPageView(page);
 };
 PageListView.prototype.renderPages = function() {
     this.pageBreadcrumb.innerHTML = "";
@@ -332,31 +322,39 @@ PageListView.prototype.renderPages = function() {
     this.currentParentPage = null;
 
     this.views = [];
-    if (!this.controller || !this.controller.doc) return;
+    if (!this.controller || !this.controller.doc || !this.controller.doc.pages.length) return;
 
-    this.currentPage = this.controller.activePage;
+    this.currentPage = this.controller.activePage || this.controller.doc.pages[0];
     this.currentParentPage = this.currentPage && this.currentPage.parentPage || null;
-
+    
     var pages = [];
     var parentPages = [];
-    if (!this.currentParentPage) {
-        for (var i in this.controller.doc.pages) {
-            var page = this.controller.doc.pages[i];
-            if (!page.parentPage) pages.push(page);
-        }
-
-    } else {
-        pages = this.currentParentPage.children;
-
-        parentPages.push(this.currentParentPage);
-        var p = this.currentParentPage;
+    
+    if (this._isParentPageActivated && this.currentPage.children && this.currentPage.children.length) {
+        // select as parent page in breadcrumb
+        var p = this.currentPage;
+        parentPages.push(p);
         while (p.parentPage) {
             parentPages.unshift(p.parentPage);
             p = p.parentPage;
         }
+        pages = this.currentPage.children;
+    } else {
+        // select as child page
+        if (this.currentPage.parentPage) {
+            var p = this.currentPage;
+            while (p.parentPage) {
+                parentPages.unshift(p.parentPage);
+                p = p.parentPage;
+            }
+            pages = this.currentPage.parentPage && this.currentPage.parentPage.children || [this.currentPage];
+        } else {
+            for (var i in this.controller.doc.pages) {
+                var page = this.controller.doc.pages[i];
+                if (!page.parentPage) pages.push(page);
+            }
+        }
     }
-
-    if (!this.currentPage) this.currentPage = pages[0];
 
     var node = Dom.newDOMElement({
         _name: "hbox",
@@ -378,6 +376,7 @@ PageListView.prototype.renderPages = function() {
         ]
     });
     node._page = null;
+    node._isDocumentNode = true;
     this.pageBreadcrumb.appendChild(node);
 
     if (parentPages.length > 0) {
@@ -427,7 +426,6 @@ PageListView.prototype.renderPages = function() {
     var thiz = this;
     for (var i in pages) {
         var page = pages[i];
-        var selected = this.currentPage && this.currentPage.id == page.id;
 
         var pageThumbnailView = new PageThumbnailView();
         pageThumbnailView.node()._index = i;
@@ -435,13 +433,11 @@ PageListView.prototype.renderPages = function() {
         this.pageListContainer.appendChild(pageThumbnailView.node());
         pageThumbnailView.setAttribute("draggable", "true");
 
-        pageThumbnailView.selectPage(selected);
         this.views.push(pageThumbnailView);
         var childNode;
         if( page.children.length == 0 ) {
             childNode = Dom.newDOMElement({
                 _name: "hbox",
-                "selected": selected,
                 draggable: "true",
                 "tabindex": "0",
                 _children: [
@@ -454,7 +450,6 @@ PageListView.prototype.renderPages = function() {
         }  else {
             childNode = Dom.newDOMElement({
                 _name: "hbox",
-                "selected": selected,
                 draggable: "true",
                 class: "nodeHasChild",
                 "tabindex": "0",
@@ -483,6 +478,7 @@ PageListView.prototype.renderPages = function() {
         this.childPageContainer.appendChild(childNode);
     }
     this.invalidateExpandedState();
+    this.invalidateSelectedPageView(this.currentPage);
 
     this.childPageSrollView.invalidate();
     this.pageListSrollView.invalidate();
@@ -535,6 +531,17 @@ PageListView.prototype.handlePageInfoChangedEvent = function (event) {
 
 PageListView.prototype.handleSelectPage = function (page) {
     if (!page) return;
+    this._isParentPageActived = false;
+    this.invalidateSelectedPageView(page);
+    this.controller.activatePage(page);
+    this.currentPage = page;
+};
+PageListView.prototype.invalidateSelectedPageView = function (page) {
+    if (!page) return;
+    Dom.doOnAllChildren(this.pageBreadcrumb, function (n) {
+        if (!n._page) return;
+        n.setAttribute("selected", n._page.id == page.id);
+    });
     Dom.doOnAllChildren(this.pageListContainer, function (n) {
         var view = n.__widget;
         if (!view) return;
@@ -546,8 +553,6 @@ PageListView.prototype.handleSelectPage = function (page) {
         var p = n._page;
         n.setAttribute("selected", p.id == page.id);
     });
-
-    this.controller.activatePage(page);
 };
 
 PageListView.prototype.handleDoubleClick = function (page) {
@@ -555,6 +560,6 @@ PageListView.prototype.handleDoubleClick = function (page) {
         this.handleSelectPage(page);
     } else {
         if (this.filterCache[page.name]) delete this.filterCache[page.name];
-        this.activatePage(page.children[0]);
+        this.activatePage(page, true);
     }
 };
