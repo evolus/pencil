@@ -87,8 +87,38 @@ ImageData.invalidateValue = function (oldData, callback) {
                 callback(null, error);
             }
         });
+    } else if (oldData.data.match(/^(ref:\/\/([^@]+))@(.+)$/)) {
+        var ref = RegExp.$1;
+        var fp = RegExp.$3;
+        var id = ImageData.refStringToId(ref);
+        var refFilePath = Pencil.controller.refIdToFilePath(id);
+
+        const fs = require("fs");
+        // assume that the ref is local to this document, generate the local file path and check it
+        if (fsExistSync(refFilePath)) {
+            callback(new ImageData(oldData.w, oldData.h, ref, null));
+        } else {
+            Pencil.controller.copyAsRef(fp, function (id, error) {
+                if (id) {
+                    callback(new ImageData(oldData.w, oldData.h, ImageData.idToRefString(id)), null);
+                } else {
+                    callback(null, error);
+                }
+            });
+        }
     } else {
         callback(null);
+    }
+};
+ImageData.prepareForTransferable = function (imageData, propDef) {
+    if (imageData.data.match(/^ref:\/\//)) {
+        var data = imageData.data;
+        if (imageData.data.match(/^(ref:\/\/[^@]+)(@.+)$/)) data = RegExp.$1;
+        var id = ImageData.refStringToId(data);
+        if (!id) return;
+        var filePath = Pencil.controller.refIdToFilePath(id);
+        data = data + "@" + filePath;
+        imageData.data = data;
     }
 };
 ImageData.prepareForEmbedding = function (oldData, callback) {

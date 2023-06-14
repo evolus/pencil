@@ -878,16 +878,7 @@ Shape.prototype.getTextEditingInfo = function (editingEvent) {
                             }
                         }
                         var targetObject = Dom.getSingle(".//*[@p:name='" + target + "']", this.svg);
-                        //checking if the target is ok for use to base the location calculation
-                        var ok = true;
-                        try {
-                            var clientRect = targetObject.getBoundingClientRect();
-                            if (clientRect.width == 0 || clientRect.height == 0) {
-                                ok = false;
-                            }
-                        } catch (e) {}
-
-                        if (ok) {
+                        if (targetObject) {
                             info = {prop: prop,
                                     value: this.getProperty(name),
                                     targetName: target,
@@ -1061,12 +1052,56 @@ Shape.prototype.getTextEditingInfo = function (editingEvent) {
 };
 
 Shape.prototype.createTransferableData = function () {
+    var dataNode = this.svg.cloneNode(true);
+
     return {
                 type: ShapeXferHelper.MIME_TYPE,
                 isSVG: true,
-                dataNode: this.svg.cloneNode(true)
+                dataNode: dataNode
            };
 };
+Shape.prototype.processExportingTransferableProperties = function () {
+    for (var name in this.def.propertyMap) {
+        var prop = this.def.propertyMap[name];
+        var value = this.getProperty(name);
+
+        if (prop.type.prepareForTransferable) {
+            prop.type.prepareForTransferable(value, prop);
+            this.storeProperty(name, value);
+        }
+    }
+};
+
+Shape.prototype.processImportedTransferableProperties = function () {
+    var names = [];
+    for (var name in this.def.propertyMap) {
+        names.push(name);
+    }
+    var index = -1;
+    var thiz = this;
+    (function next() {
+        index ++;
+        if (index >= names.length) return;
+        var name = names[index];
+
+        var prop = thiz.def.propertyMap[name];
+        var value = thiz.getProperty(name);
+
+        if (prop.type.invalidateValue) {
+            prop.type.invalidateValue(value, function (newValue) {
+                if (newValue) {
+                    thiz.storeProperty(name, newValue);
+                    thiz.applyBehaviorForProperty(name);
+                }
+                next();
+            });
+        } else {
+            next();
+        }
+    })();
+}
+
+
 Shape.prototype.lock = function () {
     this.svg.setAttributeNS(PencilNamespaces.p, "p:locked", "true");
 };

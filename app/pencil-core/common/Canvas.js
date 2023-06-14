@@ -1945,6 +1945,24 @@ Canvas.prototype.doCopy = function () {
 
     var transferableData = this.currentController.createTransferableData();
 
+    var target = null;
+
+    if (transferableData.dataNode.getAttributeNS(PencilNamespaces.p, "type")) {
+        target = this.createControllerFor(transferableData.dataNode);
+    } else {
+        var targets = [];
+        for (var i = 0; i < transferableData.dataNode.childNodes.length; i ++) {
+            var node = transferableData.dataNode.childNodes[i];
+            var subTarget = this.createControllerFor(node);
+
+            targets.push(subTarget);
+        }
+        target = new TargetSet(this, targets);
+    }
+
+    if (target.processExportingTransferableProperties) target.processExportingTransferableProperties();
+
+
     transferableData.dataNode.removeAttribute("p:parentRef");
     var metaNode = Dom.getSingle(".//p:metadata", transferableData.dataNode);
     var childTargetsNode = Dom.getSingle("./p:childTargets", metaNode);

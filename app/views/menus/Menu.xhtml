@@ -25,6 +25,18 @@
             background: @selected_bg;
             color: @selected_fg;
         }
+
+        body .MenuPopupContainer .MenuItem.Active:not([disabled='true']) > i,
+        body .MenuPopupContainer .MenuItem:not([disabled='true']):hover > i,
+        body .MenuPopupContainer .MenuItem[selected='true']:not([disabled='true']) > i,
+        body .MenuPopupContainer .MenuItem.Active:not([disabled='true']) > input[type="checkbox"]::after,
+        body .MenuPopupContainer .MenuItem:not([disabled='true']):hover > input[type="checkbox"]::after,
+        body .MenuPopupContainer .MenuItem[selected='true']:not([disabled='true']) > input[type="checkbox"]::after {
+            color: #000;
+            filter: invert(1);
+            opacity: 0.7;
+        }
+
         body .MenuPopupContainer .MenuItem[disabled='true'] {
             opacity: 0.3;
         }
@@ -60,6 +72,38 @@
         }
         body .MenuPopupContainer .MenuItem > *:first-child + label + * {
             margin-left: 2ex;
+        }
+
+        body .MenuPopupContainer.Overflowed {
+            overflow-y: auto;
+            box-sizing: border-box;
+            position: relative;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+
+        body .MenuPopupContainer.Overflowed > .OverflowIndicator {
+            position: sticky;
+            left: 0px;
+            right: 0px;
+            background-color: #FF000077;
+            margin: 0ex -0.5ex;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+        body .MenuPopupContainer.Overflowed > .OverflowIndicator.Top {
+            top: 0px;
+            background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+        }
+        body .MenuPopupContainer.Overflowed > .OverflowIndicator.Bottom {
+            bottom: 0px;
+            background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+        }
+
+        body .MenuPopupContainer.Overflowed.ReachedTop > .OverflowIndicator.Top,
+        body .MenuPopupContainer.Overflowed.ReachedBottom > .OverflowIndicator.Bottom {
+            opacity: 0;
         }
     </style>
     <div anon-id="popupContainer" class="MenuPopupContainer">

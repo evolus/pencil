@@ -20,7 +20,7 @@ function PageDetailDialog() {
     this.pageSizeCombo.comparer = function (a, b) {
         return false;
     }
-    
+
 
     this.backgroundCombo.renderer = function (item) {
         return item.name;
@@ -139,7 +139,6 @@ PageDetailDialog.prototype.onShown = function () {
 };
 PageDetailDialog.prototype.handlePageSizeSelect = function () {
     var pageSize = this.pageSizeCombo.getSelectedItem();
-    console.log("on page size selected: ", pageSize);
     var value = pageSize.value;
     if (!value) return;
     if (value.match(SIZE_RE)) {
@@ -231,7 +230,7 @@ PageDetailDialog.prototype.setup = function (options) {
     if (this.options && this.options.defaultParentPage) {
         this.pageCombo.selectItem(this.options.defaultParentPage);
     }
-    
+
     this.backgroundCombo.setItems(backgroundItems);
 
     var pageSize = this.pageSizeCombo.getSelectedItem();
@@ -243,9 +242,9 @@ PageDetailDialog.prototype.setup = function (options) {
     if (this.originalPage) {
         this.updateUIWith(this.originalPage);
     }
-    
+
     this.populatePageSizeSelector();
-    
+
     if (!this.originalPage && this._defaultSize) {
         this.widthInput.value = this._defaultSize.w;
         this.heightInput.value = this._defaultSize.h;
@@ -256,9 +255,8 @@ PageDetailDialog.prototype.setup = function (options) {
 
 PageDetailDialog.prototype.invalidateBackgroundElements = function () {
     var background = this.backgroundCombo.getSelectedItem();
-    console.log(background);
     this.colorButton.disabled = background.value ? true : false;
-    
+
     var usingBackgroundPage = background.value && background.value != "transparent";
     this.copyLinksCheckbox.disabled = !usingBackgroundPage;
     this.copyLinksLabel.style.opacity = usingBackgroundPage ? "1" : "0.5";
@@ -274,16 +272,16 @@ PageDetailDialog.prototype.populatePageSizeSelector = function () {
     if (lastSizeConfig && lastSizeConfig.match(SIZE_RE)) {
         w = Math.max(24, parseInt(RegExp.$1, 10));
         h = Math.max(24, parseInt(RegExp.$2, 10));
-        
+
         this._defaultSize = {w: w, h: h};
     }
-    
+
     var lastSize = w + "x" + h;
     pageSizes.push({
         displayName: "Last used",
         value: lastSize
     });
-    
+
     var bestFitSizeText = Pencil.controller.getBestFitSize();
     if (bestFitSizeText && bestFitSizeText.match(SIZE_RE)) {
         w = Math.max(24, parseInt(RegExp.$1, 10));
@@ -297,9 +295,9 @@ PageDetailDialog.prototype.populatePageSizeSelector = function () {
             value: bestFitSize
         });
     }
-    
+
     if (!this._defaultSize) this._defaultSize = {w: w, h: h};
-    
+
     var backgroundPage = this.backgroundCombo.getSelectedItem();
     if (backgroundPage && backgroundPage.width && backgroundPage.height) {
         pageSizes.push({
@@ -320,8 +318,7 @@ PageDetailDialog.prototype.updateUIWith = function (page) {
 
     this.widthInput.value = page.width;
     this.heightInput.value = page.height;
-    
-    console.log("after setting size to ", page.width, page.height);
+
 
     if (page.backgroundColor) {
         this.backgroundCombo.selectItem({
@@ -346,7 +343,7 @@ PageDetailDialog.prototype.updateUIWith = function (page) {
         });
         this.invalidateBackgroundElements();
     }
-    
+
     this.copyLinksCheckbox.checked = (page.backgroundPageId && page.copyBackgroundLinks) || false;
 }
 
@@ -367,7 +364,7 @@ PageDetailDialog.prototype.createPage = function () {
             backgroundPageId = background.value;
         }
     }
-    
+
     var options = {
         name: name,
         width: width,
@@ -412,7 +409,7 @@ PageDetailDialog.prototype.updatePage = function() {
     }
 
     var parentPageId = this.pageCombo.getSelectedItem().id;
-    
+
     var options = {
         name: name,
         width: width,
@@ -423,7 +420,7 @@ PageDetailDialog.prototype.updatePage = function() {
         copyBackgroundLinks: background.value && background.value != "transparent" && this.copyLinksCheckbox.checked
     };
     Pencil.controller.updatePageProperties(page, options);
-    
+
     return page;
 }
 PageDetailDialog.prototype.isPageInfoValid = function () {
