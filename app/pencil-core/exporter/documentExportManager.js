@@ -347,6 +347,7 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
 
         propertyNode.setAttribute("name", "bitmapScale");
         propertyNode.appendChild(dom.createTextNode(1));
+        // ---------------
         var propertyNode = pageNode.ownerDocument.createElementNS(PencilNamespaces.p, "p:Property");
         Dom.getSingle("./p:Properties", pageNode).appendChild(propertyNode);
 

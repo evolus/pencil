@@ -507,8 +507,8 @@ Group.prototype.processNewGroup = function () {
     }
 };
 Group.prototype.validateAll = function () {
-    for (t in this.targets) {
-        var target = this.targets[t];
+    for (let t in this.targets) {
+        let target = this.targets[t];
         target.validateAll && target.validateAll();
     }
 };
