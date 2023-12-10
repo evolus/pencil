@@ -241,7 +241,7 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
                     try {
                         var readOnDone = function (fileData) {
                             //var data = Base64.encode(fileData, true);
-                            var data = new Buffer(fileData).toString("base64");
+                            var data = Buffer.from(fileData).toString("base64");
                             var st = {
                                 id: "img_" + _index,
                                 label: _stencils[_index]._label,

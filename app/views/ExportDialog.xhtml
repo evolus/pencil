@@ -53,6 +53,7 @@
             width: 9em;
             margin-left: 0.8em;
         }
+        @optionEditorPane input[type="text"],
         @optionEditorPane button {
             height: 1.65em;
             line-height: 1.65em;
@@ -61,6 +62,17 @@
         @optionPane.ForcedExporter > @exporterCombo {
             display: none;
         }
+        @optionPane:not(.LinkingSupported) @copyBgLinksBox {
+            display: none;
+        }
+        @copyBgLinksBox {
+            max-height: 2em;
+            margin-top: 1em;
+        }
+        @copyBgLinksBox > label {
+            min-width: 18em;
+        }
+
     </style>
     <vbox>
         <label>Select pages:</label>
@@ -76,7 +88,6 @@
             <div flex="1" anon-id="warningContent"></div>
         </hbox>
         <label anon-id="optionEditorTitle">Options:</label>
-        <vbox anon-id="optionEditorPane">
-        </vbox>
+        <vbox anon-id="optionEditorPane"></vbox>
     </vbox>
 </hbox>

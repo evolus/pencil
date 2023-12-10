@@ -89,6 +89,8 @@ widget.Tree = function() {
         var target = Dom.getTarget(event);
         if (!target || !Dom.hasClass(target, "Checkbox") || target.nodeName.toLowerCase() != "input") return;
         if (target.disabled) return;
+        
+        if (event.which == 2) target.checked = !target.checked;
 
         var treeContainer = Dom.findUpward(target, {
             eval: function(n) {
@@ -102,7 +104,7 @@ widget.Tree = function() {
         if ((target.checked && tree.options.propagateCheckActionDownwards)
                 || (!target.checked && tree.options.propagateUncheckActionDownwards)) {
             var itemNode = target.parentNode.parentNode;
-            setItemsCheckedRecursivelyFromNodes(getChildrenContainerFromItemNode(itemNode).childNodes, target.checked);
+            if (event.which != 2) setItemsCheckedRecursivelyFromNodes(getChildrenContainerFromItemNode(itemNode).childNodes, target.checked);
         }
 
         Dom.emitEvent("blur", treeContainer, {});

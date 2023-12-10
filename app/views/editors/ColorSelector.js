@@ -183,14 +183,26 @@ function ColorSelector() {
         thiz._emitCloseEvent();
     }, false);
 
-    this.recentlyUsedColor.addEventListener("click", function (event) {
+    function colorListSelectHandler(event) {
         var colorCell = Dom.findUpward(event.target, function (n) {
             return n.hasAttribute("color");
         });
         if (!colorCell) return;
         thiz.selectColorCell(colorCell, true);
         thiz._emitCloseEvent();
-    }, false);
+    }
+    this.recentlyUsedColor.addEventListener("click", colorListSelectHandler, false);
+    this.documentPaletteContainer.addEventListener("click", colorListSelectHandler, false);
+
+    this.bind("contextmenu", function (event) {
+        var color = Dom.findUpwardForData(event.target, "_color");
+        if (!color) return;
+
+        ColorSelector._handlePaletteMenu(thiz, color, event);
+    }, this.documentPaletteContainer);
+
+    this.bind("click", this.pickColor, this.pickerButton);
+    this.bind("click", this.addToPalette, this.addToPaletteButton);
 }
 __extend(BaseTemplatedWidget, ColorSelector);
 
@@ -209,6 +221,26 @@ document.addEventListener("mouseup", function () {
     ColorSelector.heldInstance._handleMouseUp(event);
     ColorSelector.heldInstance = null;
 }, false);
+
+
+ColorSelector._handlePaletteMenu = function (thiz, color, event) {
+    if (!ColorSelector._paletteMenu) {
+        ColorSelector._paletteMenu = new Menu();
+        ColorSelector._paletteMenu.register({
+            getLabel: function () { return "Remove" },
+            icon: "delete",
+            run: function () {
+                Pencil.controller.removeColorFromDocumentPalette(ColorSelector._colorToRemove);
+                ColorSelector._instanceForMenu.loadDocumentColors();
+            }
+        });
+    }
+
+    ColorSelector._colorToRemove = color;
+    ColorSelector._instanceForMenu = thiz;
+    ColorSelector._paletteMenu.showMenuAt(event.clientX, event.clientY);
+};
+
 ColorSelector.prototype.onInsertedIntoDocument = function () {
     var thiz = this;
     window.setTimeout(function () {
@@ -316,38 +348,69 @@ ColorSelector.prototype.setGridSelectorColor = function () {
         }
     });
 };
+ColorSelector.prototype.setupColors = function () {
+    this.loadRecentlyUsedColors();
+    this.loadDocumentColors();
+};
+ColorSelector.prototype.loadRecentlyUsedColors = function () {
+    var colors = Config.get("gridcolorpicker.recentlyUsedColors", "");
+
+    this._lastUsedColors = colors;
+    var c = colors.split(",");
+    this.recentlyUsedColors = c;
+    var el = this.recentlyUsedColorElements;
+    for (var i = 0; i < Math.min(el.length, c.length); i++) {
+        var color = c[i];
+        if (color.length > 7) {
+            color = color.substring(0, 7);
+        }
+        if (el[i].hasAttribute && el[i].hasAttribute("color")) {
+            el[i].setAttribute("color", color);
+            el[i].setAttribute("style", "background-color: " + color);
+        }
+    }
+};
+ColorSelector.prototype.addToPalette = function () {
+    if (!Pencil.controller || !Pencil.controller.doc) return;
+    Pencil.controller.addColorIntoDocumentPalette(this.getColor());
+    this.loadDocumentColors();
+};
+ColorSelector.prototype.loadDocumentColors = function () {
+    Dom.toggleClass(this.documentPalettePane, "NoDocument", Pencil.controller && Pencil.controller.doc ? false : true);
+    if (!Pencil.controller || !Pencil.controller.doc) return;
+
+    Dom.setInnerText(this.paletteTitle, (Pencil.controller.doc.name || "Untitled Document") + " color palette:")
+
+    var colors = Pencil.controller.getDocumentColorPalette();
+    if (!colors || colors.length == 0) {
+        Dom.addClass(this.documentPalettePane, "Empty");
+    } else {
+        Dom.removeClass(this.documentPalettePane, "Empty");
+    }
+
+    Dom.empty(this.documentPaletteContainer);
+    colors.forEach(function (c) {
+        var cell = document.createElement("div");
+        cell.setAttribute("class", "colorpickertile");
+        cell.setAttribute("title", c.toString());
+        cell.setAttribute("color", c.toString());
+        cell._color = c;
+        cell.setAttribute("style", "background-color: " + c.toRGBAString() + ";")
+        this.documentPaletteContainer.appendChild(cell);
+    }.bind(this));
+};
 ColorSelector.prototype.initializeGridSelector = function () {
     if (this._initialized) return;
     this._initialized = true;
 
     var thiz = this;
-    var el = [];
+    this.recentlyUsedColorElements = [];
     Dom.doOnAllChildren(this.recentlyUsedColor, function (n) {
         if (n.hasAttribute && n.hasAttribute("color")) {
-            el.push(n);
+            thiz.recentlyUsedColorElements.push(n);
         }
     });
-    if (this._timer) clearInterval(this._timer);
-    this._timer = setInterval(function () {
-        var colors = Config.get("gridcolorpicker.recentlyUsedColors");
-
-        if (colors != thiz._lastUsedColors) {
-            thiz._lastUsedColors = colors;
-            var c = colors.split(",");
-            thiz.recentlyUsedColors = c;
-            for (var i = 0; i < Math.min(el.length, c.length); i++) {
-                var color = c[i];
-                if (color.length > 7) {
-                    color = color.substring(0, 7);
-                }
-                //debug("color: " + color);
-                if (el[i].hasAttribute && el[i].hasAttribute("color")) {
-                    el[i].setAttribute("color", color);
-                    el[i].setAttribute("style", "background-color: " + color);
-                }
-            }
-        }
-    }, 300);
+    this.setupColors();
 };
 ColorSelector.prototype.updateRecentlyUsedColors = function () {
     var aColor = this.color;
@@ -459,4 +522,174 @@ ColorSelector.prototype.onValueChanged = function (source) {
     this.invalidateUI(source);
     this.clearSelectedColor(this.recentlyUsedColor);
     this._emitChangeEvent();
+};
+ColorSelector.installGlobalListeners = function () {
+    if (ColorSelector.globalListenersInstalled) return;
+
+    ColorSelector.globalListenersInstalled = true;
+
+    document.body.addEventListener("mousedown", function (event) {
+        if (!ColorSelector.currentPickerInstance) return;
+
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+        var electron = require("electron");
+
+        var displays = remote.screen.getAllDisplays();
+        if (!displays || displays.length <= 0) {
+            ColorSelector.currentPickerInstance.onColorPickingCanceled();
+            return;
+        }
+
+        var maxWidth = 0;
+        var maxHeight = 0;
+        displays.forEach(function (d) {
+            maxWidth = Math.max(maxWidth, d.bounds.x + d.bounds.width);
+            maxHeight = Math.max(maxHeight, d.bounds.y + d.bounds.height);
+        });
+
+
+        document.body.setAttribute("color-picker-active", "picking");
+
+        var x = event.screenX;
+        var y = event.screenY;
+
+        new Capturer().captureFullScreenData(
+            {
+                x: 0,
+                y: 0,
+                width: maxWidth,
+                height: maxHeight,
+                processor: function (canvas, context) {
+                    var pixelData = context.getImageData(x, y, 1, 1).data;
+                    return "#" + Color.Dec2Hex(pixelData[0]) + Color.Dec2Hex(pixelData[1]) + Color.Dec2Hex(pixelData[2]);
+                }
+            },
+            function (color, error) {
+                if (!color) {
+                    console.log("Error:", error);
+                    ColorSelector.currentPickerInstance.onColorPickingCanceled();
+                    return;
+                }
+
+                ColorSelector.currentPickerInstance.onColorPicked(color);
+                ColorSelector.currentPickerInstance = null;
+            });
+    }, true);
+
+    document.body.addEventListener("focus", function (event) {
+        if (!ColorSelector.currentPickerInstance) return;
+
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }, true);
+
+
+
+    document.body.addEventListener("mouseup", function (event) {
+        if (!ColorSelector.currentPickerInstance) return;
+
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }, true);
+
+    document.body.addEventListener("click", function (event) {
+        if (!ColorSelector.currentPickerInstance) return;
+
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }, true);
+};
+ColorSelector.prototype.onColorPickingCanceled = function () {
+    setTimeout(function () {
+        document.body.removeAttribute("color-picker-active");
+        document.body.removeAttribute("color-picker-active-external");
+        BaseWidget.closableProcessingDisabled = false;
+        ColorSelector.currentPickerInstance = null;
+        BaseWidget.unregisterClosable(ColorSelector._pickerClosable);
+    }, 200);
+};
+ColorSelector.prototype.onColorPicked = function (color) {
+    document.body.removeAttribute("color-picker-active");
+    document.body.removeAttribute("color-picker-active-external");
+    BaseWidget.closableProcessingDisabled = false;
+    BaseWidget.unregisterClosable(ColorSelector._pickerClosable);
+
+    var a = this.color.a;
+    this.color = Color.fromString(color);
+    this.color.a = a;
+    this.onValueChanged(this.pickerButton);
+    this._emitCloseEvent();
+};
+
+ColorSelector._pickerClosable = {
+    close: function () {
+        if (ColorSelector.currentPickerInstance) ColorSelector.currentPickerInstance.onColorPickingCanceled();
+    }
+};
+
+ColorSelector.CONFIG_EXTERNAL_COLOR_PICKER_PATH = Config.define("color.external_picker_path", "");
+ColorSelector.eyeDropper = new EyeDropper();
+ColorSelector.prototype.pickColor = function (event) {
+    var thiz = this;
+    // document.body.setAttribute("color-picker-active", true);
+    // ColorSelector.eyeDropper.open().then(function (color) {
+    //     if (color && color.sRGBHex) {
+    //         thiz.onColorPicked(color.sRGBHex.toUpperCase());
+    //     } else {
+    //         thiz.onColorPickingCanceled();
+    //     }
+    // }).catch(function () {
+    //     thiz.onColorPickingCanceled();
+    // });
+    // return;
+
+    var externalPickerPath = Config.get(ColorSelector.CONFIG_EXTERNAL_COLOR_PICKER_PATH, "");
+    if (!externalPickerPath) {
+        this.pickColorUsingElectronCapture();
+        return;
+    }
+
+
+    if (event && event.shiftKey) {
+        window.setTimeout(function () {
+            thiz.pickColorUsingExternalTool(externalPickerPath);
+        }, 2000);
+    } else {
+        thiz.pickColorUsingExternalTool(externalPickerPath);
+    }
+};
+ColorSelector.prototype.pickColorUsingExternalTool = function (externalPickerPath) {
+    var thiz = this;
+
+    document.body.setAttribute("color-picker-active-external", true);
+    var exec = require("child_process").exec;
+    exec(externalPickerPath, function (error, stdout, stderr) {
+        var color = stdout;
+        console.log("Color: " + color);
+        if (color) {
+            thiz.onColorPicked(color.replace(/[^0-9#A-F]+/gi, ""));
+        } else {
+            thiz.onColorPickingCanceled();
+        }
+    });
+}
+
+ColorSelector.prototype.pickColorUsingElectronCapture = function () {
+    ColorSelector.installGlobalListeners();
+
+    document.body.setAttribute("color-picker-active", true);
+    BaseWidget.closableProcessingDisabled = true;
+
+    ColorSelector.currentPickerInstance = this;
+    BaseWidget.registerClosable(ColorSelector._pickerClosable);
 };

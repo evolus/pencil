@@ -7,6 +7,18 @@ FlavourSet.prototype.appendFlavour = function (f) {
 };
 
 var nsDragAndDrop = {
+    setData(key, value) {
+        this.dragData[key] = value;
+    },
+
+    getData(key) {
+        return this.dragData ? this.dragData[key] : null;
+    },
+
+    dragStart: function(event) {
+        this.dragData = {};
+    },
+
     dragOver: function (event, observer) {
     },
 
@@ -16,12 +28,12 @@ var nsDragAndDrop = {
         //gives the observer the ability to actively tell that it accepts the drag, bybass type-based checking below
         if (observer.acceptsDataTransfer && observer.acceptsDataTransfer(event.dataTransfer)) return true;
         if (!observer.getSupportedFlavours) return false;
-        
+
         var flavours = observer.getSupportedFlavours().flavours;
         for (var i = 0; i < flavours.length; i ++) {
             var f = flavours[i];
-            var data = event.dataTransfer.getData(f);
-            if (data) {
+            var types = event.dataTransfer.types;
+            if (types && types.includes(f)) {
                 if (observer.onDragEnter) observer.onDragEnter(event);
                 event.stopPropagation();
                 return true;
@@ -49,6 +61,7 @@ var nsDragAndDrop = {
             for (var i = 0; i < flavours.length; i ++) {
                 var f = flavours[i];
                 var data = event.dataTransfer.getData(f);
+                var data = nsDragAndDrop.getData(f);
                 if (data) {
                     observer.onDrop(event, { data: data });
                     event.stopPropagation();
@@ -58,6 +71,5 @@ var nsDragAndDrop = {
         } else {
             observer.onDrop(event, event.dataTransfer);
         }
-
     }
 };

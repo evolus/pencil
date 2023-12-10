@@ -5,6 +5,66 @@
 var Connector = {};
 
 Connector.isWorking = false;
+
+Connector.prepareInvalidation = function (canvas) {
+    Connector.caches = [];
+    Connector.cacheMap = {};
+    Connector.incomingMap = {};
+    Dom.workOn(".//svg:g[@p:type='Shape']", canvas.drawingLayer, function (node) {
+        if (canvas.isShapeLocked(node)) return;
+        
+        var defId = canvas.getType(node);
+        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+        if (!def) return;
+        
+        var shape = canvas.createControllerFor(node);
+        
+        var cache = {
+            shape: shape,
+            connectedHandles: []
+        };
+
+        for (var i = 0; i < def.propertyGroups.length; i ++) {
+            for (var j = 0; j < def.propertyGroups[i].properties.length; j ++) {
+                var prop = def.propertyGroups[i].properties[j];
+                if (prop.type != Handle) continue;
+                
+                var handle = shape.getProperty(prop.name);
+                if (!handle.meta ||
+                    !handle.meta.connectedShapeId ||
+                    !handle.meta.connectedOutletId) continue;
+
+                var incomings = Connector.incomingMap[handle.meta.connectedShapeId];
+                if (!incomings) {
+                    incomings = [];
+                    Connector.incomingMap[handle.meta.connectedShapeId] = incomings;
+                }
+                
+                incomings.push(node.id);
+                
+                cache.connectedHandles.push({
+                    prop: prop,
+                    handle: handle
+                });
+            }
+        }
+        
+        Connector.caches.push(cache);
+        Connector.cacheMap[node.id] = cache;
+    });
+    
+};
+Connector.prepareInvalidationIfNeeded = function (canvas) {
+    if (Connector.caches) return;
+    Connector.prepareInvalidation(canvas);
+};
+Connector.finishInvalidation = function (canvas) {
+    Connector.caches = null;
+    Connector.cacheMap = null;
+    Connector.incomingMap = null;
+};
+
+
 Connector.invalidateInboundConnections = function (canvas, shape) {
     if (Connector.isWorking) return;
     try {
@@ -15,6 +75,11 @@ Connector.invalidateInboundConnections = function (canvas, shape) {
     }
 };
 Connector.invalidateInboundConnectionsForShapeTarget = function (target) {
+    Connector.prepareInvalidationIfNeeded(target.canvas);
+    
+    var incomings = Connector.incomingMap[target.svg.id];
+    if (!incomings || incomings.length == 0) return;
+
 	if (!target.getConnectorOutlets) return;
 	
 	var canvas = target.canvas;
@@ -26,40 +91,21 @@ Connector.invalidateInboundConnectionsForShapeTarget = function (target) {
     for (var i = 0; i < outlets.length; i ++) {
         outletMap[outlets[i].id] = outlets[i];
     }
-
-    Dom.workOn(".//svg:g[@p:type='Shape']", canvas.drawingLayer, function (node) {
-        if (canvas.isShapeLocked(node)) return;
+    
+    for (var id of incomings) {
+        var cache = Connector.cacheMap[id];
+        var source = cache.shape;
         
-        var defId = canvas.getType(node);
-        
-        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-        if (!def) return;
-        
-        var handleProps = [];
-        for (var i = 0; i < def.propertyGroups.length; i ++) {
-            for (var j = 0; j < def.propertyGroups[i].properties.length; j ++) {
-                var prop = def.propertyGroups[i].properties[j];
-                if (prop.type == Handle) {
-                    handleProps.push(prop);
-                }
-            }
-        }
-        if (handleProps.length == 0) return;
-        var source = target.canvas.createControllerFor(node);
-
-        for (var i = 0; i < handleProps.length; i ++) {
-            var prop = handleProps[i];
-            var handle = source.getProperty(prop.name);
-            if (!handle.meta ||
-                !handle.meta.connectedShapeId ||
-                !handle.meta.connectedOutletId) continue;
-
+        for (var i = 0; i < cache.connectedHandles.length; i ++) {
+            var prop = cache.connectedHandles[i].prop;
+            var handle = cache.connectedHandles[i].handle;
+            
             if (handle.meta.connectedShapeId != shape.id) continue;
             if (!outletMap[handle.meta.connectedOutletId]) continue;
 
             var outlet = outletMap[handle.meta.connectedOutletId];
 
-            var m = shape.getTransformToElement(node);
+            var m = shape.getTransformToElement(source.svg);
             
             var via = Connector.calculateViaPoint(target, outlet, m);
 
@@ -78,7 +124,7 @@ Connector.invalidateInboundConnectionsForShapeTarget = function (target) {
 
             source.setProperty(prop.name, handle);
         }
-    });
+    }
 };
 Connector.invalidateInboundConnectionsImpl = function (canvas, shape) {
     var target = canvas.createControllerFor(shape);

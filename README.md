@@ -22,15 +22,22 @@ Setting up
 Pencil uses [Atom Electron](http://electron.atom.io/) as the runtime, follow the these steps to setup the environment:
 
   * Clone this repository
-  * Make sure you are using *nodejs 5+*
+  * Make sure you are using *nodejs 5+* (Pencil development only needs *npm* for package management. Node runtime is _not_ required.)
+  * Checkout this _development_ branch:
+  
+    ```bash
+    $ git checkout development
+    ```
+    
   * Install dependencies:
 
       ```bash
       $ npm install
       ```
+      
   * Start Pencil using the prebuilt version of Electron
 
-      ```bash
+    ```bash
       $ npm start
     ```
 
@@ -50,7 +57,11 @@ Windows 7 and later are supported, older operating systems are not supported (an
 
 Linux
 -----
+
 * Tested
     * Ubuntu 12.04 and later
     * Fedora 21+
     * Debian 8+
+* Packages
+    * **Arch Linux** - [pencil](https://aur.archlinux.org/packages/pencil/) on the [Arch User Repository](https://aur.archlinux.org/).
+    * **Gentoo Linux** - [media-gfx/evoluspencil](https://packages.gentoo.org/packages/media-gfx/evoluspencil).

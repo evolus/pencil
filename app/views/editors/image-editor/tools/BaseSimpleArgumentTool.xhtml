@@ -1,0 +1,50 @@
+<hbox>
+    <style>
+        @this > hbox {
+            align-items: center;
+        }
+        
+        @buttonLabel {
+            margin-left: 0.3ex;
+            font-size: 0.9em;
+        }
+        body > .BaseSimpleArgumentToolPopup {
+            & hbox {
+                align-items: center;
+            }
+            
+            & @seeker {
+                width: 13em;
+            }
+            
+            & @percentInput {
+                width: 4em;
+                text-align: right;
+                padding-top: 0.2em;
+                padding-bottom: 0.2em;
+                
+                margin-left: 0.5ex;
+            }
+            
+            & @label {
+                opacity: 0.7;
+                margin-bottom: 1ex;
+            }
+            
+            & @unitLabel {
+                margin-left: 0.3ex;
+            }
+        }
+    </style>
+    <button anon-id="button"><i anon-id="icon">settings_brightness</i><span anon-id="buttonLabel"></span></button>
+    <ui:Popup anon-id="popup" popup-class="BaseSimpleArgumentToolPopup">
+        <vbox>
+            <span anon-id="label"></span>
+            <hbox>
+                <input type="range" anon-id="seeker" min="-100" max="100" value="50" flex="1" />
+                <input anon-id="percentInput" type="number" title="Percent" min="-100" max="100" maxlength="4" size="4" />
+                <label anon-id="unitLabel">%</label>
+            </hbox>
+        </vbox>
+    </ui:Popup>
+</hbox>

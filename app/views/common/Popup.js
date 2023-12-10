@@ -1,4 +1,4 @@
-function Popup() {
+function Popup(node) {
     BaseTemplatedWidget.call(this);
 
     this.forceInside = true;
@@ -6,9 +6,40 @@ function Popup() {
     this.visible = false;
     this.shouldDetach = true;
     Dom.addClass(this.popupContainer, "UIWidget");
+    if (node && node.getAttribute) {
+        var popupClass = node.getAttribute("popup-class");
+        if (popupClass) Dom.addClass(this.popupContainer, popupClass);
+    }
+
+    Popup.registerGlobalListeners();
 }
 __extend(BaseTemplatedWidget, Popup);
 Popup.Z_INDEX = 9001;
+
+Popup.registerGlobalListeners = function () {
+    if (Popup._globalListenersRegistered) return;
+    Popup._globalListenersRegistered = true;
+
+    document.addEventListener("mousedown", function () {
+        Popup.mouseHeld = true;
+    }, false);
+    document.addEventListener("mouseup", function () {
+        Popup.mouseHeld = false;
+    }, false);
+    document.addEventListener("mousemove", function (event) {
+        if (!Popup.mouseHeld) return;
+        if (BaseWidget.closables.length == 0) return;
+        var closable = BaseWidget.closables[BaseWidget.closables.length - 1];
+        if (!__isAssignableFrom(closable.constructor, Popup)) return;
+        if (closable.allowMouseDragging) return;
+        var input = Dom.findUpward(event.target, function (n) {
+            return n.localName == "input" || n.localName == "select" || n.localName == "textarea";
+        });
+        if (input) return;
+
+        Dom.cancelEvent(event);
+    }, false);
+};
 
 Popup.prototype.onAttached = function () {
     if (this.popupContainer) {
@@ -105,6 +136,8 @@ Popup.prototype.isVisible = function () {
 };
 Popup.prototype.showAt = function (x, y, skipEvent, autoFlip) {
     this.reparent();
+
+    console.log("Showing at: ", [x, y]);
 
     if (this.mode) {
         this.popupContainer.setAttribute("mode", this.mode);
@@ -265,14 +298,13 @@ Popup.prototype._showImpl = function (anchor, hAlign, vAlign, hPadding, vPadding
     if (!this.skipStack) {
         BaseWidget.registerClosable(this);
     }
-    console.log("showAt X: ", x, "Y: ", y);
 };
 Popup.prototype._setPosition = function (x, y) {
     this.popupContainer.style.left = x + "px";
     this.popupContainer.style.top = y + "px";
 };
-Popup.prototype.close = function () {
-    this.hide();
+Popup.prototype.close = function (reason, event) {
+    this.hide(undefined, reason, event);
 };
 Popup.prototype.getClosableContainer = function () {
     return this.popupContainer;
@@ -282,10 +314,10 @@ Popup.prototype.hidePopupContainer = function () {
     this.popupContainer.style.visibility = "hidden";
     this.visible = false;
 }
-Popup.prototype.hide = function (silent) {
+Popup.prototype.hide = function (silent, reason, event) {
     this.hidePopupContainer();
     if (!silent) Dom.emitEvent("p:PopupHidden", this.node());
-    if (this.onHide) this.onHide();
+    if (this.onHide) this.onHide(reason, event);
 
     BaseWidget.unregisterClosable(this);
     if (this.e(this.shouldDetach)) this.detach();

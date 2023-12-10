@@ -4,8 +4,6 @@ function SnappingHelper(canvas) {
         Config.set("object.snapping.enabled", true);
     }
     this.init();
-
-    //var this = new SnappingHelper
 };
 SnappingHelper.prototype.isGridSnappingEnabled = function () {
     return Config.get("edit.snap.grid") == true;
@@ -111,6 +109,23 @@ SnappingHelper.prototype.rebuildSnappingGuide = function () {
             }
         }
     }
+
+    var margin = (Pencil.controller && !this.canvas.options.ignorePageMarging) ? Pencil.controller.getDocumentPageMargin() : 0;
+    margin = parseInt(margin, 10);
+    if (isNaN(margin) || margin < 0) margin = 0;
+    var uid = Util.newUUID();
+    var snap = {
+            vertical: [
+                new SnappingData("MarginSnap", margin, "Left", true, uid),
+                new SnappingData("MarginSnap", this.canvas.width - margin, "Right", true, uid)
+            ],
+            horizontal: [
+                new SnappingData("MarginSnap", margin, "Top", false, uid),
+                new SnappingData("MarginSnap", this.canvas.height - margin, "Bottom", false, uid)
+            ]
+    };
+    this.snappingGuide[uid] = snap;
+
     this.sortData();
 };
 SnappingHelper.prototype.updateSnappingGuide = function (controller, remove) {
@@ -131,6 +146,9 @@ SnappingHelper.prototype.updateSnappingGuide = function (controller, remove) {
         this.sortData();
     }
 };
+SnappingHelper.prototype.onControllerSnapshot = function (controller) {
+    this.lastSnappingGuideSnapshot = (controller && controller.getSnappingGuide) ? controller.getSnappingGuide() : null;
+};
 SnappingHelper.prototype.sortData = function () {
     var x = [];
     var y = [];
@@ -145,114 +163,103 @@ SnappingHelper.prototype.sortData = function () {
     this.snappedX = false;
     this.snappedY = false;
 };
-SnappingHelper.prototype.findSnapping = function (drawX, drawY, ghost, snap, shift, grid) {
-    if (!this.isSnappingEnabled()) return;
-    try {
-        if (drawX && !grid) {
-            this.clearSnappingGuideX();
-        }
-        if (drawY && !grid) {
-            this.clearSnappingGuideY();
-        }
+SnappingHelper.prototype.applySnapping = function (dx, dy, controller) {
+    if (!this.isSnappingEnabled()) return null;
+    if (!this.lastSnappingGuideSnapshot) return null;
+    var currentControllerId = controller.id;
 
-        //debug("start ***");
-        if (!ghost && (!this.canvas.controllerHeld || !this.canvas.currentController || !this.canvas.currentController.getSnappingGuide)) return null;
+    var xsnap = this.applySnappingValue(dx, this.lastSnappingGuideSnapshot.vertical, this.lastXData, controller);
+    var ysnap = this.applySnappingValue(dy, this.lastSnappingGuideSnapshot.horizontal, this.lastYData, controller);
 
-        var _snap = snap ? snap : Pencil.SNAP;
-        if (shift) {
-            _snap = 1;
-        }
+    this.drawSnaps(xsnap, ysnap);
 
-        var snappingData = this.findSnappingImpl(this.canvas.currentController, ghost, _snap, grid);
-        var currentDx = Pencil.SNAP + 10;
-        var currentDy = Pencil.SNAP + 10;
-        if (grid) {
-            currentDx = Pencil.getGridSize().w;
-            currentDy = Pencil.getGridSize().h;
-        }
-        var b = !ghost ? this.canvas.currentController.getSnappingGuide() : ghost;
+    return {
+        xsnap: xsnap,
+        ysnap: ysnap
+    };
+};
+SnappingHelper.prototype.drawSnaps = function (xsnap, ysnap) {
+    var thiz = this;
 
-        var snapDelta = {
-            dx: 0, dy: 0
-        };
+    this.clearSnappingGuideX();
+    if (xsnap && xsnap.matchingGuides) {
+        xsnap.matchingGuides.forEach(function (guide) {
+            var verticalGuide = document.createElementNS(PencilNamespaces.svg, "line");
 
-        if (snappingData.verticals.length > 0) {
-            for (var k = 0; k < b.vertical.length; k++) {
-                var ve = true;
-                if (!snappingData.verticals[0].disabled && !b.vertical[k].disabled
-                    && Math.abs(snappingData.verticals[0].x.pos - b.vertical[k].pos) < Math.abs(currentDx)
-                    && this.allowSnapping(b.vertical[k], snappingData.verticals[0].x)) {
-                        currentDx = snappingData.verticals[0].x.pos - b.vertical[k].pos;
-                }
-            }
+            verticalGuide.setAttribute("class", guide.type);
+            verticalGuide.setAttribute("x1", Math.round(guide.pos * thiz.canvas.zoom));
+            verticalGuide.setAttribute("y1", 0);
+            verticalGuide.setAttribute("x2", Math.round(guide.pos * thiz.canvas.zoom));
+            verticalGuide.setAttribute("y2", Math.round(thiz.canvas.height * thiz.canvas.zoom));
 
-            if (Math.abs(currentDx) < _snap) {
-                if (drawX && !grid) {
-                    for (var l = 0; l < snappingData.verticals.length; l++) {
-                        var verticalGuide = document.createElementNS(PencilNamespaces.svg, "line");
+            thiz.snappingGuideContainerX.appendChild(verticalGuide);
 
-                        verticalGuide.setAttribute("class", snappingData.verticals[l].x.type);
-                        verticalGuide.setAttribute("x1", Math.round(snappingData.verticals[l].x.pos) * this.canvas.zoom);
-                        verticalGuide.setAttribute("y1", 0);
-                        verticalGuide.setAttribute("x2", Math.round(snappingData.verticals[l].x.pos) * this.canvas.zoom);
-                        verticalGuide.setAttribute("y2", this.canvas.height * this.canvas.zoom);
-
-                        this.snappingGuideContainerX.appendChild(verticalGuide);
-
-                        this._snappingGuideContainerXEmpty = false;
-                    }
-                }
-                if (grid) {
-                    this.unsnapX = (Pencil.getGridSize().w / 2) + 3;
-                } else {
-                    this.unsnapX = Pencil.UNSNAP;
-                }
-                snapDelta.dx = currentDx;
-            }
-        }
-
-        if (snappingData.horizontals.length > 0) {
-            for (var k = 0; k < b.horizontal.length; k++) {
-                if (!snappingData.horizontals[0].disabled && !b.horizontal[k].disabled
-                    && Math.abs(snappingData.horizontals[0].y.pos - b.horizontal[k].pos) < Math.abs(currentDy)
-                    && this.allowSnapping(b.horizontal[k], snappingData.horizontals[0].y)) {
-                        currentDy = snappingData.horizontals[0].y.pos - b.horizontal[k].pos;
-                }
-            }
-            if (Math.abs(currentDy) < _snap) {
-                if (drawY && !grid) {
-                    for (var l = 0; l < snappingData.horizontals.length; l++) {
-                        var horizontalGuide = document.createElementNS(PencilNamespaces.svg, "line");
-
-                        horizontalGuide.setAttribute("class", snappingData.horizontals[l].y.type);
-                        horizontalGuide.setAttribute("x1", 0 * this.canvas.zoom);
-                        horizontalGuide.setAttribute("y1", Math.round(snappingData.horizontals[l].y.pos) * this.canvas.zoom);
-                        horizontalGuide.setAttribute("x2", this.canvas.width * this.canvas.zoom);
-                        horizontalGuide.setAttribute("y2", Math.round(snappingData.horizontals[l].y.pos) * this.canvas.zoom);
-
-                        this.snappingGuideContainerY.appendChild(horizontalGuide);
-
-                        this._snappingGuideContainerYEmpty = false;
-                    }
-                }
-                if (grid) {
-                    this.unsnapY = (Pencil.getGridSize().h / 2) + 3;
-                } else {
-                    this.unsnapY = Pencil.UNSNAP;
-                }
-                snapDelta.dy = currentDy;
-            }
-        }
-
-        //debug("end ***");
-        return snapDelta;
-    } catch(e) {
-        error(e);
+            thiz._snappingGuideContainerXEmpty = false;
+        });
     }
 
-    return null;
+    this.clearSnappingGuideY();
+    if (ysnap && ysnap.matchingGuides) {
+        ysnap.matchingGuides.forEach(function (guide) {
+            var horizontalGuide = document.createElementNS(PencilNamespaces.svg, "line");
+
+            horizontalGuide.setAttribute("class", guide.type);
+            horizontalGuide.setAttribute("x1", 0);
+            horizontalGuide.setAttribute("y1", Math.round(guide.pos * thiz.canvas.zoom));
+            horizontalGuide.setAttribute("x2", Math.round(thiz.canvas.width * thiz.canvas.zoom));
+            horizontalGuide.setAttribute("y2", Math.round(guide.pos * thiz.canvas.zoom));
+
+            thiz.snappingGuideContainerY.appendChild(horizontalGuide);
+
+            thiz._snappingGuideContainerYEmpty = false;
+        });
+    }
 };
+SnappingHelper.prototype.applySnappingValue = function (d, controllerPositions, canvasPositions, controller) {
+    var currentControllerId = controller.id;
+    var closestDistance = Number.MAX_VALUE;
+    var closestDelta = undefined;
+    var closestGuide = undefined;
+    var matchingGuides = [];
+    canvasPositions.forEach(function (canvasGuide) {
+        if (!canvasGuide || canvasGuide.id == currentControllerId || canvasGuide.disabled) return;
+        if (controller.containsControllerId && controller.containsControllerId(canvasGuide.id)) return;
+
+        controllerPositions.forEach(function (controllerGuide) {
+            if (!controllerGuide || controllerGuide.disabled) return;
+
+            var delta = canvasGuide.pos - (controllerGuide.pos + d);
+            var distance = Math.abs(delta);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestDelta = delta;
+                closestGuide = canvasGuide;
+                matchingGuides = [canvasGuide];
+            } else if (delta == closestDelta) {
+                matchingGuides.push(canvasGuide);
+            }
+        });
+    });
+
+    if (closestDistance <= Pencil.SNAP) {
+        return {
+            d: d + closestDelta,
+            matchingGuides: matchingGuides
+        }
+    } else {
+        return null;
+    }
+};
+
 SnappingHelper.prototype.sort = function(d) {
+    // var d2 = [];
+    // var positions = [];
+    // d.forEach(function (v) {
+    //     if (positions.indexOf(v.pos) >= 0) return;
+    //     d2.push(v);
+    //     positions.push(v.pos);
+    // });
+    // d = d2;
     for (var i = 0; i < d.length - 1; i++) {
         for (var j = i + 1; j < d.length; j++) {
             if (d[j].pos < d[i].pos) {
@@ -274,81 +281,4 @@ SnappingHelper.prototype.allowSnapping = function (v, x) {
     }
 
     return false;
-};
-SnappingHelper.prototype.findSnappingImpl = function(controller, ghost, snap, grid) {
-
-    try {
-        var c = !ghost ? controller.getSnappingGuide() : ghost;
-        var currentControllerId = controller.id;
-
-        var verticals = [];
-        var horizontals = [];
-
-        var x = this.lastXData;
-        var y = this.lastYData;
-
-        var _minsnap = snap ? snap : Pencil.SNAP;
-        for (var v = 0; v < c.vertical.length; v++) {
-            var vertical = { };
-            for (var i = 0; i < x.length; i++) {
-                if (!x[i].disabled && !c.vertical[v].disabled && x[i].id != currentControllerId && this.allowSnapping(c.vertical[v], x[i])) {
-                    if ((grid && x[i].type == "GridSnap" && Math.abs(x[i].pos - c.vertical[v].pos) <= _minsnap) || (!grid && x[i].type != "GridSnap" && Math.abs(x[i].pos - c.vertical[v].pos) <= _minsnap)) {
-                        _minsnap = Math.abs(x[i].pos - c.vertical[v].pos);
-                        vertical.x = x[i];
-                        vertical.dx = x[i].pos - c.vertical[v].pos;
-                    }
-                }
-            }
-            if (vertical.x) {
-                verticals.push(vertical);
-            }
-        }
-
-        //debug("found: " + verticals.length);
-        //for (var v = 0; v < verticals.length; v++) {
-        //    debug(verticals[v].toSource());
-        //}
-
-        if (verticals.length > 0) {
-            while (Math.abs(verticals[0].dx) != Math.abs(verticals[verticals.length - 1].dx)) {
-                //debug("delete");
-                verticals.splice(0, 1);
-            }
-        }
-
-        var _minsnap = snap ? snap : Pencil.SNAP;
-        for (var v = 0; v < c.horizontal.length; v++) {
-            var horizontal = { };
-            for (var i = 0; i < y.length; i++) {
-                if (!y[i].disabled && !c.horizontal[v].disabled && y[i].id != currentControllerId && this.allowSnapping(c.horizontal[v], y[i])) {
-                    if ((grid && y[i].type == "GridSnap" && Math.abs(y[i].pos - c.horizontal[v].pos) <= _minsnap) || (!grid && y[i].type != "GridSnap" && Math.abs(y[i].pos - c.horizontal[v].pos) <= _minsnap)) {
-                        _minsnap = Math.abs(y[i].pos - c.horizontal[v].pos);
-                        horizontal.y = y[i];
-                        horizontal.dy = y[i].pos - c.horizontal[v].pos;
-                    }
-                }
-            }
-            if (horizontal.y) {
-                horizontals.push(horizontal);
-            }
-        }
-
-        //debug("found: " + horizontals.length);
-        //for (var v = 0; v < horizontals.length; v++) {
-        //    debug(horizontals[v].toSource());
-        //}
-
-        if (horizontals.length > 0) {
-            while (Math.abs(horizontals[0].dy) != Math.abs(horizontals[horizontals.length - 1].dy)) {
-                horizontals.splice(0, 1);
-            }
-        }
-
-        return {
-            verticals: verticals,
-            horizontals: horizontals
-        };
-    } catch(e) {
-        Console.dumpError(e);
-    }
 };

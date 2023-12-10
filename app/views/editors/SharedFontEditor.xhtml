@@ -1,4 +1,4 @@
-<hbox>
+<hbox use-toggle="true">
     <style>
         @boldButton span {
             font-weight: bold;
@@ -11,6 +11,7 @@
         }
         @pixelFontSize {
             width: 4em;
+            @number_input();
         }
 
         .widget_ComboManager @buttonDisplay {
@@ -18,6 +19,19 @@
         }
         @fontContainer @button {
             width: 10em;
+        }
+        @weightCombo {
+            width: 2.95em !important;
+            position: relative;
+        }
+        @weightCombo > i {
+            position: absolute;
+            font-size: 0.9em;
+            right: 0.2em;
+        }
+        body .widget_SharedFontEditor[use-toggle="false"] @boldButton,
+        body .widget_SharedFontEditor[use-toggle="true"] @weightCombo {
+            display: none;
         }
     </style>
     <vbox>
@@ -27,6 +41,7 @@
                 <ui:ComboManager anon-id="fontCombo" title="Text font" />
                 <input anon-id="pixelFontSize" type="number" min="5" max="300" title="Text size" />
                 <button anon-id="boldButton" mode="icon" title="Bold"><i>format_bold</i></button>
+                <ui:ComboManager anon-id="weightCombo" title="Font Weight"></ui:ComboManager>
                 <button anon-id="italicButton" mode="icon" title="Italic"><i>format_italic</i></button>
             </hbox>
         </hbox>

@@ -14,15 +14,14 @@
             bottom: 0px;
             cursor: default;
             z-index: 2;
-            background: rgba(0, 0, 0, 0.05);
+            background: rgba(0, 0, 0, 0.25);
         }
         body @dialogFrame {
             position: absolute;
             border: none;
             border-radius: 0.35ex;
-            background: @popup_bg;
-            padding: 0.3em;
-            box-shadow: 0px 0px 1em rgba(0, 0, 0, 0.5);
+            background: @app_bg;
+            box-shadow: 0px 0px 0.5em 0.2em rgba(0, 0, 0, 0.3);
             transition: opacity 0.4s;
             box-sizing: border-box;
             cursor: default;
@@ -40,11 +39,11 @@
             text-align: center;
             line-height: 2em/1.5;
             margin-left: 1em;
-            margin-top: 0.3em;
+            margin-top: 0em;
             font-weight: bold;
             font-size: 1.5em;
             padding: 0em;
-            color: #FFF;
+            color: #333;
             opacity: 0.2;
         }
         body @dialogFrame @dialogClose:hover {
@@ -53,37 +52,37 @@
             background: rgba(0, 0, 0, 0.05);
         }
         body @dialogFrame @dialogTitle {
-            color: #FFF;
+            color: #567ab4;
+            font-size: 1.3em;
             display: block;
         }
         body @dialogFrame @dialogSubTitle {
             color: #FFF;
             display: block;
-            opacity: 0.5;
+            opacity: 0.7;
+            display: none;
         }
         body @dialogFrame @dialogTitleContainer {
-            padding: 1.2em;
         }
         body @dialogFrame @dialogHeaderPane {
-            margin: -0.3em;
             margin-bottom: 0em;
-            background: lighten(@selected_bg, 10%);
-            border-top-left-radius: 0.35ex;
-            border-top-right-radius: 0.35ex;
         }
         body @dialogFrame @dialogBody {
             padding: 1.2em;
+            overflow: hidden;
         }
         body @dialogFrame @dialogHeaderPane {
-            padding: 0.4em 0.7em;
+            padding: 1.2em;
+            padding-bottom: 0.2em;
+            align-items: center;
         }
         body @dialogFrame @dialogBody {
             padding-bottom: 0em;
         }
         body @dialogFrame @dialogFooter {
             padding: 0.9em;
-            margin: 1.4em -0.3em -0.3em -0.3em;
-            background: darken(@app_bg, 2%);
+            margin-top: 1.4em;
+            background: lighten(@app_bg, 2%);
             border-bottom-left-radius: 0.35ex;
             border-bottom-right-radius: 0.35ex;
         }
@@ -97,6 +96,8 @@
             min-width: 6em;
             text-align: center;
             display: inline-block;
+            font-weight: bold;
+            text-transform: capitalize;
         }
 
         body @dialogFooter > hbox > button[mode='accept'] {

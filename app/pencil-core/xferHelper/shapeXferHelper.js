@@ -36,27 +36,47 @@ ShapeXferHelper.prototype.handleData = function (dom) {
         this.canvas.drawingLayer.appendChild(shape);
         this.canvas.selectShape(shape);
 
+        if (this.canvas.currentController.renewTargetProperties) {
+            try {
+                var renewed = this.canvas.currentController.renewTargetProperties();
+                if (renewed) {
+                    this.canvas.selectNone();
+                    this.canvas.selectShape(shape);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
         var rect = this.canvas.currentController.getBoundingRect();
-        var mx = 0;
-        var my = 0;
+        var mx = dx;
+        var my = dy;
+        
+        var padding = this.canvas.element.getBoundingClientRect().left - this.canvas._wrapper.getBoundingClientRect().left;
+        var x0 = this.canvas._scrollPane.scrollLeft - padding;
+        var y0 = this.canvas._scrollPane.scrollTop - padding;
+        
+        console.log(this.canvas.getSize(), this.canvas._scrollPane.scrollWidth, this.canvas._scrollPane.scrollHeight);
+        
+        var x1 = x0 + Math.min(this.canvas.getSize().width, this.canvas._scrollPane.clientWidth - padding);
+        var y1 = y0 + Math.min(this.canvas.getSize().height, this.canvas._scrollPane.clientHeight - padding);
+        
+        console.log(x0, y0, x1, y1, padding);
+        
+        if (rect.x + rect.width > x1 || rect.x < x0) {
+            mx = Math.round((x1 + x0) / 2 - (rect.x + rect.width / 2));
+        }
+        if (rect.y + rect.height > y1 || rect.y < y0) {
+            my = Math.round((y1 + y0) / 2 - (rect.y + rect.height / 2));
+        }
 
-        if (rect.x + rect.width > this.canvas.getSize().width) {
-            mx = this.canvas.getSize().width - (rect.x + rect.width);
-        }
-        if (rect.y + rect.height > this.canvas.getSize().height) {
-            my = this.canvas.getSize().height - (rect.y + rect.height);
-        }
-
-        if (mx < 0 || my < 0) {
-            this.canvas.currentController.moveBy(mx, my);
-        } else {
-            this.canvas.currentController.moveBy(dx, dy);
-        }
+        this.canvas.currentController.moveBy(mx, my);
 
         this.canvas.ensureControllerInView();
 
         this.canvas.snappingHelper.updateSnappingGuide(this.canvas.currentController);
     }, this, Util.getMessage("action.create.shape", this.canvas.createControllerFor(shape).getName()));
+
     this.canvas.invalidateEditors();
 };
 

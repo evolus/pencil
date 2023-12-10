@@ -1,8 +1,7 @@
 function FontLoader() {
     this.userRepo = new FontRepository(Config.getDataFilePath("fonts"), FontRepository.TYPE_USER);
     this.documentRepo = null;
-
-
+    
     // //TODO: remove this test
     // var face = new FontFace(null, "url(file:///home/dgthanhan/.fonts/Signika-Bold.ttf) format('truetype')");
     // var addPromise = document.fonts.add(face);
@@ -13,6 +12,23 @@ function FontLoader() {
     //     face.load();
     // });
 }
+FontLoader.loadSystemFonts = function (callback) {
+    FontLoader.systemRepo = new FontRepository(getStaticFilePath("fonts/core"), FontRepository.TYPE_SYSTEM);
+    FontLoader.systemRepo.load();
+    var systemFaces = FontLoader.systemRepo.faces;
+    FontLoaderUtil.loadFontFaces(systemFaces, function () {
+        if (callback) callback();
+        var data = {
+            id: Util.newUUID(),
+            faces: systemFaces,
+            setName: "systemFaces"
+        }
+        ipcRenderer.once(data.id, function (event, data) {
+        });
+
+        ipcRenderer.send("font-loading-request", data);
+    });
+};
 FontLoader.prototype.setDocumentRepoDir = function (dirPath) {
     if (dirPath) {
         this.documentRepo = new FontRepository(dirPath, FontRepository.TYPE_DOCUMENT);
@@ -46,7 +62,8 @@ FontLoader.prototype.loadFonts = function (callback) {
     FontLoaderUtil.loadFontFaces(allFaces, function () {
         var data = {
             id: Util.newUUID(),
-            faces: allFaces
+            faces: [].concat(FontLoader.systemRepo.faces).concat(allFaces),
+            setName: "allFaces"
         }
         ipcRenderer.once(data.id, function (event, data) {
             Dom.emitEvent("p:UserFontLoaded", document.documentElement, {});
@@ -74,12 +91,29 @@ FontLoader.prototype.removeFont = function (font, callback) {
         });
     }.bind(this), "Cancel");
 };
+FontLoader.prototype.setAutoEmbed = function (font, autoEmbed, callback) {
+    ApplicationPane._instance.busy();
+    this.userRepo.setAutoEmbed(font, autoEmbed);
+    this.loadFonts(function () {
+        if (callback) callback();
+        ApplicationPane._instance.unbusy();
+    });
+};
 FontLoader.prototype.getAllInstalledFonts = function () {
     this.userRepo.load();
     if (this.documentRepo) this.documentRepo.load();
 
     var fonts = [];
     var fontNames = [];
+    
+    if (FontLoader.systemRepo.fonts.length > 0) {
+        for (var font of FontLoader.systemRepo.fonts) {
+            var font = JSON.parse(JSON.stringify(font));
+            font._type = FontRepository.TYPE_SYSTEM;
+            fonts.push(font);
+            fontNames.push(font.name);
+        }
+    }
 
     if (this.userRepo.fonts.length > 0) {
         for (var font of this.userRepo.fonts) {
@@ -114,11 +148,20 @@ FontLoader.prototype.embedToDocumentRepo = function (faces) {
 
     var shouldSave = false;
     faces.forEach(function (f) {
-        console.log("Embeding " + f);
-        if (this.documentRepo.getFont(f)) return;
         var font = this.userRepo.getFont(f);
+        var userFont = this.documentRepo.getFont(f);
+        if (userFont) {
+            if (font && !font.autoEmbed) {
+                this.documentRepo.removeFont(userFont);
+            }
+            return;
+        }
         if (!font) return;
-        console.log("user font found", font);
+        if (!font.autoEmbed) {
+            console.log(" > " + f + " is not auto-embeded.");
+            return;
+        }
+
         var font = JSON.parse(JSON.stringify(font));
         font.location = null;
         console.log(" >> cloned", font);
@@ -148,6 +191,7 @@ function FontRepository(dirPath, type) {
     this.loaded = false;
 }
 
+FontRepository.TYPE_SYSTEM = "system";
 FontRepository.TYPE_USER = "user";
 FontRepository.TYPE_DOCUMENT = "document";
 
@@ -172,9 +216,13 @@ FontRepository.prototype.load = function () {
         Dom.workOn("/p:FontRegistry/p:Font", dom, function (node) {
             var fontName = node.getAttribute("name");
             var location = node.getAttribute("location");
+            var source = node.getAttribute("source") || "";
+            var autoEmbed = node.getAttribute("auto-embed") != "false";
             var font = {
                 name: fontName,
                 location: location,
+                source: source,
+                autoEmbed: autoEmbed,
                 variants: []
             };
             thiz.fonts.push(font);
@@ -203,17 +251,58 @@ FontRepository.prototype.load = function () {
         console.error(e);
     }
 };
-FontRepository.SUPPORTED_VARIANTS = {
-    regular: {weight: "normal", style: "normal"},
-    bold: {weight: "bold", style: "normal"},
-    italic: {weight: "normal", style: "italic"},
-    boldItalic: {weight: "bold", style: "italic"}
+FontRepository.SUPPORTED_WEIGHTS = [
+    {id: "thin", weight: "100", displayName: "Thin", shortName: "T"},
+    {id: "ulight", weight: "200", displayName: "Ultra Light", shortName: "UL"},
+    {id: "light", weight: "300", displayName: "Light", shortName: "L"},
+    {id: "regular", weight: "normal", displayName: "Regular", shortName: "R"},
+    {id: "medium", weight: "500", displayName: "Medium", shortName: "M"},
+    {id: "sbold", weight: "600", displayName: "Semi Bold", shortName: "SB"},
+    {id: "bold", weight: "bold", displayName: "Bold", shortName: "B"},
+    {id: "xbold", weight: "800", displayName: "Extra Bold", shortName: "XB"},
+    {id: "black", weight: "900", displayName: "Black", shortName: "BL"},
+];
+
+FontRepository.SUPPORTED_VARIANTS = {};
+FontRepository.WEIGHT_MAP = {};
+
+for (var weight of FontRepository.SUPPORTED_WEIGHTS) {
+    FontRepository.SUPPORTED_VARIANTS[weight.id] = {
+        weight: weight.weight,
+        style: "normal",
+        displayName: weight.displayName
+    };
+    FontRepository.SUPPORTED_VARIANTS[weight.id + "Italic"] = {
+        weight: weight.weight,
+        style: "italic",
+        displayName: weight.displayName + " Italic"
+    };
+
+    FontRepository.WEIGHT_MAP[weight.weight] = weight;
+}
+//@DEPRECATED, this is kept for backward compat only
+FontRepository.SUPPORTED_VARIANTS["italic"] = {
+    weight: "normal",
+    style: "italic",
+    displayName: "Regular Italic"
 };
+
+FontRepository.findVariantName = function (weight, style) {
+    for (var variantName in FontRepository.SUPPORTED_VARIANTS) {
+        var spec = FontRepository.SUPPORTED_VARIANTS[variantName];
+        if (spec.weight == weight && spec.style == style) return variantName;
+    }
+
+    return null;
+};
+
 FontRepository.prototype.addFont = function (data) {
     if (!this.loaded) this.load();
     var font = {
         name: data.fontName,
+        autoEmbed: typeof(data.autoEmbed) === "boolean" ? data.autoEmbed : false,
         location: null,
+        source: data.source || "",
         variants: []
     };
 
@@ -261,6 +350,17 @@ FontRepository.prototype.removeFont = function (font) {
     this.save();
     this.loaded = false;
 };
+FontRepository.prototype.setAutoEmbed = function (font, autoEmbed) {
+    if (!this.loaded) this.load();
+
+    font = this.getFont(font.name);
+    if (!font) return;
+
+    font.autoEmbed = autoEmbed;
+    this.save();
+    this.loaded = false;
+};
+
 FontRepository.prototype.save = function () {
     if (!fsExistSync(this.dirPath)) {
         fs.mkdirSync(this.dirPath);
@@ -297,6 +397,8 @@ FontRepository.prototype.save = function () {
             }
 
             fontNode.setAttribute("location", font.location);
+            fontNode.setAttribute("source", font.source || "");
+            fontNode.setAttribute("auto-embed", font.autoEmbed);
 
             font.variants.forEach(function (variant) {
                 var fontStyleNode = dom.createElementNS(PencilNamespaces.p, "FontStyle");

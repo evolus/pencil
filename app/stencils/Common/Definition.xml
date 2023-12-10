@@ -187,7 +187,7 @@
                 <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,0</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">0,0</Property>
             </PropertyGroup>
         </Properties>
 
@@ -243,7 +243,7 @@
                 <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,0</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">0,0</Property>
             </PropertyGroup>
         </Properties>
 
@@ -290,11 +290,11 @@
                 <Property name="width" displayName="Width" type="Handle" p:lockY="true" p:minX="0">200,0</Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Text pane]]></Property>
-                <Property name="textFont" displayName="Default Font" type="Font">
+                <Property name="textContent" displayName="Content" type="RichText"><![CDATA[Text pane]]></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="Default Text Color" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
             </PropertyGroup>
@@ -352,11 +352,11 @@
                 <Property name="fixedWidth" displayName="Fixed Width" type="Bool">false</Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Rich <strong>text</strong>]]></Property>
-                <Property name="textFont" displayName="Default Font" type="Font">
+                <Property name="textContent" displayName="Content" type="RichText"><![CDATA[Rich <strong>text</strong>]]></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="Default Text Color" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
                 <Property name="customStyle" displayName="Additional Style" type="PlainText"><![CDATA[]]>
@@ -443,7 +443,7 @@
 
             <PropertyGroup name="Handles">
                 <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2">0,0</Property>
-                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,10</Property>
+                <Property name="textPadding" displayName="Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,10</Property>
             </PropertyGroup>
 
             <PropertyGroup name="Background">
@@ -460,15 +460,15 @@
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[]]>
+                <Property name="textContent" displayName="Content" type="RichText"><![CDATA[]]>
                 </Property>
-                <Property name="textFont" displayName="Default Font" type="Font">
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="Text Color" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -569,6 +569,147 @@
             </foreignObject>
         </p:Content>
     </Shape>
+    <Shape id="RoundedRectV2" displayName="RectangleV2" icon="Icons/rectangle.png">
+        <Properties>
+
+            <PropertyGroup>
+                <Property name="box" type="Dimension">200,80</Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Handles">
+                <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2">0,0</Property>
+                <Property name="textPadding" displayName="Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,10</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Content" type="RichText"
+                     p:editInfo="({targetName: 'text', bound: Bound.fromBox($box, $textPadding.y), font: $textFont, align: $textAlign, multi: true})"><![CDATA[]]>
+                </Property>
+                <Property name="textFont" displayName="Font" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property name="textColor" displayName="Color" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="rrRect">
+                <Box>$box.narrowed($strokeStyle.w)</Box>
+                <Transform>[translate(($strokeStyle.w / 2), ($strokeStyle.w / 2))]</Transform>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Radius>
+                    <Arg>$radius.x</Arg>
+                    <Arg>$radius.x</Arg>
+                </Radius>
+            </For>
+            <For ref="textClipPathRect">
+                <Bound>Bound.fromBox($box, $textPadding.y)</Bound>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <RichTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>Bound.fromBox($box, $textPadding.y)</Arg>
+                    <Arg>$textAlign</Arg>
+                </RichTextContent>
+            </For>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="removeBorder" displayName="Remove Border">
+                <Impl>
+                        <![CDATA[
+                            var strokeStyle = this.getProperty("strokeStyle");
+                            strokeStyle.w = 0;
+                            this.setProperty("strokeStyle", strokeStyle);
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="makeSquares" displayName="Make Squared">
+                <Impl>
+                        <![CDATA[
+                            var box = this.getProperty("box");
+                            box.w = Math.max(box.w, box.h);
+                            box.h = box.w;
+                            this.setProperty("box", box);
+                        ]]>
+                </Impl>
+            </Action>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var sw = this.getProperty("strokeStyle").w;
+                        var w = this.getProperty("box").w;
+                        var h = this.getProperty("box").h;
+                        return [
+                            new SnappingData("Left", b.x - sw / 2, "Left", true, this.id),
+                            new SnappingData("Top", b.y - sw / 2 , "Top", false, this.id),
+                            new SnappingData("Right", b.x - sw / 2 + w, "Right", true, this.id),
+                            new SnappingData("Bottom", b.y - sw / 2 + h, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="getConnectorOutlets">
+                <Impl>
+                    <![CDATA[
+                        var box = this.getProperty("box");
+                        return [
+                            new Outlet("top-left", "Bounding", 0, 0),
+                            new Outlet("top-center", "Bounding", box.w / 2, 0),
+                            new Outlet("top-right", "Bounding", box.w, 0),
+                            new Outlet("middle-left", "Bounding", 0, box.h / 2),
+                            new Outlet("middle-center", "Bounding", box.w / 2, box.h / 2),
+                            new Outlet("middle-right", "Bounding", box.w, box.h / 2),
+                            new Outlet("bottom-left", "Bounding", 0, box.h),
+                            new Outlet("bottom-center", "Bounding", box.w / 2, box.h),
+                            new Outlet("bottom-right", "Bounding", box.w, box.h)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <rect width="61" height="24" rx="3" ry="3" x="0" y="0" style="stroke-width: 1px;" id="rrRect" />
+                <filter id="shadingFilter" height="1.2558399" y="-0.12792" width="1.06396" x="-0.03198">
+                    <feGaussianBlur stdDeviation="1" in="SourceAlpha" />
+                </filter>
+                <clipPath id="textClipPath">
+                    <rect id="textClipPathRect" />
+                </clipPath>
+            </defs>
+            <use xlink:href="#rrRect" id="bgCopy" transform="translate(2, 2)" p:filter="url(#shadingFilter)" style="opacity:0.5;" p:heavy="true" />
+            <use xlink:href="#rrRect" />
+            <g id="text" clip-path="url(#textClipPath)" />
+        </p:Content>
+    </Shape>
 
     <Shape id="RectWithGradient" displayName="Gradient Rectangle" icon="Icons/rectangle-grad.png">
         <Properties>
@@ -580,7 +721,7 @@
 
             <PropertyGroup name="Handles">
                 <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2">0,0</Property>
-                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,5</Property>
+                <Property name="textPadding" displayName="Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,5</Property>
             </PropertyGroup>
 
             <PropertyGroup name="Background">
@@ -600,9 +741,9 @@
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[]]>
+                <Property name="textContent" displayName="Content" type="RichText"><![CDATA[]]>
                 </Property>
-                <Property name="textFont" displayName="Default Font" type="Font">
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
                 <Property name="textColor" displayName="Color" type="Color">
@@ -690,7 +831,7 @@
         <Properties>
             <PropertyGroup>
                 <Property name="box" displayName="Box" type="Dimension">100,80</Property>
-                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2">0,20</Property>
+                <Property name="textPadding" displayName="Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2">0,20</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
                 <Property name="fillColor" displayName="Background Color" type="Color">
@@ -698,23 +839,23 @@
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="Line Color" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="Line Style" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[]]>
+                <Property name="textContent" displayName="Content" type="RichText"><![CDATA[]]>
                 </Property>
-                <Property name="textFont" displayName="Default Font" type="Font">
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="Text Color" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Actions>
@@ -943,16 +1084,80 @@
             <use xlink:href="#container" />
         </p:Content>
     </Shape>
+    <Shape id="NPatchBitmap" displayName="N-Patch Scalable Bitmap Image" icon="Icons/bitmap-9.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">180,90</Property>
+                <Property name="imageData" p:npatch-edit="true" type="ImageData"><![CDATA[180,90,50-60,40-50,data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALYAAABcCAYAAADDL0/gAAAFZElEQVR4Xu2az04bVxjFz3WwaEAEVzQgMElBCUqUInUcKQu6iSGLbKgKm25LniB5Ay5vkDwBdJsNVKWLLgCzKYtIeCJRqRJBuAkDcqQIO9RQZOJbfUOx7MQpLKqI+XRmBfjfPb/z09U31xjwIgGFBMxZMvV4U9+ZmEvDwQPgwSBxltfxOSTwvxBwKADwYeC7isls+5M/nfa+/yl20pv6wRlnjUHfaW/Ex0ngUxFwDjnjjA38yR8/9pkNxU54NtFqMAuDtLyw6eJFtPf3oqXzC3z2+SVciMc/VQZ+DgngXbmMv3ff4q9gB3tbeRwdHBxTcciUHMYLvpUdve76QOykZz1nMG0MvFi8CV3eYCg1LxI4LwSKm1vI+2uolI/gHHzj8CDwrV+7vjqxZaduMVgSqZvb23B15BvuzuelTa6jjoDs4i8Xf8NhcS+Ue99huHbnrhM7mbJLMn5QaloUBQK1cstYEmTt8Mm6q2InPTuBGKZl/Lg2eo87dRSa5RrD+XtjfiEcS1AJR5IZwVIVuydlN+X0o/uOx5mawkSKgMzcO898GUly21nbXxW7x7NjJoZZOf24/u29SIXiYklACLz4eSE8LXEVjG/7di7csZO3Jx8D5mHHrQFcHrxBUiQQOQL57Bp213NyBvgkWJ16dCx2ymZgcPdKegitnR2RC8UFk0Dp9Ru8yqzI2fZykLXpE7F35WvygfH7vGmkI5EkUC4dYOOXheqc/e8oYp2kufn9aCRDcdEkIAT+eDofgghW5b9AwhmbYlON6BOg2NHvkAkaEKDY1EIlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCUBiq2yVoai2HRAJQGKrbJWhqLYdEAlAYqtslaGoth0QCWBRmIXALQPjN/HhXhcZWiG0k3gXbmM9dlfJWQxWLUJIz8lUzYDg7tX0kNo7ezQTYDpVBIovX6DV5kVwGE5yNr0sdi3Jx8D5mHHrQFcHryhMjhD6SaQz65hdz0HwD0JVqcehWL3eHbMxDDb1NKC66MjugkwnUoCL+YXcbS/D1fB+LZv50KxQ7lTNmcMvuy+46G9v1dleIbSSaC4uYWdZz6cw5/bWdsnKatiJz07gRimY/E4ro2O8CZSpwPqUslN48b8IirlMlDBg8C3M3Vi195ENicu4erwEOVWp4GuQCL1y6UVHBbeVm8aTxJWd2z5Q8KziVYDOSH5mnLrkkBbmvekfl5ySBd8K8fW4VUndrhre9aDwYzILWNJV+ortPdx5tYmRpTzFHNbyGd/Px4/HJ7DYSLwrV+b6QOxa3buOTnblt/ltKSttwttyW40J9o4okTZigiuXXbnw8Ie9oId7G3lw9OP8HJYLjmM1e7UH92xa3PLDaUzsHJaEkEeXLJSAnL6YRzsyY1io5gNd+z3n3h8zu3ScEbGFE++flfKjLHOJ4EiHHwY57uKycg59WnLPJPYp70JHyeB80bgHx5rL4qvMa+gAAAAAElFTkSuQmCC]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="fo">
+                <NPatchDomContentFromImage>
+                    <Arg>$imageData</Arg>
+                    <Arg>$box</Arg>
+                </NPatchDomContentFromImage>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="toOriginalSize" displayName="To Original Size">
+                <Impl>
+                    <![CDATA[
+                        var data = this.getProperty("imageData");
+                        this.setProperty("box", new Dimension(data.w, data.h));
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="selectExternalFile" displayName="Load Linked Image...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function(data) {
+                            if (!data) return;
+                            thiz.setProperty("imageData", data);
+                            thiz.setProperty("box", new Dimension(data.w, data.h));
+                            if (data.data.match(/\.png$/)) {
+                                thiz.setProperty("fillColor", Color.fromString("#ffffff00"));
+                            }
+                        });
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="editExternal" displayName="Edit with External Editor...">
+                <Impl>
+                    <![CDATA[
+                        var imageData = this.getProperty("imageData");
+                        if (imageData.data.match(/^data:(image\/(gif|jpeg|png))[;\,]/)) {
+                            var ext = RegExp.$2;
+                            if (ext == "jpeg") ext = "jpg";
+                        } else if (imageData.data.match(/^file:\/\/.*\.(gif|jpg|png)$/)) {
+                            var ext = RegExp.$1;
+                        } else if (imageData.data.match(/^ref:\/\/.*\.(gif|jpg|png)$/)) {
+                            var ext = RegExp.$1;
+                        } else return;
+
+
+                        var thiz = this;
+
+                        ImageData.ExternalEditorSupports.editImageData(imageData, ext, thiz);
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="fo"></foreignObject>
+        </p:Content>
+    </Shape>
     <Shape id="Line" displayName="Straight line" icon="Icons/hline.png">
         <Properties>
             <PropertyGroup>
                 <Property name="box" type="Dimension" p:lockHeight="true">170,10</Property>
             </PropertyGroup>
             <PropertyGroup name="Line">
-                <Property name="strokeColor" displayName="Line Color" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="Line Style" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
@@ -974,6 +1179,48 @@
             <path style="fill:none; stroke: #ACA899; stroke-width: 1px;" d="M 0,0 L 4,4 L 0,8 z" id="line1" />
         </p:Content>
     </Shape>
+    <Shape id="FreehandPath" systemx="true" displayName="Freehand Path" icon="Icons/hline.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">170,10</Property>
+                <Property name="originalDim" type="Dimension">170,10</Property>
+                <Property name="data" type="PlainText" p:editablex="false">[[0,0]]</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Line">
+                <Property name="strokeColor" displayName="Color" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property name="strokeStyle" displayName="Thickness" type="StrokeStyle">10|</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Handwriting">
+                <Property name="thinning" type="Num" displayName="Thinning" p:step="0.05" p:max="1" p:min="0">0.5</Property>
+                <Property name="smoothing" type="Num" displayName="Smoothing" p:step="0.1" p:max="3" p:min="0">0.5</Property>
+                <Property name="streamline" type="Num" displayName="Streamline" p:step="0.05" p:max="1" p:min="0">0.5</Property>
+                <Property name="simulatePressure" type="Bool" displayName="Simulate Pressure">true</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="line1">
+                <D><![CDATA[
+                    (function () {
+                        return GestureHelper.getSvgPathFromStroke($data.value, {
+                            size: $strokeStyle.w,
+                            thinning: $thinning.value,
+                            smoothing: $smoothing.value,
+                            streamline: $streamline.value,
+                            simulatePressure: $simulatePressure.value
+                        });
+                    })()
+                    ]]></D>
+                <Fill>$strokeColor</Fill>
+                <Transform>[scale($box.w / $originalDim.w, $box.h / $originalDim.h)]</Transform>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path style="fill:none; stroke: none;" d="M 0,0 L 4,4 L 0,8 z" id="line1" />
+        </p:Content>
+    </Shape>
     <Shape id="Triangle" displayName="Triangle" icon="Icons/triangle.png">
         <Properties>
             <PropertyGroup>
@@ -987,10 +1234,10 @@
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="Line Color" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="Line Style" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
@@ -1027,14 +1274,19 @@
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property displayName="Text Content" name="textContent" p:editInfo="({targetName: 'text', bound: new Bound($startPin.x, $startPin.y, 100, 20), font: $textFont, align: $textAlign, multi: false})" type="PlainText" />
-                <Property displayName="Text Font" name="textFont" type="Font">
+                <Property displayName="Content" name="textContent"
+                    p:editInfo="var targetBox = F.getObjectBoundingBox('text');
+                    var sizeBox = F.textSize('text');
+                    var newBox = new Bound(targetBox.x, targetBox.y + ((sizeBox.h / 2) - 10), Math.sqrt((sizeBox.w * sizeBox.w) + (sizeBox.h * sizeBox.h)) + 10 , 20);
+                    ({targetName: 'text', bound: newBox
+                     , font: $textFont, align: $textAlign, multi: false})" type="PlainText" />
+                <Property displayName="Font" name="textFont" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property displayName="Text Color" name="textColor" type="Color">
+                <Property displayName="Color" name="textColor" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
+                <Property displayName="Align" name="textAlign" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -1079,12 +1331,7 @@
                         endVia = {x: parseFloat($endPin.meta.viax), y: parseFloat($endPin.meta.viay)};
                         endVia = geo_getRotatedPoint(endVia, $endPin, viaLength, 0);
 
-                        stencilDebug("startPine: " + $startPin.toSource());
-                        stencilDebug("endPin: " + $endPin.toSource());
-
-                        stencilDebug("endVia: " + endVia.toSource());
                         var i = geo_findIntersection($startPin, startVia, $endPin, endVia);
-
                         //check if intersection is in the same direction with the vias
                         if (i != null
                                 && (i.x - $startPin.x) * (startVia.x - $startPin.x) >= 0
@@ -1197,7 +1444,6 @@
                     <tspan id="textSpan" dy="-5">Text along a curved path</tspan>
                 </textPath>
             </text>
-
         </p:Content>
     </Shape>
     <Shape id="2pointline" displayName="Free Line" icon="Icons/free-line.png" system="true">
@@ -1207,10 +1453,10 @@
                 <Property name="b" displayName="Inner Top" type="Handle">90,60</Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="Line Color" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="Line Style" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
@@ -1231,7 +1477,7 @@
             <path id="path" fill="none" style="stroke-linejoin: round;" />
         </p:Content>
     </Shape>
-    <Shape id="SVGImage" system="true" displayName="SVG Image" icon="Icons/bitmap.png" xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <Shape id="SVGImage" system="false" displayName="SVG Image" icon="Icons/bitmap.png" xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:xlink="http://www.w3.org/1999/xlink">
         <Properties>
             <PropertyGroup>
                 <Property name="box" type="Dimension">48,48</Property>
@@ -1336,14 +1582,14 @@
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[Annotation]]></Property>
-                <Property name="textFont" displayName="Default Font" type="Font">
+                <Property name="textContent" displayName="Content" type="RichText"><![CDATA[Annotation]]></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="Default Text Color" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -1431,8 +1677,8 @@
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="Text Content" type="RichText"><![CDATA[1]]></Property>
-                <Property name="textFont" displayName="Default Font" type="Font">
+                <Property name="textContent" displayName="Content" type="RichText"><![CDATA[1]]></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
                 <Property name="textColor" displayName="Color" type="Color">
@@ -1497,27 +1743,27 @@
                 <Property name="a" displayName="handle" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w">20,0</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
-                <Property name="textFont" displayName="defaultfont" type="Font">
+                <Property name="textContent" displayName="Content" type="PlainText"></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="textcolor" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -1551,27 +1797,27 @@
                 <Property name="box" displayName="box" type="Dimension">80,100</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
-                <Property name="textFont" displayName="defaultfont" type="Font">
+                <Property name="textContent" displayName="Content" type="PlainText"></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="textcolor" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -1606,15 +1852,15 @@
                 <Property name="a" displayName="handle" type="Handle" p:lockY="true" p:maxX="$box.w">20,0</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
@@ -1640,15 +1886,15 @@
                 <Property name="a" displayName="handle" type="Handle" p:lockY="true" p:maxX="$box.w / 2">30,0</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
@@ -1673,27 +1919,27 @@
                 <Property name="box" displayName="box" type="Dimension">80,100</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
-                <Property name="textFont" displayName="defaultfont" type="Font">
+                <Property name="textContent" displayName="Content" type="PlainText"></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="textcolor" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -1727,27 +1973,27 @@
                 <Property name="box" displayName="box" type="Dimension">80,80</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
-                <Property name="textFont" displayName="defaultfont" type="Font">
+                <Property name="textContent" displayName="Content" type="PlainText"></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="textcolor" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -1782,27 +2028,27 @@
                 <Property name="a" displayName="handle" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2">20,0</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
-                <Property name="textFont" displayName="defaultfont" type="Font">
+                <Property name="textContent" displayName="Content" type="PlainText"></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="textcolor" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -1838,15 +2084,15 @@
                 <Property name="box" displayName="box" type="Dimension">100,100</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
@@ -1877,15 +2123,15 @@
                 <Property name="box" displayName="box" type="Dimension">100,100</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
@@ -1915,27 +2161,27 @@
                 <Property name="box" displayName="box" type="Dimension">100,100</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
-                <Property name="textFont" displayName="defaultfont" type="Font">
+                <Property name="textContent" displayName="Content" type="PlainText"></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="textcolor" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -2002,27 +2248,27 @@
                 <Property name="box" displayName="box" type="Dimension">100,100</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
-                <Property name="textFont" displayName="defaultfont" type="Font">
+                <Property name="textContent" displayName="Content" type="PlainText"></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="textcolor" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>
@@ -2083,27 +2329,27 @@
                 <Property name="box" displayName="box" type="Dimension">100,100</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
-                <Property name="fillColor" displayName="backgrcolor" type="Color">
+                <Property name="fillColor" displayName="Color" type="Color">
                     <E>$$fillColor</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Border">
-                <Property name="strokeColor" displayName="linecolor" type="Color">
+                <Property name="strokeColor" displayName="Color" type="Color">
                     <E>$$strokeColor</E>
                 </Property>
-                <Property name="strokeStyle" displayName="linestyle" type="StrokeStyle">
+                <Property name="strokeStyle" displayName="Style" type="StrokeStyle">
                     <E>$$strokeStyle</E>
                 </Property>
             </PropertyGroup>
             <PropertyGroup name="Text">
-                <Property name="textContent" displayName="textcont" type="PlainText"></Property>
-                <Property name="textFont" displayName="defaultfont" type="Font">
+                <Property name="textContent" displayName="Content" type="PlainText"></Property>
+                <Property name="textFont" displayName="Font" type="Font">
                     <E>$$defaultTextFont</E>
                 </Property>
-                <Property name="textColor" displayName="textcolor" type="Color">
+                <Property name="textColor" displayName="Color" type="Color">
                     <E>$$defaultTextColor</E>
                 </Property>
-                <Property name="textAlign" displayName="textalign" type="Alignment">1,1</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
             </PropertyGroup>
         </Properties>
         <Behaviors>

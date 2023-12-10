@@ -75,28 +75,32 @@ Group.prototype.getProperties = function () {
 Group.prototype.getPropertyGroups = function () {
     return [this.propertyGroup];
 };
-Group.prototype.setProperty = function (name, value) {
+Group.prototype.setProperty = function (name, value, nested, mask) {
     for (t in this.targets) {
-        this.targets[t].setProperty(name, value);
+        this.targets[t].setProperty(name, value, nested, mask);
     }
 };
 Group.prototype.getProperty = function (name) {
     if (name == "box") return null;
     var firstValue = this.targets[0].getProperty(name);
-    if (!firstValue) return null;
-    var same = true;
-    for (var i = 1; i < this.targets.length; i ++) {
-        var target = this.targets[i];
-        var value = target.getProperty(name);
 
-        if (value == null) return null;
-        if (firstValue.toString() != value.toString()) {
-            same = false;
-            break;
-        }
-    }
+    //TODO: add additonal info to indicate sameness
+    return firstValue;
 
-    return same ? firstValue : null;
+    // if (!firstValue) return null;
+    // var same = true;
+    // for (var i = 1; i < this.targets.length; i ++) {
+    //     var target = this.targets[i];
+    //     var value = target.getProperty(name);
+    //
+    //     if (value == null) return null;
+    //     if (firstValue.toString() != value.toString()) {
+    //         same = false;
+    //         break;
+    //     }
+    // }
+    //
+    // return same ? firstValue : null;
 };
 Group.prototype.setMetadata = function (name, value) {
     return Util.setNodeMetadata(this.svg, name, value);
@@ -159,7 +163,7 @@ Group.calculateLayout = function (ePos0, eSize0, gSize0, posPolicy, sizePolicy, 
 	var layout = {};
 
 	if (sizePolicy == "relative") {
-		layout.size = eSize0 * size / gSize0;
+		layout.size = Math.round(eSize0 * size / gSize0);
 	} else if (sizePolicy == "start-end") {
 		var d = gSize0 - ePos0 - eSize0;
 		layout.size = size - d - ePos0;
@@ -170,9 +174,9 @@ Group.calculateLayout = function (ePos0, eSize0, gSize0, posPolicy, sizePolicy, 
 	if (posPolicy == "start") {
 		layout.pos = ePos0;
 	} else if (posPolicy == "middle") {
-		layout.pos = (size - layout.size) / 2;
+		layout.pos = Math.round((size - layout.size) / 2);
 	} else if (posPolicy == "relative") {
-		layout.pos = ePos0 * size / gSize0;
+		layout.pos = Math.round(ePos0 * size / gSize0);
 	} else {
 		var d = gSize0 - ePos0 - eSize0;
 		layout.pos = size - d - layout.size;
@@ -492,6 +496,13 @@ Group.prototype.processNewGroup = function () {
         Util.setCustomProperty(target.svg, "sizing-oh", targetGeo.dim.h);
     }
 };
+Group.prototype.validateAll = function () {
+    for (t in this.targets) {
+        var target = this.targets[t];
+        target.validateAll();
+    }
+};
+
 
 Group.getSizingPolicy = function (target) {
 	return {
@@ -518,4 +529,10 @@ Group.openSizingPolicyDialog = function (target) {
         }
     });
 
+};
+Group.prototype.getSymbolName = function () {
+    return Svg.getSymbolName(this.svg);
+};
+Group.prototype.setSymbolName = function (name) {
+    return Svg.setSymbolName(this.svg, name);
 };

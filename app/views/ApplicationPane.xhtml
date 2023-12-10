@@ -12,6 +12,9 @@
             box-shadow: 0px 0px 1.5em 0.4em #FFF;
             border-bottom: solid 1px darken(@app_bg, 10%);
         }
+        body[compact-layout='true'] @contentHeader {
+            padding: 0.1em;
+        }
         @contentHeader > vbox > * + * {
             margin-top: 0.5em;
         }
@@ -20,6 +23,7 @@
         }
         @contentBody {
             background: darken(@app_bg, 10%);
+            overflow: hidden;
         }
         @contentBody > .CanvasScrollPane {
             text-align: center;
@@ -43,7 +47,27 @@
             margin: auto;
             vertical-align: middle;
             display: inline-block;
+            position: relative;
         }
+        .CanvasWrapper .widget_StencilShapeCanvasToolbar {
+            position: absolute;
+            bottom: 0em;
+            height: 2.5em;
+            left: 10px;
+            right: 8px;
+            display: none;
+        }
+
+        @contentBody[stencil-dev-mode='true'] .widget_StencilShapeCanvasToolbar {
+            display: flex;
+        }
+        @contentBody[stencil-dev-mode='true'] .CanvasWrapper {
+            padding-bottom: 3em;
+        }
+        @contentBody[stencil-dev-mode='true'] .widget_ShapeTestCanvasPane .CanvasWrapper {
+            padding-bottom: 0em;
+        }
+
         .Canvas {
             background: #FFF;
             border: solid 1px #AAA;
@@ -100,6 +124,9 @@
             border-radius: 1em;
             cursor: pointer;
         }
+        body[compact-layout='true'] @contentHeader @menuIcon {
+            padding: 0.1em;
+        }
         @contentHeader @menuIcon:hover {
             background: #FFF;
             color: @selected_bg;
@@ -113,10 +140,16 @@
             padding-right: 3em;
             align-items: center;
         }
+        body[compact-layout='true'] @logoBox {
+            padding-right: 1.5em;
+        }
         @appName {
             font-size: 2em;
             color: darken(saturate(#da8500, 20%), 0%);
             cursor: default;
+        }
+        body[compact-layout='true'] @appName {
+            font-size: 1.6em;
         }
         @appName * {
             vertical-align: middle;
@@ -153,33 +186,95 @@
             color: darken(@app_bg, 45%);
         }
         @toolbarContainer *[label] {
-            padding-top: 0.8em;
+            padding-top: 1em;
             padding-bottom: 0.8em;
         }
 
-        body.Fullscreen @contentSection {
+        body[compact-layout='true'] @toolbarContainer *[label] {
+            padding-top: 0.1em;
+            padding-bottom: 0.1em;
+        }
+        body[compact-layout='true'] @toolbarContainer *[label]:after {
+            display: none;
+        }
+
+        @contentSection {
             position: relative;
-            padding-left: 3em;
             padding-right: 3em;
+            padding-left: 3em;
             transform: translateZ(0);
         }
 
-        body.Fullscreen @contentSection > .widget_CollapseablePanel {
+        @contentSection > * + .widget_CollapseablePanel[closed="false"] {
+            background-color: @pane_bg;
+            border-color: @pane_bg;
+        }
+
+        @contentSection > * + .widget_CollapseablePanel {
+        }
+
+        body:not(.Fullscreen) @contentSection > .widget_CollapseablePanel:not([float='true']):first-child {
+            margin-left: -3em;
+        }
+        body:not(.Fullscreen) @contentSection > * + .widget_CollapseablePanel:not([float='true']) {
+            margin-right: -3em;
+        }
+
+        body.Fullscreen @contentSection > .widget_CollapseablePanel,
+        body @contentSection > .widget_CollapseablePanel[float='true'] {
             position: absolute;
             top: 0px;
             bottom: 0px;
             z-index: 1;
         }
 
-        body.Fullscreen @contentSection @leftSidePane {
+        body.Fullscreen @contentSection > .widget_CollapseablePanel:first-child,
+        body @contentSection > .widget_CollapseablePanel[float='true']:first-child {
             left: 0px;
         }
-        body.Fullscreen @contentSection @rightSidePane {
+        body.Fullscreen @contentSection > * + .widget_CollapseablePanel,
+        body @contentSection > * + .widget_CollapseablePanel[float='true'] {
             right: 0px;
         }
-        body.Fullscreen @contentSection @rightSidePane:not([closed='true']),
-        body.Fullscreen @contentSection @leftSidePane:not([closed='true']) {
+
+        body @contentSection .widget_CollapseablePanel[float='true']:not([closed='true']),
+        body.Fullscreen @contentSection .widget_CollapseablePanel:not([closed='true']) {
             box-shadow: 0em 0em 0.5em 0.3em rgba(0, 0, 0, 0.15);
+        }
+
+        @shapeTestPane {
+            position: absolute;
+            top: 2em;
+            left: 2em;
+            bottom: 2em;
+            right: 2em;
+        }
+
+
+        @media screen and (max-width: 1000px), screen and (max-height:650px)  {
+            @logoBox {
+                padding-right: 0.2em;
+            }
+            @appName {
+                margin-left: 0.2em !important;
+            }
+            @toolbarContainer *[label]:after {
+                display:none;
+            }
+            @contentHeader {
+                padding: 0px;
+            }
+            @toolbarContainer *[label] {
+                padding:0px;
+                padding-bottom:0.4em;
+            }
+            @contentHeader @menuIcon {
+                padding:0.2em;
+            }
+        }
+        body[no-cursor],
+        body[no-cursor] * {
+            cursor: none;
         }
     </style>
 
@@ -192,32 +287,36 @@
                 </div>
             </hbox>
             <vbox flex="1">
-                <hbox anon-id="toolbarContainer">
-                    <ui:FileToolbar label="" />
-                    <ui:EditToolbar label="Edit" anon-id="editToolbar"/>
-                    <ui:ZoomToolbar anon-id="zoomToolbar" label="100%" />
-                    <ui:AlignmentToolbar label="Alignment"/>
-                    <ui:SizeToolbar label="Same sizes &amp; Spaces"/>
-                    <ui:SharedFontEditor anon-id="sharedFontEditor" label="Text style" />
-                    <ui:ColorEditor label="Colors" />
-                    <ui:SharedBorderStyleEditor label="Line style" />
-                    <ui:SharedGeomtryEditor />
-                </hbox>
+                <ui:ScrollableView anon-id="toolBarSrollView" flex="1">
+                    <hbox anon-id="toolbarContainer">
+                        <ui:FileToolbar label="" />
+                        <ui:EditToolbar label="Edit" anon-id="editToolbar"/>
+                        <ui:ZoomToolbar anon-id="zoomToolbar" label="100%" />
+                        <ui:AlignmentToolbar label="Alignment"/>
+                        <ui:SizeToolbar label="Same sizes &amp; Spaces"/>
+                        <ui:SharedFontEditor anon-id="sharedFontEditor" label="Text style" />
+                        <ui:ColorEditor label="Colors" />
+                        <ui:SharedBorderStyleEditor label="Line style" />
+                        <ui:SharedGeomtryEditor />
+                        <!-- <ui:GestureModeToolbar /> -->
+                    </hbox>
+                </ui:ScrollableView>
             </vbox>
         </hbox>
         <hbox flex="1" style="overflow: hidden; position: relative; " anon-id="contentSection">
-            <ui:CollapseablePanel orient="horizontal" name="left_pane" anon-id="leftSidePane" mode="float">
+            <ui:CollapseablePanel orient="horizontal" name="left_pane" anon-id="leftSidePane" controls-location="top">
                 <ui:CollectionPane anon-id="collectionPane"/>
                 <ui:MyCollectionPane anon-id="myCollectionPane"/>
                 <ui:OpenClipartPane anon-id="openClipartPane"/>
             </ui:CollapseablePanel>
             <vbox flex="1" anon-id="documentContainer">
-                <hbox anon-id="contentBody" flex="1" style="position: relative;">
+                <hbox anon-id="contentBody" flex="1" style="position: relative;" gesture-mode="selection">
                     <ui:StartUpDocumentView anon-id="startupDocumentView" flex="1" />
+                    <ui:ShapeTestCanvasPane anon-id="shapeTestPane" />
                 </hbox>
                 <ui:PageListView anon-id="pageListView" />
             </vbox>
-            <ui:CollapseablePanel orient="horizontal" name="right_pane" anon-id="rightSidePane">
+            <ui:CollapseablePanel orient="horizontal" name="right_pane" anon-id="rightSidePane" float="true" controls-location="top">
                 <ui:SharedPropertyEditor anon-id="sharedPropertyEditor" />
             </ui:CollapseablePanel>
         </hbox>

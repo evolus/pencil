@@ -1,17 +1,20 @@
 function SettingDialog() {
     Dialog.call(this);
-    this.title = "Setting Dialog";
+    this.title = "Settings";
 
     this.configElements = {
         "grid.enabled": this.checkboxEnableGrid,
         "edit.gridSize" : this.textboxGridSize,
+        "edit.gridStyle" : this.comboGridStyle,
         "edit.snap.grid": this.snapToGrid,
         "object.snapping.enabled": this.enableSnapping,
         "object.snapping.background": this.enableSnappingBackground,
         "quick.editting": this.quickEditting,
         "edit.cutAndPasteAtTheSamePlace": this.cutAndPasteAtTheSamePlace,
         "view.undo.enabled": this.undoEnabled,
-        "view.undoLevel": this.textboxUndoLevel
+        "view.undoLevel": this.textboxUndoLevel,
+        "view.uiTextScale": this.textScaleInput,
+        "view.useCompactLayout": this.useCompactLayout
     };
 
     this.bind("click", function (event) {
@@ -34,11 +37,13 @@ function SettingDialog() {
         if (!node) return;
         var configName = node.getAttribute("configName");
 
-        if (configName == "edit.gridSize") {
-            if (node.value == "" || parseInt(node.value) == 0) {
-                node.value = "5";
+        if (node.value == "" || parseInt(node.value) == 0) {
+            var defaultValue = node.getAttribute("default-value");
+            if (defaultValue) {
+                node.value = defaultValue;
             }
         }
+
         Config.set(configName, node.value);
         this.setPreferenceItems();
     }, this.textboxGridSize);
@@ -50,14 +55,10 @@ function SettingDialog() {
         if (!node) return;
         var configName = node.getAttribute("configName");
 
-        if (configName == "edit.gridSize") {
-            if (node.value == "" || parseInt(node.value) == 0) {
-                node.value = "1";
-            }
-        }
-        if (configName == "view.undoLevel") {
-            if (node.value == "") {
-                node.value = "0";
+        if (node.value == "" || parseInt(node.value) == 0) {
+            var defaultValue = node.getAttribute("default-value");
+            if (defaultValue) {
+                node.value = defaultValue;
             }
         }
         if (node.type == "number" || node.type == "text") {
@@ -70,12 +71,23 @@ function SettingDialog() {
 
             Config.set(configName, node.value);
             this.setPreferenceItems();
+            if (configName == "view.uiTextScale") {
+                widget.reloadDesktopFont().then(function () {});
+            }
         }
+
+        ApplicationPane._instance.invalidateUIForConfig();
     }, this.settingTabPane);
 
     this.bind("input", function (event) {
         this.setPreferenceItems();
     }, this.preferenceNameInput);
+
+    var thiz = this;
+    this.comboGridStyle.addEventListener("p:ItemSelected", function (event) {
+        var gridStyle = thiz.comboGridStyle.getSelectedItem();
+        thiz.updateConfigAndInvalidateUI("edit.gridStyle", gridStyle);
+    }, false);
 
 }
 __extend(Dialog, SettingDialog);
@@ -87,8 +99,10 @@ SettingDialog.prototype.updateConfigAndInvalidateUI = function (configName, valu
         if (checkBox == this.checkboxEnableGrid) {
             if (value) {
                 Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
+                Dom.removeClass(this.gridStyleContainer, "Disabled");
             } else {
                 Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
+                Dom.addClass(this.gridStyleContainer, "Disabled");
             }
         }
         if (checkBox == this.undoEnabled) {
@@ -128,6 +142,14 @@ SettingDialog.prototype.setup = function () {
     }
     this.textboxGridSize.value = Config.get("edit.gridSize");
 
+    this.comboGridStyle.setItems(["Dotted", "Solid"]);
+    var gridStyle = Config.get("edit.gridStyle");
+    if (gridStyle == null) {
+        gridStyle = "Dotted";
+        Config.set("edit.gridStyle", gridStyle);
+    }
+    this.comboGridStyle.selectItem(gridStyle);
+
     // var w = Config.get("clipartbrowser.scale.width");
     // var h = Config.get("clipartbrowser.scale.height");
     // if (w == null) {
@@ -146,6 +168,14 @@ SettingDialog.prototype.setup = function () {
     }
     this.textboxUndoLevel.value = Config.get("view.undoLevel");
 
+    var textScale = Config.get("view.uiTextScale");
+    if (textScale == null) {
+        Config.set("view.uiTextScale", 100);
+    }
+    this.textScaleInput.value = Config.get("view.uiTextScale");
+
+    this.useCompactLayout.checked = Config.get("view.useCompactLayout", false);
+
     var svgurl = Config.get("external.editor.vector.path", "/usr/bin/inkscape");
     var bitmapurl = Config.get("external.editor.bitmap.path", "/usr/bin/gimp");
 
@@ -154,8 +184,10 @@ SettingDialog.prototype.setup = function () {
 
     if (this.checkboxEnableGrid.checked) {
         Dom.removeClass(this.textboxGridSize.parentNode, "Disabled");
+        Dom.removeClass(this.gridStyleContainer, "Disabled");
     } else {
         Dom.addClass(this.textboxGridSize.parentNode, "Disabled");
+        Dom.addClass(this.gridStyleContainer, "Disabled");
     }
 
     if (this.undoEnabled.checked) {
@@ -208,7 +240,7 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                         data.value = value;
                         var result = value;
                         if (data.type != "string") {
-                            result = parseInt(value);
+                            result = parseFloat(value);
                             if (data.name == "view.undoLevel" || data.name == "edit.gridSize" ) {
                                 if (!result || parseInt(result) == 0 ) {
                                     if (data.name == "view.undoLevel") {
@@ -233,6 +265,13 @@ SettingDialog.prototype.initializePreferenceTable = function () {
                                     result = "/usr/bin/inkscape";
                                 }
                                 thiz.svgEditorUrl.value = result;
+                            }
+                            if (data.name == "edit.gridStyle")
+                            {
+                               if (result == "") {
+                                  result = "Dotted"
+                               }
+                               thiz.comboGridStyle.selectedItem = result;
                             }
                         }
                         Config.set(data.name, result);

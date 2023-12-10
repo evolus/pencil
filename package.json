@@ -1,26 +1,33 @@
 {
   "name": "Pencil",
   "devDependencies": {
-    "electron-builder": "4.2.6",
-    "electron-prebuilt": "1.2.2",
-    "rimraf": "^2.5.2"
+    "electron": "16.0.0",
+    "electron-builder": "23.3.3",
+    "electron-rebuild": "^1.8.5",
+    "rimraf": "^2.5.4"
   },
   "build": {
-    "app-bundle-id": "vn.evolus.pencil",
-    "app-category-type": "public.app-category.graphics-design",
-    "iconUrl": "https://raw.githubusercontent.com/evolus/pencil/master/build/icon.ico",
+    "appId": "vn.evolus.pencil",
     "productName": "Pencil",
-    "osx": {
+    "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "target": [{
+           "target": "dmg",
+           "arch": ["arm64"]
+      }]
+    },
+    "dmg": {
       "contents": [
         {
-          "x": 410,
-          "y": 150,
+          "x": 356,
+          "y": 140,
           "type": "link",
           "path": "/Applications"
         },
         {
           "x": 130,
-          "y": 150,
+          "y": 145,
           "type": "file"
         }
       ]
@@ -30,31 +37,56 @@
       "synopsis": "An open-source GUI prototyping tool that is available for ALL platforms.",
       "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
       "vendor": "Evolus",
-      "target": ["deb", "rpm", "tar.gz"],
-      "depends": []
+      "target": [
+        "deb",
+        "rpm",
+        "tar.gz"
+      ],
+      "depends": [],
+      "category": "Graphics",
+      "packageCategory": "graphics"
     },
     "win": {
       "authors": "Evolus",
       "owners": "Evolus",
       "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
-      "copyright": "Copyright © 2008-2016 Evolus. All rights reserved."
+      "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
+      "iconUrl": "https://raw.githubusercontent.com/evolus/pencil/master/build/icon.ico",
+      "target": "nsis"
     },
-    "download": {
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    },
+    "electronDownload": {
       "cache": ".electron-cache"
+    },
+    "fileAssociations": {
+      "ext": [
+        "ep",
+        "epz",
+        "epgz"
+      ],
+      "name": "Pencil Document"
     }
   },
   "scripts": {
     "postinstall": "install-app-deps",
     "install-app-deps": "node ./node_modules/electron-builder/out/install-app-deps.js",
     "start": "./node_modules/.bin/electron ./app",
-    "start:dev":  "./node_modules/.bin/electron ./app --enable-dev --disable-gpu",
+    "start:dev": "./node_modules/.bin/electron ./app --enable-dev --enable-transparent-visuals",
+    "start:mac": "./node_modules/.bin/electron ./app --enable-dev",
     "clean": "rimraf dist",
     "pack": "build",
     "dist": "build",
     "release": "build",
-    "dist:linux": "./node_modules/.bin/build --linux --x64",
-    "dist:win32": "./node_modules/.bin/build --windows --x64",
-    "dist:darwin": "./node_modules/.bin/build --osx"
+    "dist:linux": "./node_modules/.bin/build --linux --ia32 --x64",
+    "dist:win32": "./node_modules/.bin/build --windows --ia32 --x64",
+    "dist:osx": "./node_modules/.bin/build --macos"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@electron/remote": "^2.0.1"
+  }
 }

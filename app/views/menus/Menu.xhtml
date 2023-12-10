@@ -20,7 +20,8 @@
             margin: 0.8em 0em;
         }
         body .MenuPopupContainer .MenuItem.Active:not([disabled='true']),
-        body .MenuPopupContainer .MenuItem:not([disabled='true']):hover {
+        body .MenuPopupContainer .MenuItem:not([disabled='true']):hover,
+        body .MenuPopupContainer .MenuItem[selected='true']:not([disabled='true']) {
             background: @selected_bg;
             color: @selected_fg;
         }
@@ -38,6 +39,11 @@
             @iconify();
             font-size: 1.4em;
             width: 1.2em;
+        }
+        body .MenuPopupContainer .MenuItem > .Checkbox {
+            font-size: 1.4em;
+            width: 1.2em;
+            top: 1px;
         }
         body .MenuPopupContainer.NoPrefix .MenuItem > i:first-child {
             display: none;

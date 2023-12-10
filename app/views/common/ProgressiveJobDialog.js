@@ -8,7 +8,7 @@ ProgressiveJobDialog.prototype.setup = function (options) {
     this.options = options || {};
     this.starter = this.options.starter;
     this.title = this.options.title || "Progress";
-    this.subTitle = this.options.subTitle || "Please wait while Pencil is excuting job";
+    this.subTitle = this.options.subTitle || "Please wait while Pencil is executing job";
 
     var thiz = this;
     var listener = {
@@ -24,7 +24,7 @@ ProgressiveJobDialog.prototype.setup = function (options) {
             thiz.statusLabel.innerHTML = Dom.htmlEncode(status || "Please wait...");
             thiz.progressBarInner.style.width = Math.round(100 * completed / total) + "%";
 
-            Pencil.app.mainWindow.setProgressBar(Math.round(completed / total));
+            if (process.platform != "linux") Pencil.app.mainWindow.setProgressBar(Math.round(completed / total));
         }
     };
 

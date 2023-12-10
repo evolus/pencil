@@ -1,4 +1,4 @@
-function Shape(canvas, svg) {
+function Shape(canvas, svg, forcedDefinition) {
     this.svg = svg;
     this.canvas = canvas;
 
@@ -9,7 +9,7 @@ function Shape(canvas, svg) {
     this.id = this.svg.getAttribute("id");
 
     var defId = this.canvas.getType(svg);
-    this.def = CollectionManager.shapeDefinition.locateDefinition(defId);
+    this.def = forcedDefinition || CollectionManager.shapeDefinition.locateDefinition(defId);
     if (!this.def) {
         throw Util.getMessage("shape.definition.not.found", defId);
     }
@@ -18,18 +18,32 @@ function Shape(canvas, svg) {
     this.metaNode = Dom.getSingle("./p:metadata", this.svg);
 
     //construct the target node map
+    this.setupTargetMap("shouldRepair");
+    //this.dockingManager = new DockingManager(this);
+}
+Shape.prototype.setupTargetMap = function (shouldRepair) {
     this.targetMap = {};
     for (i in this.def.behaviors) {
         var name = this.def.behaviors[i].target;
         var target = Dom.getSingle(".//*[@p:name='" + name + "']", this.svg);
         if (!target) {
-            Util.showStatusBarInfo(Util.getMessage("object.seems.to.be.old"));
+            if (shouldRepair) {
+                console.error("Target '" + name + "' is not found. Repairing now...");
+                try {
+                    this.repair();
+                    console.log("  >>  Target '" + name + "' is repaired.");
+                } catch (e) {
+                    console.error(e);
+                }
+                return;
+            } else {
+                console.error("Target '" + name + "' is not found. Ignoring...");
+                continue;
+            }
         }
         this.targetMap[name] = target;
     }
-
-    //this.dockingManager = new DockingManager(this);
-}
+};
 Shape.prototype.getName = function () {
     return this.def.displayName;
 };
@@ -50,9 +64,15 @@ Shape.prototype.getPropertyGroups = function () {
 
 Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
     this._evalContext = {collection: this.def.collection};
+    F._target = this.svg;
+
+    var hasPostProcessing = false;
 
     for (var name in this.def.propertyMap) {
         var value = null;
+        var prop = this.def.propertyMap[name];
+
+        var currentCollection = this.def.connection;
 
         if (overridingValueMap && overridingValueMap[name]) {
             var spec = overridingValueMap[name];
@@ -65,9 +85,9 @@ Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
             } else {
                 value = spec.initialValue;
             }
-        } else {
-            var prop = this.def.propertyMap[name];
 
+            if (spec.collection) currentCollection = spec.collection;
+        } else {
             if (prop.initialValueExpression) {
                 value = this.evalExpression(prop.initialValueExpression);
             } else {
@@ -75,9 +95,106 @@ Shape.prototype.setInitialPropertyValues = function (overridingValueMap) {
             }
         }
 
+        if (prop.type.performIntialProcessing) {
+            var newValue = prop.type.performIntialProcessing(value, this.def, currentCollection);
+            if (newValue) {
+                hasPostProcessing = true;
+                value = newValue;
+            }
+        }
+
         this.storeProperty(name, value);
     }
+
     for (name in this.def.propertyMap) {
+        this.applyBehaviorForProperty(name);
+    }
+};
+Shape.prototype.repairShapeProperties = function () {
+    this._evalContext = {collection: this.def.collection};
+
+    var hasPostProcessing = false;
+    var repaired = false;
+
+    for (var name in this.def.propertyMap) {
+        var propNode = this.locatePropertyNode(name);
+        if (propNode) continue;
+
+        var value = null;
+        var prop = this.def.propertyMap[name];
+
+        var currentCollection = this.def.connection;
+
+        if (prop.initialValueExpression) {
+            value = this.evalExpression(prop.initialValueExpression);
+        } else {
+            value = prop.initialValue;
+        }
+
+        if (prop.type.performIntialProcessing) {
+            var newValue = prop.type.performIntialProcessing(value, this.def, currentCollection);
+            if (newValue) {
+                hasPostProcessing = true;
+                value = newValue;
+            }
+        }
+
+        this.storeProperty(name, value);
+        repaired = true;
+    }
+
+    if (!repaired) return;
+
+    for (name in this.def.propertyMap) {
+        this.applyBehaviorForProperty(name);
+    }
+};
+Shape.prototype.renewTargetProperties = function () {
+    this._evalContext = {collection: this.def.collection};
+    F._target = this.svg;
+
+    var renewed = false;
+
+    for (var name in this.def.propertyMap) {
+        var prop = this.def.propertyMap[name];
+        if (!prop || !prop.meta || prop.meta.renew != "true") continue;
+
+        var propNode = this.locatePropertyNode(name);
+        if (!propNode) continue;
+
+        var value = null;
+
+        var currentCollection = this.def.connection;
+
+        if (prop.initialValueExpression) {
+            value = this.evalExpression(prop.initialValueExpression);
+        } else {
+            value = prop.initialValue;
+        }
+
+        if (prop.type.performIntialProcessing) {
+            var newValue = prop.type.performIntialProcessing(value, this.def, currentCollection);
+            if (newValue) {
+                value = newValue;
+            }
+        }
+
+        this.storeProperty(name, value);
+        renewed = true;
+    }
+
+    if (!renewed) return false;
+
+    for (name in this.def.propertyMap) {
+        this.applyBehaviorForProperty(name);
+    }
+
+    return true;
+};
+Shape.prototype.repair = function () {
+    this.canvas.invalidateShapeContent(this.svg, this.def);
+    this.setupTargetMap();
+    for (var name in this.def.propertyMap) {
         this.applyBehaviorForProperty(name);
     }
 };
@@ -97,7 +214,7 @@ Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedPr
 
         var target = this.targetMap[targetName];
         if (!target) {
-            warn("Target '" + targetName + "' is not found. Ignoring...");
+            console.error("Target '" + targetName + "' is not found. Ignoring...");
             continue;
         }
         F._target = target;
@@ -129,6 +246,44 @@ Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedPr
     }
 };
 Shape.prototype.validateAll = function (offScreen) {
+    this.repairShapeProperties();
+    this.prepareExpressionEvaluation();
+
+    for (var b = 0; b < this.def.behaviors.length; b ++) {
+        var behavior = this.def.behaviors[b];
+        var target = this.targetMap[behavior.target];
+
+        if (!target) {
+            warn("Target '" + behavior.target + "' is not found. Ignoring...");
+            continue;
+        }
+
+        F._target = target;
+
+        for (var i in behavior.items) {
+            var item = behavior.items[i];
+            if (offScreen && !item.handler._offScreenSupport) {
+                continue;
+            }
+            var args = [];
+            for (var j in item.args) {
+                var arg = item.args[j];
+                if (!arg.type) {
+                    args.push(this.evalExpression(arg.literal));
+                } else {
+                    //FIXME: this should inspect the type and do the conversion
+                    args.push(arg.literal);
+                }
+            }
+            try {
+                item.handler.apply(target, args);
+            } catch (e) {
+                Console.dumpError(e);
+            }
+        }
+    }
+};
+Shape.prototype.prepareForEmbedding = function (offScreen) {
     this.prepareExpressionEvaluation();
 
     for (var b = 0; b < this.def.behaviors.length; b ++) {
@@ -207,7 +362,13 @@ Shape.prototype.evalExpression = function (expression, value) {
         return defaultValue;
     }
 };
-Shape.prototype.setProperty = function (name, value, nested) {
+Shape.prototype.setProperty = function (name, value, nested, mask) {
+    if (mask) {
+        try {
+            value = mask.apply(this.getProperty(name), value);
+        } catch (e) {
+        }
+    }
     if (!nested) {
         this._appliedTargets = [];
         this.canvas.run( function () {
@@ -246,12 +407,16 @@ Shape.prototype.setProperty = function (name, value, nested) {
 Shape.prototype.getProperty = function (name) {
     var propNode = this.locatePropertyNode(name);
     if (!propNode) {
-        return null;
+        //return null;
         var prop = this.def.getProperty(name);
         if (!this._evalContext) {
             this._evalContext = {collection: this.def.collection};
         } else {
             this._evalContext.collection = this.def.collection;
+        }
+
+        if (!prop) {
+            return null;
         }
 
         if (prop.initialValueExpression) {
@@ -668,7 +833,6 @@ Shape.prototype.sendToBack = function () {
     } catch (e) { alert(e); }
 };
 Shape.prototype.getTextEditingInfo = function (editingEvent) {
-    debug("getTextEditingInfo(), editingEvent = " + editingEvent.type);
     var infos = [];
 
     this.prepareExpressionEvaluation();
@@ -695,7 +859,7 @@ Shape.prototype.getTextEditingInfo = function (editingEvent) {
                 var b = this.def.behaviorMap[target];
                 for (i in b.items) {
                     if (b.items[i].handler == Pencil.behaviors.TextContent && b.items[i].args[0].literal.indexOf("properties." + name) != -1) {
-                        var obj = {properties: this.getProperties(), functions: Pencil.functions};
+                        var obj = {properties: this.getProperties(), functions: Pencil.functions, collection: this.def.collection};
                         var font = null;
                         for (j in b.items) {
                             if (b.items[j].handler == Pencil.behaviors.Font) {
@@ -739,7 +903,7 @@ Shape.prototype.getTextEditingInfo = function (editingEvent) {
                     }
 
                     if (b.items[i].handler == Pencil.behaviors.PlainTextContent && b.items[i].args[0].literal.indexOf("properties." + name) != -1) {
-                        var obj = {properties: this.getProperties(), functions: Pencil.functions};
+                        var obj = {properties: this.getProperties(), functions: Pencil.functions, collection: this.def.collection};
                         var font = null;
                         for (j in b.items) {
                             if (b.items[j].handler == Pencil.behaviors.Font) {
@@ -973,6 +1137,10 @@ Shape.prototype.getSnappingGuide = function () {
 
     var customSnappingData = this.performAction("getSnappingGuide");
     if (customSnappingData) {
+        if (customSnappingData._ignoreBuiltIns) {
+            vertical.length = 0;
+            horizontal.length = 0;
+        }
         for (var i = 0; i < customSnappingData.length; i++) {
             var data = customSnappingData[i];
             var m = this.svg.getTransformToElement(this.canvas.drawingLayer);
@@ -988,7 +1156,7 @@ Shape.prototype.getSnappingGuide = function () {
                         ik = k;
                     }
                 }
-                if (ik != -1) {
+                if (ik != -1 && !customSnappingData._allowTypeDuplications) {
                     vertical[ik] = data;
                 } else {
                     vertical.push(data);
@@ -1003,7 +1171,7 @@ Shape.prototype.getSnappingGuide = function () {
                         ik = k;
                     }
                 }
-                if (ik != -1) {
+                if (ik != -1 && !customSnappingData._allowTypeDuplications) {
                     horizontal[ik] = data;
                 } else {
                     horizontal.push(data);
@@ -1021,4 +1189,123 @@ Shape.prototype.invalidateInboundConnections = function () {
 };
 Shape.prototype.invalidateOutboundConnections = function () {
     Connector.invalidateOutboundConnectionsForShapeTarget(this);
+};
+Shape.prototype.getSymbolName = function () {
+    return Svg.getSymbolName(this.svg);
+};
+Shape.prototype.setSymbolName = function (name) {
+    return Svg.setSymbolName(this.svg, name);
+};
+Shape.prototype.generateShortcutXML = function () {
+    new PromptDialog().open({
+        title: "Shortcut",
+        message: "Please enter shortcut name",
+        defaultValue: "Shortcut",
+        callback: function (shortcutName) {
+            if (!shortcutName) return;
+            var fileName = shortcutName.replace(/[^a-z0-9\\-]+/gi, "").toLowerCase() + ".png";
+
+            var dom = Controller.parser.parseFromString("<Document xmlns=\"" + PencilNamespaces.p + "\"></Document>", "text/xml");
+            var spec = {
+                _name: "Shortcut",
+                _uri: PencilNamespaces.p,
+                to: this.def.id.replace(this.def.collection.id + ":", ""),
+                displayName: shortcutName,
+                _children: [
+
+                ]
+            };
+            for (var name in this.def.propertyMap) {
+                var prop = this.def.getProperty(name);
+                var value = this.getProperty(name);
+
+                if (prop.type == ImageData && this.def.collection.developerStencil) {
+                    if (value.data && value.data.match(/^ref:\/\//)) {
+                        var id = ImageData.refStringToId(value.data);
+                        if (id) {
+                            var filePath = Pencil.controller.refIdToFilePath(id);
+
+                            var bitmapImageFileName = (shortcutName + "-" + name).replace(/[^a-z0-9\\-]+/gi, "").toLowerCase() + ".png";
+
+                            var targetPath = path.join(path.join(this.def.collection.installDirPath, "bitmaps"), bitmapImageFileName);
+                            fs.writeFileSync(targetPath, fs.readFileSync(filePath));
+
+                            value = new ImageData(value.w, value.h, "collection://bitmaps/" + bitmapImageFileName, value.xCells, value.yCells);
+                        }
+                    }
+                }
+
+                if (!value) continue;
+                if (prop.initialValueExpression) {
+                    this._evalContext = {collection: this.def.collection};
+                    var v = this.evalExpression(prop.initialValueExpression);
+                    if (v && value.toString() == v.toString()) continue;
+                }
+                if (prop.initialValue) {
+                    if (value.toString() == prop.initialValue.toString()) continue;
+                }
+
+                spec._children.push({
+                    _name: "PropertyValue",
+                    _uri: PencilNamespaces.p,
+                    name: name,
+                    _text: value.toString()
+                });
+            }
+
+            var next = function () {
+                var shortcutNode = Dom.newDOMElement(spec, dom);
+                var xml = "    " + Dom.serializeNode(shortcutNode).replace(/<PropertyValue/g, "\n        <PropertyValue").replace("</Shortcut>", "\n    </Shortcut>");
+
+                if (this.def.collection.developerStencil) {
+                    var defPath = path.join(this.def.collection.installDirPath, "Definition.xml");
+                    var content = fs.readFileSync(defPath, {encoding: "utf8"});
+                    content = content.replace(/<\/Shapes>/, xml + "\n</Shapes>");
+                    fs.writeFileSync(defPath, content);
+
+                    CollectionManager.reloadDeveloperStencil("notify");
+                }
+            }.bind(this);
+
+            if (this.def.collection.developerStencil) {
+                var targetPath = path.join(path.join(this.def.collection.installDirPath, "icons"), fileName);
+                Pencil.rasterizer.rasterizeSelectionToFile(this, targetPath, function (p, error) {
+                    if (!error) {
+                        spec.icon = "icons/" + fileName;
+                        next();
+                    }
+                });
+            } else {
+                next();
+            }
+
+
+
+        }.bind(this)
+    });
+};
+
+Shape.prototype.getContentEditActions = function (event) {
+    var actions = [];
+    var editInfo = this.getTextEditingInfo(event);
+    if (editInfo) {
+        actions.push({
+            type: "text",
+            editInfo: editInfo
+        });
+    }
+    for (var action of this.def.actions) {
+        if (action.meta["content-action"] == "true") {
+            actions.push({
+                type: "action",
+                actionId: action.id
+            });
+        }
+    }
+
+    return actions;
+};
+Shape.prototype.handleOtherContentEditAction = function (action) {
+    if (action.type != "action") return;
+    this.performAction(action.actionId);
 };

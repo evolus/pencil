@@ -1,4 +1,4 @@
-version: 3.0.0-beta.2+{build}
+version: 3.0.4+{build}
 
 platform:
   - x64
@@ -16,16 +16,11 @@ init:
   - git config --global core.autocrlf input
 
 install:
-  - ps: Install-Product node 6 x64
-  - git reset --hard HEAD
-  - npm install npm -g
-  - npm install electron-builder@4.2.6
-  - npm prune
+  - ps: $env:PLATFORM = $env:platform
+  - ps: Install-Product node 6 $env:platform
   - npm install
 
 build_script:
-  - node --version
-  - npm --version
   - npm run dist:win32
 
 test: off

@@ -29,7 +29,8 @@ function BaseCollectionPane() {
         thiz.filterCollections();
     }, this.clearTextButton);
 
-    this.shapeList.addEventListener("dragstart", function (event) {
+    this.shapeListContainer.addEventListener("dragstart", function (event) {
+        nsDragAndDrop.dragStart(event);
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
         thiz.addDefDataToDataTransfer(def, event);
@@ -40,9 +41,29 @@ function BaseCollectionPane() {
     this.dndImage = new Image();
     this.dndImage.src = "css/bullet.png";
 
-    this.searchInput.addEventListener("keyup", function (event) {
-        thiz.filterCollections();
-    }, false);
+    var searchShapesFunction = function () {
+        this.searchTimeout = null;
+        this.filterCollections();
+    }.bind(this);
+
+    this.bind("keyup", function (event) {
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+        this.searchTimeout = setTimeout(searchShapesFunction, 200);
+    }, this.searchInput);
+
+    var ensureVisibleShapeIconsFunction = function() {
+        this.revealTimeout = null;
+        this.ensureVisibleShapeIcons();
+    }.bind(this);
+
+    this.bind("scroll", function() {
+        if (this.revealTimeout) {
+            clearTimeout(this.revealTimeout);
+        }
+        this.revealTimeout = setTimeout(ensureVisibleShapeIconsFunction, 100);
+    }, this.shapeListContainer);
 
     UICommandManager.register({
         key: "searchFocusCommand",
@@ -102,6 +123,7 @@ BaseCollectionPane.prototype.onSizeChanged = function () {
     if (!this.loaded) {
         setTimeout(this.reload.bind(this), 300);
     }
+    this.updateLayoutSize();
 };
 BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     if (this.node().offsetWidth <= 0) return;
@@ -124,22 +146,35 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
         var collection = collections[i];
         if(this.isShowCollection(collection)) {
             var icon = this.getCollectionIcon(collection);
+            var typeClass = collection.developerStencil ? "TypeDeveloper" : (collection.userDefined ? "TypeUser" : "TypeSystem");
+            if (collection.builderStencil) typeClass += " TypeBuilder";
             var node = Dom.newDOMElement({
                 _name: "vbox",
-                "class": "Item",
+                "class": "Item" + (collection.previewURL ? " WithPreview" : "") + " " + typeClass,
                 "tabindex": "0",
+                title: collection.displayName,
                 _children: [
+                    {
+                        _name: "div",
+                        "class": "Preview",
+                        _children: [
+                            {
+                                _name: "img",
+                                src: collection.previewURL
+                            }
+                        ]
+                    },
                     {
                         _name: "div",
                         "class": "ItemInner",
                         _children: [
                             {
-                                _name: "span",
-                                _text: collection.displayName
-                            },
-                            {
                                 _name: "i",
                                 _text: icon
+                            },
+                            {
+                                _name: "span",
+                                _text: collection.displayName
                             }
                         ]
                     }
@@ -168,9 +203,9 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
 
             var w = inner.clientWidth + 4 * Util.em();
 
-            item.style.height = w + "px";
-            item.firstChild.style.width = w + "px";
-            item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
+            //item.style.height = w + "px";
+            //item.firstChild.style.width = "5em";
+            //item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
         }
         thiz.collectionScrollView.invalidate();
     }, 10);
@@ -189,21 +224,28 @@ BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
 BaseCollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
     this.clearTextButton.style.display = filter != null && filter.length > 0 ? "block" : "none"
-    var collectionNodes = Dom.getList(".//*[@class='Item']", this.selectorPane);
+    var collectionNodes = this.selectorPane.querySelectorAll(".Item");
     var hasLast = false;
     var firstNode = null;
     for (var i in collectionNodes) {
         var collectionNode = collectionNodes[i];
         var collection = collectionNodes[i]._collection;
+        if (!collection) continue;
         collection._shapeCount = 0;
         collection._filteredShapes = [];
-        for (var j in collection.shapeDefs) {
-            var def = collection.shapeDefs[j];
-            if (!def || def.system) continue;
-            if (def.displayName.toLowerCase().indexOf(filter.toLowerCase()) == -1) continue;
-            collection._shapeCount++;
-            collection._filteredShapes.push(def);
+        if (!filter) {
+            delete collection._filteredShapes;
+            collection._shapeCount = collection.shapeDefs.length;
+        } else {
+            for (var j in collection.shapeDefs) {
+                var def = collection.shapeDefs[j];
+                if (!def || def.system) continue;
+                if (def.displayName.toLowerCase().indexOf(filter.toLowerCase()) == -1) continue;
+                collection._shapeCount++;
+                collection._filteredShapes.push(def);
+            }
         }
+
         if (collection._shapeCount <= 0) {
             collectionNode.setAttribute("_hidden", true);
             collectionNode.style.display = "none";
@@ -230,22 +272,140 @@ BaseCollectionPane.prototype.filterCollections = function () {
         Dom.empty(this.collectionTitle);
         Dom.empty(this.collectionDescription);
         Dom.empty(this.shapeList);
+        Dom.empty(this.collectionLayoutContainer);
         this.settingButton.style.visibility = "hidden";
     }
 };
+BaseCollectionPane.prototype.ensureVisibleShapeIcons = function () {
+    var pr = this.shapeListContainer.getBoundingClientRect();
+    // console.log("PR:", pr);
+    for (var i = 0; i < this.shapeList.childNodes.length; i ++) {
+        var node = this.shapeList.childNodes[i];
+        if (node._loaded) continue;
+        var cr = node.getBoundingClientRect();
+        // console.log(cr, pr);
+        if ((pr.top - pr.height <= cr.top && cr.top <= (pr.top + pr.height * 2))
+            || pr.top - pr.height <= (cr.top + cr.height) && (cr.top + cr.height) <= (pr.top + pr.height * 2)) {
+                node._iconNode.src = node._iconNode.getAttribute("data-src");
+                node._loaded = true;
+            }
+    }
+};
+BaseCollectionPane.prototype.updateLayoutSize = function () {
+    var size = "large";
+    if (this.node().offsetWidth / Util.em() <= 20) {
+        size = "small";
+    }
+
+    var currentLevel = this.node().getAttribute("size-level");
+    if (currentLevel != size) {
+        this.node().setAttribute("size-level", size);
+        this.collectionScrollView.invalidate();
+    }
+
+
+    if (!this.last || !this.last.customLayout) return;
+
+    this.layoutOriginalSize = {
+        width: this.collectionLayoutContainer.firstChild.firstChild.offsetWidth,
+        height: this.collectionLayoutContainer.firstChild.firstChild.offsetHeight
+    };
+
+    var W = this.collectionLayoutContainer.offsetWidth;
+    var r = W / this.layoutOriginalSize.width;
+    var H = this.layoutOriginalSize.height * r;
+
+    this.collectionLayoutContainer.style.height = H + "px";
+    this.collectionLayoutContainer.firstChild.style.zoom = r;
+};
 BaseCollectionPane.prototype.openCollection = function (collection) {
     Dom.empty(this.shapeList);
+    Dom.empty(this.collectionLayoutContainer);
     this.collectionIcon.innerHTML = this.getCollectionIcon(collection);
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
     this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
     this.collectionDescription.setAttribute("title", collection.description);
     this.settingButton.style.visibility =  (collection.propertyGroups && collection.propertyGroups.length > 0) ? "inherit" : "hidden";
 
-    this.last = collection;
+    this.layoutOriginalSize = null;
+
+    this.layoutItemMap = {};
+
+    var thiz = this;
+
     var shapeDefs = typeof(collection._filteredShapes) == "undefined" ? collection.shapeDefs : collection._filteredShapes;
+    if (collection.customLayout) {
+        if (collection.customLayout.parentNode) collection.customLayout.parentNode.removeChild(collection.customLayout);
+        this.collectionLayoutContainer.appendChild(collection.customLayout);
+
+        var hasMatched = false;
+
+        Dom.workOn(".//*[@sc-ref]", this.collectionLayoutContainer, function (n) {
+            var scName = n.getAttribute("sc-ref");
+            var sc = collection.getShortcutByDisplayName(collection.id + ":" + scName);
+            n._def = sc;
+            n.setAttribute("draggable", "true");
+            n.setAttribute("title", scName);
+            thiz.layoutItemMap[scName] = n;
+
+            if (collection._filteredShapes) {
+                var matched = collection._filteredShapes.indexOf(sc) >= 0;
+                if (matched) hasMatched = true;
+                n.setAttribute("matched", matched);
+            } else {
+                n.removeAttribute("matched");
+            }
+        });
+        Dom.workOn(".//*[@ref]", this.collectionLayoutContainer, function (n) {
+            var defId = n.getAttribute("ref");
+            var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+            n._def = def;
+            n.setAttribute("draggable", "true");
+            n.setAttribute("title", def.displayName);
+            thiz.layoutItemMap[defId] = n;
+            if (collection._filteredShapes) {
+                var matched = collection._filteredShapes.indexOf(def) >= 0;
+                if (matched) hasMatched = true;
+                n.setAttribute("matched", matched);
+            } else {
+                n.removeAttribute("matched");
+            }
+        });
+        Dom.workOn(".//*[@pr-ref]", this.collectionLayoutContainer, function (n) {
+            if (!collection.builtinPrivateCollection || !collection.builtinPrivateCollection.map) return;
+            var defId = n.getAttribute("pr-ref");
+            var def = collection.builtinPrivateCollection.map[defId];
+            if (!def) return;
+            n._def = def;
+            n.setAttribute("draggable", "true");
+            n.setAttribute("title", def.displayName);
+        });
+
+        this.collectionLayoutContainer.style.display = "block";
+        // this.collectionLayoutContainer.style.overflow = "hidden";
+        this.collectionLayoutContainer.style.visibility = "hidden";
+        this.collectionLayoutContainer.style.height = "1px";
+
+        if (!hasMatched && collection._filteredShapes) {
+            this.collectionLayoutContainer.style.display = "none";
+        } else {
+            window.setTimeout(function () {
+                thiz.updateLayoutSize();
+                thiz.collectionLayoutContainer.style.visibility = "inherit";
+            }, 10);
+        }
+    } else {
+        this.collectionLayoutContainer.style.display = "none";
+    }
+
+    this.last = collection;
     for (var i = 0; i < shapeDefs.length; i ++) {
         var def = shapeDefs[i];
         if (def.system) continue;
+
+        var itemId = (def instanceof ShapeDef) ? def.id : def.displayName;
+        if (this.layoutItemMap[itemId]) continue;
+
         var icon = def.iconPath;
         if (!icon && def.shape) icon = def.shape.iconPath;
 
@@ -274,7 +434,8 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
                                 {
                                     _name: "img",
                                     _id: "iconImage",
-                                    src: icon
+                                    //src: "data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
+                                    "data-src": icon
                                 }
                             ]
                         },
@@ -288,17 +449,24 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         }, null, holder);
 
         node._def = def;
+        node._iconNode = holder.iconImage;
 
         this.shapeList.appendChild(node);
         // Util.setupImage(holder.iconImage, def.iconPath || def.iconData, "center-inside");
     }
 
     this.setLastUsedCollection(collection);
+    this.ensureVisibleShapeIcons();
 
     var thiz = this;
     window.setTimeout(function () {
         thiz.ensureSelectedCollectionVisible(collection);
     }, 10);
+    window.setTimeout(function () {
+        thiz.ensureVisibleShapeIcons();
+    }, 200);
+
+    this.updateLayoutSize();
 };
 
 BaseCollectionPane.prototype.ensureSelectedCollectionVisible = function (collection) {

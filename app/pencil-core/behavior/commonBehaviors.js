@@ -14,8 +14,8 @@ Pencil.behaviors.Box = function (box) {
 Pencil.behaviors.Bound = function (bound) {
     this.setAttribute("x", bound.x);
     this.setAttribute("y", bound.y);
-    this.setAttribute("width", bound.w);
-    this.setAttribute("height", bound.h);
+    this.setAttribute("width", Math.max(bound.w, 0));
+    this.setAttribute("height", Math.max(bound.h, 0));
 };
 Pencil.behaviors.Radius = function (rx, ry) {
     this.setAttribute("rx", rx);
@@ -37,8 +37,7 @@ Pencil.behaviors.Color = function (color) {
 	    Svg.setStyle(this, "fill", color.toRGBString());
 	    Svg.setStyle(this, "fill-opacity", color.a);
 	} else {
-	    Svg.setStyle(this, "color", color ? color.toRGBString() : null);
-	    Svg.setStyle(this, "opacity", color ? color.a : null);
+	    Svg.setStyle(this, "color", color ? color.toRGBAString() : null);
 	}
 };
 Pencil.behaviors.StrokeColor = function (color) {
@@ -123,6 +122,7 @@ Pencil.behaviors.Font = function (font) {
     Svg.setStyle(this, "font-weight", font.weight);
     Svg.setStyle(this, "font-style", font.style);
     Svg.setStyle(this, "text-decoration", font.decor);
+    Svg.setStyle(this, "line-height", font.lineHeight > 0 ? font.lineHeight : null);
 };
 Pencil.behaviors.BoxFit = function (bound, align) {
     try {
@@ -221,6 +221,21 @@ const ROTATED_ANGLE = 10;
 const SKETCHY_ANGLE = 4;
 const SKETCHY_ANGLE_LEN_REF = 50;
 
+function skline(x1, y1, x2, y2, d, noMove) {
+	var result = [];
+    if (!noMove) result.push(M(x1, y1));
+
+    var p1 = {x: x1, y: y1,};
+    var p2 = {x: x2, y: y2,};
+
+	result.push(L(x2, y2));
+
+	Pencil.behaviors.D._setLastLocation(x2, y2);
+
+	return result.join(" ");
+}
+
+
 function sk(x1, y1, x2, y2, d, noMove) {
 	var result = [];
     if (!noMove) result.push(M(x1, y1));
@@ -268,7 +283,6 @@ function sk_old(x1, y1, x2, y2, d, noMove) {
     var l = Math.sqrt(dx * dx + dy * dy);
     var segment = d ? d : DEFAULT_SKETCHY_SEG_SIZE;
 
-    segment = Math.min(segment, l / 2);
 
     var count = Math.floor(l / segment);
     var segmentRandom = segment / 3;
@@ -299,6 +313,28 @@ function skTo(x, y, d) {
     return sk(Pencil.behaviors.D._lastX, Pencil.behaviors.D._lastY, x, y,
         d ? d : DEFAULT_SKETCHY_SEG_SIZE, "noMove");
 }
+function sklineTo(x,y,d) {
+    return skline(Pencil.behaviors.D._lastX, Pencil.behaviors.D._lastY, x, y,
+        d ? d : DEFAULT_SKETCHY_SEG_SIZE, "noMove");
+}
+
+function getCalendarDate(dateStr, dayIndex, startWeekBySunday) {
+    var date = new Date(dateStr);
+    if (date == "Invalid Date") date = new Date();
+    var month = date.getMonth();
+    var year = date.getFullYear();
+    if (startWeekBySunday) dayIndex--;
+    var lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    var result = {};
+    var firstDayOfMonth = new Date(year, month, 1).getDay();
+    var space = dayIndex - firstDayOfMonth;
+    space++;
+    var dayValue = new Date(year, month, space).getDate();
+    result["value"] = dayValue;
+    if (dayIndex < firstDayOfMonth || space > lastDayOfMonth) result["disabled"] = true;
+    return result;
+}
+
 var z = "z";
 pencilSandbox.z = z;
 
@@ -519,13 +555,14 @@ Pencil.behaviors.MaintainGlobalDef = function (id, contentFragement) {
 /* n-Patch supports */
 
 function imageNodeForPatch(patch, x, y, w, h) {
+    var r = window.devicePixelRatio || 1;
     return {
         _name: "image",
         _uri: PencilNamespaces.svg,
-        x: x,
-        y: y,
-        width: w,
-        height: h,
+        x: x / r,
+        y: y / r,
+        width: w / r,
+        height: h / r,
         preserveAspectRatio: "none",
         //transform: "translate(" + x + ", " + y + ") scale(" + (w / patch.w) + ", " + (h / patch.h) + ")",
         "xlink:href": patch.url
@@ -606,3 +643,156 @@ Pencil.behaviors.NPatchDomContent = function (nPatch, dim) {
     Dom.empty(this);
     this.appendChild(buildNPatchDomFragment(nPatch, dim));
 };
+Pencil.behaviors.NPatchDomContentFromImage = function (imageData, dim, xAnchorMaps, yAnchorMaps) {
+    //sorting
+    var xCells = imageData.xCells;
+    var yCells = imageData.yCells;
+
+    if ((!xCells || xCells.length == 0) && (!yCells || yCells.length == 0)) {
+        Dom.empty(this);
+
+        this.setAttribute("width", dim.w)
+        this.setAttribute("height", dim.h)
+        this.setAttribute("style", "line-height: 1px;");
+
+        this.appendChild(Dom.newDOMElement({
+            _name: "img",
+            _uri: PencilNamespaces.html,
+            style: new CSS().set("width", dim.w + "px").set("height", dim.h + "px").toString(),
+            src: ImageData.refStringToUrl(imageData.data) || imageData.data
+        }));
+        return;
+    }
+
+    if (!xCells || xCells.length == 0) xCells = [{from: 0, to: imageData.w}];
+    if (!yCells || yCells.length == 0) yCells = [{from: 0, to: imageData.h}];
+
+    xCells = [].concat(xCells);
+    yCells = [].concat(yCells);
+
+    xCells.push({from: imageData.w, to: imageData.w + 1});  //sentinel, fake cell
+    yCells.push({from: imageData.h, to: imageData.h + 1});  //sentinel, fake cell
+
+    var order = function (a, b) { return a.from - b.from };
+    xCells.sort(order);
+    yCells.sort(order);
+
+    //generate np from imageData
+    var specs = [];
+    var totalFlexW = 0;
+    var totalFlexH = 0;
+    for (var p of xCells) {
+        totalFlexW += p.to - p.from;
+    }
+    for (var p of yCells) {
+        totalFlexH += p.to - p.from;
+    }
+
+    var targetScaleX = dim.w - (imageData.w - totalFlexW);
+    var targetScaleY = dim.h - (imageData.h - totalFlexH);
+    var rX = targetScaleX / totalFlexW;
+    var rY = targetScaleY / totalFlexH;
+
+    var y = 0;
+    var totalH = 0;
+    var row = 0;
+
+    var rowSpecs = [];
+    while (row < yCells.length && y < imageData.h) {
+        var yCell = yCells[row];
+
+        var scaleY = yCell.from <= y; //starting within a scalable area? (1)
+        var y1 = !scaleY ? yCell.from : yCell.to;
+        if (y > yCell.from) y = yCell.from; //this should not be the case. better safe than sorry (2)
+
+        var h = y1 - y;
+        var oh = h;
+
+        if (scaleY) {
+            if (row == yCells.length - 2) {
+                h = dim.h - (imageData.h - yCell.to) - totalH;
+            } else {
+                h = Math.floor(h * rY);
+            }
+        }
+
+        var col = 0;
+        var x = 0;
+        var totalW = 0;
+
+        var rowSpec = {
+            _name: "div",
+            _uri: PencilNamespaces.html,
+            totalH: totalH,
+            style: new CSS().set("height", h + "px").set("white-space", "nowrap").set("overflow", "hidden").set("display", "flex"),
+            _children: []
+        };
+        rowSpecs.push(rowSpec);
+
+
+        while (col < xCells.length && x < imageData.w) {
+            var xCell = xCells[col];
+            var scaleX = xCell.from <= x; // same as (1)
+            var x1 = !scaleX ? xCell.from : xCell.to;
+            if (x > xCell.from) x = xCell.from; // same as (2)
+
+            //generate block: x, y, x1 - x, y1 - y, scaleX, scaleY
+            var w = x1 - x;
+            var ow = w;
+
+            if (scaleX) {
+                if (col == xCells.length - 2) {
+                    w = dim.w - (imageData.w - xCell.to) - totalW;
+                } else {
+                    w = Math.floor(w * rX);
+                }
+            }
+
+
+            var css = new CSS()
+            .set("width", w + "px")
+            .set("height", h + "px")
+            .set("display", "inline-block")
+            .set("background-image", "url('" + (ImageData.refStringToUrl(imageData.data) || imageData.data) + "')")
+            .set("background-position", (0 - (w > ow ? x * w/ow : x)) + "px " + (0 - (h > oh ? y * h/oh : y)) + "px")
+            .set("background-repeat", "no-repeat")
+            .set("background-size", (w > ow ? (imageData.w * w/ow) : imageData.w) + "px " + (h > oh ? (imageData.h * h/oh) : imageData.h) + "px");
+
+
+            var cellSpec = {
+                _name: "div",
+                _uri: PencilNamespaces.html,
+                totalW: totalW,
+                style: css.toString()
+
+            };
+            rowSpec._children.push(cellSpec);
+
+            x = x1;
+            totalW += w;
+
+            if (scaleX) col ++;
+        }
+
+        y = y1;
+        totalH += h;
+
+        if (scaleY) row ++;
+    }
+
+
+    Dom.empty(this);
+
+    this.setAttribute("width", dim.w)
+    this.setAttribute("height", dim.h)
+
+    var outerSpec = {
+        _name: "div",
+        _uri: PencilNamespaces.html,
+        style: new CSS().set("width", dim.w + "px").set("height", dim.h + "px").set("line-height", "1px").toString(),
+        _children: rowSpecs
+    }
+
+    this.appendChild(Dom.newDOMElement(outerSpec));
+};
+Pencil.behaviors.NPatchDomContentFromImage._offScreenSupport = true;

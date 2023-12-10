@@ -51,7 +51,7 @@ module.exports = function () {
                 var format = FORMAT_MAP[ext];
                 if (!format) format = "truetype";
 
-                var url = "data:" + mime + ";base64," + new Buffer(bytes).toString("base64");
+                var url = "data:" + mime + ";base64," + Buffer.from(bytes).toString("base64");
 
                 combinedCSS +=  "@font-face {\n"
                                 + "    font-family: '" + installedFace.name + "';\n"

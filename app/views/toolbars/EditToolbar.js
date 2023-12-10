@@ -10,6 +10,7 @@ EditToolbar.prototype.registerCommands = function () {
         label: "Cut",
         icon: "content_cut",
         shortcut: "Ctrl+X",
+        applyWhenClass: "CanvasScrollPane",
         isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController; },
         run: function () {
             Pencil.activeCanvas.doCopy();
@@ -23,6 +24,7 @@ EditToolbar.prototype.registerCommands = function () {
         icon: "content_copy",
         shortcut: "Ctrl+C",
         isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController; },
+        applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.doCopy();
         }
@@ -32,6 +34,7 @@ EditToolbar.prototype.registerCommands = function () {
         watchEvents: "p:CanvasActived",
         label: "Paste",
         icon: "content_paste",
+        applyWhenClass: "CanvasScrollPane",
         shortcut: "Ctrl+V",
         isValid: function () { return Pencil.activeCanvas && clipboard.availableFormats() ; /*FIXED: check for clipboard content*/ },
         run: function () {

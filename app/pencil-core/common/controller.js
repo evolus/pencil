@@ -1,7 +1,7 @@
 function Controller(canvasPool, applicationPane) {
     this.canvasPool = canvasPool;
     this.applicationPane = applicationPane;
-
+    this.activePageLoading = false;
     var thiz = this;
     this.canvasPool.canvasContentModifiedListener = function (canvas) {
         thiz.handleCanvasModified(canvas);
@@ -19,7 +19,7 @@ Controller.THUMBNAIL_SIZE = 256;
 
 Controller.prototype.makeSubDir = function (sub) {
     const fs = require("fs");
-    var fullPath = path.join(this.tempDir.name, sub);
+    var fullPath = path.join(Pencil.documentHandler.tempDir.name, sub);
     try {
         fs.mkdirSync(fullPath);
     } catch(e) {
@@ -28,38 +28,44 @@ Controller.prototype.makeSubDir = function (sub) {
     return fullPath;
 };
 Controller.prototype.getDocumentName = function () {
-    return this.documentPath ? path.basename(this.documentPath).replace(/\.epz$/, "") : "* Unsaved document";
+    return this.documentPath ? path.basename(this.documentPath).replace(/\.[a-z]+$/, "") : "* Unsaved document";
 };
-Controller.prototype.newDocument = function () {
-    var thiz = this;
-
-    function create() {
-        thiz.resetDocument();
-        thiz.sayControllerStatusChanged();
-        FontLoader.instance.loadFonts();
-
-        // thiz.sayDocumentChanged();
-        setTimeout(function () {
-            var size = thiz.applicationPane.getPreferredCanvasSize();
-            var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "", null, "activatePage");
-            thiz.modified = false;
-        }, 50);
-    };
-
-    if (this.modified) {
-        this.confirmAndSaveDocument(create);
-        return;
-    }
-    create();
-};
+// Controller.prototype.newDocument = function () {
+//     var thiz = this;
+//
+//     function create() {
+//         thiz.resetDocument();
+//         thiz.sayControllerStatusChanged();
+//         FontLoader.instance.loadFonts();
+//
+//         // thiz.sayDocumentChanged();
+//         setTimeout(function () {
+//             var size = thiz.applicationPane.getPreferredCanvasSize();
+//             var page = thiz.newPage("Untitled Page", size.w, size.h, null, null, "", null, "activatePage");
+//             thiz.modified = false;
+//         }, 50);
+//     };
+//
+//     if (this.modified) {
+//         this.confirmAndSaveDocument(create);
+//         return;
+//     }
+//     create();
+// };
 Controller.prototype.confirmAndclose = function (onClose) {
     var handler = function () {
-        if (this.tempDir) this.tempDir.removeCallback();
-        this.tempDir = null;
+        if (Pencil.documentHandler.tempDir) Pencil.documentHandler.tempDir.removeCallback();
+        Pencil.documentHandler.tempDir = null;
         this.doc = null;
         this.modified = false;
 
         this.sayControllerStatusChanged();
+        ShapeTestCanvasPane._instance.quitTesting();
+
+        if (StencilCollectionBuilder.activeCollectionInfo) {
+            StencilCollectionBuilder.cleanup();
+            CollectionManager.reloadActiveBuilderCollection();
+        }
 
         if (onClose) onClose();
     }.bind(this);
@@ -67,24 +73,24 @@ Controller.prototype.confirmAndclose = function (onClose) {
     if (!this.doc || !this.modified) {
         handler();
     } else {
-        this.confirmAndSaveDocument(handler);
+        Pencil.documentHandler.confirmAndSaveDocument(handler);
     }
 }
-Controller.prototype.resetDocument = function () {
-    if (this.tempDir) this.tempDir.removeCallback();
-    this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
-
-    this.doc = new PencilDocument();
-    this.doc.name = "";
-    this.documentPath = null;
-    this.canvasPool.reset();
-    this.activePage = null;
-    this.documentPath = null;
-    this.pendingThumbnailerMap = null;
-
-    this.applicationPane.pageListView.currentParentPage = null;
-    FontLoader.instance.setDocumentRepoDir(path.join(this.tempDir.name, "fonts"));
-};
+// Controller.prototype.resetDocument = function () {
+//     if (Pencil.documentHandler.tempDir) Pencil.documentHandler.tempDir.removeCallback();
+//     Pencil.documentHandler.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
+//
+//     this.doc = new PencilDocument();
+//     this.doc.name = "";
+//     this.documentPath = null;
+//     this.canvasPool.reset();
+//     this.activePage = null;
+//     this.documentPath = null;
+//     this.pendingThumbnailerMap = null;
+//
+//     this.applicationPane.pageListView.currentParentPage = null;
+//     FontLoader.instance.setDocumentRepoDir(path.join(Pencil.documentHandler.tempDir.name, "fonts"));
+// };
 Controller.prototype.findPageById = function (id) {
     for (var i in this.doc.pages) {
         if (this.doc.pages[i].id == id) return this.doc.pages[i];
@@ -106,7 +112,19 @@ Controller.prototype.findPageByName = function (name) {
 
     return null;
 };
-Controller.prototype.newPage = function (name, width, height, backgroundPageId, backgroundColor, note, parentPageId, activateAfterCreate) {
+Controller.prototype.newPage = function (options) {
+    if (!options) options = {};
+
+    var name = options.name || "Untitled Page";
+    var width = options.width || 100;
+    var height = options.height || 100;
+    var backgroundPageId = options.backgroundPageId || null;
+    var backgroundColor = options.backgroundColor || null;
+    var note = options.node || "";
+    var parentPageId = options.parentPageId || null;
+    var activateAfterCreate = options.activateAfterCreate || false;
+    var copyBackgroundLinks = options.copyBackgroundLinks || false;
+
     var id = Util.newUUID();
     var pageFileName = "page_" + id + ".xml";
 
@@ -124,6 +142,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     if (backgroundPageId) {
         page.backgroundPageId = backgroundPageId;
         page.backgroundPage = this.findPageById(backgroundPageId);
+        page.copyBackgroundLinks = copyBackgroundLinks;
     }
 
     page.canvas = null;
@@ -131,7 +150,7 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
     page.scrollLeft = null;
     page.zoom = null;
 
-    page.tempFilePath = path.join(this.tempDir.name, pageFileName);
+    page.tempFilePath = path.join(Pencil.documentHandler.tempDir.name, pageFileName);
     page.invalidatedAfterLoad = true;
 
     this.serializePage(page, page.tempFilePath);
@@ -156,12 +175,14 @@ Controller.prototype.newPage = function (name, width, height, backgroundPageId, 
 
 Controller.prototype.duplicatePage = function (pageIn, onDone) {
     var page = pageIn;
-    var name = page.name;
+    var name = page.name + " (1)";
     var width = page.width;
     var height = page.height;
     var backgroundPageId;
+    var copyBackgroundLinks = false;
     if(page.backgroundPage) {
         backgroundPageId = page.backgroundPage.id;
+        copyBackgroundLinks = page.copyBackgroundLinks || false;
     }
     var backgroundColor;
     if (page.backgroundColor) {
@@ -169,7 +190,26 @@ Controller.prototype.duplicatePage = function (pageIn, onDone) {
     }
     var parentPageId = page.parentPage && page.parentPage.id;
     var note = page.note;
-    var newPage = this.newPage(name, width, height, backgroundPageId, backgroundColor, note, parentPageId);
+
+    var seed = 2;
+    while (this.findPageByName(name)) {
+        name = page.name  + " (" + seed + ")";
+        seed ++;
+    };
+
+    var options = {
+        name: name,
+        width: width,
+        height: height,
+        backgroundPageId: backgroundPageId,
+        backgroundColor: backgroundColor,
+        note: note,
+        parentPageId: parentPageId,
+        copyBackgroundLinks: copyBackgroundLinks,
+        activateAfterCreate: false
+    };
+
+    var newPage = this.newPage(options);
     newPage.canvas = null;
 
     // retrieve new page
@@ -204,23 +244,28 @@ Controller.prototype.serializeDocument = function (onDone) {
     this.doc.properties.activeId = this.activePage.id;
     var dom = this.doc.toDom();
     var xml = Controller.serializer.serializeToString(dom);
-    var outputPath = path.join(this.tempDir.name, "content.xml");
+    var outputPath = path.join(Pencil.documentHandler.tempDir.name, "content.xml");
     fs.writeFileSync(outputPath, xml, "utf8");
 
     var index = -1;
     var thiz = this;
 
     var embeddableFontFaces = [];
+    var refResourceIds = [];
 
-    function embedFonts() {
-        if (embeddableFontFaces.length <= 0) return;
-        FontLoader.instance.embedToDocumentRepo(embeddableFontFaces);
+    function postProcess() {
+        if (embeddableFontFaces.length > 0) {
+            //console.log("Fonts to embed:", embeddableFontFaces);
+            FontLoader.instance.embedToDocumentRepo(embeddableFontFaces);
+        }
+
+        thiz.registeredResourceIds = refResourceIds;
     }
 
     function next() {
         index ++;
         if (index >= thiz.doc.pages.length) {
-            embedFonts();
+            postProcess();
             if (onDone) onDone();
             return;
         }
@@ -231,10 +276,18 @@ Controller.prototype.serializeDocument = function (onDone) {
             thiz.serializePage(page, page.tempFilePath);
         }
 
-        var pageEmbeddableFontFaces = thiz.findEmbeddableFontFaces(page);
+        var resourceReferences = thiz.findResourceReferences(page);
+
+        var pageEmbeddableFontFaces = resourceReferences.fontFaces;
         if (pageEmbeddableFontFaces) {
             pageEmbeddableFontFaces.forEach(function (face) {
                 if (embeddableFontFaces.indexOf(face) < 0) embeddableFontFaces.push(face);
+            });
+        }
+        var pageRefResourceIds = resourceReferences.resourceIds;
+        if (pageRefResourceIds) {
+            pageRefResourceIds.forEach(function (id) {
+                if (refResourceIds.indexOf(id) < 0) refResourceIds.push(id);
             });
         }
 
@@ -253,7 +306,12 @@ Controller.prototype.serializeDocument = function (onDone) {
     next();
 };
 
-Controller.prototype.findEmbeddableFontFaces = function (page) {
+Controller.prototype.countResourceReferences = function (page) {
+    var result = {
+        fontFaces: {},
+        resources: {}
+    };
+
     var contextNode = null;
     if (page.canvas) {
         contextNode = page.canvas.drawingLayer;
@@ -262,122 +320,158 @@ Controller.prototype.findEmbeddableFontFaces = function (page) {
         contextNode = Dom.getSingle("/p:Page/p:Content", dom);
     }
 
-    var faces = [];
-
     Dom.workOn(".//svg:g[@p:type='Shape']", contextNode, function (node) {
         var defId = node.getAttributeNS(PencilNamespaces.p, "def");
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-        if (!def) return;
 
         Dom.workOn("./p:metadata/p:property", node, function (propNode) {
             var name = propNode.getAttribute("name");
-            var propDef = def.getProperty(name);
-            if (!propDef || propDef.type != Font) return;
             var value = propNode.textContent;
-            var font = Font.fromString(value);
-            if (!font) return;
 
-            if (faces.indexOf(font.family) < 0 && FontLoader.instance.isFontExisting(font.family)) {
-                faces.push(font.family);
+            if (value && value.match(/^[0-9\,\-]+ref:\/\//)) {
+                var imageData = ImageData.fromString(value);
+                if (!imageData || !imageData.data) {
+                    console.error("Invalid image data for value: ", value);
+                    return;
+                }
+
+                var id = ImageData.refStringToId(imageData.data);
+                if (!id) {
+                    console.error("Unable to parse refId from data: ", imageData.data);
+                    return;
+                }
+
+                var holders = result.resources[id] || [];
+                holders.push(node);
+                result.resources[id] = holders;
+
+                return;
+            }
+
+            if (def) {
+                var propDef = def.getProperty(name);
+
+                if (propDef && propDef.type == Font) {
+                    var font = Font.fromString(value);
+                    if (!font) return;
+
+                    var holders = result.fontFaces[font.family] || [];
+                    if (holders.length || FontLoader.instance.isFontExisting(font.family)) {
+                        holders.push(node);
+                    }
+                    result.fontFaces[font.family] = holders;
+
+                    return;
+                }
             }
         });
     });
 
-    return faces;
+    return result;
 };
+Controller.prototype.findResourceReferences = function (page) {
+    var refs = this.countResourceReferences(page);
 
-Controller.prototype.openDocument = function (callback) {
-    var thiz = this;
-    function handler() {
-        ApplicationPane._instance.busy();
-        dialog.showOpenDialog({
-            title: "Open pencil document",
-            defaultPath: Config.get("document.open.recentlyDirPath", null) || os.homedir(),
-            filters: [
-                { name: "Stencil files", extensions: ["epz", "ep"] }
-            ]
 
-        }, function (filenames) {
-            ApplicationPane._instance.unbusy();
-            if (!filenames || filenames.length <= 0) return;
-            Config.set("document.open.recentlyDirPath", path.dirname(filenames[0]));
-            this.loadDocument(filenames[0], callback);
-        }.bind(thiz));
+    return {
+        fontFaces: Object.keys(refs.fontFaces),
+        resourceIds: Object.keys(refs.resources)
     };
-
-    if (this.modified) {
-        this.confirmAndSaveDocument(handler);
-        return;
-    }
-
-    handler();
 };
-Controller.prototype.parsePageFromNode = function (pageNode, callback) {
-    var thiz = this;
-    var page = new Page(this.doc);
-    Dom.workOn("./p:Properties/p:Property", pageNode, function (propNode) {
-        var name = propNode.getAttribute("name");
-        var value = propNode.textContent;
-        if(name == "note") {
-            value = RichText.fromString(value);
+Controller.prototype.getResourceReferences = function (resourceId, pages) {
+    if (!pages) pages = this.doc.pages;
+    else if (!Array.isArray(pages)) pages = [pages];
+
+    var result = {
+        fontFaces: {},
+        resources: {}
+    };
+    function appendRef(overall, refs) {
+        for (var k in refs) {
+            var ri = overall[k] || {
+                total: 0,
+                references: []
+            };
+            var holders = refs[k];
+            var n = holders ? holders.length : 0;
+            ri.total += n;
+            ri.references.push({"count": n, "page": page, "holders": holders});
+
+            overall[k] = ri;
         }
-        if (!Page.PROPERTY_MAP[name]) return;
-        page[Page.PROPERTY_MAP[name]] = value;
-    });
+        return overall;
+    };
+    for (var i = 0; i < pages.length; i++) {
+        var page = pages[i];
+        var refs = this.countResourceReferences(page);
 
-    function invalidateAndSerializePage(page) {
-        if (page.width) page.width = parseInt(page.width, 10);
-        if (page.height) page.height = parseInt(page.height, 10);
-        if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
-
-        if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
-
-        var pageFileName = "page_" + page.id + ".xml";
-        page.pageFileName = pageFileName;
-        page.tempFilePath = path.join(thiz.tempDir.name, pageFileName);
-
-        thiz.serializePage(page, page.tempFilePath);
-        delete page._contentNode;
-        thiz.doc.pages.push(page);
+        result.fontFaces = appendRef(result.fontFaces, refs.fontFaces);
+        result.resources = appendRef(result.resources, refs.resources);
     }
 
-    var contentNode = Dom.getSingle("./p:Content", pageNode);
-    if (contentNode) {
-        var node = document.importNode(contentNode.cloneNode(true), true);
+    return resourceId ? (result.resources[resourceId] || result.fontFaces[resourceId]) : result;
+};
 
-        var invalidateTasks = [];
-        var invalidationIndex = -1;
+// Controller.prototype.openDocument = function (callback) {
+//     var thiz = this;
+//     function handler() {
+//         ApplicationPane._instance.busy();
+//         dialog.showOpenDialog({
+//             title: "Open pencil document",
+//             defaultPath: Config.get("document.open.recentlyDirPath", null) || os.homedir(),
+//             filters: [
+//                 { name: "Stencil files", extensions: ["epz", "ep"] }
+//             ]
+//
+//         }, function (filenames) {
+//             ApplicationPane._instance.unbusy();
+//             if (!filenames || filenames.length <= 0) return;
+//             Config.set("document.open.recentlyDirPath", path.dirname(filenames[0]));
+//             this.loadDocument(filenames[0], callback);
+//         }.bind(thiz));
+//     };
+//
+//     if (this.modified) {
+//         this.confirmAndSaveDocument(handler);
+//         return;
+//     }
+//
+//     handler();
+// };
+Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
+    var invalidateTasks = [];
+    var invalidationIndex = -1;
 
 
-        function createInvalidationTask(type, name, propertyNode) {
-            return function (__callback) {
-                var value = type.fromString(propertyNode.textContent);
-                type.invalidateValue(value, function (invalidatedValue, error) {
-                    if (invalidatedValue) {
-                        Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
-                    }
-                    __callback();
-                });
-            };
-        }
-
-        function runNextValidation(callback) {
-            invalidationIndex ++;
-            if (invalidationIndex >= invalidateTasks.length) {
-                callback();
-                return;
-            }
-            var task = invalidateTasks[invalidationIndex];
-            task(function () {
-                runNextValidation(callback);
+    function createInvalidationTask(type, name, propertyNode) {
+        return function (__callback) {
+            var value = type.fromString(propertyNode.textContent);
+            type.invalidateValue(value, function (invalidatedValue, error) {
+                if (invalidatedValue) {
+                    Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
+                }
+                __callback();
             });
+        };
+    }
+
+    function runNextValidation(callback) {
+        invalidationIndex ++;
+        if (invalidationIndex >= invalidateTasks.length) {
+            callback();
+            return;
         }
+        var task = invalidateTasks[invalidationIndex];
+        task(function () {
+            runNextValidation(callback);
+        });
+    }
 
-        Dom.workOn(".//svg:g[@p:type='Shape']", node, function (shapeNode) {
-            var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
-            var def = CollectionManager.shapeDefinition.locateDefinition(defId);
-            if (!def) return;
+    Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
+        var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
+        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
 
+        if (def) {
             Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
                 var name = propertyNode.getAttribute("name");
                 var propertyDef = def.propertyMap[name];
@@ -387,84 +481,38 @@ Controller.prototype.parsePageFromNode = function (pageNode, callback) {
                 invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
 
             });
-        });
+        } else {
+            // Adhoc invalidation for rasterized image reference from within missing shapes
+            this.invalidateBrokenImageRefs(shapeNode);
+        }
+
+    });
 
 
-        runNextValidation(function () {
-            page._contentNode = node;
-            invalidateAndSerializePage(page);
-            callback();
-        });
-    } else {
-        page._contentNode = null;
-        invalidateAndSerializePage(page);
-        callback();
-    }
+    runNextValidation(onDoneCallback);
 };
-Controller.prototype.parseOldFormatDocument = function (filePath, callback) {
-    var targetDir = this.tempDir.name;
-    var thiz = this;
-    this.pathToRefCache = null;
-    try {
-        if (path.extname(filePath) != ".ep" && path.extname(filePath) != ".epz") throw "Wrong format.";
 
-        this.documentPath = filePath;
-        this.oldPencilDoc = true;
-        var dom = Controller.parser.parseFromString(fs.readFileSync(filePath, "utf8"), "text/xml");
+Controller.prototype.invalidateBrokenImageRefs = function (contentNode) {
+    Dom.workOn(".//html:img", contentNode, function (imgNode) {
+        var src = imgNode.getAttribute("src");
+        if (!src) return;
+        if (!src.match(/^file:\/\/([^\?]+)(\?.+)?$/)) return;
+        var filePath = RegExp.$1;
+        if (!filePath.match(/^.*\/refs\/([^\/]+)$/)) return;
+        var refId = RegExp.$1;
 
-        Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-            thiz.doc.properties[propNode.getAttribute("name")] = propNode.textContent;
-        });
-
-        var pageNodes = Dom.getList("./p:Pages/p:Page", dom.documentElement);
-
-        var pageNodeIndex = -1;
-        function parseNextPageNode(__callback) {
-            pageNodeIndex ++;
-            if (pageNodeIndex >= pageNodes.length) {
-                __callback();
-                return;
-            }
-
-            var pageNode = pageNodes[pageNodeIndex];
-            thiz.parsePageFromNode(pageNode, function () {
-                parseNextPageNode(__callback);
-            });
+        var realFilePath = filePath;
+        if (process.platform == "win32") {
+            realFilePath = filePath.replace(/\//g, "\\");
+            if (realFilePath.match(/^\\(.*)$/)) realFilePath = RegExp.$1;
         }
 
-        // update page thumbnails
-        var index = -1;
-        function generateNextThumbnail(onDone) {
-            index ++;
-            if (index >= thiz.doc.pages.length) {
-                if (onDone) onDone();
-                return;
-            }
-            var page = thiz.doc.pages[index];
-            thiz.updatePageThumbnail(page, function () {
-                generateNextThumbnail(onDone);
-            });
-        }
-
-
-        parseNextPageNode(function () {
-            generateNextThumbnail(function () {
-                thiz.modified = false;
-                thiz.sayControllerStatusChanged();
-                if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
-                thiz.pathToRefCache = null;
-                if (callback) callback();
-                ApplicationPane._instance.unbusy();
-            });
-        });
-
-        // this.documentPath = filePath;
-        this.doc.name = this.getDocumentName();
-    } catch (e) {
-        // console.log("error:", e);
-        thiz.newDocument();
-        ApplicationPane._instance.unbusy();
-    }
+        if (fs.existsSync(realFilePath)) return;
+        var realFilePath = this.refIdToFilePath(refId);
+        if (!fs.existsSync(realFilePath)) return;
+        var url = this.refIdToUrl(refId);
+        imgNode.setAttribute("src", url);
+    }.bind(this));
 };
 
 Controller.THUMB_CACHE_DIR = "thumbs";
@@ -572,242 +620,7 @@ Controller.prototype.removeRecentFile = function (filePath) {
         Pencil.app.addRecentDocument(f);
     });
 };
-Controller.prototype.loadDocument = function (filePath, callback) {
-    ApplicationPane._instance.busy();
-    this.resetDocument();
-    var thiz = this;
-    if (!fs.existsSync(filePath)) {
-        Dialog.error("File doesn't exist", "Please check if your file was moved or deleted.");
-        thiz.removeRecentFile(filePath);
-        ApplicationPane._instance.unbusy();
-        thiz.newDocument();
-        if (callback) callback();
-        return;
-    };
 
-    var fd = fs.openSync(filePath, "r");
-    var buffer = new Buffer(2);
-    var chunkSize = 2;
-    fs.read(fd, buffer, 0, chunkSize, 0, function (err, bytes, buff) {
-        var content = buff.toString("utf8", 0, chunkSize);
-        if (content.toUpperCase() == "PK") {
-            thiz.parseDocument(filePath, callback);
-        } else {
-            thiz.parseOldFormatDocument(filePath, callback);
-        }
-        fs.close(fd);
-    });
-};
-
-Controller.prototype.parseDocument = function (filePath, callback) {
-    var targetDir = this.tempDir.name;
-    var thiz = this;
-    var extractor = unzip.Extract({ path: targetDir });
-    extractor.on("close", function () {
-        try {
-            var contentFile = path.join(targetDir, "content.xml");
-            if (!fs.existsSync(contentFile)) throw Util.getMessage("content.specification.is.not.found.in.the.archive");
-            var dom = Controller.parser.parseFromString(fs.readFileSync(contentFile, "utf8"), "text/xml");
-            Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                var value = propNode.textContent;
-                if (value == "undefined" || value == "null") return;
-                thiz.doc.properties[propNode.getAttribute("name")] = value;
-            });
-            Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-                var page = new Page(thiz.doc);
-                var pageFileName = pageNode.getAttribute("href");
-                page.pageFileName = pageFileName;
-                page.tempFilePath = path.join(targetDir, pageFileName);
-                thiz.doc.pages.push(page);
-            });
-
-            thiz.doc.pages.forEach(function (page) {
-                var pageFile = path.join(targetDir, page.pageFileName);
-                if (!fs.existsSync(pageFile)) throw Util.getMessage("page.specification.is.not.found.in.the.archive");
-                var dom = Controller.parser.parseFromString(fs.readFileSync(pageFile, "utf8"), "text/xml");
-                Dom.workOn("./p:Properties/p:Property", dom.documentElement, function (propNode) {
-                    var propName = propNode.getAttribute("name");
-                    var value = propNode.textContent;
-                    if(propName == "note") {
-                        value = RichText.fromString(value);
-                    }
-                    if (value == "undefined" || value == "null") return;
-                    page[propNode.getAttribute("name")] = value;
-                });
-
-                if (page.width) page.width = parseInt(page.width, 10);
-                if (page.height) page.height = parseInt(page.height, 10);
-                if (page.backgroundColor) page.backgroundColor = Color.fromString(page.backgroundColor);
-
-
-                // if (page.backgroundPageId) page.backgroundPage = thiz.findPageById(page.backgroundPageId);
-
-                var thumbPath = path.join(this.makeSubDir(Controller.SUB_THUMBNAILS), page.id + ".png");
-                if (fs.existsSync(thumbPath)) {
-                    page.thumbPath = thumbPath;
-                    page.thumbCreated = new Date();
-                }
-                page.canvas = null;
-            }, thiz);
-
-            thiz.doc.pages.forEach(function (page) {
-                if (page.backgroundPageId) {
-                    page.backgroundPage = this.findPageById(page.backgroundPageId);
-                    this.invalidateBitmapFilePath(page);
-                }
-
-                if (page.parentPageId) {
-                    var parentPage = this.findPageById(page.parentPageId);
-                    page.parentPage = parentPage;
-                    parentPage.children.push(page);
-                }
-            }, thiz);
-
-            thiz.documentPath = filePath;
-            thiz.oldPencilDoc = false;
-            thiz.doc.name = thiz.getDocumentName();
-            thiz.modified = false;
-            //new file was loaded, update recent file list
-            thiz.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
-
-            FontLoader.instance.setDocumentRepoDir(path.join(targetDir, "fonts"));
-            FontLoader.instance.loadFonts(function () {
-                thiz.sayControllerStatusChanged();
-                if (thiz.doc.properties.activeId) {
-                    thiz.activatePage(thiz.findPageById(thiz.doc.properties.activeId));
-                } else {
-                    if (thiz.doc.pages.length > 0) thiz.activatePage(thiz.doc.pages[0]);
-                }
-                thiz.applicationPane.onDocumentChanged();
-                thiz.modified = false;
-                if (callback) callback();
-                ApplicationPane._instance.unbusy();
-            });
-        } catch (e) {
-            console.log("error:", e);
-            thiz.newDocument();
-            ApplicationPane._instance.unbusy();
-        }
-
-    }).on("error", function () {
-        thiz.parseOldFormatDocument(filePath);
-        ApplicationPane._instance.unbusy();
-    });
-    fs.createReadStream(filePath).pipe(extractor);
-}
-Controller.prototype.confirmAndSaveDocument = function (onSaved) {
-    Dialog.confirm(
-        "Save changes to document before closing?",
-        "If you don't save, changes will be permanently lost.",
-        "Save", function () { this.saveDocument(onSaved); }.bind(this),
-        "Cancel", function () { },
-        "Discard changes", function () { if (onSaved) onSaved(); }
-        );
-};
-Controller.prototype.parseDocumentThumbnail = function (filePath, callback) {
-    var extractPath = null;
-    var found = false;
-    fs.createReadStream(filePath)
-        .pipe(unzip.Parse())
-        .on("entry", function (entry) {
-            var fileName = entry.path;
-            var type = entry.type; // 'Directory' or 'File'
-            var size = entry.size;
-            if (fileName === "content.xml") {
-                var xmlFile = tmp.fileSync({postfix: ".xml", keep: false});
-                entry.pipe(fs.createWriteStream(xmlFile.name))
-                    .on("close", function () {
-                        var dom = Controller.parser.parseFromString(fs.readFileSync(xmlFile.name, "utf8"), "text/xml");
-                        xmlFile.removeCallback();
-
-                        Dom.workOn("./p:Pages/p:Page", dom.documentElement, function (pageNode) {
-                            var pageFileName = pageNode.getAttribute("href");
-                            if (!extractPath) {
-                                extractPath = "thumbnails/" + pageFileName.replace(/^page_/, "").replace(/\.xml$/, "") + ".png";
-                            }
-                        });
-                    });
-            } else if (fileName && fileName == extractPath) {
-                var pngFile = tmp.fileSync({postfix: ".png", keep: false});
-                entry.pipe(fs.createWriteStream(pngFile.name))
-                    .on("close", function () {
-                        callback(null, pngFile.name);
-                    });
-            } else {
-                entry.autodrain();
-            }
-        })
-        .on("end", function () {
-            if (!found) callback("PARSE ERROR", null);
-        });
-};
-Controller.prototype.saveAsDocument = function (onSaved) {
-    var thiz = this;
-    dialog.showSaveDialog({
-        title: "Save as",
-        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || Config.get("document.save.recentlyDirPath", null) || os.homedir(),
-                        this.documentPath && path.basename(this.documentPath) || "Untitled.epz"),
-        filters: [
-            { name: "Pencil Documents", extensions: ["epz"] }
-        ]
-    }, function (filePath) {
-        if (!filePath) return;
-        this.addRecentFile(filePath, thiz.getCurrentDocumentThumbnail());
-        this.documentPath = filePath;
-        this.doc.name = this.getDocumentName();
-        this.saveDocumentImpl(filePath, onSaved);
-    }.bind(this));
-};
-Controller.prototype.saveDocument = function (onSaved) {
-    if (!this.documentPath || this.oldPencilDoc) {
-        var thiz = this;
-        dialog.showSaveDialog({
-            title: "Save as",
-            defaultPath: path.join(Config.get("document.save.recentlyDirPath", null) || os.homedir(),
-                (this.documentPath && path.basename(this.documentPath).replace(path.extname(this.documentPath), "") + ".epz") || "Untitled.epz"),
-            filters: [
-                { name: "Pencil Documents", extensions: ["epz"] }
-            ]
-        }, function (filePath) {
-            if (!filePath) return;
-            Config.set("document.save.recentlyDirPath", path.dirname(filePath));
-            thiz.documentPath = filePath;
-            thiz.doc.name = thiz.getDocumentName();
-            thiz.saveDocumentImpl(thiz.documentPath, onSaved);
-        });
-        return;
-    }
-    this.saveDocumentImpl(this.documentPath, onSaved);
-};
-Controller.prototype.saveDocumentImpl = function (documentPath, onSaved) {
-    if (!this.doc) throw "No document";
-    if (!documentPath) throw "Path not specified";
-
-    this.updateCanvasState();
-    this.oldPencilDoc = false;
-
-    var thiz = this;
-    ApplicationPane._instance.busy();
-
-    this.serializeDocument(function () {
-        this.addRecentFile(documentPath, this.getCurrentDocumentThumbnail());
-
-        var archiver = require("archiver");
-        var archive = archiver("zip");
-        var output = fs.createWriteStream(documentPath);
-        output.on("close", function () {
-            thiz.sayDocumentSaved();
-            ApplicationPane._instance.unbusy();
-            if (onSaved) onSaved();
-        });
-        archive.pipe(output);
-        archive.directory(this.tempDir.name, "/", {});
-        archive.finalize();
-    }.bind(this));
-
-    thiz.applicationPane.onDocumentChanged();
-    thiz.sayControllerStatusChanged();
-};
 Controller.serializePageToDom = function (page, noContent) {
     var dom = Controller.parser.parseFromString("<p:Page xmlns:p=\"" + PencilNamespaces.p + "\"></p:Page>", "text/xml");
     var propertyContainerNode = dom.createElementNS(PencilNamespaces.p, "p:Properties");
@@ -967,6 +780,8 @@ Controller.prototype.updateCanvasState = function () {
 Controller.prototype.activatePage = function (page) {
     if (page == null || this.activePage && page.id == this.activePage.id) return;
 
+    this.activePageLoading = true;
+
     this.updateCanvasState();
 
     this.retrievePageCanvas(page);
@@ -978,6 +793,8 @@ Controller.prototype.activatePage = function (page) {
     page.canvas.setSize(page.width, page.height);
     page.lastUsed = new Date();
     this.activePage = page;
+    page.canvas._sayTargetChanged();
+    this.activePageLoading = false;
     // this.sayDocumentChanged();
 };
 Controller.prototype.ensurePageCanvasBackground = function (page) {
@@ -1024,6 +841,8 @@ Controller.prototype.invalidatePageContent = function (page, callback) {
 
         if (callback) callback();
     });
+
+    this.invalidateBrokenImageRefs(page.canvas.drawingLayer);
 };
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {
@@ -1282,6 +1101,17 @@ Controller.prototype.sizeToBestFit = function (passedPage) {
         this.sayDocumentChanged();
     }
 };
+Controller.prototype.setActiveCanvasSize = function (width, height) {
+    var canvas = this.activePage.canvas;
+    if (!canvas) return;
+    var newSize = this.applicationPane.getBestFitSizeObject();
+    canvas.setSize(width, height);
+    this.activePage.width = width;
+    this.activePage.height = height;
+    Config.set("lastSize", [width, height].join("x"));
+    this.invalidateBitmapFilePath(this.activePage);
+    this.sayDocumentChanged();
+};
 Controller.prototype.getBestFitSize = function () {
     return this.applicationPane.getBestFitSize();
 };
@@ -1312,38 +1142,124 @@ Controller.prototype.rasterizeCurrentPage = function (targetPage) {
         return;
     }
 
+    var options = {};
+    if (this.activePage && this.activePage.backgroundColor) {
+        options.backgroundColor = this.activePage.backgroundColor.toRGBString();
+    } else {
+        var color = Config.get(Config.EXPORT_DEFAULT_BACKGROUND_COLOR, "");
+        if (color) {
+            options.backgroundColor = color;
+        }
+    }
+
     dialog.showSaveDialog({
         title: "Export page as PNG",
         defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), (page.name + ".png")),
         filters: [
             { name: "PNG Image (*.png)", extensions: ["png"] }
         ]
-    }, function (filePath) {
-        if (!filePath) return;
+    }).then(function (res) {
+        if (!res || !res.filePath) return;
+        var filePath = res.filePath;
         this.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
             if (!error) {
-                NotificationPopup.show("Page exprted as '" + path.basename(filePath) + "'.", "View", function () {
-                    shell.openItem(filePath);
+                NotificationPopup.show("Page exported as '" + path.basename(filePath) + "'.", "View", function () {
+                    shell.openPath(filePath);
                 });
             }
-        });
+        }, undefined, false, options);
     }.bind(this));
 };
 
-Controller.prototype.rasterizeSelection = function () {
+Controller.prototype.copyPageBitmap = function (targetPage) {
+    var page = targetPage ? targetPage : (this.activePage ? this.activePage : null);
+    if (!page) {
+        return;
+    }
+
+    var options = {};
+    if (this.activePage && this.activePage.backgroundColor) {
+        options.backgroundColor = this.activePage.backgroundColor.toRGBString();
+    } else {
+        var color = Config.get(Config.EXPORT_DEFAULT_BACKGROUND_COLOR, "");
+        if (color) {
+            options.backgroundColor = color;
+        }
+    }
+
+    var crop = Config.get(Config.EXPORT_CROP_FOR_CLIPBOARD, false);
+
+    if (crop) {
+        page.canvas.selectAll();
+        page.canvas.doGroup();
+        page.canvas.sizeToContent(20, 20);
+
+        page.width = page.canvas.width;
+        page.height = page.canvas.height;
+    }
+
+    var thiz = this;
+
+    window.setTimeout(function () {
+        var tmp = require("tmp");
+        var filePath = tmp.tmpNameSync();
+        thiz.applicationPane.rasterizer.rasterizePageToFile(page, filePath, function (p, error) {
+            if (!error) {
+                var image = nativeImage.createFromPath(filePath);
+                var result = clipboard.writeImage(image);
+                fs.unlinkSync(filePath);
+                NotificationPopup.show("Page bitmap copied into clipboard.");
+            }
+        }, undefined, false, options);
+    }, 100);
+};
+
+Controller.prototype.rasterizeSelection = function (options) {
     var target = Pencil.activeCanvas.currentController;
     if (!target || !target.getGeometry) return;
 
-    dialog.showSaveDialog({
-        title: "Export selection as PNG",
-        defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), ""),
-        filters: [
-            { name: "PNG Image (*.png)", extensions: ["png"] }
-        ]
-    }, function (filePath) {
-        if (!filePath) return;
-        this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function () {});
-    }.bind(this));
+    if (!options) options = {};
+    if (this.activePage && this.activePage.backgroundColor) {
+        options.backgroundColor = this.activePage.backgroundColor.toRGBString();
+    } else {
+        var color = Config.get(Config.EXPORT_DEFAULT_BACKGROUND_COLOR, "");
+        if (color) {
+            options.backgroundColor = color;
+        }
+    }
+
+    if (options && options.target == "clipboard") {
+        var tmp = require("tmp");
+        var filePath = tmp.tmpNameSync();
+
+        this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
+            if (!error) {
+                var image = nativeImage.createFromPath(filePath);
+                clipboard.writeImage(image);
+                fs.unlinkSync(filePath);
+                NotificationPopup.show("Page bitmap copied into clipboard.");
+            }
+        }, undefined, options);
+    } else {
+        dialog.showSaveDialog({
+            title: "Export selection as PNG",
+            defaultPath: path.join(this.documentPath && path.dirname(this.documentPath) || os.homedir(), ""),
+            filters: [
+                { name: "PNG Image (*.png)", extensions: ["png"] }
+            ]
+        }).then(function (res) {
+            if (!res || !res.filePath) return;
+            var filePath = res.filePath;
+            this.applicationPane.rasterizer.rasterizeSelectionToFile(target, filePath, function (p, error) {
+                if (!error) {
+                    NotificationPopup.show("Selection exported as '" + path.basename(filePath) + "'.", "View", function () {
+                        shell.openPath(filePath);
+                    });
+                }
+            }, undefined, options);
+        }.bind(this));
+    }
+
 };
 
 Controller.prototype.copyAsRef = function (sourcePath, callback) {
@@ -1380,15 +1296,53 @@ Controller.prototype.copyAsRef = function (sourcePath, callback) {
 
     rd.pipe(wr);
 };
+Controller.prototype.generateCollectionResourceRefId = function (collection, resourcePath) {
+    var id = "collection " + collection.id + "@" + collection.parsedAt + " " + resourcePath;
+    var md5 = require("md5");
+    id = md5(id) + path.extname(resourcePath);
+
+    id = id.replace(/[^a-z\-0-9]+/gi, "_");
+
+    return id;
+};
+Controller.prototype.collectionResourceAsRefSync = function (collection, resourcePath) {
+    var parts = resourcePath.split("/");
+    sourcePath = collection.installDirPath;
+    for (var p of parts) {
+        if (p.indexOf("..") >= 0 || p.indexOf("\\") >= 0) return null;
+        sourcePath = path.join(sourcePath, p);
+    }
+    if (!fs.existsSync(sourcePath)) {
+        console.error("Path not found: " + sourcePath);
+        return null;
+    }
+
+    var id = this.generateCollectionResourceRefId(collection, resourcePath);
+
+    var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, fs.readFileSync(sourcePath));
+    }
+
+    return id;
+};
 Controller.prototype.nativeImageToRefSync = function (nativeImage) {
     var id = Util.newUUID() + ".png";
     var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
-    fs.writeFileSync(filePath, nativeImage.toPng());
+    fs.writeFileSync(filePath, nativeImage.toPNG());
+
+    return id;
+};
+Controller.prototype.svgImageToRefSync = function (svg) {
+    var id = Util.newUUID() + "_svg";
+    var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
+    fs.writeFileSync(filePath, svg, "utf8");
 
     return id;
 };
 Controller.prototype.refIdToFilePath = function (id) {
-    var fullPath = path.join(this.tempDir.name, Controller.SUB_REFERENCE);
+    var fullPath = path.join(Pencil.documentHandler.tempDir.name, Controller.SUB_REFERENCE);
     fullPath = path.join(fullPath, id);
 
     return fullPath;
@@ -1425,6 +1379,26 @@ Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
 
     if (!left) targetIndex ++;
     list.splice(targetIndex, 0, page);
+
+    //sort the whole tree
+    function assignIndexes(pages, level, parentPage) {
+        pages.forEach(function (page, index) {
+            if (!parentPage && page.parentPage) return;
+            page._tempIndex = (parentPage ? parentPage._tempIndex : 0) +  (index + 1) / level;
+
+            if (page.children) assignIndexes(page.children, level * 100, page);
+        });
+    }
+
+    assignIndexes(this.doc.pages, 1, null);
+
+    this.doc.pages.sort(function (p1, p2) {
+        return p1._tempIndex - p2._tempIndex;
+    });
+
+    this.doc.pages.forEach(function (page) {
+        delete page._tempIndex;
+    });
 
     this.sayDocumentChanged();
 };
@@ -1465,11 +1439,22 @@ Controller.prototype.invalidateBitmapFilePath = function (page, invalidatedIds) 
         if (p.backgroundPageId == page.id) this.invalidateBitmapFilePath(p, invalidatedIds);
     }
 };
-Controller.prototype.updatePageProperties = function (page, name, backgroundColor, backgroundPageId, parentPageId, width, height) {
+Controller.prototype.updatePageProperties = function (page, options) {
+    if (!options) options = {};
+
+    var name = options.name || "Untitled Page";
+    var width = options.width || 100;
+    var height = options.height || 100;
+    var backgroundPageId = options.backgroundPageId || null;
+    var backgroundColor = options.backgroundColor || null;
+    var parentPageId = options.parentPageId || null;
+    var copyBackgroundLinks = options.copyBackgroundLinks || false;
+
     page.name = name;
     page.backgroundColor = backgroundColor;
     page.backgroundPageId = backgroundPageId;
     page.backgroundPage = backgroundPageId ? this.findPageById(backgroundPageId) : null;
+    page.copyBackgroundLinks = copyBackgroundLinks || false;
 
     if (parentPageId) {
         if (page.parentPageId != parentPageId) {
@@ -1533,15 +1518,352 @@ Controller.prototype.exportCurrentDocument = function () {
 Controller.prototype.printCurrentDocument = function () {
     Pencil.documentExportManager.exportDocument(this.doc, "PrintingExporter");
 };
+Controller.prototype.prepareForEmbedding = function (node, onPreparingDoneCallback) {
+    var invalidateTasks = [];
+    var invalidationIndex = -1;
 
 
-window.onbeforeunload = function (event) {
+    function createInvalidationTask(type, name, propertyNode) {
+        return function (__callback) {
+            var value = type.fromString(propertyNode.textContent);
+            type.prepareForEmbedding(value, function (invalidatedValue, error) {
+                if (invalidatedValue) {
+                    Shape.storePropertyToNode(name, invalidatedValue, propertyNode);
+                }
+                __callback();
+            });
+        };
+    }
+
+    function runNextValidation(callback) {
+        invalidationIndex ++;
+        if (invalidationIndex >= invalidateTasks.length) {
+            callback();
+            return;
+        }
+        var task = invalidateTasks[invalidationIndex];
+        task(function () {
+            runNextValidation(callback);
+        });
+    }
+
+    Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
+        var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
+        var def = CollectionManager.shapeDefinition.locateDefinition(defId);
+        if (!def) return;
+
+        Dom.workOn("./p:metadata/p:property", shapeNode, function (propertyNode) {
+            var name = propertyNode.getAttribute("name");
+            var propertyDef = def.propertyMap[name];
+            if (!propertyDef || !propertyDef.type.prepareForEmbedding) return;
+            var type = propertyDef.type;
+
+            invalidateTasks.push(createInvalidationTask(type, name, propertyNode));
+
+        });
+    });
+
+
+    runNextValidation(function () {
+        if (onPreparingDoneCallback) onPreparingDoneCallback();
+    });
+};
+
+Controller.prototype.exportAsLayout = function () {
+    var container = Pencil.activeCanvas.drawingLayer;
+
+    var pw = parseFloat(this.activePage.width);
+    var ph = parseFloat(this.activePage.height);
+
+    var items = [];
+
+    var outputPath = null;
+    var outputDir = null;
+    const IMAGE_FILE = "layout_image.png";
+
+    var devCollection = CollectionManager.getDeveloperStencil();
+
+    Dom.workOn("//svg:g[@p:type='Shape']", container, function (g) {
+            var dx = 0; //rect.left;
+            var dy = 0; //rect.top;
+
+            var owner = g.ownerSVGElement;
+
+            if (owner.parentNode && owner.parentNode.getBoundingClientRect) {
+                var rect = owner.parentNode.getBoundingClientRect();
+                dx = rect.left;
+                dy = rect.top;
+            }
+
+            debug("dx, dy: " + [dx, dy]);
+
+            rect = g.getBoundingClientRect();
+
+            var linkingInfo = {
+                node: g,
+                sc: g.getAttributeNS(PencilNamespaces.p, "sc"),
+                refId: g.getAttributeNS(PencilNamespaces.p, "def"),
+                geo: {
+                    x: rect.left - dx,
+                    y: rect.top - dy,
+                    w: rect.width - 2,
+                    h: rect.height - 2
+                }
+            };
+
+            if (devCollection) {
+                if (linkingInfo.sc) {
+                    if (!devCollection.getShortcutByDisplayName(devCollection.id + ":" + linkingInfo.sc)) return;
+                } else if (linkingInfo.refId) {
+                    if (!devCollection.getShapeDefById(linkingInfo.refId)) return;
+                }
+            }
+//            if (!linkingInfo.refId) return;
+
+            items.push(linkingInfo);
+    });
+
+    var current = 0;
+    var thiz = this;
+    var done = function () {
+        var html = document.createElementNS(PencilNamespaces.html, "html");
+
+        var body = document.createElementNS(PencilNamespaces.html, "body");
+        html.appendChild(body);
+
+        var div = document.createElementNS(PencilNamespaces.html, "div");
+        div.setAttribute("style", "position: relative; padding: 0px; margin: 0px; width: " + pw + "px; height: " + ph + "px;");
+        body.appendChild(div);
+
+        /*
+        var canvas = document.createElementNS(PencilNamespaces.html, "canvas");
+        canvas.setAttribute("width", pw);
+        canvas.setAttribute("height", ph);
+
+        */
+
+        var bg = document.createElementNS(PencilNamespaces.html, "img");
+        bg.setAttribute("style", "width: " + pw + "px; height: " + ph + "px;");
+        bg.setAttribute("src", IMAGE_FILE + "?ts=" + (new Date().getTime()));
+        div.appendChild(bg);
+
+        for (var i = 0; i < items.length; i ++) {
+            var link = items[i];
+            var img = document.createElementNS(PencilNamespaces.html, "img");
+            img.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=");
+            if (link.sc) {
+                img.setAttribute("sc-ref", link.sc);
+            } else {
+                img.setAttribute("ref", link.refId);
+            }
+            img.setAttribute("id", link.refId);
+            var css = new CSS();
+            css.set("position", "absolute");
+            css.set("left", "" + link.geo.x + "px");
+            css.set("top", "" + link.geo.y + "px");
+            css.set("width", "" + link.geo.w + "px");
+            css.set("height", "" + link.geo.h + "px");
+            /*
+            css.set("left", "" + (100 * link.geo.x / pw) + "%");
+            css.set("top", "" + (100 * link.geo.y / ph) + "%");
+            css.set("width", "" + (100 * link.geo.w / pw) + "%");
+            css.set("height", "" + (100 * link.geo.h / ph) + "%");
+            */
+            img.setAttribute("style", css.toString());
+
+            div.appendChild(img);
+        }
+
+        Dom.serializeNodeToFile(html, outputPath, "");
+        CollectionManager.reloadDeveloperStencil();
+    };
+
+
+    var defaultPath = "Layout.xhtml";
+    if (devCollection) {
+        defaultPath = path.join(devCollection.installDirPath, defaultPath);
+    }
+
+    dialog.showSaveDialog(remote.getCurrentWindow(), {
+        title: "Export Layout",
+        defaultPath: defaultPath,
+        filters: [{name: 'XHTML Layout', extensions: ["xhtml"]}]
+    }).then(function (res) {
+        if (!res || !res.filePath) return;
+        var filePath = res.filePath;
+        outputPath = filePath;
+        outputImage = path.join(path.dirname(outputPath), IMAGE_FILE);
+        Pencil.rasterizer.rasterizePageToFile(thiz.activePage, outputImage, function (p, error) {
+            done();
+        });
+    });
+};
+
+Controller.prototype.getDocumentPageMargin = function () {
+    if (!StencilCollectionBuilder.isDocumentConfiguredAsStencilCollection()) {
+        return null;
+    }
+    var options = StencilCollectionBuilder.getCurrentDocumentOptions();
+    if (!options) {
+        return null;
+    }
+
+    return options.pageMargin || Config.get(Config.DEV_PAGE_MARGIN_SIZE) || 40;
+};
+
+Controller.prototype.logShapeReparationRequest = function (shapeNode) {
+    if (!this.repairingShapes) this.repairingShapes = [];
+    this.repairingShapes.push(shape);
+};
+
+Config.CAPTURE_INSERT_BITMAP_AS_DEFID = Config.define("capture.insert_bitmap_shape_id", "Evolus.Common:Bitmap");
+
+Controller.prototype.handleNewDocumentFromImage = function (filePath) {
+    ImageData.fromExternalToImageData(filePath, function (imageData) {
+        if (!imageData) return;
+
+        var ratio = window.devicePixelRatio || 1;
+        var dim = new Dimension(Math.round(imageData.w / ratio), Math.round(imageData.h / ratio));
+
+        var options = {
+            name: path.basename(filePath),
+            width: dim.w,
+            height: dim.h,
+            backgroundPageId: null,
+            backgroundColor: Color.fromString("#FFFFFFFF"),
+            note: "",
+            parentPageId: null,
+            activateAfterCreate: true
+        };
+
+        this.newPage(options);
+
+        var page = this.activePage;
+
+        var def = CollectionManager.shapeDefinition.locateDefinition(Config.get(Config.CAPTURE_INSERT_BITMAP_AS_DEFID));
+        if (!def) return;
+
+        page.canvas.insertShape(def, null);
+        if (!page.canvas.currentController) return;
+
+        var controller = page.canvas.currentController;
+
+        page.canvas.currentController.setProperty("imageData", imageData);
+        page.canvas.currentController.setProperty("box", dim);
+        page.canvas.invalidateEditors();
+    }.bind(this));
+};
+
+Controller.prototype.handleGlobalScreencapture = function (mode) {
+    var newDocumentCreated = false;
+    if (!this.doc) {
+        Pencil.documentHandler.newDocument();
+        newDocumentCreated = true;
+    }
+
+
+    ImageData.fromScreenshot(function (imageData, options, error) {
+        if (imageData) {
+            electron.remote.getCurrentWindow().show();
+            electron.remote.getCurrentWindow().focus();
+
+            if (!newDocumentCreated) {
+                var options = {
+                    name: "Capture " + new Date(),
+                    width: imageData.w,
+                    height: imageData.h,
+                    backgroundPageId: null,
+                    backgroundColor: Color.fromString("#FFFFFFFF"),
+                    note: "",
+                    parentPageId: null,
+                    activateAfterCreate: true
+                };
+
+                this.newPage(options);
+            } else {
+                this.setActiveCanvasSize(imageData.w, imageData.h)
+            }
+
+            var page = this.activePage;
+
+            var def = CollectionManager.shapeDefinition.locateDefinition(Config.get(Config.CAPTURE_INSERT_BITMAP_AS_DEFID));
+            if (!def) return;
+
+            page.canvas.insertShape(def, null);
+            if (!page.canvas.currentController) return;
+
+            var controller = page.canvas.currentController;
+
+            var dim = new Dimension(imageData.w, imageData.h);
+            page.canvas.currentController.setProperty("imageData", imageData);
+            page.canvas.currentController.setProperty("box", dim);
+            page.canvas.invalidateEditors();
+        }
+    }.bind(this), mode ? {
+        mode: mode,
+        includePointer: false,
+        hidePencil: false,
+        delay: 0
+    } : undefined);
+};
+
+Controller.prototype.getDocumentColorPalette = function () {
+    if (!this.doc) return null;
+    var colors = this.doc.properties.colorPalette;
+    if (!colors) return [];
+    return colors.split(",").map(function (c) {
+        return Color.fromString(c);
+    });
+};
+Controller.prototype.addColorIntoDocumentPalette = function (color) {
+    if (!this.doc) return;
+    var colors = this.getDocumentColorPalette();
+    if (typeof(color) == "string") color = Color.fromString(color);
+
+    var found = false;
+    colors.forEach(function (c) {
+        if (c.toString() == color.toString()) {
+            found = true;
+        }
+    });
+
+    if (found) return;
+
+    colors.push(color);
+
+    this.doc.properties.colorPalette = colors.map(function (c) {
+        return c.toString();
+    }).join(",");
+};
+
+Controller.prototype.removeColorFromDocumentPalette = function (color) {
+    if (!this.doc) return;
+    var colors = this.getDocumentColorPalette();
+    if (typeof(color) == "string") color = Color.fromString(color);
+
+    colors = colors.filter(function (c) {
+        return c.toString() != color.toString();
+    });
+
+    this.doc.properties.colorPalette = colors.map(function (c) {
+        return c.toString();
+    }).join(",");
+};
+
+
+window.addEventListener("beforeunload", function (event) {
     // Due to a change of Chrome 51, returning non-empty strings or true in beforeunload handler now prevents the page to unload
-    var remote = require("electron").remote;
+    if (Pencil.documentHandler && Pencil.documentHandler.isSaving) {
+        console.log("Close during save prevented!");
+        event.returnValue = false;
+        return;
+    }
+
     if (remote.app.devEnable) return;
 
     if (Controller.ignoreNextClose) {
         Controller.ignoreNextClose = false;
+        event.returnValue = false;
         return;
     }
 
@@ -1553,6 +1875,14 @@ window.onbeforeunload = function (event) {
                 currentWindow.close();
             });
         }, 10);
-        return true;
+        event.returnValue = false;
+        return;
     }
-};
+});
+Config.SHORTCUT_GLOBALSCREENCAPTURE_AREA = Config.define("shortcut.global.screencapture_area", "Super+F12");
+GlobalShortcutHelper.register("global-screencapture-area", Config.get(Config.SHORTCUT_GLOBALSCREENCAPTURE_AREA), function () {
+    console.log("global-screencapture-area triggered");
+    if (!Controller._instance) return;
+
+    Controller._instance.handleGlobalScreencapture(BaseCaptureService.MODE_AREA);
+});

@@ -1,7 +1,7 @@
 // Copyright (c) Evolus Solutions. All rights reserved.
 // License: GPL/MPL
 // $Id$
-
+const remote = require('@electron/remote');
 
 const IS_MAC = process && /^darwin/.test(process.platform);
 const IS_WIN32 = process && /^win/.test(process.platform);
@@ -137,143 +137,292 @@ Object.defineProperty(Event.prototype, "originalTarget", {
     }
 });
 
-(function () {
-	var attachEvent = document.attachEvent,
-		stylesCreated = false;
+(function (root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory();
+    } else {
+        root.ResizeSensor = factory();
+    }
+}(this, function () {
 
-	if (!attachEvent) {
-		var requestFrame = (function(){
-			var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
-								function(fn){ return window.setTimeout(fn, 20); };
-			return function(fn){ return raf(fn); };
-		})();
+    // Make sure it does not throw in a SSR (Server Side Rendering) situation
+    if (typeof window === "undefined") {
+        return null;
+    }
+    // Only used for the dirty checking, so the event callback count is limited to max 1 call per fps per sensor.
+    // In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
+    // would generate too many unnecessary events.
+    var requestAnimationFrame = window.requestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        function (fn) {
+            return window.setTimeout(fn, 20);
+        };
 
-		var cancelFrame = (function(){
-			var cancel = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame ||
-								   window.clearTimeout;
-		  return function(id){ return cancel(id); };
-		})();
+    /**
+     * Iterate over each of the provided element(s).
+     *
+     * @param {HTMLElement|HTMLElement[]} elements
+     * @param {Function}                  callback
+     */
+    function forEachElement(elements, callback){
+        var elementsType = Object.prototype.toString.call(elements);
+        var isCollectionTyped = ('[object Array]' === elementsType
+            || ('[object NodeList]' === elementsType)
+            || ('[object HTMLCollection]' === elementsType)
+            || ('[object Object]' === elementsType)
+            || ('undefined' !== typeof jQuery && elements instanceof jQuery) //jquery
+            || ('undefined' !== typeof Elements && elements instanceof Elements) //mootools
+        );
+        var i = 0, j = elements.length;
+        if (isCollectionTyped) {
+            for (; i < j; i++) {
+                callback(elements[i]);
+            }
+        } else {
+            callback(elements);
+        }
+    }
 
-		function resetTriggers(element){
-			var triggers = element.__resizeTriggers__,
-				expand = triggers.firstElementChild,
-				contract = triggers.lastElementChild,
-				expandChild = expand.firstElementChild;
-			contract.scrollLeft = contract.scrollWidth;
-			contract.scrollTop = contract.scrollHeight;
-			expandChild.style.width = expand.offsetWidth + 1 + 'px';
-			expandChild.style.height = expand.offsetHeight + 1 + 'px';
-			expand.scrollLeft = expand.scrollWidth;
-			expand.scrollTop = expand.scrollHeight;
-		};
+    /**
+     * Class for dimension change detection.
+     *
+     * @param {Element|Element[]|Elements|jQuery} element
+     * @param {Function} callback
+     *
+     * @constructor
+     */
+    var ResizeSensor = function(element, callback) {
+        /**
+         *
+         * @constructor
+         */
+        function EventQueue() {
+            var q = [];
+            this.add = function(ev) {
+                q.push(ev);
+            };
 
-		function checkTriggers(element){
-			return element.offsetWidth != element.__resizeLast__.width ||
-						 element.offsetHeight != element.__resizeLast__.height;
-		}
+            var i, j;
+            this.call = function() {
+                for (i = 0, j = q.length; i < j; i++) {
+                    q[i].call();
+                }
+            };
 
-		function scrollListener(e){
-			var element = this;
-			resetTriggers(this);
-			if (this.__resizeRAF__) cancelFrame(this.__resizeRAF__);
-			this.__resizeRAF__ = requestFrame(function(){
-				if (checkTriggers(element)) {
-					element.__resizeLast__.width = element.offsetWidth;
-					element.__resizeLast__.height = element.offsetHeight;
-					element.__resizeListeners__.forEach(function(fn){
-						fn.call(element, e);
-					});
-				}
-			});
-		};
+            this.remove = function(ev) {
+                var newQueue = [];
+                for(i = 0, j = q.length; i < j; i++) {
+                    if(q[i] !== ev) newQueue.push(q[i]);
+                }
+                q = newQueue;
+            }
 
-		/* Detect CSS Animations support to detect element display/re-attach */
-		var animation = false,
-			animationstring = 'animation',
-			keyframeprefix = '',
-			animationstartevent = 'animationstart',
-			domPrefixes = 'Webkit Moz O ms'.split(' '),
-			startEvents = 'webkitAnimationStart animationstart oAnimationStart MSAnimationStart'.split(' '),
-			pfx  = '';
-		{
-			var elm = document.createElement('fakeelement');
-			if( elm.style.animationName !== undefined ) { animation = true; }
+            this.length = function() {
+                return q.length;
+            }
+        }
 
-			if( animation === false ) {
-				for( var i = 0; i < domPrefixes.length; i++ ) {
-					if( elm.style[ domPrefixes[i] + 'AnimationName' ] !== undefined ) {
-						pfx = domPrefixes[ i ];
-						animationstring = pfx + 'Animation';
-						keyframeprefix = '-' + pfx.toLowerCase() + '-';
-						animationstartevent = startEvents[ i ];
-						animation = true;
-						break;
-					}
-				}
-			}
-		}
+        /**
+         * @param {HTMLElement} element
+         * @param {String}      prop
+         * @returns {String|Number}
+         */
+        function getComputedStyle(element, prop) {
+            if (element.currentStyle) {
+                return element.currentStyle[prop];
+            }
+            if (window.getComputedStyle) {
+                return window.getComputedStyle(element, null).getPropertyValue(prop);
+            }
 
-		var animationName = 'resizeanim';
-		var animationKeyframes = '@' + keyframeprefix + 'keyframes ' + animationName + ' { from { opacity: 0; } to { opacity: 0; } } ';
-		var animationStyle = keyframeprefix + 'animation: 1ms ' + animationName + '; ';
-	}
+            return element.style[prop];
+        }
 
-	function createStyles() {
-		if (!stylesCreated) {
-			//opacity:0 works around a chrome bug https://code.google.com/p/chromium/issues/detail?id=286360
-			var css = (animationKeyframes ? animationKeyframes : '') +
-					'.resize-triggers { ' + (animationStyle ? animationStyle : '') + 'visibility: hidden; opacity: 0; } ' +
-					'.resize-triggers, .resize-triggers > div, .contract-trigger:before { content: \" \"; display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; } .resize-triggers > div { background: #eee; overflow: auto; } .contract-trigger:before { width: 200%; height: 200%; }',
-				head = document.head || document.getElementsByTagName('head')[0],
-				style = document.createElement('style');
+        /**
+         *
+         * @param {HTMLElement} element
+         * @param {Function}    resized
+         */
+        function attachResizeEvent(element, resized) {
+            if (element.resizedAttached) {
+                element.resizedAttached.add(resized);
+                return;
+            }
 
-			style.type = 'text/css';
-			if (style.styleSheet) {
-				style.styleSheet.cssText = css;
-			} else {
-				style.appendChild(document.createTextNode(css));
-			}
+            element.resizedAttached = new EventQueue();
+            element.resizedAttached.add(resized);
 
-			head.appendChild(style);
-			stylesCreated = true;
-		}
-	}
+            element.resizeSensor = document.createElement('div');
+            element.resizeSensor.className = 'resize-sensor';
+            var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;';
+            var styleChild = 'position: absolute; left: 0; top: 0; transition: 0s;';
 
-	window.addResizeListener = function(element, fn){
-		if (attachEvent) element.attachEvent('onresize', fn);
-		else {
-			if (!element.__resizeTriggers__) {
-				if (getComputedStyle(element).position == 'static') element.style.position = 'relative';
-				createStyles();
-				element.__resizeLast__ = {};
-				element.__resizeListeners__ = [];
-				(element.__resizeTriggers__ = document.createElement('div')).className = 'resize-triggers';
-				element.__resizeTriggers__.innerHTML = '<div class="expand-trigger"><div></div></div>' +
-																						'<div class="contract-trigger"></div>';
-				element.appendChild(element.__resizeTriggers__);
-				resetTriggers(element);
-				element.addEventListener('scroll', scrollListener, true);
+            element.resizeSensor.style.cssText = style;
+            element.resizeSensor.innerHTML =
+                '<div class="resize-sensor-expand" style="' + style + '">' +
+                    '<div style="' + styleChild + '"></div>' +
+                '</div>' +
+                '<div class="resize-sensor-shrink" style="' + style + '">' +
+                    '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' +
+                '</div>';
+            element.appendChild(element.resizeSensor);
 
-				/* Listen for a css animation to detect element display/re-attach */
-				animationstartevent && element.__resizeTriggers__.addEventListener(animationstartevent, function(e) {
-					if(e.animationName == animationName)
-						resetTriggers(element);
-				});
-			}
-			element.__resizeListeners__.push(fn);
-		}
-	};
+            if (getComputedStyle(element, 'position') == 'static') {
+                element.style.position = 'relative';
+            }
 
-	window.removeResizeListener = function(element, fn){
-		if (attachEvent) element.detachEvent('onresize', fn);
-		else {
-			element.__resizeListeners__.splice(element.__resizeListeners__.indexOf(fn), 1);
-			if (!element.__resizeListeners__.length) {
-					element.removeEventListener('scroll', scrollListener);
-					element.__resizeTriggers__ = !element.removeChild(element.__resizeTriggers__);
-			}
-		}
-	}
+            var expand = element.resizeSensor.childNodes[0];
+            var expandChild = expand.childNodes[0];
+            var shrink = element.resizeSensor.childNodes[1];
+            var dirty, rafId, newWidth, newHeight;
+            var lastWidth = element.offsetWidth;
+            var lastHeight = element.offsetHeight;
+
+            var reset = function() {
+                expandChild.style.width = '100000px';
+                expandChild.style.height = '100000px';
+
+                expand.scrollLeft = 100000;
+                expand.scrollTop = 100000;
+
+                shrink.scrollLeft = 100000;
+                shrink.scrollTop = 100000;
+            };
+
+            reset();
+
+            var onResized = function() {
+                rafId = 0;
+
+                if (!dirty) return;
+
+                lastWidth = newWidth;
+                lastHeight = newHeight;
+
+                if (element.resizedAttached) {
+                    element.resizedAttached.call();
+                }
+            };
+
+            var onScroll = function() {
+                newWidth = element.offsetWidth;
+                newHeight = element.offsetHeight;
+                dirty = newWidth != lastWidth || newHeight != lastHeight;
+
+                if (dirty && !rafId) {
+                    rafId = requestAnimationFrame(onResized);
+                }
+
+                reset();
+            };
+
+            var addEvent = function(el, name, cb) {
+                if (el.attachEvent) {
+                    el.attachEvent('on' + name, cb);
+                } else {
+                    el.addEventListener(name, cb);
+                }
+            };
+
+            addEvent(expand, 'scroll', onScroll);
+            addEvent(shrink, 'scroll', onScroll);
+        }
+
+        forEachElement(element, function(elem){
+            attachResizeEvent(elem, callback);
+        });
+
+        this.detach = function(ev) {
+            ResizeSensor.detach(element, ev);
+        };
+    };
+
+    ResizeSensor.detach = function(element, ev) {
+        forEachElement(element, function(elem){
+            if(elem.resizedAttached && typeof ev == "function"){
+                elem.resizedAttached.remove(ev);
+                if(elem.resizedAttached.length()) return;
+            }
+            if (elem.resizeSensor) {
+                if (elem.contains(elem.resizeSensor)) {
+                    elem.removeChild(elem.resizeSensor);
+                }
+                delete elem.resizeSensor;
+                delete elem.resizedAttached;
+            }
+        });
+    };
+
+    return ResizeSensor;
+
+}));
+
+(function(){
+  var attachEvent = document.attachEvent;
+  var isIE = navigator.userAgent.match(/Trident/);
+  var requestFrame = (function(){
+    var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
+        function(fn){ return window.setTimeout(fn, 20); };
+    return function(fn){ return raf(fn); };
+  })();
+
+  var cancelFrame = (function(){
+    var cancel = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame ||
+           window.clearTimeout;
+    return function(id){ return cancel(id); };
+  })();
+
+  function resizeListener(e){
+    var win = e.target || e.srcElement;
+    if (win.__resizeRAF__) cancelFrame(win.__resizeRAF__);
+    win.__resizeRAF__ = requestFrame(function(){
+      var trigger = win.__resizeTrigger__;
+      trigger.__resizeListeners__.forEach(function(fn){
+        fn.call(trigger, e);
+      });
+    });
+  }
+
+  function objectLoad(e){
+    this.contentDocument.defaultView.__resizeTrigger__ = this.__resizeElement__;
+    this.contentDocument.defaultView.addEventListener('resize', resizeListener);
+  }
+
+  window.addResizeListener = function(element, fn){
+    if (!element.__resizeListeners__) {
+      element.__resizeListeners__ = [];
+      if (attachEvent) {
+        element.__resizeTrigger__ = element;
+        element.attachEvent('onresize', resizeListener);
+      }
+      else {
+        if (getComputedStyle(element).position == 'static') element.style.position = 'relative';
+        var obj = element.__resizeTrigger__ = document.createElement('object');
+        obj.setAttribute('style', 'display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;');
+        obj.__resizeElement__ = element;
+        obj.onload = objectLoad;
+        obj.type = 'text/html';
+        if (isIE) element.appendChild(obj);
+        obj.data = 'about:blank';
+        if (!isIE) element.appendChild(obj);
+      }
+    }
+    element.__resizeListeners__.push(fn);
+  };
+
+  window.removeResizeListener = function(element, fn){
+    element.__resizeListeners__.splice(element.__resizeListeners__.indexOf(fn), 1);
+    if (!element.__resizeListeners__.length) {
+      if (attachEvent) element.detachEvent('onresize', resizeListener);
+      else {
+        element.__resizeTrigger__.contentDocument.defaultView.removeEventListener('resize', resizeListener);
+        element.__resizeTrigger__ = !element.removeChild(element.__resizeTrigger__);
+      }
+    }
+  }
 })();
 
 /* class */ var Dom = {};
@@ -321,12 +470,8 @@ Object.defineProperty(Event.prototype, "originalTarget", {
 var domParser = new DOMParser();
 
 /* public static XmlDocument */ Dom.loadSystemXml = function (relPath) {
-    var request = new XMLHttpRequest();
-    request.open("GET", relPath, false);
-    request.send("");
-    var dom = domParser.parseFromString(request.responseText, "text/xml");;
-
-    return dom;
+    var absPath = getStaticFilePath(relPath);
+    return Dom.parseFile(absPath);
 };
 
 Dom.isElementExistedInDocument = function(element) {
@@ -484,6 +629,12 @@ Dom.findParentWithClass = function (node, className) {
             }
         });
 };
+Dom.findParentByTagName = function (node, tagName) {
+    tagName = tagName.toUpperCase();
+    return Dom.findUpward(node, function (n) {
+        return n.tagName && n.tagName.toUpperCase && (n.tagName.toUpperCase() == tagName);
+    });
+}
 Dom.doOnChildRecursively = function (node, evaluator, worker) {
     if (!node || !node.childNodes) return null;
 
@@ -573,6 +724,10 @@ Dom.parseToNode = function (xml, dom) {
     return node;
 }
 Dom.parseDocument = function (xml) {
+    if (xml && xml.charCodeAt(0) === 0xFEFF) {
+        xml = xml.substr(1);
+    }
+
     var dom = Dom.parser.parseFromString(xml, "text/xml");
     return dom;
 };
@@ -1007,7 +1162,21 @@ Svg.getHeight = function (dom) {
     }
     return 0;
 };
-
+Svg.SYMBOL_NAME_ATTR = "symbolName";
+Svg.getSymbolName = function (node) {
+    if (node.hasAttributeNS(PencilNamespaces.p, Svg.SYMBOL_NAME_ATTR)) {
+        return node.getAttributeNS(PencilNamespaces.p, Svg.SYMBOL_NAME_ATTR);
+    } else {
+        return null;
+    }
+};
+Svg.setSymbolName = function (node, name) {
+    if (typeof(name) === "undefined" || name === null) {
+        node.remoteAttributeNS(PencilNamespaces.p, Svg.SYMBOL_NAME_ATTR);
+    } else {
+        return node.setAttributeNS(PencilNamespaces.p, Svg.SYMBOL_NAME_ATTR, name);
+    }
+};
 
 var Local = {};
 Local.getInstalledFonts = function () {
@@ -1024,33 +1193,14 @@ Local.getInstalledFonts = function () {
         for (var font of installedFonts) {
             if (installedFaces.indexOf(font.name) >= 0) continue;
             installedFaces.push(font.name);
-            localFonts.push({family: font.name, type: font._type});
+            var weights = [];
+            for (var v of font.variants) if (weights.indexOf(v.weight) < 0) weights.push(v.weight);
+            localFonts.push({family: font.name, type: font._type, weights: weights});
         }
     }
 
     Local.sortFont(localFonts);
 
-    var fonts = fontManager.getAvailableFontsSync();
-
-    var systemFonts = [];
-    for (var i in fonts) {
-        var contained = false;
-        for (var j in systemFonts) {
-            if (systemFonts[j].family == fonts[i].family) {
-                contained = true;
-                break;
-            }
-        }
-        if (contained) continue;
-
-        systemFonts.push({
-            family: fonts[i].family
-        });
-    }
-
-    Local.sortFont(systemFonts);
-
-    localFonts = localFonts.concat(systemFonts)
     Local.cachedLocalFonts = localFonts;
 
     return localFonts;
@@ -1181,14 +1331,7 @@ Console.log = function (message) {
     if (console && console.log) console.log(message);
 };
 Console.dumpError = function (exception, toConsole) {
-    var s = [
-        exception.message,
-        "",
-        "Location: " + exception.fileName + " (" + exception.lineNumber + ")",
-        "Stacktrace:\n\t" + (exception.stack ? exception.stack.replace(/\n/g, "\n\t") : "<empty stack trace>")
-    ].join("\n");
-
-    console.error(s);
+    console.error(exception);
 };
 Console.alertError = function (exception, toConsole) {
     var s = [
@@ -1531,7 +1674,7 @@ Util.openDonate = function () {
     //     var uri = ioservice.newURI(link, null, null);
     //     protoservice.loadUrl(uri);
     // }
-    require("shell").openExternal("http://pencil.evolus.vn/Donation.aspx");
+    require("shell").openExternal("http://pencil.evolus.vn/Donation.html");
 };
 Util.getMessage = function (msg, args) {
     var text = MESSAGES[msg];
@@ -1613,11 +1756,10 @@ if (typeof(console) == "undefined") {
     };
 }
 
-function debug(value) {
-	//DEBUG_BEGIN
+const DEV_ENABLED = remote.app.devEnable ? true : false;
 
-    //console.info(value ? value : "NULL VALUE");
-    //DEBUG_END
+function debug() {
+    if (DEV_ENABLED) console.log.apply(console, ["DEBUG>"].concat(Array.prototype.slice.call(arguments)));
 }
 function stackTrace() {
 	//DEBUG_BEGIN
@@ -2012,13 +2154,24 @@ Util.imageOnloadListener = function (event) {
 
 };
 Util.setupImage = function (image, src, mode, allowUpscale) {
-    image.onload = Util.imageOnloadListener;
-    image.style.visibility = "hidden";
-    image.style.width = "0px";
-    image.style.height = "0px";
-    image._mode = mode;
-    image._allowUpscale = allowUpscale;
+    // image.onload = Util.imageOnloadListener;
+    // image.style.visibility = "hidden";
+    image.style.width = "100%";
+    image.style.height = "100%";
+    image.style.opacity = "0";
     image.src = src;
+
+    mode = mode || "center-crop";
+
+    var hp = (mode.indexOf("left") >= 0) ? "left" : ((mode.indexOf("right") >= 0) ? "right" : " center");
+    var vp = (mode.indexOf("top") >= 0) ? "top" : ((mode.indexOf("bottom") >= 0) ? "bottom" : " center");
+    image.parentNode.style.backgroundImage = "url('" + src + "')";
+    image.parentNode.style.backgroundPosition = hp + " " + vp;
+    image.parentNode.style.backgroundSize = (mode.indexOf("crop") >= 0) ? "cover" : "contain";
+};
+
+Util.isDev = function() {
+    return process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) || /[\\/]electron[\\/]/.test(process.execPath);
 };
 
 function stencilDebug(x) {
@@ -2055,8 +2208,45 @@ Util.importSandboxFunctions = function () {
         pencilSandbox[f.name] = f;
     }
 };
+Util.workOnListAsync = function (list, worker, callback) {
+    var index = -1;
+    var next = function () {
+        index ++;
+        if (!list || index >= list.length) {
+            if (callback) callback();
+            return;
+        }
 
-function pEval (expression, extra) {
+        var item = list[index];
+        worker(item, index, next);
+    }
+    next();
+};
+Util.compareVersion = function (version1, version2) {
+    var a = version1.split(/\./);
+    var b = version2.split(/\./);
+
+    for (var i = 0; i < Math.min(a.length, b.length); i ++) {
+        var n1 = parseInt(a[i], 10);
+        var n2 = parseInt(b[i], 10);
+
+        if (isNaN(n1) || isNaN(n2)) {
+            n1 = a[i];
+            n2 = b[i];
+        }
+
+        if (n1 > n2) return 1;
+        if (n1 < n2) return -1;
+    }
+
+    if (a.length > b.length) return 1;
+    if (a.length < b.length) return -1;
+
+    return 0;
+};
+
+
+function pEval (expression, extra, codeLocation) {
     var result = null;
 
     try {
@@ -2066,7 +2256,8 @@ function pEval (expression, extra) {
             result = eval(expression)
         }
     } catch (ex) {
-        if (expression.length < 1000) error("Problematic code: " + expression);
+        if (expression.length < 2000) error("Problematic code: " + expression);
+        if (codeLocation) error("Code location: " + codeLocation);
         Console.dumpError(ex);
     }
 
@@ -2259,7 +2450,7 @@ function copyFileSync(source, target) {
     fs.writeFileSync(targetFile, fs.readFileSync(source));
 }
 
-function copyFolderRecursiveSync( source, target ) {
+function copyFolderRecursiveSync(source, target) {
     var files = [];
 
     //check if folder needs to be created or integrated
@@ -2282,6 +2473,33 @@ function copyFolderRecursiveSync( source, target ) {
     }
 }
 
+function PropertyMask(names) {
+    this.names = (typeof(names) == "string") ? [names] : names;
+}
+PropertyMask.prototype.and = function (other) {
+    return new PropertyMask(this.names.concat.other.names);
+};
+PropertyMask.prototype.contains = function (name) {
+    return this.names.indexOf(name) >= 0;
+};
+PropertyMask.prototype.apply = function (original, newValue) {
+    if (!original || !newValue) return original;
+    var value = new original.constructor();
+    for (var name in original) {
+        if (original.hasOwnProperty(name)) {
+            value[name] = original[name];
+        }
+    }
+
+    for (var name of this.names) {
+        if (newValue.hasOwnProperty(name)) {
+            value[name] = newValue[name];
+        }
+    }
+
+    return value;
+};
+
 function getStaticFilePath(subPath) {
     var filePath = __dirname;
     if (!subPath) return filePath;
@@ -2293,5 +2511,124 @@ function getStaticFilePath(subPath) {
 
     return filePath;
 }
+
+function _before(before, fn) {
+  return function () {
+    before.apply(this, arguments);
+    return fn.apply(this, arguments);
+  };
+}
+
+function _after(fn, after) {
+  return function () {
+    var result = fn.apply(this, arguments);
+    after.call(this, result);
+    return result;
+  };
+}
+
+function getRequiredValue(input, message, pattern) {
+    var value = input.value;
+    var valid = pattern ? value.match(pattern) : value.trim().length > 0;
+    if (!valid) {
+        var e = new Error(message || "Please enter a valid value.");
+        e._input = input;
+        e._isValidationError = true;
+        throw e;
+    }
+
+    return value;
+}
+function handleCommonValidationError(e) {
+    if (e._isValidationError) {
+        Dialog.error(e.message, "", function () {
+            setTimeout(function () {
+                e._input.focus();
+                e._input.select();
+            }, 250);
+        });
+
+        return false;
+    } else {
+        throw e;
+    }
+}
+
+function contains(list, item, comparer) {
+    return findItemByComparer(list, item, comparer) >= 0;
+}
+
+function sameList(a, b, comparer) {
+    return containsAll(a, b, comparer) && containsAll(b, a, comparer);
+};
+function containsAll(a, b, comparer) {
+    var c = comparer || sameId;
+    for (var i = 0; i < b.length; i ++) {
+        if (!contains(a, b[i], c)) return false;
+    }
+
+    return true;
+};
+function intersect(a, b, comparer) {
+    if (!a || !b) return [];
+    var items = [];
+    for (var i = 0; i < a.length; i ++) {
+        if (contains(b, a[i], comparer)) {
+            items.push(a[i]);
+        }
+    }
+
+    return items;
+};
+
+function findItemByComparer(list, item, comparer) {
+    for (var i = 0; i < list.length; i ++) {
+        if (comparer(list[i], item)) return i;
+    }
+
+    return -1;
+}
+function removeItemByComparer(list, item, comparer) {
+    var result = [];
+    for (var i = 0; i < list.length; i ++) {
+        if (!comparer(list[i], item)) {
+            result.push(list[i]);
+        }
+    }
+
+    return result;
+}
+function find(list, matcher) {
+    for (var i = 0; i < list.length; i ++) {
+        if (matcher(list[i])) return list[i];
+    }
+
+    return null;
+}
+function findById(list, id) {
+    return find(list, function (u) { return u.id == id; });
+}
+function _export() {
+    var obj = {};
+    for (var i = 0; i < arguments.length; i ++) {
+        var f = arguments[i];
+        if (typeof(f) != "function") continue;
+        obj[f.name] = f;
+    }
+
+    return obj;
+}
+function sameId(a, b) {
+    if (!a) return !b;
+    if (!b) return false;
+    return a.id == b.id;
+}
+function sameRelax(a, b) {
+    return a == b;
+}
+
+process.on('uncaughtException', function (e) {
+    console.error("UNCAUGHT EXCPTION", e);
+});
 
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);

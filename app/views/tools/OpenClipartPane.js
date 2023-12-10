@@ -1,7 +1,7 @@
 function OpenClipartPane() {
     BaseTemplatedWidget.call(this);
     var thiz = this;
-    this.backend = new OpenClipartSearch();
+    this.backend = new OpenClipartSearch2();
 
     function injectSvgInfo (svg) {
         try {
@@ -13,16 +13,20 @@ function OpenClipartPane() {
         }
     }
     this.shapeList.addEventListener("dragstart", function (event) {
+        nsDragAndDrop.dragStart(event);
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
         var def = n._def;
         if (def._svg) {
             var svg = injectSvgInfo(def._svg);
             event.dataTransfer.setData("image/svg+xml", svg);
+            nsDragAndDrop.setData("image/svg+xml", svg);
         } else {
             event.dataTransfer.setData("pencil/png", def.src);
+            nsDragAndDrop.setData("pencil/png", def.src);
         }
 
         event.dataTransfer.setData("text/html", "");
+        nsDragAndDrop.setData("text/html", "");
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
         event.target.collection = def;
     });
@@ -96,8 +100,10 @@ OpenClipartPane.prototype.search = function () {
     this.searchAborted = true;
 
     var thiz = this;
+    this.loader.style.display = "";
     this.backend.search(this.searchInput.value, this.searchOptions, function (result) {
         thiz.renderResult(result);
+        thiz.loader.style.display = "none";
     });
 };
 OpenClipartPane.prototype.renderResult = function (result) {
