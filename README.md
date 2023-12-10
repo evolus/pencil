@@ -64,4 +64,5 @@ Linux
     * Debian 8+
 * Packages
     * **Arch Linux** - [pencil](https://aur.archlinux.org/packages/pencil/) on the [Arch User Repository](https://aur.archlinux.org/).
+    * **Gentoo Linux** - [media-gfx/evoluspencil](https://packages.gentoo.org/packages/media-gfx/evoluspencil).
     * **Snapcraft** - [Pencil snap](https://snapcraft.io/pencil) on the [Snap Store](https://snapcraft.io/)
