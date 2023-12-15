@@ -317,6 +317,8 @@ ImageData.prototype.toImageSrc = function () {
         return ImageData.generatePathSVGData(this, this);
     } else if (this.data.startsWith("data:")) {
         return this.data;
+    } else if (this.data.startsWith("file:")) {
+        return this.data;
     } else {
         return ImageData.refStringToUrl(this.data);
     }

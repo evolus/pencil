@@ -1,0 +1,185 @@
+<vbox class="Form">
+    <style>
+        body .views_editors_image_editor_ImageEditDialog_xhtml {
+            flex: 1 1 10em;
+        }
+        .CellContainerWrapper {
+            position: absolute;
+            box-sizing: border-box;
+            z-index: 999999;
+            pointer-events: none;
+            overflow: hidden;
+
+            top: 0em;
+            left: 0em;
+            right: 0em;
+            bottom: 0em;
+        }
+        .CellContainer {
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+            pointer-events: all;
+            background-color: #AAA;
+        }
+        @xCellContainerWrapper {
+            left: 1.5em;
+        }
+        @yCellContainerWrapper {
+            top: 1.5em;
+        }
+        @xCellContainer {
+            height: 1.5em;
+        }
+        @yCellContainer {
+            width: 1.5em;
+        }
+        .CellContainer > .Cell {
+            position: absolute;
+            background: @selected_bg;
+            opacity: 0.5;
+            cursor: move;
+        }
+        .CellContainer > .Cell:hover {
+            opacity: 0.7;
+        }
+        .CellContainer > .Cell:active {
+            opacity: 1;
+        }
+        .CellContainer > .Cell > .Resizer,
+        .CellContainer > .Cell .Scaler {
+            position: absolute;
+            opacity: 0;
+            cursor: ew-resize;
+            pointer-events: all;
+        }
+        .CellContainer > .Cell:hover > .Resizer,
+        .CellContainer > .Cell:hover .Scaler {
+            z-index: 999999;
+        }
+        .CellContainer > .Cell .Scaler:hover {
+            background: #FF0000;
+            opacity: 0.3;
+        }
+
+         @xCellContainer > .Cell > .Resizer,
+         @xCellContainer > .Cell .Scaler {
+            top: 0px;
+            bottom: 0px;
+            width: 0.5em;
+        }
+        @xCellContainer > .Cell > .StartResizer,
+        @xCellContainer > .Cell .StartScaler {
+            left: -0.25em;
+        }
+        @xCellContainer > .Cell > .EndResizer,
+        @xCellContainer > .Cell .EndScaler {
+            right: -0.25em;
+        }
+        @yCellContainer > .Cell > .Resizer,
+        @yCellContainer > .Cell .Scaler {
+            left: 0px;
+            right: 0px;
+            height: 0.5em;
+            cursor: ns-resize;
+        }
+        @yCellContainer > .Cell > .StartResizer,
+        @yCellContainer > .Cell .StartScaler {
+            top: -0.25em;
+        }
+        @yCellContainer > .Cell > .EndResizer,
+        @yCellContainer > .Cell .EndScaler {
+            bottom: -0.25em;
+        }
+        @xCellContainer > .Cell {
+            top: 0px;
+            bottom: 0px;
+        }
+        @yCellContainer > .Cell {
+            left: 0px;
+            right: 0px;
+        }
+
+        .CellContainer > .Cell > .Indicator {
+            position: absolute;
+            background: fade(@selected_bg, 20%);
+            cursor: default;
+            pointer-events: none;
+
+            z-index: 0;
+        }
+        .CellContainer > .Cell > .XCellInfo {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 1.5em;
+        }
+        .CellContainer > .Cell > .YCellInfo {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 1.5em;
+        }
+        .CellContainer > .Cell > .XCellInfo > .Info {
+            margin-top: 0.25em;
+        }
+        .CellContainer > .Cell > .YCellInfo > .Info {
+            margin-left: 0.25em;
+        }
+        @xCellContainer > .Cell > .Indicator {
+            top: 1.5em;
+            left: 0px;
+            right: 0px;
+        }
+        @xCellContainer > .Cell > .Indicator {
+            top: 1.5em;
+            left: 0px;
+            right: 0px;
+        }
+        @yCellContainer > .Cell > .Indicator {
+            top: 0px;
+            left: 1.5em;
+            bottom: 0px;
+        }
+
+        @container {
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1ex;
+            margin: auto;
+        }
+        @container[dark='true'] {
+            background: #555;
+        }
+        @container > * {
+            /* background: rgba(0, 0, 0, 0.2); */
+            padding-right: 0em;
+            padding-bottom: 0em;
+        }
+        @image {
+            box-shadow: 0em 0em 3px 2px rgba(0, 0, 0, 0.3);
+        }
+        @outerWrapper {
+            flex: 1 1 10em;
+            position: relative;
+            padding: 1.5em 0em 0em 1.5em;
+            overflow: hidden;
+            background-color: #FFF;
+        }
+        @wrapper {
+            flex: 1 1 10em;
+            overflow: auto;
+            background: #888;
+            padding: 1em;
+        }
+    </style>
+    <vbox anon-id="outerWrapper">
+        <div anon-id="xCellContainerWrapper" class="CellContainerWrapper"><div anon-id="xCellContainer" class="CellContainer"></div></div>
+        <div anon-id="yCellContainerWrapper" class="CellContainerWrapper"><div anon-id="yCellContainer" class="CellContainer"></div></div>
+        <vbox anon-id="wrapper">
+            <div anon-id="container">
+                <img anon-id="image" />
+            </div>
+        </vbox>
+    </vbox>
+</vbox>

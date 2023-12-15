@@ -144,6 +144,29 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                 items.push(imageEditItem);
                 importantItems.push(imageEditItem);
 
+                var newImageEditItem = {
+                    label: "Expand & Shrink...",
+                    icon: "brush",
+                    type: "Normal",
+                    imageData: imgeData,
+                    property: property.name,
+                    isValid: function () {
+                        return imgeData && imgeData.isBitmap();
+                    },
+                    handleAction: function () {
+                        var propName = this.property;
+                        var dialog = new ImageEditDialog();
+                        dialog.open({
+                            imageData: this.imageData,
+                            onDone: function (newImageData, options) {
+
+                            }
+                        });
+                    }
+                }
+                items.push(newImageEditItem);
+                importantItems.push(newImageEditItem);
+
                 if (this.targetObject.def) {
                     var meta = this.targetObject.def.propertyMap[property.name].meta["npatch-edit"];
                     if (meta) {
