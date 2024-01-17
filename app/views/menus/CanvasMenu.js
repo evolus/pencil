@@ -224,6 +224,13 @@ CanvasMenu.prototype.setup = function () {
         }
     });
     UICommandManager.register({
+      key: "fitExportCommand",
+        label: "Fit SVG/PDF Export (744x1052)",
+        run: function () {
+            Pencil.controller.sizeToWidthHeight(null, 744, 1052); // FIXME: bug
+        }
+    });
+    UICommandManager.register({
       key: "sizingPolicyCommand",
         label: "Sizing Policy...",
         isAvailable: function () {
@@ -326,9 +333,12 @@ CanvasMenu.prototype.setup = function () {
     this.register({
         label: "Resize Canvas",
         type: "SubMenu",
-        subItems: [UICommandManager.getCommand("fitContentCommand"),
-                    UICommandManager.getCommand("fitContentwithPaddingCommand"),
-                    UICommandManager.getCommand("fitScreenCommand")]
+        subItems: [
+            UICommandManager.getCommand("fitContentCommand"),
+            UICommandManager.getCommand("fitContentwithPaddingCommand"),
+            UICommandManager.getCommand("fitScreenCommand"),
+            UICommandManager.getCommand("fitExportCommand")
+        ]
     });
 
     this.separator();
