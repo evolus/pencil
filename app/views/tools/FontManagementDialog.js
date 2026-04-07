@@ -56,7 +56,7 @@ FontManagementDialog.prototype.getDialogActions = function () {
     return [
         Dialog.ACTION_CLOSE,
         {
-            type: "extra1", title: "Install new font...",
+            type: "extra1", title: "Install a New Font...",
             run: function () {
                 (new FontDetailDialog()).callback(function () {
                     ApplicationPane._instance.busy();
