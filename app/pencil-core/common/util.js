@@ -2629,7 +2629,7 @@ function sameRelax(a, b) {
 }
 
 process.on('uncaughtException', function (e) {
-    console.error("UNCAUGHT EXCPTION", e);
+    console.error("UNCAUGHT EXCEPTION", e);
 });
 
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);
