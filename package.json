@@ -12,10 +12,14 @@
     "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
     "mac": {
       "category": "public.app-category.graphics-design",
-      "target": [{
-           "target": "dmg",
-           "arch": ["arm64"]
-      }]
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ]
     },
     "dmg": {
       "contents": [
