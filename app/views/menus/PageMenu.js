@@ -11,6 +11,65 @@ PageMenu.prototype.getTemplatePath = function () {
     return this.getTemplatePrefix() + "menus/Menu.xhtml";
 };
 
+
+class GoToPageMenuItem {
+    constructor(menu, page){
+        this.key = "open" + page.name +"page";
+        this.label = page.name;
+
+        this.page = page;
+        this.menu = menu;
+    }
+    run () {
+        this.menu.pageListView.activatePage(this.page);
+    };
+}
+
+
+class GoToPageMenuSubMenu extends GoToPageMenuItem {
+    constructor(menu, page, menuItems){
+        super(menu, page);
+        this.type = "SubMenu";
+        this.subItems = menuItems;
+    }
+}
+
+
+function generateGoToPageMenuItems(menu){
+    function* generateMenuItems(){
+        "use strict";
+        for (let i in Pencil.controller.doc.pages) {
+            let page = Pencil.controller.doc.pages[i];
+            if (!page.parentPage) {
+                let menuItem = generateMenuItem(page);
+                yield menuItem;
+            }
+        }
+    }
+
+    function generateMenuItem(page) {
+        let menuItem;
+        if (page.children.length > 0) {
+            let subItems = Array.from(createChildMenu(page));
+            menuItem = new GoToPageMenuSubMenu(menu, page, subItems);
+        } else {
+            menuItem = new GoToPageMenuItem(menu, page);
+        }
+        return menuItem;
+    }
+
+    function* createChildMenu(page) {
+        for(let i = 0; i < page.children.length; i++) {
+            let childPage = page.children[i];
+            let menuItem = generateMenuItem(childPage);
+            yield menuItem;
+        }
+    }
+
+    return Array.from(generateMenuItems());
+}
+
+
 PageMenu.prototype.setup = function () {
     var thiz = this;
 
@@ -90,59 +149,8 @@ PageMenu.prototype.setup = function () {
             Pencil.controller.movePage(thiz.page, "right");
         }
     });
-    function createSubCommand (page) {
-        var key = "open" + page.name +"page";
-        var items = {"key": key, "item": {
-            key:  key,
-            label: page.name,
-            run: function () {
-                thiz.pageListView.activatePage(page);
-            }
-        } };
-        return items;
-    };
-    function createSubItems (page,subItems) {
-        var key = "open" + page.name +"page";
-        var items = {"key": key, "item": {
-            key:  key,
-            label: page.name,
-            run: function () {
-                thiz.pageListView.activatePage(page);
-            },
-            type: "SubMenu",
-            subItems: subItems
-        }};
-        return items;
-    };
-    function createChildMenu (page, items) {
-        for(var i = 0; i < page.children.length; i++) {
-            var childPage = page.children[i];
-            var item;
-            if (childPage.children.length > 0) {
-                var subItem = [] ;
-                createChildMenu(childPage, subItem);
-                item = createSubItems(childPage,subItem);
-            } else {
-                item = createSubCommand(childPage);
-            }
-            items.push(item["item"]);
-        }
-    }
-    var subItems = [];
-    for (var i in Pencil.controller.doc.pages) {
-        var page = Pencil.controller.doc.pages[i];
-        if (!page.parentPage) {
-            var item;
-            if (page.children.length > 0) {
-                var items = [];
-                createChildMenu(page, items);
-                item = createSubItems(page,items);
-            } else {
-                item = createSubCommand(page);
-            }
-            subItems.push(item["item"]);
-        }
-    }
+
+    var subItems = generateGoToPageMenuItems(thiz);
     var check = false;
     if (subItems.length > 0) check = true;
 
