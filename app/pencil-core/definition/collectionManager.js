@@ -521,7 +521,7 @@ CollectionManager.installCollectionFromFilePath = function (filePath, callback) 
 CollectionManager.installCollectionFromUrl = function (url, callback) {
     var nugget = require("nugget");
     var tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true }).name;
-    var filename = path.basename(url);
+    var filename = path.basename(url).replaceAll(/\?.+/g, "");
 
     console.log('Downloading zip', url, 'to', tempDir, filename);
     var nuggetOpts = {

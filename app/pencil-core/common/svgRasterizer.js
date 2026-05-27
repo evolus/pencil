@@ -359,6 +359,8 @@ Rasterizer.getExportScale = function (inputScale) {
 }
 Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, callback, scale, options) {
     var geo = target.getGeometry();
+    var rect = target.svg.getBoundingClientRect();
+
     if (!geo) {
         //Util.showStatusBarWarning(Util.getMessage("the.selected.objects.cannot.be.exported"), true);
         alert(Util.getMessage("the.selected.objects.cannot.be.exported"));
@@ -373,8 +375,8 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
         padding += strokeStyle.w;
     }
 
-    var w = geo.dim.w + padding;
-    var h = geo.dim.h + padding;
+    var w = rect.width + padding;
+    var h = rect.height + padding;
 
     debug("w: " + w);
 
@@ -382,18 +384,15 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
     svg.setAttribute("width", "" + w  + "px");
     svg.setAttribute("height", "" + h  + "px");
 
+    var wrapper = document.createElementNS(PencilNamespaces.svg, "g");
+    var prect = target.svg.ownerSVGElement.getBoundingClientRect();
+    wrapper.setAttribute("transform", "translate(" + (prect.x - rect.x) + ", " + (prect.y - rect.y) + ")");
+
     var content = target.svg.cloneNode(true);
-    content.removeAttribute("transform");
     content.removeAttribute("id");
 
-    try  {
-        var dx = Math.round((w - geo.dim.w) / 2);
-        var dy = Math.round((h - geo.dim.h) / 2);
-        content.setAttribute("transform", "translate(" + dx + ", " + dy + ")");
-    } catch (e) {
-        Console.dumpError(e);
-    }
-    svg.appendChild(content);
+    svg.appendChild(wrapper);
+    wrapper.appendChild(content);
 
     var thiz = this;
     var s = Rasterizer.getExportScale(scale);
@@ -411,7 +410,6 @@ Rasterizer.prototype.rasterizeSelectionToFile = function (target, filePath, call
         });
     }, false, options);
 };
-
 Rasterizer.prototype._prepareWindowForRasterization = function(backgroundColor) {
     var h = 0;
     var w = 0;

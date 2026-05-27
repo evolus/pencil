@@ -11,6 +11,10 @@ function Popup(node) {
         if (popupClass) Dom.addClass(this.popupContainer, popupClass);
     }
 
+    this.bind("scroll", function () {
+        this.invalidateOverflowIndicators();
+    }, this.popupContainer);
+
     Popup.registerGlobalListeners();
 }
 __extend(BaseTemplatedWidget, Popup);
@@ -134,10 +138,12 @@ Popup.prototype.show = function (anchor, hAlign, vAlign, hPadding, vPadding, aut
 Popup.prototype.isVisible = function () {
     return this.visible;
 };
+Popup.prototype.invalidateOverflowIndicators = function () {
+    Dom.toggleClass(this.popupContainer, "ReachedTop", this.popupContainer.scrollTop <= 0);
+    Dom.toggleClass(this.popupContainer, "ReachedBottom", this.popupContainer.scrollTop >= this.popupContainer.scrollHeight - this.popupContainer.offsetHeight);
+}
 Popup.prototype.showAt = function (x, y, skipEvent, autoFlip) {
     this.reparent();
-
-    console.log("Showing at: ", [x, y]);
 
     if (this.mode) {
         this.popupContainer.setAttribute("mode", this.mode);
@@ -151,13 +157,35 @@ Popup.prototype.showAt = function (x, y, skipEvent, autoFlip) {
     var h = this.popupContainer.offsetHeight;
 
 
-    var screenW = document.body.offsetWidth - 10;
-    var screenH = window.innerHeight - 10;
+    const EDGE_MARGIN = 10;
+    var screenW = document.body.offsetWidth - 2 * EDGE_MARGIN;
+    var screenH = window.innerHeight;
 
-    if (y + h > screenH) {
-        y = y - h;
-        if (y < 0) {
-            y += h/2;
+    if (y + h > screenH - EDGE_MARGIN) {
+        if (y - h > EDGE_MARGIN) {
+            y = y - h;
+        } else {
+            if (h < screenH - 2 * EDGE_MARGIN) {
+                y = screenH - EDGE_MARGIN - h;
+            } else {
+                y = EDGE_MARGIN;
+                const INDICATOR_HEIGHT = 8;
+                var height = screenH - 2 * EDGE_MARGIN;
+
+                this.popupContainer.style.height = height + "px";
+                Dom.addClass(this.popupContainer, "Overflowed");
+                this._topOverflowIndicator = Dom.newDOMElement({_name: "div", "class": "Top OverflowIndicator"});
+                this.popupContainer.insertBefore(this._topOverflowIndicator, this.popupContainer.firstChild);
+                this._topOverflowIndicator.style.top = `0%`;
+                this._topOverflowIndicator.style.height = INDICATOR_HEIGHT + "px"
+
+                this._bottomOverflowIndicator = Dom.newDOMElement({_name: "div", "class": "Bottom OverflowIndicator"});
+                this.popupContainer.appendChild(this._bottomOverflowIndicator);
+                this._bottomOverflowIndicator.style.top = `calc(100% - ${INDICATOR_HEIGHT}px)`;
+                this._bottomOverflowIndicator.style.height = INDICATOR_HEIGHT + "px"
+
+                this.invalidateOverflowIndicators();
+            }
         }
     }
 
@@ -313,6 +341,17 @@ Popup.prototype.hidePopupContainer = function () {
     this.popupContainer.style.opacity = 0;
     this.popupContainer.style.visibility = "hidden";
     this.visible = false;
+
+    this.popupContainer.style.removeProperty("height");
+    Dom.removeClass(this.popupContainer, "Overflowed");
+    if (this._topOverflowIndicator) {
+        this.popupContainer.remove(this._topOverflowIndicator);
+        this._topOverflowIndicator = null;
+    }
+    if (this._bottomOverflowIndicator) {
+        this.popupContainer.remove(this._bottomOverflowIndicator);
+        this._bottomOverflowIndicator = null;
+    }
 }
 Popup.prototype.hide = function (silent, reason, event) {
     this.hidePopupContainer();

@@ -1661,6 +1661,7 @@
         <Properties>
             <PropertyGroup>
                 <Property name="box" type="Dimension" p:lockRatio="true">30,30</Property>
+                <Property name="isSquare" type="Bool" displayName="Square Bullet">false</Property>
                 <Property name="withBlur" type="Bool" displayName="With Shadow">false</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
@@ -1696,6 +1697,15 @@
                 <Fill>$fillColor</Fill>
                 <StrokeColor>$strokeColor</StrokeColor>
                 <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Visibility>new Bool(!$isSquare.value)</Visibility>
+            </For>
+            <For ref="rect">
+                <Box>$box.narrowed($strokeStyle.w)</Box>
+                <Transform>[translate(($strokeStyle.w / 2), ($strokeStyle.w / 2))]</Transform>
+                <Fill>$fillColor</Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Visibility>$isSquare</Visibility>
             </For>
             <For ref="text">
                 <TextContent>$textContent</TextContent>
@@ -1715,6 +1725,7 @@
                     var box = this.getProperty("box");
                     var size = Math.max(box.w, box.h);
                     this.setProperty("box", new Dimension(size, size));
+                    this.setProperty("isSquare", true);
                 ]]>
                 </Impl>
             </Action>
@@ -1727,6 +1738,7 @@
                 </filter>
                 <g id="container">
                     <ellipse id="ellipse" />
+                    <rect id="rect" width="30" height="30" />
                 </g>
             </defs>
             <use xlink:href="#container" id="bgCopy" transform="translate(1, 1)" p:filter="url(#imageShading)" style=" opacity:0.6;" p:heavy="true" />

@@ -2,7 +2,7 @@ function TargetSet(canvas, targets) {
     this.canvas = canvas;
     this.targets = targets;
     this.targetIds = [];
-    
+
     this.id = "sys_currentTargetSet";
     for (var target of this.targets) this.targetIds.push(target.id);
 
@@ -121,7 +121,7 @@ TargetSet.prototype.getBoundingRect = function () {
         };
         rect2.width = Math.max(0, Math.max(rect.x + rect.width, r.x + r.width) - rect2.x);
         rect2.height = Math.max(0, Math.max(rect.y + rect.height, r.y + r.height) - rect2.y);
-        
+
         rect = rect2;
     }
     return rect;
@@ -536,12 +536,23 @@ TargetSet.prototype.sendToBack = function () {
 };
 TargetSet.prototype.createTransferableData = function () {
     var node = this.canvas.ownerDocument.createElementNS(PencilNamespaces.svg, "g");
+
     for (i in this.targets) node.appendChild(this.targets[i].createTransferableData().dataNode);
 
     return {type: TargetSetXferHelper.MIME_TYPE,
             isSVG: true,
             dataNode: node
            };
+};
+TargetSet.prototype.processExportingTransferableProperties = function () {
+    for (t in this.targets) {
+        this.targets[t].processExportingTransferableProperties();
+    }
+};
+TargetSet.prototype.processImportedTransferableProperties = function () {
+    for (t in this.targets) {
+        this.targets[t].processImportedTransferableProperties();
+    }
 };
 TargetSet.prototype.lock = function () {
     for (i in this.targets) if (this.targets[i].lock) this.targets[i].lock();
@@ -614,12 +625,12 @@ TargetSet.prototype.invalidateOutboundConnections = function () {
 TargetSet.prototype.getSnappingGuide = function () {
     var vertical = [];
     var horizontal = [];
-    
+
     for (target of this.targets) {
         if (!target.getSnappingGuide) continue;
         var guide = target.getSnappingGuide();
         if (!guide) continue;
-        
+
         if (guide.horizontal && guide.horizontal.length > 0) horizontal = horizontal.concat(guide.horizontal);
         if (guide.vertical && guide.vertical.length > 0) vertical = vertical.concat(guide.vertical);
     }
@@ -628,4 +639,3 @@ TargetSet.prototype.getSnappingGuide = function () {
         vertical: vertical, horizontal: horizontal
     };
 };
-

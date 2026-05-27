@@ -68,11 +68,21 @@ function SettingDialog() {
             // if (configName == "external.editor.vector.path") {
             //     if (node.value == "" ) node.value = "/usr/bin/inkscape";
             // }
+            var configValue = Config.get(configName, node.value);
 
             Config.set(configName, node.value);
             this.setPreferenceItems();
             if (configName == "view.uiTextScale") {
-                widget.reloadDesktopFont().then(function () {});
+                const delta = Math.abs(node.value - configValue);
+                widget.reloadDesktopFont().then(function () {
+                    if (event.restoreAction || delta == 1) return;
+                    Dialog.confirm("Would you like to keep this configuration?", "",
+                        "Restore the previous configuration", function () {
+                            this.textScaleInput.value = configValue;
+                            Dom.emitEvent("change", node, {restoreAction: true});
+                            return true;
+                        }.bind(this), "Keep this configuration");
+                }.bind(this));
             }
         }
 

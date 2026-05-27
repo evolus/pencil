@@ -74,6 +74,20 @@ SharedPropertyEditor.prototype.validationEditorUI = function() {
     }
 };
 
+SharedPropertyEditor.prototype.quickInvalidate = function (target) {
+    var definedGroups = this.target.getPropertyGroups();
+
+    for (var i in definedGroups) {
+        var group = definedGroups[i];
+        for (var j in group.properties) {
+            var property = group.properties[j];
+            var editor = this.propertyEditor[property.name];
+            if (editor) {
+                editor.setValue(this.target.getProperty(property.name));
+            }
+        }
+    }
+};
 SharedPropertyEditor.prototype.attach = function (target) {
     if (!target) return;
     if (target && target.getAttributeNS && target.getAttributeNS(PencilNamespaces.p, "locked") == "true") { return; }
@@ -85,6 +99,7 @@ SharedPropertyEditor.prototype.attach = function (target) {
 
     if (this.target && this.target.id == target.id) {
         this.target = target;
+        this.quickInvalidate();
         return;
     }
 

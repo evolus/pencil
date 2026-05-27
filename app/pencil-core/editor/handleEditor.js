@@ -3,7 +3,15 @@ function HandleEditor() {
     this.canvas = null;
 }
 HandleEditor.ANCHOR_SIZE = 6;
-HandleEditor.configDoc = Dom.loadSystemXml("pencil-core/editor/handleEditor.config.xml");
+HandleEditor.configDoc = Dom.loadSystemXml("pencil-core/editor/handleEditor.config.xml", function (fileContent) {
+    if (!fileContent) return "";
+    var newContent = fileContent
+    .replace("$handle_fill_color", Config.get("handle.fill_color", "#ff0"))
+    .replace("$handle_stroke_color",Config.get("handle.stroke_color", "#0a0"))
+    .replace("$handle_focused_stroke_color", Config.get("handle.focused_stroke_color", "#f00"))
+    .replace("$handle_connected_stroke_color", Config.get("handle.connected_stroke_color", "#f00"));
+    return newContent;
+});
 HandleEditor.prototype.install = function (canvas) {
     this.canvas = canvas;
     this.canvas.onScreenEditors.push(this);

@@ -106,7 +106,8 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                             if (!checked) return;
                             thiz.targetObject.setProperty(this.property, new Enum(this.value));
                             var editors = Pencil.controller.applicationPane.sharedPropertyEditor.propertyEditor;
-                            editors[this.property].setValue(this.value);
+                            var editor = editors[this.property];
+                            if (editor) editor.setValue(this.value);
                             Pencil.controller.applicationPane.sharedPropertyEditor.validationEditorUI();
                         }
                     });
@@ -142,6 +143,29 @@ OnMenuEditor.prototype.generateMenuItems = function () {
                 }
                 items.push(imageEditItem);
                 importantItems.push(imageEditItem);
+
+                var newImageEditItem = {
+                    label: "Expand & Shrink...",
+                    icon: "brush",
+                    type: "Normal",
+                    imageData: imgeData,
+                    property: property.name,
+                    isValid: function () {
+                        return imgeData && imgeData.isBitmap();
+                    },
+                    handleAction: function () {
+                        var propName = this.property;
+                        var dialog = new ImageEditDialog();
+                        dialog.open({
+                            imageData: this.imageData,
+                            onDone: function (newImageData, options) {
+
+                            }
+                        });
+                    }
+                }
+                items.push(newImageEditItem);
+                importantItems.push(newImageEditItem);
 
                 if (this.targetObject.def) {
                     var meta = this.targetObject.def.propertyMap[property.name].meta["npatch-edit"];

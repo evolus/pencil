@@ -13,7 +13,6 @@ function Menu() {
                 checkbox.checked = !checkbox.checked;
             }
             if (item.handleAction) {
-                console.log("checkbox.checked: " + checkbox.checked);
                 item.handleAction(checkbox.checked);
             } else if (item.run) {
                 item.run(checkbox.checked, event);
@@ -257,7 +256,9 @@ Menu.prototype.showMenu = function (anchor, hAlign, vAlign, hPadding, vPadding, 
 };
 Menu.prototype.showMenuAt = function (x, y) {
     this.render();
-    this.showAt(x, y, false, "autoFlip");
+    setTimeout(() => {
+        this.showAt(x, y, false, "autoFlip");
+    }, 10);
 };
 Menu.prototype.hideMenu = function () {
     this.hide();

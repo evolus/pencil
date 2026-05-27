@@ -677,15 +677,15 @@
                                 var x = Math.PI * x / 180;
                                 var x = a * Math.cos(x) + a;
                                 var y = b * Math.sin(x) + b;
-                                
+
                                 return new Outlet(name, "Input", x, y);
                             }
-                            
+
                             var box = this.getProperty("box");
                             var a = box.w / 2;
                             var b = box.h / 2;
-                            
-                            
+
+
                             return [
                                 new Outlet("right", "Input", a * Math.cos(0) + a, b * Math.sin(0) + b),
                                 new Outlet("topRight", "Input", a * Math.cos(0 - Math.PI / 4) + a, b * Math.sin( - Math.PI / 4) + b),
@@ -1004,7 +1004,7 @@
                             var dy = Math.abs($endPin.y - endVia.y);
 
                             startVia = {x: $endPin.x, y: $endPin.y };
-                            
+
                             if (dx > dy) {  //horizontal
                                 startVia.x = $startPin.x;
                             } else {
@@ -1015,25 +1015,25 @@
                             startVia = geo_getRotatedPoint($endPin, $startPin, viaLength, 0);
                         }
                     }
-                    
+
                     var result = null;
                     if ($mode.value == 'multi-straight' && $endPin.meta && $endPin.meta.viax && $endPin.meta.viay) {
                         endVia = {x: parseFloat($endPin.meta.viax), y: parseFloat($endPin.meta.viay)};
                         endVia = geo_getRotatedPoint(endVia, $endPin, viaLength, 0);
-                        
+
                         stencilDebug("startPine: " + $startPin.toSource());
                         stencilDebug("endPin: " + $endPin.toSource());
-                        
+
                         stencilDebug("endVia: " + endVia.toSource());
                         var i = geo_findIntersection($startPin, startVia, $endPin, endVia);
-                        
+
                         //check if intersection is in the same direction with the vias
                         if (i != null
                                 && (i.x - $startPin.x) * (startVia.x - $startPin.x) >= 0
                                 && (i.y - $startPin.y) * (startVia.y - $startPin.y) >= 0
                                 && (i.x - $endPin.x) * (endVia.x - $endPin.x) >= 0
                                 && (i.y - $endPin.y) * (endVia.y - $endPin.y) >= 0) {
-                                
+
                             result = arrowTo([{x: $startPin.x, y: $startPin.y}, i],
                                     {
                                         x: $endPin.x,
@@ -1046,7 +1046,7 @@
                                     $withEndArrow.value,
                                     true,
                                     $detached.value ? 5 : 0)
-                                
+
                         } else {
                             result = arrowTo([{x: $startPin.x, y: $startPin.y}, startVia, endVia],
                                     {
@@ -1085,7 +1085,7 @@
                                 false,
                                 $detached.value ? 5 : 0)
                     }
-                    
+
                     result;
                 ]]></D>
             </For>
@@ -1134,7 +1134,7 @@
             <use xlink:href="#path" stroke-width="10" stroke-opacity="0" stroke="#FF0000" />
             <use xlink:href="#path" id="outArrow1" />
             <text id="text">
-                <textPath xlink:href="#path" startOffset="50%" text-anchor="middle" alignment-baseline="middle">
+                <textPath xlink:href="#path" startOffset="50%" text-anchor="start" alignment-baseline="middle">
                     <tspan id="textSpan" dy="-5">Text along a curved path</tspan>
                 </textPath>
             </text>

@@ -126,7 +126,9 @@ FontDetailDialog.prototype.getDialogActions = function () {
                         { name: "Fonts", extensions: ["ttf", "otf", "woff"] }
                     ],
                     properties: ["multiSelections"]
-                }, function (filePaths) {
+                }).then(function (result) {
+                    if (result.canceled) return;
+                    var filePaths = result.filePaths;
                     if (!filePaths || filePaths.length <= 0) return;
                     Config.set("document.open.recentlyDirPath", path.dirname(filePaths[0]));
                     this.handleMultipleFileSelection(filePaths);

@@ -469,9 +469,9 @@ Object.defineProperty(Event.prototype, "originalTarget", {
 
 var domParser = new DOMParser();
 
-/* public static XmlDocument */ Dom.loadSystemXml = function (relPath) {
+/* public static XmlDocument */ Dom.loadSystemXml = function (relPath, preProcessFileContent) {
     var absPath = getStaticFilePath(relPath);
-    return Dom.parseFile(absPath);
+    return Dom.parseFile(absPath, preProcessFileContent);
 };
 
 Dom.isElementExistedInDocument = function(element) {
@@ -917,8 +917,9 @@ Dom.swapNode = function (node1, node2) {
     parentNode.removeChild(node1);
     parentNode.insertBefore(node1, ref);
 };
-Dom.parseFile = function (file) {
+Dom.parseFile = function (file, preProcessFileContent) {
     var fileContents = fs.readFileSync(file, "utf8");
+    if (preProcessFileContent) fileContents = preProcessFileContent(fileContents);
     var dom = Dom.parser.parseFromString(fileContents, "text/xml");
     return dom;
 };
