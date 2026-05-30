@@ -1116,6 +1116,25 @@ Controller.prototype.getBestFitSize = function () {
     return this.applicationPane.getBestFitSize();
 };
 
+Controller.prototype.sizeToWidthHeight = function (passedPage, width, height) {
+    var page = passedPage ? passedPage : this.activePage;
+    var canvas = page.canvas;
+    if (!canvas) return;
+    if (canvas.zoom != 1) {
+        canvas.zoomTo(1);
+    }
+    width = parseInt(width);
+    height = parseInt(height);
+    if (width && height) {
+        canvas.setSize(width, height);
+        page.width = width;
+        page.height = height;
+        Config.set("lastSize", [width, height].join("x"));
+        this.invalidateBitmapFilePath(page);
+        this.sayDocumentChanged();
+    }
+};
+
 Controller.prototype.handleCanvasModified = function (canvas) {
     if (!canvas || !canvas.page) return;
     this.modified = true;
