@@ -249,12 +249,12 @@ DocumentHandler.prototype.confirmAndSaveDocument = function (onSaved) {
         "Discard changes", function () { if (onSaved) onSaved(); }
         );
 };
-DocumentHandler.prototype.newDocument = function () {
+DocumentHandler.prototype.newDocument = function (options, callback) {
     var thiz = this;
     function create() {
         thiz.resetDocument();
         thiz.controller.sayControllerStatusChanged();
-        FontLoader.instance.loadFonts();
+        if (!options?.skipFontReload) FontLoader.instance.loadFonts();
 
         // thiz.sayDocumentChanged();
         setTimeout(function () {
@@ -272,6 +272,7 @@ DocumentHandler.prototype.newDocument = function () {
 
             var page = thiz.controller.newPage(options);
             thiz.controller.modified = false;
+            if (callback) callback();
         }, 50);
     };
 
@@ -289,7 +290,7 @@ DocumentHandler.prototype.resetTempDir = function () {
 
 DocumentHandler.prototype.resetDocument = function () {
     this.resetTempDir();
-    
+
     this.controller.doc = new PencilDocument();
     this.controller.doc.name = "";
     this.controller.documentPath = null;

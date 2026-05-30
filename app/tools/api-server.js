@@ -14,7 +14,7 @@
         if (!json) throw new Error("Expecting JSON content");
 
         let useSVG = input.output == "svg"
-        let result = await ApplicationPane._instance.convertDesignJSONToImage(json, useSVG);
+        let result = await ApplicationPane._instance.convertDesignJSONToImage(json, useSVG, input.openAsDocument);
         console.log("To return", result);
 
         if (useSVG) {

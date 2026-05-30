@@ -463,12 +463,22 @@ ApplicationPane.prototype._createUtilCanvas = function () {
     this._utilCanvas = canvas;
 };
 
-ApplicationPane.prototype.loadDesignFromObject = async function (design) {
-    this._utilCanvas.selectNone();
-    Dom.empty(this._utilCanvas.drawingLayer);
+ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpenAsDocument) {
+    let canvas = null;
+    if (alsoOpenAsDocument) {
+        await new Promise((resolve, reject) => {
+            this.documentHandler.newDocument({ skipFontReload: true }, resolve);
+        });
 
-    if (design.canvas?.backgroundColor) this._utilCanvas.setBackgroundColor(Color.fromString(design.canvas.backgroundColor));
-    if (design.canvas?.width && design.canvas?.height) this._utilCanvas.setSize(design.canvas.width, design.canvas.height);
+        canvas = this.activeCanvas;
+    } else {
+        canvas = this._utilCanvas;
+    }
+    canvas.selectNone();
+    Dom.empty(canvas.drawingLayer);
+
+    if (design.canvas?.backgroundColor) canvas.setBackgroundColor(Color.fromString(design.canvas.backgroundColor));
+    if (design.canvas?.width && design.canvas?.height) canvas.setSize(design.canvas.width, design.canvas.height);
 
     let insertRecursive = async (children, x, y) => {
         for (let child of children) {
@@ -497,44 +507,45 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design) {
                     };
                 }
 
-                this._utilCanvas.insertShape(shapeDef, null, valueMap);
-                this._utilCanvas.currentController.moveBy(x + child.x, y + child.y, true);
+                canvas.insertShapeImpl_(shapeDef, null, valueMap);
+                canvas.currentController.moveBy(x + child.x, y + child.y, true);
             }
         }
     };
 
     insertRecursive(design.elements, 0, 0);
+
+    await sleep(100);
+    canvas.invalidateEditors();
+
+    return canvas;
 };
 
-ApplicationPane.prototype.convertDesignJSONToImage = async function (json, useSVG) {
+ApplicationPane.prototype.convertDesignJSONToImage = async function (json, useSVG, alsoOpenAsDocument) {
     defaultIndicator.busy("Handling remote rendering request...");
 
-    this._useUtilityDocumentHandler = true;
+    if (!alsoOpenAsDocument) this._useUtilityDocumentHandler = true;
 
     try {
-        this._utilityDocumentHandler.resetTempDir();
-        return await this._convertDesignJSONToImageImpl(json, useSVG);
+        if (!alsoOpenAsDocument) this._utilityDocumentHandler.resetTempDir();
+        return await this._convertDesignJSONToImageImpl(json, useSVG, alsoOpenAsDocument);
     } finally {
-        this._useUtilityDocumentHandler = false;
+        if (!alsoOpenAsDocument) this._useUtilityDocumentHandler = false;
         defaultIndicator.done();
     }
 }
-ApplicationPane.prototype._convertDesignJSONToImageImpl = async function (json, useSVG) {
-    // if (!this._utilCanvas) this._utilCanvas = this.createCanvas();
-    // this.setActiveCanvas(this._utilCanvas);
-    await sleep(200);
-
+ApplicationPane.prototype._convertDesignJSONToImageImpl = async function (json, useSVG, alsoOpenAsDocument) {
     let design = JSON.parse(json);
-    await this.loadDesignFromObject(design);
+    let canvas = await this.loadDesignFromObject(design, alsoOpenAsDocument);
     await sleep(200);
 
-    let size = this._utilCanvas.getSize();
+    let size = canvas.getSize();
 
     let page = {
         name: "design",
         width: size.width,
         height: size.height,
-        canvas: this._utilCanvas
+        canvas: canvas
     };
 
     if (useSVG) {
