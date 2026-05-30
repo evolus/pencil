@@ -282,10 +282,14 @@ DocumentHandler.prototype.newDocument = function () {
     }
 };
 
-DocumentHandler.prototype.resetDocument = function () {
+DocumentHandler.prototype.resetTempDir = function () {
     if (this.tempDir) this.tempDir.removeCallback();
     this.tempDir = tmp.dirSync({ keep: false, unsafeCleanup: true });
+};
 
+DocumentHandler.prototype.resetDocument = function () {
+    this.resetTempDir();
+    
     this.controller.doc = new PencilDocument();
     this.controller.doc.name = "";
     this.controller.documentPath = null;

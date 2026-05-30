@@ -8,9 +8,17 @@ function ApplicationPane() {
     this.rasterizer = new Rasterizer(this.controller);
     this.canvasMenu = new CanvasMenu();
 
-    this.documentHandler = new DocumentHandler(this.controller);
+    this._defaultDocumentHandler = new DocumentHandler(this.controller);
+    this._useUtilityDocumentHandler = false;
 
-    Pencil.documentHandler = this.documentHandler;
+    Object.defineProperty(this, "documentHandler", {
+        get() {
+            return this._useUtilityDocumentHandler ? this._utilityDocumentHandler : this._defaultDocumentHandler;
+        }
+    });
+
+    this._utilityDocumentHandler = new DocumentHandler(this.controller);
+
     Pencil.controller = this.controller;
     Pencil.rasterizer = this.rasterizer;
 
@@ -105,6 +113,8 @@ function ApplicationPane() {
 
     Pencil.handleArguments();
     FontLoader.instance.loadFonts();
+
+    this._createUtilCanvas();
 }
 __extend(BaseTemplatedWidget, ApplicationPane);
 ApplicationPane.prototype.onAttached = function () {
@@ -394,10 +404,66 @@ ApplicationPane.prototype.setContentVisible = function (visible) {
     this.contentBody.style.visibility = visible ? "visible" : "hidden";
 };
 
-ApplicationPane.prototype.loadDesignFromObject = async function (design) {
-    if (!this._utilCanvas) this._utilCanvas = this.createCanvas();
-    this.setActiveCanvas(this._utilCanvas);
+ApplicationPane.prototype._createUtilCanvas = function () {
+    var w = 400;
+    var h = 400;
 
+    var doc = this.hiddenElementsContainer.ownerDocument;
+
+    var scrollPane = doc.createElement("hbox");
+    Dom.addClass(scrollPane, "CanvasScrollPane");
+    scrollPane.setAttribute("flex", "1");
+
+    var wrapper = doc.createElement("div");
+    Dom.addClass(wrapper, "CanvasWrapper");
+    wrapper.setAttribute("tabindex", 0);
+    scrollPane.appendChild(wrapper);
+
+    var container = doc.createElement("div");
+    wrapper.appendChild(container);
+    container.style.width = w + "px";
+    container.style.height = h + "px";
+    Dom.addClass(container, "Canvas");
+
+    var stencilToolbar = new StencilShapeCanvasToolbar().into(wrapper);
+
+    var canvas = null;
+
+
+    scrollPane.addEventListener("mousedown", function (e) {
+        scrollPane._mouseDownAt = e.timeStamp;
+    });
+
+    scrollPane.addEventListener("mouseup", function (e) {
+        if (!scrollPane._mouseDownAt || (e.timeStamp - scrollPane._mouseDownAt) > 150) return;
+        if (!Dom.findParentWithClass(e.target, "CanvasWrapper")) {
+            if (!canvas.isSelectingRange) canvas.selectNone();
+        }
+    });
+
+    canvas = new Canvas(container, null, scrollPane);
+
+    this.hiddenElementsContainer.appendChild(scrollPane);
+    wrapper._canvas = canvas;
+    scrollPane._canvas = canvas;
+    canvas._wrapper = wrapper;
+    canvas._scrollPane = scrollPane;
+
+    stencilToolbar.canvas = canvas;
+
+    canvas.element.addEventListener("p:SizeChanged", function () {
+        var w = Math.ceil(canvas.width * canvas.zoom);
+        var h = Math.ceil(canvas.height * canvas.zoom);
+        container.style.width = w + "px";
+        container.style.height = h + "px";
+        container.parentNode.style.width = w + "px";
+        container.parentNode.style.height = h + "px";
+    }, false);
+
+    this._utilCanvas = canvas;
+};
+
+ApplicationPane.prototype.loadDesignFromObject = async function (design) {
     this._utilCanvas.selectNone();
     Dom.empty(this._utilCanvas.drawingLayer);
 
@@ -441,12 +507,21 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design) {
 };
 
 ApplicationPane.prototype.convertDesignJSONToImage = async function (json, useSVG) {
-    if (!this._utilCanvas) {
-        this._utilCanvas = this.createCanvas();
-        await sleep(200);
-    }
+    defaultIndicator.busy("Handling remote rendering request...");
 
-    this.setActiveCanvas(this._utilCanvas);
+    this._useUtilityDocumentHandler = true;
+
+    try {
+        this._utilityDocumentHandler.resetTempDir();
+        return await this._convertDesignJSONToImageImpl(json, useSVG);
+    } finally {
+        this._useUtilityDocumentHandler = false;
+        defaultIndicator.done();
+    }
+}
+ApplicationPane.prototype._convertDesignJSONToImageImpl = async function (json, useSVG) {
+    // if (!this._utilCanvas) this._utilCanvas = this.createCanvas();
+    // this.setActiveCanvas(this._utilCanvas);
     await sleep(200);
 
     let design = JSON.parse(json);

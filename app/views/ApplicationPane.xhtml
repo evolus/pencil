@@ -41,6 +41,28 @@
         @contentBody > .CanvasScrollPane[overflowy='false'] {
             align-items: center;
         }
+
+        @hiddenElementsContainer {
+            background: darken(@app_bg, 10%);
+            overflow: hidden;
+        }
+        @hiddenElementsContainer .CanvasScrollPane {
+            text-align: center;
+            overflow: auto;
+            background: darken(@app_bg, 10%);
+            box-shadow: inset 0px 0px 1ex rgba(0, 0, 0, 0.3);
+            align-items: center;
+        }
+        @hiddenElementsContainer .CanvasScrollPane > * {
+            text-align: left;
+        }
+        @hiddenElementsContainer .CanvasScrollPane[overflowx='false'] {
+            justify-content: center;
+        }
+        @hiddenElementsContainer > .CanvasScrollPane[overflowy='false'] {
+            align-items: center;
+        }
+
         .CanvasWrapper {
             padding: 10px;
             box-sizing: content-box;
@@ -276,9 +298,22 @@
         body[no-cursor] * {
             cursor: none;
         }
+
+        @hiddenElementsContainer {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            z-index: -9999;
+            visibility: hidden;
+            width: 40px;
+            height: 40px;
+            overflow: hidden;
+            pointer-events: none;
+        }
     </style>
 
     <vbox flex="1" anon-id="mainArea">
+        <vbox anon-id="hiddenElementsContainer"></vbox>
         <hbox anon-id="contentHeader" style="align-items: center;">
             <hbox anon-id="logoBox">
                 <i anon-id="menuIcon">menu</i>

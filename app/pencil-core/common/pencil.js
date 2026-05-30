@@ -31,6 +31,14 @@ Pencil.behaviors = {};
 
 Pencil.documentExporters = [];
 Pencil.defaultDocumentExporter = null;
+
+Object.defineProperty(Pencil, "documentHandler", {
+    get() {
+        return ApplicationPane._instance.documentHandler;
+    }
+});
+
+
 Pencil.registerDocumentExporter = function (exporter, defaultExporter) {
     Pencil.documentExporters.push(exporter);
     if (defaultExporter) Pencil.defaultDocumentExporter = exporter;
