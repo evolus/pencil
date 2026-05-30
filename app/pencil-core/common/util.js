@@ -2628,6 +2628,12 @@ function sameRelax(a, b) {
     return a == b;
 }
 
+function sleep(ms) {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, ms);
+    });
+}
+
 process.on('uncaughtException', function (e) {
     console.error("UNCAUGHT EXCPTION", e);
 });

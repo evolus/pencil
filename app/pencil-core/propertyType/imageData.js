@@ -5,7 +5,7 @@ function ImageData(w, h, data, xCells, yCells) {
     this.xCells = xCells;
     this.yCells = yCells;
 }
-ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]+)$/;
+ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]*)$/;
 ImageData.REG_EX2 = /^([0-9]+)\,([0-9]+)\,([0-9\- ]*)\,([0-9\- ]*)\,([^\0]+)$/;
 ImageData.win = null;
 
@@ -58,6 +58,8 @@ ImageData.generateCellString = function (cells) {
     return blocks.join(" ");
 };
 ImageData.invalidateValue = function (oldData, callback) {
+    console.log("Invalidating image data", oldData);
+    
     if (oldData.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
         var svg = oldData.data.substring(ImageData.SVG_IMAGE_DATA_PREFIX.length + 1);
 
@@ -332,6 +334,7 @@ ImageData.prototype.toString = function () {
 };
 
 ImageData.SVG_IMAGE_DATA_PREFIX = "data:image/svg+xml";
+ImageData.SVG_IMAGE_DATA_BASE64_PREFIX = ImageData.SVG_IMAGE_DATA_PREFIX + ";base64";
 ImageData.prototype.getDataAsXML = function () {
     var url = this.data;
     if (!url) return null;
@@ -340,6 +343,9 @@ ImageData.prototype.getDataAsXML = function () {
         var commaIndex = url.indexOf(",");
         if (commaIndex < ImageData.SVG_IMAGE_DATA_PREFIX.length || commaIndex > ImageData.SVG_IMAGE_DATA_PREFIX.length + 10) return null;
         var svg = url.substring(commaIndex + 1);
+        if (url.startsWith(ImageData.SVG_IMAGE_DATA_BASE64_PREFIX)) {
+            svg = Buffer.from(svg, 'base64').toString('utf8');
+        }
 
         return svg;
     } else if (url.match(/^ref:\/\//)) {

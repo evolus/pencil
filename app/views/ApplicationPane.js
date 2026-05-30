@@ -393,3 +393,90 @@ ApplicationPane.prototype.toggleLeftPane = function () {
 ApplicationPane.prototype.setContentVisible = function (visible) {
     this.contentBody.style.visibility = visible ? "visible" : "hidden";
 };
+
+ApplicationPane.prototype.loadDesignFromObject = async function (design) {
+    if (!this._utilCanvas) this._utilCanvas = this.createCanvas();
+    this.setActiveCanvas(this._utilCanvas);
+
+    this._utilCanvas.selectNone();
+    Dom.empty(this._utilCanvas.drawingLayer);
+
+    if (design.canvas?.backgroundColor) this._utilCanvas.setBackgroundColor(Color.fromString(design.canvas.backgroundColor));
+    if (design.canvas?.width && design.canvas?.height) this._utilCanvas.setSize(design.canvas.width, design.canvas.height);
+
+    let insertRecursive = async (children, x, y) => {
+        for (let child of children) {
+            if (child.type == "@group") {
+                await insertRecursive(child.children, x + child.x, y + child.y)
+            } else {
+                let shapeDefId = "dgthanhan.MaterialDesktopMockup:" + child.type;
+                let shapeDef = CollectionManager.shapeDefinition.locateDefinition(shapeDefId);
+                if (!shapeDef) {
+                    console.error("Ignoring unknow element: " + shapeDefId);
+                    return;
+                }
+
+                let valueMap = {};
+                for (let k in child.properties) {
+                    let pdef = shapeDef.getProperty(k);
+                    let value = pdef.type.fromString(child.properties[k]);
+
+                    // TODO: fix font handling
+                    if (value instanceof Font) {
+                        value.family = "FiraSans";
+                        if (value.weight == "medium") value.weight = "500";
+                    }
+                    valueMap[k] = {
+                        initialValue: value
+                    };
+                }
+
+                this._utilCanvas.insertShape(shapeDef, null, valueMap);
+                this._utilCanvas.currentController.moveBy(x + child.x, y + child.y, true);
+            }
+        }
+    };
+
+    insertRecursive(design.elements, 0, 0);
+};
+
+ApplicationPane.prototype.convertDesignJSONToImage = async function (json, useSVG) {
+    if (!this._utilCanvas) {
+        this._utilCanvas = this.createCanvas();
+        await sleep(200);
+    }
+
+    this.setActiveCanvas(this._utilCanvas);
+    await sleep(200);
+
+    let design = JSON.parse(json);
+    await this.loadDesignFromObject(design);
+    await sleep(200);
+
+    let size = this._utilCanvas.getSize();
+
+    let page = {
+        name: "design",
+        width: size.width,
+        height: size.height,
+        canvas: this._utilCanvas
+    };
+
+    if (useSVG) {
+        let svgDOM = this.controller.getPageSVG(page);
+        return Controller.serializer.serializeToString(svgDOM);
+    } else {
+        var options = {};
+        if (design.canvas?.backgroundColor) {
+            options.backgroundColor = design.canvas?.backgroundColor;
+        }
+
+        let tempFilePath = Local.newTempFile("design-render", "png");
+
+        await (new Promise((resolve, reject) => {
+            this.rasterizer.rasterizePageToFile(page, tempFilePath.name, resolve, undefined, false, options);
+        }));
+
+        return tempFilePath.name;
+    }
+};

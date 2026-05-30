@@ -12,6 +12,7 @@ StrokeStyle.fromString = function(literal) {
     if (literal.match(StrokeStyle.REG_EX)) {
         style.w = parseInt(RegExp.$1);
         style.array = RegExp.$2;
+        if (style.array == "0") style.array = "";
     }
 
     return style;
