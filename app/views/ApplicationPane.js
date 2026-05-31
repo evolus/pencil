@@ -466,9 +466,26 @@ ApplicationPane.prototype._createUtilCanvas = function () {
 ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpenAsDocument) {
     let canvas = null;
     if (alsoOpenAsDocument) {
-        await new Promise((resolve, reject) => {
-            this.documentHandler.newDocument({ skipFontReload: true }, resolve);
-        });
+        if (this.controller.doc) {
+            var size = this.getPreferredCanvasSize();
+            var options = {
+                name: "Untitled Page",
+                width: design.canvas.width,
+                height: design.canvas.height,
+                backgroundPageId: null,
+                backgroundColor: null,
+                note: "",
+                parentPageId: null,
+                activateAfterCreate: "activatePage"
+            };
+
+            var page = this.controller.newPage(options);
+        } else {
+            await new Promise((resolve, reject) => {
+                this.documentHandler.newDocument({ skipFontReload: true }, resolve);
+            });
+            await sleep(300);
+        }
 
         canvas = this.activeCanvas;
     } else {
@@ -479,6 +496,8 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
 
     if (design.canvas?.backgroundColor) canvas.setBackgroundColor(Color.fromString(design.canvas.backgroundColor));
     if (design.canvas?.width && design.canvas?.height) canvas.setSize(design.canvas.width, design.canvas.height);
+
+    const domParser = new DOMParser();
 
     let insertRecursive = async (children, x, y) => {
         for (let child of children) {
@@ -495,7 +514,37 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
                 let valueMap = {};
                 for (let k in child.properties) {
                     let pdef = shapeDef.getProperty(k);
-                    let value = pdef.type.fromString(child.properties[k]);
+                    const valueLiteral = child.properties[k];
+                    let value = pdef.type.fromString(valueLiteral);
+
+                    if (value instanceof ImageData) {
+                        let ow = value.w;
+                        let oh = value.h;
+                        if (value.data && value.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+                            try {
+                                let svg = value.getDataAsXML();
+                                let svgNode = domParser.parseFromString(svg, "text/xml").documentElement;
+                                let viewBox = svgNode.getAttribute("viewBox");
+                                let m = viewBox?.match ? viewBox.match(/^\s*[0-9]+\s+[0-9]+\s+([0-9]+)\s+([0-9]+)\s*$/) : null;
+                                if (m) {
+                                    value.w = parseInt(m[1], 10);
+                                    value.h = parseInt(m[2], 10);
+                                    if (value.w != ow || value.h != oh) console.log("Fix w/h using viewBox", viewBox);
+                                } else {
+                                    let w = svgNode.getAttribute("width");
+                                    let h = svgNode.getAttribute("height");
+                                    if (w && h)  {
+                                        value.w = parseInt(w, 10);
+                                        value.h = parseInt(h, 10);
+
+                                        if (value.w != ow || value.h != oh) console.log("Fix w/h using width/height", {w, h});
+                                    }
+                                }
+                            } catch (e) {
+                                console.error(e);
+                            }
+                        }
+                    }
 
                     // TODO: fix font handling
                     if (value instanceof Font) {
@@ -517,11 +566,15 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
 
     await sleep(100);
     canvas.invalidateEditors();
+    canvas._saveMemento("Loading design");
 
     return canvas;
 };
 
+const jsonRenderMutex = new Mutex();
+
 ApplicationPane.prototype.convertDesignJSONToImage = async function (json, useSVG, alsoOpenAsDocument) {
+    const release = await jsonRenderMutex.acquire();
     defaultIndicator.busy("Handling remote rendering request...");
 
     if (!alsoOpenAsDocument) this._useUtilityDocumentHandler = true;
@@ -532,6 +585,7 @@ ApplicationPane.prototype.convertDesignJSONToImage = async function (json, useSV
     } finally {
         if (!alsoOpenAsDocument) this._useUtilityDocumentHandler = false;
         defaultIndicator.done();
+        release();
     }
 }
 ApplicationPane.prototype._convertDesignJSONToImageImpl = async function (json, useSVG, alsoOpenAsDocument) {

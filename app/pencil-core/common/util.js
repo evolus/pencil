@@ -2634,8 +2634,26 @@ function sleep(ms) {
     });
 }
 
+function Mutex() {
+    this.queue = Promise.resolve();
+}
+
+Mutex.prototype.acquire = async function () {
+    let release;
+    const nextToken = new Promise(resolve => {
+        release = resolve;
+    });
+
+    const currentQueue = this.queue;
+    this.queue = currentQueue.then(() => nextToken);
+
+    await currentQueue;
+    return release;
+};
+
 process.on('uncaughtException', function (e) {
     console.error("UNCAUGHT EXCPTION", e);
 });
 
 Util.importSandboxFunctions(geo_buildQuickSmoothCurve, geo_buildSmoothCurve, geo_getRotatedPoint, geo_pointAngle, geo_rotate, geo_translate, geo_vectorAngle, geo_vectorLength, geo_findIntersection);
+
