@@ -497,8 +497,6 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
     if (design.canvas?.backgroundColor) canvas.setBackgroundColor(Color.fromString(design.canvas.backgroundColor));
     if (design.canvas?.width && design.canvas?.height) canvas.setSize(design.canvas.width, design.canvas.height);
 
-    const domParser = new DOMParser();
-
     let insertRecursive = async (children, x, y) => {
         for (let child of children) {
             if (child.type == "@group") {
@@ -518,32 +516,7 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
                     let value = pdef.type.fromString(valueLiteral);
 
                     if (value instanceof ImageData) {
-                        let ow = value.w;
-                        let oh = value.h;
-                        if (value.data && value.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
-                            try {
-                                let svg = value.getDataAsXML();
-                                let svgNode = domParser.parseFromString(svg, "text/xml").documentElement;
-                                let viewBox = svgNode.getAttribute("viewBox");
-                                let m = viewBox?.match ? viewBox.match(/^\s*[0-9]+\s+[0-9]+\s+([0-9]+)\s+([0-9]+)\s*$/) : null;
-                                if (m) {
-                                    value.w = parseInt(m[1], 10);
-                                    value.h = parseInt(m[2], 10);
-                                    if (value.w != ow || value.h != oh) console.log("Fix w/h using viewBox", viewBox);
-                                } else {
-                                    let w = svgNode.getAttribute("width");
-                                    let h = svgNode.getAttribute("height");
-                                    if (w && h)  {
-                                        value.w = parseInt(w, 10);
-                                        value.h = parseInt(h, 10);
-
-                                        if (value.w != ow || value.h != oh) console.log("Fix w/h using width/height", {w, h});
-                                    }
-                                }
-                            } catch (e) {
-                                console.error(e);
-                            }
-                        }
+                        resolveImageData(value);
                     }
 
                     // TODO: fix font handling
@@ -620,3 +593,73 @@ ApplicationPane.prototype._convertDesignJSONToImageImpl = async function (json, 
         return tempFilePath.name;
     }
 };
+function resolveImageData(value) {
+    if (!value.data) return;
+
+    let ow = value.w;
+    let oh = value.h;
+
+    if (ow == 0 || oh == 0) return;
+
+    if (value.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+        try {
+            let svg = value.getDataAsXML();
+            fixImageImageSize(value, svg);
+        } catch (e) {
+            console.error(e);
+        }
+    } else if (value.data.match(/^icon:\/\/([a-z0-9]+)\/([^ \r\n\t\/]+)$/)) {
+        const SUPPORTED_TYPES = {
+            cmdi: "icons.CommunityMaterialIcons"
+        };
+
+        let type = RegExp.$1;
+        let name = RegExp.$2;
+        let collectionId = SUPPORTED_TYPES[type];
+        if (!collectionId) return;
+
+        let collection = CollectionManager.findCollection(collectionId);
+        if (!collection) return;
+        let found = null;
+        for (let resource of collection.RESOURCE_LIST) {
+            if (resource.type != "svg") continue;
+            let fp = path.join(collection.installDirPath, resource.prefix, name + "." + resource.type);
+            if (fs.existsSync(fp)) {
+                found = fp;
+                break;
+            }
+        }
+
+        if (found) {
+            console.log("Found", value.data, found);
+            let svg = fs.readFileSync(found, "utf8").replace(/^\uFEFF/, '');
+            value.w = 10;
+            value.h = 10;
+            value.data = ImageData.SVG_IMAGE_DATA_PREFIX + ";base64," + Buffer.from(svg).toString('base64');
+            fixImageImageSize(value, svg);
+        }
+    }
+
+    function fixImageImageSize(value, svg) {
+        let svgNode = domParser.parseFromString(svg, "text/xml").documentElement;
+        
+        let viewBox = svgNode.getAttribute("viewBox");
+        
+        let m = viewBox?.match ? viewBox.match(/^\s*[0-9\.]+\s+[0-9\.]+\s+([0-9\.]+)\s+([0-9\.]+)\s*$/) : null;
+        if (m) {
+            value.w = Math.round(parseFloat(m[1]));
+            value.h = Math.round(parseFloat(m[2]));
+            if (value.w != ow || value.h != oh) console.log("Fix w/h using viewBox", viewBox);
+        } else {
+            let w = svgNode.getAttribute("width");
+            let h = svgNode.getAttribute("height");
+            if (w && h) {
+                value.w = parseInt(w, 10);
+                value.h = parseInt(h, 10);
+
+                if (value.w != ow || value.h != oh) console.log("Fix w/h using width/height", { w, h });
+            }
+        }
+    }
+}
+
