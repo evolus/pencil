@@ -179,15 +179,15 @@ FontDetailDialog.prototype.handleMultipleFileSelection = function (filePaths) {
 };
 
 FontDetailDialog.WEIGHT_NAME_ALIASES = [
-    { name: "thin", aliases : ["thin", "hairline"] },
-    { name: "ulight", aliases : ["ultralight", "ultra-light", "extralight", "extra-light"] },
-    { name: "light", aliases : ["light"] },
-    { name: "regular", aliases : ["regular", "normal"] },
-    { name: "medium", aliases : ["medium"] },
-    { name: "sbold", aliases : ["semibold", "semi-bold"] },
-    { name: "xbold", aliases : ["extrabold", "extra-bold", "ultrabold", "ultra-bold"] },
-    { name: "bold", aliases : ["bold"] },
-    { name: "black", aliases : ["black", "heavy"] }
+    { name: "thin", aliases : ["thin", "hairline", "100"] },
+    { name: "ulight", aliases : ["ultralight", "ultra-light", "extralight", "extra-light", "200"] },
+    { name: "light", aliases : ["light", "300"] },
+    { name: "medium", aliases : ["medium", "500"] },
+    { name: "sbold", aliases : ["semibold", "semi-bold", "600"] },
+    { name: "bold", aliases: ["bold", "700"] },
+    { name: "xbold", aliases : ["extrabold", "extra-bold", "ultrabold", "ultra-bold", "800"] },
+    { name: "black", aliases : ["black", "heavy", "900"] },
+    { name: "regular", aliases: ["regular", "normal", "400"] }
 ];
 FontDetailDialog.prototype.guessVariantName = function (filePath) {
     var name = path.basename(filePath).toLowerCase();
