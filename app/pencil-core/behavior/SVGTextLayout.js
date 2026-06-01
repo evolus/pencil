@@ -285,7 +285,12 @@ SVGHTMLRenderer.prototype.renderHTML = function (html, container, view) {
         }
     }
 
-    div.innerHTML = html;
+    try {
+        div.innerHTML = html;
+    } catch (e) {
+        console.log("Failed to parse HTML: " + e.message + ", bad html:", html)
+        Dom.setInnerText(div, html);
+    }
     this.render(div.childNodes, container, view);
 
     div.parentNode.removeChild(div);
