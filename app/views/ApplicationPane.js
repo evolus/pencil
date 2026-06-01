@@ -462,6 +462,8 @@ ApplicationPane.prototype._createUtilCanvas = function () {
 
     this._utilCanvas = canvas;
 };
+const CONFIG_JSONRENDER_FONTS_OVERRIDE_FAMILY = "jsonrender.fonts.force-override-family";
+Config.UI_CUSTOM_FONT_FAMILY = Config.define(CONFIG_JSONRENDER_FONTS_OVERRIDE_FAMILY, "FiraSans");
 
 ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpenAsDocument) {
     let canvas = null;
@@ -497,6 +499,8 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
     if (design.canvas?.backgroundColor) canvas.setBackgroundColor(Color.fromString(design.canvas.backgroundColor));
     if (design.canvas?.width && design.canvas?.height) canvas.setSize(design.canvas.width, design.canvas.height);
 
+    let overrideFontFamily = Config.get(CONFIG_JSONRENDER_FONTS_OVERRIDE_FAMILY, "");
+
     let insertRecursive = async (children, x, y) => {
         for (let child of children) {
             if (child.type == "@group") {
@@ -520,8 +524,8 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
                     }
 
                     // TODO: fix font handling
-                    if (value instanceof Font) {
-                        value.family = "FiraSans";
+                    if (overrideFontFamily && value instanceof Font) {
+                        value.family = overrideFontFamily;
                         if (value.weight == "medium") value.weight = "500";
                     }
                     valueMap[k] = {
@@ -539,6 +543,7 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
 
     await sleep(100);
     canvas.invalidateEditors();
+    canvas.selectNone();
     canvas._saveMemento("Loading design");
 
     return canvas;
