@@ -598,6 +598,45 @@ ApplicationPane.prototype._convertDesignJSONToImageImpl = async function (json, 
         return tempFilePath.name;
     }
 };
+ApplicationPane.SUPPORTED_ICON_TYPES = {
+    cmdi: "icons.CommunityMaterialIcons",
+    bootstrap: "bootstrapOfficalIcons",
+    fa: "fontawesomeIcons",
+    glow: "glowIcons",
+    herooutline: "heroiconsOutlineIcons",
+    herosolid: "heroiconsSolidIcons",
+    lucide: "lucideIcons",
+    mingcute: "mingCuteIcons",
+    tablerfilled: "tablerFilledIcons",
+    tableroutline: "tablerOutlineIcons"
+};
+ApplicationPane.prototype.getIconList = async function (iconSetType) {
+    let collectionId = ApplicationPane.SUPPORTED_ICON_TYPES[iconSetType];
+    if (!collectionId) return [];
+
+    let collection = CollectionManager.findCollection(collectionId);
+    let found = null;
+    for (let resource of collection.RESOURCE_LIST) {
+        if (resource.type != "svg") continue;
+        let fp = path.join(collection.installDirPath, resource.prefix);
+        if (fs.existsSync(fp)) {
+            found = fp;
+            break;
+        }
+    }
+
+    if (!found) return [];
+    return new Promise((resolve, reject) => {
+        fs.readdir(found, (error, names) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(names.filter(n => n.endsWith(".svg")).map(n => n.replace(/\.svg$/, "")));
+            }
+        });
+    });
+};
+
 function resolveImageData(value) {
     if (!value.data) return;
 
@@ -614,13 +653,10 @@ function resolveImageData(value) {
             console.error(e);
         }
     } else if (value.data.match(/^icon:\/\/([a-z0-9]+)\/([^ \r\n\t\/]+)$/)) {
-        const SUPPORTED_TYPES = {
-            cmdi: "icons.CommunityMaterialIcons"
-        };
 
         let type = RegExp.$1;
         let name = RegExp.$2;
-        let collectionId = SUPPORTED_TYPES[type];
+        let collectionId = ApplicationPane.SUPPORTED_ICON_TYPES[type];
         if (!collectionId) return;
 
         let collection = CollectionManager.findCollection(collectionId);

@@ -28,10 +28,18 @@
         }
     });
 
+    app.post("/json/collections/icon-list", async (req, res) => {
+        let input = req.body;
+        let icons = await ApplicationPane._instance.getIconList(input.iconType);
+        console.log("To return", icons);
+        res.json({
+            icons: icons
+        });
+    });
+
     const PORT = 1919;
     app.listen(PORT, () => {
         console.log(`API HTTP Server running on http://localhost:${PORT}`);
-        console.log(`JSON renderer endpoint: http://localhost:${PORT}${RENDER_API}`);
     });
 
 })();
