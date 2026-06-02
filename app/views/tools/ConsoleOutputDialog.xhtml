@@ -1,0 +1,24 @@
+<vbox flex="1">
+    <style>
+        @container {
+            overflow: hidden;
+            flex-basis: 1em;
+        }
+        pre {
+            background: #333;
+            color: #EEE;
+            padding: 1em;
+            overflow-y: auto;
+            & * + div.Important {
+                margin-top: 0.5em;
+            }
+            & div.Important {
+                font-weight: bold;
+                color: lighten(@primary_color, 20%);
+            }
+        }
+    </style>
+    <vbox flex="1" anon-id="container">
+        <pre flex="1" anon-id="output"></pre>
+    </vbox>
+</vbox>

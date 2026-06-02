@@ -1,5 +1,6 @@
 function BaseExporter() {
     this.id = "BaseExporter";
+    this.linkingSupported = true;
 }
 BaseExporter.OUTPUT_TYPE_DIRECTORY = "dir";
 BaseExporter.OUTPUT_TYPE_FILE = "file";

@@ -26,8 +26,8 @@
             </h2>
             <div class="ImageContainer">
                 <img src="{@rasterized}"
-                    width="{p:Properties/p:Property[@name='width']/text()}"
-                    height="{p:Properties/p:Property[@name='height']/text()}"
+                    width="{p:Properties/p:Property[@name='width']/text() * p:Properties/p:Property[@name='bitmapScale']/text()}"
+                    height="{p:Properties/p:Property[@name='height']/text() * p:Properties/p:Property[@name='bitmapScale']/text()}"
                     usemap="#map_{p:Properties/p:Property[@name='fid']/text()}"/>
             </div>
             <xsl:if test="p:Note">

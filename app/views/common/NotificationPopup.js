@@ -13,7 +13,7 @@ function NotificationPopup() {
 __extend(Popup, NotificationPopup);
 
 NotificationPopup.prototype.setup = function (message, actionTitle, actionHandler) {
-    this.messagePane.innerHTML = Dom.htmlEncode(message);
+    this.messagePane.innerHTML = Dom.htmlEncode(message).replace(/\n/g, "<br/>");
     Dom.toggleClass(this.node(), "WithAction", actionTitle)
 
     if (actionTitle) {

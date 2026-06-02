@@ -1,0 +1,76 @@
+<vbox class="Form">
+    <style>
+        @resultContainer {
+            width: 30em;
+            height: 25em;
+            overflow: auto;
+            background: #999;
+            box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.5);
+            margin-top: 0.3em;
+            padding: 1ex;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-content: flex-start;
+            flex-direction: row;
+        }
+        @resultContainer .Item {
+            display: inline-block;
+            width: 7ex;
+            height: 7ex;
+            background: #FFF;
+            margin: 1ex;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            position: relative;
+        }
+        @resultContainer .Item:focus {
+            outline: none;
+            background: lighten(@selected_bg, 40%);
+        }
+        @resultContainer .Item > object,
+        @resultContainer .Item > img {
+            width: 5ex;
+            height: 5ex;
+            margin: 1ex;
+        }
+        @resultContainer .Item > .Overlay {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+        }
+        @resultContainer .Item:active {
+            background: #EEE;
+            box-shadow: 0px 0px 4px @selected_bg;
+        }
+
+        @collectionSelectionPane {
+            margin-bottom: 1ex;
+            padding-bottom: 1ex;
+            border-bottom: solid 1px rgba(0, 0, 0, 0.3);
+        }
+
+        @collectionCombo {
+            font-weight: bold;
+        }
+
+        @prefixCombo {
+            margin-left: 0.2em;
+        }
+    </style>
+    <vbox anon-id="collectionSelectionPane">
+        <label>Collection:</label>
+        <ui:ComboManager anon-id="collectionCombo" />
+    </vbox>
+    <hbox>
+        <input anon-id="filterInput" type="text" placeholder="Search by name..." flex="1" />
+        <ui:ComboManager anon-id="prefixCombo" />
+    </hbox>
+    <vbox anon-id="resultContainerWrapper" flex="1">
+        <vbox anon-id="resultContainer" flex="1" tabindex="0">
+        </vbox>
+    </vbox>
+</vbox>

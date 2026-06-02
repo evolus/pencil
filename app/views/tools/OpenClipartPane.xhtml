@@ -16,6 +16,9 @@
         @filter @form {
             padding: 1em;
         }
+        @filter @form @searchInput {
+            padding-right: 2.5em;
+        }
         @filter @logo {
             display: none;
         }
@@ -111,6 +114,19 @@
             color: gray;
             cursor: default;
         }
+        @loader {
+            position: absolute;
+            top: 33%;
+            right: 1.5em;
+            height: 1em;
+            width: 1em;
+
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ddd;
+            border-right: 4px solid #ddd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
 
     </style>
     <hbox anon-id="filter">
@@ -118,7 +134,7 @@
         </hbox>
         <hbox flex="1" anon-id="form">
             <input type="text" flex="1" class="form-control" placeholder="Search OpenClipart.org" anon-id="searchInput"/>
-            <i class="fa fa-search"></i>
+            <div anon-id="loader" style="display: none"></div>
         </hbox>
     </hbox>
     <vbox flex="1" anon-id="contentPane">

@@ -38,8 +38,14 @@ __extend(Dialog, ExportDialog);
 
 ExportDialog.prototype.invalidateUIByExporter = function () {
     var exporter = this.exporterCombo.getSelectedItem();
+    if (exporter.linkingSupported) {
+        Dom.addClass(this.optionPane, "LinkingSupported");
+    } else {
+        Dom.removeClass(this.optionPane, "LinkingSupported");
+    }
     if (exporter.supportTemplating()) {
         var templates = exporter.getTemplates();
+        console.log(templates);
         this.templateCombo.setItems(templates);
         this.templateCombo.setDisabled(false);
 
@@ -113,7 +119,7 @@ ExportDialog.prototype.setup = function (options) {
         }
     };
     var renderer = function (page) {
-        return page.name;
+        return Dom.htmlEncode(page.name);
     };
 
     this.pageTree.setup(source, renderer, {
@@ -132,7 +138,10 @@ ExportDialog.prototype.setup = function (options) {
         Dom.addClass(this.optionPane, "ForcedExporter");
 
         var exporter = this.exporterCombo.getSelectedItem();
-        if (exporter) this.title = exporter.name;
+        if (exporter) {
+            this.title = exporter.name;
+            
+        }
     }
 
     var options = options || {};
@@ -173,6 +182,7 @@ ExportDialog.prototype.setOptionValues = function (valueMap) {
 
 
 ExportDialog.prototype.getDialogActions = function () {
+    var thiz = this;
     return [
         {   type: "cancel", title: "Cancel",
             isCloseHandler: true,
@@ -191,6 +201,8 @@ ExportDialog.prototype.getDialogActions = function () {
                     templateId: template ? template.id : null,
                     options: {}
                 };
+
+                result.options.copyBGLinks = true;
 
                 if (this.propertyEditors) {
                     for (var name in this.propertyEditors) {
@@ -231,10 +243,10 @@ ExportDialog.prototype.getDialogActions = function () {
                         }
 
                         dialogOptions.filters = filters;
-                        console.log("dialogOptions", dialogOptions);
-                        dialog.showSaveDialog(dialogOptions, function (filename) {
-                            if (!filename) return;
-                            result.targetPath = filename;
+                        dialog.showSaveDialog(dialogOptions).then(function (res) {
+                            if (!res || !res.filePath) return;
+                            result.targetPath = res.filePath;
+                            console.log("Selected", res.filePath);
 
                             this.close(result);
 
@@ -250,9 +262,9 @@ ExportDialog.prototype.getDialogActions = function () {
                             }
                         }
 
-                        dialog.showOpenDialog(dialogOptions, function (filenames) {
-                            if (!filenames || filenames.length <= 0) return;
-                            result.targetPath = filenames[0];
+                        dialog.showOpenDialog(dialogOptions).then(function (res) {
+                            if (!res || !res.filePaths || res.filePaths.length <= 0) return;
+                            result.targetPath = res.filePaths[0];
 
                             this.close(result);
 

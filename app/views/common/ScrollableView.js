@@ -58,17 +58,28 @@ function ScrollableView () {
     this.nextButton.addEventListener("focusout", function() {
         stopScroll();
     }, false)
-
-
-    this.bind("wheel", function (event) {
-        this.offset -= event.deltaY;
-        this.invalidate();
-    }, this.node());
+    window.addEventListener("resize", function(ev){
+        thiz.invalidate();
+    },false)
+    this.wheelAllow = true;
+    this.addWheelHandle();
 }
 
 __extend(BaseTemplatedWidget, ScrollableView);
 
+ScrollableView.prototype.setWheelAllow = function (value) {
+    this.wheelAllow = value;
+}
 
+ScrollableView.prototype.addWheelHandle = function() {
+    this.wheelHandle = function(ev) {
+        if (this.wheelAllow) {
+            this.offset -= event.deltaY;
+            this.invalidate();
+        }
+    }
+    this.bind("wheel", this.wheelHandle, this.node());
+}
 
 ScrollableView.prototype.getStep = function () {
     return 80;

@@ -31,4 +31,6 @@
     return "[ShapeDefCollection: " + this.id + "]";
 };
 
-
+ShapeDefCollection.TYPE_SYSTEM = "System";
+ShapeDefCollection.TYPE_USER_INSTALLED = "User";
+ShapeDefCollection.TYPE_DEVELOPER = "Developer";

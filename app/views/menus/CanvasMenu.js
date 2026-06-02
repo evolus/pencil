@@ -14,7 +14,7 @@ CanvasMenu.prototype.setup = function () {
     UICommandManager.register({
         key: "undoCommand",
         shortcut: "Ctrl+Z",
-        getLabel: function () { return "Undo" + Pencil.activeCanvas.careTaker.getCurrentAction(); },
+        getLabel: function () { return "Undo: " + Pencil.activeCanvas.careTaker.getCurrentAction(); },
         icon: "undo",
         isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.careTaker.canUndo(); },
         applyWhenClass: "CanvasScrollPane",
@@ -25,7 +25,7 @@ CanvasMenu.prototype.setup = function () {
     UICommandManager.register({
         key: "redoCommand",
         shortcut: "Ctrl+Y",
-        getLabel: function () { return "Redo" + Pencil.activeCanvas.careTaker.getPrevAction(); },
+        getLabel: function () { return "Redo: " + Pencil.activeCanvas.careTaker.getPrevAction(); },
         icon: "redo",
         isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.careTaker.canRedo(); },
         applyWhenClass: "CanvasScrollPane",
@@ -151,7 +151,7 @@ CanvasMenu.prototype.setup = function () {
         shortcut: "Ctrl+X",
         isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController; },
         applyWhenClass: "CanvasScrollPane",
-        run: function () {
+        run: function (event) {
             Pencil.activeCanvas.doCopy();
             Pencil.activeCanvas.deleteSelected();
         }
@@ -161,9 +161,11 @@ CanvasMenu.prototype.setup = function () {
         label: "Copy",
         icon: "content_copy",
         shortcut: "Ctrl+C",
-        isValid: function () { return Pencil.activeCanvas && Pencil.activeCanvas.currentController; },
+        isValid: function () {
+            return Pencil.activeCanvas && Pencil.activeCanvas.currentController;
+        },
         applyWhenClass: "CanvasScrollPane",
-        run: function () {
+        run: function (event) {
             Pencil.activeCanvas.doCopy();
         }
     });
@@ -176,6 +178,17 @@ CanvasMenu.prototype.setup = function () {
         applyWhenClass: "CanvasScrollPane",
         run: function () {
             Pencil.activeCanvas.doPaste();
+        }
+    });
+    UICommandManager.register({
+      key: "pasteCommand2",
+        label: "Paste",
+        icon: "content_paste",
+        shortcut: "Ctrl+Shift+V",
+        isValid: function () { return Pencil.activeCanvas; /*FIXME: check for clipboard content*/ },
+        applyWhenClass: "CanvasScrollPane",
+        run: function () {
+            Pencil.activeCanvas.doPaste("withAlternative");
         }
     });
     UICommandManager.register({
@@ -222,6 +235,37 @@ CanvasMenu.prototype.setup = function () {
             Group.openSizingPolicyDialog(Pencil.activeCanvas.currentController); // FIXME: bug
         }
     });
+
+    UICommandManager.register({
+      key: "insertScreenshotCommand",
+        label: "Insert Screenshot...",
+        isValid: function () { return Pencil.activeCanvas; },
+        icon: "camera",
+        run: function () {
+            ImageData.fromScreenshot(function (imageData, options, error) {
+                if (!imageData) return;
+
+                remote.getCurrentWindow().show();
+                remote.getCurrentWindow().focus();
+
+                var def = CollectionManager.shapeDefinition.locateDefinition(
+                    options.useNormalBitmap ? PNGImageXferHelper.SHAPE_DEF_ID : PNGImageXferHelper.SHAPE_DEF_ID_2
+                );
+                if (!def) return;
+
+                Pencil.activeCanvas.insertShape(def, null);
+                if (!Pencil.activeCanvas.currentController) return;
+
+                var controller = Pencil.activeCanvas.currentController;
+
+                var dim = new Dimension(imageData.w, imageData.h);
+                Pencil.activeCanvas.currentController.setProperty("imageData", imageData);
+                Pencil.activeCanvas.currentController.setProperty("box", dim);
+                Pencil.activeCanvas.invalidateEditors();
+            }.bind(this), undefined);
+        }
+    });
+
 
     this.register(UICommandManager.getCommand("undoCommand"));
     this.register(UICommandManager.getCommand("redoCommand"));
@@ -274,6 +318,8 @@ CanvasMenu.prototype.setup = function () {
 
     };
     this.register(UICommandManager.getCommand("exportSelectionAsPNGButton"));
+
+    this.register(UICommandManager.getCommand("insertScreenshotCommand"));
 
     this.separator();
 

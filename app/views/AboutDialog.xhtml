@@ -27,6 +27,9 @@
         font-size: 1em;
         font-weight: bold;
     }
+    .donate {
+        margin-top: 1em;
+    }
     .donate img {
         width: 8em;
         height: 3.167em;
@@ -35,14 +38,12 @@
     .aboutBanner {
         background-color: lighten(@selected_bg, 10%);
         margin-bottom: 1em;
-        margin-left: -1.5em;
-        margin-right: -1.5em;
+        margin-left: -1.2em;
+        margin-right: -1.2em;
         align-items: flex-start;
-        margin-top: -1em;
 
         color:#fff;
         padding: 1.9em;
-        padding-top: 0em;
     }
     .aboutBanner img {
         width: 3em;
@@ -84,6 +85,7 @@
                             <li>Nguyễn Tiến Dũng</li>
                             <li>Nguyễn Nữ Hải Anh</li>
                             <li>Phạm Ngọc Vân Anh</li>
+                            <li>Lê Chí Mừng</li>
                         </ul>
                         <h4>Contributors</h4>
                         <hbox>
@@ -104,10 +106,11 @@
                                 <li>Nguyễn Hồng Thái</li>
                             </ul>
                         </hbox>
+                        <a href="https://github.com/evolus/pencil/graphs/contributors">View the full list of code contributors in GitHub</a>
                     </vbox>
                     <hbox class="donate" style="align-items: center;">
                         <div flex="1">Pencil is Free Software and licensed under the GPL, but if you find it useful, you can support its development :)</div>
-                        <img style="cursor:pointer;" src="css/images/paypal.png" onclick="Util.openDonate();" tooltiptext="You can help me make Pencil even better. Consider making a small donation!"></img>
+                        <a href="http://pencil.evolus.vn/Donation.html" style="border: none;"><img style="cursor:pointer;" src="css/images/paypal.png" tooltiptext="You can help me make Pencil even better. Consider making a small donation!"></img></a>
                     </hbox>
                 </vbox>
             </vbox>

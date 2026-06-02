@@ -43,17 +43,21 @@ function CollectionManagementDialog (collectionPanel) {
     }, false);
 
     this.bind("dragstart", function (ev) {
+        nsDragAndDrop.dragStart(ev);
         var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
         if (!node) return;
         ev.dataTransfer.setData("collectionId", node._collection.id);
         ev.dataTransfer.setData("dragType", "collection");
+        nsDragAndDrop.setData("collectionId", node._collection.id);
+        nsDragAndDrop.setData("dragType", "collection");
         if (this.currentDraggedObject) this.currentDraggedObject.removeAttribute("dragged");
         this.currentDraggedObject = node;
         this.currentDraggedObject.setAttribute("dragged", "true");
     }, this.collectionContainer);
 
     this.bind("dragover", function (ev) {
-        if (event.dataTransfer.getData("dragType") != "collection") return;
+        // if (event.dataTransfer.getData("dragType") != "collection") return;
+        if (nsDragAndDrop.getData("dragType") != "collection") return;
         if (this.hoverNode) {
             this.hoverNode.removeAttribute("hover");
             this.hoverNode = null;
@@ -67,7 +71,9 @@ function CollectionManagementDialog (collectionPanel) {
     }, this.collectionContainer);
 
     this.bind("drop", function (ev) {
-        if (event.dataTransfer.getData("dragType") != "collection") return;
+        // if (event.dataTransfer.getData("dragType") != "collection") return;
+        if (nsDragAndDrop.getData("dragType") != "collection") return;
+
         if (this.hoverNode) {
             this.hoverNode.removeAttribute("hover");
             this.hoverNode = null;
@@ -75,6 +81,7 @@ function CollectionManagementDialog (collectionPanel) {
         var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
         if (!node) return;
         var draggedCollectionId = ev.dataTransfer.getData("collectionId");
+        var draggedCollectionId = nsDragAndDrop.getData("collectionId");
         var targetCollectionId = node._collection.id;
         if (node._collection.id != draggedCollectionId) {
             CollectionManager.reorderCollections(draggedCollectionId, targetCollectionId);

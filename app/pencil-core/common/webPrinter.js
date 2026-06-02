@@ -38,17 +38,7 @@ module.exports = function () {
                     //         }
                     //     }
                     // });
-                    browserWindow.webContents.printToPDF(options, function(error, pdfBuffer) {
-                        if (error) {
-                            try {
-                                global.mainWindow.webContents.send(data.id, {success: false, message: error.message});
-                            } finally {
-                                __callback();
-                            }
-
-                            return;
-                        }
-
+                    browserWindow.webContents.printToPDF(options).then(function(pdfBuffer) {
                         fs.writeFile(data.targetFilePath, pdfBuffer, function(error) {
                             try {
                                 if (error) {
@@ -60,11 +50,19 @@ module.exports = function () {
                             } finally {
                                 __callback();
                             }
+                        }).catch (function (error) {
+                            try {
+                                global.mainWindow.webContents.send(data.id, {success: false, message: error.message});
+                            } finally {
+                                __callback();
+                            }
                         })
                     });
                 } else {
                     global.mainWindow.webContents.send(data.id, {success: true});
-                    browserWindow.webContents.print(options);
+                    browserWindow.webContents.print(options, function () {
+                        __callback();
+                    });
                 }
 
             }

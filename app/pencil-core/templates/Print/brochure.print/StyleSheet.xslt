@@ -108,6 +108,7 @@
     <xsl:template match="/">
         <html>
             <head>
+                <meta charset="utf-8" />
                 <title>
                     <xsl:value-of select="/p:Document/p:Properties/p:Property[@name='friendlyName']/text()"/> - <xsl:value-of select="$blockWidth" /> x <xsl:value-of select="$blockHeight" />
                 </title>

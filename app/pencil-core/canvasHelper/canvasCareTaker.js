@@ -1,6 +1,7 @@
 function CanvasCareTaker(canvas) {
     this.canvas = canvas;
     this.reset();
+    this.paused = false;
 }
 if (!Config.get("view.undoLevel")){
     Config.set("view.undoLevel", 10);
@@ -10,7 +11,14 @@ CanvasCareTaker.prototype.reset = function() {
     this.mementos = [this.canvas.getMemento()];
     this.index = 0;
 }
+CanvasCareTaker.prototype.pause = function () {
+    this.paused = true;
+};
+CanvasCareTaker.prototype.resume = function () {
+    this.paused = false;
+};
 CanvasCareTaker.prototype.save = function(action) {
+    if (this.paused) return;
     var memento = this.canvas.getMemento(action);
 
     this.index ++;

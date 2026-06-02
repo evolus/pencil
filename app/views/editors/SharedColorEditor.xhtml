@@ -11,12 +11,12 @@
             width: 1.2em;
             height: 1.2em;
             line-height: 1em;
-            overflow: hidden;
             text-align: center;
             vertical-align: middle;
             display: inline-block;
             margin: 0px;
-            font-weight: bold;
+            font-weight: 900;
+            font-family: 'PencilUI' !important;
 
             box-sizing: border-box;
             border: solid 2px transparent;
@@ -24,6 +24,16 @@
         }
         body .SharedColorEditorPopup {
             z-index: 9999;
+        }
+
+        @colorDisplay[property-name="textColor"].LowContrast {
+            text-shadow: 1px 1px 2px #00000044, -1px -1px 2px #00000044, -1px 1px 2px #00000044, 1px -1px 2px #00000044;
+        }
+        @colorDisplay[property-name="fillColor"].LowContrast {
+            box-shadow: 0px 0px 3px #00000044;
+        }
+        @colorDisplay[property-name="strokeColor"].LowContrast {
+            filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.5));
         }
     </style>
 

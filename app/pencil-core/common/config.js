@@ -51,3 +51,26 @@ try {
 }
 
 Config._load();
+
+
+
+//Specific configuration schema management
+Config.define = function (name, defaultValue) {
+    if (Config.get(name, null) === null) {
+        Config.set(name, defaultValue);
+    }
+
+    return name;
+};
+
+Config.DEV_PAGE_MARGIN_SIZE = Config.define("dev.pageMargin.size", Config.DEV_DEFAULT_PAGE_MARGIN);
+Config.DEV_PAGE_MARGIN_COLOR = Config.define("dev.pageMargin.color", "rgba(0, 0, 0, 0.2)");
+
+Config.DEV_ENABLE_DISABLED_IN_PROP_PAGE = Config.define("dev.enable_disabled_in_property_page", false);
+Config.VIEW_USE_COMPACT_LAYOUT = Config.define("view.useCompactLayout", false);
+
+Config.DEVICE_ADB_PATH = Config.define("device.adb_path", "adb");
+Config.EXPORT_CROP_FOR_CLIPBOARD = Config.define("export.crop_for_clipboard", false);
+Config.EXPORT_DEFAULT_SCALE = Config.define("export.default_scale", 1);
+Config.EXPORT_DEFAULT_BACKGROUND_COLOR = Config.define("export.default_background_color", "");
+Config.CORE_USE_HWA = Config.define("core.useHardwareAcceleration", false);

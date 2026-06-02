@@ -1,6 +1,7 @@
 function WebPageExporter() {
     this.name = Util.getMessage("single.web.page");
     this.id = "WebPageExporter";
+    this.linkingSupported = true;
 }
 WebPageExporter.RASTERIZED_SUBDIR = "pages";
 WebPageExporter.HTML_FILE = "index.html";

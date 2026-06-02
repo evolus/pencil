@@ -21,6 +21,35 @@ ShapeDef.prototype.toString = function () {
 ShapeDef.prototype.getProperty = function (name) {
     return this.propertyMap[name];
 };
+ShapeDef.prototype.removeProperty = function (name) {
+    var found = false;
+    for (var group of this.propertyGroups) {
+        for (var i = 0; i < group.properties.length; i ++) {
+            var property = group.properties[i];
+            if (property.name == name) {
+                group.properties.splice(i, 1);
+                found = true;
+                break;
+            }
+        }
+
+        if (found) break;
+    }
+
+    if (found) {
+        delete this.propertyMap[name];
+    }
+};
+ShapeDef.prototype.removeAction = function (id) {
+    for (var i = 0; i < this.actions.length; i ++) {
+        var action = this.actions[i];
+        if (action.id == id) {
+            this.actions.splice(i, 1);
+            delete this.actionMap[id];
+            break;
+        }
+    }
+};
 ShapeDef.prototype.isPropertyAffectedBy = function (target, source, checkedProperties) {
     if (target == source) return true;
 
@@ -51,6 +80,15 @@ PropertyGroup.prototype.toString = function () {
     return "[PropertyGroup: " + this.name + "]";
 };
 
+PropertyGroup.prototype.clone = function () {
+    var group = new PropertyGroup();
+    group.name = this.name;
+    for (var prop of this.properties) {
+        group.properties.push(prop.clone());
+    }
+
+    return group;
+};
 
 function Property() {
     this.name = null;
@@ -63,6 +101,29 @@ function Property() {
 }
 Property.prototype.toString = function () {
     return "[Property: " + this.name + "]";
+};
+Property.prototype.clone = function () {
+    var property = new Property();
+    property.name = this.name;
+    property.displayName = this.displayName;
+    property.type = this.type;
+    property.initialValue = this.initialValue ? this.type.fromString(this.initialValue.toString()) : null;
+    property.initialValueExpression = this.initialValueExpression;
+
+    for (var name in this.relatedTargets) {
+        property.relatedTargets[name] = this.relatedTargets[name];
+    }
+
+    property.relatedProperties = {};
+    for (var name in this.relatedProperties) {
+        property.relatedProperties[name] = this.relatedProperties[name];
+    }
+
+    for (var name in this.meta) {
+        property.meta[name] = this.meta[name];
+    }
+
+    return property;
 };
 Property.prototype.isSimilarTo = function (property) {
     return this.name == property.name &&
@@ -99,7 +160,7 @@ function BehaviorItemArg(literal, shapeDef, currentTarget, type) {
         this.literal = this.literal.replace(/\$([a-z][a-z0-9]*)/gi, function (zero, one) {
             var property = shapeDef.getProperty(one);
             if (!property) {
-                throw Util.getMessage("invalid.property.reference", one);
+                throw Util.getMessage("invalid.property.reference", one) + " (" + shapeDef.id + ")";
             }
             property.relatedTargets[currentTarget] = true;
             return "properties." + one;
@@ -127,13 +188,3 @@ function Shortcut() {
     this.shape = null;
     this.propertyMap = {};
 }
-
-
-
-
-
-
-
-
-
-

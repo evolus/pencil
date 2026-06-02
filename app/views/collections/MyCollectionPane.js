@@ -28,6 +28,7 @@ MyCollectionPane.prototype.handleCollectionContextMenu = function (collection, e
 };
 MyCollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
     event.dataTransfer.setData("pencil/privatedef", def.id);
+    nsDragAndDrop.setData("pencil/privatedef", def.id);
 };
 MyCollectionPane.prototype.getCollections = function () {
     return PrivateCollectionManager.privateShapeDef.collections;

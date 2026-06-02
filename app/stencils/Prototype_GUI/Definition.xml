@@ -1,0 +1,3402 @@
+<Shapes
+    xmlns="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://web.resource.org/cc/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    id="Evolus.Prototype.GUI"
+    displayName="Desktop - Prototype GUI"
+    description="Prototype GUI elements for prototyping">
+    <Properties>
+        <PropertyGroup name="Colors">
+            <Property name="fillColor" type="Color" displayName="Background Color">#FAFAFA</Property>
+            <Property name="strokeColor" type="Color" displayName="Border Color">#666666</Property>
+            <Property name="strokeStyle" type="StrokeStyle" displayName="Border Style">2|</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Text">
+            <Property name="textColor" type="Color" displayName="Text Color">#000000FF</Property>
+            <Property name="textFont" type="Font" displayName="Text Font">'Arial'|normal|normal|15px</Property>
+            <Property name="defaultLinkColor" type="Color" displayName="Default Link Color">#0000ffff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Table: header">
+            <Property name="defaultHeaderTextColor" type="Color" displayName="Default Header Text Color">#000000ff</Property>
+            <Property name="defaultHeaderBGColor" type="Color" displayName="Default Header Background Color">#ccccccff</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Table: border">
+            <Property name="defaultTableBorderColor" type="Color" displayName="Default Border Color">#000000FF</Property>
+            <Property name="defaultTableBorderStyle" type="StrokeStyle" displayName="Default Border Style">1|</Property>
+        </PropertyGroup>
+    </Properties>
+
+    <Script comments="Scripts for calculating table column widths">
+        <![CDATA[
+            collection.MIN_COL_WIDTH = 5;
+            collection.getMaxColumns = function (rawText) {
+                var a = F.parseTextArray(rawText);
+
+                var c = 0;
+                for (var i in a) {
+                    c = Math.max(c, a[i].length);
+                }
+
+                return c;
+            };
+            collection.getMaxXForColumnHandle = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                if (i < cols - 2) {
+                    return properties["h" + (i + 1)].x - this.MIN_COL_WIDTH;
+                }
+
+                return properties["box"].w - this.MIN_COL_WIDTH;
+            };
+            collection.getMinXForColumnHandle = function (i, properties) {
+                if (i > 0) {
+                    return properties["h" + (i - 1)].x + this.MIN_COL_WIDTH;
+                }
+
+                return this.MIN_COL_WIDTH;
+            };
+            collection.isColumnHandleDisabled = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                return i >= cols - 1;
+            };
+        ]]>
+    </Script>
+    <Shape id="frame" displayName="Frame" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAA0CAYAAAAzMZ5zAAABS0lEQVRoge3VMYqDQBjF8W9d7bZJPEAglpJz2FpMMa2XsLEMpPASCrmArd4g2C2kF2wDUy4ja9hqw+bBts4uvl8jTPX44+hLnuefSZK8ygq1bTuXZen/PPO32+09juNVBun7/o5nnoshfxmDgMf9uV6vUhSFKKVkt9uJtVY2m42M4yhpmrrcuKjHGxLHsRwOB9FaS9d1Ute1GGNkmibRWsv5fHa5czG/XpkoimSeZ/E8T8IwlCAIltzlzNMv53g8Pj2/KaWWW+QYP6qAQYBvjLFN06zjAwGMMRbP/P1+f8uy7M3FINeqqrrhGa8MYBDAIIBBAIMABgEMAhgEMAhgEMAggEEAgwAGAQwCGAQwCGAQwCCAQQCDAAYBDAIYBDAIYBDAIIBBAIMABgEMAhgEMAhgEMAggEGAPwzD5XQ6vbse4oK19sP1BqJ/7guJB0ilpditCwAAAABJRU5ErkJggg==">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">543,275</Property>
+                <Property name="disabled" displayName="Inactive" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+                <Property name="titleColor" displayName="Title Color" type="Color"><E>Color.fromString("#dededeff")</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Title]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">'Arial'|Bold|normal|15px</Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="menu">
+                <D>
+                    var str = $strokeStyle.toString();
+                    var index = str.indexOf("|");
+                    var strokeW = str.substring(0, index);
+                    var a = parseInt(strokeW);
+                    a/=2;
+                  [
+                    skline(a, a, $box.w - a, a),
+                    sklineTo($box.w - a, 31),
+                    sklineTo(a, 31),
+                    z
+                  ]
+                </D>
+                <Fill>$titleColor</Fill>
+            </For>
+            <For ref="body">
+                <D>
+                  [
+                    skline(0, 32, 0, 0),
+                    sklineTo($box.w, 0),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
+                    sklineTo(0, 32),
+                    sklineTo($box.w, 32)
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor.hollowed($disabled.value ? 0.5 : 0)</Color>
+                <PlainTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound(10, 0, $box.w - 20, 32)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="body" style="fill:white;stroke:black"/>
+            <path id="menu"/>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+
+    <Shape id="frameControl" displayName="Frame Control" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAaCAYAAAAOl/o1AAABpklEQVRYhe2WMU7DQBBF/8TsNjSAqEOQEA0NRzA1QgIuwIrEq1wCARIlEhFVlG32JvEBKKAPEhwAERoKGzwUJOBYENsIEkD7yp2vndHX7LcBh8Ph+Do0jaZBEKwy80IRba/XuwjD8OmnZxoyM6lGaYjolIg2ASQ50plqtboI4G4CY702nFSjLMx8Yow5/Kxer9eXPM+7ybsnCIJ1AGdxHO9Ya/vpmtbaMnNojLFF56oUFf5iWkTkCyG6Sqm54aHW2gLYI6JW+jyPqW3IdxHH8baUMiSi9YEpG1LKFoA9AA/M7Gc3Zxx/fkOstf0oinwAVwNTrpn5zQxjzGWZ+/68IcCIKfdEtADgOYqirbJmAP/EEACQUraYeR5AQkSeEOK8THYM+ReGpAL0IfN8umVNKR2qjUbDJyIep/E877bdbud+Mr+DoRl4D9BLpZSfDdqiwVrakEql0s3TJElyDOBonIaIdrXWK5/VmXm2xFgjAWqt7adMWRZC1AAUypNp/brvA1groiWig06n8zhO02w2ax9tpFJqTghR+0q4OhwOh8PhcDgcv4sXdRqlPtmpgRAAAAAASUVORK5CYII=">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">107,32</Property>
+                <Property name="withMinButton" displayName="With Minimize Button" type="Bool">true</Property>
+                <Property name="withRestoreButton" displayName="With Restore Button" type="Bool">true</Property>
+                <Property name="withCloseButton" displayName="With Close Button" type="Bool">true</Property>
+                <Property name="disabled" displayName="Inactive" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">2|</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="box">
+                <D>
+                    [
+                        skline(0, 0, $box.w, 0),
+                        sklineTo($box.w, $box.h),
+                        sklineTo(0, $box.h),
+                        z
+                    ]
+                </D>
+                <Fill>$fillColor.hollowed(1)</Fill>
+            </For>
+            <For ref="button">
+                <D>
+                    var a = 32;
+                    var padding = 4;
+                    size = a - 2 * padding;
+                    var arr = new Array();
+                    var i = 1;
+                    var space = 5;
+
+                    //close button
+                    if($withCloseButton.value)
+                    {
+                        arr.push(skline($box.w - size - padding + 4, padding + 4, $box.w - padding - 4, a - padding - 4));
+                        arr.push(skline($box.w - padding - 4, padding + 4, $box.w - padding - size + 4, a - padding - 4));
+                        i++;
+                    }
+
+                    //restore button
+                    if($withRestoreButton.value)
+                    {
+                        arr.push(skline($box.w - i * (size + padding) + space, padding + space, $box.w - (i - 1)*(size + padding) - padding - space, padding + space));
+                        arr.push(sklineTo($box.w - (i - 1)*(size + padding) - padding - space, a - padding - space));
+                        arr.push(sklineTo($box.w - i * (size + padding) + space, a - padding - space));
+                        arr.push(z);
+                        i++;
+                    }
+
+                    //min button
+                    if($withMinButton.value)
+                    {
+                        arr.push(skline($box.w - i * (size + padding) + space, a - padding - space,  $box.w - (i - 1)*(size + padding) - padding - space, a - padding - space));
+                    }
+                    arr
+                </D>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Transform>[translate(2.5, ($box.h - 32) / 2)]</Transform>
+            </For>
+
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="button" style="fill:none;"/>
+            <path id="box"/>
+        </p:Content>
+    </Shape>
+    <Shape id="buttonPrimary" displayName="Button Primary" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAaCAYAAAAOl/o1AAACMUlEQVRYhe2YMUgqcRzHP/f8E6hREGjW5uTiIAgtLg4H4aJBcAiBLuINQtRwDi6OTUFBQ4ODS0NTUzS41FChziKYg3DLGywIXPTV3zc8CDyXx+PCHv0/2x1/fv/v/8PvjvudViwWp3xzJpPJRr1e/wkgAHK53NTn82mLjbUYzs/PZ64FgNfrxe/3LyTQV+PHogN8NZQQB0qIAyXEgRLiQAlxoIQ4cEVIr9cjEomQSCSIx+MUCgUmk8nMmsvLSyzLcmO7T0W4Vcjj8XB/f49t2+i6jm3bHB0d8fLywtraGslkkvF4TLPZpFwuE4vF6HQ6bG1t0e120XWdUqnE4eEhT09PjMdjzs7OuLu74+rqire3N9LpNP1+n9PTU/b29jAMg0wm49YRABcfmff3dxKJBIZhsLu7SzgcBkDXdWq12sxaKSUnJycEAgGi0SiWZXF9fY2Ukp2dHUzTRAhBq9UCIBgM0mg0yOfzPD4+0m63GQwGpFIpt+J/4HqHOFlfX5+75/f70TQNIQSrq6t4PB6klAyHQyzLolqtsrm5iZQSgFAoBMDKygqZTIaDgwMMw2Bpacmt+B98+ktV0/5+ZvR6vQSDQW5ubhgOhzw/P8/V2N7e5vX1lWw263pWAK1YLE5N05wuLy9/+Wn39vaWSqVCNptlf3/flZrHx8fz4///QjKZ5OHh4VP3UN8hDpQQB0qIAyXEgQAYjUZMp9/+XzPwR8ivi4uL79wpUgihukGh+Dd+Ay8KsRStK0MmAAAAAElFTkSuQmCC">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">117,40</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="default" displayName="Default Button" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#D9D9D9</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Primary]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">'Arial'|bold|normal|15px</Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        skline(0, 0, $box.w, 0),
+                        sklineTo($box.w, $box.h),
+                        sklineTo(0, $box.h),
+                        sklineTo(0, 0),
+                        z
+                    ]
+                </D>
+             </For>
+            <For ref="rect">
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle.condensed($default.value ? 0.7 : 0)</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+    			<path id="line1" style="stroke-linejoin: round;"/>
+    		</g>
+    		<text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shape id="buttonCancel" displayName="Button Cancel" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAaCAYAAAAOl/o1AAACBUlEQVRYhe3ZsWvqUBTH8a8mFIdUcRB9m2OnVulY6NDVRXB2NAhqpYiIUJSgs+ggdbDo4OouCq7+ARaHTuL0qDjYuNQQfcMDoembHikWvJ/tQHI4/MjlcohDVdU9J2673f7qdru/AWSAfD6/VxTFcdyxjqNcLn+qZQBFUXC73UcZ6KdxHnuAn0YEYiECsRCBWIhALEQgFiIQC9nuhm9vbzw+PiJJEpvNhtvbWxKJhG39Y7EY/X7ftn5WtgdSLBZJp9OEw2EAWq0WpmnS6/WYTqcsl0sikQjBYJBqtcrNzQ2z2Yzn52cGgwGj0YjVasX9/T0ej4dms4kkSXi9Xkqlkt3jfmH7kXl9fSUUCh3qZDKJJElcXl4SjUYJh8MMh0MArq6uKBQK+Hw+5vM5nU6HRqPB09MTXq+Xer2Oy+VCURReXl54f3+3e9wvbA/k4uKCyWRyqPP5PLquo2kauq5zfX3Nfv93n1QUBYCzszNM08QwDAAcDgeLxYLdbkc8HqdSqRCJRA7Pfyfbj0y1WiWXy9FutzEMg7u7O87Pz/H7/YzHYz4+PthsNv98Nx6Pk0ql0HWdTCZDNptF0zQCgQB+vx+n8/vvAIeqqntN0/Zut/skt92Hh4dP67+4di1EIBYiEAsRiIUIxEIGWK/XmKZ57Fl+BBkwarXaKX8pO1mWT/7PgyD8pz+o66VTHQnYdwAAAABJRU5ErkJggg==">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Box" type="Dimension">117,40</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="default" displayName="Default Button" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor.shaded(0)</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Cancel]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="line1">
+                <D>
+                    [
+                        skline(0, 0, $box.w, 0),
+                        sklineTo($box.w, $box.h),
+                        sklineTo(0, $box.h),
+                        sklineTo(0, 0),
+                        z
+                    ]
+                </D>
+             </For>
+            <For ref="rect">
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle.condensed($default.value ? 0.7 : 0)</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+    			<path id="line1" style="stroke-linejoin: round;"/>
+    		</g>
+    		<text id="text"/>
+        </p:Content>
+    </Shape>
+
+    <Shape id="dialogBox" displayName="Dialog Box (question)" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAkCAYAAAAw55zoAAAE9ElEQVRoge2Zy2/TShSHP8d2oqhKmlfTJECapogKpEhVkHh0ARJCSEiwoSzYs+NfYMH/wL5rNogNEtBlUVghlUUXFPoISmLSEJo+bDexfW3fzW3V54WE0tDST7IiH8+ZOfnZc8Y+I7x8+fKfoaEhkWOM4zgAeDweFxA27PPz8/bdu3elrW2l3t5eNxKJsLS0RDQaPdxIDwnDMFxJkgTHcTAMg9XVVRzHobe3193ZVgIYHx9nYWGBcDhMPp/nxo0bhx/1AeK6Lo7jIAgCHo9n2zWv10u9XicSiezpKwE8fPjw90d5iAiCsHkAyLIs/PcLwMjICACfP3/e5SupqrperVaDhxVslxG2nqiqur6zgZROp5vDw8N/iyDbkCSpudPm2avh38yegrRaLebn55mdnaVWq7XV4ffv37edW5bF2tpa5xEeMtJOQ7PZpFwuUyqVWF5eZmRkBFmWd2XlZ8+eoSgKoihi2zaKotDX10ej0eDJkyeMj4+jKAoej4d4PA7AhQsXKBQKmKaJ67qIokh/fz+KohAKhchms5TLZQB8Ph89PT3MzMwQCoW4fPkyr169IpvNsra2hmVZVCoVotEorutiWRZXrlxhbGwMr9fbsSDC9PT04vDwcP+GoVQqEQ6HMU2TFy9ecO/ePZaWlshms0jSLv2ONJ8+farlcrnEVtu+OcTv93P79u3Nl7WNJey4s0uQvr4+qtUqqqqiaRqVSoVIJIIoHuu3+012CeL3+zlz5gyqquLxePB6vcRisW7EdiBYloVhGD/dfs+k4Pf7OXv2LK7r7jtVXr9+TaPRYHl5mdHRUd6+fYssy5w+fRpFUQDI5/NUKhXm5uYIhUJ4vV56enpwXRdVVdF1natXr/LhwwdEUSQYDGKaJpZlYds2586d4+PHjwDouk4gECCdTqNpGpqmoes6sVgMwzAol8vcunWLYrFIrVYjFAoRCAQwTZPV1VXC4TD379//oSC7kmq7qKpKIBDY97plWTiOg8/n63SIH47T6Rh7JdWOl43nz5+j6zrxeJzp6WlOnTqFruskk0m+fv1Ks9kkkUiQSCSYnZ0FQBRFHMchEokgyzJfvnyh2WwSi8UwTZNYLEatVkMQBHK5HK1Wi2q1iuu6aJqGbdtcvHiRiYkJxsbGePfuHZlMhpmZGa5du0ahUCAYDPLt2zeCwSCPHj1q+3/98hNylGlr2f0Rqqr+ekQd9Pk7xt1Kx1OmUCiwsLBAKpWiWq0iyzKlUolcLkcmk+H9+/ekUil8Ph/FYpGBgQEajQaSJDEwMEChUOD8+fPU63VWVlZIJBIMDg4yNzeHYRjYto0oigiCQDKZpFgsIssytm1z6dIlpqamaLVaZLNZ7ty5c2CCnEyZg5oyx5UTQXZwIsgOTgTZQde+513XdScnJ91UKtXWTVlcXHRGR0cFSZKEN2/eOJFIpC1/0zTdbDa777hdLXCkUikGBwfb8tm6rRCNRtv+8Gy1Wrjuru2YTf6ois/k5CT1ep1arUY8Hsfn87G+vs6DBw9+ug9VVXn69CnpdJpkMsnNmzfbiuGPEuT69eu/3EcgEODx48cd+3dVEFVVaTQabflomrbNv936qWmaBIP777p0TRBBEIShoaG265KZTMazUdvN5/OdrJLC/5UruvqEhEKhbvnveyOklZWViampqb9y586yrKOzYXTCCSccCf4FaKYF088rO1kAAAAASUVORK5CYII=">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">543,275</Property>
+                <Property name="withMinButton" displayName="With Minimize Button" type="Bool">true</Property>
+                <Property name="withRestoreButton" displayName="With Restore Button" type="Bool">true</Property>
+                <Property name="withCloseButton" displayName="With Close Button" type="Bool">true</Property>
+                <Property name="disabled" displayName="Inactive" type="Bool">false</Property>
+                <Property name="type" displayName="Type"
+                    type="Enum" p:enumValues="['question|Question','warning|Warning','info|Info']">question</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+                <Property name="titleColor" displayName="Title Color" type="Color"><E>Color.fromString("#dededeff")</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textFont" displayName="Default Font" type="Font">'Arial'|Bold|normal|15px</Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+                <Property name="headerContent" displayName="Header Content"
+                    p:editInfo="({targetName: 'headerText', bound: new Bound(10, 0, $box.w -10, 32), font: $textFont, align: $textAlign, multi: false})"
+                    type="PlainText"><![CDATA[Title]]>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Message Texts">
+                <Property name="messageContent" displayName="Message Content"
+                     p:editInfo="({targetName: 'messageClipPathRect', bound: new Bound(100, 60, $box.w - 133, ($box.h / 2) - 30), font: $textFont, align: new Alignment(0, 0), multi: true})"
+                     type="RichText"><![CDATA[<div>Secrevit  fontes liquidum locoque pronaque?
+<br xmlns="http://www.w3.org/1999/xhtml" /><br xmlns="http://www.w3.org/1999/xhtml" /><span style="font-weight: normal;">Illas semine campoque declivia oppida corpora nam inter fuit discordia tellus solidumque iunctarum erat: quae terrenae ubi rerum recessit iudicis aestu fixo</span></div>]]></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Button">
+                <Property name="primaryButton" displayName="Primary Button"
+                    reload="true"
+                    p:disabled="!($type.value == 'question')"
+                    type="Enum" p:enumValues="['btn1|Button #1','btn2|Button #2']">btn1</Property>
+                <Property name="btn1Text" displayName="Button Content #1" type="PlainText"><![CDATA[OK]]></Property>
+                <Property name="btn2Text"
+                    reload="true"
+                    p:disabled="!($type.value == 'question')"
+                    displayName="Button Content #2" type="PlainText"><![CDATA[Cancel]]></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="menu">
+                <D>
+                    var str = $strokeStyle.toString();
+                    var index = str.indexOf("|");
+                    var strokeW = str.substring(0, index);
+                    var a = parseInt(strokeW);
+                    a/=2;
+                  [
+                    skline(a, a, $box.w - a, a),
+                    sklineTo($box.w - a, 31),
+                    sklineTo(a, 31),
+                    z
+                  ]
+                </D>
+                <Fill>$titleColor</Fill>
+            </For>
+            <For ref="body">
+                <D>
+                  [
+                    skline(0, 32, 0, 0),
+                    sklineTo($box.w, 0),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
+                    sklineTo(0, 32),
+                    sklineTo($box.w, 32)
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+            <For ref="button">
+                <D>
+                    var a = 32;
+                    var padding = 4;
+                    size = a - 2 * padding;
+                    var arr = new Array();
+                    var i = 1;
+                    var space = 5;
+
+                    //close button
+                    if($withCloseButton.value)
+                    {
+                        arr.push(skline($box.w - size - padding + 4, padding + 4, $box.w - padding - 4, a - padding - 4));
+                        arr.push(skline($box.w - padding - 4, padding + 4, $box.w - padding - size + 4, a - padding - 4));
+                        i++;
+                    }
+
+                    //restore button
+                    if($withRestoreButton.value)
+                    {
+                        arr.push(skline($box.w - i * (size + padding) + space, padding + space, $box.w - (i - 1)*(size + padding) - padding - space, padding + space));
+                        arr.push(sklineTo($box.w - (i - 1)*(size + padding) - padding - space, a - padding - space));
+                        arr.push(sklineTo($box.w - i * (size + padding) + space, a - padding - space));
+                        arr.push(z);
+                        i++;
+                    }
+
+                    //min button
+                    if($withMinButton.value)
+                    {
+                        arr.push(skline($box.w - i * (size + padding) + space, a - padding - space,  $box.w - (i - 1)*(size + padding) - padding - space, a - padding - space));
+                    }
+                    arr
+                </D>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+            <For ref="headerText">
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <Color>$textColor.hollowed($disabled.value ? 0.5 : 0)</Color>
+                <PlainTextContent>
+                    <Arg>$headerContent</Arg>
+                    <Arg>new Bound(10, 0, $box.w -100, 32)</Arg>
+                    <Arg>$textAlign</Arg>
+                </PlainTextContent>
+            </For>
+            <For ref="messageClipPathRect">
+                <Bound>new Bound(100, 60, $box.w - 133, $box.h - 150)</Bound>
+            </For>
+            <For ref="messageText">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor.hollowed($disabled.value ? 0.5 : 0)</Color>
+                <RichTextContent>
+                    <Arg>$messageContent</Arg>
+                    <Arg>
+                        new Bound(100, 60, $box.w - 133, $box.h - 150)
+                    </Arg>
+                    <Arg>new Alignment(0, 0)</Arg>
+                </RichTextContent>
+            </For>
+
+            <For ref="questionIcon">
+                <Visibility>$type.value == "question"</Visibility>
+            </For>
+            <For ref="warningIcon">
+                <Visibility>$type.value == "warning"</Visibility>
+            </For>
+            <For ref="infoIcon">
+                <Visibility>$type.value == "info"</Visibility>
+            </For>
+            <For ref="rectBtn1">
+                <Fill>
+                    $primaryButton.value == "btn1" ? $fillColor.shaded(0.2) : $fillColor.shaded(0);
+                </Fill>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+             <For ref="btnText1">
+                 <TextContent>$btn1Text</TextContent>
+                 <Font>$textFont</Font>
+                 <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                 <BoxFit>
+                     <Arg>new Bound($box.w - 150, $box.h - 65, 117, 40)</Arg>
+                     <Arg>new Alignment(1,1)</Arg>
+                 </BoxFit>
+             </For>
+             <For ref="line1">
+                 <D>
+                     [
+                         skline($box.w - 150, $box.h - 65, $box.w - 33, $box.h - 65),
+                         sklineTo($box.w - 33, $box.h - 25),
+                         sklineTo($box.w - 150, $box.h - 25),
+                         z
+                     ]
+                 </D>
+              </For>
+
+              <For ref="line2">
+                  <D>
+                      [
+                          skline($box.w - 300, $box.h - 65, $box.w -183, $box.h - 65),
+                          sklineTo($box.w - 183, $box.h - 25),
+                          sklineTo($box.w - 300, $box.h - 25),
+                          z
+                      ]
+                  </D>
+               </For>
+             <For ref="rectBtn2">
+                 <Fill>
+                     $primaryButton.value == "btn2" ? $fillColor.shaded(0.2) : $fillColor.shaded(0);
+                 </Fill>
+                 <StrokeColor>$strokeColor</StrokeColor>
+                 <StrokeStyle>$strokeStyle</StrokeStyle>
+                 <Visibility>$type.value == "question"</Visibility>
+              </For>
+              <For ref="btnText2">
+                  <TextContent>$btn2Text</TextContent>
+                  <Font>
+                      var fontString = $textFont.toString();
+                      var font = fontString.replace("Bold", "normal").replace("bold", "normal");
+                      Font.fromString(font);
+                  </Font>
+                  <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                  <Visibility>$type.value == "question"</Visibility>
+                  <BoxFit>
+                      <Arg>new Bound($box.w - 300, $box.h - 65, 117, 40)</Arg>
+                      <Arg>new Alignment(1,1)</Arg>
+                  </BoxFit>
+              </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="body"/>
+            <path id="menu"/>
+            <path id="button" style="fill:none;"/>
+            <text id="headerText"/>
+
+            <clipPath id="messageClipPath">
+                <rect id="messageClipPathRect" />
+            </clipPath>
+            <g id="messageText" clip-path="url(#messageClipPath)"/>
+
+            <g id="questionIcon" transform="translate(20,55)">
+                 <path xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" id="9d3a7a346dc64a8ca2970745e99ea6ce" sodipodi:nodetypes="ccccc" style="fill:#ffffff;fill-rule:evenodd;stroke:#666666;stroke-width:3.125;fill-opacity:0"
+                     d="m 30,4.6871 c -13.97, 0 -25.313,11.343 -25.313,25.313 10e-5,13.97 11.343,25.313 25.313,25.313 13.97, 0 25.313,-11.343 25.313,-25.313 C 55.313,16.0301 43.97,4.6871 30,4.6871 Z" inkscape:connector-curvature="0"/>
+                 <path xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:type="inkscape:offset" inkscape:radius="-1.2385547" inkscape:original="M 29.515625 10.464844 C 27.793625 10.464844 26.068078 10.817391 24.330078 11.525391 C 22.592078 12.233391 21.152141 13.251891 19.994141 14.587891 C 18.835141 15.923891 18.265625 17.487813 18.265625 19.257812 C 18.265625 20.271813 18.604875 21.138531 19.296875 21.894531 C 20.004875 22.634531 20.832453 23.017578 21.814453 23.017578 C 22.683453 23.017578 23.377953 22.840703 23.876953 22.470703 C 24.391953 22.084703 24.935422 21.528688 25.482422 20.804688 C 26.046422 20.063688 26.587391 19.491469 27.150391 19.105469 C 27.729391 18.719469 28.517625 18.529297 29.515625 18.529297 C 30.593625 18.529297 31.461094 18.853297 32.121094 19.529297 C 32.797094 20.189297 33.152344 20.936438 33.152344 21.773438 C 33.152344 23.833438 31.904531 25.097453 29.394531 25.564453 C 28.428531 25.741453 27.692937 25.917125 27.210938 26.078125 C 26.727937 26.239125 26.30675 26.523031 25.96875 26.957031 C 25.63075 27.392031 25.482422 28.048141 25.482422 28.869141 L 25.482422 32.839844 C 25.482422 33.612844 25.64675 34.307344 25.96875 34.902344 C 26.30675 35.481344 26.753031 35.927625 27.332031 36.265625 C 27.927031 36.587625 28.592031 36.751953 29.332031 36.751953 C 30.072031 36.751953 30.724688 36.587625 31.304688 36.265625 C 31.899688 35.927625 32.376266 35.481344 32.697266 34.902344 C 33.035266 34.307344 33.214844 33.612844 33.214844 32.839844 L 33.214844 31.869141 C 35.869844 31.322141 37.947938 30.222453 39.460938 28.564453 C 40.989938 26.891453 41.734375 24.55725 41.734375 21.53125 C 41.734375 19.84125 41.437922 18.291828 40.794922 16.923828 C 40.166922 15.539828 39.28225 14.37125 38.15625 13.40625 C 37.02925 12.44025 35.740391 11.721656 34.275391 11.222656 C 32.810391 10.723656 31.205625 10.464844 29.515625 10.464844 z M 29.271484 40.833984 C 28.515484 40.833984 27.810391 41.037453 27.150391 41.439453 C 26.490391 41.841453 25.944969 42.370875 25.542969 43.046875 C 25.156969 43.706875 24.966797 44.426219 24.966797 45.199219 C 24.966797 45.987219 25.156969 46.736109 25.542969 47.412109 C 25.944969 48.072109 26.490391 48.572984 27.150391 48.958984 C 27.826391 49.344984 28.531484 49.535156 29.271484 49.535156 C 30.012484 49.535156 30.703281 49.344984 31.363281 48.958984 C 32.039281 48.572984 32.555406 48.072109 32.941406 47.412109 C 33.343406 46.736109 33.546875 45.987219 33.546875 45.199219 C 33.546875 44.426219 33.343406 43.706875 32.941406 43.046875 C 32.555406 42.370875 32.054531 41.841453 31.394531 41.439453 C 30.734531 41.037453 30.028484 40.833984 29.271484 40.833984 z " style="fill:#666666;fill-rule:evenodd;stroke:none;stroke-width:1.25;stroke-linejoin:round" id="17ce05485aac43ac926968e661bd0e8c" d="m 29.515625,11.703125 c -1.552953, 0 -3.11297, 0.314612 -4.71875, 0.96875 -1.57501, 0.641604 -2.837967,1.539137 -3.867187,2.726563 a 1.2386786,1.2386786 0 0 1 0, 0.002 c -0.977086,1.126304 -1.425782,2.353101 -1.425782,3.857421 0, 0.73208 0.200069,1.235213 0.701172,1.78711 0.516618, 0.535567 0.954957, 0.734375 1.609375, 0.734375 0.700938, 0 1.115178,-0.147734 1.324219,-0.302735 0.392219,-0.294641 0.863855,-0.767277 1.355469,-1.417968 a 1.2386786,1.2386786 0 0 1 0.002,-0.0039 c 0.609054,-0.800195 1.224469,-1.471128 1.953125,-1.970704 a 1.2386786,1.2386786 0 0 1 0.01367,-0.0098 c 0.854454,-0.569637 1.897394,-0.783203 3.052734,-0.783203 1.321237, 0 2.580354, 0.449555 3.480469,1.365234 0.84813, 0.833483 1.394531,1.935396 1.394531,3.117188 0,1.280078 -0.432023,2.493818 -1.294922,3.365234 -0.862899, 0.871415 -2.058334,1.379072 -3.474609,1.642578 a 1.2386786,1.2386786 0 0 1 -0.0039, 0.002 c -0.932739, 0.170906 -1.634047, 0.341945 -2.013672, 0.46875 a 1.2386786,1.2386786 0 0 1 0, 0.002 c -0.272606, 0.09087 -0.464501, 0.217476 -0.65625, 0.462891 -0.07549, 0.09716 -0.226563, 0.480521 -0.226563,1.152344 l 0,3.970703 c 0, 0.589595 0.125231,1.060796 0.333985,1.453125 0.231897, 0.390849 0.497265, 0.656916 0.888671, 0.888672 0.405115, 0.215446 0.840576, 0.332031 1.388672, 0.332031 0.554212, 0 0.975058,-0.112569 1.365235,-0.328125 0.431695,-0.246238 0.717082,-0.523988 0.916015,-0.882813 a 1.2386786,1.2386786 0 0 1 0.0078,-0.01172 c 0.226611,-0.398917 0.355468,-0.869994 0.355468,-1.451172 l 0,-0.970703 a 1.2386786,1.2386786 0 0 1 0.988282,-1.212891 c 2.458775,-0.506572 4.265856,-1.48347 5.582031,-2.925781 a 1.2386786,1.2386786 0 0 1 0,-0.002 c 1.27703,-1.3973 1.949219,-3.3744 1.949219,-6.197266 0,-1.545158 -0.270075,-2.905278 -0.822266,-4.080078 a 1.2386786,1.2386786 0 0 1 -0.0059,-0.01563 c -0.555546,-1.224323 -1.324106,-2.2358 -2.31836,-3.087891 a 1.2386786,1.2386786 0 0 1 0,-0.002 C 36.346436,13.48584 35.208293,12.848005 33.876953,12.394531 32.549535,11.942394 31.079174,11.703125 29.515625,11.703125 Z m -0.244141,30.369141 c -0.533771, 0 -0.992691, 0.131059 -1.476562, 0.425781 -0.505471, 0.307878 -0.89009, 0.68374 -1.185547,1.179687 -0.275271, 0.472706 -0.404297, 0.953845 -0.404297,1.521485 0, 0.581469 0.137537,1.099082 0.408203,1.580078 0.285229, 0.462981 0.651877, 0.809174 1.15625,1.105469 0.503814, 0.286534 0.976232, 0.412109 1.501953, 0.412109 0.52909, 0 0.978872,-0.120887 1.466797,-0.40625 a 1.2386786,1.2386786 0 0 1 0.01172,-0.0078 c 0.511088,-0.291834 0.842084,-0.6153 1.123047,-1.095703 a 1.2386786,1.2386786 0 0 1 0.0039,-0.0078 c 0.290443,-0.488407 0.431641,-1.005283 0.431641,-1.580078 0,-0.555659 -0.13518,-1.030706 -0.425782,-1.507813 a 1.2386786,1.2386786 0 0 1 -0.01758,-0.03125 C 31.569932,43.142995 31.23516,42.793553 30.75,42.498047 30.266581,42.203601 29.806549,42.072266 29.271484,42.072266 Z"/>
+            </g>
+            <g id="warningIcon" transform="translate(20,55), scale(0.09533073929961089, 0.0949367088607595)">
+                <sodipodi:namedview xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" pagecolor="#ffffff" bordercolor="#666666" borderopacity="1" objecttolerance="10" gridtolerance="10" guidetolerance="10" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-width="1920" inkscape:window-height="1023" id="4db2479200474a1190255af6cd15d8fb" showgrid="false" inkscape:zoom="0.49791447" inkscape:cx="257.23749" inkscape:cy="236.98849" inkscape:window-x="0" inkscape:window-y="0" inkscape:window-maximized="1" inkscape:current-layer="svg2"/>
+                <path xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" stroke-miterlimit="10" d="M 48.55,419.92 C 25.394,386.68 220.29,32.81 256.46,32.81 c 36.17, 0 228.79,361.14 205.92,387.11 -25.53,28.99 -395.74,25.96 -413.83, 0 z" id="6cc2468dc70749e299a21180fdc6da34" inkscape:connector-curvature="0" style="fill:#ffffff;stroke:#4d4d4d;stroke-width:24;stroke-miterlimit:10;fill-opacity:0"/>
+                <path xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" d="m 228.16,379.57 c 0,-15.69 13.042,-24.877 28.296,-24.877 15.254, 0 27.425,9.187 27.425,24.877 0,15.256 -12.17,24.876 -28.296,24.876 -14.82, 0 -27.42,-9.62 -27.42,-24.88 z m 13.04,-52.23 c -6.457,-8.055 -14.987,-203.13 -6.102,-212.86 7.053,-7.725 35.067,-7.97 41.841, 0 6.675,7.854 -2.175,207.3 -6.102,212.86 -4.28,6.05 -25.01,5.78 -29.64, 0 z" id="1850ffb2b6fb4058abfe7ac7177da858" inkscape:connector-curvature="0" style="fill:#4d4d4d"/>
+            </g>
+            <g id="infoIcon" transform="translate(20,55)">
+                <path xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" id="2ed1b96158c54f2a9413bd1cb0d77537" sodipodi:nodetypes="ccccc" style="fill:none;stroke:#ffffff;stroke-width:8.125;stroke-linecap:round;stroke-linejoin:round" d="m 30,4.6871 c -13.97, 0 -25.313,11.343 -25.313,25.313 10e-5,13.97 11.343,25.313 25.313,25.313 13.97, 0 25.313,-11.343 25.313,-25.313 C 55.313,16.0301 43.97,4.6871 30,4.6871 Z" inkscape:connector-curvature="0"/>
+                <path xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" id="d6583b347a164c518b6717fb90f4519a" sodipodi:nodetypes="ccccc" style="fill:#ffffff;fill-opacity:0;fill-rule:evenodd;stroke:#666666;stroke-width:3.125" d="m 30,4.6871 c -13.97, 0 -25.313,11.343 -25.313,25.313 10e-5,13.97 11.343,25.313 25.313,25.313 13.97, 0 25.313,-11.343 25.313,-25.313 C 55.313,16.0301 43.97,4.6871 30,4.6871 Z" inkscape:connector-curvature="0"/>
+                <g xmlns="http://www.w3.org/2000/svg" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:FreeSerif;-inkscape-font-specification:'FreeSerif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" id="8b66858e06124e06bfddef7990c5193d" transform="matrix(1.1023649, 0, 0,1.1023649,-5.3144847,3.7554086)">
+                  <path xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" d="m 28.920678,19.618982 q -0.88, 0 -1.68, 0.12 l 0,-0.6 q 2.8,-0.8 6.2,-2.2 l 0.16, 0.12 0,14.2 q 0,2.16 0.48,2.76 0.52, 0.56 2.48, 0.72 l 0, 0.6 -9.48, 0 0,-0.6 q 2.08,-0.12 2.6,-0.72 0.56,-0.6 0.56,-2.76 l 0,-9.28 q 0,-1.32 -0.32,-1.84 -0.28,-0.52 -1,-0.52 z m 2.64,-11.6000004 q 0.88, 0 1.48, 0.6 0.6, 0.6 0.6,1.4400004 0, 0.88 -0.6,1.48 -0.6, 0.56 -1.48, 0.56 -0.84, 0 -1.44,-0.6 -0.56,-0.6 -0.56,-1.44 0,-0.8400004 0.6,-1.4400004 0.6,-0.6 1.4,-0.6 z" id="55518246028b4749828b4a14499d38d1" inkscape:connector-curvature="0"/>
+                </g>
+            </g>
+
+            <g id="rectBtn2">
+    			<path id="line2" style="stroke-linejoin: round;"/>
+    		</g>
+    		<text id="btnText2" style="stroke: none"/>
+
+            <g id="rectBtn1">
+    			<path id="line1" style="stroke-linejoin: round;"/>
+    		</g>
+            <text id="btnText1" style="stroke: none"/>
+        </p:Content>
+    </Shape>
+
+    <Shortcut displayName="Dialog Box(warning)" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAjCAYAAAAt4qxQAAAEf0lEQVRoge2ZTU8TWxjHf9OZaWPIlKGt9AVTsEQbSZoQTDS6MMYYV7jSb+DOr2Bu/Ay6Z+0GViQStqauNBhDDKhIERh6K1JepmPpzJ1z7sZLeClKi1Lh8kuaZs55nnOe8+85z3nSUUZHR//p7e1VOcEIIQAIBAISUP5r//Tpk3/37l1tu63W3t4uI5EIKysrRKPRo430iKjValLTNEUIQa1WY319HSEE7e3tcretBjA0NMTs7CwdHR0MDAxw69ato4/6FyKlRAiBoigEAoEdfcFgkOXlZSKRSF1fDeDBgwe/P8ojRFGUrQ+AruvK928A+vv7Afjw4cMeX8227W/FYjF8VMG2GGX7g23b33YbaOl0uprNZv8vguxA07Tq7rZAPUMA3/dxHAcp9+SdE82+gnz+/Jl3795RLpcbGvDr1687nj3PY2Njo7noWoBWr3F1dZVQKEShUODMmTN1r+Nnz55hWRaqquL7PpZlcfbsWcrlMo8fP2ZoaAjLsggEAnR2dgLQ19dHPp/HdV2klKiqSjwex7IsTNMkk8mwsLAAQCgUoq2tjenpaUzT5OrVqzx//pxMJsPGxgae57G4uEg0GkVKied5PHny5NCCKJOTk39ns9n49sapqSkuXLjAyMgIN2/eREpJIpE49GR/Gu/fvy/lcrkdC9tzZMrlMpqmIYQgnU5jmiZLS0tHF2WL2SOIYRgIIbYKtbm5OeLx+Fb5e9LZk0N0XSebzbYilt+C53kIIQiFQgeyr5tUD8LY2BjlcpnV1VWuX7/Oixcv0HWdc+fOYVkWAAMDAywuLjIzM4NpmgSDQdra2pBSYts2juNw7do13rx5g6qqhMNhXNfF8zx83+fixYtMTU0B4DgOhmGQTqepVCpUKhUcxyEWi1Gr1VhYWODOnTsUCgVKpRKmaWIYBq7rsr6+TkdHB/fv3//puuom1UawbRvDMPbtb/QXamaeZueol1Sb3iHDw8M4jkNnZyeTk5N0dXXhOA7JZJKlpSWq1SqJRIJEIsHHjx8BUFUVIQSRSARd15mbm6NarRKLxXBdl1gsRqlUQlEUcrkcm5ubFItFpJRUKhV83+fy5cuMj49z7949Xr58SU9PD9PT09y4cYN8Pk84HObLly+Ew2EePnzY8LoOvUOOMwe6dg+KbduHj6iJMX/HvNtp+sjk83lmZ2dJpVIUi0V0XWd+fp5cLkdPTw+vXr0ilUptVbzd3d1bNU53dzf5fJ5Lly6xvLzM2toaiUSC8+fPMzMzQ61Ww/d9VFVFURSSySSFQgFd1/F9nytXrjAxMcHm5iaZTIbBwcFfJsjpkflVR+akcirILk4F2UXTSfVPYH5+XkoplZ9b7iSVSgld1+tuhmMtiGVZMhqNNiTI91cSdHV11e0/1oJomrb1T/pB8X3/x2MeJqA/Edu2efr0Kel0mmQyye3btxvyP3GCGIbBo0ePmvY/1oLouq6srKw06qZkMpl9XyUca0H6+/sbvmG+s2+5cVqH7EJ7/fr1X2/fvg22OpBW4Hme2+oYTjnlmPMvH7HicQAiNg8AAAAASUVORK5CYII=" to="dialogBox">
+        <PropertyValue name="type">warning</PropertyValue>
+    </Shortcut>
+
+    <Shortcut displayName="Dialog Box(info)" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAjCAYAAAAt4qxQAAAErElEQVRoge2ZTWsTXRTHf5OZScRJ0slLk0kqaRzBohAoLSi6cCHiSlcKfgB3fgV58DPovusiuBMUtxJXiiJdtNqalDZjnpg2fZmMaTKZmWfxqLRNq01bU1v7gzDMuefce+Y/99x7wwhPnz5tnzlzRuQI47ouAD6fzwOE7/ZPnz45N2/elNb7Sn19fV40GmVxcZFYLNbbTHtEs9n0JEkSXNel2WyysrKC67r09fV5m30lgLGxMQqFApFIhJGREa5evdr7rPcRz/NwXRdBEPD5fBva/H4/1WqVaDS6ZawEcPfu3d+fZQ8RBOHHD0CWZeHbFYDh4WEAPn782BErmab5tVwuh3uV7AEjrL8xTfPrZgcpk8k0hoaG/hZBNiBJUqPDtp1ztVql3W6jKArh8N+jl28rY6FQoN1uY5omlUoF0zR33OHCwsKGe9u2WV1d3VuWPaRjhpTLZYLBIIlEAp/PRzKZZHp6GlmWOXHixA+/8fFxDMNAFEUcx8EwDPr7+6nVajx48ICxsTEMw8Dn85FIJAA4f/48+XyeVquF53mIokgymcQwDFRVRdd15ufnAQgEAiiKwtTUFKqqcvHiRZ49e4au66yurmLbNqVSiVgshud52LbNw4cP9yyIMDEx8e/Q0FDyu2F2dpZ4PE4wGOTx48fcuXOHUqmEoihEIpE9D/gn8eHDh0oul9PW2zpKRlEUlpaWsCyLkydPAmBZFsFgsEdpHiwdgvT39yPLMgsLC4yOjjI5OUk2m/2xhx91ttxlNE1jeXkZx3HQdZ1AINDrvPYN27ZxXXfHz7Dttquq6k8Dnz9/Tq1WY2lpicuXL/Py5UtkWebUqVMYhgHAyMgIpVKJmZkZVFXF7/ejKAqe52GaJpZlcenSJd69e4coioTDYVqtFrZt4zgOZ8+eZXJyEvi/bEOhEJlMhnq9Tr1ex7Is4vE4zWaT+fl5rl+/TrFYpFKpoKoqoVCIVqvFysoKkUiE27dv/1KQjkW1W0zTJBQKbdve7RvazTi7HWOrRXXbGfIrnjx5gmVZJBIJJiYmGBgYwLIsUqkUnz9/ptFooGkamqYxPT0NgCiKuK5LNBpFlmVmZ2dpNBrE43FarRbxeJxKpYIgCORyOdbW1iiXy3ieR71ex3EcRkdHefHiBbdu3eLVq1dks1mmpqa4cuUK+XyecDjMly9fCIfD3Lt3r+vn2vMMOczsaNvdKd2cXvezz98x7np2XTL5fJ5CoUA6naZcLiPLMnNzc+RyObLZLK9fvyadThMIBCgWiwwODlKr1ZAkicHBQfL5POfOnaNarbK8vIymaZw+fZqZmRmazSaO4yCKIoIgkEqlKBaLyLKM4zhcuHCBt2/fsra2hq7r3LhxY98EOS6Z/SqZo8qxIJs4FmQTu15U/wTm5uY8z/OEX3tuJJ1Ou7IsbzkZDrUghmF4sVisK0G+fZJgYGBgy/ZDLYgkSV3/C3cc5+d97iWhPxHTNHn06BGZTIZUKsW1a9e6ij9ygoRCIe7fv7/r+EMtiCzLwuLiYrdhgq7rHZ8wv3OoBRkeHu56h/nGtseN43PIJqQ3b9788/79e/9BJ3IQ2LbdOugcjjnmkPMfZK3m5O43lwsAAAAASUVORK5CYII=" to="dialogBox">
+        <PropertyValue name="type">info</PropertyValue>
+    </Shortcut>
+
+    <Shape id="checkbox" displayName="Checkbox" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAQCAYAAACvDNlTAAACAUlEQVRYhe3WzYtNcRgH8M8dt3lRykRZWGFrMVnQ5BbFzkyxsyZXLBAxqCmU8v4yg9RIjMjl1lBMKTOYojQb/golhLIYmfuz+P0md2HuXG6M0f3W6TzPc5738/11TiafzwdVIITQ29fXt6Ma35mMbC6XCx0dHZlKToODg2FkZKSiz/+CbFNTk9bW1opOzc3Nf6md6UfDdDfwr6HWhTTgOK6jHxeQxX7kfiPfgyn0X8V8HMZqbEy2RXg1WUC2xoKb8BZdSd+AhUnehc14g4NYjzVowRDu4SzG0IhtKa4N+7AFGfRgLm5jBJfxAXOwNdV5j3HMw+mUZyW6U3+duJOeb8fnyQaqdSFLUSzTB8rka+IbHkx6F57hC9amAV6IzGrDLCzGTSwTFzWOA0l+KC77Pu6Kg3XiZNK/+cECeI5RnMNRHEv2vSowr9Yj81qk4wTyaE/yx3QvldXqxiE8FVkx8clfgGbxzV0U2UFcyFjKMSYyZiImJL0xXbPRVNZLO9aJC1iO3dUMVCtD+nEeBXwVqXsVq37iewo3xOFu4QkuYUWyPcK7ZBvAY3HoI+KyevCyLKYFe3BCZEEmyTtTvVGRkVfEY3OmqokKhUIpTIFisVjK5/O9VSWc4cgODQ0ZHh4uVXIKIWRCCFX90c50ZEul0pJqHEMIn/50M3XUUUcdMx3fATcmpQkmnjxqAAAAAElFTkSuQmCC">
+        <Properties>
+            <PropertyGroup name="General">
+                <Property name="checked" displayName="Checked" type="Bool">false</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Checkbox]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                <BoxFit>
+                    <Arg>
+                        var targetBox = F.getObjectBoundingBox('text');
+                        new Bound(20, 0, targetBox.w, 16)
+                    </Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="cbTick">
+                <Visibility>$checked</Visibility>
+             </For>
+            <For ref="rect">
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                 <path
+                     d="M 0, 0 L 16, 0, L 16,16 L0,16 z"
+                     id="cbBox"/>
+                 <path
+                     style="fill:#666666;"
+                     d="M 4,4 L 12, 4, L 12, 12 L 4, 12 z"
+                     id="cbTick"/>
+            </g>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+
+    <Shortcut displayName="Check Box(checked)" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAQCAYAAACvDNlTAAACNklEQVRYhe3W32vPYRQH8NeXb76bpizKxS4Wbl3IBcmK4s4s7lyTr7hA5NdKoZTfPzakJrFFxmoUK2XDipIb/oFdTglhqU32fVw8z/iubPv63bR3ffqcc55zznPOed5Pn08mn88HJSCE0NjU1LSlFN/xjGxNTU2ora3NjObU0dERuru7R/X5X5DN5XIqKyv19vaG/v7+YU3ncrlQVVWVKSsr+1f1/XVkh4SWlhY9PT3DFqurq9XX1//1ov4lJv2G+CO4gmacFYe8BzU/ke/OGPqPYiYOYBnWJttsPB8pIDvSQolYh1fYnfQ1qEryNqzHS9RjNZajHJ24hVMYwBRsSnHzsQsbkEEDpuM6unEBbzENG9M+bzCIGTiR8izBvlTfKtxI65vxYaSGfnUg89BWpLcXyZfFE+5I+m48wkesSA08EZk1H5MxB1exQBzUIPYm+a447Nu4KTa2CseS/tk3FsBjPMNpHMLhZN9pFOb96pV5IdJxCHksTvK79C4U7bUP+/FQZMXQJ38WysSTOyeygziQgZRjQGTMUExI+pT0TEWuqJbFWCkOYCG2l9LQV4bU1dXp6+sbtlhRUTFWfDPOoBWfROpewtLv+B5Hi9jcNTzAeSxKtnt4nWztuC82fVAcVgOeFsWUYweOiizIJHlr2u+ZyMiL4rU5OVYzoLW1tRDGQFtbWyGfzzeWlHCcI9vZ2amrq6swmlMIIRNCKOmPdrwjWygU5pbiGEJ4/6eLmcAEJjCB8Y4vXcm3QMgFfn0AAAAASUVORK5CYII=" to="checkbox">
+        <PropertyValue name="checked">true</PropertyValue>
+    </Shortcut>
+
+    <Shortcut displayName="Check Box(disabled)" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAQCAYAAACvDNlTAAAC9ElEQVRYhe2WT2hUVxTGv+/OvNEUAp3RxIRk07opbSFZNUgg9z50YbFBu+xSxUoL1lS0UkEQN4ra+l9aKKXUin82aWm35d0XrJBm1ZBdshEyNDh/Yg2GTMI7x82bXTOORJRofrsPvnPv+Q73ci+994rmuOyc+6JJ76olWygUtL29nY1MpVJJq9VqQ8+rQtYYgyAIGpqMMS+onZfP65O0SbIrKVZVE8fxKQAdAKiqjwAMATgM4G4YhnefZb0oiv4Iw/Cj5fSzEkXRRpIHVDUC0BGG4a04jt8SkeEwDHv/r2ZFA/He7zHGPLDWHk31x0EQdC0uLgLAkPd+L4B/nXPHoijaZYzZKiItJP/M5XK/1mq18yRrJHPW2s/SEL0kv8rn8/tmZ2fpvb8E4E2St0RkBMB3JKsAWtva2vaXSqUhkhURSYwxG6y13wDAyMhIf5IkxwE8IDmoqndGR0c3LCwsfE7y0XKZVnpl3heR0bpwzg339/ffT+VPzrndAHoBgORREXkMoAxg29LS0qAx5p5z7qCIfK+qGZJvk7zR1dW1u6en5zGAJJ/Pf62qe1T1IMlPSP6WvnZjlUpl0Fp7VkQ+BLC9PgwAGBgY+MsYM9bS0vKlqv4dhuHpvr6+irX2SHqSn/9ASP4DwNV1HMefeu+3pPIhAKiq1PdqbW09DuAEAC8iOVVVAMhkMpvGx8fXp41enZ6e3pfWJNVqteacEwA1kqzXANAkSTg1NZUjmSP5xuTk5Lp6L977Laq6Y35+/gjJD7z3h5rJtKKBWGt/BtDhvb/tvb8uIu+q6tgy9nNzc3PXSf6oqrOFQmEYwLYoiq6IyI70RJSdc9dIbo2i6B0ASvJkHMfnVPVSJpO5SXJnHMdnVfW97u7u34vF4hmSF4wxF4vF4pn6Zqo6RjIG8AOAX5xz3zaTiRMTE9LZ2dnwjzEzM6PlcvmqtfZAU5NaxWTL5TIqlYo0MqkqATT7o13VZElufpqJJIIg+O9FNLTGGmussZp5AtxOUwd8Iv/WAAAAAElFTkSuQmCC" to="checkbox">
+        <PropertyValue name="disabled">true</PropertyValue>
+    </Shortcut>
+
+    <Shape id="radio" displayName="Radio button" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAATCAYAAAApmKv9AAADmklEQVRYhe2XXWgcVRTHf2dmO5GVmpFgjA/jqqSJVNOOIkqx6Br8AElUatXgS9ewG3xQauOjD1J9MKCWKCrLGrco0gcF0SYoiFs3pY34UFyaqsQEbbJEpDoqFGqS7ub6cG90u/maBU2x5gcD9+Ocueec+d87XKGCZDIZtyzrfqWULyJxERmdn58/JiL5TCbzNv8DBCCRSLiO4zwLPOW6bikWi0U8zyMIAqampsrT09O2Uipv2/Zj6XT65HmO+V9FEomEW1dXd1gp1dbR0UFnZ+cio0KhQDabLc/NzZ0RkS0XclEsx3H6lVJtvb29SxYDwPd9+vr6bMdxouVyef8ax7imWMCu9vZ2WltbVzSMRqN0d3fbIhJPpVKJFUyTwB/AT+b5GTgB3FZjbO8CO4E7gaEafTcDB0z7PaClYu4S4GugaSlHC1hWGdX4vo/ruiURia9i+pFZsAm4DHgNeDXUIos5CqRq9NkOHDHtTcB3pn2zGd+0nKNVX19/NhqNhl4pFotFROTGGoKLAI3AadO/AvgE+BKYAp434wLsM8F/Dlxtxm8F3jTta4Fh4Dg6sa1Va3loNb4E7AYmgKsq/JPAE8CPywVrNTY2bqghOTzPQynVtorZDuB34AzwG3AdsMvMPQx8DNwCbAGeBDYCDwI3oOX+CEt/xQPAy8bvGeB9jMoNReB6dFG2oovyBn8rrAc4vFLg1vj4+Cq5ncvY2BhKqeFVzD4AXOBK4FtgBPjezL0CFICn0cldBESBuPErAafQKqrERSvgoOkPA2W0AioRYAMwgy7c8fDZaTkTBAENDQ2hHIrF4rxJKAy/AAngGHAIGAVeAG4C9qOVci86CcW5X/ts1bssFrOQ/AIe8Cn67CoAMfTBfgfweJiALRE5nc1mS2GMBwcHmZmZsZRSH4axN3wDvAW8aPr3AH1o+TcBlwM28BnwEFAHXArcXfWeX4Fp4D7Tvx24GH1OLFBEF/w5wAd+QG/BUMUAsJRS+yYmJiJDQyv/2UZGRjA2ewcGBvJhFzDsBbYBd6GL8TqQB/YAXwHXoP9MebSKDqK3WjWPorfaKLrAO9DbppJtwBfoQp9CKy80ApBKpfpFZHdzc3Opq6sr4nneXwZBEJDL5cjlcliWdTSdTm+vZYH/GrLQ6OnpeUBE3lFKbQRoaWlhcnKyPDs7axuTPZlMpv+8RLmGSGXHXPLigG9uvAWl1EnbtvMX8v1lnXXWWeef4k+6FwXsHMr9NQAAAABJRU5ErkJggg==">
+        <Properties>
+            <PropertyGroup name="General">
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color"><E>$$fillColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Radio button]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+                <BoxFit>
+    				<Arg>
+                        var targetBox = F.getObjectBoundingBox('text');
+                        new Bound(20, 0, targetBox.w, 16)
+                    </Arg>
+    				<Arg>new Alignment(0, 1)</Arg>
+    			</BoxFit>
+            </For>
+            <For ref="rdTick">
+                <Visibility>$selected</Visibility>
+                <Fill>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</Fill>
+             </For>
+            <For ref="rdCircle">
+                <Fill>$fillColor.shaded($disabled.value ? 0.1 : 0)</Fill>
+                <StrokeColor>$strokeColor.hollowed($disabled.value ? 0.5 : 0)</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+             </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <g id="rect">
+                <ellipse id="rdCircle" cx="8px" cy="8px" rx="8px" ry="8px"/>
+		        <ellipse id="rdTick" cx="8px" cy="8px" rx="3.5px" ry="3.5px"/>
+            </g>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+
+    <Shortcut displayName="Radio button(checked)" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAATCAYAAAApmKv9AAAD/ElEQVRYhe2XW2hjRRjHf3NON7WRtce21vUhRqUXUbsbBZXioqH18pKqrLfiy8bSFCnKagUfKriuVixolipeQqyRivRBQVYb9MVgu7gtPohh1wtJi257qJfV44oLte02HR9mEtOatgm4Ftf+4cDMnO+b7/995z8zZwR56Ozs9BuGcYeU0ieE8Ashji0vL38uhBiNRqND/A8gAILBoOVyufYDj1iWteT1ess8Hg+O4zAzM5OZnZ01pZSjpmk+EIlEjm8y5zMKEQwGrfLy8sNSyqZAIEBbW9vfjJLJJLFYLLO4uDgnhNh5NhfFcLlcA1LKpp6enlwxbNsmnU6TTqcB8Pl89Pf3my6Xy53JZN7cTMJnGgawt6WlhcbGRhzHIRwO09fXRzgcJhwO09vbSyqVwu1209HRYQoh/KFQKLjOnJ3AH8CP+vkZ+BK4sURubwN3AzcD8RJ9rwCGdfsdoCHv3XnAV8COQo4GkFPGyMhIThVZOI7D0JDaT30+H5ZlLQkh/BsQel8H3AFcALwMvFR0OitxBAiV6LMb+FS364FsUtfp8fq1HI3KysrTbrcbgImJiYJGjuNg2zYAXq+3TAhxTQnkyoBa4JTuXwR8BHwGzADP6HEBHNTkPwEu1eM3AK/r9uXAGHBUJ7ZrVSwPSo0vAPuAKeCSPP9O4CHg+7XIGrW1tduKyWpubk5F9HiQUjZtYL4H+A2YA04CVwJ79bt7gQ+B64GdwMPAduAu4GqU3O+j8FccBsLa7wngXbTKNWzgKlRRdqGK8ip/KawLOLwecWNycjLXqaioWNOwpqYGgFQqhZRybL1JgfcAC7gY+AYYB77V714EksBjOrlzADfg135LwAmUivJhoRTwge6PARmUAvIhgG3APKpwRzfgugIGqCUB0NraWtCovr6e6upqAGzbXtYJFYNfgCDQD2RV9RzwJPADStondRKSlV/7dCGuq5BNPgsP8DVQpzk+DjwFRIrkiyGEOBWLxZZAba6BQICqqipAKaa5uZnu7m5Abbrz8/OGlPJQsQE0wTeA53X/NlSBhlGb7oWACXwM3AOUA+cDt66a51dgFrhd928CzkXtE1nYqII/DfiA71BL8MFiyZZJKQ9OTU3tj8fjZH/MCv2cjY+PE4/HAQ4MDg6OFhtA44AmfguqGK+gjuTfgS+Ay1An07XAMeAn1FJbjfuB14BnUUf7HtSyyUczMIQq9AmU8oqGAAiFQgNCiH11dXVL7e3tZR6PJ2fgOA6JRIJEIoFhGEcikcjuUgL81yCyja6urjuFEG9JKbcDNDQ0MD09nVlYWDC1yaPRaHRgU1j+ixD5HX3J8wM+feNNSimPm6Y5ejbfX7awhS1s4Z/CnyTWOCnT+IVAAAAAAElFTkSuQmCC" to="radio">
+        <PropertyValue name="selected">true</PropertyValue>
+    </Shortcut>
+
+    <Shortcut displayName="Radio button(disabled)" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAATCAYAAAApmKv9AAAEc0lEQVRYhe2XTWxUVRTHf+e9V6dMwRabtJYEI0aSBm2tLjRQZt67MeqGqMH4ETZqAob4EUASN+IHbiBRDGo0Gj8hhoUmRFjIxuS+NxTpxoiikIhRAm2wTbG0ZDrtdOYeF52SphaYJgoR+a3ey/ufe/7n3I/cJ0zBWht5nveAqnYAEXAY+E5E4jAMd/A/QACstQ2e572iquuDICil0+mgtraWYrFIoVAoj42N+UCsqk8aY45fZs//KmKtbRCRHNDW1NREc3Pz30RDQ0P09PSUnXMjqtp+JTfFA7YDbYsWLZqxGQD19fW0trb6nuelReTTS+rwEiNxHGtjYyMLFiy4qHhoaIgTJ05Q2TqfzaSx1q4WkXdUdQhARHxV7fM87+kwDHPVGrPWfg58BZwB1htjVlQbm8vlljjnNkVRtCqO4y9839+UyWR+Aeju7r52dHT0oKrebYz5Y3psAJx3ZUynvr6eIAhK4+PjETBjQwBUdY8x5rEpxa11zr0NdFRb1CSpVOpAqVT6eTYxqroc6Kq8Lp5sRi6Xu3N0dPQjYPH5YoMgCMZ936+pNlk6nQ6Gh4fvqFZvrQ1EpAk4WzHV4pz7BLgOaBGRHWEYvqSqkiTJNmAF0Atco6qMjY11AuuBFdbaVhH5AJivqsNBEDyTyWR+mMyVJMlC59w+Vb0BOGWtfR5ojOP4wyiK1jjnVovIs865nefz66VSqaqbAVBbWwvQdiGNiKy01p6J43hERAaBW3zffxxAVR8Bvo6i6C5VbXfOPdfV1TUvjuOHgNtVdUlNTc2jzDCLIrJLRLZFUdTu+/6L5XL5S1X1Jr+HYXjSGHMr8JOq3ub7/jrgvSiK1gBEUfTUxbatl8/nZ9MP8vk8qppcSKOqu40xDZWZOioi32Yymd8qpt8CDiVJslFEtgG1QRCkmbj37DbGlDo7O/uBfVPHtNY2AAvDMNwLkM1mE6Dc1dV147TcAtQYY0adc+0i8uNs6vMAisVi1QGFQsEBh6rRGmMGPM97QlW3JknSBpAkyRbgZeCUiLwhIoOFQkE8z1MROTfbqjo+daxUKuUxDVUVETm3wpMkWZgkyRHgZmvtIeAFVX3VWvt+tfV5qnq2p6enVI24r68P55zHxOlfFdls9oiqfuyce71SxH2e520Nw3CXql4PNKdSKV9EvnHOPXzs2LHU/v3754vIvVPHWbZs2Z+q2pskyf0AuVwuFJG6zs7OXyc1YRieFJEtwGvGmA7g9zAMlxhj1lbr1wPezOfzQX9//wWFg4OD9Pf3o6qbjTFxtQkAfN/fLCJL4zi+R0S2lsvld621MbAB+L5YLN6UzWb3AHFvb+/hcrm8Fzg6wzirVHVjHMeHKw1eKSLlabKlqnqwu7u7WVX7RURn43Xy6r5dRNbV1dWVWlpagjlz5pwTFItFTp8+zcDAAKp6wBizfDYJ/mvI5IO19kFgp4jMA5g7dy4jIyNl55wPoKobjDHbL5PPS4ZMfamc5BETF6gOJg7P40B8Jf+/XOUqV7nKP8VfavIENDHM7o0AAAAASUVORK5CYII=" to="radio">
+        <PropertyValue name="disabled">true</PropertyValue>
+    </Shortcut>
+    <Shape id="textInput" displayName="Text Input" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAOCAYAAACW0Lq4AAAA2UlEQVRIie2VMQqDMBiFXyVD8QSOWQMunsBrKHiALh7BLaOH6drNjkKdBMFBEILewCEg0qFUpOLq39Z824N/+PJ4kFOSJEoIMeKgVFV1k1Je3pkJIcYwDDmlFCVSyvMyW1Qi34op5IO5kLZtkWXZ5mFRFLsIUcOWoSxLdF0H27aR5zlc130dMYa6ruF5Hizrv0e1ep3v+xiGAVpraK2hlELf93AcB9M0UTjuyrwQzjniOAYARFEExhiCICATo2Jz/0csAzC/zArWNM09TdMHtQghV2oBg+GHeQLNjD1OfFKrpQAAAABJRU5ErkJggg==">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">254,40</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#FFFFFF</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Input]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="textBox">
+                <D>
+                  [
+                    skline(0, 0, $box.w, 0),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
+                    z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <BoxFit>
+                    <Arg>new Bound(10, 0, $box.w - 20, $box.h)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="textBox" style="stroke:black"/>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shape id="comboBox" displayName="Combo Box" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAASCAYAAADixHhYAAAByElEQVRYhe2WO4siQRSFT69C4xM0qER8JSaiiSYGJqJioIkgBrKxof4Bc1MDETEQwU07FxpBKDAREURTBwRBREE6ULCp3mBY2G6ZmcV16Vmmv6wuHDj3UFX3coPBgAWDQQ5fkM1mo1BKv/d6vR+/auZAIIBYLKanL91QFAWUUlXtm05ePi1GIBqMQDSYfz+cTie0Wi0wxpDNZpFMJt8UrlYr7Pd7pFKpf27yES6XCw6Hg6rGcRy8Xu+7OlUggiCgVqvB7XZjt9uh3+/jfD4jGo1iPB7D6XSCMQYAKBQKEAQBlFJUq1V0Oh2YTCY0Go0nt/YY2+0W8/kct9sNwOsHSgj5MJC7J8NxrxP4eDxCkiTU63Ws12sQQlAulxEOh2G32wEApVIJHo8H0+kUlUoFPp8PkiQ9u7eHCIVCSCQSsFgsAABCCHK53Ic61Q0pFotoNpvgeR7pdBo2mw3tdhuRSATL5fJOPBqN4HK5kM/n0e12wfM8HA7Hk1r6e/x+P6xWKxaLBTKZzB9puMlkwuLx+JdczGazmTIcDlWLmTFlNBiBaDAC0WCWZRnX61VvH7ogy/JdzSyKIhVFUQc7nwPG2IveHgwM/mN+Avslklchj8IgAAAAAElFTkSuQmCC">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">179,40</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#F5F5F5</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content" type="PlainText"><![CDATA[Combo]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="textBox">
+                <D>
+                  [
+                    skline(0, 0, $box.w, 0),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
+                    z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+
+            <For ref="collapse">
+                <D>
+                  [
+                    skline($box.w - 26, ($box.h / 2) - 4,  $box.w - 10, ($box.h / 2) - 4),
+                    sklineTo($box.w - 18, ($box.h / 2) + 4),
+                    z
+                  ]
+                </D>
+                <StrokeColor>Color.fromString("#999999")</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>Color.fromString("#999999")</Fill>
+            </For>
+
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <BoxFit>
+                    <Arg>new Bound(10, 0, $box.w - 36, $box.h)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="textBox" style="stroke:black"/>
+            <path id="collapse" style="stroke-linejoin: round;"/>
+            <text id="text"/>
+        </p:Content>
+    </Shape>
+    <Shape id="richTextInput" displayName="Rich Text Input" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAuCAYAAACRfL+OAAAFu0lEQVRoge2aT08TaxuHrynT/522mBZopAJpieENVUPCzoQNez+GUTeuTPwAJrJ7ExMTly5MwJ0bSSwmmlSL2DQhiAEplCBtaRupCO3I0JnnrJjgHBTPyTnH877Mteo8fdq5e/X+3U8Xlebn541oNCpxCqnX6+L+/fvDDx48eG8ulstlY3p6WkxMTIiTKJfLJ+45iXQ6bT5uNBpienr6h+99cHAgarXaN6/7qyiXy8bVq1f/c1SSfPTi9evXTE1NMTIyQiKRYGlpiWKxSCgUwuVyoes6mqYRDofp7OxEURQODg54+fIlPp+PYDCI1+tlb2+PWCzGly9fcDqdyLJMo9FgbGyMbDbL4uIiiqLg8/nY2NigVCqhaRrr6+vcvn2bR48eUa1WURQFv99Pq9XC5/ORyWS4cuUK2WyWjo4OPn36hNvtJhaL0Wg0KJVKXLhwAbfbTbVaxe/3k8/nzdpu3ryJ2+3+Ydc4jl6sra0RDAbZ2toiFouxtbVFJBIhHo8zPDxMq9VidHSUZrNJMBhElmU2NzcxDINUKkVfXx97e3sASJLEwcEB1WqVRqNBV1cXkiThcDgIhULIsoyu6wQCAba3t2m1WhiGgdPpRNd1vn79imEY7O/vA6BpGu12m93dXQAMw8DhcBCNRtF1HV3XGRgYYHNzE03TSCaT1Gq1b2pTVfXkHJXLZeOwXZeWlr5pqcePHwshhMhkMkLXdSGEEJOTk8e2XzqdFuVyWaTTafHhwweh67pYX18Xt27dOnb/0bgcF4d0Om2uH8bmKIe1/kyUrJ/rkO9GZnFxkSdPnlAoFOjt7WVnZ4cbN26QzWbp7Owkm80yODjI9PQ079+/Z25ujosXL6KqKk6nk2KxiMvlYmtri4WFBS5fvszs7CyaphGNRpmZmSGTyTA+Ps7q6iqqqtJsNvF4PDx8+JBCoYCqqszOzuJyuQgEAni9XmRZZmJiguvXrzM5OUmr1SIcDuPz+SiVSvT19fHmzRt2dnZYWVkx4+Pz+ajX6zQaDer1Oj09PfT3958Yl28ik0wmCYVCBINBzpw5QyQSIZFIkMvlCIfDtNttJElClmX8fj+apiGEQNd1EokEDoeDarWKYRh0dXVhGAaKouB0Osnn88TjcVZXV0kmk1QqFdrtNkIIJElC0zQ2NjZIpVIMDAzQarVQVZWNjQ0zaqqqUqvVSCQSyLKMoih8/PiRQCCALMvU63VSqRSRSARJklAUBUVRMAyDzs7Ok6NyNDIn9tw/TKPREG/fvv3b73NcZBzfEwWwsrKCYRg/LffFixdUKpWf/zaOoVKpUK1WOXv2rLk2NTVlPvc9lpeXAZifn+fVq1d/+v4ywNOnT1leXiaVSjE3N4fX60XTNIaGhsxZsLi4yODgIF6vl0qlgtvtNtt9ZGQESZJ49+4d2WyWa9euce/ePXRdJxqNcv78eZ4/f053dzepVIq1tTXW19eJxWLIsozH42FhYYFwOEwsFiMYDJqzJJPJmMe9qqosLy9z9+5d7ty5Q3d3N9VqlZ6eHkqlEmNjY+zv77O9vc2zZ8+Ix+P09/czPj7+00IcgDkb8vk8tVqNVqtFV1cX3d3d5ixIJpP09vaiKAqjo6MUi0VzXyAQIJfL4fP58Hg8AJw7d45oNMqlS5fMGTI8PMzu7i5DQ0Nm1g8z7vf7icVifP78GafTicvlIp/Pm0e1LMsIIfD7/ZTLZdrtNs1mk3g8zs7ODn6/n1wuRygUQlEUOjo6zOP4D3E4Q/6OX4L/dn44Q/5IW/0/88OhehqxhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhViwhVg41UKO+6vHqRWyu7srms2msK6fSiFCCAqFgiTE73wgz8zM/PcX1PTLcTgcLiFEe29vb/NX12Jj8z/MbxzgEyTaVwI9AAAAAElFTkSuQmCC">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">384,254</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#FFFFFF</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Text Content"
+                    p:editInfo="({targetName: 'textClipPathRect', bound: new Bound(10, 10, $box.w - 20, $box.h - 20), font: $textFont, align: new Alignment(0, 0), multi: false})"
+                    type="RichText"><![CDATA[<font xmlns="http://www.w3.org/1999/xhtml" size="3">Secrevit  fontes liquidum locoque pronaque?
+<br xmlns="http://www.w3.org/1999/xhtml" /><br xmlns="http://www.w3.org/1999/xhtml" /><span style="font-weight: normal;">Illas semine campoque declivia oppida corpora nam inter fuit discordia tellus solidumque iunctarum erat: quae terrenae ubi rerum recessit iudicis aestu fixo</span></font>]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="textBox">
+                <D>
+                  [
+                    skline(0, 0, $box.w, 0),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
+                    z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+
+            <For ref="collapse">
+                <D>
+                  [
+                    skline($box.w - 5, $box.h - 15,  $box.w - 5, $box.h - 5),
+                    sklineTo($box.w - 15, $box.h - 5),
+                    z
+                  ]
+                </D>
+                <StrokeColor>Color.fromString("#C0C0C0")</StrokeColor>
+                <Fill>Color.fromString("#C0C0C0")</Fill>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+            </For>
+
+            <For ref="textClipPathRect">
+                <Bound>new Bound(10, 10, $box.w - 20, $box.h - 20)</Bound>
+            </For>
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Fill>$textColor</Fill>
+                <Color>$textColor</Color>
+                <RichTextContent>
+                    <Arg>$textContent</Arg>
+                    <Arg>new Bound(10, 10, $box.w - 20, $box.h - 20)</Arg>
+                    <Arg>new Alignment(0, 0)</Arg>
+                </RichTextContent>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="textBox"/>
+            <path id="collapse" style="stroke-linejoin: round;"/>
+            <clipPath id="textClipPath">
+                <rect id="textClipPathRect" />
+            </clipPath>
+            <g id="text" clip-path="url(#textClipPath)" />
+        </p:Content>
+    </Shape>
+
+    <Shape id="scrollBarVertical" displayName="Scrollbar (Vertical)" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAABECAYAAABNni8RAAAAwUlEQVQ4je3VoY6EMBDG8T+lGNIGhTl75l6C1+GVeCQU+BMksBJRAk0QhLKnbsNe15CsONHPzfyamYwqbdsefd/fm6ZxZVl+corIsox1XdFa8zfCGEOSJEzTxL7v8oyy6zqUUlhrkVJ+AN8PTNMUpRTOOX+s1wkY8BpKYwzbtmGt9bEoCvI8ZxxH6rq+PY0VQhDHMUL4G/7dnQEDBryArz4cAOGcYxgGjuPwcVkWtNbM8+yhrKrq67eIoujmvXh/fgAkkUWpTRlUDwAAAABJRU5ErkJggg==">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">20,428</Property>
+                <Property name="thumbBegin" displayName="Thumb start position" type="Handle" p:lockX="true" p:minY="20" p:maxY="$thumbEnd.y" p:disabled="$disabled.value">10,20</Property>
+                <Property name="thumbEnd" displayName="Thumb end position" type="Handle" p:lockX="true" p:minY="$thumbBegin.y" p:maxY="$box.h - 23.5" p:disabled="$disabled.value">10,100</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#F5F5F5</Property>
+                <Property name="scrollColor" displayName="Scroll Point Color" type="Color">#666666"</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="scrollBox">
+                <D>
+                  [
+                    skline(0, 0, $box.w, 0),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
+                    z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+
+            <For ref="scrollPoint">
+                <D>
+                    var str = $strokeStyle.toString();
+                    var index = str.indexOf("|");
+                    var strokeW = str.substring(0, index);
+                    var w = parseInt(strokeW);
+                    w/=2;
+                  [
+                    skline(w, $thumbBegin.y, $box.w - w, $thumbBegin.y),
+                    sklineTo($box.w - w, $thumbEnd.y),
+                    sklineTo(w, $thumbEnd.y),
+                    z
+                  ]
+                </D>
+            </For>
+            <For ref="arrowUp">
+                <D>
+                  [
+                    skline($box.w / 2, 5, $box.w - 5,10),
+                    sklineTo(5, 10),
+                    z
+                  ]
+                </D>
+            </For>
+
+            <For ref="arrowDown">
+                <D>
+                  [
+                    skline($box.w / 2, $box.h - 5, $box.w - 5, $box.h - 10),
+                    sklineTo(5, $box.h - 10),
+                    z
+                  ]
+                </D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="scrollBox"/>
+            <path id="scrollPoint" style="fill: #C0C0C0"/>
+            <path id="arrowUp" style="fill: #C0C0C0; stroke:#C0C0C0; stroke-linejoin: round;"/>
+            <path id="arrowDown" style="fill: #C0C0C0; stroke:#C0C0C0; stroke-linejoin: round;"/>
+        </p:Content>
+    </Shape>
+
+    <Shape id="scrollBarHorizontal" displayName="Scrollbar (horizontal)" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAAHCAYAAACx3+twAAAAu0lEQVQ4je3OMQqDMBgF4BcxbiGT0EGldyh4VS/g4B2cPIpOImIjAaUG83fqYjcbkYLf+uC9x6qqGpMkEXVd22EYPM45g2PzPNs0TT3XvXsREQFA0zS6KIp7lmXPT+ZLKe00TRBCYFkWBEHg/IAxBmEYOu/dyxiDvu8hpbTbzFdKURzH1HUdaa3BOT/kQNu2X+NnISJijEEpRdvMz/P8AQCMMW6tvR1xYF3XrizL1xHdv4qiaDz7w+Xyx95Xj1QagP+QTgAAAABJRU5ErkJggg==">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">428,20</Property>
+                <Property name="thumbBegin" displayName="Thumb start position" type="Handle" p:lockY="true" p:minX="15" p:maxX="$thumbEnd.x">15,10</Property>
+                <Property name="thumbEnd" displayName="Thumb end position" type="Handle" p:lockY="true" p:minX="$thumbBegin.x" p:maxX="$box.w - 20">100,10</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#F5F5F5</Property>
+                <Property name="scrollColor" displayName="Scroll Point Color" type="Color">#666666"</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="scrollBox">
+                <D>
+                  [
+                    skline(0, 0, $box.w, 0),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
+                    z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+            <For ref="scrollPoint">
+                <D>
+                    var str = $strokeStyle.toString();
+                    var index = str.indexOf("|");
+                    var strokeW = str.substring(0, index);
+                    var w = parseInt(strokeW);
+                    w/=2;
+                  [
+                    skline($thumbBegin.x, w, $thumbEnd.x, w),
+                    sklineTo($thumbEnd.x, $box.h - w),
+                    sklineTo($thumbBegin.x, $box.h - w),
+                    z
+                  ]
+                </D>
+            </For>
+            <For ref="arrowLeft">
+                <D>
+                  [
+                    skline(5, $box.h / 2, 10, 5),
+                    sklineTo(10, $box.h - 5),
+                    z
+                  ]
+                </D>
+            </For>
+
+            <For ref="arrowRight">
+                <D>
+                  [
+                      skline($box.w - 5, $box.h / 2, $box.w - 10, 5),
+                      sklineTo($box.w - 10, $box.h - 5),
+                      z
+                  ]
+                </D>
+            </For>
+        </Behaviors>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="scrollBox"/>
+            <path id="scrollPoint" style="fill: #C0C0C0"/>
+            <path id="arrowLeft" style="fill: #C0C0C0; stroke:#C0C0C0; stroke-linejoin: round;"/>
+            <path id="arrowRight" style="fill: #C0C0C0; stroke:#C0C0C0; stroke-linejoin: round;"/>
+        </p:Content>
+    </Shape>
+
+    <Shape id="calendar" displayName="Calendar" icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAA9CAYAAAAUPs+7AAAKkklEQVR4nO1bTWwbVR7/vZnnGX+p+bQdmrQhm6QlqtriUEFbtgdyYKEceqjEgQOqVioIJA6stOLGjVNFK6SqopUgqEis5AKqlq5J1dAiom2zIVGJSEkrnG2c5hvbcZzY8cfMvD00YzX2e2OXmJal+Z2c+b03v/f+M/P/mgl57733bu/YsYPgEUM8Hr915MiRvxQR58+fH2ePID7//PPQ999/f7DQHtIDuRy/QxBCVELIE4XHiwwSi8XYd999xyol3NPTI+Q0TUN3dze+/vprfPTRR0gkEjh16hR6e3tx4cKFiujPzs6y4eHhsvdDzR+MMUSjUVy6dAk1NTUVWYyJ3t5eAEAoFEJrayt++ukn7N27F8888wwaGhqQSqXQ0tICp9OJbdu2YWpqCm1tbRXRJoRgcHAQmqbhqaeeKjk+f4cQQrBp0ybY7faKLAQAhoaGEIvFkEwmEQ6H0dbWBkIIqqqqAACJRALffPMNPB4PwuEwKL17fZqamjAzM1OxdQAo/yIXOtVMJmMMDQ0ZD8nXVRxLS0vc/XzxxRd3BgcH/1ZoD1p4QFEU0tnZuf5L8juB2+2+r/08slFGhA2DFGDDIAXgGkTXdbz11lv5cFmInp4eHD9+HC+++KLwxIFAAC+//DIY46cAH3zwAV555RW8//770DSNO+bNN9/EyZMnhRo9PT1455138Msvv3D5UvvgocipAoAsy1BVFbFYTDhxeHgYjz32mJA/ePAgEokECOGXSbIso6amBiMjI/lwyzvHE08UJZNF56murhZypfZRCO4dkkwmkUqlsLy8LJyYy+Wwc+fOsoUK0djYiL179/7q+SZeffVV2Gw2LlfOPorwqBZ3ojxkw6kWgP/w/obQNI0B4DoWSqmhaRpZDw9AKqEh5ICHYJB0Os0opdwFGYYBXdcZEXhiTdNACGGMMS6fzWbhdDqZSIMxxgAI9QHBIxMZHUXs558xPTCAlYWFYj4SweDgIMbGxjA6Osrd2NWrVxGNRtHf379WUJJACAEhBOfOncPExET+bwD534QQ9Pf3IxgMCvlQKISzZ8+u4QvH/OvfU2v+LgWuQVw+HwilsDmdyHAMUl9fD8MwAIDr4SVJQm1tLSilqK+vF4r7/X7LxXV2diKZTAr59vZ2YQ4DAIwB0XjGUqMQXINMDwzA5nQim0zC6fEU8ZFIBLIsgxCCXC5XxOu6jnQ6zeXWiEvWPv3jjz+Gh6NvIhQKCUMuAMwvrEDXGRaWspY694LrQ1pfeAEA4Pb5uJPq6+str7wsy3jyySfzY0VobW21XNwbb7xhybe1tVk2kny1Dvz10P01mh64UzUMwzJ7teIJITAMQ1gO3KthPtL3otQ84CEYxOFwCD2bLMtElmXhXFmWoeu68DlbnUucTqdoiOX5gQKDLC0tGZRSriCl1Mhms5AED74kSUYoFEI6nRbO3717t5RKpYRhj1LKMpkMZFnm8pIkQdd1gxDC1SCEwG63s5WVFcY7B2OMKYpiGXbXGESWZaGjY4zlHamIr6qqwuLiIpdfWVkpS4NSaqlBKRXe+rquA7hrGJ5GOY+M8Pa78emniI+NCSdevnwZwWBQyM/Pz+PDDz/kPssmAoEA+vr6hHxvby8uXrwo5I8dO4aRkRF88sknXP7boVncnl7Ghb5J4TkKITQIA6BbhM2pqSlh2Q0AXq8Xu3fvtgyt0WgUmYw4T/B4PJiamhLyfr8fkUgEjz/+ONfwbVs2wa5SNHqFPqUIwtW6fD4sT08LJzY1NWF2dlbIa5oGRVEsxb1er+Vrj1QqhcbGRiEvSRI8Hg8mJia4hpcIgXSfb62FUabl+ectJz733HPWJ6a05Iuhw4cPW/L79u2z5Lu6ugAAO3bs4PKbPQ4AgK+2/HdNhU6ViByPoijI5XJE5BMURYEsy0T0GNXW1lZEQ9d1Ia+qKgAQC8dLZFm29KxrDKJpGrPZbMJKU9M0YcjSdR1VVVWsrq7O8iZdr0Yul7PkZVlmuq4Lq11d14UtS6DAIIQQy9AkSZKQNwwDNptNGFV0XYeiKOvWKBV2FUUBY4w75leH3ZuBAOJjYxg5exaLt28X8YlEAqdPn0Z/f7/wLf2xY8cAAGfOnOHygUAA4XAYJ06cQDweL17DzZv46quvcO7cuaIWwr0ak5OTePfdd7kX4tuhWcxE0/jHxduILpZX9XIN4vP7IVEKl88H6nIV8W63G+3t7ejs7MQCpz0A3A2J4XBYGHb9fj+y2SwUReFuZtu2bXC5XJiZmRG+qPb7/WhqasL+/fu5Om1bNkHXDSwu51DGzQFAYBAiScguL2PiyhVu1miK//DDD/k3+bwxk5OTmJub427YbBRVV1djfn5eqNHY2Cj8EkCSJGiaJgzdEiFgBvCnRjfSGZ07phDk/Pnz44cOHWoGgFQqZciyLKoTjNVKlMszxozValX08stwOp3SejVWfYyVBkkmk4xXkzHGGKWUUUqlL7/8crK5ufnEnj17jt87ptCpErMeKITdbkculxPyq85MyJuNHCsNh8OBTCYj5FVVha7rpTQIIQSCMfcXdq0yS0mSQCkVhqzV0tzMBbh8KQ1CiGUHzDyHqIQ3j4vWsKphmRas2d3KyopljNc0jUkSPxnO5XKWHfFMJgOn07luDdwts6w0mEiDMcZsNlv55b/p6G4GAvDs2oXpa9ewtasLVc3Na/hbt25hYGAAW7ZsQTKZxEsvvQTGGCRJgmEY0DQNn332Gfx+P65evYrXX3+9SCMYDMLtdmN8fBwHDhxAS0vLGv7atWuIxWJ5x7t///68BmMsr3HgwAFcunQJr732Wl7D7LD/ZyQCl4Pi5vgiXtjXCJfDujkEWIRdqqpQq6uRCIeL+O3bt+d/8zw8pRQ+nw8ejwft7e1c4Y6ODsiyDJ/PBxcntJsd9507d2JpaUmosbCwIAztWxtc0HQDNirBKDPuCsMuAKSjUdRwNtTX15dPptLpdBGfSCRw5coV4bMOAN3d3VBVFVcEod3suI+OjsLhcAg1ZmZmhKH94rVpbHIpcDko4mV23jfCrlXYrURH3KpDVimNB9Z1L9ERFzZ/Tb6Mjngluu6Wa0Alu+4lOuLIZrPCkFhmR7yUBlvt7HN5WZahKIpVHiGtjrMaU34est6ue6nyf70apR7HSoCbdv43GITsdCLy44/Yfvgw3Js3r+HNPGTXrl24fPky3n777TW8mSN4vV7cuXMHR48eLdIIBoNQVRUTExPo6upC82quY6K/vx+RSAS5XA5erxfPPvts0TkymQyuX78u/DTLYAy3xhex2eNEldu6v2uCe6nqOjqQjsVAVRUyJ88w85CWlhY8/fTTRbyZI1BKMTc3xxXu6OiAoiiorq5GmJPrmK2FmpoabmgH7pYBVu+OJULgtFMottIJWX4O7+CP3d2obm0FoRQpzobMPGR4eBh79uwp4u/NQ7Zu3coV7u7uRl1dHaLRKDd5M1sL8XhcWN6X+t4jm9MxOZ9E2c0Q/B/mIXa7vSLfxZWVh1SiIy6ab1ag69X4rbHGIKqqWoa0EguSJEmyKt+lSmhYkZXAxmeZBaA3btz459zcXOn/vfqDoamp6RbvOPX7/X9vaGj484Ne0AY2sIEN/BHxP1YkHox/AnsZAAAAAElFTkSuQmCC">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">278,245</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#FFFFFF</Property>
+                <Property name="shadowFillColor" displayName="Shadow Background Color" type="Color">#000</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color"><E>$$strokeColor</E></Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle"><E>$$strokeStyle</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property displayName="Month Content" name="monthContent"
+                    p:editInfo="({targetName: 'month', bound: new Bound(30, 0, $box.w - 60, (($box.h - 6) / 7)), font: $textFont, align: $textAlign, multi: false})" type="PlainText"><![CDATA[AUG - 2016]]></Property>
+                <Property name="textFont" displayName="Default Font" type="Font">'Arial'|normal|normal|14px</Property>
+                <Property name="textColor" displayName="Text Color" type="Color"><E>$$textColor</E></Property>
+                <Property name="textAlign" displayName="Text Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Day Of Week">
+                <Property name="start" displayName="Start Week By" type="Enum"
+                    p:enumValues="['monday|Monday','sunday|Sunday']">sunday</Property>
+                <Property name="dateTextColor" displayName="Color" type="Color"><E>$$textColor</E></Property>
+            </PropertyGroup>
+            <PropertyGroup name="Day Of Month">
+                <Property name="pickDay" displayName="Selected Day" type="Enum"
+                    p:enumValues="['1|1', '2|2', '3|3', '4|4', '5|5', '6|6', '7|7', '8|8', '9|9', '10|10',
+                     '11|11', '12|12', '13|13', '14|14', '15|15', '16|16', '17|17', '18|18', '19|19', '20|20',
+                     '21|21', '22|22', '23|23', '24|24', '25|25', '26|26', '27|27', '28|28', '29|29', '30|30', '31|31']">1</Property>
+                <Property name="dayFillColor" displayName="Background Color" type="Color">#000</Property>
+                <Property name="dayStrokeStyle" displayName="Border Style" type="StrokeStyle">1|</Property>
+                <Property name="dayStrokeColor" displayName="Border Color" type="Color">#000</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="shadownBox">
+                <D>
+                    var index = ($strokeStyle.toString()).indexOf("|");
+                    var w = parseInt(($strokeStyle.toString()).substring(0, index));
+                    w/=2;
+                  [
+                    skline(5, 5, $box.w + 5 + w, 5),
+                    sklineTo($box.w + 5 + w, $box.h + 5 + w),
+                    sklineTo(5, $box.h + 5 + w),
+                    z
+                  ]
+                </D>
+                <Fill>$shadowFillColor.hollowed(0.9)</Fill>
+            </For>
+            <For ref="box">
+                <D>
+                  [
+                    skline(0, 0, $box.w, 0),
+                    sklineTo($box.w, $box.h),
+                    sklineTo(0, $box.h),
+                    z
+                  ]
+                </D>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+            </For>
+            <For ref="arrowLeft">
+                <D>
+                  [
+                      skline(10, ($box.h - 7) / 16, 20, (($box.h - 7) / 16) - 8),
+                      sklineTo(20, (($box.h - 7) / 16) + 8),
+                      z
+                  ]
+                </D>
+            </For>
+            <For ref="arrowRight">
+                <D>
+                  [
+                      skline($box.w - 10, (($box.h - 7) / 16), $box.w - 20, (($box.h - 7) / 16) - 8),
+                      sklineTo($box.w - 20, (($box.h - 7) / 16) + 8),
+                      z
+                  ]
+                </D>
+            </For>
+            <For ref="month">
+                <TextContent>$monthContent</TextContent>
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <BoxFit>
+                    <Arg>
+                        new Bound(30, 0, $box.w - 60, (($box.h - 7) / 8))
+                    </Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+
+            <For ref="Sun">
+                <Font>
+                    var fontString = $textFont.toString();
+                    var font = fontString.replace("normal|normal", "bold|normal").replace("normal|italic", "bold|italic");
+                    Font.fromString(font);
+                </Font>
+                <Color>$dateTextColor</Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = ($box.h - 8) / 8;
+                        var x = 10;
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 6);
+                        }
+                        new Bound(x, boxH, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Mon">
+                <Font>
+                    var fontString = $textFont.toString();
+                    var font = fontString.replace("normal|normal", "bold|normal").replace("normal|italic", "bold|italic");
+                    Font.fromString(font);
+                </Font>
+                <Color>$dateTextColor</Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = ($box.h - 8) / 8;
+                        var x = (10 + boxW);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10;
+                        }
+                        new Bound(x, boxH, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Thu">
+                <Font>
+                    var fontString = $textFont.toString();
+                    var font = fontString.replace("normal|normal", "bold|normal").replace("normal|italic", "bold|italic");
+                    Font.fromString(font);
+                </Font>
+                <Color>$dateTextColor</Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = ($box.h - 8) / 8;
+                        var x = 10 + (boxW * 2);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + boxW;
+                        }
+                        new Bound(x, boxH, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Wed">
+                <Font>
+                    var fontString = $textFont.toString();
+                    var font = fontString.replace("normal|normal", "bold|normal").replace("normal|italic", "bold|italic");
+                    Font.fromString(font);
+                </Font>
+                <Color>$dateTextColor</Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = ($box.h - 8) / 8;
+                        var x = 10 + (boxW * 3);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 2);
+                        }
+                        new Bound(x, boxH, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Thi">
+                <Font>
+                    var fontString = $textFont.toString();
+                    var font = fontString.replace("normal|normal", "bold|normal").replace("normal|italic", "bold|italic");
+                    Font.fromString(font);
+                </Font>
+                <Color>$dateTextColor</Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = ($box.h - 8) / 8;
+                        var x = 10 + (boxW * 4);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 3);
+                        }
+                        new Bound(x, boxH, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Fri">
+                <Font>
+                    var fontString = $textFont.toString();
+                    var font = fontString.replace("normal|normal", "bold|normal").replace("normal|italic", "bold|italic");
+                    Font.fromString(font);
+                </Font>
+                <Color>$dateTextColor</Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = ($box.h - 8) / 8;
+                        var x = 10 + (boxW * 5);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 4);
+                        }
+                        new Bound(x, boxH, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Sat">
+                <Font>
+                    var fontString = $textFont.toString();
+                    var font = fontString.replace("normal|normal", "bold|normal").replace("normal|italic", "bold|italic");
+                    Font.fromString(font);
+                </Font>
+                <Color>$dateTextColor</Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = ($box.h - 8) / 8;
+                        var x = 10 + (boxW * 6);
+                        var startValue = $start.value;
+                        if (startValue == "monday") {
+                            x = 10 + (boxW * 5);
+                        }
+                        new Bound(x, boxH, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="1">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 1, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color;
+                    if ($start.value == "sunday") {
+                        color = Color.fromString("#CC0000");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+                    var date = getCalendarDate($monthContent.toString(), 1, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10, boxH*2, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con1">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = 13;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 1, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                     $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 1, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="2">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 2, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var dayNum = 1;
+                    var date = getCalendarDate($monthContent.toString(), 2, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + boxW, boxH*2, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con2">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + boxW) + 3;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 2, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                    $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 2, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="3">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 3, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var date = getCalendarDate($monthContent.toString(), 3, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 2), boxH*2, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con3">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 2)) + 3;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 3, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                    $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 3, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+
+            <For ref="4">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 4, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var date = getCalendarDate($monthContent.toString(), 4, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 3), boxH*2, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con4">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 3)) + 3;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 4, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                 $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 4, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+
+            <For ref="5">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 5, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var date = getCalendarDate($monthContent.toString(), 5, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 4), boxH*2, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con5">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 4)) + 3;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 5, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                    $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 5, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+
+            <For ref="6">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 6, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color;
+                    if ($start.value == "monday") {
+                        color = Color.fromString("#4166B5");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+                    var date = getCalendarDate($monthContent.toString(), 6, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 5), boxH*2, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con6">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 5)) + 3;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 6, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>
+                     $dayStrokeStyle
+                </StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 6, $start.value == "sunday" ? true : false)
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="7">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 7, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#4166B5");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 6), boxH*2, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con7">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 6)) + 3;
+                    var y = (boxH * 2) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 7, $start.value == "sunday" ? true : false)
+
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="8">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 8, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "sunday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10, boxH*3, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con8">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = 13;
+                    var y = (boxH * 3) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 8, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="9">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 9, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + boxW, boxH*3, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con9">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + boxW) + 3;
+                    var y = (boxH * 3) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 9, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="10">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 10, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 2), boxH*3, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con10">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 2)) + 3;
+                    var y = (boxH * 3) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                var date = getCalendarDate($monthContent.toString(), 10, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="11">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 11, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 3), boxH*3, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con11">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 3)) + 3;
+                    var y = (boxH * 3) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 11, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+
+                </Fill>
+            </For>
+            <For ref="12">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 12, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 4), boxH*3, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con12">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 4)) + 3;
+                    var y = (boxH * 3) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 12, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+
+                </Fill>
+            </For>
+            <For ref="13">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 13, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#4166B5");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 5), boxH*3, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con13">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 5)) + 3;
+                    var y = (boxH * 3) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 13, $start.value == "sunday" ? true : false);
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+
+                </Fill>
+            </For>
+            <For ref="14">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 14, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#4166B5");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 6), boxH*3, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con14">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 6)) + 3;
+                    var y = (boxH * 3) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 14, $start.value == "sunday" ? true : false)
+
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="15">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 15, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "sunday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10, boxH*4, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con15">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = 13;
+                    var y = (boxH * 4) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 15, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="16">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 16, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + boxW, boxH*4, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con16">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + boxW) + 3;
+                    var y = (boxH * 4) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 16, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="17">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 17, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 2), boxH*4, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con17">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 2)) + 3;
+                    var y = (boxH * 4) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 17, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>            <For ref="18">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 18, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 3), boxH*4, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con18">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 3)) + 3;
+                    var y = (boxH * 4) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 18, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+            </Fill>
+            </For>
+            <For ref="19">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 19, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 4), boxH*4, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con19">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 4)) + 3;
+                    var y = (boxH * 4) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 19, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+            </Fill>
+            </For>
+            <For ref="20">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 20, $start.value == "sunday" ? true : false)
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#4166B5");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 5), boxH*4, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con20">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 5)) + 3;
+                    var y = (boxH * 4) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 20, $start.value == "sunday" ? true : false)
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="21">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 21, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#4166B5");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 6), boxH*4, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con21">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 6)) + 3;
+                    var y = (boxH * 4) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 21, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="22">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 22, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "sunday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10, boxH*5, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con22">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = 13;
+                    var y = (boxH * 5) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 22, $start.value == "sunday" ? true : false);
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="23">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 23, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + boxW, boxH*5, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con23">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + boxW) + 3;
+                    var y = (boxH * 5) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 23, $start.value == "sunday" ? true : false);
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="24">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 24, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 2), boxH*5, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con24">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW*2)) + 3;
+                    var y = (boxH * 5) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 24, $start.value == "sunday" ? true : false);
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="25">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 25, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 3), boxH*5, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con25">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 3)) + 3;
+                    var y = (boxH * 5) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 25, $start.value == "sunday" ? true : false);
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="26">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 26, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 4), boxH*5, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con26">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 4)) + 3;
+                    var y = (boxH * 5) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 26, $start.value == "sunday" ? true : false);
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="27">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 27, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#4166B5");
+                    } else {
+                        Color.fromString("#000");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 5), boxH*5, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con27">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 5)) + 3;
+                    var y = (boxH * 5) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 27, $start.value == "sunday" ? true : false);
+                    $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97)
+                </Fill>
+            </For>
+            <For ref="28">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 28, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    if ($start.value == "monday") {
+                        Color.fromString("#CC0000");
+                    } else {
+                        Color.fromString("#4166B5");
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 6), boxH*5, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con28">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 6)) + 3;
+                    var y = (boxH * 5) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>$dayStrokeColor.hollowed(0.9)</StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 28, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="29">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 29, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color;
+                    if ($start.value == "sunday") {
+                        color = Color.fromString("#CC0000");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+                    var date = getCalendarDate($monthContent.toString(), 29, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10, boxH*6, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con29">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = 13;
+                    var y = (boxH * 6) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 29, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 29, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="30">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 30, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var dayNum = 1;
+                    var date = getCalendarDate($monthContent.toString(), 30, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + boxW, boxH*6, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con30">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + boxW) + 3;
+                    var y = (boxH * 6) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 30, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 30, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="31">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 31, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var date = getCalendarDate($monthContent.toString(), 31, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 2), boxH*6, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con31">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 2)) + 3;
+                    var y = (boxH * 6) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 31, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 31, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="32">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 32, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var date = getCalendarDate($monthContent.toString(), 32, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 3), boxH*6, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>            <For ref="Con32">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 3)) + 3;
+                    var y = (boxH * 6) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 32, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 32, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="33">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 33, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var date = getCalendarDate($monthContent.toString(), 33, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 4), boxH*6, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con33">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 4)) + 3;
+                    var y = (boxH * 6) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 33, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 33, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="34">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 34, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color;
+                    if ($start.value == "monday") {
+                        color = Color.fromString("#4166B5");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+                    var date = getCalendarDate($monthContent.toString(), 34, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 5), boxH*6, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con34">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 5)) + 3;
+                    var y = (boxH * 6) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                var date = getCalendarDate($monthContent.toString(), 34, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 34, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="35">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 35, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 6), boxH*6, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+                <Color>
+                    var color;
+                    if ($start.value == "monday") {
+                        color = Color.fromString("#CC0000");
+                    } else {
+                        color = Color.fromString("#4166B5");
+                    }
+                    var date = getCalendarDate($monthContent.toString(), 35, $start.value == "sunday" ? true : false);
+
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+            </For>
+            <For ref="Con35">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 6)) + 3;
+                    var y = (boxH * 6) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 35, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 35, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="36">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 36, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color;
+                    if ($start.value == "sunday") {
+                        color = Color.fromString("#CC0000");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+                    var date = getCalendarDate($monthContent.toString(), 36, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10, boxH*7, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con36">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = 13;
+                    var y = (boxH * 7) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 36, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 36, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="37">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 37, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var dayNum = 1;
+                    var date = getCalendarDate($monthContent.toString(), 37, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + boxW, boxH*7, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con37">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + boxW) + 3;
+                    var y = (boxH * 7) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 37, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 37, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="38">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 38, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var date = getCalendarDate($monthContent.toString(), 38, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 2), boxH*7, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con38">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 2)) + 3;
+                    var y = (boxH * 7) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 38, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 38, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="39">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 39, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var date = getCalendarDate($monthContent.toString(), 39, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 3), boxH*7, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con39">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 3)) + 3;
+                    var y = (boxH * 7) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 39, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 39, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="40">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 40, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color = Color.fromString("#000");
+                    var date = getCalendarDate($monthContent.toString(), 40, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 4), boxH*7, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con40">
+                <D>
+                    var boxW = ($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 4)) + 3;
+                    var y = (boxH * 7) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 40, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 40, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="41">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 41, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <Color>
+                    var color;
+                    if ($start.value == "monday") {
+                        color = Color.fromString("#4166B5");
+                    } else {
+                        color = Color.fromString("#000");
+                    }
+
+                    var date = getCalendarDate($monthContent.toString(), 41, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 5), boxH*7, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="Con41">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 5)) + 3;
+                    var y = (boxH * 7) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                var date = getCalendarDate($monthContent.toString(), 41, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 41, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+            <For ref="42">
+                <TextContent>
+                    var date = getCalendarDate($monthContent.toString(), 42, $start.value == "sunday" ? true : false);
+                    PlainText.fromString(date["value"]);
+                </TextContent>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>
+                        var boxW = ($box.w - 20) / 7;
+                        var boxH = (($box.h - 8) / 8);
+                        new Bound(10 + (boxW * 6), boxH*7, boxW, boxH);
+                    </Arg>
+                    <Arg>new Alignment(1,1)</Arg>
+                </BoxFit>
+                <Color>
+                    var color;
+                    if ($start.value == "monday") {
+                        color = Color.fromString("#CC0000");
+                    } else {
+                        color = Color.fromString("#4166B5");
+                    }
+                    var date = getCalendarDate($monthContent.toString(), 42, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        color.hollowed(0.5);
+                    } else {
+                        color.hollowed(0);
+                    }
+                </Color>
+            </For>
+            <For ref="Con42">
+                <D>
+                    var boxW = (($box.w - 20) / 7);
+                    var boxH = (($box.h - 8) / 8);
+                    var x = (10 + (boxW * 6)) + 3;
+                    var y = (boxH * 7) + 3;
+                    [
+                        skline(x, y, x + boxW - 6, y),
+                        sklineTo(x + boxW - 6, y + boxH - 6),
+                        sklineTo(x, y + boxH - 6),
+                        z
+                    ]
+                </D>
+                <StrokeColor>
+                    var date = getCalendarDate($monthContent.toString(), 42, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayStrokeColor.hollowed(1);
+                    } else {
+                        $dayStrokeColor.hollowed(0.9);
+                    }
+                </StrokeColor>
+                <StrokeStyle>$dayStrokeStyle</StrokeStyle>
+                <Fill>
+                    var date = getCalendarDate($monthContent.toString(), 42, $start.value == "sunday" ? true : false);
+                    if (date["disabled"]) {
+                        $dayFillColor.hollowed(1);
+                    } else {
+                        $dayFillColor.hollowed(date["value"] == $pickDay.value ? 0.77 : 0.97);
+                    }
+                </Fill>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="selectToday" displayName="Select Today ">
+                <Impl>
+                        <![CDATA[
+                            var currentDate = new Date();
+                            var monthValue = currentDate.getMonth();
+                            var year = currentDate.getFullYear().toString();
+                            var date = currentDate.getDate();
+                            var month = new Array();
+                            month[0] = "January";
+                            month[1] = "February";
+                            month[2] = "March";
+                            month[3] = "April";
+                            month[4] = "May";
+                            month[5] = "June";
+                            month[6] = "July";
+                            month[7] = "August";
+                            month[8] = "September";
+                            month[9] = "October";
+                            month[10] = "November";
+                            month[11] = "December";
+                            this.setProperty("monthContent", PlainText.fromString(month[monthValue] + "-" + year));
+                            this.setProperty("pickDay", date);
+                        ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <path id="shadownBox"/>
+            <path id="box"/>
+            <path id="arrowLeft" style="fill: #686868; stroke:#686868; stroke-linejoin: round;"/>
+            <path id="arrowRight" style="fill: #686868; stroke:#686868; stroke-linejoin: round;"/>
+            <text id="month" />
+
+            <text id="Sun">S</text>
+            <text id="Mon">M</text>
+            <text id="Thu">T</text>
+            <text id="Wed">W</text>
+            <text id="Thi">T</text>
+            <text id="Fri">F</text>
+            <text id="Sat">Sa</text>
+
+            <path id="Con1"/>
+            <text id="1"></text>
+            <path id="Con2"/>
+            <text id="2"></text>
+            <path id="Con3"/>
+            <text id="3"></text>
+            <path id="Con4"/>
+            <text id="4"></text>
+            <path id="Con5"/>
+            <text id="5"></text>
+            <path id="Con6"/>
+            <text id="6"></text>
+            <path id="Con7"/>
+            <text id="7"></text>
+            <path id="Con8"/>
+            <text id="8"></text>
+            <path id="Con9"/>
+            <text id="9"></text>
+            <path id="Con10"/>
+            <text id="10"></text>
+            <path id="Con11"/>
+            <text id="11"></text>
+            <path id="Con12"/>
+            <text id="12"></text>
+            <path id="Con13"/>
+            <text id="13"></text>
+            <path id="Con14"/>
+            <text id="14"></text>
+            <path id="Con15"/>
+            <text id="15"></text>
+            <path id="Con16"/>
+            <text id="16"/>
+            <path id="Con17"/>
+            <text id="17"></text>
+            <path id="Con18"/>
+            <text id="18"></text>
+            <path id="Con19"/>
+            <text id="19"></text>
+            <path id="Con20"/>
+            <text id="20"></text>
+            <path id="Con21"/>
+            <text id="21"></text>
+            <path id="Con22"/>
+            <text id="22"></text>
+            <path id="Con23"/>
+            <text id="23"></text>
+            <path id="Con24"/>
+            <text id="24"></text>
+            <path id="Con25"/>
+            <text id="25"></text>
+            <path id="Con26"/>
+            <text id="26"></text>
+            <path id="Con27"/>
+            <text id="27"></text>
+            <path id="Con28"/>
+            <text id="28"></text>
+            <path id="Con29"/>
+            <text id="29"></text>
+            <path id="Con30"/>
+            <text id="30"></text>
+            <path id="Con31"/>
+            <text id="31"></text>
+            <path id="Con32"/>
+            <text id="32"></text>
+            <path id="Con33"/>
+            <text id="33"></text>
+            <path id="Con34"/>
+            <text id="34"></text>
+            <path id="Con35"/>
+            <text id="35"></text>
+            <path id="Con36"/>
+            <text id="36"></text>
+            <path id="Con37"/>
+            <text id="37"></text>
+            <path id="Con38"/>
+            <text id="38"></text>
+            <path id="Con39"/>
+            <text id="39"></text>
+            <path id="Con40"/>
+            <text id="40"></text>
+            <path id="Con41"/>
+            <text id="41"></text>
+            <path id="Con42"/>
+            <text id="42"></text>
+        </p:Content>
+    </Shape>
+</Shapes>

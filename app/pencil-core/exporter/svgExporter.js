@@ -3,6 +3,7 @@ function SVGExporter() {
     this.id = "SVGExporter";
     this.xsltProcessor = new XSLTProcessor();
     this.xsltDOM = null;
+    this.linkingSupported = false;
 }
 SVGExporter.prototype = new BaseExporter();
 

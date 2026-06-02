@@ -37,7 +37,7 @@ Bound.prototype.narrowed = function (x, y) {
 };
 Bound.prototype.shifted = function (dx, dy) {
     return new Bound(this.x - dx, this.y - dy, this.w, this.h);
-	
+
 };
 
 pencilSandbox.Bound = {

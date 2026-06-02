@@ -1,6 +1,7 @@
 function BaseRasterizedExporter() {
     this.name = Util.getMessage("rasterized.graphics.png.files");
     this.id = "BaseRasterizedExporter";
+    this.linkingSupported = false;
 }
 BaseRasterizedExporter.prototype = new BaseExporter();
 
