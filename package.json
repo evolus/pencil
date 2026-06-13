@@ -1,5 +1,9 @@
 {
   "name": "Pencil",
+  "author": {
+    "name": "Evolus"
+  },
+  "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
   "devDependencies": {
     "electron": "16.0.0",
     "electron-builder": "23.3.3",
@@ -33,7 +37,6 @@
       ]
     },
     "linux": {
-      "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
       "synopsis": "An open-source GUI prototyping tool that is available for ALL platforms.",
       "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
       "vendor": "Evolus",
@@ -47,11 +50,7 @@
       "packageCategory": "graphics"
     },
     "win": {
-      "authors": "Evolus",
-      "owners": "Evolus",
-      "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
-      "copyright": "Copyright © 2008-2016 Evolus. All rights reserved.",
-      "iconUrl": "https://raw.githubusercontent.com/evolus/pencil/master/build/icon.ico",
+      "icon": "build/icon.ico",
       "target": "nsis"
     },
     "nsis": {
