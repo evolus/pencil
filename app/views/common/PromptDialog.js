@@ -9,7 +9,7 @@ PromptDialog.prototype.setup = function (options) {
         this.valueInput.value = options.defaultValue;
     }
     if (options.title) this.title = options.title;
-    if (options.message) this.message.innerHTML = options.message;
+    if (options.message) this.message.textContent = options.message;
     if (options.value != undefined) {
         this.valueInput.value = options.value;
     }
