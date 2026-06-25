@@ -1,14 +1,19 @@
+const { app } = require("@electron/remote");
+
 var Config = {
 };
 
 Config.data = {};
-Config.DATA_DIR_NAME = ".pencil";
 Config.STENCILS_DIR_NAME = "stencils";
 Config.PRIVATE_STENCILS_DIR_NAME = "privateCollection";
 Config.CONFIG_FILE_NAME = "config.json";
 
 Config.getDataPath = function () {
-    return path.join(os.homedir(), Config.DATA_DIR_NAME);
+    const homeDataDir = path.join(os.homedir(), ".pencil");
+    if (fs.existsSync(homeDataDir)) {
+        return homeDataDir;
+    }
+    return app.getPath("userData");
 };
 
 Config.getDataFilePath = function (name) {
