@@ -21,26 +21,19 @@ Through this server, agents can:
 │             External AI Agent / Client                 │
 │      (Claude Desktop, Cursor, Antigravity, etc.)       │
 └───────────────────────────┬────────────────────────────┘
-                            │ stdio / streamableHttp (JSON-RPC 2.0)
+                            │ Streamable HTTP / SSE (JSON-RPC 2.0)
+                            │ http://127.0.0.1:1919/mcp
                             ▼
 ┌────────────────────────────────────────────────────────┐
-│                Pencil MCP Server CLI                   │
-│              (app/tools/mcp/index.js)                  │
-│                                                        │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │ Knowledge Base: app/tools/mcp/kb/                │  │
-│  │  - skills/pencil-designer/SKILL.md               │  │
-│  │  - pencil/ (data types, shapes, output schema)   │  │
-│  └──────────────────────────────────────────────────┘  │
-└───────────────────────────┬────────────────────────────┘
-                            │ HTTP REST / JSON (localhost:1919)
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│                  Evolus Pencil App                     │
+│       Evolus Pencil Internal API & MCP Server          │
 │               (app/tools/api-server.js)                │
-│             └─ ApplicationPane._instance               │
+│                                                        │
+│  - Streamable HTTP Transport Handler                   │
+│  - Direct In-Memory Access to ApplicationPane._instance│
+│  - Dynamic Knowledge Base (app/tools/mcp/kb/)          │
 └────────────────────────────────────────────────────────┘
 ```
+
 
 ---
 

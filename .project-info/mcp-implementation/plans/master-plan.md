@@ -35,16 +35,16 @@ Phase 2: Formalize MCP Architecture, Transport & Tool Schemas
    ▼
 MILESTONE 2: MCP SERVER IMPLEMENTATION & EXPANDED TOOL SUITE
 ============================================================
-Phase 3: Scaffold MCP Server Package & Transport Layer
-   │      (Create mcp server with @modelcontextprotocol/sdk, stdio & SSE support)
+Phase 3: Implement MCP Streamable HTTP Transport & Server Module
+   │      (Integrate MCP server with @modelcontextprotocol/sdk Streamable HTTP into api-server.js)
    ▼
 Phase 4: Implement Rendering & Icon / Stencil Inspection Tools
    │      (pencil_render_design, pencil_list_icons, pencil_list_collections)
    ▼
-Phase 5: Expand API Bridge & Implement Document/Canvas Manipulation Tools
+Phase 5: Expand In-Memory Methods & Implement Document/Canvas Manipulation Tools
    │      (pencil_get_active_document, pencil_create_document, pencil_add_shape, etc.)
    ▼
-[GATE 2 EXIT: All Tools Implemented, Functional over stdio & HTTP/SSE]
+[GATE 2 EXIT: All Tools Implemented, Functional over Streamable HTTP on port 1919]
    │
    ▼
 MILESTONE 3: TESTING, AGENT INTEGRATION & VERIFICATION GATE
@@ -72,7 +72,7 @@ Phase 8: Documentation, Setup Guide & Project Closeout
 
 #### Phase 2: Formalize Architecture, Transports & Tool Schemas
 - [ ] **Task 002:** Create `ADR-0001` and Living Specification `specs/mcp-server-spec.md`:
-  - Detail decision on Standalone Node CLI (stdio) + Internal HTTP Bridge vs Embedded Electron Server.
+  - Detail decision on Direct Embedded Streamable HTTP Server in `app/tools/api-server.js` vs Standalone CLI Proxy.
   - Define complete catalog of MCP Tools with special focus on `pencil_design_ui` (Spatial Concept Layout Compiler powered by `pencil-designer` skill) and `pencil_get_page_content` (Page Inspection).
   - Define MCP Resources (`pencil://collections`, `pencil://active-document`, `pencil://designer-skill`).
 
@@ -80,11 +80,11 @@ Phase 8: Documentation, Setup Guide & Project Closeout
 
 ### Milestone 2: MCP Server Implementation & Expanded Tool Suite
 
-#### Phase 3: Scaffold MCP Server Package & Transport Layer
-- [ ] **Task 003:** Scaffold MCP server package structure:
-  - Create package in `app/tools/mcp/` with dependencies (`@modelcontextprotocol/sdk`, etc.).
-  - Implement stdio & streamableHttp transports with client bridge to Pencil HTTP API (with heartbeat / ping health check).
-  - Provide configuration loading from `.project-info/local.env` and environment variables.
+#### Phase 3: Scaffold MCP Server Module & Streamable HTTP Transport
+- [ ] **Task 003:** Implement MCP Streamable HTTP server module in `app/tools/mcp/`:
+  - Install `@modelcontextprotocol/sdk` in application dependencies.
+  - Implement Streamable HTTP transport and mount `/mcp` route directly on Express in `app/tools/api-server.js`.
+  - Connect tool handlers directly to in-memory `ApplicationPane._instance` with configuration from `.project-info/local.env`.
 
 #### Phase 4: Implement Rendering, Icon & Stencil Inspection Tools
 - [ ] **Task 004:** Implement foundational inspection and rendering tools:
