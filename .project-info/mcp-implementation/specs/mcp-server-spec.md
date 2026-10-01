@@ -2,15 +2,14 @@
 
 ## 1. Overview & Objective
 
-The Pencil MCP Server provides a standardized bridge adhering to the [Model Context Protocol](https://modelcontextprotocol.io/) (JSON-RPC 2.0). It allows AI assistants and agents (Claude, Cursor, Antigravity, etc.) to programmatically interact with the Evolus Pencil application.
+The Pencil MCP Server provides a standardized bridge adhering to the [Model Context Protocol](https://modelcontextprotocol.io/) (JSON-RPC 2.0). It allows external AI assistants and agents (Claude, Cursor, Antigravity, etc.) to programmatically interact with the Evolus Pencil application.
 
-Through this server, agents can:
-1. **Design UI Concepts:** Ingest natural language UI descriptions, reason through spatial hierarchy on an 8px baseline grid, and generate syntactically compliant Pencil design JSON using the `pencil-designer` Knowledge Base skill.
-2. **Inspect Specific Pages:** Extract full scene graphs, objects, and properties for any specific page in a document (`pencil_get_page_content`).
-3. **Render & Preview:** Render design JSON into pixel-accurate PNG previews (multimodal image content) or SVG vector strings, or open them live in the desktop application window.
-4. **Query Stencils & Icons:** Query installed stencil collections, shape schemas, and vector icon libraries (Tabler, Lucide, FontAwesome, Material Icons).
-5. **Inspect & Manipulate Documents:** Read document structures, active pages, and canvas objects.
-6. **Export Artifacts:** Export pages and documents to PNG, SVG, or PDF.
+The Pencil MCP server acts as an engine bridge and knowledge provider, **not** an internal AI server. When an agent is asked to design or manipulate wireframes, the agent uses the Pencil MCP server to:
+1. **Discover & Load Design Skills:** Discover specialized skills (`list_skills`, `use_skill`) such as `pencil_designer`, and read domain specifications (`read_document`) to learn Pencil's shape catalog, property microformats, and schema rules.
+2. **Render & Realize Designs:** Render Agent-constructed Pencil design JSON into pixel-accurate PNG previews (multimodal image content) or SVG vector strings, and open them live in the desktop application window (`pencil_render_design`).
+3. **Inspect Document & Page Hierarchy:** Inspect open documents (`pencil_get_active_document`) and extract full scene graphs, objects, and properties for any specific page (`pencil_get_page_content`).
+4. **Query Stencils & Icons:** Query installed stencil collections (`pencil_list_collections`), shape schemas and default properties (`pencil_get_shape_definition`), and vector icon libraries (`pencil_list_icons`).
+5. **Export Canvas Artifacts:** Export pages and documents to disk in PNG, SVG, or PDF (`pencil_export_page`).
 
 ---
 
@@ -30,16 +29,15 @@ Through this server, agents can:
 │                                                        │
 │  - Streamable HTTP Transport Handler                   │
 │  - Direct In-Memory Access to ApplicationPane._instance│
-│  - Dynamic Knowledge Base (app/tools/mcp/kb/)          │
+│  - Knowledge Base: app/tools/mcp/kb/                   │
 └────────────────────────────────────────────────────────┘
 ```
 
-
 ---
 
-## 3. The MCP Knowledge Base (KB) Architecture
+## 3. The MCP Knowledge Base (KB) & Skill Architecture
 
-The MCP Knowledge Base is a self-contained repository of domain specifications, design constraints, component registries, and agent skills bundled within `app/tools/mcp/kb/`. It provides the normative grounding required for language models to generate valid spatial layouts and correct property serializations.
+The MCP server embeds a self-contained Knowledge Base bundled in `app/tools/mcp/kb/`. It serves as the authoritative source of domain knowledge and instructions for external LLM agents.
 
 ### 3.1 Topology & File Organization
 ```
@@ -47,133 +45,179 @@ app/tools/mcp/kb/
 ├── skills/
 │   └── pencil-designer/
 │       └── SKILL.md            # The UI/UX Spatial Designer skill definition
-└── pencil/                     # Core domain specifications
+└── pencil/                     # Core domain specifications (engine technical invariants)
     ├── data_types_specification.md  # Serialized string microformats for all 18 property types
     ├── shapes_specification.md      # Canonical shape registry, property keys, and defaults
-    ├── output_schema.md             # Structural JSON specification (canvas + recursive elements)
-    └── design_tokens_mini.md        # 8px baseline grid metrics, typography scales, palettes
+    └── output_schema.md             # Structural JSON specification (canvas + recursive elements)
 ```
 
-### 3.2 Dynamic Skill Resolution & Auto-Injection Mechanism
+### 3.2 Agent Knowledge Ingestion & Design Workflow
 
-To ensure autonomous agents receive complete, self-contained instructions without needing recursive file lookups, the server implements an automated injection pipeline:
+When a user instructs an agent: *"Using pencil mcp, design a login form"*:
 
-1. **On-Demand Skill Loading:**
-   When an agent activates a skill via `use_skill(skill_name: "pencil-designer")` or requests the prompt/resource, the server reads `SKILL.md` from `app/tools/mcp/kb/skills/pencil-designer/SKILL.md`.
-
-2. **`<!-- required -->` Specification Inlining:**
-   The loader scans the markdown content for reference links marked with `<!-- required -->`:
-   ```markdown
-   [Data Types Specification](../../pencil/data_types_specification.md) <!-- required -->
-   [Shapes Specification](../../pencil/shapes_specification.md) <!-- required -->
-   [Output Schema](../../pencil/output_schema.md) <!-- required -->
-   [Design Tokens](../../pencil/design_tokens_mini.md) <!-- required -->
-   ```
-   For every matching link, the loader resolves the relative path to `app/tools/mcp/kb/pencil/`, reads the referenced document, and wraps it in explicit content boundary delimiters:
-   ```
-   === CONTENT START: ../../pencil/data_types_specification.md
-   <full content of data_types_specification.md>
-   === CONTENT END
-   ```
-   This compiles the high-level role instructions and the low-level attribute microformats into a single, unified prompt payload.
-
-3. **Multi-Channel MCP Exposure:**
-   The Knowledge Base is accessible through three standard MCP primitives:
-   * **Prompts:** Registered with `ListPromptsRequestSchema` and `GetPromptRequestSchema` under prompt ID `pencil-designer`.
-   * **Resources:** Accessible via the URI `pencil://skills/pencil-designer`, returning the compiled markdown document.
-   * **Tools:** Callable through `use_skill(skill_name)` and `list_skills()`.
-
-### 3.3 Spatial Reasoning Principles Enforced by the Skill
-1. **8px Baseline Grid Metric:** All margins, padding, and alignments adhere strictly to multiples of 8 (`8px`, `16px`, `24px`, `32px`, `48px`).
-2. **Logical Group Nesting & Relative Local Offsets:**
-   * Container nodes declare `type: "group"` and establish a local coordinate anchor.
-   * All nested children declare `x` and `y` relative to their parent group anchor (`0,0` is top-left of the group), **never** absolute canvas coordinates.
-   * Dimensionless enclosure: Groups have no `box`, `width`, `height`, or `properties`.
-3. **Strict Text Serialization:** Property values must match their target microformat exactly (e.g. `Font` as `family|style|weight|size|decor`, `Color` as 8-character hex `#RRGGBBAA`, `StrokeStyle` as `width|dash`).
+```
+1. Discovery      -> Agent calls list_skills() and discovers "pencil_designer".
+2. Skill Loading  -> Agent calls use_skill("pencil_designer") to load instructions from SKILL.md.
+3. Spec Reading   -> Agent calls read_document("/kb/pencil/shapes_specification.md") or
+                     read_document("/kb/pencil/data_types_specification.md") for precise syntax.
+4. AI Synthesis   -> Agent (LLM) reasons through layout and generates valid Pencil design JSON.
+5. Canvas Action  -> Agent calls pencil_render_design(content, openAsDocument: true).
+6. Feedback       -> Pencil updates canvas tab in active desktop window and returns preview PNG.
+```
 
 ---
 
 ## 4. Complete Tool Specifications
 
-### Tool 1: `pencil_design_ui` (Primary Design Tool)
-Receives a natural language user description of a UI concept (e.g., *"A login modal with email input, password input, remember me checkbox, and a primary login button"*), reasons through its visual hierarchy using the `pencil-designer` Knowledge Base, structures elements into logical grouping containers, calculates 8px grid spatial positioning, and compiles the final raw JSON payload.
+### 4.1 Knowledge Base Tools
+
+#### Tool 1: `list_skills`
+Lists all available skill names and summaries exposed by the Pencil MCP server.
+
+- **Parameters:** `{}` (empty object)
+- **Returns:**
+  ```json
+  {
+    "skills": [
+      {
+        "name": "pencil_designer",
+        "description": "Create graphical user interface design in Pencil file format."
+      }
+    ]
+  }
+  ```
+
+---
+
+#### Tool 2: `use_skill`
+Loads and activates a skill by name. Returns the complete skill workflow instructions from `app/tools/mcp/kb/skills/<skill_name>/SKILL.md`.
 
 - **Parameters:**
   ```json
   {
     "type": "object",
     "properties": {
-      "prompt": {
+      "skill_name": {
         "type": "string",
-        "description": "Natural language description of the UI concept, screen, or wireframe."
-      },
-      "targetWidth": {
-        "type": "number",
-        "description": "Optional desired canvas width. If omitted, calculated to tightly fit the design."
-      },
-      "targetHeight": {
-        "type": "number",
-        "description": "Optional desired canvas height. If omitted, calculated to tightly fit the design."
-      },
-      "theme": {
-        "type": "string",
-        "enum": ["light", "dark", "clean-wireframe"],
-        "default": "light",
-        "description": "Visual theme and styling palette."
-      },
-      "renderImmediately": {
-        "type": "boolean",
-        "default": false,
-        "description": "If true, immediately sends the compiled JSON to Pencil to render preview images."
-      },
-      "openAsDocument": {
-        "type": "boolean",
-        "default": false,
-        "description": "If true, also opens the design as a live editable document tab in Pencil."
+        "description": "The name of the skill to activate (e.g. 'pencil_designer')."
       }
     },
-    "required": ["prompt"]
+    "required": ["skill_name"]
   }
   ```
 - **Returns:**
   ```json
   {
-    "design": {
-      "canvas": { "width": 480, "height": 360, "backgroundColor": "#f8fafcff" },
-      "elements": [
-        {
-          "type": "group",
-          "x": 40,
-          "y": 40,
-          "elements": [
-            {
-              "type": "shape",
-              "collection": "Evolus.Common",
-              "shape": "rect",
-              "x": 0,
-              "y": 0,
-              "properties": {
-                "box": "400,280",
-                "fillColor": "#ffffffff",
-                "strokeColor": "#e2e8f0ff",
-                "strokeStyle": "1|"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    "summary": "Generated login modal with 8px spatial grid alignment and 3 logical group containers.",
-    "preview": {
-      "filePath": "/tmp/pencil-render-xyz.png",
-      "isImage": true
-    }
+    "skill": "pencil_designer",
+    "instructions": "# Skill: Pencil UI Designer\n\n..."
   }
   ```
 
 ---
 
-### Tool 2: `pencil_get_page_content` (Page Inspection Tool)
+#### Tool 3: `read_document`
+Reads a domain specification document or a specific section from the knowledge base.
+
+- **Parameters:**
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "doc_path": {
+        "type": "string",
+        "description": "Path of the document to read (e.g., '/kb/pencil/data_types_specification.md' or '/kb/pencil/shapes_specification.md')."
+      },
+      "section": {
+        "type": "string",
+        "description": "Optional specific heading title to extract (returns only that section)."
+      },
+      "start_line": {
+        "type": "integer",
+        "description": "Optional starting line number."
+      },
+      "end_line": {
+        "type": "integer",
+        "description": "Optional ending line number."
+      }
+    },
+    "required": ["doc_path"]
+  }
+  ```
+- **Returns:**
+  ```json
+  {
+    "doc_path": "/kb/pencil/shapes_specification.md",
+    "content": "..."
+  }
+  ```
+
+---
+
+### 4.2 Pencil Application & Canvas Execution Tools
+
+#### Tool 4: `pencil_render_design` (Primary Design Realization Tool)
+Renders a structured Pencil design JSON object (`{ canvas, elements }`) constructed by the agent into an image (PNG) or SVG vector string, and/or opens it directly as an active document tab in the running Pencil application.
+
+- **Parameters:**
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "content": {
+        "type": "object",
+        "description": "Structured JSON representation of the Pencil design ({ canvas, elements }) to render or open."
+      },
+      "output": {
+        "type": "string",
+        "enum": ["png", "svg"],
+        "default": "png",
+        "description": "Output format: 'png' returns an image preview, 'svg' returns inline SVG markup."
+      },
+      "openAsDocument": {
+        "type": "boolean",
+        "default": false,
+        "description": "If true, also opens the design as a live editable document tab in the running Pencil desktop UI."
+      }
+    },
+    "required": ["content"]
+  }
+  ```
+- **Returns:**
+  ```json
+  {
+    "filePath": "/tmp/pencil-render-12345.png",
+    "isImage": true,
+    "openedInDocument": true
+  }
+  ```
+
+
+---
+
+#### Tool 5: `pencil_get_active_document`
+Inspects the currently open document in the Pencil application, listing metadata, pages, dimensions, and object counts.
+
+- **Parameters:** `{}` (empty object)
+- **Returns:**
+  ```json
+  {
+    "documentTitle": "Wireframe-Sprint-4.epgz",
+    "activePageId": "page-1",
+    "pages": [
+      {
+        "id": "page-1",
+        "title": "Home Screen",
+        "width": 1440,
+        "height": 900,
+        "shapeCount": 24
+      }
+    ]
+  }
+  ```
+
+---
+
+#### Tool 6: `pencil_get_page_content` (Page Inspection Tool)
 Extracts the complete scene graph, shape hierarchy, and property metadata for a specific page from the currently open or active Pencil document.
 
 - **Parameters:**
@@ -224,65 +268,7 @@ Extracts the complete scene graph, shape hierarchy, and property metadata for a 
 
 ---
 
-### Tool 3: `pencil_render_design`
-Renders a structured Pencil design JSON object into an image (PNG file) or SVG vector string, or opens it directly as an active document in Pencil.
-
-- **Parameters:**
-  ```json
-  {
-    "type": "object",
-    "properties": {
-      "content": {
-        "type": "object",
-        "description": "Structured JSON representation of the Pencil design / elements to render."
-      },
-      "output": {
-        "type": "string",
-        "enum": ["png", "svg"],
-        "default": "png",
-        "description": "Output format: 'png' returns a file path on disk, 'svg' returns inline SVG markup."
-      },
-      "openAsDocument": {
-        "type": "boolean",
-        "default": false,
-        "description": "If true, also opens the rendered design as a new tab/document in the running Pencil UI."
-      }
-    },
-    "required": ["content"]
-  }
-  ```
-- **Returns:**
-  * If `output: "png"`: Multimodal MCP Image Content block (`{ type: "image", data: base64, mimeType: "image/png" }`) or file path.
-  * If `output: "svg"`: `{ "svg": "<svg ...>...</svg>" }`.
-
----
-
-### Tool 4: `pencil_list_icons`
-Retrieves a list of available icons from built-in or loaded icon collections (e.g. FontAwesome, Material Icons, Tabler).
-
-- **Parameters:**
-  ```json
-  {
-    "type": "object",
-    "properties": {
-      "iconType": {
-        "type": "string",
-        "enum": ["cmdi", "bootstrap", "fa", "glow", "herooutline", "herosolid", "lucide", "mingcute", "tablerfilled", "tableroutline"],
-        "description": "The icon collection identifier. If omitted, returns all supported icon sets."
-      }
-    }
-  }
-  ```
-- **Returns:**
-  ```json
-  {
-    "icons": ["home", "account", "settings", "search", "..."]
-  }
-  ```
-
----
-
-### Tool 5: `pencil_list_collections`
+#### Tool 7: `pencil_list_collections`
 Lists all stencil collections currently loaded in Pencil with their metadata and available shape identifiers.
 
 - **Parameters:**
@@ -314,7 +300,7 @@ Lists all stencil collections currently loaded in Pencil with their metadata and
 
 ---
 
-### Tool 6: `pencil_get_shape_definition`
+#### Tool 8: `pencil_get_shape_definition`
 Returns the complete property schema, default values, and metadata for a specific shape in a collection.
 
 - **Parameters:**
@@ -328,33 +314,49 @@ Returns the complete property schema, default values, and metadata for a specifi
     "required": ["collectionId", "shapeId"]
   }
   ```
-
----
-
-### Tool 7: `pencil_get_active_document`
-Inspects the currently open document in the Pencil application, listing metadata, pages, dimensions, and object counts.
-
-- **Parameters:** `{}` (empty object)
 - **Returns:**
   ```json
   {
-    "documentTitle": "Wireframe-Sprint-4.epgz",
-    "activePageId": "page-1",
-    "pages": [
-      {
-        "id": "page-1",
-        "title": "Home Screen",
-        "width": 1440,
-        "height": 900,
-        "shapeCount": 24
-      }
-    ]
+    "collectionId": "Evolus.Common",
+    "shapeId": "rect",
+    "displayName": "Rectangle",
+    "properties": {
+      "box": { "type": "Dimension", "default": "100,100" },
+      "fillColor": { "type": "Color", "default": "#ffffffff" },
+      "strokeColor": { "type": "Color", "default": "#000000ff" },
+      "strokeStyle": { "type": "StrokeStyle", "default": "1|" }
+    }
   }
   ```
 
 ---
 
-### Tool 8: `pencil_export_page`
+#### Tool 9: `pencil_list_icons`
+Retrieves a list of available icons from built-in or loaded icon collections (e.g. FontAwesome, Material Icons, Tabler).
+
+- **Parameters:**
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "iconType": {
+        "type": "string",
+        "enum": ["cmdi", "bootstrap", "fa", "glow", "herooutline", "herosolid", "lucide", "mingcute", "tablerfilled", "tableroutline"],
+        "description": "The icon collection identifier. If omitted, returns all supported icon sets."
+      }
+    }
+  }
+  ```
+- **Returns:**
+  ```json
+  {
+    "icons": ["home", "account", "settings", "search", "..."]
+  }
+  ```
+
+---
+
+#### Tool 10: `pencil_export_page`
 Exports an active page or entire document to a file on disk.
 
 - **Parameters:**

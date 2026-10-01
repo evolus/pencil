@@ -38,11 +38,11 @@ MILESTONE 2: MCP SERVER IMPLEMENTATION & EXPANDED TOOL SUITE
 Phase 3: Implement MCP Streamable HTTP Transport & Server Module
    │      (Integrate MCP server with @modelcontextprotocol/sdk Streamable HTTP into api-server.js)
    ▼
-Phase 4: Implement Rendering & Icon / Stencil Inspection Tools
-   │      (pencil_render_design, pencil_list_icons, pencil_list_collections)
+Phase 4: Implement Knowledge Base Delivery & Catalog Tools
+   │      (list_skills, use_skill, read_document, pencil_list_collections, pencil_list_icons)
    ▼
-Phase 5: Expand In-Memory Methods & Implement Document/Canvas Manipulation Tools
-   │      (pencil_get_active_document, pencil_create_document, pencil_add_shape, etc.)
+Phase 5: Implement Design Realization & Canvas Manipulation Tools
+   │      (pencil_render_design, pencil_get_active_document, pencil_get_page_content, pencil_export_page)
    ▼
 [GATE 2 EXIT: All Tools Implemented, Functional over Streamable HTTP on port 1919]
    │
@@ -86,19 +86,21 @@ Phase 8: Documentation, Setup Guide & Project Closeout
   - Implement Streamable HTTP transport and mount `/mcp` route directly on Express in `app/tools/api-server.js`.
   - Connect tool handlers directly to in-memory `ApplicationPane._instance` with configuration from `.project-info/local.env`.
 
-#### Phase 4: Implement Rendering, Icon & Stencil Inspection Tools
-- [ ] **Task 004:** Implement foundational inspection and rendering tools:
-  - Tool `pencil_render_design`: Accepts design JSON, returns PNG file path or inline SVG representation, with multimodal image block output.
-  - Tool `pencil_list_icons`: Queries supported icon collections (Tabler, Lucide, FontAwesome, Material).
+#### Phase 4: Implement Knowledge Base Delivery & Catalog Tools
+- [ ] **Task 004:** Implement KB delivery and catalog inspection tools:
+  - Tool `list_skills`: Lists all available skills exposed by the server.
+  - Tool `use_skill`: Loads and returns instructions from `app/tools/mcp/kb/skills/<skill_name>/SKILL.md`.
+  - Tool `read_document`: Reads specification files from `app/tools/mcp/kb/pencil/` (`shapes_specification.md`, `data_types_specification.md`, `output_schema.md`).
   - Tool `pencil_list_collections`: Lists all installed stencil collections and shape definitions.
   - Tool `pencil_get_shape_definition`: Returns exact schema, properties, and default values for any shape.
+  - Tool `pencil_list_icons`: Queries supported icon collections (Tabler, Lucide, FontAwesome, Material).
 
-#### Phase 5: Implement AI Spatial Designer & Page Manipulation Tools
-- [ ] **Task 005:** Implement `pencil_design_ui` and page inspection/manipulation:
-  - Tool `pencil_design_ui`: Ingests user UI concepts, reasons through visual hierarchy using the `pencil-designer` skill (`app/tools/mcp/kb/skills/pencil-designer/SKILL.md`), structures elements into logical grouping containers, calculates 8px spatial grid coordinates with relative local offsets, and produces verified design JSON.
+#### Phase 5: Implement Design Realization & Canvas Manipulation Tools
+- [ ] **Task 005:** Implement canvas realization, page inspection, and export tools:
+  - Tool `pencil_render_design`: Accepts agent-constructed design JSON, renders PNG/SVG preview, or opens live in running Pencil window tab (`openAsDocument: true`).
+  - Tool `pencil_get_active_document`: Returns open document metadata, pages, dimensions, and shape counts.
   - Tool `pencil_get_page_content`: Retrieves complete scene graph, shape hierarchy, and property metadata for a specific page by `pageId` or `pageIndex`.
-  - Tool `pencil_get_active_document`: Returns open document metadata, pages, and objects.
-  - Tool `pencil_export_page`: Exports active page to PNG, SVG, or PDF.
+  - Tool `pencil_export_page`: Exports active page or document to PNG, SVG, or PDF.
 
 ---
 

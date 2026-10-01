@@ -15,7 +15,7 @@ Audit the existing `app/tools/api-server.js` implementation, evaluate `Applicati
 - [x] Identify integration pattern for MCP: direct in-memory calls to `ApplicationPane._instance` via Streamable HTTP mounted in `api-server.js` without redundant intermediate proxy endpoints.
 - [x] Formulate and approve ADR-0001 (Direct Embedded Streamable HTTP Server in `app/tools/api-server.js`) and living specification `mcp-server-spec.md`.
 - [x] Establish MCP knowledge base location in `app/tools/mcp/kb/skills/pencil-designer` (symlinked during dev, to be published with Pencil app) and keep `.agents/` local-only for `pencil-stencil-creator`.
-- [x] Specify `pencil_design_ui` (spatial UI concept compiler), `pencil_get_page_content`, and dynamic skill resource loading in `mcp-server-spec.md`.
+- [x] Specify Knowledge Base delivery tools (`list_skills`, `use_skill`, `read_document`) and canvas tools (`pencil_render_design`, `pencil_get_page_content`) in `mcp-server-spec.md`.
 - [x] Define testing procedures for port 1919 Streamable HTTP integration.
 
 ## Implementation Steps
@@ -28,7 +28,7 @@ Audit the existing `app/tools/api-server.js` implementation, evaluate `Applicati
 ## Session Notes & Progress Ledger
 ### 2026-09-30 (Session 2)
 - **MCP Server & Knowledge Base Location Selected:** Located in `app/tools/mcp/` alongside existing tools. Symlinked `app/tools/mcp/kb/skills/pencil-designer` -> `../../../../../../framework-doc/skills/pencil-designer` and `app/tools/mcp/kb/pencil` -> `../../../../../framework-doc/pencil`.
-- **Dynamic Resource Reading Pattern Specified:** Specified self-contained auto-injection mechanism in `mcp-server-spec.md`, where `pencil_design_ui` dynamically reads `SKILL.md` and inlines `<!-- required -->` referenced specifications (`data_types_specification.md`, `shapes_specification.md`, `output_schema.md`, `design_tokens_mini.md`).
+- **Tool Suite Re-aligned with MCP Pattern:** Refined `mcp-server-spec.md` to expose KB tools (`list_skills`, `use_skill`, `read_document`) and canvas realization tools (`pencil_render_design`, `pencil_get_active_document`, `pencil_get_page_content`). External LLM agents act as the designer, ingesting skills and specs to compile design JSON and invoking Pencil tools for canvas realization.
 - **Architectural Correction (ADR-0001):** Corrected Option B to Direct Embedded Streamable HTTP Server in `app/tools/api-server.js`. Rejected stdio CLI wrapper as redundant and inferior. Streamable HTTP enables direct in-memory calls to `ApplicationPane._instance`, real-time streaming, concurrent multi-agent connections, and eliminates extra processes.
 - **Docs Updated:** Updated `ADR-0001`, `local.env`, `master-plan.md`, `mcp-server-spec.md`, and `task-002` backlog.
 - **Next:** User review and approval to retire Task 001 and activate Task 002.
