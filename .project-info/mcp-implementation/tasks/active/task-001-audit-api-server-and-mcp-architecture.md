@@ -5,7 +5,7 @@
 - **Branch:** `pencil-mcp-integration`
 - **Parent Plan:** [.project-info/mcp-implementation/plans/master-plan.md](file:///home/ltuan/storage/pencil/.project-info/mcp-implementation/plans/master-plan.md)
 - **Canonical Docs & Specs:** [.project-info/specs/pencil-project-spec.md](file:///home/ltuan/storage/pencil/.project-info/specs/pencil-project-spec.md), [.project-info/mcp-implementation/specs/mcp-server-spec.md](file:///home/ltuan/storage/pencil/.project-info/mcp-implementation/specs/mcp-server-spec.md), [.project-info/mcp-implementation/adr/0001-mcp-architecture-and-transport-strategy.md](file:///home/ltuan/storage/pencil/.project-info/mcp-implementation/adr/0001-mcp-architecture-and-transport-strategy.md)
-- **Reference Codebase:** `app/tools/api-server.js`, `app/views/applicationPane.js`, `app/pencil-core/`
+- **Reference Codebase:** `app/tools/api-server.js`, `app/views/ApplicationPane.js`, `app/pencil-core/`
 
 ## Objective
 Audit the existing `app/tools/api-server.js` implementation, evaluate `ApplicationPane._instance` hooks (`convertDesignJSONToImage`, `getIconList`), verify HTTP response formats, and confirm the decoupled MCP architecture.

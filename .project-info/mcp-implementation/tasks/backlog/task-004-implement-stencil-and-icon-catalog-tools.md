@@ -5,7 +5,7 @@
 - **Branch:** `pencil-mcp-integration`
 - **Parent Plan:** [.project-info/mcp-implementation/plans/master-plan.md](file:///home/ltuan/storage/pencil/.project-info/mcp-implementation/plans/master-plan.md)
 - **Canonical Docs & Specs:** [.project-info/mcp-implementation/specs/mcp-server-spec.md](file:///home/ltuan/storage/pencil/.project-info/mcp-implementation/specs/mcp-server-spec.md)
-- **Reference Codebase:** `app/views/applicationPane.js`, `app/pencil-core/collectionManager.js`
+- **Reference Codebase:** `app/views/ApplicationPane.js`, `app/pencil-core/collectionManager.js`
 
 ## Objective
 Implement and expose stencil collection and icon catalog inspection tools on the MCP server (`pencil_list_collections`, `pencil_get_shape_definition`, `pencil_list_icons`). These tools allow external agents to inspect available stencils, properties, defaults, and vector icons directly from Pencil's runtime in memory.

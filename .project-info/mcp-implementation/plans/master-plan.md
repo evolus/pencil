@@ -11,9 +11,10 @@
 - **Architecture References:**
   - Model Context Protocol Specification (Anthropic / ModelContextProtocol SDK)
   - Pencil Internal API Bridge (`app/tools/api-server.js`)
-  - Pencil Core Runtime (`app/pencil-core/`, `app/views/applicationPane.js`, `Canvas.js`)
+  - Pencil Core Runtime (`app/pencil-core/`, `app/views/ApplicationPane.js`, `Canvas.js`)
 - **Associated Specs:**
   - [.project-info/mcp-implementation/specs/mcp-server-spec.md](file:///home/ltuan/storage/pencil/.project-info/mcp-implementation/specs/mcp-server-spec.md)
+  - [.project-info/specs/pencil-project-spec.md](file:///home/ltuan/storage/pencil/.project-info/specs/pencil-project-spec.md)
 - **Associated ADRs:**
   - [.project-info/mcp-implementation/adr/0001-mcp-architecture-and-transport-strategy.md](file:///home/ltuan/storage/pencil/.project-info/mcp-implementation/adr/0001-mcp-architecture-and-transport-strategy.md)
 
@@ -25,21 +26,21 @@
 MILESTONE 1: ARCHITECTURAL FOUNDATION & BRIDGE AUDIT
 ====================================================
 Phase 1: Audit Internal API Server & Desktop Architecture
-   │      (Audit app/tools/api-server.js, ApplicationPane methods, port 1919)
-   ▼
-Phase 2: Formalize MCP Architecture, Transport & Tool Schemas
-   │      (Create ADR-0001 and living specs/mcp-server-spec.md)
+   │      (Audit app/tools/api-server.js, ApplicationPane methods, port 1919, approve ADR-0001 & living spec)
    ▼
 [GATE 1 EXIT: Architecture Approved, Tool Schemas Finalized]
    │
    ▼
 MILESTONE 2: MCP SERVER IMPLEMENTATION & EXPANDED TOOL SUITE
 ============================================================
-Phase 3: Implement MCP Streamable HTTP Transport & Server Module
-   │      (Integrate MCP server with @modelcontextprotocol/sdk Streamable HTTP into api-server.js)
+Phase 2: Implement MCP Server Module & Streamable HTTP Transport
+   │      (Mount Streamable HTTP / SSE transport into api-server.js on port 1919)
    ▼
-Phase 4: Implement Knowledge Base Delivery & Catalog Tools
-   │      (list_skills, use_skill, read_document, pencil_list_collections, pencil_list_icons)
+Phase 3: Implement Knowledge Base Delivery Tools
+   │      (list_skills, use_skill, read_document from app/tools/mcp/kb/)
+   ▼
+Phase 4: Implement Stencil & Icon Catalog Tools
+   │      (pencil_list_collections, pencil_get_shape_definition, pencil_list_icons)
    ▼
 Phase 5: Implement Design Realization & Canvas Manipulation Tools
    │      (pencil_render_design, pencil_get_active_document, pencil_get_page_content, pencil_export_page)
@@ -49,13 +50,10 @@ Phase 5: Implement Design Realization & Canvas Manipulation Tools
    ▼
 MILESTONE 3: TESTING, AGENT INTEGRATION & VERIFICATION GATE
 ===========================================================
-Phase 6: Automated Test Harness & Validation Scripts
-   │      (Unit & integration tests verifying JSON-RPC tools against live Pencil)
+Phase 6: Automated Test Harness, Agent Verification & Documentation Gate
+   │      (Unit & integration test scripts, client registration, e2e design generation, and setup guide)
    ▼
-Phase 7: End-to-End Agent Verification Gate
-   │      (Register MCP server in agent client; verify end-to-end design generation)
-   ▼
-Phase 8: Documentation, Setup Guide & Project Closeout
+[GATE 3 EXIT: End-to-End Agent Verification Passed, Documentation Complete]
 ```
 
 ---
@@ -65,38 +63,38 @@ Phase 8: Documentation, Setup Guide & Project Closeout
 ### Milestone 1: Architectural Foundation & API Bridge Audit
 
 #### Phase 1: Audit Internal API Server & Desktop Architecture
-- [ ] **Task 001:** Audit `app/tools/api-server.js` and Pencil core hooks:
+- [x] **Task 001:** Audit `app/tools/api-server.js` and Pencil core hooks (`.project-info/mcp-implementation/tasks/active/task-001-audit-api-server-and-mcp-architecture.md`):
   - Audit existing endpoints (`/json/render`, `/json/collections/icon-list`) and `ApplicationPane._instance` lifecycle.
   - Determine communication mechanics between external MCP server and running Electron application.
-  - Document findings and limitations (e.g. process lifecycle, port collisions, headless capabilities).
-
-#### Phase 2: Formalize Architecture, Transports & Tool Schemas
-- [ ] **Task 002:** Create `ADR-0001` and Living Specification `specs/mcp-server-spec.md`:
-  - Detail decision on Direct Embedded Streamable HTTP Server in `app/tools/api-server.js` vs Standalone CLI Proxy.
-  - Define complete catalog of MCP Tools with special focus on `pencil_design_ui` (Spatial Concept Layout Compiler powered by `pencil-designer` skill) and `pencil_get_page_content` (Page Inspection).
-  - Define MCP Resources (`pencil://collections`, `pencil://active-document`, `pencil://designer-skill`).
+  - Formulate and approve ADR-0001 (Direct Embedded Streamable HTTP Server in `app/tools/api-server.js`).
+  - Draft living domain specification `specs/mcp-server-spec.md` with full tool schemas.
 
 ---
 
-### Milestone 2: MCP Server Implementation & Expanded Tool Suite
+### Milestone 2: MCP Server Implementation & Core Tool Suite
 
-#### Phase 3: Scaffold MCP Server Module & Streamable HTTP Transport
-- [ ] **Task 003:** Implement MCP Streamable HTTP server module in `app/tools/mcp/`:
-  - Install `@modelcontextprotocol/sdk` in application dependencies.
-  - Implement Streamable HTTP transport and mount `/mcp` route directly on Express in `app/tools/api-server.js`.
+#### Phase 2: Scaffold MCP Server Module & Streamable HTTP Transport
+- [ ] **Task 002:** Implement MCP Streamable HTTP / SSE server module (`.project-info/mcp-implementation/tasks/backlog/task-002-mcp-server-scaffolding-and-transport.md`):
+  - Setup MCP server router and transport handlers in `app/tools/mcp/server.js`.
+  - Mount Streamable HTTP / SSE endpoint (`/mcp` and/or `/sse` + `/message`) directly on Express in `app/tools/api-server.js`.
   - Connect tool handlers directly to in-memory `ApplicationPane._instance` with configuration from `.project-info/local.env`.
+  - Validate MCP initialization handshake and capability exchange.
 
-#### Phase 4: Implement Knowledge Base Delivery & Catalog Tools
-- [ ] **Task 004:** Implement KB delivery and catalog inspection tools:
-  - Tool `list_skills`: Lists all available skills exposed by the server.
+#### Phase 3: Implement Knowledge Base Delivery Tools
+- [ ] **Task 003:** Implement KB delivery tools (`.project-info/mcp-implementation/tasks/backlog/task-003-implement-kb-delivery-tools.md`):
+  - Tool `list_skills`: Lists all available skills exposed by the server (`pencil-designer`).
   - Tool `use_skill`: Loads and returns instructions from `app/tools/mcp/kb/skills/<skill_name>/SKILL.md`.
-  - Tool `read_document`: Reads specification files from `app/tools/mcp/kb/pencil/` (`shapes_specification.md`, `data_types_specification.md`, `output_schema.md`).
-  - Tool `pencil_list_collections`: Lists all installed stencil collections and shape definitions.
+  - Tool `read_document`: Reads specification files from `app/tools/mcp/kb/pencil/` (`shapes_specification.md`, `data_types_specification.md`, `output_schema.md`) with section and line slicing.
+  - Expose resources (`pencil://skills/pencil-designer`, `pencil://collections`, `pencil://active-document`).
+
+#### Phase 4: Implement Stencil & Icon Catalog Tools
+- [ ] **Task 004:** Implement stencil collection and icon catalog tools (`.project-info/mcp-implementation/tasks/backlog/task-004-implement-stencil-and-icon-catalog-tools.md`):
+  - Tool `pencil_list_collections`: Lists all installed stencil collections and shape definitions from `CollectionManager`.
   - Tool `pencil_get_shape_definition`: Returns exact schema, properties, and default values for any shape.
-  - Tool `pencil_list_icons`: Queries supported icon collections (Tabler, Lucide, FontAwesome, Material).
+  - Tool `pencil_list_icons`: Queries supported icon collections (Tabler, Lucide, FontAwesome, Material) via `ApplicationPane._instance.getIconList`.
 
 #### Phase 5: Implement Design Realization & Canvas Manipulation Tools
-- [ ] **Task 005:** Implement canvas realization, page inspection, and export tools:
+- [ ] **Task 005:** Implement canvas realization, page inspection, and export tools (`.project-info/mcp-implementation/tasks/backlog/task-005-implement-canvas-realization-and-document-tools.md`):
   - Tool `pencil_render_design`: Accepts agent-constructed design JSON, renders PNG/SVG preview, or opens live in running Pencil window tab (`openAsDocument: true`).
   - Tool `pencil_get_active_document`: Returns open document metadata, pages, dimensions, and shape counts.
   - Tool `pencil_get_page_content`: Retrieves complete scene graph, shape hierarchy, and property metadata for a specific page by `pageId` or `pageIndex`.
@@ -106,31 +104,24 @@ Phase 8: Documentation, Setup Guide & Project Closeout
 
 ### Milestone 3: Testing, Agent Integration & Verification Gate
 
-#### Phase 6: Automated Test Harness & Validation Scripts
-- [ ] **Task 006:** Build validation suite:
-  - Automated test script in `.project-info/mcp-implementation/tests/` to start MCP server, ping tools, send test design JSON, and verify outputs.
-  - Verify error handling when Pencil desktop app is closed, busy, or restarts.
-
-#### Phase 7: End-to-End Agent Verification Gate
-- [ ] **Task 007:** Live Agent Verification:
-  - Configure MCP server in Antigravity / Claude Desktop / Cursor.
-  - Execute end-to-end prompt: agent designs a multi-screen UI flow, renders previews, and modifies elements.
-
-#### Phase 8: Documentation, Setup Guide & Project Closeout
-- [ ] **Task 008:** Final documentation & client installation instructions:
-  - Write installation and configuration guide (`README-MCP.md` or docs).
-  - Update root documentation and verify clean git status.
+#### Phase 6: Automated Test Harness, Agent Verification & Documentation Gate
+- [ ] **Task 006:** Automated verification suite, agent integration & project closeout (`.project-info/mcp-implementation/tasks/backlog/task-006-agent-integration-and-verification-gate.md`):
+  - Build automated test harness in `.project-info/mcp-implementation/tests/` to verify JSON-RPC tool calls against live Pencil instance.
+  - Provide client configuration instructions for Claude Desktop, Antigravity, and Cursor (`mcpServers` config).
+  - Execute end-to-end prompt: agent discovers skills, reads specs, compiles design JSON, and renders live on Pencil canvas.
+  - Document verification report and complete project closeout documentation.
 
 ---
 
 ## 4. Phase Verification Gates
 
 - **Gate 1 (Milestone 1 Exit - Architecture & Specs Approved):**
-  - ADR-0001 committed and approved.
-  - Tool schemas defined with complete JSON Schema inputs and outputs.
+  - [x] ADR-0001 committed and approved (Direct Embedded Streamable HTTP Server).
+  - [x] Living specification `specs/mcp-server-spec.md` finalized with JSON Schema definitions.
 - **Gate 2 (Milestone 2 Exit - Tool Suite Functioning):**
-  - MCP server running cleanly over stdio.
-  - All core tools (`pencil_render_design`, `pencil_list_icons`, `pencil_list_collections`, etc.) returning successful responses from running Pencil instance.
+  - [ ] MCP server running cleanly over Streamable HTTP / SSE on port 1919.
+  - [ ] All 10 core tools (KB delivery, catalog inspection, canvas realization) returning successful responses from running Pencil instance.
 - **Gate 3 (Milestone 3 Exit - End-to-End Agent Validation):**
-  - Verified working directly inside an external AI agent.
-  - Documentation complete and verified by human maintainer.
+  - [ ] Verified working directly inside external AI agents (Antigravity / Claude Desktop / Cursor).
+  - [ ] Automated test suite in `tests/` passes.
+  - [ ] Documentation and setup guide complete and verified by maintainer.
