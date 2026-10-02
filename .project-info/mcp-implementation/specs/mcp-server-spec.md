@@ -6,10 +6,10 @@ The Pencil MCP Server provides a standardized bridge adhering to the [Model Cont
 
 The Pencil MCP server acts as an engine bridge and knowledge provider, **not** an internal AI server. When an agent is asked to design or manipulate wireframes, the agent uses the Pencil MCP server to:
 1. **Discover & Load Design Skills:** Discover specialized skills (`list_skills`, `use_skill`) such as `pencil_designer`, and read domain specifications (`read_document`) to learn Pencil's shape catalog, property microformats, and schema rules.
-2. **Render & Realize Designs:** Render Agent-constructed Pencil design JSON into pixel-accurate PNG previews (multimodal image content) or SVG vector strings, and open them live in the desktop application window (`pencil_render_design`).
-3. **Inspect Document & Page Hierarchy:** Inspect open documents (`pencil_get_active_document`) and extract full scene graphs, objects, and properties for any specific page (`pencil_get_page_content`).
-4. **Query Stencils & Icons:** Query installed stencil collections (`pencil_list_collections`), shape schemas and default properties (`pencil_get_shape_definition`), and vector icon libraries (`pencil_list_icons`).
-5. **Export Canvas Artifacts:** Export pages and documents to disk in PNG, SVG, or PDF (`pencil_export_page`).
+2. **Render & Realize Designs:** Render Agent-constructed Pencil design JSON into pixel-accurate PNG previews (multimodal image content) or SVG vector strings, and open them live in the desktop application window (`render_design`).
+3. **Inspect Document & Page Hierarchy:** Inspect open documents (`get_active_document`) and extract full scene graphs, objects, and properties for any specific page (`get_page_content`).
+4. **Query Stencils & Icons:** Query installed stencil collections (`list_collections`), shape schemas and default properties (`get_shape_definition`), and vector icon libraries (`list_icons`).
+5. **Export Canvas Artifacts:** Export pages and documents to disk in PNG, SVG, or PDF (`export_page`).
 
 ---
 
@@ -61,7 +61,7 @@ When a user instructs an agent: *"Using pencil mcp, design a login form"*:
 3. Spec Reading   -> Agent calls read_document("/kb/pencil/shapes_specification.md") or
                      read_document("/kb/pencil/data_types_specification.md") for precise syntax.
 4. AI Synthesis   -> Agent (LLM) reasons through layout and generates valid Pencil design JSON.
-5. Canvas Action  -> Agent calls pencil_render_design(content, openAsDocument: true).
+5. Canvas Action  -> Agent calls render_design(content, openAsDocument: true).
 6. Feedback       -> Pencil updates canvas tab in active desktop window and returns preview PNG.
 ```
 
@@ -155,7 +155,7 @@ Reads a domain specification document or a specific section from the knowledge b
 
 ### 4.2 Pencil Application & Canvas Execution Tools
 
-#### Tool 4: `pencil_render_design` (Primary Design Realization Tool)
+#### Tool 4: `render_design` (Primary Design Realization Tool)
 Renders a structured Pencil design JSON object (`{ canvas, elements }`) constructed by the agent into an image (PNG) or SVG vector string, and/or opens it directly as an active document tab in the running Pencil application.
 
 - **Parameters:**
@@ -194,7 +194,7 @@ Renders a structured Pencil design JSON object (`{ canvas, elements }`) construc
 
 ---
 
-#### Tool 5: `pencil_get_active_document`
+#### Tool 5: `get_active_document`
 Inspects the currently open document in the Pencil application, listing metadata, pages, dimensions, and object counts.
 
 - **Parameters:** `{}` (empty object)
@@ -217,7 +217,7 @@ Inspects the currently open document in the Pencil application, listing metadata
 
 ---
 
-#### Tool 6: `pencil_get_page_content` (Page Inspection Tool)
+#### Tool 6: `get_page_content` (Page Inspection Tool)
 Extracts the complete scene graph, shape hierarchy, and property metadata for a specific page from the currently open or active Pencil document.
 
 - **Parameters:**
@@ -227,7 +227,7 @@ Extracts the complete scene graph, shape hierarchy, and property metadata for a 
     "properties": {
       "pageId": {
         "type": "string",
-        "description": "The unique UUID of the page (from pencil_get_active_document). Optional if pageIndex is provided."
+        "description": "The unique UUID of the page (from get_active_document). Optional if pageIndex is provided."
       },
       "pageIndex": {
         "type": "number",
@@ -268,7 +268,7 @@ Extracts the complete scene graph, shape hierarchy, and property metadata for a 
 
 ---
 
-#### Tool 7: `pencil_list_collections`
+#### Tool 7: `list_collections`
 Lists all stencil collections currently loaded in Pencil with their metadata and available shape identifiers.
 
 - **Parameters:**
@@ -300,21 +300,27 @@ Lists all stencil collections currently loaded in Pencil with their metadata and
 
 ---
 
-#### Tool 8: `pencil_get_shape_definition`
-Returns the complete property schema, default values, and metadata for a specific shape in a collection.
+#### Tool 8: `get_shape_definition`
+Returns the property schema, default values, and metadata for a specific shape or all shapes within a collection.
 
 - **Parameters:**
   ```json
   {
     "type": "object",
     "properties": {
-      "collectionId": { "type": "string", "description": "The collection ID (e.g. 'Evolus.Common')" },
-      "shapeId": { "type": "string", "description": "The shape ID within the collection (e.g. 'rect')" }
+      "collectionId": {
+        "type": "string",
+        "description": "The collection ID (e.g. 'Evolus.Common')."
+      },
+      "shapeId": {
+        "type": "string",
+        "description": "Optional shape ID within the collection (e.g. 'rect'). If omitted, returns all shape definitions for the collection."
+      }
     },
-    "required": ["collectionId", "shapeId"]
+    "required": ["collectionId"]
   }
   ```
-- **Returns:**
+- **Returns (Single Shape):**
   ```json
   {
     "collectionId": "Evolus.Common",
@@ -328,10 +334,37 @@ Returns the complete property schema, default values, and metadata for a specifi
     }
   }
   ```
+- **Returns (All Shapes in Collection when `shapeId` is omitted):**
+  ```json
+  {
+    "collectionId": "Evolus.Common",
+    "shapes": [
+      {
+        "shapeId": "rect",
+        "displayName": "Rectangle",
+        "properties": {
+          "box": { "type": "Dimension", "default": "100,100" },
+          "fillColor": { "type": "Color", "default": "#ffffffff" },
+          "strokeColor": { "type": "Color", "default": "#000000ff" },
+          "strokeStyle": { "type": "StrokeStyle", "default": "1|" }
+        }
+      },
+      {
+        "shapeId": "oval",
+        "displayName": "Oval",
+        "properties": {
+          "box": { "type": "Dimension", "default": "100,100" },
+          "fillColor": { "type": "Color", "default": "#ffffffff" },
+          "strokeColor": { "type": "Color", "default": "#000000ff" }
+        }
+      }
+    ]
+  }
+  ```
 
 ---
 
-#### Tool 9: `pencil_list_icons`
+#### Tool 9: `list_icons`
 Retrieves a list of available icons from built-in or loaded icon collections (e.g. FontAwesome, Material Icons, Tabler).
 
 - **Parameters:**
@@ -356,7 +389,7 @@ Retrieves a list of available icons from built-in or loaded icon collections (e.
 
 ---
 
-#### Tool 10: `pencil_export_page`
+#### Tool 10: `export_page`
 Exports an active page or entire document to a file on disk.
 
 - **Parameters:**
@@ -386,7 +419,7 @@ Exports an active page or entire document to a file on disk.
 | Error Code | Error Condition | Recommended Agent Mitigation |
 |------------|-----------------|------------------------------|
 | `PENCIL_NOT_RUNNING` | Cannot connect to port 1919 | Inform user to launch Pencil or run `yarn start`. |
-| `PAGE_NOT_FOUND` | Specified pageId or pageIndex does not exist | Call `pencil_get_active_document` to discover valid page IDs. |
+| `PAGE_NOT_FOUND` | Specified pageId or pageIndex does not exist | Call `get_active_document` to discover valid page IDs. |
 | `INVALID_DESIGN_JSON` | Syntax or schema validation failure | Review `pencil-designer` skill rules and fix structure. |
-| `COLLECTION_NOT_FOUND`| Collection ID is invalid | Call `pencil_list_collections` to discover valid IDs. |
-| `SHAPE_NOT_FOUND` | Shape ID is invalid | Call `pencil_get_shape_definition` to verify available shapes. |
+| `COLLECTION_NOT_FOUND`| Collection ID is invalid | Call `list_collections` to discover valid IDs. |
+| `SHAPE_NOT_FOUND` | Shape ID is invalid | Call `get_shape_definition` to verify available shapes. |

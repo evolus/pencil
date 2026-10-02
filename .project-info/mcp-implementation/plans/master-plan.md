@@ -40,10 +40,10 @@ Phase 3: Implement Knowledge Base Delivery Tools
    │      (list_skills, use_skill, read_document from app/tools/mcp/kb/)
    ▼
 Phase 4: Implement Stencil & Icon Catalog Tools
-   │      (pencil_list_collections, pencil_get_shape_definition, pencil_list_icons)
+   │      (list_collections, get_shape_definition, list_icons)
    ▼
 Phase 5: Implement Design Realization & Canvas Manipulation Tools
-   │      (pencil_render_design, pencil_get_active_document, pencil_get_page_content, pencil_export_page)
+   │      (render_design, get_active_document, get_page_content, export_page)
    ▼
 [GATE 2 EXIT: All Tools Implemented, Functional over Streamable HTTP on port 1919]
    │
@@ -89,16 +89,16 @@ Phase 6: Automated Test Harness, Agent Verification & Documentation Gate
 
 #### Phase 4: Implement Stencil & Icon Catalog Tools
 - [ ] **Task 004:** Implement stencil collection and icon catalog tools (`.project-info/mcp-implementation/tasks/backlog/task-004-implement-stencil-and-icon-catalog-tools.md`):
-  - Tool `pencil_list_collections`: Lists all installed stencil collections and shape definitions from `CollectionManager`.
-  - Tool `pencil_get_shape_definition`: Returns exact schema, properties, and default values for any shape.
-  - Tool `pencil_list_icons`: Queries supported icon collections (Tabler, Lucide, FontAwesome, Material) via `ApplicationPane._instance.getIconList`.
+  - Tool `list_collections`: Lists all installed stencil collections and shape definitions from `CollectionManager`.
+  - Tool `get_shape_definition`: Returns exact schema, properties, and default values for a shape (or all shapes in a collection when `shapeId` is omitted).
+  - Tool `list_icons`: Queries supported icon collections (Tabler, Lucide, FontAwesome, Material) via `ApplicationPane._instance.getIconList`.
 
 #### Phase 5: Implement Design Realization & Canvas Manipulation Tools
 - [ ] **Task 005:** Implement canvas realization, page inspection, and export tools (`.project-info/mcp-implementation/tasks/backlog/task-005-implement-canvas-realization-and-document-tools.md`):
-  - Tool `pencil_render_design`: Accepts agent-constructed design JSON, renders PNG/SVG preview, or opens live in running Pencil window tab (`openAsDocument: true`).
-  - Tool `pencil_get_active_document`: Returns open document metadata, pages, dimensions, and shape counts.
-  - Tool `pencil_get_page_content`: Retrieves complete scene graph, shape hierarchy, and property metadata for a specific page by `pageId` or `pageIndex`.
-  - Tool `pencil_export_page`: Exports active page or document to PNG, SVG, or PDF.
+  - Tool `render_design`: Accepts agent-constructed design JSON, renders PNG/SVG preview, or opens live in running Pencil window tab (`openAsDocument: true`).
+  - Tool `get_active_document`: Returns open document metadata, pages, dimensions, and shape counts.
+  - Tool `get_page_content`: Retrieves complete scene graph, shape hierarchy, and property metadata for a specific page by `pageId` or `pageIndex`.
+  - Tool `export_page`: Exports active page or document to PNG, SVG, or PDF.
 
 ---
 

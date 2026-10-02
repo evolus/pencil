@@ -1,4 +1,4 @@
-# TASK-005: Implement Canvas Realization & Document Tools (`pencil_render_design`, `pencil_get_active_document`, `pencil_get_page_content`, `pencil_export_page`)
+# TASK-005: Implement Canvas Realization & Document Tools (`render_design`, `get_active_document`, `get_page_content`, `export_page`)
 
 ## Metadata
 - **Owner:** levantuan.itvn@gmail.com and Antigravity Agent
@@ -8,20 +8,20 @@
 - **Reference Codebase:** `app/views/ApplicationPane.js`, `app/tools/api-server.js`
 
 ## Objective
-Implement canvas realization and document manipulation tools on the MCP server: `pencil_render_design` (accepts agent-constructed design JSON, renders PNG/SVG preview, or opens live in running Pencil window tab via `openAsDocument: true`), `pencil_get_active_document`, `pencil_get_page_content`, and `pencil_export_page`.
+Implement canvas realization and document manipulation tools on the MCP server: `render_design` (accepts agent-constructed design JSON, renders PNG/SVG preview, or opens live in running Pencil window tab via `openAsDocument: true`), `get_active_document`, `get_page_content`, and `export_page`.
 
 ## Acceptance Criteria
-- [ ] Tool `pencil_render_design` exposed and calls `ApplicationPane._instance.convertDesignJSONToImage`.
+- [ ] Tool `render_design` exposed and calls `ApplicationPane._instance.convertDesignJSONToImage`.
 - [ ] Support `openAsDocument: true` to open the design directly into a new editable document tab in Pencil.
-- [ ] Tool `pencil_get_active_document` returns active document metadata, pages, dimensions, and shape counts.
-- [ ] Tool `pencil_get_page_content` returns scene graph, shape hierarchy, and properties for a specified page by ID or index.
-- [ ] Tool `pencil_export_page` exports active page/document to file (PNG, SVG, PDF).
+- [ ] Tool `get_active_document` returns active document metadata, pages, dimensions, and shape counts.
+- [ ] Tool `get_page_content` returns scene graph, shape hierarchy, and properties for a specified page by ID or index.
+- [ ] Tool `export_page` exports active page/document to file (PNG, SVG, PDF).
 
 ## Implementation Steps
-- [ ] Step 1: Implement `pencil_render_design` tool handler wiring directly to `ApplicationPane._instance`.
-- [ ] Step 2: Implement `pencil_get_active_document` querying the active editor, document title, and page list.
-- [ ] Step 3: Implement `pencil_get_page_content` extracting shapes and properties from the target page DOM.
-- [ ] Step 4: Implement `pencil_export_page` calling Pencil's exporter pipeline.
+- [ ] Step 1: Implement `render_design` tool handler wiring directly to `ApplicationPane._instance`.
+- [ ] Step 2: Implement `get_active_document` querying the active editor, document title, and page list.
+- [ ] Step 3: Implement `get_page_content` extracting shapes and properties from the target page DOM.
+- [ ] Step 4: Implement `export_page` calling Pencil's exporter pipeline.
 - [ ] Step 5: Validate execution of all canvas tools against live Pencil application.
 
 ## Session Notes & Progress Ledger
