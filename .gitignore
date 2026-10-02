@@ -10,3 +10,4 @@ Thumbs.db
 tmp
 .electron-cache
 .vscode
+.project-info/
