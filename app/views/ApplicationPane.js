@@ -465,13 +465,92 @@ ApplicationPane.prototype._createUtilCanvas = function () {
 const CONFIG_JSONRENDER_FONTS_OVERRIDE_FAMILY = "jsonrender.fonts.force-override-family";
 Config.UI_CUSTOM_FONT_FAMILY = Config.define(CONFIG_JSONRENDER_FONTS_OVERRIDE_FAMILY, "FiraSans");
 
-ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpenAsDocument) {
+ApplicationPane.prototype.locateShapeDefinition = function (type) {
+    if (!type || typeof type !== "string") return null;
+
+    var shapeDef = null;
+
+    // 1. If type contains a colon, it's explicitly namespaced (e.g. "Evolus.iOS:phone" or "dgthanhan.MaterialDesktopMockup:rectangle")
+    if (type.indexOf(":") >= 0) {
+        shapeDef = CollectionManager.shapeDefinition.locateDefinition(type);
+        if (!shapeDef) {
+            var shortcut = CollectionManager.shapeDefinition.locateShortcut(type);
+            if (shortcut) shapeDef = shortcut.shape;
+        }
+        if (shapeDef) return shapeDef;
+
+        // If not found with exact namespace, extract local type for fallback
+        type = type.substring(type.indexOf(":") + 1);
+    }
+
+    // 2. Try default collection (dgthanhan.MaterialDesktopMockup)
+    var defaultId = "dgthanhan.MaterialDesktopMockup:" + type;
+    shapeDef = CollectionManager.shapeDefinition.locateDefinition(defaultId);
+    if (shapeDef) return shapeDef;
+    var defaultShortcut = CollectionManager.shapeDefinition.locateShortcut(defaultId);
+    if (defaultShortcut) return defaultShortcut.shape;
+
+    // 3. Search across all loaded/installed collections (visible first, then others)
+    var collections = (CollectionManager.shapeDefinition && CollectionManager.shapeDefinition.collections) || [];
+    var visibleCols = [];
+    var otherCols = [];
+    for (var i = 0; i < collections.length; i++) {
+        var c = collections[i];
+        if (!c) continue;
+        var isVis = typeof CollectionManager.isCollectionVisible === "function" ? CollectionManager.isCollectionVisible(c) : (c.visible !== false);
+        if (isVis) visibleCols.push(c);
+        else otherCols.push(c);
+    }
+    var orderedCols = visibleCols.concat(otherCols);
+
+    for (var j = 0; j < orderedCols.length; j++) {
+        var col = orderedCols[j];
+        if (!col || !col.id) continue;
+        var testId = col.id + ":" + type;
+        shapeDef = CollectionManager.shapeDefinition.locateDefinition(testId);
+        if (shapeDef) return shapeDef;
+
+        var sc = CollectionManager.shapeDefinition.locateShortcut(testId);
+        if (sc) return sc.shape;
+    }
+
+    // 4. Case-insensitive local ID search across all collections
+    var lowerType = type.toLowerCase();
+    for (var k = 0; k < orderedCols.length; k++) {
+        var col2 = orderedCols[k];
+        if (!col2 || !col2.shapeDefs) continue;
+        for (var item in col2.shapeDefs) {
+            var def = col2.shapeDefs[item];
+            if (!def) continue;
+            var localId = def.id;
+            if (localId && localId.indexOf(":") >= 0) {
+                localId = localId.substring(localId.indexOf(":") + 1);
+            }
+            if (localId && localId.toLowerCase() === lowerType) {
+                return (def.constructor === Shortcut || def.shape) ? (def.shape || def) : def;
+            }
+        }
+    }
+
+    return null;
+};
+
+ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpenAsDocument, pageTitle) {
     let canvas = null;
+    let resolvedTitle = pageTitle || (design && (design.pageTitle || design.pageName || design.title || design.name || (design.canvas && (design.canvas.pageTitle || design.canvas.pageName || design.canvas.title || design.canvas.name))));
+    if (!resolvedTitle) {
+        if (this.controller && this.controller.doc && Array.isArray(this.controller.doc.pages)) {
+            resolvedTitle = "Page " + (this.controller.doc.pages.length + 1);
+        } else {
+            resolvedTitle = "Page 1";
+        }
+    }
+
     if (alsoOpenAsDocument) {
         if (this.controller.doc) {
             var size = this.getPreferredCanvasSize();
             var options = {
-                name: "Untitled Page",
+                name: resolvedTitle,
                 width: design.canvas.width,
                 height: design.canvas.height,
                 backgroundPageId: null,
@@ -487,6 +566,13 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
                 this.documentHandler.newDocument({ skipFontReload: true }, resolve);
             });
             await sleep(300);
+            if (this.controller && this.controller.activePage) {
+                this.controller.updatePageProperties(this.controller.activePage, {
+                    name: resolvedTitle,
+                    width: design.canvas?.width || this.controller.activePage.width,
+                    height: design.canvas?.height || this.controller.activePage.height
+                });
+            }
         }
 
         canvas = this.activeCanvas;
@@ -500,22 +586,27 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
     if (design.canvas?.width && design.canvas?.height) canvas.setSize(design.canvas.width, design.canvas.height);
 
     let overrideFontFamily = Config.get(CONFIG_JSONRENDER_FONTS_OVERRIDE_FAMILY, "");
+    let self = this;
 
     let insertRecursive = async (children, x, y) => {
+        if (!Array.isArray(children)) return;
         for (let child of children) {
+            if (!child) continue;
             if (child.type == "@group") {
-                await insertRecursive(child.children, x + child.x, y + child.y)
+                await insertRecursive(child.children, x + (child.x || 0), y + (child.y || 0));
             } else {
-                let shapeDefId = "dgthanhan.MaterialDesktopMockup:" + child.type;
-                let shapeDef = CollectionManager.shapeDefinition.locateDefinition(shapeDefId);
+                let shapeDef = self.locateShapeDefinition(child.type);
                 if (!shapeDef) {
-                    console.error("Ignoring unknow element: " + shapeDefId);
-                    return;
+                    console.error("Ignoring unknown element: " + child.type);
+                    continue; // Skip unknown element without aborting sibling traversal
                 }
 
                 let valueMap = {};
                 for (let k in child.properties) {
                     let pdef = shapeDef.getProperty(k);
+                    if (!pdef || !pdef.type) {
+                        continue;
+                    }
                     const valueLiteral = child.properties[k];
                     let value = pdef.type.fromString(valueLiteral);
 
@@ -534,12 +625,12 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
                 }
 
                 canvas.insertShapeImpl_(shapeDef, null, valueMap);
-                canvas.currentController.moveBy(x + child.x, y + child.y, true);
+                canvas.currentController.moveBy(x + (child.x || 0), y + (child.y || 0), true);
             }
         }
     };
 
-    insertRecursive(design.elements, 0, 0);
+    await insertRecursive(design.elements, 0, 0);
 
     await sleep(100);
     canvas.invalidateEditors();
@@ -551,7 +642,7 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
 
 const jsonRenderMutex = new Mutex();
 
-ApplicationPane.prototype.convertDesignJSONToImage = async function (json, useSVG, alsoOpenAsDocument) {
+ApplicationPane.prototype.convertDesignJSONToImage = async function (json, useSVG, alsoOpenAsDocument, pageTitle) {
     const release = await jsonRenderMutex.acquire();
     defaultIndicator.busy("Handling remote rendering request...");
 
@@ -559,22 +650,23 @@ ApplicationPane.prototype.convertDesignJSONToImage = async function (json, useSV
 
     try {
         if (!alsoOpenAsDocument) this._utilityDocumentHandler.resetTempDir();
-        return await this._convertDesignJSONToImageImpl(json, useSVG, alsoOpenAsDocument);
+        return await this._convertDesignJSONToImageImpl(json, useSVG, alsoOpenAsDocument, pageTitle);
     } finally {
         if (!alsoOpenAsDocument) this._useUtilityDocumentHandler = false;
         defaultIndicator.done();
         release();
     }
 }
-ApplicationPane.prototype._convertDesignJSONToImageImpl = async function (json, useSVG, alsoOpenAsDocument) {
+ApplicationPane.prototype._convertDesignJSONToImageImpl = async function (json, useSVG, alsoOpenAsDocument, pageTitle) {
     let design = JSON.parse(json);
-    let canvas = await this.loadDesignFromObject(design, alsoOpenAsDocument);
+    let resolvedTitle = pageTitle || (design && (design.pageTitle || design.pageName || design.title || design.name || (design.canvas && (design.canvas.pageTitle || design.canvas.pageName || design.canvas.title || design.canvas.name))));
+    let canvas = await this.loadDesignFromObject(design, alsoOpenAsDocument, resolvedTitle);
     await sleep(200);
 
     let size = canvas.getSize();
 
     let page = {
-        name: "design",
+        name: resolvedTitle || "design",
         width: size.width,
         height: size.height,
         canvas: canvas

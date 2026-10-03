@@ -11,3 +11,6 @@ tmp
 .electron-cache
 .vscode
 .project-info/
+.agents/
+yarn.lock
+package-lock.json

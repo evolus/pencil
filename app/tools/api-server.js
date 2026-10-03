@@ -14,7 +14,7 @@
         if (!json) throw new Error("Expecting JSON content");
 
         let useSVG = input.output == "svg"
-        let result = await ApplicationPane._instance.convertDesignJSONToImage(json, useSVG, input.openAsDocument);
+        let result = await ApplicationPane._instance.convertDesignJSONToImage(json, useSVG, input.openAsDocument, input.pageTitle || input.title);
         console.log("To return", result);
 
         if (useSVG) {
@@ -36,6 +36,20 @@
             icons: icons
         });
     });
+
+    // Mount Model Context Protocol (MCP) Streamable HTTP Server
+    try {
+        var path = require("path");
+        var fs = require("fs");
+        var mcpModulePath = path.join(__dirname, "tools/mcp/server.js");
+        if (!fs.existsSync(mcpModulePath)) {
+            mcpModulePath = path.join(__dirname, "mcp/server.js");
+        }
+        var mcp = require(mcpModulePath);
+        mcp.mountMcpServer(app);
+    } catch (mcpErr) {
+        console.error("Failed to mount Pencil MCP Server:", mcpErr);
+    }
 
     const PORT = 1919;
     app.listen(PORT, () => {
