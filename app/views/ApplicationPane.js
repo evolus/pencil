@@ -506,7 +506,7 @@ ApplicationPane.prototype.loadDesignFromObject = async function (design, alsoOpe
             if (child.type == "@group") {
                 await insertRecursive(child.children, x + child.x, y + child.y)
             } else {
-                let shapeDefId = "dgthanhan.MaterialDesktopMockup:" + child.type;
+                let shapeDefId = (child.type.indexOf(":") <= 0 ? "dgthanhan.MaterialDesktopMockup:" : "") + child.type;
                 let shapeDef = CollectionManager.shapeDefinition.locateDefinition(shapeDefId);
                 if (!shapeDef) {
                     console.error("Ignoring unknow element: " + shapeDefId);

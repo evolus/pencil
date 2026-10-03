@@ -121,7 +121,7 @@ FontEditor.prototype.setup = function () {
 
     this.weightCombo.useHtml = true;
     this.weightCombo.renderer = function (weight, buttonDisplay) {
-        var w = FontRepository.WEIGHT_MAP[weight];
+        var w = FontRepository.WEIGHT_MAP[weight] || {displayName: "Normal"};
         return "<span style=\"font-family: " + this.fontCombo.getSelectedItem().family + "; font-weight: " + weight + ";\">" + (buttonDisplay ? w.shortName : w.displayName) + "</span>";
     }.bind(this);
 };
