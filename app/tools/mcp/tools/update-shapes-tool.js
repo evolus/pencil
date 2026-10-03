@@ -113,21 +113,30 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
             }
 
             // 3. Update position (relative dx/dy or absolute x/y)
-            if (update.box.dx !== undefined || update.box.dy !== undefined) {
-                var dx = Number(update.box.dx) || 0;
-                var dy = Number(update.box.dy) || 0;
-                if (typeof shape.moveBy === "function") {
-                    shape.moveBy(dx, dy);
+            if (update.box.dx !== undefined || update.box.dy !== undefined || update.box.x !== undefined || update.box.y !== undefined) {
+                var targetNode = (shape && shape.svg) || svgNode;
+                var curTransform = targetNode.getAttribute("transform") || "";
+                var curMatrix = canvasHelper.parseMatrix(curTransform);
+
+                var finalX = curMatrix.e;
+                var finalY = curMatrix.f;
+
+                if (update.box.dx !== undefined || update.box.dy !== undefined) {
+                    finalX += (Number(update.box.dx) || 0);
+                    finalY += (Number(update.box.dy) || 0);
+                } else {
+                    if (update.box.x !== undefined) finalX = Number(update.box.x);
+                    if (update.box.y !== undefined) finalY = Number(update.box.y);
                 }
-            } else if (update.box.x !== undefined || update.box.y !== undefined) {
-                var curTransform = svgNode.getAttribute("transform") || "";
-                var curPos = canvasHelper.parseTransform(curTransform);
-                var targetX = update.box.x !== undefined ? Number(update.box.x) : curPos.x;
-                var targetY = update.box.y !== undefined ? Number(update.box.y) : curPos.y;
-                var moveDX = targetX - curPos.x;
-                var moveDY = targetY - curPos.y;
-                if (typeof shape.moveBy === "function") {
-                    shape.moveBy(moveDX, moveDY);
+
+                if (typeof Svg !== "undefined" && typeof Svg.ensureCTM === "function") {
+                    Svg.ensureCTM(targetNode, { a: curMatrix.a, b: curMatrix.b, c: curMatrix.c, d: curMatrix.d, e: finalX, f: finalY });
+                } else {
+                    targetNode.setAttribute("transform", "matrix(" + [curMatrix.a, curMatrix.b, curMatrix.c, curMatrix.d, finalX, finalY].join(",") + ")");
+                }
+
+                if (typeof shape.invalidateOutboundConnections === "function") {
+                    shape.invalidateOutboundConnections();
                 }
             }
         }

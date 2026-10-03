@@ -86,8 +86,13 @@ InsertShapesTool.prototype.execute = async function (args, context) {
                 var shapeX = curX + (child.x || 0);
                 var shapeY = curY + (child.y || 0);
 
-                if (canvas.currentController && typeof canvas.currentController.moveBy === "function") {
-                    canvas.currentController.moveBy(shapeX, shapeY, true);
+                var targetSvg = (canvas.currentController && canvas.currentController.svg);
+                if (targetSvg) {
+                    if (typeof Svg !== "undefined" && typeof Svg.ensureCTM === "function") {
+                        Svg.ensureCTM(targetSvg, { a: 1, b: 0, c: 0, d: 1, e: shapeX, f: shapeY });
+                    } else {
+                        targetSvg.setAttribute("transform", "matrix(1,0,0,1," + shapeX + "," + shapeY + ")");
+                    }
                 }
 
                 if (canvas.currentController && canvas.currentController.id) {

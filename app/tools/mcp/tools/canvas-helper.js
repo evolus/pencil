@@ -24,25 +24,42 @@ function getController(appPane) {
     return null;
 }
 
-function parseTransform(transformStr) {
-    var pos = { x: 0, y: 0 };
-    if (!transformStr || typeof transformStr !== "string") return pos;
+function parseMatrix(transformStr) {
+    var m = { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
+    if (!transformStr || typeof transformStr !== "string") return m;
 
-    var matrixMatch = transformStr.match(/matrix\s*\(\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),\s*([^)]+)\)/i);
+    var matrixMatch = transformStr.match(/matrix\s*\(\s*([-\d.eE]+)[\s,]+([-\d.eE]+)[\s,]+([-\d.eE]+)[\s,]+([-\d.eE]+)[\s,]+([-\d.eE]+)[\s,]+([-\d.eE]+)\s*\)/i);
     if (matrixMatch) {
-        pos.x = parseFloat(matrixMatch[1]) || 0;
-        pos.y = parseFloat(matrixMatch[2]) || 0;
-        return pos;
+        var a = parseFloat(matrixMatch[1]);
+        var b = parseFloat(matrixMatch[2]);
+        var c = parseFloat(matrixMatch[3]);
+        var d = parseFloat(matrixMatch[4]);
+        var e = parseFloat(matrixMatch[5]);
+        var f = parseFloat(matrixMatch[6]);
+        m.a = isNaN(a) ? 1 : a;
+        m.b = isNaN(b) ? 0 : b;
+        m.c = isNaN(c) ? 0 : c;
+        m.d = isNaN(d) ? 1 : d;
+        m.e = isNaN(e) ? 0 : e;
+        m.f = isNaN(f) ? 0 : f;
+        return m;
     }
 
-    var translateMatch = transformStr.match(/translate\s*\(\s*([^,\s)]+)(?:[,\s]+([^)]+))?\)/i);
+    var translateMatch = transformStr.match(/translate\s*\(\s*([-\d.eE]+)(?:[\s,]+([-\d.eE]+))?\s*\)/i);
     if (translateMatch) {
-        pos.x = parseFloat(translateMatch[1]) || 0;
-        pos.y = translateMatch[2] ? (parseFloat(translateMatch[2]) || 0) : 0;
-        return pos;
+        var te = parseFloat(translateMatch[1]);
+        var tf = translateMatch[2] ? parseFloat(translateMatch[2]) : 0;
+        m.e = isNaN(te) ? 0 : te;
+        m.f = isNaN(tf) ? 0 : tf;
+        return m;
     }
 
-    return pos;
+    return m;
+}
+
+function parseTransform(transformStr) {
+    var m = parseMatrix(transformStr);
+    return { x: m.e, y: m.f };
 }
 
 function findElementById(containerNode, id) {
@@ -150,6 +167,7 @@ module.exports = {
     getApplicationPane: getApplicationPane,
     getController: getController,
     parseTransform: parseTransform,
+    parseMatrix: parseMatrix,
     findElementById: findElementById,
     resolveTargetPageAndCanvas: resolveTargetPageAndCanvas
 };
