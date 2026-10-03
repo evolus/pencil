@@ -75,6 +75,10 @@ Once connected, you can ask your AI client things like:
 - *"Build an iOS login screen with email and password fields, a remember-me checkbox, and a primary button."*
 - *"Generate a desktop dashboard with three stat cards on top and a data table below."*
 - *"Inspect the active page and list the elements currently on the canvas."*
+- *"Change the label of button 'shape-1' to 'Submit Application' and change its background to green."*
+- *"Append a secondary cancel button next to the login button at x=220, y=300."*
+- *"Select the login card and submit button on the canvas."*
+- *"Delete the outdated placeholder shape 'shape-5'."*
 - *"Export the current page to PNG."*
 
 ---
@@ -92,6 +96,10 @@ Once connected, you can ask your AI client things like:
 | `render_design` | `{ content, pageTitle?, output?, openAsDocument? }` | Render design JSON to an image preview or open it in a canvas tab. |
 | `get_active_document` | `{}` | Get the active document title, page list, dimensions, and shape counts. |
 | `get_page_content` | `{ pageId?, pageIndex?, format? }` | Get page elements, layout coordinates, and shape properties (`json`, `svg`, `summary`). |
+| `update_shapes` | `{ pageId?, shapes: [{ shapeId, properties?, box?, zOrder? }] }` | Selectively update properties, dimensions, position, and stacking order of shapes on canvas. |
+| `delete_shapes` | `{ pageId?, shapeIds: string[] }` | Remove shapes from canvas by shapeId, clearing selection and capturing undo memento. |
+| `insert_shapes` | `{ pageId?, x?, y?, elements: [...] }` | Append new shapes onto an existing canvas without clearing existing shapes. |
+| `select_shapes` | `{ pageId?, shapeIds: string[] }` | Highlight and focus shapes on the active desktop canvas window. |
 | `export_page` | `{ pageId?, format?, outputPath? }` | Export a page to PNG, SVG, or PDF. |
 | `pencil_status` | `{}` | Get server runtime diagnostics (only available when started with `--enable-dev`). |
 
@@ -100,11 +108,14 @@ Once connected, you can ask your AI client things like:
 ## Good to Know
 
 - **Editable shapes**: All elements added to the canvas are native Pencil shapes, so you can manually select, move, edit, or restyle them anytime.
+- **Incremental editing**: With `update_shapes`, `insert_shapes`, and `delete_shapes`, you can iteratively refine existing wireframes while preserving full undo/redo (`Ctrl+Z`) history.
 - **Visible collections**: `list_collections` only returns collections currently toggled visible in Pencil to keep context clean.
 - **Testing**: Run the automated test suites with:
   ```bash
   NODE_PATH=./app/node_modules node .project-info/mcp-implementation/tests/test-mcp-server.js
   NODE_PATH=./app/node_modules node .project-info/mcp-implementation/tests/test-enhancements.js
+  NODE_PATH=./app/node_modules node .project-info/mcp-implementation/tests/test-granular-editing.js
   NODE_PATH=./app/node_modules node .project-info/mcp-implementation/tests/simulate-client-workflow.js
   ```
+
 

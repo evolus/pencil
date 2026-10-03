@@ -16,6 +16,10 @@ var GetActiveDocumentTool = require("./get-active-document-tool.js").GetActiveDo
 var GetPageContentTool = require("./get-page-content-tool.js").GetPageContentTool;
 var ExportPageTool = require("./export-page-tool.js").ExportPageTool;
 var ListIconsTool = require("./list-icons-tool.js").ListIconsTool;
+var UpdateShapesTool = require("./update-shapes-tool.js").UpdateShapesTool;
+var DeleteShapesTool = require("./delete-shapes-tool.js").DeleteShapesTool;
+var InsertShapesTool = require("./insert-shapes-tool.js").InsertShapesTool;
+var SelectShapesTool = require("./select-shapes-tool.js").SelectShapesTool;
 
 /**
  * Checks whether --enable-dev flag was passed on the command line.
@@ -116,6 +120,12 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new GetPageContentTool());
     registry.register(new ExportPageTool());
     registry.register(new ListIconsTool());
+
+    // Granular canvas mutation & editing tools
+    registry.register(new UpdateShapesTool());
+    registry.register(new DeleteShapesTool());
+    registry.register(new InsertShapesTool());
+    registry.register(new SelectShapesTool());
 
     return registry;
 };
