@@ -1,26 +1,15 @@
 /**
- * Stencil & Icon Catalog Tools Module
- * Defines and exports all stencil collection and icon discovery tools:
+ * Stencil & Resource Catalog Tools Module
+ * Defines and exports all stencil collection and resource discovery tools:
  * - list_collections: Lists installed and visible stencil collections
  * - get_shape_definition: Inspects shape property schemas and defaults
- * - list_icons: Queries vector icon libraries
+ * - list_collection_resources: Discovers bundled vector and bitmap resources
  */
 
+var fs = require("fs");
+var path = require("path");
 var z = require("zod").z;
 var BaseTool = require("./base-tool.js").BaseTool;
-
-var SUPPORTED_ICON_TYPES = [
-    "cmdi",
-    "bootstrap",
-    "fa",
-    "glow",
-    "herooutline",
-    "herosolid",
-    "lucide",
-    "mingcute",
-    "tablerfilled",
-    "tableroutline"
-];
 
 // =============================================================================
 // Tool: list_collections
@@ -301,46 +290,179 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
 };
 
 // =============================================================================
-// Tool: list_icons
+// Tool: list_collection_resources
 // =============================================================================
 
-function ListIconsTool() {
+function scanDirectoryForResources(dirPath, relPrefix, typeFilter, keyword, results, limit) {
+    if (results.length >= limit) return;
+    if (!fs.existsSync(dirPath)) return;
+
+    var entries = [];
+    try {
+        entries = fs.readdirSync(dirPath);
+    } catch (e) {
+        return;
+    }
+
+    for (var i = 0; i < entries.length; i++) {
+        if (results.length >= limit) break;
+        var name = entries[i];
+        if (name.startsWith(".")) continue;
+
+        var fullPath = path.join(dirPath, name);
+        var stat = null;
+        try {
+            stat = fs.statSync(fullPath);
+        } catch (e) {
+            continue;
+        }
+
+        var currentRel = relPrefix ? (relPrefix + "/" + name) : name;
+
+        if (stat.isDirectory()) {
+            scanDirectoryForResources(fullPath, currentRel, typeFilter, keyword, results, limit);
+        } else if (stat.isFile()) {
+            var ext = path.extname(name).toLowerCase();
+            var resType = null;
+            if (ext === ".svg") {
+                resType = "svg";
+            } else if (ext === ".png" || ext === ".jpg" || ext === ".jpeg" || ext === ".gif" || ext === ".webp") {
+                resType = "bitmap";
+            }
+
+            if (!resType) continue;
+            if (typeFilter !== "all" && resType !== typeFilter) continue;
+
+            if (keyword) {
+                var matchName = name.toLowerCase();
+                var matchRel = currentRel.toLowerCase();
+                if (matchName.indexOf(keyword) === -1 && matchRel.indexOf(keyword) === -1) {
+                    continue;
+                }
+            }
+
+            results.push({
+                name: path.basename(name, ext),
+                relativePath: currentRel.replace(/\\/g, "/"),
+                type: resType
+            });
+        }
+    }
+}
+
+function ListCollectionResourcesTool() {
     BaseTool.call(
         this,
-        "list_icons",
-        "List available icons from built-in or loaded icon collections.",
+        "list_collection_resources",
+        "Discovers available vector (SVG) and raster/bitmap (PNG, JPEG) resources exposed by loaded stencil collections.",
         {
-            iconType: z.enum(SUPPORTED_ICON_TYPES).optional().default("cmdi").describe("The icon collection identifier. Defaults to cmdi.")
+            collectionId: z.string().optional().describe("Optional collection ID (e.g. 'lucideIcons', 'Common'). If omitted, searches across all loaded collections."),
+            type: z.enum(["all", "svg", "bitmap"]).optional().default("all").describe("Filter by resource type: 'svg' for vector graphics, 'bitmap' for raster images, or 'all'."),
+            keyword: z.string().optional().describe("Case-insensitive keyword to filter resource names or relative paths."),
+            limit: z.number().int().positive().optional().default(100).describe("Maximum number of resources to return (default 100).")
         }
     );
 }
-ListIconsTool.prototype = new BaseTool();
+ListCollectionResourcesTool.prototype = new BaseTool();
 
-ListIconsTool.prototype.execute = async function (args, context) {
-    var appPane = null;
-    if (typeof ApplicationPane !== "undefined" && ApplicationPane._instance) {
-        appPane = ApplicationPane._instance;
-    } else if (typeof window !== "undefined" && window.ApplicationPane && window.ApplicationPane._instance) {
-        appPane = window.ApplicationPane._instance;
-    } else if (typeof global !== "undefined" && global.ApplicationPane && global.ApplicationPane._instance) {
-        appPane = global.ApplicationPane._instance;
+ListCollectionResourcesTool.prototype._getCollectionManager = function () {
+    if (typeof CollectionManager !== "undefined") {
+        return CollectionManager;
+    }
+    if (typeof window !== "undefined" && window.CollectionManager) {
+        return window.CollectionManager;
+    }
+    if (typeof global !== "undefined" && global.CollectionManager) {
+        return global.CollectionManager;
+    }
+    return null;
+};
+
+ListCollectionResourcesTool.prototype.execute = async function (args, context) {
+    args = args || {};
+    var collectionId = args.collectionId ? args.collectionId.trim() : null;
+    var typeFilter = args.type || "all";
+    var keyword = args.keyword ? args.keyword.trim().toLowerCase() : null;
+    var limit = typeof args.limit === "number" ? Math.max(1, args.limit) : 100;
+
+    var colMgr = this._getCollectionManager();
+    var allCols = (colMgr && colMgr.shapeDefinition && Array.isArray(colMgr.shapeDefinition.collections))
+        ? colMgr.shapeDefinition.collections
+        : [];
+
+    var targetCols = [];
+    if (collectionId) {
+        var mappedId = (typeof ApplicationPane !== "undefined" && ApplicationPane.SUPPORTED_ICON_TYPES && ApplicationPane.SUPPORTED_ICON_TYPES[collectionId])
+            ? ApplicationPane.SUPPORTED_ICON_TYPES[collectionId]
+            : collectionId;
+
+        for (var i = 0; i < allCols.length; i++) {
+            if (allCols[i] && (allCols[i].id === collectionId || allCols[i].id === mappedId)) {
+                targetCols.push(allCols[i]);
+                break;
+            }
+        }
+
+        if (targetCols.length === 0) {
+            throw new Error("Collection '" + collectionId + "' not found. Call list_collections to discover valid collection IDs.");
+        }
+    } else {
+        targetCols = allCols;
     }
 
-    if (!appPane) {
-        throw new Error("ApplicationPane is not available. Please ensure Evolus Pencil desktop application is running.");
-    }
+    var allResources = [];
 
-    var iconType = args.iconType || "cmdi";
-    var icons = await appPane.getIconList(iconType);
+    for (var c = 0; c < targetCols.length; c++) {
+        if (allResources.length >= limit) break;
+        var col = targetCols[c];
+        if (!col || !col.installDirPath) continue;
+
+        var colResources = [];
+
+        if (Array.isArray(col.RESOURCE_LIST) && col.RESOURCE_LIST.length > 0) {
+            for (var r = 0; r < col.RESOURCE_LIST.length; r++) {
+                if (allResources.length + colResources.length >= limit) break;
+                var resMeta = col.RESOURCE_LIST[r];
+                if (!resMeta || !resMeta.prefix) continue;
+                if (typeFilter !== "all" && resMeta.type && resMeta.type !== typeFilter) continue;
+
+                var resDir = path.join(col.installDirPath, resMeta.prefix);
+                scanDirectoryForResources(resDir, resMeta.prefix, typeFilter, keyword, colResources, limit - allResources.length);
+            }
+        } else {
+            var candidates = ["Icons", "bitmaps", "vectors", "resources", "images"];
+            for (var d = 0; d < candidates.length; d++) {
+                if (allResources.length + colResources.length >= limit) break;
+                var candDir = path.join(col.installDirPath, candidates[d]);
+                if (fs.existsSync(candDir)) {
+                    scanDirectoryForResources(candDir, candidates[d], typeFilter, keyword, colResources, limit - allResources.length);
+                }
+            }
+        }
+
+        for (var k = 0; k < colResources.length; k++) {
+            if (allResources.length >= limit) break;
+            var item = colResources[k];
+            allResources.push({
+                collectionId: col.id,
+                collectionName: col.displayName || col.id,
+                name: item.name,
+                relativePath: item.relativePath,
+                type: item.type
+            });
+        }
+    }
 
     return {
         content: [
             {
                 type: "text",
                 text: JSON.stringify({
-                    iconType: iconType,
-                    count: Array.isArray(icons) ? icons.length : 0,
-                    icons: icons || []
+                    totalCount: allResources.length,
+                    limit: limit,
+                    type: typeFilter,
+                    collectionId: collectionId || null,
+                    resources: allResources
                 }, null, 2)
             }
         ]
@@ -350,6 +472,5 @@ ListIconsTool.prototype.execute = async function (args, context) {
 module.exports = {
     ListCollectionsTool: ListCollectionsTool,
     GetShapeDefinitionTool: GetShapeDefinitionTool,
-    ListIconsTool: ListIconsTool,
-    SUPPORTED_ICON_TYPES: SUPPORTED_ICON_TYPES
+    ListCollectionResourcesTool: ListCollectionResourcesTool
 };

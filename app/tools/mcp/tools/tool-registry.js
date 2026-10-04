@@ -105,10 +105,10 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new kbTool.UseSkillTool(options));
     registry.register(new kbTool.ReadDocumentTool(options));
 
-    // 2. Stencil & Icon Catalog Tools
+    // 2. Stencil & Resource Catalog Tools
     registry.register(new stencilTool.ListCollectionsTool());
     registry.register(new stencilTool.GetShapeDefinitionTool());
-    registry.register(new stencilTool.ListIconsTool());
+    registry.register(new stencilTool.ListCollectionResourcesTool());
 
     // 3. Document & Canvas Realization Tools
     registry.register(new documentTool.RenderDesignTool());
@@ -121,6 +121,7 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new editingTool.DeleteShapesTool());
     registry.register(new editingTool.InsertShapesTool());
     registry.register(new editingTool.SelectShapesTool());
+    registry.register(new editingTool.SetImageDataTool());
 
     return registry;
 };

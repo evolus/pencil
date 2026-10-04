@@ -38,15 +38,15 @@ Shape specifications are **mandatory design information**. They define the offic
 
 ---
 
-## 🖼️ Imagery & Icon Protocols
+## 🖼️ Imagery & Resource Protocols (ImageData)
 
-* **Built-in Vector Icons (Recommended):** Use the `ImageData` icon pointer protocol:
-  `"[width],[height],icon://[pack]/[icon-name]"`
-  * Supported packs: `tableroutline`, `tablerfilled`, `cmdi`, `lucide`, `herooutline`, `herosolid`, `bootstrap`, `fa`.
-  * Standard icon query tool: When available, call `get_supported_icons` to verify icon names.
-  * Examples: `"20,20,icon://tableroutline/search"`, `"16,16,icon://tableroutline/chevron-down"`, `"24,24,icon://cmdi/account"`.
-  * Empty icon: `"0,0,"`.
-* **Bitmap / External Images:** Use base64 data URIs (`"300,200,data:image/png;base64,..."`) or direct placeholder URLs (`"260,160,https://picsum.photos/260/160"`).
+In Pencil, all graphics (vectors, photos, icons, and illustrations) are unified under the `ImageData` type:
+* **Discovering Collection Resources:** Use `list_collection_resources` (with optional `type: "svg"` or `type: "bitmap"`) to discover available vector graphics, brand assets, and icons bundled with loaded stencil collections.
+* **Setting Shape Images Efficiently (Recommended):** Use `set_image_data` with `shapeId`, `collectionId`, and `resourcePath`. This automatically copies the asset into document references (`ref://`), derives intrinsic dimensions, and assigns the property without transmitting large base64 data over JSON-RPC.
+* **Initial Design Elements Property Syntax:** When declaring `ImageData` properties in initial design JSON, use the canonical `"[width],[height],[payload]"` string format:
+  * Document reference: `"24,24,ref://asset-id.svg"`
+  * Empty image: `"0,0,"`.
+  * Inline raster or SVG data URI: `"300,200,data:image/png;base64,..."`.
 
 ---
 

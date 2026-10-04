@@ -65,7 +65,7 @@ A valid `.ep.json` document consists of a root JSON object with exactly two top-
         "fillColor": "#2563EBFF",
         "textColor": "#FFFFFFFF",
         "textFont": "FiraSans|medium|normal|14px|none|1.5",
-        "icon": "16,16,icon://tableroutline/plus",
+        "icon": "16,16,ref://tablerOutlineIcons/outline/plus.svg",
         "radius": "6,0",
         "disabled": "false"
       }

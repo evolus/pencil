@@ -744,33 +744,6 @@ function resolveImageData(value) {
         } catch (e) {
             console.error(e);
         }
-    } else if (value.data.match(/^icon:\/\/([a-z0-9]+)\/([^ \r\n\t\/]+)$/)) {
-
-        let type = RegExp.$1;
-        let name = RegExp.$2;
-        let collectionId = ApplicationPane.SUPPORTED_ICON_TYPES[type];
-        if (!collectionId) return;
-
-        let collection = CollectionManager.findCollection(collectionId);
-        if (!collection) return;
-        let found = null;
-        for (let resource of collection.RESOURCE_LIST) {
-            if (resource.type != "svg") continue;
-            let fp = path.join(collection.installDirPath, resource.prefix, name + "." + resource.type);
-            if (fs.existsSync(fp)) {
-                found = fp;
-                break;
-            }
-        }
-
-        if (found) {
-            console.log("Found", value.data, found);
-            let svg = fs.readFileSync(found, "utf8").replace(/^\uFEFF/, '');
-            value.w = 10;
-            value.h = 10;
-            value.data = ImageData.SVG_IMAGE_DATA_PREFIX + ";base64," + Buffer.from(svg).toString('base64');
-            fixImageImageSize(value, svg);
-        }
     }
 
     function fixImageImageSize(value, svg) {

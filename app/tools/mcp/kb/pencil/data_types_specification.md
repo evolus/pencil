@@ -207,35 +207,30 @@ Represents an interactive on-canvas drag control point or corner rounding contro
 ---
 
 ### 2.10 ImageData
-Represents an image asset or icon coupled with its intrinsic dimensions.
+Represents an image asset (bitmap raster or vector SVG) coupled with its intrinsic dimensions. In Pencil's architecture, there is no distinct "icon" data type; all icons, graphics, and photos are unified under `ImageData`.
+
 * **Engine Source:** `pencil-core/propertyType/imageData.js`
 * **Format:** `"[width],[height],[payload]"`
 * **Regex:** `ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]*)$/;`
 * **Components:**
-  1. `width,height`: Intrinsic pixel dimensions of the image or icon. Set to `0,0,` to represent an empty image.
-  2. `payload`: Either a built-in icon URI or a base64 Data URI.
+  1. `width,height`: Intrinsic pixel dimensions of the image asset. Set to `0,0,` to represent an empty image.
+  2. `payload`: Asset pointer or content:
+     - **Document Reference (`ref://<id>`):** High-efficiency reference to an asset copied into the document's `.ref/` storage (e.g. `"ref://f3a1-asset.svg"`). This is the standard mechanism produced when using `set_image_data` or browsing collection resources.
+     - **Data URI (`data:...`):** Inline base64 bitmap (`data:image/png;base64,...`) or SVG string (`data:image/svg+xml,...`).
 
-#### Built-in Icon Pointer Protocol:
-Pencil bundles built-in vector icon packs accessible via the `icon://` protocol:
-* **Syntax:** `"[width],[height],icon://[pack]/[icon-name]"`
-* **Supported Icon Packs:**
-  * `cmdi`: Community Material Design Icons (`icon://cmdi/account`, `icon://cmdi/email-outline`)
-  * `tableroutline`: Tabler Outline Icons (`icon://tableroutline/user`, `icon://tableroutline/search`, `icon://tableroutline/plus`)
-  * `tablerfilled`: Tabler Filled Icons (`icon://tablerfilled/star`, `icon://tablerfilled/heart`)
-  * `lucide`: Lucide Icons (`icon://lucide/settings`, `icon://lucide/arrow-right`)
-  * `herooutline`: Heroicons Outline (`icon://herooutline/check`, `icon://herooutline/chevron-down`)
-  * `herosolid`: Heroicons Solid (`icon://herosolid/check`, `icon://herosolid/star`)
-  * `bootstrap`: Bootstrap Icons (`icon://bootstrap/bell`, `icon://bootstrap/gear`)
-  * `fa`: Font Awesome (`icon://fa/home`, `icon://fa/envelope`)
-  * `glow`: Glow UI Icons
+#### Collection Resources & Efficient Tooling:
+Stencil collections expose available vector and bitmap assets via `collection.RESOURCE_LIST`.
+- To discover available resources, use the `list_collection_resources` MCP tool.
+- To assign a collection resource to a shape property, use the `set_image_data` tool with `shapeId`, `collectionId`, and `resourcePath`. This automatically derives intrinsic dimensions and links the document reference without transferring raw base64 payloads over JSON-RPC.
+
 * **Valid Examples:**
-  * `"20,20,icon://tableroutline/search"` (Standard 20px input search icon)
-  * `"16,16,icon://tableroutline/chevron-down"` (Standard 16px dropdown chevron)
-  * `"0,0,"` (Empty icon—no icon displayed)
-  * `"48,48,data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0..."` (Custom SVG asset)
+  * `"24,24,ref://a4e21b-search.svg"` (Document reference to collection vector asset)
+  * `"48,48,ref://b512c0-avatar.png"` (Document reference to bitmap image asset)
+  * `"0,0,"` (Empty image—no asset displayed)
+  * `"48,48,data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0..."` (Inline SVG data URI)
 * **Invalid Examples:**
-  * `"icon://tableroutline/user"` *(missing intrinsic width and height prefix)*
-  * `"20,20,user"` *(missing `icon://pack/` protocol)*
+  * `"ref://asset.svg"` *(missing intrinsic width and height prefix)*
+  * `"search.svg"` *(missing protocol prefix and dimensions)*
 
 ---
 

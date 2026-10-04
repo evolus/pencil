@@ -148,7 +148,139 @@ ResourceRegistry.prototype.bindToServer = function (mcpServer) {
         }
     );
 
-    this.logger.debug("Bound MCP resources: pencil://skills/pencil-designer, pencil://collections, pencil://active-document");
+    // 4. Document Resources: pencil://document/resources
+    mcpServer.registerResource(
+        "pencil_document_resources",
+        "pencil://document/resources",
+        {
+            title: "Active Document Image Resources",
+            description: "Inspection of image assets and file references (ref://) bundled in the active document.",
+            mimeType: "application/json"
+        },
+        async function (uri) {
+            var resources = [];
+            var refDir = null;
+
+            if (typeof Pencil !== "undefined" && Pencil.documentHandler && Pencil.documentHandler.tempDir) {
+                var subRef = (typeof Controller !== "undefined" && Controller.SUB_REFERENCE) ? Controller.SUB_REFERENCE : ".ref";
+                refDir = path.join(Pencil.documentHandler.tempDir.name, subRef);
+            }
+
+            if (refDir && fs.existsSync(refDir)) {
+                try {
+                    var files = fs.readdirSync(refDir);
+                    for (var i = 0; i < files.length; i++) {
+                        var fName = files[i];
+                        if (fName.startsWith(".")) continue;
+                        var fPath = path.join(refDir, fName);
+                        var stat = fs.statSync(fPath);
+                        if (!stat.isFile()) continue;
+
+                        var ext = path.extname(fName).toLowerCase();
+                        var resType = (ext === ".svg" || fName.endsWith("_svg")) ? "svg" : "bitmap";
+
+                        resources.push({
+                            refId: fName,
+                            refUri: "ref://" + fName,
+                            type: resType,
+                            sizeBytes: stat.size
+                        });
+                    }
+                } catch (e) {
+                    self.logger.error("Failed to read document reference directory:", e);
+                }
+            }
+
+            return {
+                contents: [
+                    {
+                        uri: uri.href || uri.toString(),
+                        mimeType: "application/json",
+                        text: JSON.stringify({
+                            count: resources.length,
+                            resources: resources
+                        }, null, 2)
+                    }
+                ]
+            };
+        }
+    );
+
+    // 5. Collection Resources: pencil://collections/resources
+    mcpServer.registerResource(
+        "pencil_collection_resources",
+        "pencil://collections/resources",
+        {
+            title: "Exposed Stencil Collection Resources",
+            description: "Summary catalog of vector and bitmap asset bundles exposed by loaded stencil collections.",
+            mimeType: "application/json"
+        },
+        async function (uri) {
+            var colMgr = (typeof CollectionManager !== "undefined") ? CollectionManager : (typeof window !== "undefined" ? window.CollectionManager : null);
+            var collectionsSummary = [];
+
+            var rawCols = (colMgr && colMgr.shapeDefinition && Array.isArray(colMgr.shapeDefinition.collections))
+                ? colMgr.shapeDefinition.collections
+                : ((colMgr && colMgr.collections) ? colMgr.collections : []);
+
+            for (var i = 0; i < rawCols.length; i++) {
+                var c = rawCols[i];
+                if (!c || !c.id || !c.installDirPath) continue;
+
+                var isVis = (typeof colMgr.isCollectionVisible === "function") ? colMgr.isCollectionVisible(c) : (c.visible !== false);
+                if (!isVis) continue;
+
+                var resourceBundles = [];
+                if (Array.isArray(c.RESOURCE_LIST) && c.RESOURCE_LIST.length > 0) {
+                    for (var r = 0; r < c.RESOURCE_LIST.length; r++) {
+                        var resItem = c.RESOURCE_LIST[r];
+                        if (resItem) {
+                            resourceBundles.push({
+                                name: resItem.name || resItem.prefix,
+                                prefix: resItem.prefix,
+                                type: resItem.type || "unknown"
+                            });
+                        }
+                    }
+                } else {
+                    var candidates = ["Icons", "vectors", "bitmaps", "resources", "images"];
+                    for (var d = 0; d < candidates.length; d++) {
+                        var candPath = path.join(c.installDirPath, candidates[d]);
+                        if (fs.existsSync(candPath)) {
+                            resourceBundles.push({
+                                name: candidates[d],
+                                prefix: candidates[d],
+                                type: (candidates[d] === "vectors" || candidates[d] === "Icons") ? "svg" : "bitmap"
+                            });
+                        }
+                    }
+                }
+
+                if (resourceBundles.length > 0) {
+                    collectionsSummary.push({
+                        id: c.id,
+                        displayName: c.displayName || c.id,
+                        resourceBundles: resourceBundles
+                    });
+                }
+            }
+
+            return {
+                contents: [
+                    {
+                        uri: uri.href || uri.toString(),
+                        mimeType: "application/json",
+                        text: JSON.stringify({
+                            count: collectionsSummary.length,
+                            collections: collectionsSummary
+                        }, null, 2)
+                    }
+                ]
+            };
+        }
+    );
+
+    this.logger.debug("Bound MCP resources: pencil://skills/pencil-designer, pencil://collections, pencil://active-document, pencil://document/resources, pencil://collections/resources");
 };
 
 module.exports = {
