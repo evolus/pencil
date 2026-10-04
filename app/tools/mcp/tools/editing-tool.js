@@ -1054,6 +1054,438 @@ function FindShapesTool() {
 FindShapesTool.prototype = Object.create(FindShapesInCanvasTool.prototype);
 FindShapesTool.prototype.constructor = FindShapesTool;
 
+// =============================================================================
+// Tool: align_shapes
+// =============================================================================
+
+function AlignShapesTool() {
+    BaseTool.call(
+        this,
+        "align_shapes",
+        "Aligns a selection of shapes along a specified boundary (left, center-horizontal, right, top, center-vertical, bottom) on the active or specified canvas page. If referenceShapeId is provided, all other shapes are aligned relative to that reference shape; otherwise shapes are aligned relative to their collective bounding box boundary.",
+        {
+            pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
+            pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
+            shapeIds: z.array(z.string()).min(1).describe("List of shape engine UUIDs to align. Must specify at least 2 shapes unless referenceShapeId is provided."),
+            mode: z.enum([
+                "left",
+                "center-horizontal",
+                "center",
+                "right",
+                "top",
+                "center-vertical",
+                "middle",
+                "bottom"
+            ]).describe("Alignment axis and anchor mode: 'left', 'center-horizontal' (or 'center'), 'right', 'top', 'center-vertical' (or 'middle'), 'bottom'."),
+            referenceShapeId: z.string().optional().describe("Optional reference shape ID to align all other shapes against. If omitted, shapes align to their collective bounding box boundary.")
+        }
+    );
+}
+AlignShapesTool.prototype = new BaseTool();
+
+AlignShapesTool.prototype.execute = async function (args, context) {
+    args = args || {};
+    var shapeIds = args.shapeIds || [];
+    var mode = args.mode;
+    var refId = args.referenceShapeId;
+
+    if (!refId && shapeIds.length < 2) {
+        throw new Error("At least 2 shapes must be specified in 'shapeIds' when 'referenceShapeId' is omitted.");
+    }
+
+    var appPane = canvasHelper.getApplicationPane();
+    var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
+    var canvas = target.canvas;
+
+    var resolution = canvasHelper.resolveTargetsForShapeIds(canvas, shapeIds);
+    var targets = resolution.targets;
+
+    if (targets.length === 0) {
+        throw new Error("None of the specified shapes were found on the canvas: " + resolution.notFound.join(", "));
+    }
+
+    /*
+     * When a referenceShapeId is provided, alignment anchors to the geometry of that
+     * specific reference target, leaving the reference shape unmoved and translating
+     * all other targets by the computed differential along the chosen axis via target.moveBy.
+     */
+    if (refId) {
+        var refTarget = null;
+        for (var i = 0; i < targets.length; i++) {
+            if (targets[i].id === refId) {
+                refTarget = targets[i];
+                break;
+            }
+        }
+        if (!refTarget) {
+            var refRes = canvasHelper.resolveTargetsForShapeIds(canvas, [refId]);
+            if (refRes.targets.length > 0) {
+                refTarget = refRes.targets[0];
+            }
+        }
+
+        if (!refTarget) {
+            throw new Error("Reference shape '" + refId + "' was not found on the canvas.");
+        }
+
+        var refRect = refTarget.getBoundingRect();
+
+        for (var j = 0; j < targets.length; j++) {
+            var t = targets[j];
+            if (t.id === refId) continue;
+
+            var curRect = t.getBoundingRect();
+            var dx = 0;
+            var dy = 0;
+
+            switch (mode) {
+                case "left":
+                    dx = Math.round(refRect.x - curRect.x);
+                    break;
+                case "center-horizontal":
+                case "center":
+                    dx = Math.round((refRect.x + refRect.width / 2) - (curRect.x + curRect.width / 2));
+                    break;
+                case "right":
+                    dx = Math.round((refRect.x + refRect.width) - (curRect.x + curRect.width));
+                    break;
+                case "top":
+                    dy = Math.round(refRect.y - curRect.y);
+                    break;
+                case "center-vertical":
+                case "middle":
+                    dy = Math.round((refRect.y + refRect.height / 2) - (curRect.y + curRect.height / 2));
+                    break;
+                case "bottom":
+                    dy = Math.round((refRect.y + refRect.height) - (curRect.y + curRect.height));
+                    break;
+            }
+
+            t.moveBy(dx, dy, true);
+        }
+    } else {
+        /*
+         * When referenceShapeId is omitted, align shapes relative to their common
+         * bounding box span using native TargetSet alignment methods.
+         */
+        var targetSet = new TargetSet(canvas, targets);
+
+        switch (mode) {
+            case "left":
+                targetSet.alignLeft();
+                break;
+            case "center-horizontal":
+            case "center":
+                targetSet.alignCenter();
+                break;
+            case "right":
+                targetSet.alignRight();
+                break;
+            case "top":
+                targetSet.alignTop();
+                break;
+            case "center-vertical":
+            case "middle":
+                targetSet.alignMiddle();
+                break;
+            case "bottom":
+                targetSet.alignBottom();
+                break;
+        }
+    }
+
+    if (typeof canvas.invalidateEditors === "function") canvas.invalidateEditors();
+    if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
+    if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
+    if (typeof canvas._saveMemento === "function") canvas._saveMemento("Align shapes (" + mode + ") via MCP");
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    pageId: target.pageId,
+                    mode: mode,
+                    alignedCount: targets.length,
+                    referenceShapeId: refId || null,
+                    shapeIds: targets.map(function (t) { return t.id; }),
+                    notFound: resolution.notFound
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: distribute_shapes
+// =============================================================================
+
+function DistributeShapesTool() {
+    BaseTool.call(
+        this,
+        "distribute_shapes",
+        "Distributes shapes evenly along an axis (horizontal or vertical) on the active or specified canvas page. When spacing is omitted, shapes are distributed evenly across the outer bounding span. When spacing is provided, shapes are spaced sequentially from first to last using the specified pixel gap.",
+        {
+            pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
+            pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
+            shapeIds: z.array(z.string()).min(2).describe("List of at least two shape engine UUIDs to distribute."),
+            axis: z.enum(["horizontal", "vertical"]).describe("Distribution direction: 'horizontal' (along X axis) or 'vertical' (along Y axis)."),
+            spacing: z.number().optional().describe("Optional fixed pixel gap between adjacent shapes. If omitted, shapes are distributed evenly across the outer bounding span.")
+        }
+    );
+}
+DistributeShapesTool.prototype = new BaseTool();
+
+DistributeShapesTool.prototype.execute = async function (args, context) {
+    args = args || {};
+    var shapeIds = args.shapeIds || [];
+    var axis = args.axis;
+    var spacing = args.spacing;
+
+    if (shapeIds.length < 2) {
+        throw new Error("At least 2 shapes must be specified in 'shapeIds' to distribute.");
+    }
+
+    var appPane = canvasHelper.getApplicationPane();
+    var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
+    var canvas = target.canvas;
+
+    var resolution = canvasHelper.resolveTargetsForShapeIds(canvas, shapeIds);
+    var targets = resolution.targets;
+
+    if (targets.length < 2) {
+        throw new Error("At least 2 valid shapes on the canvas are required for distribution; found " + targets.length + ".");
+    }
+
+    /*
+     * If explicit spacing is omitted, distribute shapes evenly across the bounding span
+     * using native TargetSet makeSameHorizontalSpace / makeSameVerticalSpace methods.
+     */
+    if (spacing === undefined || spacing === null) {
+        var targetSet = new TargetSet(canvas, targets);
+
+        if (axis === "horizontal") {
+            targetSet.makeSameHorizontalSpace();
+        } else if (axis === "vertical") {
+            targetSet.makeSameVerticalSpace();
+        }
+    } else {
+        /*
+         * Sequential gap spacing: sorts shapes along the axis, pins the first shape in place,
+         * and spaces all subsequent shapes consecutively with the requested pixel spacing via target.moveBy.
+         */
+        var pixelGap = Number(spacing);
+        if (axis === "horizontal") {
+            targets.sort(function (a, b) {
+                return a.getBoundingRect().x - b.getBoundingRect().x;
+            });
+            for (var h = 1; h < targets.length; h++) {
+                var prevRect = targets[h - 1].getBoundingRect();
+                var thisRect = targets[h].getBoundingRect();
+                var targetX = prevRect.x + prevRect.width + pixelGap;
+                var dx = Math.round(targetX - thisRect.x);
+                targets[h].moveBy(dx, 0, true);
+            }
+        } else {
+            targets.sort(function (a, b) {
+                return a.getBoundingRect().y - b.getBoundingRect().y;
+            });
+            for (var v = 1; v < targets.length; v++) {
+                var prevVRect = targets[v - 1].getBoundingRect();
+                var thisVRect = targets[v].getBoundingRect();
+                var targetY = prevVRect.y + prevVRect.height + pixelGap;
+                var dy = Math.round(targetY - thisVRect.y);
+                targets[v].moveBy(0, dy, true);
+            }
+        }
+    }
+
+    if (typeof canvas.invalidateEditors === "function") canvas.invalidateEditors();
+    if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
+    if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
+    if (typeof canvas._saveMemento === "function") canvas._saveMemento("Distribute shapes (" + axis + ") via MCP");
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    pageId: target.pageId,
+                    axis: axis,
+                    distributedCount: targets.length,
+                    spacing: spacing !== undefined ? spacing : "even",
+                    shapeIds: targets.map(function (t) { return t.id; }),
+                    notFound: resolution.notFound
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: move_shapes
+// =============================================================================
+
+function MoveShapesTool() {
+    BaseTool.call(
+        this,
+        "move_shapes",
+        "Translates one or more shapes on the active or specified canvas page by relative offsets (dx, dy) without requiring callers to compute absolute coordinates. Uses native target controller moveBy and TargetSet grouping.",
+        {
+            pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
+            pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
+            shapeIds: z.array(z.string()).min(1).describe("List of shape engine UUIDs to translate."),
+            dx: z.number().describe("Horizontal relative translation offset in pixels."),
+            dy: z.number().describe("Vertical relative translation offset in pixels.")
+        }
+    );
+}
+MoveShapesTool.prototype = new BaseTool();
+
+MoveShapesTool.prototype.execute = async function (args, context) {
+    args = args || {};
+    var shapeIds = args.shapeIds || [];
+    var dx = Number(args.dx) || 0;
+    var dy = Number(args.dy) || 0;
+
+    var appPane = canvasHelper.getApplicationPane();
+    var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
+    var canvas = target.canvas;
+
+    var resolution = canvasHelper.resolveTargetsForShapeIds(canvas, shapeIds);
+    var targets = resolution.targets;
+
+    if (targets.length === 0) {
+        throw new Error("None of the specified shapes were found on the canvas: " + resolution.notFound.join(", "));
+    }
+
+    /*
+     * Dispatches relative translation directly against the target: a single target
+     * or a TargetSet if multiple shapes are specified.
+     */
+    var target = targets.length > 1 ? new TargetSet(canvas, targets) : targets[0];
+    target.moveBy(dx, dy, true);
+
+    if (typeof canvas.invalidateEditors === "function") canvas.invalidateEditors();
+    if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
+    if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
+    if (typeof canvas._saveMemento === "function") canvas._saveMemento("Move shapes via MCP");
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    pageId: target.pageId,
+                    dx: dx,
+                    dy: dy,
+                    movedCount: targets.length,
+                    shapeIds: targets.map(function (t) { return t.id; }),
+                    notFound: resolution.notFound
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: shift_layout
+// =============================================================================
+
+function ShiftLayoutTool() {
+    BaseTool.call(
+        this,
+        "shift_layout",
+        "Reflows canvas layout by shifting all shapes whose coordinate along an axis (x or y) is greater than or equal to a specified threshold by delta pixels. Seamlessly inserts space for new sections or closes gaps when sections are removed.",
+        {
+            pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
+            pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
+            axis: z.enum(["x", "y"]).describe("Spatial reflow axis: 'x' (horizontal shift) or 'y' (vertical shift)."),
+            threshold: z.number().describe("Boundary coordinate along the axis: all shapes with coordinate >= threshold will be shifted."),
+            delta: z.number().describe("Pixel offset to shift matching shapes by (positive opens space, negative closes gaps).")
+        }
+    );
+}
+ShiftLayoutTool.prototype = new BaseTool();
+
+ShiftLayoutTool.prototype.execute = async function (args, context) {
+    args = args || {};
+    var axis = args.axis;
+    var threshold = Number(args.threshold);
+    var delta = Number(args.delta);
+
+    var appPane = canvasHelper.getApplicationPane();
+    var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
+    var canvas = target.canvas;
+
+    /*
+     * Query top-level elements directly within canvas.drawingLayer to avoid double-translating
+     * child shapes that reside inside grouped containers (<g p:type="Group">).
+     */
+    var childNodes = canvas.drawingLayer ? (canvas.drawingLayer.childNodes || canvas.drawingLayer.children || []) : [];
+    var affectedTargets = [];
+
+    for (var i = 0; i < childNodes.length; i++) {
+        var node = childNodes[i];
+        if (node.nodeType !== 1) continue;
+
+        var controller = null;
+        if (typeof canvas.createControllerFor === "function") {
+            controller = canvas.createControllerFor(node);
+        }
+        if ((!controller || (typeof Null !== "undefined" && controller instanceof Null)) && typeof Shape !== "undefined") {
+            try {
+                controller = new Shape(canvas, node);
+            } catch (err) {
+                controller = null;
+            }
+        }
+
+        if (!controller || (typeof Null !== "undefined" && controller instanceof Null) || !controller.id) {
+            continue;
+        }
+
+        var rect = controller.getBoundingRect();
+        var coord = (axis === "x") ? rect.x : rect.y;
+
+        if (coord >= threshold) {
+            affectedTargets.push(controller);
+        }
+    }
+
+    if (affectedTargets.length > 0) {
+        var dx = (axis === "x") ? delta : 0;
+        var dy = (axis === "y") ? delta : 0;
+
+        /*
+         * Execute the reflow translation directly on the target (single target or TargetSet).
+         */
+        var shiftTarget = affectedTargets.length > 1 ? new TargetSet(canvas, affectedTargets) : affectedTargets[0];
+        shiftTarget.moveBy(dx, dy, true);
+
+        if (typeof canvas.invalidateEditors === "function") canvas.invalidateEditors();
+        if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
+        if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
+        if (typeof canvas._saveMemento === "function") canvas._saveMemento("Shift layout (" + axis + ") via MCP");
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    pageId: target.pageId,
+                    axis: axis,
+                    threshold: threshold,
+                    delta: delta,
+                    shiftedCount: affectedTargets.length,
+                    shiftedShapeIds: affectedTargets.map(function (t) { return t.id; })
+                }, null, 2)
+            }
+        ]
+    };
+};
+
 module.exports = {
     UpdateShapesTool: UpdateShapesTool,
     DeleteShapesTool: DeleteShapesTool,
@@ -1061,6 +1493,10 @@ module.exports = {
     SelectShapesTool: SelectShapesTool,
     SetImageDataTool: SetImageDataTool,
     FindShapesInCanvasTool: FindShapesInCanvasTool,
-    FindShapesTool: FindShapesTool
+    FindShapesTool: FindShapesTool,
+    AlignShapesTool: AlignShapesTool,
+    DistributeShapesTool: DistributeShapesTool,
+    MoveShapesTool: MoveShapesTool,
+    ShiftLayoutTool: ShiftLayoutTool
 };
 

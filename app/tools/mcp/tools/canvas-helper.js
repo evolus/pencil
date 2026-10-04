@@ -353,6 +353,36 @@ function extractPageShapes(targetPage, canvas) {
     return shapes;
 }
 
+function resolveTargetsForShapeIds(canvas, shapeIds) {
+    if (!canvas || !Array.isArray(shapeIds)) {
+        return { targets: [], notFound: shapeIds || [] };
+    }
+
+    var targets = [];
+    var notFound = [];
+
+    for (var i = 0; i < shapeIds.length; i++) {
+        var id = shapeIds[i];
+        var svgNode = findElementById(canvas.drawingLayer, id);
+        if (!svgNode) {
+            notFound.push(id);
+            continue;
+        }
+
+        var controller = canvas.createControllerFor(svgNode);
+        if (controller && !(typeof Null !== "undefined" && controller instanceof Null)) {
+            targets.push(controller);
+        } else {
+            notFound.push(id);
+        }
+    }
+
+    return {
+        targets: targets,
+        notFound: notFound
+    };
+}
+
 module.exports = {
     getApplicationPane: getApplicationPane,
     getController: getController,
@@ -362,6 +392,7 @@ module.exports = {
     findElementById: findElementById,
     resolveTargetPageAndCanvas: resolveTargetPageAndCanvas,
     extractShapesFromDom: extractShapesFromDom,
-    extractPageShapes: extractPageShapes
+    extractPageShapes: extractPageShapes,
+    resolveTargetsForShapeIds: resolveTargetsForShapeIds
 };
 

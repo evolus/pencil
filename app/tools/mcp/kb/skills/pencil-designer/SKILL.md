@@ -153,6 +153,28 @@ When managing multi-screen flows, wireframes, or multi-page documents:
 
 ---
 
+## 📐 Spatial Layout, Alignment & Reflow Protocols
+
+Avoid tedious manual pixel arithmetic when adjusting layouts, inserting sections, or balancing components:
+
+1. **Aligning Shapes (`align_shapes`):**
+   - Use `align_shapes` with `shapeIds` and `mode` (`"left"`, `"center-horizontal"`, `"right"`, `"top"`, `"center-vertical"`, `"bottom"`).
+   - Provide `referenceShapeId` to anchor alignment to a specific reference element (e.g. centering labels relative to an input container).
+   - Omit `referenceShapeId` to align shapes relative to their common outer bounding box.
+
+2. **Distributing Elements (`distribute_shapes`):**
+   - Use `distribute_shapes` with `shapeIds` and `axis` (`"horizontal"` or `"vertical"`).
+   - Omit `spacing` to distribute items evenly across their collective bounding span.
+   - Provide explicit `spacing` (e.g. `spacing: 16`) to arrange items sequentially with exact pixel gaps.
+
+3. **Relative Group Translation (`move_shapes`):**
+   - Use `move_shapes` with `shapeIds`, `dx`, and `dy` to translate one or more elements relatively without querying current Cartesian positions.
+
+4. **Layout Reflow & Section Insertion (`shift_layout`):**
+   - Use `shift_layout` with `axis` (`"x"` or `"y"`), `threshold`, and `delta` to automatically push downstream shapes when opening space for a new section or pull them up when closing gaps.
+
+---
+
 ## 💎 Output Format Requirement
 
 Output **only** the raw JSON payload matching the `.ep.json` schema without markdown wrappers or backticks when called by automated pipelines, or enclosed within a single standard ```json block when presenting to a user.
