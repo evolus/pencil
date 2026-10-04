@@ -891,10 +891,176 @@ SetImageDataTool.prototype.execute = async function (args, context) {
     };
 };
 
+// =============================================================================
+// Tool: find_shapes_in_canvas (Alias: find_shapes)
+// =============================================================================
+
+function FindShapesInCanvasTool(toolName) {
+    BaseTool.call(
+        this,
+        toolName || "find_shapes_in_canvas",
+        "Queries and inspects shapes placed on the active or specified canvas page by criteria (type, text substring, region bounding box, or IDs) without dumping the full page DOM.",
+        {
+            pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
+            pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
+            type: z.string().optional().describe("Stencil shape type identifier or element type (e.g. 'button2', 'RoundedRect', 'Evolus.Common:RoundedRect', 'shape', 'group')."),
+            text: z.string().optional().describe("Case-insensitive text substring to match against shape text, label, or content properties."),
+            inRegion: z.object({
+                x: z.number().describe("X coordinate of bounding box."),
+                y: z.number().describe("Y coordinate of bounding box."),
+                w: z.number().describe("Width of bounding box."),
+                h: z.number().describe("Height of bounding box.")
+            }).optional().describe("Spatial bounding box filter {x, y, w, h} to find shapes overlapping this canvas region."),
+            ids: z.array(z.string()).optional().describe("List of specific shape engine UUIDs to find."),
+            includeProperties: z.boolean().optional().default(true).describe("Whether to include the full properties dictionary in the returned shape records (defaults to true).")
+        }
+    );
+}
+FindShapesInCanvasTool.prototype = new BaseTool();
+
+/*
+ * Evaluates whether a shape record satisfies all provided filter criteria.
+ * Supports type suffixes, substring text matching across all properties, and
+ * 2D bounding box intersection tests.
+ */
+FindShapesInCanvasTool.prototype._matchesCriteria = function (shape, args) {
+    if (!shape) return false;
+
+    // 1. Filter by specific IDs
+    if (Array.isArray(args.ids) && args.ids.length > 0) {
+        if (args.ids.indexOf(shape.id) === -1) {
+            return false;
+        }
+    }
+
+    // 2. Filter by type / def
+    if (args.type) {
+        var queryType = String(args.type).trim().toLowerCase();
+        var shapeType = String(shape.type || "").toLowerCase();
+        var shapeDef = String(shape.def || "").toLowerCase();
+
+        var matchesType = (shapeType === queryType) ||
+                          (shapeDef === queryType) ||
+                          (shapeDef.endsWith(":" + queryType)) ||
+                          (shapeDef.indexOf(queryType) !== -1);
+        if (!matchesType) return false;
+    }
+
+    // 3. Filter by text substring
+    if (args.text) {
+        var queryText = String(args.text).trim().toLowerCase();
+        var matchedText = false;
+
+        if (shape.text && String(shape.text).toLowerCase().indexOf(queryText) !== -1) {
+            matchedText = true;
+        } else if (shape.properties && typeof shape.properties === "object") {
+            for (var propKey in shape.properties) {
+                if (!shape.properties.hasOwnProperty(propKey)) continue;
+                var val = shape.properties[propKey];
+                if (val !== undefined && val !== null && String(val).toLowerCase().indexOf(queryText) !== -1) {
+                    matchedText = true;
+                    break;
+                }
+            }
+        }
+
+        if (!matchedText) return false;
+    }
+
+    // 4. Filter by region bounding box overlap
+    if (args.inRegion) {
+        var rx = 0, ry = 0, rw = 0, rh = 0;
+        if (Array.isArray(args.inRegion)) {
+            rx = Number(args.inRegion[0]) || 0;
+            ry = Number(args.inRegion[1]) || 0;
+            rw = Number(args.inRegion[2]) || 0;
+            rh = Number(args.inRegion[3]) || 0;
+        } else if (typeof args.inRegion === "object") {
+            rx = Number(args.inRegion.x) || 0;
+            ry = Number(args.inRegion.y) || 0;
+            rw = Number(args.inRegion.w) || 0;
+            rh = Number(args.inRegion.h) || 0;
+        }
+
+        var sx = Number(shape.box ? shape.box.x : shape.x) || 0;
+        var sy = Number(shape.box ? shape.box.y : shape.y) || 0;
+        var sw = Number(shape.box ? shape.box.w : shape.w) || 0;
+        var sh = Number(shape.box ? shape.box.h : shape.h) || 0;
+
+        var intersects = (sx <= rx + rw) && (sx + sw >= rx) && (sy <= ry + rh) && (sy + sh >= ry);
+        if (!intersects) return false;
+    }
+
+    return true;
+};
+
+FindShapesInCanvasTool.prototype.execute = async function (args, context) {
+    args = args || {};
+    var appPane = canvasHelper.getApplicationPane();
+    var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
+    var canvas = target.canvas;
+    var targetPage = target.page;
+
+    var allShapes = canvasHelper.extractPageShapes(targetPage, canvas);
+    var matchedShapes = [];
+
+    /*
+     * Default includeProperties to true so callers receive full property dictionaries
+     * (e.g. text0, fillColor, strokeColor) for downstream update_shapes construction
+     * without needing a separate full-page DOM dump.
+     */
+    var includeProps = (args.includeProperties !== false);
+
+    for (var i = 0; i < allShapes.length; i++) {
+        var s = allShapes[i];
+        if (this._matchesCriteria(s, args)) {
+            var item = {
+                id: s.id,
+                type: s.type,
+                def: s.def,
+                box: s.box,
+                x: s.x,
+                y: s.y,
+                w: s.w,
+                h: s.h
+            };
+            if (s.text) {
+                item.text = s.text;
+            }
+            if (includeProps) {
+                item.properties = s.properties || {};
+            }
+            matchedShapes.push(item);
+        }
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    pageId: target.pageId,
+                    totalFound: matchedShapes.length,
+                    shapes: matchedShapes
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+function FindShapesTool() {
+    FindShapesInCanvasTool.call(this, "find_shapes");
+}
+FindShapesTool.prototype = Object.create(FindShapesInCanvasTool.prototype);
+FindShapesTool.prototype.constructor = FindShapesTool;
+
 module.exports = {
     UpdateShapesTool: UpdateShapesTool,
     DeleteShapesTool: DeleteShapesTool,
     InsertShapesTool: InsertShapesTool,
     SelectShapesTool: SelectShapesTool,
-    SetImageDataTool: SetImageDataTool
+    SetImageDataTool: SetImageDataTool,
+    FindShapesInCanvasTool: FindShapesInCanvasTool,
+    FindShapesTool: FindShapesTool
 };
+

@@ -469,8 +469,162 @@ ListCollectionResourcesTool.prototype.execute = async function (args, context) {
     };
 };
 
+// =============================================================================
+// Tool: list_shape_definitions (Alias: list_shapes)
+// =============================================================================
+
+function ListShapeDefinitionsTool(toolName) {
+    BaseTool.call(
+        this,
+        toolName || "list_shape_definitions",
+        "Lists and searches lightweight stencil shape definitions from installed collections, with optional collection scoping, keyword search, and pagination without heavy schema bloat.",
+        {
+            collectionId: z.string().optional().describe("Optional collection ID (e.g. 'Evolus.Common', 'BasicWebElements'). If omitted, searches across all installed collections."),
+            query: z.string().optional().describe("Optional search keyword to match shape definition ID, displayName, or description."),
+            limit: z.number().int().positive().optional().default(50).describe("Maximum number of shape definitions to return (default: 50)."),
+            offset: z.number().int().nonnegative().optional().default(0).describe("0-based pagination offset (default: 0).")
+        }
+    );
+}
+ListShapeDefinitionsTool.prototype = new BaseTool();
+
+ListShapeDefinitionsTool.prototype._getCollectionManager = function () {
+    if (typeof CollectionManager !== "undefined") {
+        return CollectionManager;
+    }
+    if (typeof window !== "undefined" && window.CollectionManager) {
+        return window.CollectionManager;
+    }
+    if (typeof global !== "undefined" && global.CollectionManager) {
+        return global.CollectionManager;
+    }
+    return null;
+};
+
+/*
+ * Traverses candidate collections, aggregates lightweight shape definition records,
+ * applies keyword search filtering across ID, displayName, and description, and returns
+ * a paginated slice.
+ */
+ListShapeDefinitionsTool.prototype.execute = async function (args, context) {
+    args = args || {};
+    var collectionId = args.collectionId ? String(args.collectionId).trim() : null;
+    var query = args.query ? String(args.query).trim().toLowerCase() : null;
+    var limit = (args.limit !== undefined && args.limit !== null) ? Math.max(1, Number(args.limit)) : 50;
+    var offset = (args.offset !== undefined && args.offset !== null) ? Math.max(0, Number(args.offset)) : 0;
+
+    var colMgr = this._getCollectionManager();
+    if (!colMgr || !colMgr.shapeDefinition || !Array.isArray(colMgr.shapeDefinition.collections)) {
+        throw new Error("CollectionManager is not available in Pencil runtime memory.");
+    }
+
+    var allCols = colMgr.shapeDefinition.collections;
+    var targetCols = [];
+
+    if (collectionId) {
+        for (var i = 0; i < allCols.length; i++) {
+            if (allCols[i] && allCols[i].id === collectionId) {
+                targetCols.push(allCols[i]);
+                break;
+            }
+        }
+        if (targetCols.length === 0) {
+            throw new Error("Collection '" + collectionId + "' not found. Call list_collections to discover valid collection IDs.");
+        }
+    } else {
+        for (var c = 0; c < allCols.length; c++) {
+            var col = allCols[c];
+            if (!col || !col.id) continue;
+            var isVisible = true;
+            if (typeof colMgr.isCollectionVisible === "function") {
+                isVisible = colMgr.isCollectionVisible(col);
+            } else if (typeof col.visible !== "undefined") {
+                isVisible = (col.visible === true);
+            }
+            if (isVisible) {
+                targetCols.push(col);
+            }
+        }
+    }
+
+    var allDefs = [];
+
+    for (var j = 0; j < targetCols.length; j++) {
+        var tCol = targetCols[j];
+        var cId = tCol.id;
+
+        var shapeDefsList = [];
+        if (Array.isArray(tCol.shapeDefs)) {
+            shapeDefsList = tCol.shapeDefs;
+        } else if (tCol.shapeDefs && typeof tCol.shapeDefs === "object") {
+            for (var key in tCol.shapeDefs) {
+                if (tCol.shapeDefs.hasOwnProperty(key)) {
+                    var sObj = tCol.shapeDefs[key];
+                    shapeDefsList.push((sObj && sObj.id) ? sObj : { id: key });
+                }
+            }
+        }
+
+        for (var k = 0; k < shapeDefsList.length; k++) {
+            var sDef = shapeDefsList[k];
+            if (!sDef || !sDef.id) continue;
+
+            var sId = sDef.id;
+            var displayName = sDef.displayName || sId;
+            var description = sDef.description || "";
+            var shapeType = cId + ":" + sId;
+            var iconPath = sDef.icon || sDef.iconPath || "";
+
+            if (query) {
+                var matches = (sId.toLowerCase().indexOf(query) !== -1) ||
+                              (displayName.toLowerCase().indexOf(query) !== -1) ||
+                              (description.toLowerCase().indexOf(query) !== -1) ||
+                              (shapeType.toLowerCase().indexOf(query) !== -1);
+                if (!matches) continue;
+            }
+
+            allDefs.push({
+                id: sId,
+                shapeType: shapeType,
+                collectionId: cId,
+                displayName: displayName,
+                description: description,
+                iconPath: iconPath
+            });
+        }
+    }
+
+    var total = allDefs.length;
+    var paginated = allDefs.slice(offset, offset + limit);
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    total: total,
+                    offset: offset,
+                    limit: limit,
+                    collectionId: collectionId || null,
+                    query: query || null,
+                    shapeDefinitions: paginated
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+function ListShapesTool() {
+    ListShapeDefinitionsTool.call(this, "list_shapes");
+}
+ListShapesTool.prototype = Object.create(ListShapeDefinitionsTool.prototype);
+ListShapesTool.prototype.constructor = ListShapesTool;
+
 module.exports = {
     ListCollectionsTool: ListCollectionsTool,
     GetShapeDefinitionTool: GetShapeDefinitionTool,
-    ListCollectionResourcesTool: ListCollectionResourcesTool
+    ListCollectionResourcesTool: ListCollectionResourcesTool,
+    ListShapeDefinitionsTool: ListShapeDefinitionsTool,
+    ListShapesTool: ListShapesTool
 };
+

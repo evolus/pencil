@@ -32,8 +32,9 @@ Defines design constraints: 8px spatial grid, typography scales, line heights, a
 
 ### Shape Specifications (Dynamic Tool Discovery)
 Shape specifications are **mandatory design information**. They define the official shape identifiers (e.g., `button2`, `inputtext`, `rectangle`, `textview`) and the exact property blueprint schemas required inside each element's `properties` map.
-* **Discover Collections:** Use the available collection discovery tool (e.g., `get_shape_collections` or equivalent) to list available stencil libraries.
-* **Fetch Shape Specifications:** Use the available shape specification tool (e.g., `get_shape_specs` taking `collectionId` or equivalent) to retrieve shape schemas, required property keys, and expected data types.
+* **Discover Collections:** Use `list_collections` to list available stencil libraries.
+* **Discover & Search Shape Definitions:** Use `list_shape_definitions` (or `list_shapes`) with optional `query` or `collectionId` to discover available stencil shapes without schema buffer bloat.
+* **Fetch Shape Specifications:** Use `get_shape_definition` with `collectionId` and `shapeId` to retrieve exact property schemas, default values, and types for a specific shape.
 * **Mandatory Property Conformance:** When instantiating any shape, **every property** defined in its shape specification must be explicitly declared in the `properties` map as a serialized string.
 
 ---
@@ -128,6 +129,11 @@ When dynamically adding, mutating, or deleting shapes on an existing canvas usin
    - Always use `"type"` for the shape identifier (e.g. `"type": "Evolus.Common:Button"` or `"type": "button2"`). Avoid using `"def"`, which is reserved for reading output.
    - Supply coordinates at top-level (`x`, `y`) and bounding dimensions in `properties.box` as a `"w,h"` string (e.g., `"120,40"`).
    - Pre-flight schema validation checks coordinates and property microformats, returning descriptive diagnostics if invalid.
+
+3. **Targeted Shape Inspection on Canvas:**
+   - Use `find_shapes_in_canvas` (or `find_shapes`) to locate existing components on the canvas by `type` (e.g. `button2`), `text` (substring in label/text), `inRegion` (`{x, y, w, h}`), or `ids`.
+   - By default, `find_shapes_in_canvas` includes the shape's full `properties` dictionary (e.g. `text0`, `fillColor`, `strokeColor`) and geometric bounding box (`box: {x, y, w, h}`), providing all exact property names and styling values needed to construct subsequent `update_shapes` mutations in a single step.
+   - Avoid calling `get_page_content` when you only need to locate, inspect, or modify specific elements; `find_shapes_in_canvas` returns compact shape records without heavy full-page DOM dumping.
 
 ---
 

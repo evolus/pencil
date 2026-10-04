@@ -109,6 +109,8 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new stencilTool.ListCollectionsTool());
     registry.register(new stencilTool.GetShapeDefinitionTool());
     registry.register(new stencilTool.ListCollectionResourcesTool());
+    registry.register(new stencilTool.ListShapeDefinitionsTool());
+    registry.register(new stencilTool.ListShapesTool());
 
     // 3. Document, Page & Canvas Realization Tools
     registry.register(new documentTool.RenderDesignTool());
@@ -128,6 +130,8 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new editingTool.InsertShapesTool());
     registry.register(new editingTool.SelectShapesTool());
     registry.register(new editingTool.SetImageDataTool());
+    registry.register(new editingTool.FindShapesInCanvasTool());
+    registry.register(new editingTool.FindShapesTool());
 
     return registry;
 };
