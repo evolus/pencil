@@ -1,6 +1,5 @@
 /**
  * Evolus Pencil Model Context Protocol (MCP) Server
- * Follows classic Pencil prototype pattern (BaseExporter style).
  *
  * Implements:
  * - Direct in-memory access to ApplicationPane._instance (no redundant bridge layer)

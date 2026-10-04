@@ -1,6 +1,5 @@
 /**
  * Resource Registry for Pencil MCP Server
- * Follows classic Pencil prototype pattern (BaseExporter style).
  * Manages MCP resources:
  * - pencil://skills/pencil-designer
  * - pencil://collections

@@ -1,6 +1,5 @@
 /**
  * BaseTool - Prototype-based tool foundation for MCP tools.
- * Follows classic Pencil architecture (e.g., BaseExporter).
  */
 
 function BaseTool(name, description, inputSchema) {

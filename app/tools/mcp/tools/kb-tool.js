@@ -1,13 +1,174 @@
 /**
- * Tool: read_document
- * Follows classic Pencil prototype pattern (BaseExporter style).
- * Reads domain specification files from the MCP knowledge base with section and line slicing.
+ * Knowledge Base Tools Module
+ * Defines and exports all knowledge base guidance tools:
+ * - list_skills: Lists available domain skills
+ * - use_skill: Loads skill workflow instructions
+ * - read_document: Reads domain specification documents with section and line slicing
  */
 
 var fs = require("fs");
 var path = require("path");
 var z = require("zod").z;
 var BaseTool = require("./base-tool.js").BaseTool;
+
+// =============================================================================
+// Tool: list_skills
+// =============================================================================
+
+function ListSkillsTool(options) {
+    options = options || {};
+    this.kbDir = options.kbDir || path.join(__dirname, "../kb");
+
+    BaseTool.call(
+        this,
+        "list_skills",
+        "Lists all available skill names and summaries exposed by the Pencil MCP server.",
+        {}
+    );
+}
+ListSkillsTool.prototype = new BaseTool();
+
+ListSkillsTool.prototype._parseFrontmatter = function (content) {
+    var meta = {};
+    var match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!match) return meta;
+
+    var lines = match[1].split(/\r?\n/);
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        var colonIdx = line.indexOf(":");
+        if (colonIdx > 0) {
+            var key = line.slice(0, colonIdx).trim();
+            var val = line.slice(colonIdx + 1).trim();
+            meta[key] = val;
+        }
+    }
+    return meta;
+};
+
+ListSkillsTool.prototype.execute = async function (args, context) {
+    var skillsDir = path.join(this.kbDir, "skills");
+    var skills = [];
+
+    if (fs.existsSync(skillsDir)) {
+        var entries = fs.readdirSync(skillsDir);
+        for (var i = 0; i < entries.length; i++) {
+            var dirName = entries[i];
+            var skillFile = path.join(skillsDir, dirName, "SKILL.md");
+
+            if (fs.existsSync(skillFile)) {
+                try {
+                    var content = fs.readFileSync(skillFile, "utf8");
+                    var meta = this._parseFrontmatter(content);
+                    var skillName = meta.name || dirName.replace(/-/g, "_");
+                    var desc = meta.description || ("Pencil skill for " + dirName);
+
+                    skills.push({
+                        name: skillName,
+                        description: desc
+                    });
+                } catch (readErr) {
+                    if (context && context.logger) {
+                        context.logger.warn("Failed to read skill at " + skillFile + ": " + readErr.message);
+                    }
+                }
+            }
+        }
+    }
+
+    // Default fallback if no skills directory present
+    if (skills.length === 0) {
+        skills.push({
+            name: "pencil_designer",
+            description: "Create graphical user interface design in Pencil file format."
+        });
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({ skills: skills }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: use_skill
+// =============================================================================
+
+function UseSkillTool(options) {
+    options = options || {};
+    this.kbDir = options.kbDir || path.join(__dirname, "../kb");
+
+    BaseTool.call(
+        this,
+        "use_skill",
+        "Loads and activates a skill by name. Returns the complete skill workflow instructions.",
+        {
+            skill_name: z.string().describe("The name of the skill to activate (e.g., 'pencil_designer').")
+        }
+    );
+}
+UseSkillTool.prototype = new BaseTool();
+
+UseSkillTool.prototype._normalizeSkillName = function (name) {
+    if (!name) return "";
+    return name.trim().toLowerCase().replace(/_/g, "-");
+};
+
+UseSkillTool.prototype.execute = async function (args, context) {
+    if (!args || !args.skill_name) {
+        throw new Error("Missing required argument: 'skill_name'");
+    }
+
+    var requestedName = args.skill_name.trim();
+    var normalized = this._normalizeSkillName(requestedName);
+    var skillsDir = path.join(this.kbDir, "skills");
+
+    var targetFile = null;
+    var matchedDir = null;
+
+    if (fs.existsSync(skillsDir)) {
+        var entries = fs.readdirSync(skillsDir);
+        for (var i = 0; i < entries.length; i++) {
+            var entry = entries[i];
+            var entryNorm = this._normalizeSkillName(entry);
+
+            if (entryNorm === normalized || entry === requestedName) {
+                var candidate = path.join(skillsDir, entry, "SKILL.md");
+                if (fs.existsSync(candidate)) {
+                    targetFile = candidate;
+                    matchedDir = entry;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!targetFile) {
+        throw new Error("Skill '" + requestedName + "' not found in knowledge base.");
+    }
+
+    var content = fs.readFileSync(targetFile, "utf8");
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    skill: requestedName,
+                    instructions: content
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: read_document
+// =============================================================================
 
 function ReadDocumentTool(options) {
     options = options || {};
@@ -158,5 +319,7 @@ ReadDocumentTool.prototype.execute = async function (args, context) {
 };
 
 module.exports = {
+    ListSkillsTool: ListSkillsTool,
+    UseSkillTool: UseSkillTool,
     ReadDocumentTool: ReadDocumentTool
 };

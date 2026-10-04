@@ -1,6 +1,5 @@
 /**
  * MCP Session Manager
- * Follows classic Pencil prototype pattern (BaseExporter style).
  * Manages active Streamable HTTP transports, stateful sessions, and lifecycle events.
  */
 

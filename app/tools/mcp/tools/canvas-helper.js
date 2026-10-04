@@ -1,6 +1,5 @@
 /**
  * Canvas & DOM Helper for MCP Canvas Tools
- * Follows classic Pencil prototype pattern (BaseExporter style).
  * Provides resilient page resolution, DOM element queries, and transform parsing.
  */
 

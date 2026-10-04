@@ -1,6 +1,5 @@
 /**
  * MCP HTTP Controller
- * Follows classic Pencil prototype pattern (BaseExporter style).
  * Implements the official Streamable HTTP transport endpoint (/mcp).
  * Does not implement deprecated legacy SSE routes (/sse, /messages).
  */

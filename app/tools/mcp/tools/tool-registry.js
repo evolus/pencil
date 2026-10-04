@@ -1,32 +1,23 @@
 /**
  * Tool Registry
- * Follows classic Pencil prototype pattern (BaseExporter style).
  * Manages tool registration, discovery, and binding to McpServer instances.
+ * Registers tools grouped across 5 functional catalog modules:
+ * - kb-tool.js (Knowledge Base guidance tools)
+ * - stencil-tool.js (Stencil collections & icon catalog tools)
+ * - document-tool.js (Document inspection, rendering, and export tools)
+ * - editing-tool.js (Granular canvas mutation & editing tools)
+ * - system-tool.js (Developer diagnostic tools)
  */
 
 var defaultLogger = require("../logger.js").defaultLogger;
-var PencilStatusTool = require("./status-tool.js").PencilStatusTool;
-var ListSkillsTool = require("./list-skills-tool.js").ListSkillsTool;
-var UseSkillTool = require("./use-skill-tool.js").UseSkillTool;
-var ReadDocumentTool = require("./read-document-tool.js").ReadDocumentTool;
-var ListCollectionsTool = require("./list-collections-tool.js").ListCollectionsTool;
-var GetShapeDefinitionTool = require("./get-shape-definition-tool.js").GetShapeDefinitionTool;
-var RenderDesignTool = require("./render-design-tool.js").RenderDesignTool;
-var GetActiveDocumentTool = require("./get-active-document-tool.js").GetActiveDocumentTool;
-var GetPageContentTool = require("./get-page-content-tool.js").GetPageContentTool;
-var ExportPageTool = require("./export-page-tool.js").ExportPageTool;
-var ListIconsTool = require("./list-icons-tool.js").ListIconsTool;
-var UpdateShapesTool = require("./update-shapes-tool.js").UpdateShapesTool;
-var DeleteShapesTool = require("./delete-shapes-tool.js").DeleteShapesTool;
-var InsertShapesTool = require("./insert-shapes-tool.js").InsertShapesTool;
-var SelectShapesTool = require("./select-shapes-tool.js").SelectShapesTool;
+var systemTool = require("./system-tool.js");
+var kbTool = require("./kb-tool.js");
+var stencilTool = require("./stencil-tool.js");
+var documentTool = require("./document-tool.js");
+var editingTool = require("./editing-tool.js");
 
-/**
- * Checks whether --enable-dev flag was passed on the command line.
- */
-function isDevMode() {
-    return typeof process !== "undefined" && Array.isArray(process.argv) && process.argv.indexOf("--enable-dev") >= 0;
-}
+var PencilStatusTool = systemTool.PencilStatusTool;
+var isDevMode = systemTool.isDevMode;
 
 function ToolRegistry(options) {
     options = options || {};
@@ -109,23 +100,27 @@ ToolRegistry.createDefault = function (options) {
         }
     }
 
-    // Standard production tools: Knowledge Base & Execution
-    registry.register(new ListSkillsTool(options));
-    registry.register(new UseSkillTool(options));
-    registry.register(new ReadDocumentTool(options));
-    registry.register(new ListCollectionsTool());
-    registry.register(new GetShapeDefinitionTool());
-    registry.register(new RenderDesignTool());
-    registry.register(new GetActiveDocumentTool());
-    registry.register(new GetPageContentTool());
-    registry.register(new ExportPageTool());
-    registry.register(new ListIconsTool());
+    // 1. Knowledge Base Tools
+    registry.register(new kbTool.ListSkillsTool(options));
+    registry.register(new kbTool.UseSkillTool(options));
+    registry.register(new kbTool.ReadDocumentTool(options));
 
-    // Granular canvas mutation & editing tools
-    registry.register(new UpdateShapesTool());
-    registry.register(new DeleteShapesTool());
-    registry.register(new InsertShapesTool());
-    registry.register(new SelectShapesTool());
+    // 2. Stencil & Icon Catalog Tools
+    registry.register(new stencilTool.ListCollectionsTool());
+    registry.register(new stencilTool.GetShapeDefinitionTool());
+    registry.register(new stencilTool.ListIconsTool());
+
+    // 3. Document & Canvas Realization Tools
+    registry.register(new documentTool.RenderDesignTool());
+    registry.register(new documentTool.GetActiveDocumentTool());
+    registry.register(new documentTool.GetPageContentTool());
+    registry.register(new documentTool.ExportPageTool());
+
+    // 4. Granular Editing Tools
+    registry.register(new editingTool.UpdateShapesTool());
+    registry.register(new editingTool.DeleteShapesTool());
+    registry.register(new editingTool.InsertShapesTool());
+    registry.register(new editingTool.SelectShapesTool());
 
     return registry;
 };

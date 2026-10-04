@@ -1,11 +1,124 @@
 /**
- * Tool: get_shape_definition
- * Follows classic Pencil prototype pattern (BaseExporter style).
- * Queries CollectionManager directly in memory to inspect shape property schemas and defaults.
+ * Stencil & Icon Catalog Tools Module
+ * Defines and exports all stencil collection and icon discovery tools:
+ * - list_collections: Lists installed and visible stencil collections
+ * - get_shape_definition: Inspects shape property schemas and defaults
+ * - list_icons: Queries vector icon libraries
  */
 
 var z = require("zod").z;
 var BaseTool = require("./base-tool.js").BaseTool;
+
+var SUPPORTED_ICON_TYPES = [
+    "cmdi",
+    "bootstrap",
+    "fa",
+    "glow",
+    "herooutline",
+    "herosolid",
+    "lucide",
+    "mingcute",
+    "tablerfilled",
+    "tableroutline"
+];
+
+// =============================================================================
+// Tool: list_collections
+// =============================================================================
+
+function ListCollectionsTool() {
+    BaseTool.call(
+        this,
+        "list_collections",
+        "Lists all installed and visible stencil collections currently loaded in Pencil with their metadata and available shape identifiers.",
+        {
+            includeShapes: z.boolean().optional().default(false).describe("Whether to return the full list of shape IDs for each collection.")
+        }
+    );
+}
+ListCollectionsTool.prototype = new BaseTool();
+
+ListCollectionsTool.prototype._getCollectionManager = function () {
+    if (typeof CollectionManager !== "undefined") {
+        return CollectionManager;
+    }
+    if (typeof window !== "undefined" && window.CollectionManager) {
+        return window.CollectionManager;
+    }
+    if (typeof global !== "undefined" && global.CollectionManager) {
+        return global.CollectionManager;
+    }
+    return null;
+};
+
+ListCollectionsTool.prototype.execute = async function (args, context) {
+    args = args || {};
+    var includeShapes = Boolean(args.includeShapes);
+    var colMgr = this._getCollectionManager();
+
+    var collectionsList = [];
+
+    if (colMgr && colMgr.shapeDefinition && Array.isArray(colMgr.shapeDefinition.collections)) {
+        var allCols = colMgr.shapeDefinition.collections;
+        for (var i = 0; i < allCols.length; i++) {
+            var col = allCols[i];
+            if (!col || !col.id) continue;
+
+            // Only list installed and visible collections (reusing Pencil's CollectionManager.isCollectionVisible)
+            var isVisible = true;
+            if (typeof colMgr.isCollectionVisible === "function") {
+                isVisible = colMgr.isCollectionVisible(col);
+            } else if (typeof col.visible !== "undefined") {
+                isVisible = (col.visible === true);
+            }
+            if (!isVisible) continue;
+
+            var shapeIds = [];
+            if (Array.isArray(col.shapeDefs)) {
+                for (var j = 0; j < col.shapeDefs.length; j++) {
+                    var s = col.shapeDefs[j];
+                    if (s && s.id) {
+                        shapeIds.push(s.id);
+                    }
+                }
+            } else if (col.shapeDefs && typeof col.shapeDefs === "object") {
+                for (var key in col.shapeDefs) {
+                    if (col.shapeDefs.hasOwnProperty(key)) {
+                        var def = col.shapeDefs[key];
+                        shapeIds.push((def && def.id) ? def.id : key);
+                    }
+                }
+            }
+
+            var colSummary = {
+                id: col.id,
+                displayName: col.displayName || col.id,
+                shapeCount: shapeIds.length
+            };
+
+            if (includeShapes) {
+                colSummary.shapes = shapeIds;
+            }
+
+            collectionsList.push(colSummary);
+        }
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    collections: collectionsList
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: get_shape_definition
+// =============================================================================
 
 function GetShapeDefinitionTool() {
     BaseTool.call(
@@ -187,6 +300,56 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
     };
 };
 
+// =============================================================================
+// Tool: list_icons
+// =============================================================================
+
+function ListIconsTool() {
+    BaseTool.call(
+        this,
+        "list_icons",
+        "List available icons from built-in or loaded icon collections.",
+        {
+            iconType: z.enum(SUPPORTED_ICON_TYPES).optional().default("cmdi").describe("The icon collection identifier. Defaults to cmdi.")
+        }
+    );
+}
+ListIconsTool.prototype = new BaseTool();
+
+ListIconsTool.prototype.execute = async function (args, context) {
+    var appPane = null;
+    if (typeof ApplicationPane !== "undefined" && ApplicationPane._instance) {
+        appPane = ApplicationPane._instance;
+    } else if (typeof window !== "undefined" && window.ApplicationPane && window.ApplicationPane._instance) {
+        appPane = window.ApplicationPane._instance;
+    } else if (typeof global !== "undefined" && global.ApplicationPane && global.ApplicationPane._instance) {
+        appPane = global.ApplicationPane._instance;
+    }
+
+    if (!appPane) {
+        throw new Error("ApplicationPane is not available. Please ensure Evolus Pencil desktop application is running.");
+    }
+
+    var iconType = args.iconType || "cmdi";
+    var icons = await appPane.getIconList(iconType);
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    iconType: iconType,
+                    count: Array.isArray(icons) ? icons.length : 0,
+                    icons: icons || []
+                }, null, 2)
+            }
+        ]
+    };
+};
+
 module.exports = {
-    GetShapeDefinitionTool: GetShapeDefinitionTool
+    ListCollectionsTool: ListCollectionsTool,
+    GetShapeDefinitionTool: GetShapeDefinitionTool,
+    ListIconsTool: ListIconsTool,
+    SUPPORTED_ICON_TYPES: SUPPORTED_ICON_TYPES
 };

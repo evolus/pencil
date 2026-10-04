@@ -1,6 +1,7 @@
 /**
- * Tool: pencil_status
- * Follows classic Pencil prototype pattern (BaseExporter style).
+ * System & Diagnostic Tools Module
+ * Defines and exports developer diagnostic tools:
+ * - pencil_status: Checks runtime status of Evolus Pencil application and MCP server (--enable-dev)
  */
 
 var BaseTool = require("./base-tool.js").BaseTool;
@@ -62,5 +63,6 @@ PencilStatusTool.prototype.execute = async function (args, context) {
 };
 
 module.exports = {
-    PencilStatusTool: PencilStatusTool
+    PencilStatusTool: PencilStatusTool,
+    isDevMode: isDevMode
 };
