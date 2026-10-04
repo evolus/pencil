@@ -6,6 +6,10 @@ This document defines the normative serialization schemas, constraints, regular 
 > **Strict Value Stringification Invariant:**
 > In `.ep.json`, **every property value** within an element's `properties` map **MUST be a JSON string literal**. Even if the underlying data type represents a boolean, number, coordinate, or complex compound struct, it must be serialized as a string according to the specifications below.
 
+> [!TIP]
+> **Schema Hardening & Normalization in `insert_shapes`:**
+> While strict string serialization is normative, the MCP server automatically normalizes common LLM variances (such as object `box: { w, h }` into `"w,h"` and top-level `box: { x, y, w, h }` into coordinates). If an invalid property format or coordinate is supplied, pre-flight validation rejects the payload with actionable diagnostics rather than failing silently.
+
 ---
 
 ## 1. Complete Property Data Types Matrix (All 18 Engine Types)

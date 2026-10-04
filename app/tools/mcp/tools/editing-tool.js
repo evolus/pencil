@@ -12,6 +12,7 @@ var path = require("path");
 var z = require("zod").z;
 var BaseTool = require("./base-tool.js").BaseTool;
 var canvasHelper = require("./canvas-helper.js");
+var editingValidator = require("./editing-validator.js");
 
 // =============================================================================
 // Tool: update_shapes
@@ -21,13 +22,13 @@ function UpdateShapesTool() {
     BaseTool.call(
         this,
         "update_shapes",
-        "Selectively mutates properties, geometry dimensions, positioning (relative or absolute), and stacking order (z-order) of existing shapes on the active or specified canvas page.",
+        "Selectively mutates properties, geometry dimensions, positioning (relative or absolute), and stacking order (z-order) of existing shapes on the active or specified canvas page. Note: target shapeId must match the engine UUID assigned during shape creation (as returned in 'idMap' or 'shapes' by insert_shapes, or in get_page_content).",
         {
             pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             shapes: z.array(
                 z.object({
-                    shapeId: z.string().describe("The ID of the target shape to modify."),
+                    shapeId: z.string().describe("The ID of the target shape to modify (assigned engine UUID)."),
                     properties: z.record(z.any()).optional().describe("Key-value dictionary of properties to update (e.g. {'label': 'Submit', 'fillColor': '#2563eb'})."),
                     box: z.object({
                         x: z.number().optional().describe("New absolute X coordinate on canvas."),
@@ -48,8 +49,14 @@ UpdateShapesTool.prototype = new BaseTool();
 UpdateShapesTool.prototype.execute = async function (args, context) {
     args = args || {};
     var shapeUpdates = args.shapes || [];
-    if (!Array.isArray(shapeUpdates) || shapeUpdates.length === 0) {
-        throw new Error("No shape updates provided in 'shapes' parameter.");
+
+    /*
+     * Pre-flight validation on shapeUpdates payload:
+     * Validates non-empty array, required shapeId, valid numeric box values, and property formats.
+     */
+    var validationResult = editingValidator.validateUpdateShapes(shapeUpdates);
+    if (validationResult.errors.length > 0) {
+        throw new Error("Validation failed for update_shapes (" + validationResult.errors.length + " error" + (validationResult.errors.length > 1 ? "s" : "") + "):\n" + validationResult.errors.map(function (e) { return "  - " + e; }).join("\n"));
     }
 
     var appPane = canvasHelper.getApplicationPane();
@@ -171,6 +178,10 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Update shapes via MCP");
+    var responseMsg = "Successfully updated " + updated.length + " shape(s).";
+    if (updated.length === 0 && notFound.length > 0) {
+        responseMsg = "None of the specified shape IDs (" + notFound.join(", ") + ") were found on page '" + target.pageId + "'. Note: when mutating shapes, use the engine UUIDs returned in 'idMap' or 'shapes' by insert_shapes, or call 'get_page_content' to verify existing IDs on canvas.";
+    }
 
     return {
         content: [
@@ -181,7 +192,8 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
                     updatedCount: updated.length,
                     updated: updated,
                     notFound: notFound,
-                    message: "Successfully updated " + updated.length + " shape(s)."
+                    warnings: validationResult.warnings.length > 0 ? validationResult.warnings : undefined,
+                    message: responseMsg
                 }, null, 2)
             }
         ]
@@ -284,13 +296,13 @@ function InsertShapesTool() {
     BaseTool.call(
         this,
         "insert_shapes",
-        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab.",
+        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab. When user-defined 'id' fields are provided on elements, the engine assigns internal unique UUIDs to maintain document integrity, and returns an explicit 'idMap' ({ [providedId]: assignedUUID }) in the response alongside 'shapes' records. Use the assigned UUIDs for subsequent calls to update_shapes, delete_shapes, or select_shapes.",
         {
             pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             x: z.number().optional().default(0).describe("Base X offset for inserted elements."),
             y: z.number().optional().default(0).describe("Base Y offset for inserted elements."),
-            elements: z.array(z.any()).describe("Array of shape descriptors matching the canonical design elements JSON schema.")
+            elements: z.array(z.any()).describe("Array of shape descriptors matching the canonical design elements JSON schema. Each element may include an optional client-defined 'id', which will be mapped to the engine UUID in the returned 'idMap'.")
         }
     );
 }
@@ -300,17 +312,31 @@ InsertShapesTool.prototype.execute = async function (args, context) {
     args = args || {};
     var elements = args.elements || [];
     if (!Array.isArray(elements) || elements.length === 0) {
-        throw new Error("No elements provided in 'elements' parameter.");
+        throw new Error("No elements provided in 'elements' parameter. Expected an array of shape descriptors.");
     }
 
     var appPane = canvasHelper.getApplicationPane();
     var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
     var canvas = target.canvas;
 
+    /*
+     * Pre-flight schema validation and auto-normalization:
+     * - Detects reading-schema 'def' and normalizes to 'type' with deprecation notice
+     * - Detects top-level 'box' { x, y, w, h } and normalizes to coordinates and properties.box
+     * - Normalizes object properties.box to serialized 'w,h' string
+     * - Validates coordinate numbers and property microformats
+     * - Rejects unknown stencil definitions with candidate suggestions rather than failing silently
+     */
+    var validationResult = editingValidator.validateAndNormalizeInsertElements(elements, appPane);
+    if (validationResult.errors.length > 0) {
+        throw new Error("Schema validation failed for insert_shapes (" + validationResult.errors.length + " error" + (validationResult.errors.length > 1 ? "s" : "") + "):\n" + validationResult.errors.map(function (e) { return "  - " + e; }).join("\n"));
+    }
+
     var baseX = Number(args.x) || 0;
     var baseY = Number(args.y) || 0;
 
     var insertedShapes = [];
+    var idMap = {};
 
     var insertRecursive = async function (children, curX, curY) {
         if (!Array.isArray(children)) return;
@@ -321,11 +347,13 @@ InsertShapesTool.prototype.execute = async function (args, context) {
             if (child.type === "@group") {
                 await insertRecursive(child.children, curX + (child.x || 0), curY + (child.y || 0));
             } else {
-                var shapeDef = null;
-                if (typeof appPane.locateShapeDefinition === "function") {
-                    shapeDef = appPane.locateShapeDefinition(child.type);
-                } else if (typeof CollectionManager !== "undefined" && CollectionManager.shapeDefinition) {
-                    shapeDef = CollectionManager.shapeDefinition.locateDefinition(child.type);
+                var shapeDef = child._resolvedShapeDef;
+                if (!shapeDef) {
+                    if (typeof appPane.locateShapeDefinition === "function") {
+                        shapeDef = appPane.locateShapeDefinition(child.type);
+                    } else if (typeof CollectionManager !== "undefined" && CollectionManager.shapeDefinition) {
+                        shapeDef = CollectionManager.shapeDefinition.locateDefinition(child.type);
+                    }
                 }
 
                 if (!shapeDef) {
@@ -339,7 +367,7 @@ InsertShapesTool.prototype.execute = async function (args, context) {
                 if (child.properties && typeof child.properties === "object") {
                     for (var k in child.properties) {
                         if (!child.properties.hasOwnProperty(k)) continue;
-                        var pdef = shapeDef.getProperty(k);
+                        var pdef = shapeDef.getProperty ? shapeDef.getProperty(k) : null;
                         if (!pdef || !pdef.type) continue;
 
                         var valLiteral = child.properties[k];
@@ -367,9 +395,21 @@ InsertShapesTool.prototype.execute = async function (args, context) {
                     }
                 }
 
-                if (canvas.currentController && canvas.currentController.id) {
-                    insertedShapes.push({
-                        id: canvas.currentController.id,
+                var assignedId = canvas.currentController ? canvas.currentController.id : null;
+                if (assignedId) {
+                    /*
+                     * Explicit ID Mapping:
+                     * Maintain Pencil engine's native unique UUID generation on canvas shapes,
+                     * but map client-provided element IDs to the assigned engine UUIDs so callers
+                     * can immediately target shapes in subsequent calls without querying the DOM.
+                     */
+                    if (child.id && typeof child.id === "string" && child.id.trim().length > 0) {
+                        idMap[child.id.trim()] = assignedId;
+                    }
+
+                    var shapeRecord = {
+                        id: assignedId,
+                        providedId: (child.id && typeof child.id === "string" && child.id.trim().length > 0) ? child.id.trim() : undefined,
                         type: child.type,
                         box: {
                             x: shapeX,
@@ -377,7 +417,8 @@ InsertShapesTool.prototype.execute = async function (args, context) {
                             w: child.box ? child.box.w : undefined,
                             h: child.box ? child.box.h : undefined
                         }
-                    });
+                    };
+                    insertedShapes.push(shapeRecord);
                 }
             }
         }
@@ -399,7 +440,10 @@ InsertShapesTool.prototype.execute = async function (args, context) {
                 text: JSON.stringify({
                     pageId: target.pageId,
                     insertedCount: insertedShapes.length,
+                    idMap: idMap,
+                    shapes: insertedShapes,
                     insertedShapes: insertedShapes,
+                    warnings: validationResult.warnings.length > 0 ? validationResult.warnings : undefined,
                     message: "Successfully inserted " + insertedShapes.length + " shape(s) onto canvas."
                 }, null, 2)
             }

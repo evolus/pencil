@@ -114,6 +114,23 @@ When processing a design request, systematically reason through these four valid
 
 ---
 
+## 🔄 Granular Canvas Mutation & ID Mapping Protocol
+
+When dynamically adding, mutating, or deleting shapes on an existing canvas using `insert_shapes`, `update_shapes`, and `delete_shapes`:
+
+1. **ID Mapping with `insert_shapes`:**
+   - Elements passed to `insert_shapes` can define an optional `id` (e.g. `id: "btn_submit"`).
+   - Pencil engine assigns internal unique UUIDs to maintain document integrity.
+   - `insert_shapes` returns an `idMap: { [providedId]: assignedUUID }` and `shapes: [{ id, providedId, type, box }]`.
+   - **Always capture and use the mapped UUIDs** from `idMap` for subsequent calls to `update_shapes`, `delete_shapes`, or `select_shapes`.
+
+2. **Schema Invariants for `insert_shapes`:**
+   - Always use `"type"` for the shape identifier (e.g. `"type": "Evolus.Common:Button"` or `"type": "button2"`). Avoid using `"def"`, which is reserved for reading output.
+   - Supply coordinates at top-level (`x`, `y`) and bounding dimensions in `properties.box` as a `"w,h"` string (e.g., `"120,40"`).
+   - Pre-flight schema validation checks coordinates and property microformats, returning descriptive diagnostics if invalid.
+
+---
+
 ## 💎 Output Format Requirement
 
 Output **only** the raw JSON payload matching the `.ep.json` schema without markdown wrappers or backticks when called by automated pipelines, or enclosed within a single standard ```json block when presenting to a user.
