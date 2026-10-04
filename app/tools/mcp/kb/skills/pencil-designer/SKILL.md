@@ -131,6 +131,22 @@ When dynamically adding, mutating, or deleting shapes on an existing canvas usin
 
 ---
 
+## 📑 Document & Page Lifecycle Protocols
+
+When managing multi-screen flows, wireframes, or multi-page documents:
+1. **Querying Existing Pages:**
+   - Use `list_pages` to inspect all pages in the active document (`id`, `title`, `index`, `width`, `height`, `isCurrent`, `shapeCount`).
+2. **Creating New Screens / Pages:**
+   - Use `create_page` with `title` (e.g. `create_page(title: "Wireframe - Profile")`, optional `width`, `height`, `background`, `switchActive: true`).
+   - Do **NOT** call `render_design(openAsDocument: true)` to create an empty page; use `create_page` directly to avoid transient window clutter.
+3. **Resizing and Styling Pages:**
+   - Use `update_page` to adjust canvas dimensions (`width`, `height`), update background color (`background: "#f8fafc"` or `"transparent"`), attach master background pages (`backgroundPageId`), or rename the page (`title: "New Title"`).
+4. **Switching & Deleting Pages:**
+   - Use `switch_page(pageId: "...")` or `switch_page(pageIndex: 1)` to shift canvas and desktop UI focus.
+   - Use `delete_page(pageId: "...")` to clean up temporary or obsolete pages (a document must always retain at least one page).
+
+---
+
 ## 💎 Output Format Requirement
 
 Output **only** the raw JSON payload matching the `.ep.json` schema without markdown wrappers or backticks when called by automated pipelines, or enclosed within a single standard ```json block when presenting to a user.

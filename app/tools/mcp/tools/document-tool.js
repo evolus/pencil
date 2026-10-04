@@ -741,9 +741,732 @@ ExportPageTool.prototype.execute = async function (args, context) {
     };
 };
 
+
+/*
+ * Resolves a target Page object and its index within a document.
+ * If neither pageId nor pageIndex is specified and allowFallbackToActive is true,
+ * it safely defaults to the currently active page or the first document page.
+ */
+function resolveTargetPage(doc, controller, pageId, pageIndex, allowFallbackToActive) {
+    if (!doc || !Array.isArray(doc.pages) || doc.pages.length === 0) {
+        return null;
+    }
+
+    var targetPage = null;
+    var targetIndex = -1;
+
+    if (pageId !== undefined && pageId !== null && pageId !== "") {
+        for (var i = 0; i < doc.pages.length; i++) {
+            var p = doc.pages[i];
+            var pId = p.id || (p.properties && p.properties.id);
+            if (pId === pageId) {
+                targetPage = p;
+                targetIndex = i;
+                break;
+            }
+        }
+    } else if (pageIndex !== undefined && pageIndex !== null && typeof pageIndex === "number" && pageIndex >= 0 && pageIndex < doc.pages.length) {
+        targetPage = doc.pages[pageIndex];
+        targetIndex = pageIndex;
+    } else if (allowFallbackToActive) {
+        if (controller && controller.activePage) {
+            targetPage = controller.activePage;
+            for (var j = 0; j < doc.pages.length; j++) {
+                if (doc.pages[j] === targetPage || doc.pages[j].id === targetPage.id) {
+                    targetIndex = j;
+                    break;
+                }
+            }
+        }
+        if (!targetPage) {
+            targetPage = doc.pages[0];
+            targetIndex = 0;
+        }
+    }
+
+    if (!targetPage) return null;
+
+    return {
+        page: targetPage,
+        index: targetIndex,
+        id: targetPage.id || (targetPage.properties && targetPage.properties.id) || ("page-" + (targetIndex + 1)),
+        title: targetPage.name || (targetPage.properties && targetPage.properties.name) || ("Page " + (targetIndex + 1))
+    };
+}
+
+function countShapesInPage(page) {
+    if (!page) return 0;
+    if (typeof page.shapeCount === "number") return page.shapeCount;
+    if (Array.isArray(page.shapes)) return page.shapes.length;
+    if (Array.isArray(page.elements)) return page.elements.length;
+
+    if (page.canvas && page.canvas.drawingLayer) {
+        var layer = page.canvas.drawingLayer;
+        if (typeof layer.querySelectorAll === "function") {
+            try {
+                var nodes = layer.querySelectorAll("[p\\:type='Shape'], [p\\:type='Group'], g[p\\:type]");
+                if (nodes && nodes.length > 0) return nodes.length;
+            } catch (err) {}
+        }
+        if (layer.children && layer.children.length !== undefined) return layer.children.length;
+        if (layer.childNodes && layer.childNodes.length !== undefined) {
+            var count = 0;
+            for (var c = 0; c < layer.childNodes.length; c++) {
+                if (layer.childNodes[c].nodeType === 1) count++;
+            }
+            return count;
+        }
+    }
+
+    if (page.tempFilePath) {
+        try {
+            if (fs.existsSync(page.tempFilePath)) {
+                var xml = fs.readFileSync(page.tempFilePath, "utf8");
+                var matches = xml.match(/<(?:\w+:)?g[^>]+p:type=["']Shape["']/g);
+                return matches ? matches.length : 0;
+            }
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
+// =============================================================================
+// Tool: list_pages
+// =============================================================================
+
+function ListPagesTool() {
+    BaseTool.call(
+        this,
+        "list_pages",
+        "Lists all pages in the active Pencil document, returning page IDs, titles, dimensions, indices, and active state.",
+        {
+            documentPath: z.string().optional().describe("Optional path to target Pencil document (.ep or .epgz). If omitted, inspects the currently open document.")
+        }
+    );
+}
+ListPagesTool.prototype = new BaseTool();
+
+ListPagesTool.prototype.execute = async function (args, context) {
+    var appPane = getAppPane();
+    var controller = getControllerInstance(appPane);
+
+    var doc = null;
+    if (controller && controller.doc) {
+        doc = controller.doc;
+    } else if (appPane && appPane.currentDocument) {
+        doc = appPane.currentDocument;
+    }
+
+    if (!doc) {
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: JSON.stringify({
+                        documentTitle: null,
+                        activePageId: null,
+                        pages: [],
+                        message: "No document is currently open in Pencil."
+                    }, null, 2)
+                }
+            ]
+        };
+    }
+
+    var docTitle = "Untitled Document";
+    if (controller && typeof controller.getDocumentName === "function") {
+        docTitle = controller.getDocumentName();
+    } else if (doc.name) {
+        docTitle = doc.name;
+    } else if (controller && controller.documentPath) {
+        docTitle = path.basename(controller.documentPath);
+    }
+
+    var activePageId = null;
+    if (controller && controller.activePage && controller.activePage.id) {
+        activePageId = controller.activePage.id;
+    } else if (doc.activePageId) {
+        activePageId = doc.activePageId;
+    }
+
+    var pagesList = [];
+    var rawPages = doc.pages || [];
+
+    for (var i = 0; i < rawPages.length; i++) {
+        var page = rawPages[i];
+        if (!page) continue;
+
+        var pId = page.id || (page.properties && page.properties.id) || ("page-" + (i + 1));
+        var pTitle = page.name || (page.properties && page.properties.name) || ("Page " + (i + 1));
+        var pWidth = Number(page.width || (page.properties && page.properties.width) || 800);
+        var pHeight = Number(page.height || (page.properties && page.properties.height) || 600);
+        var isCurrent = Boolean(activePageId ? (pId === activePageId) : (i === 0));
+
+        var bgColStr = null;
+        if (page.backgroundColor) {
+            bgColStr = typeof page.backgroundColor.toRGBAString === "function" ? page.backgroundColor.toRGBAString() : String(page.backgroundColor);
+        }
+
+        pagesList.push({
+            id: pId,
+            title: pTitle,
+            index: i,
+            width: pWidth,
+            height: pHeight,
+            isCurrent: isCurrent,
+            shapeCount: countShapesInPage(page),
+            backgroundPageId: page.backgroundPageId || null,
+            backgroundColor: bgColStr,
+            parentPageId: page.parentPageId || null
+        });
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    documentTitle: docTitle,
+                    activePageId: activePageId,
+                    pages: pagesList
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: create_page
+// =============================================================================
+
+function CreatePageTool() {
+    BaseTool.call(
+        this,
+        "create_page",
+        "Creates a new page in the active Pencil document with specified title, dimensions, and background styling.",
+        {
+            title: z.string().optional().describe("Title or name for the new page."),
+            name: z.string().optional().describe("Alias for title."),
+            width: z.number().int().positive().optional().describe("Canvas width in pixels (defaults to active page width, preferred size, or 800)."),
+            height: z.number().int().positive().optional().describe("Canvas height in pixels (defaults to active page height, preferred size, or 600)."),
+            background: z.string().optional().describe("Canvas background color (hex '#ffffff', '#1e293b', rgb) or 'transparent'."),
+            backgroundPageId: z.string().optional().describe("UUID of an existing page to use as master background template."),
+            parentPageId: z.string().optional().describe("UUID of an existing parent page to nest this page under in document hierarchy."),
+            switchActive: z.boolean().optional().default(true).describe("Whether to immediately switch canvas focus to this newly created page (default: true).")
+        }
+    );
+}
+CreatePageTool.prototype = new BaseTool();
+
+CreatePageTool.prototype.execute = async function (args, context) {
+    var appPane = getAppPane();
+    var controller = getControllerInstance(appPane);
+
+    var doc = null;
+    if (controller && controller.doc) {
+        doc = controller.doc;
+    } else if (appPane && appPane.currentDocument) {
+        doc = appPane.currentDocument;
+    }
+
+    if (!doc && appPane && appPane.documentHandler && typeof appPane.documentHandler.newDocument === "function") {
+        await new Promise(function (resolve) {
+            appPane.documentHandler.newDocument({ skipFontReload: true }, resolve);
+        });
+        controller = getControllerInstance(appPane);
+        doc = controller ? controller.doc : (appPane.currentDocument || null);
+    }
+
+    if (!doc || !controller) {
+        throw new Error("No active document available. Please ensure Pencil has an open document.");
+    }
+
+    var resolvedTitle = args.title || args.name;
+    if (!resolvedTitle) {
+        resolvedTitle = "Page " + (doc.pages ? (doc.pages.length + 1) : 1);
+    }
+
+    var defaultWidth = 800;
+    var defaultHeight = 600;
+    if (controller.activePage) {
+        defaultWidth = controller.activePage.width || 800;
+        defaultHeight = controller.activePage.height || 600;
+    } else if (appPane && typeof appPane.getPreferredCanvasSize === "function") {
+        var pref = appPane.getPreferredCanvasSize();
+        if (pref && pref.w && pref.h) {
+            defaultWidth = pref.w;
+            defaultHeight = pref.h;
+        }
+    }
+
+    var resolvedWidth = args.width || defaultWidth;
+    var resolvedHeight = args.height || defaultHeight;
+
+    var backgroundColor = null;
+    if (args.background) {
+        if (args.background.toLowerCase() === "transparent") {
+            backgroundColor = null;
+        } else if (typeof Color !== "undefined" && typeof Color.fromString === "function") {
+            try {
+                backgroundColor = Color.fromString(args.background);
+            } catch (e) {
+                backgroundColor = args.background;
+            }
+        } else {
+            backgroundColor = args.background;
+        }
+    }
+
+    var backgroundPageId = args.backgroundPageId || null;
+    var parentPageId = args.parentPageId || null;
+
+    var options = {
+        name: resolvedTitle,
+        width: resolvedWidth,
+        height: resolvedHeight,
+        backgroundPageId: backgroundPageId,
+        backgroundColor: backgroundColor,
+        note: "",
+        parentPageId: parentPageId,
+        copyBackgroundLinks: false,
+        activateAfterCreate: false
+    };
+
+    var page = null;
+    if (typeof controller.newPage === "function") {
+        page = controller.newPage(options);
+    } else {
+        /*
+         * Fallback construction for mock test environments lacking the full Controller prototype.
+         */
+        page = {
+            id: (typeof Util !== "undefined" && Util.newUUID) ? Util.newUUID() : ("page-" + Date.now()),
+            name: resolvedTitle,
+            width: resolvedWidth,
+            height: resolvedHeight,
+            backgroundColor: backgroundColor,
+            backgroundPageId: backgroundPageId,
+            parentPageId: parentPageId,
+            children: []
+        };
+        if (!doc.pages) doc.pages = [];
+        doc.pages.push(page);
+    }
+
+    var switchActive = args.switchActive !== false;
+    if (switchActive) {
+        if (appPane && appPane.pageListView && typeof appPane.pageListView.activatePage === "function") {
+            appPane.pageListView.activatePage(page);
+        } else if (appPane && typeof appPane.activatePage === "function") {
+            appPane.activatePage(page);
+        } else if (controller && typeof controller.activatePage === "function") {
+            controller.activatePage(page);
+        } else {
+            controller.activePage = page;
+        }
+    }
+
+    if (appPane && appPane.pageListView && typeof appPane.pageListView.renderPages === "function") {
+        appPane.pageListView.renderPages();
+    }
+    if (controller && typeof controller.sayDocumentChanged === "function") {
+        controller.sayDocumentChanged();
+    }
+
+    var pageIdx = doc.pages ? doc.pages.indexOf(page) : 0;
+    var isCurrent = Boolean(controller.activePage && (controller.activePage === page || controller.activePage.id === page.id));
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    success: true,
+                    page: {
+                        id: page.id,
+                        title: page.name,
+                        index: pageIdx,
+                        width: page.width,
+                        height: page.height,
+                        isCurrent: isCurrent
+                    }
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: update_page
+// =============================================================================
+
+function UpdatePageTool() {
+    BaseTool.call(
+        this,
+        "update_page",
+        "Updates an existing page's properties in the active Pencil document, including title, dimensions (resizing canvas), background styling, or hierarchy.",
+        {
+            pageId: z.string().optional().describe("The unique UUID of the page to update. Defaults to active page if neither pageId nor pageIndex is provided."),
+            pageIndex: z.number().int().optional().describe("0-based index of the page in the document."),
+            title: z.string().optional().describe("New title or name for the page."),
+            name: z.string().optional().describe("Alias for title."),
+            width: z.number().int().positive().optional().describe("New canvas width in pixels."),
+            height: z.number().int().positive().optional().describe("New canvas height in pixels."),
+            background: z.string().optional().describe("New canvas background color (hex, rgb) or 'transparent'."),
+            backgroundPageId: z.string().optional().describe("UUID of master background page to link (or empty string/null to detach)."),
+            parentPageId: z.string().optional().describe("UUID of parent page to nest under (or empty string/null to unparent).")
+        }
+    );
+}
+UpdatePageTool.prototype = new BaseTool();
+
+UpdatePageTool.prototype.execute = async function (args, context) {
+    var appPane = getAppPane();
+    var controller = getControllerInstance(appPane);
+
+    var doc = null;
+    if (controller && controller.doc) {
+        doc = controller.doc;
+    } else if (appPane && appPane.currentDocument) {
+        doc = appPane.currentDocument;
+    }
+
+    if (!doc) {
+        throw new Error("No document is currently open in Pencil.");
+    }
+
+    var target = resolveTargetPage(doc, controller, args.pageId, args.pageIndex, true);
+    if (!target) {
+        throw new Error("Page not found with ID '" + args.pageId + "' or index " + args.pageIndex + ". Call list_pages to discover valid pages.");
+    }
+
+    var targetPage = target.page;
+
+    var newTitle = targetPage.name;
+    if (args.title !== undefined) {
+        newTitle = args.title;
+    } else if (args.name !== undefined) {
+        newTitle = args.name;
+    }
+
+    var newWidth = args.width !== undefined ? args.width : targetPage.width;
+    var newHeight = args.height !== undefined ? args.height : targetPage.height;
+
+    var newBgColor = targetPage.backgroundColor;
+    if (args.background !== undefined) {
+        if (args.background === null || args.background === "" || args.background.toLowerCase() === "transparent") {
+            newBgColor = null;
+        } else if (typeof Color !== "undefined" && typeof Color.fromString === "function") {
+            try {
+                newBgColor = Color.fromString(args.background);
+            } catch (e) {
+                newBgColor = args.background;
+            }
+        } else {
+            newBgColor = args.background;
+        }
+    }
+
+    var newBgPageId = targetPage.backgroundPageId;
+    if (args.backgroundPageId !== undefined) {
+        if (args.backgroundPageId === "" || args.backgroundPageId === null || args.backgroundPageId === "null" || args.backgroundPageId === "none") {
+            newBgPageId = null;
+        } else {
+            if (args.backgroundPageId === targetPage.id) {
+                throw new Error("A page cannot use itself as a background page.");
+            }
+            newBgPageId = args.backgroundPageId;
+        }
+    }
+
+    var newParentPageId = targetPage.parentPageId;
+    if (args.parentPageId !== undefined) {
+        if (args.parentPageId === "" || args.parentPageId === null || args.parentPageId === "null" || args.parentPageId === "none") {
+            newParentPageId = null;
+        } else {
+            if (args.parentPageId === targetPage.id) {
+                throw new Error("A page cannot be its own parent.");
+            }
+            newParentPageId = args.parentPageId;
+        }
+    }
+
+    if (controller && typeof controller.updatePageProperties === "function") {
+        controller.updatePageProperties(targetPage, {
+            name: newTitle,
+            width: newWidth,
+            height: newHeight,
+            backgroundColor: newBgColor,
+            backgroundPageId: newBgPageId,
+            parentPageId: newParentPageId,
+            copyBackgroundLinks: targetPage.copyBackgroundLinks || false
+        });
+    } else {
+        targetPage.name = newTitle;
+        targetPage.width = newWidth;
+        targetPage.height = newHeight;
+        targetPage.backgroundColor = newBgColor;
+        targetPage.backgroundPageId = newBgPageId;
+        targetPage.parentPageId = newParentPageId;
+        if (targetPage.canvas && typeof targetPage.canvas.setSize === "function") {
+            targetPage.canvas.setSize(newWidth, newHeight);
+        }
+    }
+
+    if (appPane && appPane.pageListView && typeof appPane.pageListView.renderPages === "function") {
+        appPane.pageListView.renderPages();
+    }
+    if (controller && typeof controller.sayDocumentChanged === "function") {
+        controller.sayDocumentChanged();
+    }
+
+    var bgOutput = null;
+    if (targetPage.backgroundColor) {
+        bgOutput = typeof targetPage.backgroundColor.toRGBAString === "function" ? targetPage.backgroundColor.toRGBAString() : String(targetPage.backgroundColor);
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    success: true,
+                    page: {
+                        id: targetPage.id,
+                        title: targetPage.name,
+                        index: doc.pages.indexOf(targetPage),
+                        width: targetPage.width,
+                        height: targetPage.height,
+                        backgroundColor: bgOutput,
+                        backgroundPageId: targetPage.backgroundPageId || null,
+                        parentPageId: targetPage.parentPageId || null,
+                        isCurrent: Boolean(controller && controller.activePage && (controller.activePage === targetPage || controller.activePage.id === targetPage.id))
+                    }
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: rename_page
+// =============================================================================
+
+function RenamePageTool() {
+    BaseTool.call(
+        this,
+        "rename_page",
+        "Renames an existing page in the active Pencil document (convenience wrapper for update_page).",
+        {
+            pageId: z.string().optional().describe("The unique UUID of the page to rename. Defaults to active page if neither pageId nor pageIndex is provided."),
+            pageIndex: z.number().int().optional().describe("0-based index of the page in the document."),
+            newTitle: z.string().optional().describe("New title for the page."),
+            title: z.string().optional().describe("Alias for newTitle.")
+        }
+    );
+}
+RenamePageTool.prototype = new BaseTool();
+
+RenamePageTool.prototype.execute = async function (args, context) {
+    var title = args.newTitle || args.title;
+    if (!title) {
+        throw new Error("A valid 'newTitle' or 'title' string is required to rename a page.");
+    }
+
+    var updateTool = new UpdatePageTool();
+    return await updateTool.execute({
+        pageId: args.pageId,
+        pageIndex: args.pageIndex,
+        title: title
+    }, context);
+};
+
+// =============================================================================
+// Tool: delete_page
+// =============================================================================
+
+function DeletePageTool() {
+    BaseTool.call(
+        this,
+        "delete_page",
+        "Deletes a page from the active Pencil document, guarding against deleting the last remaining page, and activating an adjacent page.",
+        {
+            pageId: z.string().optional().describe("The unique UUID of the page to delete. Optional if pageIndex is provided."),
+            pageIndex: z.number().int().optional().describe("0-based index of the page to delete.")
+        }
+    );
+}
+DeletePageTool.prototype = new BaseTool();
+
+DeletePageTool.prototype.execute = async function (args, context) {
+    var appPane = getAppPane();
+    var controller = getControllerInstance(appPane);
+
+    var doc = null;
+    if (controller && controller.doc) {
+        doc = controller.doc;
+    } else if (appPane && appPane.currentDocument) {
+        doc = appPane.currentDocument;
+    }
+
+    if (!doc || !Array.isArray(doc.pages)) {
+        throw new Error("No document is currently open in Pencil.");
+    }
+
+    var target = resolveTargetPage(doc, controller, args.pageId, args.pageIndex, false);
+    if (!target) {
+        throw new Error("Page not found with ID '" + args.pageId + "' or index " + args.pageIndex + ". Call list_pages to discover valid pages.");
+    }
+
+    if (doc.pages.length <= 1) {
+        throw new Error("Cannot delete the only page in the document. A Pencil document must contain at least one page.");
+    }
+
+    var targetPage = target.page;
+    var targetId = target.id;
+
+    /*
+     * Prevent blocking GUI confirmation dialogs during headless MCP execution:
+     * In controller.deletePage, if other pages have backgroundPageId matching this page
+     * and targetPage.backgroundPage is set, it triggers Dialog.confirm.
+     * We proactively unlink any background references before handing off to the controller.
+     */
+    for (var i = 0; i < doc.pages.length; i++) {
+        var p = doc.pages[i];
+        if (p.backgroundPageId === targetId) {
+            p.backgroundPage = null;
+            p.backgroundPageId = null;
+            if (controller && typeof controller.invalidateBitmapFilePath === "function") {
+                controller.invalidateBitmapFilePath(p);
+            }
+        }
+    }
+    targetPage.backgroundPage = null;
+    targetPage.backgroundPageId = null;
+
+    var nextActivePage = null;
+    if (controller && typeof controller.deletePage === "function") {
+        nextActivePage = controller.deletePage(targetPage);
+    } else {
+        var idx = doc.pages.indexOf(targetPage);
+        if (idx >= 0) {
+            doc.pages.splice(idx, 1);
+        }
+        var nextIdx = Math.min(idx, doc.pages.length - 1);
+        nextActivePage = doc.pages[nextIdx] || null;
+    }
+
+    if (nextActivePage) {
+        if (appPane && appPane.pageListView && typeof appPane.pageListView.activatePage === "function") {
+            appPane.pageListView.activatePage(nextActivePage);
+        } else if (appPane && typeof appPane.activatePage === "function") {
+            appPane.activatePage(nextActivePage);
+        } else if (controller && typeof controller.activatePage === "function") {
+            controller.activatePage(nextActivePage);
+        } else if (controller) {
+            controller.activePage = nextActivePage;
+        }
+    } else if (appPane && appPane.pageListView && typeof appPane.pageListView.renderPages === "function") {
+        appPane.pageListView.renderPages();
+    }
+
+    var activeId = controller && controller.activePage ? controller.activePage.id : (nextActivePage ? nextActivePage.id : null);
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    success: true,
+                    deletedPageId: targetId,
+                    activePageId: activeId,
+                    remainingPages: doc.pages.length
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: switch_page
+// =============================================================================
+
+function SwitchPageTool() {
+    BaseTool.call(
+        this,
+        "switch_page",
+        "Switches the active canvas view and tab focus to the specified page in the running Pencil application.",
+        {
+            pageId: z.string().optional().describe("The unique UUID of the page to activate. Optional if pageIndex is provided."),
+            pageIndex: z.number().int().optional().describe("0-based index of the page to activate.")
+        }
+    );
+}
+SwitchPageTool.prototype = new BaseTool();
+
+SwitchPageTool.prototype.execute = async function (args, context) {
+    var appPane = getAppPane();
+    var controller = getControllerInstance(appPane);
+
+    var doc = null;
+    if (controller && controller.doc) {
+        doc = controller.doc;
+    } else if (appPane && appPane.currentDocument) {
+        doc = appPane.currentDocument;
+    }
+
+    if (!doc || !Array.isArray(doc.pages)) {
+        throw new Error("No document is currently open in Pencil.");
+    }
+
+    var target = resolveTargetPage(doc, controller, args.pageId, args.pageIndex, false);
+    if (!target) {
+        throw new Error("Page not found with ID '" + args.pageId + "' or index " + args.pageIndex + ". Call list_pages to discover valid pages.");
+    }
+
+    var targetPage = target.page;
+
+    if (appPane && appPane.pageListView && typeof appPane.pageListView.activatePage === "function") {
+        appPane.pageListView.activatePage(targetPage);
+    } else if (appPane && typeof appPane.activatePage === "function") {
+        appPane.activatePage(targetPage);
+    } else if (controller && typeof controller.activatePage === "function") {
+        controller.activatePage(targetPage);
+    } else if (controller) {
+        controller.activePage = targetPage;
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    success: true,
+                    activePage: {
+                        id: target.id,
+                        title: target.title,
+                        index: target.index,
+                        width: Number(targetPage.width || 800),
+                        height: Number(targetPage.height || 600)
+                    }
+                }, null, 2)
+            }
+        ]
+    };
+};
+
 module.exports = {
     RenderDesignTool: RenderDesignTool,
     GetActiveDocumentTool: GetActiveDocumentTool,
     GetPageContentTool: GetPageContentTool,
-    ExportPageTool: ExportPageTool
+    ExportPageTool: ExportPageTool,
+    ListPagesTool: ListPagesTool,
+    CreatePageTool: CreatePageTool,
+    UpdatePageTool: UpdatePageTool,
+    RenamePageTool: RenamePageTool,
+    DeletePageTool: DeletePageTool,
+    SwitchPageTool: SwitchPageTool
 };
