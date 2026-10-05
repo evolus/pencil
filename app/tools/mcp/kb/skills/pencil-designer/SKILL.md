@@ -144,7 +144,7 @@ When managing multi-screen flows, wireframes, or multi-page documents:
    - Use `list_pages` to inspect all pages in the active document (`id`, `title`, `index`, `width`, `height`, `isCurrent`, `shapeCount`).
 2. **Creating New Screens / Pages:**
    - Use `create_page` with `title` (e.g. `create_page(title: "Wireframe - Profile")`, optional `width`, `height`, `background`, `switchActive: true`).
-   - Do **NOT** call `render_design(openAsDocument: true)` to create an empty page; use `create_page` directly to avoid transient window clutter.
+   - Use `create_page` directly to add pages to the active document without creating detached document tabs.
 3. **Resizing and Styling Pages:**
    - Use `update_page` to adjust canvas dimensions (`width`, `height`), update background color (`background: "#f8fafc"` or `"transparent"`), attach master background pages (`backgroundPageId`), or rename the page (`title: "New Title"`).
 4. **Switching & Deleting Pages:**
@@ -175,6 +175,22 @@ Avoid tedious manual pixel arithmetic when adjusting layouts, inserting sections
 
 ---
 
+## 👁️ Accelerated Visual Verification & Direct Feedback Protocols
+
+Visual design is fundamentally an iterative craft. Avoid the disjointed "Blind Edit -> Export -> View" cycle by leveraging accelerated visual feedback tools:
+
+1. **Inline Visual Feedback on Mutation (`preview: true`):**
+   - When calling mutation or layout tools (`insert_shapes`, `update_shapes`, `align_shapes`, `distribute_shapes`, `move_shapes`, `shift_layout`), pass `preview: true`.
+   - The tool will execute the mutation, stage the updated canvas, and return both the structured JSON report and an **MCP multimodal `ImageContent` block** in the same turn.
+   - This allows you to immediately "see" and verify the visual outcome (text contrast, spacing, alignment) without making separate `export_page` and `view_file` calls.
+
+2. **Single-Turn Preview Generation (`render_preview`):**
+   - Call `render_preview` with optional `pageId`, `region` (`[x, y, w, h]` or `{ x, y, w, h }`), and `scale` to capture the entire canvas or inspect a specific cropped sub-region.
+   - Returns both the persistent image artifact path and an MCP multimodal image block directly to your vision context.
+
+---
+
 ## 💎 Output Format Requirement
 
 Output **only** the raw JSON payload matching the `.ep.json` schema without markdown wrappers or backticks when called by automated pipelines, or enclosed within a single standard ```json block when presenting to a user.
+

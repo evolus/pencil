@@ -13,6 +13,54 @@ var z = require("zod").z;
 var BaseTool = require("./base-tool.js").BaseTool;
 var canvasHelper = require("./canvas-helper.js");
 var editingValidator = require("./editing-validator.js");
+var documentTool = require("./document-tool.js");
+
+/*
+ * Helper to generate and attach an inline visual preview to a mutation tool response.
+ * If args.preview is true, captures a PNG preview of the updated canvas and returns
+ * both the structured metadata and an MCP multimodal ImageContent block.
+ */
+async function attachPreviewIfRequested(args, target, appPane, resultPayload) {
+    if (!args || !args.preview) {
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: JSON.stringify(resultPayload, null, 2)
+                }
+            ]
+        };
+    }
+
+    var controller = (target && target.controller) || canvasHelper.getController(appPane);
+    var previewResult = await documentTool.generatePagePreview(target.page, {
+        appPane: appPane,
+        controller: controller,
+        format: "png",
+        includeBase64: true
+    });
+
+    resultPayload.preview = previewResult.resultPayload;
+
+    var contentBlocks = [
+        {
+            type: "text",
+            text: JSON.stringify(resultPayload, null, 2)
+        }
+    ];
+
+    if (previewResult.base64Data) {
+        contentBlocks.push({
+            type: "image",
+            data: previewResult.base64Data,
+            mimeType: "image/png"
+        });
+    }
+
+    return {
+        content: contentBlocks
+    };
+}
 
 // =============================================================================
 // Tool: update_shapes
@@ -40,7 +88,8 @@ function UpdateShapesTool() {
                     }).optional().describe("Geometric dimensions and position updates."),
                     zOrder: z.enum(["bringForward", "sendBackward", "bringToFront", "sendToBack"]).optional().describe("Stacking order reordering.")
                 })
-            ).describe("List of shape update specifications.")
+            ).describe("List of shape update specifications."),
+            preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
 }
@@ -183,21 +232,16 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
         responseMsg = "None of the specified shape IDs (" + notFound.join(", ") + ") were found on page '" + target.pageId + "'. Note: when mutating shapes, use the engine UUIDs returned in 'idMap' or 'shapes' by insert_shapes, or call 'get_page_content' to verify existing IDs on canvas.";
     }
 
-    return {
-        content: [
-            {
-                type: "text",
-                text: JSON.stringify({
-                    pageId: target.pageId,
-                    updatedCount: updated.length,
-                    updated: updated,
-                    notFound: notFound,
-                    warnings: validationResult.warnings.length > 0 ? validationResult.warnings : undefined,
-                    message: responseMsg
-                }, null, 2)
-            }
-        ]
+    var resultPayload = {
+        pageId: target.pageId,
+        updatedCount: updated.length,
+        updated: updated,
+        notFound: notFound,
+        warnings: validationResult.warnings.length > 0 ? validationResult.warnings : undefined,
+        message: responseMsg
     };
+
+    return await attachPreviewIfRequested(args, target, appPane, resultPayload);
 };
 
 // =============================================================================
@@ -212,7 +256,8 @@ function DeleteShapesTool() {
         {
             pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
-            shapeIds: z.array(z.string()).describe("Array of shape IDs to delete from the canvas.")
+            shapeIds: z.array(z.string()).describe("Array of shape IDs to delete from the canvas."),
+            preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
 }
@@ -272,20 +317,15 @@ DeleteShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Delete shapes via MCP");
 
-    return {
-        content: [
-            {
-                type: "text",
-                text: JSON.stringify({
-                    pageId: target.pageId,
-                    deletedCount: deleted.length,
-                    deleted: deleted,
-                    notFound: notFound,
-                    message: "Successfully deleted " + deleted.length + " shape(s)."
-                }, null, 2)
-            }
-        ]
+    var resultPayload = {
+        pageId: target.pageId,
+        deletedCount: deleted.length,
+        deleted: deleted,
+        notFound: notFound,
+        message: "Successfully deleted " + deleted.length + " shape(s)."
     };
+
+    return await attachPreviewIfRequested(args, target, appPane, resultPayload);
 };
 
 // =============================================================================
@@ -302,7 +342,8 @@ function InsertShapesTool() {
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             x: z.number().optional().default(0).describe("Base X offset for inserted elements."),
             y: z.number().optional().default(0).describe("Base Y offset for inserted elements."),
-            elements: z.array(z.any()).describe("Array of shape descriptors matching the canonical design elements JSON schema. Each element may include an optional client-defined 'id', which will be mapped to the engine UUID in the returned 'idMap'.")
+            elements: z.array(z.any()).describe("Array of shape descriptors matching the canonical design elements JSON schema. Each element may include an optional client-defined 'id', which will be mapped to the engine UUID in the returned 'idMap'."),
+            preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
 }
@@ -433,22 +474,17 @@ InsertShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Insert shapes via MCP");
 
-    return {
-        content: [
-            {
-                type: "text",
-                text: JSON.stringify({
-                    pageId: target.pageId,
-                    insertedCount: insertedShapes.length,
-                    idMap: idMap,
-                    shapes: insertedShapes,
-                    insertedShapes: insertedShapes,
-                    warnings: validationResult.warnings.length > 0 ? validationResult.warnings : undefined,
-                    message: "Successfully inserted " + insertedShapes.length + " shape(s) onto canvas."
-                }, null, 2)
-            }
-        ]
+    var resultPayload = {
+        pageId: target.pageId,
+        insertedCount: insertedShapes.length,
+        idMap: idMap,
+        shapes: insertedShapes,
+        insertedShapes: insertedShapes,
+        warnings: validationResult.warnings.length > 0 ? validationResult.warnings : undefined,
+        message: "Successfully inserted " + insertedShapes.length + " shape(s) onto canvas."
     };
+
+    return await attachPreviewIfRequested(args, target, appPane, resultPayload);
 };
 
 // =============================================================================
@@ -1077,7 +1113,8 @@ function AlignShapesTool() {
                 "middle",
                 "bottom"
             ]).describe("Alignment axis and anchor mode: 'left', 'center-horizontal' (or 'center'), 'right', 'top', 'center-vertical' (or 'middle'), 'bottom'."),
-            referenceShapeId: z.string().optional().describe("Optional reference shape ID to align all other shapes against. If omitted, shapes align to their collective bounding box boundary.")
+            referenceShapeId: z.string().optional().describe("Optional reference shape ID to align all other shapes against. If omitted, shapes align to their collective bounding box boundary."),
+            preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
 }
@@ -1199,21 +1236,16 @@ AlignShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Align shapes (" + mode + ") via MCP");
 
-    return {
-        content: [
-            {
-                type: "text",
-                text: JSON.stringify({
-                    pageId: target.pageId,
-                    mode: mode,
-                    alignedCount: targets.length,
-                    referenceShapeId: refId || null,
-                    shapeIds: targets.map(function (t) { return t.id; }),
-                    notFound: resolution.notFound
-                }, null, 2)
-            }
-        ]
+    var resultPayload = {
+        pageId: target.pageId,
+        mode: mode,
+        alignedCount: targets.length,
+        referenceShapeId: refId || null,
+        shapeIds: targets.map(function (t) { return t.id; }),
+        notFound: resolution.notFound
     };
+
+    return await attachPreviewIfRequested(args, target, appPane, resultPayload);
 };
 
 // =============================================================================
@@ -1230,7 +1262,8 @@ function DistributeShapesTool() {
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             shapeIds: z.array(z.string()).min(2).describe("List of at least two shape engine UUIDs to distribute."),
             axis: z.enum(["horizontal", "vertical"]).describe("Distribution direction: 'horizontal' (along X axis) or 'vertical' (along Y axis)."),
-            spacing: z.number().optional().describe("Optional fixed pixel gap between adjacent shapes. If omitted, shapes are distributed evenly across the outer bounding span.")
+            spacing: z.number().optional().describe("Optional fixed pixel gap between adjacent shapes. If omitted, shapes are distributed evenly across the outer bounding span."),
+            preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
 }
@@ -1305,21 +1338,16 @@ DistributeShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Distribute shapes (" + axis + ") via MCP");
 
-    return {
-        content: [
-            {
-                type: "text",
-                text: JSON.stringify({
-                    pageId: target.pageId,
-                    axis: axis,
-                    distributedCount: targets.length,
-                    spacing: spacing !== undefined ? spacing : "even",
-                    shapeIds: targets.map(function (t) { return t.id; }),
-                    notFound: resolution.notFound
-                }, null, 2)
-            }
-        ]
+    var resultPayload = {
+        pageId: target.pageId,
+        axis: axis,
+        distributedCount: targets.length,
+        spacing: spacing !== undefined ? spacing : "even",
+        shapeIds: targets.map(function (t) { return t.id; }),
+        notFound: resolution.notFound
     };
+
+    return await attachPreviewIfRequested(args, target, appPane, resultPayload);
 };
 
 // =============================================================================
@@ -1336,7 +1364,8 @@ function MoveShapesTool() {
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             shapeIds: z.array(z.string()).min(1).describe("List of shape engine UUIDs to translate."),
             dx: z.number().describe("Horizontal relative translation offset in pixels."),
-            dy: z.number().describe("Vertical relative translation offset in pixels.")
+            dy: z.number().describe("Vertical relative translation offset in pixels."),
+            preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
 }
@@ -1349,8 +1378,8 @@ MoveShapesTool.prototype.execute = async function (args, context) {
     var dy = Number(args.dy) || 0;
 
     var appPane = canvasHelper.getApplicationPane();
-    var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
-    var canvas = target.canvas;
+    var pageTarget = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
+    var canvas = pageTarget.canvas;
 
     var resolution = canvasHelper.resolveTargetsForShapeIds(canvas, shapeIds);
     var targets = resolution.targets;
@@ -1363,29 +1392,24 @@ MoveShapesTool.prototype.execute = async function (args, context) {
      * Dispatches relative translation directly against the target: a single target
      * or a TargetSet if multiple shapes are specified.
      */
-    var target = targets.length > 1 ? new TargetSet(canvas, targets) : targets[0];
-    target.moveBy(dx, dy, true);
+    var moveTarget = targets.length > 1 ? new TargetSet(canvas, targets) : targets[0];
+    moveTarget.moveBy(dx, dy, true);
 
     if (typeof canvas.invalidateEditors === "function") canvas.invalidateEditors();
     if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Move shapes via MCP");
 
-    return {
-        content: [
-            {
-                type: "text",
-                text: JSON.stringify({
-                    pageId: target.pageId,
-                    dx: dx,
-                    dy: dy,
-                    movedCount: targets.length,
-                    shapeIds: targets.map(function (t) { return t.id; }),
-                    notFound: resolution.notFound
-                }, null, 2)
-            }
-        ]
+    var resultPayload = {
+        pageId: pageTarget.pageId,
+        dx: dx,
+        dy: dy,
+        movedCount: targets.length,
+        shapeIds: targets.map(function (t) { return t.id; }),
+        notFound: resolution.notFound
     };
+
+    return await attachPreviewIfRequested(args, pageTarget, appPane, resultPayload);
 };
 
 // =============================================================================
@@ -1402,7 +1426,8 @@ function ShiftLayoutTool() {
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             axis: z.enum(["x", "y"]).describe("Spatial reflow axis: 'x' (horizontal shift) or 'y' (vertical shift)."),
             threshold: z.number().describe("Boundary coordinate along the axis: all shapes with coordinate >= threshold will be shifted."),
-            delta: z.number().describe("Pixel offset to shift matching shapes by (positive opens space, negative closes gaps).")
+            delta: z.number().describe("Pixel offset to shift matching shapes by (positive opens space, negative closes gaps)."),
+            preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
 }
@@ -1469,21 +1494,16 @@ ShiftLayoutTool.prototype.execute = async function (args, context) {
         if (typeof canvas._saveMemento === "function") canvas._saveMemento("Shift layout (" + axis + ") via MCP");
     }
 
-    return {
-        content: [
-            {
-                type: "text",
-                text: JSON.stringify({
-                    pageId: target.pageId,
-                    axis: axis,
-                    threshold: threshold,
-                    delta: delta,
-                    shiftedCount: affectedTargets.length,
-                    shiftedShapeIds: affectedTargets.map(function (t) { return t.id; })
-                }, null, 2)
-            }
-        ]
+    var resultPayload = {
+        pageId: target.pageId,
+        axis: axis,
+        threshold: threshold,
+        delta: delta,
+        shiftedCount: affectedTargets.length,
+        shiftedShapeIds: affectedTargets.map(function (t) { return t.id; })
     };
+
+    return await attachPreviewIfRequested(args, target, appPane, resultPayload);
 };
 
 module.exports = {

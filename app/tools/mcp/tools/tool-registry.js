@@ -113,7 +113,6 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new stencilTool.ListShapesTool());
 
     // 3. Document, Page & Canvas Realization Tools
-    registry.register(new documentTool.RenderDesignTool());
     registry.register(new documentTool.GetActiveDocumentTool());
     registry.register(new documentTool.GetPageContentTool());
     registry.register(new documentTool.ExportPageTool());
@@ -123,6 +122,7 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new documentTool.RenamePageTool());
     registry.register(new documentTool.DeletePageTool());
     registry.register(new documentTool.SwitchPageTool());
+    registry.register(new documentTool.RenderPreviewTool());
 
     // 4. Granular Editing Tools
     registry.register(new editingTool.UpdateShapesTool());
