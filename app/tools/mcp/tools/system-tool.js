@@ -10,24 +10,25 @@ function isDevMode() {
     return typeof process !== "undefined" && Array.isArray(process.argv) && process.argv.indexOf("--enable-dev") >= 0;
 }
 
-function PencilStatusTool(options) {
+function GetPencilStatusTool(options) {
     options = options || {};
     this._devMode = options.devMode;
-    BaseTool.call(this, "pencil_status", "[Dev Only] Check status of the Evolus Pencil application and MCP server.", {});
+    var toolName = options.name || "get_pencil_status";
+    BaseTool.call(this, toolName, "[Dev Only] Checks runtime status of the Evolus Pencil application and MCP server.", {});
 }
-PencilStatusTool.prototype = new BaseTool();
-PencilStatusTool.prototype.devOnly = true;
+GetPencilStatusTool.prototype = new BaseTool();
+GetPencilStatusTool.prototype.devOnly = true;
 
-PencilStatusTool.prototype.isDevEnabled = function () {
+GetPencilStatusTool.prototype.isDevEnabled = function () {
     if (this._devMode !== undefined) {
         return Boolean(this._devMode);
     }
     return isDevMode();
 };
 
-PencilStatusTool.prototype.execute = async function (args, context) {
+GetPencilStatusTool.prototype.execute = async function (args, context) {
     if (!this.isDevEnabled()) {
-        throw new Error("Tool 'pencil_status' is only available when --enable-dev is specified.");
+        throw new Error("Tool '" + this.name + "' is only available when --enable-dev is specified.");
     }
 
     var appPane = null;
@@ -62,7 +63,16 @@ PencilStatusTool.prototype.execute = async function (args, context) {
     };
 };
 
+function PencilStatusTool(options) {
+    options = options || {};
+    options.name = "pencil_status";
+    GetPencilStatusTool.call(this, options);
+}
+PencilStatusTool.prototype = Object.create(GetPencilStatusTool.prototype);
+PencilStatusTool.prototype.constructor = PencilStatusTool;
+
 module.exports = {
+    GetPencilStatusTool: GetPencilStatusTool,
     PencilStatusTool: PencilStatusTool,
     isDevMode: isDevMode
 };

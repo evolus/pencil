@@ -89,20 +89,19 @@ Once connected, you can ask your AI client things like:
 |:---|:---|:---|
 | `list_skills` | `{}` | List available workflow skills in the knowledge base. |
 | `use_skill` | `{ skill_name }` | Load workflow instructions for a skill (e.g., `pencil-designer`). |
-| `read_document` | `{ doc_path, section?, start_line?, end_line? }` | Read technical docs and specs with section or line filtering. |
+| `read_knowledge_base_document` | `{ doc_path, section?, start_line?, end_line? }` | Read technical docs and specs from the knowledge base with section or line filtering. |
 | `list_collections` | `{ includeShapes? }` | List installed and visible stencil collections and shape IDs. |
 | `get_shape_definition` | `{ collectionId, shapeId? }` | Get property schemas, types, and default values for a stencil. |
 | `list_collection_resources` | `{ collectionId?, type?, keyword?, limit? }` | Discover vector and bitmap resources bundled with stencil collections. |
-| `render_design` | `{ content, pageTitle?, output?, openAsDocument? }` | Render design JSON to an image preview or open it in a canvas tab. |
 | `get_active_document` | `{}` | Get the active document title, page list, dimensions, and shape counts. |
 | `get_page_content` | `{ pageId?, pageIndex?, format? }` | Get page elements, layout coordinates, and shape properties (`json`, `svg`, `summary`). |
-| `update_shapes` | `{ pageId?, shapes: [{ shapeId, properties?, box?, zOrder? }] }` | Selectively update properties, dimensions, position, and stacking order of shapes on canvas. |
-| `delete_shapes` | `{ pageId?, shapeIds: string[] }` | Remove shapes from canvas by shapeId, clearing selection and capturing undo memento. |
-| `insert_shapes` | `{ pageId?, x?, y?, elements: [...] }` | Append new shapes onto an existing canvas without clearing existing shapes. |
+| `update_shapes` | `{ pageId?, shapes: [{ shapeId?, query?, target?, properties?, box?, zOrder? }] }` | Selectively update properties, dimensions, position, and stacking order of shapes (by shapeId, semantic query, or selection). |
+| `delete_shapes` | `{ pageId?, shapeIds?, query?, target? }` | Remove shapes from canvas by shapeIds, query criteria, or active GUI selection. |
+| `insert_shapes` | `{ pageId?, x?, y?, elements: [...] }` | Append new shapes onto an existing canvas without clearing existing shapes. Returns idMap mapping provided IDs to engine UUIDs. |
 | `select_shapes` | `{ pageId?, shapeIds: string[] }` | Highlight and focus shapes on the active desktop canvas window. |
 | `set_image_data` | `{ shapeId, pageId?, propertyName?, collectionId?, resourcePath?, data?, box?, matchIntrinsicSize? }` | Efficiently set ImageData properties on shapes from collection resources or data without heavy RPC payloads. |
 | `export_page` | `{ pageId?, format?, outputPath? }` | Export a page to PNG, SVG, or PDF. |
-| `pencil_status` | `{}` | Get server runtime diagnostics (only available when started with `--enable-dev`). |
+| `get_pencil_status` | `{}` | Get server runtime diagnostics (alias: `pencil_status`, dev-only with `--enable-dev`). |
 
 ---
 

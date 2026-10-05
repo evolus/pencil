@@ -328,8 +328,26 @@ function validateUpdateShapes(shapeUpdates) {
             continue;
         }
 
-        if (!u.shapeId || typeof u.shapeId !== "string" || u.shapeId.trim() === "") {
-            errors.push(prefix + ": missing required non-empty 'shapeId'.");
+        var hasShapeId = u.shapeId && typeof u.shapeId === "string" && u.shapeId.trim() !== "";
+        var hasQuery = u.query && typeof u.query === "object" && !Array.isArray(u.query);
+        var hasSelectedTarget = u.target === "selected";
+
+        if (!hasShapeId && !hasQuery && !hasSelectedTarget) {
+            errors.push(prefix + ": must provide targeting criteria via 'shapeId', 'query' ({ text, label, type }), or target: 'selected'.");
+        }
+
+        if (hasQuery) {
+            var q = u.query;
+            var hasCriteria = (q.text && typeof q.text === "string" && q.text.trim() !== "") ||
+                              (q.label && typeof q.label === "string" && q.label.trim() !== "") ||
+                              (q.type && typeof q.type === "string" && q.type.trim() !== "");
+            if (!hasCriteria) {
+                errors.push(prefix + ".query: expected at least one non-empty search criteria among 'text', 'label', or 'type'.");
+            }
+        }
+
+        if (u.target && u.target !== "selected") {
+            errors.push(prefix + ".target: invalid value '" + u.target + "'. Expected 'selected'.");
         }
 
         if (u.box) {

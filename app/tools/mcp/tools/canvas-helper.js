@@ -383,6 +383,128 @@ function resolveTargetsForShapeIds(canvas, shapeIds) {
     };
 }
 
+/*
+ * Extracts currently selected shape controllers and metadata from the active canvas.
+ * Inspects canvas.currentController against the target class implementations in
+ * app/pencil-core/target (Shape, TargetSet).
+ */
+function getSelectedTargets(canvas) {
+    if (!canvas || !canvas.currentController) {
+        return [];
+    }
+
+    var current = canvas.currentController;
+    if (current instanceof Shape) {
+        return [{
+            id: current.id,
+            svg: current.svg,
+            controller: current
+        }];
+    }
+
+    if (current instanceof TargetSet) {
+        var targets = [];
+        for (var i = 0; i < current.targets.length; i++) {
+            var t = current.targets[i];
+            if (t instanceof Shape) {
+                targets.push({
+                    id: t.id,
+                    svg: t.svg,
+                    controller: t
+                });
+            }
+        }
+        return targets;
+    }
+
+    return [];
+}
+
+
+/*
+ * Evaluates whether a canvas shape DOM record matches given semantic query criteria:
+ * - text / label: substring match against shape text or custom properties
+ * - type: substring / suffix match against stencil definition or type identifier
+ */
+function matchesShapeQuery(shape, query) {
+    if (!shape || !query) return false;
+
+    if (query.type) {
+        var qType = String(query.type).trim().toLowerCase();
+        var shapeDef = String(shape.def || shape.type || "").trim().toLowerCase();
+        var matchesType = (shapeDef === qType) ||
+                          (shapeDef.endsWith(":" + qType)) ||
+                          (shapeDef.indexOf(qType) !== -1);
+        if (!matchesType) return false;
+    }
+
+    var targetText = query.text || query.label;
+    if (targetText) {
+        var qText = String(targetText).trim().toLowerCase();
+        var matchedText = false;
+
+        if (shape.text && String(shape.text).toLowerCase().indexOf(qText) !== -1) {
+            matchedText = true;
+        } else if (shape.properties && typeof shape.properties === "object") {
+            for (var propKey in shape.properties) {
+                if (!shape.properties.hasOwnProperty(propKey)) continue;
+                var val = shape.properties[propKey];
+                if (val !== undefined && val !== null && String(val).toLowerCase().indexOf(qText) !== -1) {
+                    matchedText = true;
+                    break;
+                }
+            }
+        }
+
+        if (!matchedText) return false;
+    }
+
+    return true;
+}
+
+/*
+ * Traverses container DOM to collect all shapes satisfying the semantic query criteria.
+ */
+function findShapesByQuery(containerNode, query) {
+    if (!containerNode || !query) {
+        return { matches: [], totalFound: 0 };
+    }
+    var allShapes = extractShapesFromDom(containerNode, 0, 0, []);
+    var matches = [];
+    for (var i = 0; i < allShapes.length; i++) {
+        if (matchesShapeQuery(allShapes[i], query)) {
+            matches.push(allShapes[i]);
+        }
+    }
+    return {
+        matches: matches,
+        totalFound: matches.length
+    };
+}
+
+/*
+ * Resolves a single shape for mutation with an intentional single-match safety guard:
+ * If a query matches multiple shapes on the canvas, mutating blind could lead to
+ * destructive unintended edits. The guard flags ambiguity so callers can either
+ * prompt the user/agent with candidates or require more specific criteria.
+ */
+function findTargetShapeByQuery(containerNode, query) {
+    var result = findShapesByQuery(containerNode, query);
+    if (result.totalFound === 1) {
+        return {
+            shape: result.matches[0],
+            totalFound: 1,
+            ambiguous: false
+        };
+    }
+    return {
+        shape: null,
+        totalFound: result.totalFound,
+        matches: result.matches,
+        ambiguous: result.totalFound > 1
+    };
+}
+
 module.exports = {
     getApplicationPane: getApplicationPane,
     getController: getController,
@@ -393,6 +515,10 @@ module.exports = {
     resolveTargetPageAndCanvas: resolveTargetPageAndCanvas,
     extractShapesFromDom: extractShapesFromDom,
     extractPageShapes: extractPageShapes,
-    resolveTargetsForShapeIds: resolveTargetsForShapeIds
+    resolveTargetsForShapeIds: resolveTargetsForShapeIds,
+    getSelectedTargets: getSelectedTargets,
+    matchesShapeQuery: matchesShapeQuery,
+    findShapesByQuery: findShapesByQuery,
+    findTargetShapeByQuery: findTargetShapeByQuery
 };
 

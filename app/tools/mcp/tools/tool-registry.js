@@ -16,6 +16,7 @@ var stencilTool = require("./stencil-tool.js");
 var documentTool = require("./document-tool.js");
 var editingTool = require("./editing-tool.js");
 
+var GetPencilStatusTool = systemTool.GetPencilStatusTool;
 var PencilStatusTool = systemTool.PencilStatusTool;
 var isDevMode = systemTool.isDevMode;
 
@@ -94,16 +95,17 @@ ToolRegistry.createDefault = function (options) {
     // Dev-only tools: only registered when Pencil is running with --enable-dev or PENCIL_ENV=development
     var devModeActive = options.devMode !== undefined ? Boolean(options.devMode) : isDevMode();
     if (devModeActive) {
+        registry.register(new GetPencilStatusTool({ devMode: devModeActive }));
         registry.register(new PencilStatusTool({ devMode: devModeActive }));
         if (options.logger) {
-            options.logger.debug("Dev mode active: Registered developer diagnostic tool 'pencil_status'");
+            options.logger.debug("Dev mode active: Registered developer diagnostic tools 'get_pencil_status' and 'pencil_status'");
         }
     }
 
     // 1. Knowledge Base Tools
     registry.register(new kbTool.ListSkillsTool(options));
     registry.register(new kbTool.UseSkillTool(options));
-    registry.register(new kbTool.ReadDocumentTool(options));
+    registry.register(new kbTool.ReadKnowledgeBaseDocumentTool(options));
 
     // 2. Stencil & Resource Catalog Tools
     registry.register(new stencilTool.ListCollectionsTool());

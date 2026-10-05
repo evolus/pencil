@@ -16,19 +16,23 @@ Receive a user description of a UI concept (e.g., "A login modal with email inpu
 
 ## 🗂️ Knowledge Base References
 
-To execute this skill successfully, you must strictly conform to your core knowledge documents:
+To execute this skill successfully, you must strictly conform to your core knowledge documents (retrievable via `read_knowledge_base_document`):
 
 ### Output Schema
 [Output Schema](../../design-pencil/output_schema.md) <!-- required -->
-Defines the parent `.ep.json` shell (`canvas`, `elements`), dimensionless `@group` containers, coordinate translation rules, and anti-patterns.
+Defines the parent `.ep.json` shell (`canvas`, `elements`), dimensionless `@group` containers, coordinate translation rules, and anti-patterns. Read via `read_knowledge_base_document(doc_path: "output_schema.md")`.
+
+### Shapes Specification
+[Shapes Specification](../../design-pencil/shapes_specification.md) <!-- required -->
+Defines the granular `insert_shapes` element format (`id`, `type`, `box`, `properties`, `children`), `idMap` mechanics, and stencil typing conventions. Read via `read_knowledge_base_document(doc_path: "shapes_specification.md")`.
 
 ### Data Types Specification
 [Data Types Specification](../../design-pencil/data_types_specification.md) <!-- required -->
-Defines the strict serialized string micro-formats for all 18 property types (e.g., `Color` as `#RRGGBBAA`, `Font` as 6 piped segments, `StrokeStyle` as `width|dash`, `Handle` as `x,y`, `Bool` as `"true"`/`"false"`).
+Defines the strict serialized string micro-formats for all 18 property types (e.g., `Color` as `#RRGGBBAA`, `Font` as 6 piped segments, `StrokeStyle` as `width|dash`, `Handle` as `x,y`, `Bool` as `"true"`/`"false"`). Read via `read_knowledge_base_document(doc_path: "data_types_specification.md")`.
 
 ### Design Tokens
 [Design Tokens](../../design-pencil/design_tokens_mini.md) <!-- required -->
-Defines design constraints: 8px spatial grid, typography scales, line heights, and elevation standards.
+Defines design constraints: 8px spatial grid, typography scales, line heights, and elevation standards. Read via `read_knowledge_base_document(doc_path: "design_tokens_mini.md")`.
 
 ### Shape Specifications (Dynamic Tool Discovery)
 Shape specifications are **mandatory design information**. They define the official shape identifiers (e.g., `button2`, `inputtext`, `rectangle`, `textview`) and the exact property blueprint schemas required inside each element's `properties` map.
@@ -125,15 +129,20 @@ When dynamically adding, mutating, or deleting shapes on an existing canvas usin
    - `insert_shapes` returns an `idMap: { [providedId]: assignedUUID }` and `shapes: [{ id, providedId, type, box }]`.
    - **Always capture and use the mapped UUIDs** from `idMap` for subsequent calls to `update_shapes`, `delete_shapes`, or `select_shapes`.
 
-2. **Schema Invariants for `insert_shapes`:**
-   - Always use `"type"` for the shape identifier (e.g. `"type": "Evolus.Common:Button"` or `"type": "button2"`). Avoid using `"def"`, which is reserved for reading output.
-   - Supply coordinates at top-level (`x`, `y`) and bounding dimensions in `properties.box` as a `"w,h"` string (e.g., `"120,40"`).
-   - Pre-flight schema validation checks coordinates and property microformats, returning descriptive diagnostics if invalid.
+2. **Single-Turn Targeting in `update_shapes` & `delete_shapes`:**
+   - **By UUID:** `shapeId: "c7e1081a-..."` (assigned engine UUID from `idMap` or `find_shapes`).
+   - **By Semantic Query:** `query: { text: "Submit" }` or `query: { label: "...", type: "Button" }`. Resolves and mutates matching shapes in a single turn without a preceding `find_shapes` call. `update_shapes` includes a single-match safety guard that rejects ambiguous multi-matches to prevent accidental mass mutations.
+   - **By Desktop GUI Selection:** `target: "selected"`. Modifies or deletes whatever shapes the human user currently has selected with their mouse in the active Pencil desktop window.
 
-3. **Targeted Shape Inspection on Canvas:**
-   - Use `find_shapes_in_canvas` (or `find_shapes`) to locate existing components on the canvas by `type` (e.g. `button2`), `text` (substring in label/text), `inRegion` (`{x, y, w, h}`), or `ids`.
-   - By default, `find_shapes_in_canvas` includes the shape's full `properties` dictionary (e.g. `text0`, `fillColor`, `strokeColor`) and geometric bounding box (`box: {x, y, w, h}`), providing all exact property names and styling values needed to construct subsequent `update_shapes` mutations in a single step.
-   - Avoid calling `get_page_content` when you only need to locate, inspect, or modify specific elements; `find_shapes_in_canvas` returns compact shape records without heavy full-page DOM dumping.
+3. **Schema Invariants for `insert_shapes`:**
+   - Always use `"type"` for the shape identifier (e.g. `"type": "Evolus.Common:Button"` or `"type": "button2"`). Avoid using `"def"`, which is reserved for reading output.
+   - Supply coordinates at top-level (`x`, `y`) or in `box: { x, y, w, h }`.
+   - To inspect supported stencil properties, call `read_knowledge_base_document(doc_path: "shapes_specification.md")` or dynamic discovery tools `get_shape_definition` / `list_shapes`.
+
+4. **Targeted Shape Inspection on Canvas:**
+   - Use `find_shapes` (or `find_shapes_in_canvas`) to locate existing components on the canvas by `type`, `text`, `inRegion`, or `ids`.
+   - Avoid calling `get_page_content` when you only need to locate or inspect specific elements; `find_shapes` returns compact shape records without heavy full-page DOM dumping.
+   - Remember: `read_knowledge_base_document` is for static specifications; use `get_active_document` or `get_page_content` to inspect active live diagram projects.
 
 ---
 

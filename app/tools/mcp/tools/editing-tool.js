@@ -66,17 +66,48 @@ async function attachPreviewIfRequested(args, target, appPane, resultPayload) {
 // Tool: update_shapes
 // =============================================================================
 
+/*
+ * Structured shape element descriptor schema for insert_shapes.
+ * Replaces opaque z.any() to provide explicit schema discovery and validation
+ * for remote LLMs, while keeping properties and children flexible.
+ */
+var ShapeElementSchema = z.object({
+    id: z.string().optional().describe("Client-provided temporary shape identifier. Mapped to the assigned engine UUID in the returned 'idMap'."),
+    type: z.string().optional().describe("Stencil shape type identifier (e.g. 'Evolus.Common:Button', 'Evolus.Common:Label', 'Evolus.Bootstrap:Table')."),
+    def: z.string().optional().describe("Legacy stencil definition identifier (deprecated, prefer 'type')."),
+    x: z.number().optional().describe("Absolute X coordinate on canvas (default: 0)."),
+    y: z.number().optional().describe("Absolute Y coordinate on canvas (default: 0)."),
+    box: z.object({
+        x: z.number().optional().describe("X coordinate offset."),
+        y: z.number().optional().describe("Y coordinate offset."),
+        w: z.number().optional().describe("Width dimension in pixels."),
+        h: z.number().optional().describe("Height dimension in pixels.")
+    }).optional().describe("Bounding box coordinates and dimensions."),
+    properties: z.record(z.any()).optional().describe("Custom shape properties dictionary (e.g. { 'label': 'Submit', 'fillColor': '#2563ebff' })."),
+    children: z.array(z.any()).optional().describe("Nested child element descriptors for group shapes (@group).")
+});
+
+// =============================================================================
+// Tool: update_shapes
+// =============================================================================
+
 function UpdateShapesTool() {
     BaseTool.call(
         this,
         "update_shapes",
-        "Selectively mutates properties, geometry dimensions, positioning (relative or absolute), and stacking order (z-order) of existing shapes on the active or specified canvas page. Note: target shapeId must match the engine UUID assigned during shape creation (as returned in 'idMap' or 'shapes' by insert_shapes, or in get_page_content).",
+        "Selectively mutates properties, geometry dimensions, positioning (relative or absolute), and stacking order (z-order) of existing shapes on the active or specified canvas page. Targets can be specified by exact DOM engine UUID ('shapeId'), semantic search query ('query: { text, label, type }' with single-match safety guard), or active GUI selection ('target: \"selected\"').",
         {
             pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             shapes: z.array(
                 z.object({
-                    shapeId: z.string().describe("The ID of the target shape to modify (assigned engine UUID)."),
+                    shapeId: z.string().optional().describe("The ID of the target shape to modify (assigned engine UUID)."),
+                    query: z.object({
+                        text: z.string().optional().describe("Substring to match in shape text, label, or content properties."),
+                        label: z.string().optional().describe("Substring to match in shape label property."),
+                        type: z.string().optional().describe("Stencil type identifier or suffix (e.g. 'Button').")
+                    }).optional().describe("Semantic query to dynamically resolve a target shape on the target canvas. Fails safely if multiple shapes match."),
+                    target: z.enum(["selected"]).optional().describe("Set to 'selected' to target currently selected shape(s) in the desktop GUI window."),
                     properties: z.record(z.any()).optional().describe("Key-value dictionary of properties to update (e.g. {'label': 'Submit', 'fillColor': '#2563eb'})."),
                     box: z.object({
                         x: z.number().optional().describe("New absolute X coordinate on canvas."),
@@ -101,7 +132,8 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
 
     /*
      * Pre-flight validation on shapeUpdates payload:
-     * Validates non-empty array, required shapeId, valid numeric box values, and property formats.
+     * Validates non-empty array, valid targeting criteria (shapeId, query, or target: 'selected'),
+     * valid numeric box values, and property formats.
      */
     var validationResult = editingValidator.validateUpdateShapes(shapeUpdates);
     if (validationResult.errors.length > 0) {
@@ -117,109 +149,136 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
 
     for (var i = 0; i < shapeUpdates.length; i++) {
         var update = shapeUpdates[i];
-        if (!update || !update.shapeId) continue;
+        if (!update) continue;
 
-        var svgNode = canvasHelper.findElementById(canvas.drawingLayer, update.shapeId);
-        if (!svgNode) {
-            notFound.push(update.shapeId);
-            continue;
-        }
-
-        var shape = null;
-        if (typeof canvas.createControllerFor === "function") {
-            shape = canvas.createControllerFor(svgNode);
-        }
-        if ((!shape || typeof shape.setProperty !== "function") && typeof Shape !== "undefined") {
-            try {
-                shape = new Shape(canvas, svgNode);
-            } catch (err) {
-                shape = null;
+        var targetIds = [];
+        if (update.shapeId) {
+            targetIds.push(update.shapeId);
+        } else if (update.target === "selected") {
+            var selected = canvasHelper.getSelectedTargets(canvas);
+            if (selected.length === 0) {
+                throw new Error("No shapes currently selected on the active canvas. Please select a shape in Pencil or specify a shapeId/query.");
             }
+            for (var sIdx = 0; sIdx < selected.length; sIdx++) {
+                if (selected[sIdx].id) targetIds.push(selected[sIdx].id);
+            }
+        } else if (update.query) {
+            var qResult = canvasHelper.findTargetShapeByQuery(canvas.drawingLayer, update.query);
+            if (qResult.ambiguous) {
+                var candidateIds = qResult.matches.map(function (m) { return m.id; }).join(", ");
+                throw new Error("Ambiguous query for update_shapes: query " + JSON.stringify(update.query) + " matched " + qResult.totalFound + " shapes (" + candidateIds + "). Please specify an exact shapeId or refine query criteria.");
+            }
+            if (!qResult.shape) {
+                notFound.push("query:" + JSON.stringify(update.query));
+                continue;
+            }
+            targetIds.push(qResult.shape.id);
         }
 
-        if (!shape) {
-            notFound.push(update.shapeId);
-            continue;
-        }
+        for (var tIdx = 0; tIdx < targetIds.length; tIdx++) {
+            var targetShapeId = targetIds[tIdx];
+            var svgNode = canvasHelper.findElementById(canvas.drawingLayer, targetShapeId);
+            if (!svgNode) {
+                notFound.push(targetShapeId);
+                continue;
+            }
 
-        // 1. Update properties
-        if (update.properties && typeof update.properties === "object") {
-            for (var propName in update.properties) {
-                if (!update.properties.hasOwnProperty(propName)) continue;
-                var rawVal = update.properties[propName];
+            var shape = null;
+            if (typeof canvas.createControllerFor === "function") {
+                shape = canvas.createControllerFor(svgNode);
+            }
+            if ((!shape || typeof shape.setProperty !== "function") && typeof Shape !== "undefined") {
+                try {
+                    shape = new Shape(canvas, svgNode);
+                } catch (err) {
+                    shape = null;
+                }
+            }
 
-                if (shape.def && typeof shape.def.getProperty === "function") {
-                    var pdef = shape.def.getProperty(propName);
-                    if (pdef && pdef.type && typeof pdef.type.fromString === "function") {
-                        var parsedVal = pdef.type.fromString(String(rawVal));
-                        if (typeof ImageData !== "undefined" && parsedVal instanceof ImageData) {
-                            if (typeof resolveImageData === "function") resolveImageData(parsedVal);
+            if (!shape) {
+                notFound.push(targetShapeId);
+                continue;
+            }
+
+            // 1. Update properties
+            if (update.properties && typeof update.properties === "object") {
+                for (var propName in update.properties) {
+                    if (!update.properties.hasOwnProperty(propName)) continue;
+                    var rawVal = update.properties[propName];
+
+                    if (shape.def && typeof shape.def.getProperty === "function") {
+                        var pdef = shape.def.getProperty(propName);
+                        if (pdef && pdef.type && typeof pdef.type.fromString === "function") {
+                            var parsedVal = pdef.type.fromString(String(rawVal));
+                            if (typeof ImageData !== "undefined" && parsedVal instanceof ImageData) {
+                                if (typeof resolveImageData === "function") resolveImageData(parsedVal);
+                            }
+                            shape.setProperty(propName, parsedVal);
+                        } else if (typeof shape.setProperty === "function") {
+                            shape.setProperty(propName, rawVal);
                         }
-                        shape.setProperty(propName, parsedVal);
                     } else if (typeof shape.setProperty === "function") {
                         shape.setProperty(propName, rawVal);
                     }
-                } else if (typeof shape.setProperty === "function") {
-                    shape.setProperty(propName, rawVal);
                 }
             }
+
+            // 2. Update dimensions (w, h)
+            if (update.box) {
+                if (update.box.w !== undefined && update.box.h !== undefined) {
+                    var newW = Number(update.box.w);
+                    var newH = Number(update.box.h);
+                    if (typeof shape.scaleTo === "function") {
+                        shape.scaleTo(newW, newH);
+                    } else if (typeof Dimension !== "undefined" && typeof shape.setProperty === "function") {
+                        shape.setProperty("box", new Dimension(newW, newH));
+                    }
+                }
+
+                // 3. Update position (relative dx/dy or absolute x/y)
+                if (update.box.dx !== undefined || update.box.dy !== undefined || update.box.x !== undefined || update.box.y !== undefined) {
+                    var targetNode = (shape && shape.svg) || svgNode;
+                    var curTransform = targetNode.getAttribute("transform") || "";
+                    var curMatrix = canvasHelper.parseMatrix(curTransform);
+
+                    var finalX = curMatrix.e;
+                    var finalY = curMatrix.f;
+
+                    if (update.box.dx !== undefined || update.box.dy !== undefined) {
+                        finalX += (Number(update.box.dx) || 0);
+                        finalY += (Number(update.box.dy) || 0);
+                    } else {
+                        if (update.box.x !== undefined) finalX = Number(update.box.x);
+                        if (update.box.y !== undefined) finalY = Number(update.box.y);
+                    }
+
+                    if (typeof Svg !== "undefined" && typeof Svg.ensureCTM === "function") {
+                        Svg.ensureCTM(targetNode, { a: curMatrix.a, b: curMatrix.b, c: curMatrix.c, d: curMatrix.d, e: finalX, f: finalY });
+                    } else {
+                        targetNode.setAttribute("transform", "matrix(" + [curMatrix.a, curMatrix.b, curMatrix.c, curMatrix.d, finalX, finalY].join(",") + ")");
+                    }
+
+                    if (typeof shape.invalidateOutboundConnections === "function") {
+                        shape.invalidateOutboundConnections();
+                    }
+                }
+            }
+
+            // 4. Update stacking order (zOrder)
+            if (update.zOrder) {
+                if (update.zOrder === "bringForward" && typeof shape.bringForward === "function") {
+                    shape.bringForward();
+                } else if (update.zOrder === "sendBackward" && typeof shape.sendBackward === "function") {
+                    shape.sendBackward();
+                } else if (update.zOrder === "bringToFront" && typeof shape.bringToFront === "function") {
+                    shape.bringToFront();
+                } else if (update.zOrder === "sendToBack" && typeof shape.sendToBack === "function") {
+                    shape.sendToBack();
+                }
+            }
+
+            updated.push(targetShapeId);
         }
-
-        // 2. Update dimensions (w, h)
-        if (update.box) {
-            if (update.box.w !== undefined && update.box.h !== undefined) {
-                var newW = Number(update.box.w);
-                var newH = Number(update.box.h);
-                if (typeof shape.scaleTo === "function") {
-                    shape.scaleTo(newW, newH);
-                } else if (typeof Dimension !== "undefined" && typeof shape.setProperty === "function") {
-                    shape.setProperty("box", new Dimension(newW, newH));
-                }
-            }
-
-            // 3. Update position (relative dx/dy or absolute x/y)
-            if (update.box.dx !== undefined || update.box.dy !== undefined || update.box.x !== undefined || update.box.y !== undefined) {
-                var targetNode = (shape && shape.svg) || svgNode;
-                var curTransform = targetNode.getAttribute("transform") || "";
-                var curMatrix = canvasHelper.parseMatrix(curTransform);
-
-                var finalX = curMatrix.e;
-                var finalY = curMatrix.f;
-
-                if (update.box.dx !== undefined || update.box.dy !== undefined) {
-                    finalX += (Number(update.box.dx) || 0);
-                    finalY += (Number(update.box.dy) || 0);
-                } else {
-                    if (update.box.x !== undefined) finalX = Number(update.box.x);
-                    if (update.box.y !== undefined) finalY = Number(update.box.y);
-                }
-
-                if (typeof Svg !== "undefined" && typeof Svg.ensureCTM === "function") {
-                    Svg.ensureCTM(targetNode, { a: curMatrix.a, b: curMatrix.b, c: curMatrix.c, d: curMatrix.d, e: finalX, f: finalY });
-                } else {
-                    targetNode.setAttribute("transform", "matrix(" + [curMatrix.a, curMatrix.b, curMatrix.c, curMatrix.d, finalX, finalY].join(",") + ")");
-                }
-
-                if (typeof shape.invalidateOutboundConnections === "function") {
-                    shape.invalidateOutboundConnections();
-                }
-            }
-        }
-
-        // 4. Update stacking order (zOrder)
-        if (update.zOrder) {
-            if (update.zOrder === "bringForward" && typeof shape.bringForward === "function") {
-                shape.bringForward();
-            } else if (update.zOrder === "sendBackward" && typeof shape.sendBackward === "function") {
-                shape.sendBackward();
-            } else if (update.zOrder === "bringToFront" && typeof shape.bringToFront === "function") {
-                shape.bringToFront();
-            } else if (update.zOrder === "sendToBack" && typeof shape.sendToBack === "function") {
-                shape.sendToBack();
-            }
-        }
-
-        updated.push(update.shapeId);
     }
 
     // Refresh canvas editors, notify modified state, and capture undo memento
@@ -229,7 +288,7 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Update shapes via MCP");
     var responseMsg = "Successfully updated " + updated.length + " shape(s).";
     if (updated.length === 0 && notFound.length > 0) {
-        responseMsg = "None of the specified shape IDs (" + notFound.join(", ") + ") were found on page '" + target.pageId + "'. Note: when mutating shapes, use the engine UUIDs returned in 'idMap' or 'shapes' by insert_shapes, or call 'get_page_content' to verify existing IDs on canvas.";
+        responseMsg = "None of the specified targets (" + notFound.join(", ") + ") were found on page '" + target.pageId + "'. Note: when mutating shapes, use engine UUIDs ('shapeId') from 'idMap', semantic query ('query: { text, label, type }'), or active GUI selection ('target: \"selected\"').";
     }
 
     var resultPayload = {
@@ -252,11 +311,17 @@ function DeleteShapesTool() {
     BaseTool.call(
         this,
         "delete_shapes",
-        "Removes specified shapes from the target page canvas, clearing selection and capturing undo memento.",
+        "Removes specified shapes from the target page canvas, clearing selection and capturing undo memento. Targets can be specified by exact IDs ('shapeIds'), semantic search criteria ('query: { text, label, type }'), or active desktop GUI selection ('target: \"selected\"').",
         {
             pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
-            shapeIds: z.array(z.string()).describe("Array of shape IDs to delete from the canvas."),
+            shapeIds: z.array(z.string()).optional().describe("Array of shape IDs to delete from the canvas."),
+            query: z.object({
+                text: z.string().optional().describe("Substring to match in shape text, label, or content properties."),
+                label: z.string().optional().describe("Substring to match in shape label property."),
+                type: z.string().optional().describe("Stencil type identifier or suffix (e.g. 'Button').")
+            }).optional().describe("Semantic query to locate shapes to delete. Deletes all matching shapes."),
+            target: z.enum(["selected"]).optional().describe("Set to 'selected' to delete currently selected shape(s) in the desktop GUI window."),
             preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
@@ -265,20 +330,42 @@ DeleteShapesTool.prototype = new BaseTool();
 
 DeleteShapesTool.prototype.execute = async function (args, context) {
     args = args || {};
-    var shapeIds = args.shapeIds || [];
-    if (!Array.isArray(shapeIds) || shapeIds.length === 0) {
-        throw new Error("No shape IDs provided in 'shapeIds' parameter.");
-    }
-
     var appPane = canvasHelper.getApplicationPane();
     var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
     var canvas = target.canvas;
 
-    var deleted = [];
+    var targetIds = [];
     var notFound = [];
 
-    for (var i = 0; i < shapeIds.length; i++) {
-        var id = shapeIds[i];
+    if (Array.isArray(args.shapeIds) && args.shapeIds.length > 0) {
+        for (var i = 0; i < args.shapeIds.length; i++) {
+            if (args.shapeIds[i]) targetIds.push(args.shapeIds[i]);
+        }
+    } else if (args.target === "selected") {
+        var selected = canvasHelper.getSelectedTargets(canvas);
+        if (selected.length === 0) {
+            throw new Error("No shapes currently selected on the active canvas. Please select shapes in Pencil or specify shapeIds/query.");
+        }
+        for (var s = 0; s < selected.length; s++) {
+            if (selected[s].id) targetIds.push(selected[s].id);
+        }
+    } else if (args.query) {
+        var qMatches = canvasHelper.findShapesByQuery(canvas.drawingLayer, args.query);
+        if (qMatches.totalFound === 0) {
+            notFound.push("query:" + JSON.stringify(args.query));
+        } else {
+            for (var m = 0; m < qMatches.matches.length; m++) {
+                targetIds.push(qMatches.matches[m].id);
+            }
+        }
+    } else {
+        throw new Error("No shapes specified for delete_shapes. Provide 'shapeIds', 'query' ({ text, label, type }), or target: 'selected'.");
+    }
+
+    var deleted = [];
+
+    for (var dIdx = 0; dIdx < targetIds.length; dIdx++) {
+        var id = targetIds[dIdx];
         if (!id) continue;
 
         var svgNode = canvasHelper.findElementById(canvas.drawingLayer, id);
@@ -336,13 +423,13 @@ function InsertShapesTool() {
     BaseTool.call(
         this,
         "insert_shapes",
-        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab. When user-defined 'id' fields are provided on elements, the engine assigns internal unique UUIDs to maintain document integrity, and returns an explicit 'idMap' ({ [providedId]: assignedUUID }) in the response alongside 'shapes' records. Use the assigned UUIDs for subsequent calls to update_shapes, delete_shapes, or select_shapes.",
+        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab. When user-defined 'id' fields are provided on elements, the engine assigns internal unique UUIDs to maintain document integrity, and returns an explicit 'idMap' ({ [providedId]: assignedUUID }) in the response alongside 'shapes' records. Use the assigned UUIDs for subsequent calls to update_shapes, delete_shapes, or select_shapes. To inspect stencil types, property schemas, and examples, read the shape specification via read_knowledge_base_document({ name: 'shapes_specification' }) or discover installed stencils dynamically using get_shape_definition / list_shapes.",
         {
             pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             x: z.number().optional().default(0).describe("Base X offset for inserted elements."),
             y: z.number().optional().default(0).describe("Base Y offset for inserted elements."),
-            elements: z.array(z.any()).describe("Array of shape descriptors matching the canonical design elements JSON schema. Each element may include an optional client-defined 'id', which will be mapped to the engine UUID in the returned 'idMap'."),
+            elements: z.array(ShapeElementSchema).describe("Array of shape descriptors. Each element defines 'type' (e.g. 'Evolus.Common:Button'), coordinates ('x', 'y' or 'box'), custom 'properties', and optional client 'id' mapped in 'idMap'. Refer to shapes_specification doc for available stencils and properties."),
             preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
@@ -941,12 +1028,15 @@ function FindShapesInCanvasTool(toolName) {
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             type: z.string().optional().describe("Stencil shape type identifier or element type (e.g. 'button2', 'RoundedRect', 'Evolus.Common:RoundedRect', 'shape', 'group')."),
             text: z.string().optional().describe("Case-insensitive text substring to match against shape text, label, or content properties."),
-            inRegion: z.object({
-                x: z.number().describe("X coordinate of bounding box."),
-                y: z.number().describe("Y coordinate of bounding box."),
-                w: z.number().describe("Width of bounding box."),
-                h: z.number().describe("Height of bounding box.")
-            }).optional().describe("Spatial bounding box filter {x, y, w, h} to find shapes overlapping this canvas region."),
+            inRegion: z.union([
+                z.array(z.number()),
+                z.object({
+                    x: z.number().describe("X coordinate of bounding box."),
+                    y: z.number().describe("Y coordinate of bounding box."),
+                    w: z.number().describe("Width of bounding box."),
+                    h: z.number().describe("Height of bounding box.")
+                })
+            ]).optional().describe("Spatial bounding box filter {x, y, w, h} or [x, y, w, h] to find shapes overlapping this canvas region."),
             ids: z.array(z.string()).optional().describe("List of specific shape engine UUIDs to find."),
             includeProperties: z.boolean().optional().default(true).describe("Whether to include the full properties dictionary in the returned shape records (defaults to true).")
         }

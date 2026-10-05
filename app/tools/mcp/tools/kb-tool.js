@@ -167,26 +167,28 @@ UseSkillTool.prototype.execute = async function (args, context) {
 };
 
 // =============================================================================
-// Tool: read_document
+// Tool: read_knowledge_base_document
 // =============================================================================
 
-function ReadDocumentTool(options) {
+function ReadKnowledgeBaseDocumentTool(options) {
     options = options || {};
     this.kbDir = options.kbDir || path.join(__dirname, "../kb");
 
     BaseTool.call(
         this,
-        "read_document",
-        "Reads a domain specification document or a specific section from the knowledge base.",
+        "read_knowledge_base_document",
+        "Reads a static domain specification document or section from the Pencil knowledge base (e.g. 'shapes_specification.md', 'data_types_specification.md'). Note: To inspect live canvas projects or active diagrams, use get_active_document or get_page_content instead.",
         {
-            doc_path: z.string().describe("Path of the document to read (e.g., 'data_types_specification.md', 'output_schema.md', or 'design_tokens_mini.md')."),
+            doc_path: z.string().describe("Filename or relative path of the knowledge base document to read (e.g., 'shapes_specification.md', 'data_types_specification.md', or 'output_schema.md')."),
             section: z.string().optional().describe("Optional specific heading title to extract (returns only that section)."),
             start_line: z.number().int().positive().optional().describe("Optional starting line number (1-based, inclusive)."),
             end_line: z.number().int().positive().optional().describe("Optional ending line number (1-based, inclusive).")
         }
     );
 }
-ReadDocumentTool.prototype = new BaseTool();
+ReadKnowledgeBaseDocumentTool.prototype = new BaseTool();
+
+var ReadDocumentTool = ReadKnowledgeBaseDocumentTool;
 
 ReadDocumentTool.prototype._resolvePath = function (inputPath) {
     if (!inputPath || typeof inputPath !== "string") {
@@ -321,5 +323,6 @@ ReadDocumentTool.prototype.execute = async function (args, context) {
 module.exports = {
     ListSkillsTool: ListSkillsTool,
     UseSkillTool: UseSkillTool,
-    ReadDocumentTool: ReadDocumentTool
+    ReadKnowledgeBaseDocumentTool: ReadKnowledgeBaseDocumentTool,
+    ReadDocumentTool: ReadKnowledgeBaseDocumentTool
 };
