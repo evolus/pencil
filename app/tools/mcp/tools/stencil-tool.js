@@ -12,6 +12,206 @@ var z = require("zod").z;
 var BaseTool = require("./base-tool.js").BaseTool;
 
 // =============================================================================
+// Helper Functions for Shortcuts & Usage Guidelines
+// =============================================================================
+
+/*
+ * Detects whether an item is a <Shortcut> preset rather than an authentic SVG primitive.
+ * Stencil shortcuts in Pencil wrap underlying base shapes with pre-configured properties
+ * and typically have constructor Shortcut or system:ref: IDs.
+ */
+function isShortcut(shapeDef) {
+    if (!shapeDef) return false;
+    if (typeof Shortcut !== "undefined" && shapeDef instanceof Shortcut) return true;
+    if (shapeDef.constructor && shapeDef.constructor.name === "Shortcut") return true;
+    if (shapeDef.id && String(shapeDef.id).indexOf("system:ref:") === 0) return true;
+    if (shapeDef.shape && shapeDef.id && String(shapeDef.id).indexOf("system:ref:") !== -1) return true;
+    return false;
+}
+
+/*
+ * Determines if a shortcut references a given base shape definition, matching by
+ * object reference, exact ID, or local un-namespaced identifier.
+ */
+function shortcutMatchesShape(shortcut, shapeDef, collectionId) {
+    if (!shortcut || !shapeDef) return false;
+    var targetId = null;
+    if (shortcut.shape) {
+        targetId = (typeof shortcut.shape === "object") ? shortcut.shape.id : shortcut.shape;
+    } else if (shortcut.to) {
+        targetId = shortcut.to;
+    } else if (shortcut.target) {
+        targetId = shortcut.target;
+    }
+
+    if (!targetId) return false;
+    if (targetId === shapeDef.id) return true;
+
+    var sId = String(shapeDef.id);
+    var tId = String(targetId);
+
+    var localShapeId = (sId.indexOf(":") !== -1) ? sId.split(":").pop() : sId;
+    var localTargetId = (tId.indexOf(":") !== -1) ? tId.split(":").pop() : tId;
+    if (localShapeId && localTargetId && localShapeId === localTargetId) return true;
+
+    if (collectionId) {
+        if (tId === collectionId + ":" + sId) return true;
+        if (collectionId + ":" + tId === sId) return true;
+    }
+
+    return false;
+}
+
+/*
+ * Safely resolves property expressions (e.g., author tokens like $$defaultH1Font)
+ * against collection-level token properties into concrete string representations.
+ */
+function resolveExpression(expr, collection) {
+    if (!expr) return "";
+    var sExpr = String(expr).trim();
+
+    var tokenMatch = sExpr.match(/^\$\$([a-zA-Z0-9_]+)$/) || sExpr.match(/^collection\.properties\.([a-zA-Z0-9_]+)(?:\.value|\.initialValue)?$/);
+    if (tokenMatch && collection && collection.properties) {
+        var tokenName = tokenMatch[1];
+        var prop = collection.properties[tokenName];
+        if (prop !== undefined && prop !== null) {
+            var val = (prop && prop.value !== undefined && prop.value !== null)
+                ? prop.value
+                : ((prop && prop.initialValue !== undefined && prop.initialValue !== null)
+                    ? prop.initialValue
+                    : prop);
+            if (val !== undefined && val !== null) {
+                return (typeof val.toString === "function") ? val.toString() : String(val);
+            }
+        }
+    }
+
+    var normalizedExpr = sExpr.replace(/\$\$([a-z][a-z0-9]*)/gi, function (match, pName) {
+        return "collection.properties." + pName + ".value";
+    });
+
+    try {
+        var context = {
+            collection: collection,
+            F: (typeof F !== "undefined") ? F : {},
+            Math: Math
+        };
+        var fn = new Function("context", "with(context) { return (" + normalizedExpr + "); }");
+        var res = fn(context);
+        if (res !== undefined && res !== null) {
+            return (typeof res.toString === "function") ? res.toString() : String(res);
+        }
+    } catch (e) {
+        var subMatch = normalizedExpr.match(/collection\.properties\.([a-zA-Z0-9_]+)/);
+        if (subMatch && collection && collection.properties && collection.properties[subMatch[1]]) {
+            var pObj = collection.properties[subMatch[1]];
+            var pVal = (pObj && pObj.value !== undefined && pObj.value !== null)
+                ? pObj.value
+                : ((pObj && pObj.initialValue !== undefined && pObj.initialValue !== null) ? pObj.initialValue : pObj);
+            if (pVal !== undefined && pVal !== null) {
+                return (typeof pVal.toString === "function") ? pVal.toString() : String(pVal);
+            }
+        }
+    }
+
+    return sExpr;
+}
+
+/*
+ * Traverses collection shortcut structures and aggregates all registered shortcut objects.
+ */
+function getCollectionShortcuts(col) {
+    var shortcuts = [];
+    if (!col) return shortcuts;
+
+    if (col.shortcutMap && typeof col.shortcutMap === "object") {
+        for (var key in col.shortcutMap) {
+            if (col.shortcutMap.hasOwnProperty(key)) {
+                var sc = col.shortcutMap[key];
+                if (sc && shortcuts.indexOf(sc) === -1) {
+                    shortcuts.push(sc);
+                }
+            }
+        }
+    }
+
+    if (Array.isArray(col.shapeDefs)) {
+        for (var i = 0; i < col.shapeDefs.length; i++) {
+            var item = col.shapeDefs[i];
+            if (isShortcut(item) && shortcuts.indexOf(item) === -1) {
+                shortcuts.push(item);
+            }
+        }
+    } else if (col.shapeDefs && typeof col.shapeDefs === "object") {
+        for (var sKey in col.shapeDefs) {
+            if (col.shapeDefs.hasOwnProperty(sKey)) {
+                var sObj = col.shapeDefs[sKey];
+                if (isShortcut(sObj) && shortcuts.indexOf(sObj) === -1) {
+                    shortcuts.push(sObj);
+                }
+            }
+        }
+    }
+
+    return shortcuts;
+}
+
+/*
+ * Transforms shortcuts targeting a base shape into structured usage guidelines
+ * with evaluated recommended properties.
+ */
+function extractUsageGuidelines(shapeDef, col) {
+    var guidelines = [];
+    if (!shapeDef || !col) return guidelines;
+
+    var allShortcuts = getCollectionShortcuts(col);
+    for (var i = 0; i < allShortcuts.length; i++) {
+        var sc = allShortcuts[i];
+        if (!shortcutMatchesShape(sc, shapeDef, col.id)) continue;
+
+        var scenario = sc.displayName || sc.name || "Default Preset";
+        var description = sc.description || ("Pre-configured variant for " + scenario);
+        var recommendedProperties = {};
+
+        var propSource = sc.propertyMap || sc.properties || {};
+        for (var pName in propSource) {
+            if (!propSource.hasOwnProperty(pName)) continue;
+            if (pName === "_collection" || pName.indexOf("_") === 0) continue;
+
+            var spec = propSource[pName];
+            if (spec === undefined || spec === null) continue;
+
+            var resolvedVal = "";
+            if (spec.initialValueExpression) {
+                resolvedVal = resolveExpression(spec.initialValueExpression, col);
+            } else if (spec.initialValue !== undefined && spec.initialValue !== null) {
+                resolvedVal = (typeof spec.initialValue.toString === "function")
+                    ? spec.initialValue.toString()
+                    : String(spec.initialValue);
+            } else if (spec.value !== undefined && spec.value !== null) {
+                resolvedVal = (typeof spec.value.toString === "function")
+                    ? spec.value.toString()
+                    : String(spec.value);
+            } else {
+                resolvedVal = (typeof spec.toString === "function")
+                    ? spec.toString()
+                    : String(spec);
+            }
+
+            recommendedProperties[pName] = resolvedVal;
+        }
+
+        guidelines.push({
+            scenario: scenario,
+            description: description,
+            recommendedProperties: recommendedProperties
+        });
+    }
+
+    return guidelines;
+}
+
+// =============================================================================
 // Tool: list_collections
 // =============================================================================
 
@@ -53,7 +253,6 @@ ListCollectionsTool.prototype.execute = async function (args, context) {
             var col = allCols[i];
             if (!col || !col.id) continue;
 
-            // Only list installed and visible collections (reusing Pencil's CollectionManager.isCollectionVisible)
             var isVisible = true;
             if (typeof colMgr.isCollectionVisible === "function") {
                 isVisible = colMgr.isCollectionVisible(col);
@@ -66,7 +265,7 @@ ListCollectionsTool.prototype.execute = async function (args, context) {
             if (Array.isArray(col.shapeDefs)) {
                 for (var j = 0; j < col.shapeDefs.length; j++) {
                     var s = col.shapeDefs[j];
-                    if (s && s.id) {
+                    if (s && s.id && !isShortcut(s)) {
                         shapeIds.push(s.id);
                     }
                 }
@@ -74,17 +273,23 @@ ListCollectionsTool.prototype.execute = async function (args, context) {
                 for (var key in col.shapeDefs) {
                     if (col.shapeDefs.hasOwnProperty(key)) {
                         var def = col.shapeDefs[key];
+                        if (def && isShortcut(def)) continue;
                         shapeIds.push((def && def.id) ? def.id : key);
                     }
                 }
             }
 
+            var shortcuts = getCollectionShortcuts(col);
+
             var colSummary = {
                 id: col.id,
                 displayName: col.displayName || col.id,
-                shapeCount: shapeIds.length
+                description: col.description || "",
+                instructions: col.instructions || "",
+                shapeCount: shapeIds.length,
+                scenarioCount: shortcuts.length
             };
-
+            
             if (includeShapes) {
                 colSummary.shapes = shapeIds;
             }
@@ -236,6 +441,16 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
             throw new Error("Shape '" + shapeId + "' not found in collection '" + collectionId + "'.");
         }
 
+        /*
+         * If the requested identifier resolves to a Shortcut preset, automatically
+         * redirect to the underlying primitive shape and attach its usage guidelines.
+         */
+        if (isShortcut(shapeDef) && shapeDef.shape) {
+            shapeDef = shapeDef.shape;
+        }
+
+        var guidelines = extractUsageGuidelines(shapeDef, targetCol);
+
         return {
             content: [
                 {
@@ -244,7 +459,10 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
                         collectionId: collectionId,
                         shapeId: shapeDef.id || shapeId,
                         displayName: shapeDef.displayName || shapeId,
-                        properties: this._formatShapeProperties(shapeDef)
+                        description: shapeDef.description || "",
+                        instructions: shapeDef.instructions || "",
+                        properties: this._formatShapeProperties(shapeDef),
+                        usageGuidelines: guidelines
                     }, null, 2)
                 }
             ]
@@ -256,22 +474,29 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
     if (Array.isArray(targetCol.shapeDefs)) {
         for (var k = 0; k < targetCol.shapeDefs.length; k++) {
             var sDef = targetCol.shapeDefs[k];
-            if (!sDef || !sDef.id) continue;
+            if (!sDef || !sDef.id || isShortcut(sDef)) continue;
             shapesList.push({
                 shapeId: sDef.id,
                 displayName: sDef.displayName || sDef.id,
-                properties: this._formatShapeProperties(sDef)
+                description: sDef.description || "",
+                instructions: sDef.instructions || "",
+                properties: this._formatShapeProperties(sDef),
+                usageGuidelines: extractUsageGuidelines(sDef, targetCol)
             });
         }
     } else if (targetCol.shapeDefs && typeof targetCol.shapeDefs === "object") {
         for (var sKey in targetCol.shapeDefs) {
             if (!targetCol.shapeDefs.hasOwnProperty(sKey)) continue;
             var defObj = targetCol.shapeDefs[sKey];
-            var sId = (defObj && defObj.id) ? defObj.id : sKey;
+            if (!defObj || isShortcut(defObj)) continue;
+            var sId = defObj.id || sKey;
             shapesList.push({
                 shapeId: sId,
-                displayName: (defObj && defObj.displayName) ? defObj.displayName : sId,
-                properties: this._formatShapeProperties(defObj)
+                displayName: defObj.displayName || sId,
+                description: defObj.description || "",
+                instructions: defObj.instructions || "",
+                properties: this._formatShapeProperties(defObj),
+                usageGuidelines: extractUsageGuidelines(defObj, targetCol)
             });
         }
     }
@@ -282,6 +507,8 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
                 type: "text",
                 text: JSON.stringify({
                     collectionId: collectionId,
+                    description: targetCol.description || "",
+                    instructions: targetCol.instructions || "",
                     shapes: shapesList
                 }, null, 2)
             }
@@ -553,44 +780,86 @@ ListShapeDefinitionsTool.prototype.execute = async function (args, context) {
         var tCol = targetCols[j];
         var cId = tCol.id;
 
-        var shapeDefsList = [];
+        var rawDefs = [];
         if (Array.isArray(tCol.shapeDefs)) {
-            shapeDefsList = tCol.shapeDefs;
+            rawDefs = tCol.shapeDefs;
         } else if (tCol.shapeDefs && typeof tCol.shapeDefs === "object") {
             for (var key in tCol.shapeDefs) {
                 if (tCol.shapeDefs.hasOwnProperty(key)) {
                     var sObj = tCol.shapeDefs[key];
-                    shapeDefsList.push((sObj && sObj.id) ? sObj : { id: key });
+                    rawDefs.push((sObj && sObj.id) ? sObj : { id: key });
                 }
             }
         }
 
-        for (var k = 0; k < shapeDefsList.length; k++) {
-            var sDef = shapeDefsList[k];
-            if (!sDef || !sDef.id) continue;
+        /*
+         * Filter out Shortcut presets to maintain catalog orthogonality.
+         * True SVG base shapes are retained as primary entities.
+         */
+        var baseShapes = [];
+        for (var r = 0; r < rawDefs.length; r++) {
+            if (rawDefs[r] && rawDefs[r].id && !isShortcut(rawDefs[r])) {
+                baseShapes.push(rawDefs[r]);
+            }
+        }
 
+        for (var k = 0; k < baseShapes.length; k++) {
+            var sDef = baseShapes[k];
             var sId = sDef.id;
             var displayName = sDef.displayName || sId;
             var description = sDef.description || "";
-            var shapeType = cId + ":" + sId;
+            var shapeType = (sId.indexOf(cId + ":") === 0) ? sId : (cId + ":" + sId);
             var iconPath = sDef.icon || sDef.iconPath || "";
 
+            /*
+             * Extract complete scenario recipes with resolved recommendedProperties
+             * so LLMs calling list_shapes receive actionable usage guidelines directly.
+             */
+            var guidelines = extractUsageGuidelines(sDef, tCol);
+            var matchingScenarios = [];
+
             if (query) {
-                var matches = (sId.toLowerCase().indexOf(query) !== -1) ||
-                              (displayName.toLowerCase().indexOf(query) !== -1) ||
-                              (description.toLowerCase().indexOf(query) !== -1) ||
-                              (shapeType.toLowerCase().indexOf(query) !== -1);
-                if (!matches) continue;
+                var directMatch = (sId.toLowerCase().indexOf(query) !== -1) ||
+                                  (displayName.toLowerCase().indexOf(query) !== -1) ||
+                                  (description.toLowerCase().indexOf(query) !== -1) ||
+                                  (shapeType.toLowerCase().indexOf(query) !== -1);
+
+                for (var gIdx = 0; gIdx < guidelines.length; gIdx++) {
+                    var gItem = guidelines[gIdx];
+                    if (gItem.scenario.toLowerCase().indexOf(query) !== -1 ||
+                        (gItem.description && gItem.description.toLowerCase().indexOf(query) !== -1)) {
+                        matchingScenarios.push(gItem.scenario);
+                    }
+                }
+
+                if (!directMatch && matchingScenarios.length === 0) {
+                    continue;
+                }
             }
 
-            allDefs.push({
+            var defRecord = {
                 id: sId,
                 shapeType: shapeType,
                 collectionId: cId,
                 displayName: displayName,
                 description: description,
                 iconPath: iconPath
-            });
+            };
+
+            if (sDef.instructions) {
+                defRecord.instructions = sDef.instructions;
+            }
+
+            if (guidelines.length > 0) {
+                defRecord.scenarios = guidelines;
+                defRecord.usageGuidelines = guidelines;
+            }
+
+            if (query && matchingScenarios.length > 0) {
+                defRecord.matchingScenarios = matchingScenarios;
+            }
+
+            allDefs.push(defRecord);
         }
     }
 

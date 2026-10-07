@@ -1,8 +1,17 @@
 (function () {
 
     const express = require("express");
+    const cors = require("cors");
 
     const app = express();
+
+    app.use(cors({
+        origin: '*',
+        methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['*'],
+        exposedHeaders: ['mcp-session-id', 'content-type']
+    }));
+
     app.use(express.json({ limit: '10mb' })); 
 
     const RENDER_API = "/json/render"

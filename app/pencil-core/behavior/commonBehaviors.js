@@ -415,6 +415,8 @@ Pencil.behaviors.RichTextContent = function (text, bound, alignment) {
         width: bound.w,
         height: bound.h
     });
+
+    console.log("Render result:", this._renderResult);
 };
 Pencil.behaviors.DomContent = function (xmlText) {
     Dom.empty(this);

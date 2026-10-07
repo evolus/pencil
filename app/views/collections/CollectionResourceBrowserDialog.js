@@ -5,7 +5,7 @@ function CollectionResourceBrowserDialog (collection, options) {
     this.options = options || {};
 
     this.prefixes = this.options.prefixes || [];
-    this.type = this.options.type || CollectionResourceBrowserDialog.TYPE_BITMAP;
+    this.type = this.options.type; // || CollectionResourceBrowserDialog.TYPE_BITMAP;
     this.returnType = this.options.returnType || CollectionResourceBrowserDialog.RETURN_IMAGEDATA;
 
     this.title = this.collection.displayName + " Resource Selection";
@@ -24,7 +24,7 @@ function CollectionResourceBrowserDialog (collection, options) {
     var selectedCollection = null;
     for (var c of CollectionManager.shapeDefinition.collections) {
         if (c.id == collection.id || !c.RESOURCE_LIST) continue;
-
+        
         if (this.options.type) {
             var found = false;
             for (var resource of c.RESOURCE_LIST) {
@@ -36,7 +36,7 @@ function CollectionResourceBrowserDialog (collection, options) {
 
             if (!found) continue;
         }
-
+        
         availableCollections.push(c);
         if (CollectionResourceBrowserDialog.lastCollectionId == c.id) {
             selectedCollection = c;
@@ -44,7 +44,7 @@ function CollectionResourceBrowserDialog (collection, options) {
     }
 
     if (!selectedCollection) selectedCollection = availableCollections[0];
-
+    
     this.collectionCombo.setItems(availableCollections);
     this.collectionCombo.selectItem(selectedCollection);
 
@@ -84,7 +84,6 @@ function CollectionResourceBrowserDialog (collection, options) {
     this.invalidatePrefixList();
 
     this.filterInput.value = CollectionResourceBrowserDialog.lastKeyword || "";
-    console.log(this.prefixCombo.items);
     for (var p of this.prefixCombo.items) {
         if (p.prefix == CollectionResourceBrowserDialog.lastPrefix) {
             this.prefixCombo.selectItem(p);
@@ -128,7 +127,7 @@ CollectionResourceBrowserDialog.prototype.invalidatePrefixList = function () {
         prefixes = this.prefixes || [];
     } else {
         for (var resource of collection.RESOURCE_LIST) {
-            if (!resource.type || resource.type == this.options.type) {
+            if (!resource.type || !this.options.type || resource.type == this.options.type) {
                 prefixes.push(resource);
             }
         }
@@ -337,15 +336,71 @@ CollectionResourceBrowserDialog.prototype.getMatchingResources = function (dirPa
     });
 };
 
+CollectionResourceBrowserDialog._getParsedSvgSize = function (svgElement) {
+    const rawWidth = svgElement.getAttribute("width") || svgElement.style.width;
+    const rawHeight = svgElement.getAttribute("height") || svgElement.style.height;
+
+    const parsedWidth = parseFloat(rawWidth);
+    const parsedHeight = parseFloat(rawHeight);
+
+    const hasValidWidth = !Number.isNaN(parsedWidth) && parsedWidth > 0;
+    const hasValidHeight = !Number.isNaN(parsedHeight) && parsedHeight > 0;
+
+    if (hasValidWidth && hasValidHeight) {
+        return {
+            width: parsedWidth,
+            height: parsedHeight,
+            source: "attributes"
+        };
+    }
+
+    const viewBoxAttr = svgElement.getAttribute("viewBox");
+    if (viewBoxAttr) {
+        const parts = viewBoxAttr
+            .trim()
+            .split(/[\s,]+/)
+            .map(Number);
+
+        if (parts.length === 4 && !parts.some(Number.isNaN)) {
+            const vbWidth = parts[2];
+            const vbHeight = parts[3];
+
+            if (hasValidWidth) {
+                return {
+                    width: parsedWidth,
+                    height: (parsedWidth * vbHeight) / vbWidth,
+                    source: "width-viewBox-ratio"
+                };
+            }
+
+            if (hasValidHeight) {
+                return {
+                    width: (parsedHeight * vbWidth) / vbHeight,
+                    height: parsedHeight,
+                    source: "height-viewBox-ratio"
+                };
+            }
+
+            return {
+                width: vbWidth,
+                height: vbHeight,
+                source: "viewBox"
+            };
+        }
+    }
+
+    return null;
+}
+
 CollectionResourceBrowserDialog.handleSVGObjectLoaded = function (e) {
     var object = event.target;
-    if (!object.parentNode || !object.parentNode.showing) return;
+    if (!object.parentNode || !object.parentNode.showing || !object.contentDocument) return;
 
     var svg = object.contentDocument.documentElement;
-    var w = svg.getAttribute("width");
-    var h = svg.getAttribute("height");
-    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
-    object.parentNode._data.size = new Dimension(Math.round(parseFloat(w)), Math.round(parseFloat(h)));
+    let {width, height, source} = CollectionResourceBrowserDialog._getParsedSvgSize(svg);
+    if (source != "viewBox") svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+    
+    object.parentNode._data.size = new Dimension(Math.round(parseFloat(width)), Math.round(parseFloat(height)));
 };
 CollectionResourceBrowserDialog.handleImageLoaded = function (e) {
     var image = event.target;
@@ -355,11 +410,13 @@ CollectionResourceBrowserDialog.handleImageLoaded = function (e) {
 };
 CollectionResourceBrowserDialog.prototype.showItem = function (item, shouldShow) {
     if (item.showing == shouldShow) return;
+    
+    let currentType = this.prefixCombo.getSelectedItem().type;
 
     item.innerHTML = "";
     if (shouldShow) {
         var spec = null;
-        if (this.type == CollectionResourceBrowserDialog.TYPE_SVG) {
+        if (currentType == CollectionResourceBrowserDialog.TYPE_SVG) {
             spec = [{
                 _name: "object",
                 _uri: PencilNamespaces.html,
@@ -381,9 +438,10 @@ CollectionResourceBrowserDialog.prototype.showItem = function (item, shouldShow)
         var fragment = Dom.newDOMFragment(spec);
         item.appendChild(fragment);
 
-        if (this.type == CollectionResourceBrowserDialog.TYPE_SVG) {
+        if (currentType == CollectionResourceBrowserDialog.TYPE_SVG) {
             item.firstChild.addEventListener("load", CollectionResourceBrowserDialog.handleSVGObjectLoaded, false)
-        } else if (this.type == CollectionResourceBrowserDialog.TYPE_BITMAP) {
+        }
+        if (currentType == CollectionResourceBrowserDialog.TYPE_BITMAP) {
             if (!item._data.size) {
                 item.firstChild.addEventListener("load", CollectionResourceBrowserDialog.handleImageLoaded, false)
             }

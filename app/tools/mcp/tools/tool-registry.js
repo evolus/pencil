@@ -131,7 +131,6 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new editingTool.DeleteShapesTool());
     registry.register(new editingTool.InsertShapesTool());
     registry.register(new editingTool.SelectShapesTool());
-    registry.register(new editingTool.SetImageDataTool());
     registry.register(new editingTool.FindShapesInCanvasTool());
     registry.register(new editingTool.FindShapesTool());
     registry.register(new editingTool.AlignShapesTool());

@@ -212,6 +212,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, 
     collection.id = shapeDefsNode.getAttribute("id");
     collection.displayName = shapeDefsNode.getAttribute("displayName");
     collection.description = shapeDefsNode.getAttribute("description");
+    collection.instructions = shapeDefsNode.getAttribute("instructions");
     collection.author = shapeDefsNode.getAttribute("author");
     collection.infoUrl = shapeDefsNode.getAttribute("url");
     collection.system = shapeDefsNode.getAttribute("system") == "true";
@@ -349,6 +350,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, 
     var shapeDef = new ShapeDef();
     shapeDef.id = collection.id + ":" + shapeDefNode.getAttribute("id");
     shapeDef.displayName = shapeDefNode.getAttribute("displayName");
+    shapeDef.instructions = shapeDefNode.getAttribute("instructions");
     shapeDef.system = shapeDefNode.getAttribute("system") == "true";
     shapeDef.collection = collection;
     var inherits = shapeDefNode.getAttribute("inherits");

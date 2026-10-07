@@ -47,6 +47,7 @@ F.getObjectBoundingBox = function (name) {
     if (!target) return new {x:0, y: 0, w: 0, h: 0};
 
     var bbox = target.getBBox();
+    // var renderResult = Object.assign({leftSpace: 0, rightSpace: 0}, target._renderResult);
     return {x: bbox.x, y: bbox.y, w: bbox.width, h: bbox.height};
 };
 

@@ -34,11 +34,12 @@ Defines the strict serialized string micro-formats for all 18 property types (e.
 [Design Tokens](../../design-pencil/design_tokens_mini.md) <!-- required -->
 Defines design constraints: 8px spatial grid, typography scales, line heights, and elevation standards. Read via `read_knowledge_base_document(doc_path: "design_tokens_mini.md")`.
 
-### Shape Specifications (Dynamic Tool Discovery)
-Shape specifications are **mandatory design information**. They define the official shape identifiers (e.g., `button2`, `inputtext`, `rectangle`, `textview`) and the exact property blueprint schemas required inside each element's `properties` map.
-* **Discover Collections:** Use `list_collections` to list available stencil libraries.
-* **Discover & Search Shape Definitions:** Use `list_shape_definitions` (or `list_shapes`) with optional `query` or `collectionId` to discover available stencil shapes without schema buffer bloat.
-* **Fetch Shape Specifications:** Use `get_shape_definition` with `collectionId` and `shapeId` to retrieve exact property schemas, default values, and types for a specific shape.
+### Shape Specifications & Specific Usage Guidelines (Dynamic Tool Discovery)
+Shape specifications are **mandatory design information**. They define the official shape identifiers (e.g., `button2`, `inputtext`, `rectangle`, `textview`, `heading`), the exact property blueprint schemas, and structured **Specific Usage Case Guidelines** (`usageGuidelines`) per ADR-0003:
+* **Discover Collections & Guidelines:** Use `list_collections` to list available stencil libraries along with collection-level instructions, design conventions, and scenario counts.
+* **Discover & Search Shape Definitions:** Use `list_shape_definitions` (or `list_shapes`) with optional `query` or `collectionId`. Shortcuts are filtered out to keep the catalog clean, and returned shapes are annotated with structured `scenarios` detailing the scenario name, description, and concrete `recommendedProperties`.
+* **Fetch Shape Specifications & Scenario Recipes:** Use `get_shape_definition` with `collectionId` and `shapeId`. It provides full property schemas, default values, and a `usageGuidelines` array containing pre-configured variant recipes (e.g., "Heading 1", "Heading 2") with concrete, resolved `recommendedProperties` evaluated against collection tokens.
+* **Direct Property Application:** When generating shapes for `insert_shapes` or design blueprints, copy or adapt the concrete property values directly from `recommendedProperties` in `scenarios` or `usageGuidelines`.
 * **Mandatory Property Conformance:** When instantiating any shape, **every property** defined in its shape specification must be explicitly declared in the `properties` map as a serialized string.
 
 ---
@@ -47,11 +48,26 @@ Shape specifications are **mandatory design information**. They define the offic
 
 In Pencil, all graphics (vectors, photos, icons, and illustrations) are unified under the `ImageData` type:
 * **Discovering Collection Resources:** Use `list_collection_resources` (with optional `type: "svg"` or `type: "bitmap"`) to discover available vector graphics, brand assets, and icons bundled with loaded stencil collections.
-* **Setting Shape Images Efficiently (Recommended):** Use `set_image_data` with `shapeId`, `collectionId`, and `resourcePath`. This automatically copies the asset into document references (`ref://`), derives intrinsic dimensions, and assigns the property without transmitting large base64 data over JSON-RPC.
-* **Initial Design Elements Property Syntax:** When declaring `ImageData` properties in initial design JSON, use the canonical `"[width],[height],[payload]"` string format:
+* **Direct Inline Collection Resource URIs (`collection://`):** To assign or update an icon, vector graphic, or bitmap resource on a shape, specify the URI directly in the shape's `properties` map when calling `insert_shapes` or `update_shapes`:
+  - **Explicit collection target:** `"collection://@collectionId/path/to/resource"` (e.g. `"collection://@lucideIcons/search.svg"`, `"collection://@tabler-icons/icons/outline/brand-github.svg"`).
+  - **Implicit shape collection target:** `"collection://path/to/resource"` (e.g. `"collection://icons/search.svg"`). When `@collectionId/` is omitted, the engine automatically resolves the resource from the **collection containing the shape in effect**.
+  ```json
+  "properties": {
+    "url": "collection://@lucideIcons/search.svg"
+  }
+  ```
+  Or referencing within the shape's own collection:
+  ```json
+  "properties": {
+    "url": "collection://icons/search.svg"
+  }
+  ```
+  The Pencil engine automatically resolves the resource from the installed collection, copies it synchronously into the document's local reference storage (`ref://`), and binds the property in a single turn without separate setter tool invocations or heavy base64 payload transfers.
+* **Property Syntax Formats:** When declaring `ImageData` properties:
+  * Inline Collection URI (recommended): `"collection://[@collectionId/]path/to/resource"`
   * Document reference: `"24,24,ref://asset-id.svg"`
-  * Empty image: `"0,0,"`.
-  * Inline raster or SVG data URI: `"300,200,data:image/png;base64,..."`.
+  * Empty image: `"0,0,"`
+  * Inline raster or SVG data URI: `"300,200,data:image/png;base64,..."`
 
 ---
 

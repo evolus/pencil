@@ -236,6 +236,7 @@ Shape.prototype.applyBehaviorForProperty = function (name, dontValidateRelatedPr
                 item.handler.apply(target, args);
             } catch (e) {
                 Console.dumpError(e);
+                console.error("Failed to apply behavior: ", {def: this.def, prop: name, relatedTarget: targetName, behaviorItem: item});
             }
         }
     }

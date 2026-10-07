@@ -27,7 +27,7 @@ The Evolus Pencil engine implements exactly 18 property data types (`app/pencil-
 | 7 | **`Enum`** | Key from shape specification | `/^[a-zA-Z0-9_-]+$/` | `enum.js` | Categorical selections |
 | 8 | **`Font`** | `"[fam]\|[weight]\|[style]\|[size]\|[decor]\|[lh]"` | Exactly 6 pipe segments | `font.js` | Typography styling |
 | 9 | **`Handle`** | `"[x],[y]"` | `/^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?$/` | `handle.js` | Draggable control / corner radius |
-| 10 | **`ImageData`** | `"[w],[h],[payload]"` | `w,h` integer + icon pointer or base64 | `imageData.js` | Icons, bitmaps, SVG assets |
+| 10 | **`ImageData`** | `"[w],[h],[payload]"` or `"collection://..."` | `w,h` + payload or `collection://@col/res` | `imageData.js` | Icons, bitmaps, SVG assets |
 | 11 | **`Num`** | `"[number]"` | `/^[-+]?\d+(?:\.\d+)?$/` | `num.js` | Numeric scalars / counts |
 | 12 | **`PlainText`** | Raw text string | Any string | `plainText.js` | Unformatted labels / inputs |
 | 13 | **`Point`** | `"[x],[y]"` | `/^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?$/` | `point.js` | Coordinates / offsets |
@@ -214,27 +214,48 @@ Represents an interactive on-canvas drag control point or corner rounding contro
 Represents an image asset (bitmap raster or vector SVG) coupled with its intrinsic dimensions. In Pencil's architecture, there is no distinct "icon" data type; all icons, graphics, and photos are unified under `ImageData`.
 
 * **Engine Source:** `pencil-core/propertyType/imageData.js`
-* **Format:** `"[width],[height],[payload]"`
-* **Regex:** `ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]*)$/;`
-* **Components:**
-  1. `width,height`: Intrinsic pixel dimensions of the image asset. Set to `0,0,` to represent an empty image.
-  2. `payload`: Asset pointer or content:
-     - **Document Reference (`ref://<id>`):** High-efficiency reference to an asset copied into the document's `.ref/` storage (e.g. `"ref://f3a1-asset.svg"`). This is the standard mechanism produced when using `set_image_data` or browsing collection resources.
-     - **Data URI (`data:...`):** Inline base64 bitmap (`data:image/png;base64,...`) or SVG string (`data:image/svg+xml,...`).
+* **Format:** `"[width],[height],[payload]"` or `"collection://[@collectionId/]path/to/resource"`
+* **Regex:** `ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]*)$/;` or `/^collection:\/\/(@([^\s\/]+)\/)?(.+)$/`
+* **Components & URI Formats:**
+  1. **Collection URI (`collection://[@collectionId/]path/to/resource`):**
+     The **canonical inline mechanism** for binding stencil collection icons and bitmap assets directly in `insert_shapes` and `update_shapes` property maps:
+     - **With explicit collection (`collection://@collectionId/path/to/resource`):** Targets the specified installed stencil collection (e.g. `collection://@lucideIcons/search.svg` or `collection://@tabler-icons/icons/outline/brand-github.svg`).
+     - **With implicit collection (`collection://path/to/resource`):** When `@collectionId/` is omitted, the engine automatically resolves the resource from the **collection containing the shape in effect** (i.e. `def.collection`).
+     - Assets are copied synchronously into the document's local reference store (`ref://<id>`).
+  2. **Dimensioned Reference / Payload (`"[width],[height],[payload]"`):**
+     - `width,height`: Intrinsic pixel dimensions of the image asset. Set to `0,0,` to represent an empty image.
+     - `payload`:
+       - **Document Reference (`ref://<id>`):** High-efficiency reference to an asset copied into the document's `.ref/` storage (e.g. `"ref://f3a1-asset.svg"`).
+       - **Data URI (`data:...`):** Inline base64 bitmap (`data:image/png;base64,...`) or SVG string (`data:image/svg+xml,...`).
 
-#### Collection Resources & Efficient Tooling:
+#### Collection Resources & Inline Mutation:
 Stencil collections expose available vector and bitmap assets via `collection.RESOURCE_LIST`.
 - To discover available resources, use the `list_collection_resources` MCP tool.
-- To assign a collection resource to a shape property, use the `set_image_data` tool with `shapeId`, `collectionId`, and `resourcePath`. This automatically derives intrinsic dimensions and links the document reference without transferring raw base64 payloads over JSON-RPC.
+- To assign a collection resource to a shape property, supply the `collection://` URI directly in the element's `properties` map when calling `insert_shapes` or `update_shapes`:
+  ```json
+  "properties": {
+    "url": "collection://@lucideIcons/search.svg"
+  }
+  ```
+  Or referencing a resource from the shape's own stencil collection:
+  ```json
+  "properties": {
+    "url": "collection://icons/search.svg"
+  }
+  ```
+  The engine parses the URI, derives the asset from the target collection (or the shape's owning collection), and attaches it synchronously without requiring separate setter tool invocations or base64 payload transfers.
 
 * **Valid Examples:**
+  * `"collection://@lucideIcons/search.svg"` (Explicit cross-collection resource URI)
+  * `"collection://icons/search.svg"` (Implicit resource URI within the shape's own collection)
+  * `"collection://@tabler-icons/icons/outline/brand-github.svg"` (Explicit Tabler vector icon)
   * `"24,24,ref://a4e21b-search.svg"` (Document reference to collection vector asset)
   * `"48,48,ref://b512c0-avatar.png"` (Document reference to bitmap image asset)
   * `"0,0,"` (Empty image—no asset displayed)
   * `"48,48,data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0..."` (Inline SVG data URI)
 * **Invalid Examples:**
-  * `"ref://asset.svg"` *(missing intrinsic width and height prefix)*
-  * `"search.svg"` *(missing protocol prefix and dimensions)*
+  * `"search.svg"` *(missing `collection://` protocol prefix)*
+  * `"ref://asset.svg"` *(missing intrinsic width and height prefix when using raw ref syntax)*
 
 ---
 
