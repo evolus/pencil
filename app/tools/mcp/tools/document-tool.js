@@ -1720,13 +1720,20 @@ function RenderPreviewTool() {
         {
             pageId: z.string().optional().describe("Target page UUID. If omitted, previews the currently active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
+            /*
+             * Note: In JSON Schema Draft 2020-12, 'items' must be a valid schema (object or boolean).
+             * Using z.tuple(...) emits an array for 'items' under Draft-07 conventions, which fails
+             * Draft 2020-12 meta-schema validation in modern MCP agent clients (e.g., Claude / Cursor).
+             * z.array(z.number()).min(4).max(4) emits compliant 'items: { type: "number" }' while
+             * strictly preserving 4-element coordinate tuple validation.
+             */
             region: z.union([
-                z.tuple([z.number(), z.number(), z.number(), z.number()]),
+                z.array(z.number()).min(4).max(4).describe("Array bounding box: [x, y, w, h]."),
                 z.object({
-                    x: z.number(),
-                    y: z.number(),
-                    w: z.number(),
-                    h: z.number()
+                    x: z.number().optional().default(0).describe("X coordinate of bounding box."),
+                    y: z.number().optional().default(0).describe("Y coordinate of bounding box."),
+                    w: z.number().describe("Width of bounding box."),
+                    h: z.number().describe("Height of bounding box.")
                 })
             ]).optional().describe("Optional sub-region bounding box to crop preview: [x, y, w, h] or { x, y, w, h }."),
             scale: z.number().positive().optional().default(1.0).describe("Scale multiplier for preview rasterization (default: 1.0)."),
