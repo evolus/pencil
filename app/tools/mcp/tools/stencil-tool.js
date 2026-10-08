@@ -10,6 +10,7 @@ var fs = require("fs");
 var path = require("path");
 var z = require("zod").z;
 var BaseTool = require("./base-tool.js").BaseTool;
+var iconSynonyms = require("./icon-synonyms.js");
 
 // =============================================================================
 // Helper Functions for Shortcuts & Usage Guidelines
@@ -520,8 +521,75 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
 // Tool: list_collection_resources
 // =============================================================================
 
-function scanDirectoryForResources(dirPath, relPrefix, typeFilter, keyword, results, limit) {
-    if (results.length >= limit) return;
+/*
+ * Evaluates whether a resource name or relative path matches a search keyword.
+ * Supports exact substring matching, delimiter-normalized matching (treating hyphens,
+ * underscores, and dots as word boundaries), and multi-token matching so that queries
+ * like "chevron right" successfully match "chevron-right.svg" or "arrows/chevron_right.png".
+ */
+function matchesResourceKeyword(name, relPath, keyword) {
+    if (!keyword) return true;
+    var lowerName = name.toLowerCase();
+    var lowerRel = relPath.toLowerCase();
+
+    if (lowerName.indexOf(keyword) !== -1 || lowerRel.indexOf(keyword) !== -1) {
+        return true;
+    }
+
+    var normalizedName = lowerName.replace(/[-_.]+/g, " ");
+    var normalizedRel = lowerRel.replace(/[-_.]+/g, " ");
+    var normalizedKeyword = keyword.replace(/[-_.]+/g, " ").trim();
+
+    if (normalizedName.indexOf(normalizedKeyword) !== -1 || normalizedRel.indexOf(normalizedKeyword) !== -1) {
+        return true;
+    }
+
+    var tokens = normalizedKeyword.split(/\s+/).filter(Boolean);
+    if (tokens.length > 1) {
+        for (var t = 0; t < tokens.length; t++) {
+            var tok = tokens[t];
+            if (normalizedName.indexOf(tok) === -1 && normalizedRel.indexOf(tok) === -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
+
+/*
+ * Evaluates match quality against candidate resource names and relative paths:
+ * - Tier 2 (Exact / Token): Query directly matches the filename or relative path.
+ * - Tier 1 (Universal Synonym): Query matches via cross-library synonym clusters
+ *   (e.g., "search" matching "magnifying-glass", or "bin" matching "trash").
+ * - Tier 0: No match.
+ */
+function evaluateResourceMatchTier(name, relPath, keyword, expandedSynonyms) {
+    if (!keyword) return 2;
+
+    if (matchesResourceKeyword(name, relPath, keyword)) {
+        return 2;
+    }
+
+    if (expandedSynonyms && expandedSynonyms.length > 0) {
+        for (var s = 0; s < expandedSynonyms.length; s++) {
+            if (matchesResourceKeyword(name, relPath, expandedSynonyms[s])) {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+/*
+ * Recursively inspects a directory on disk to discover SVG and bitmap resource assets.
+ * Evaluates file extension and keyword filters, accumulating all valid candidates
+ * into the results array without premature truncation so that global pagination offsets
+ * and accurate total count aggregates can be computed across target collections.
+ */
+function scanDirectoryForResources(dirPath, relPrefix, typeFilter, keyword, expandedSynonyms, results) {
     if (!fs.existsSync(dirPath)) return;
 
     var entries = [];
@@ -532,7 +600,6 @@ function scanDirectoryForResources(dirPath, relPrefix, typeFilter, keyword, resu
     }
 
     for (var i = 0; i < entries.length; i++) {
-        if (results.length >= limit) break;
         var name = entries[i];
         if (name.startsWith(".")) continue;
 
@@ -547,7 +614,7 @@ function scanDirectoryForResources(dirPath, relPrefix, typeFilter, keyword, resu
         var currentRel = relPrefix ? (relPrefix + "/" + name) : name;
 
         if (stat.isDirectory()) {
-            scanDirectoryForResources(fullPath, currentRel, typeFilter, keyword, results, limit);
+            scanDirectoryForResources(fullPath, currentRel, typeFilter, keyword, expandedSynonyms, results);
         } else if (stat.isFile()) {
             var ext = path.extname(name).toLowerCase();
             var resType = null;
@@ -560,18 +627,19 @@ function scanDirectoryForResources(dirPath, relPrefix, typeFilter, keyword, resu
             if (!resType) continue;
             if (typeFilter !== "all" && resType !== typeFilter) continue;
 
-            if (keyword) {
-                var matchName = name.toLowerCase();
-                var matchRel = currentRel.toLowerCase();
-                if (matchName.indexOf(keyword) === -1 && matchRel.indexOf(keyword) === -1) {
-                    continue;
-                }
+            var baseName = path.basename(name, ext);
+            var normalizedRel = currentRel.replace(/\\/g, "/");
+
+            var matchTier = evaluateResourceMatchTier(baseName, normalizedRel, keyword, expandedSynonyms);
+            if (matchTier === 0) {
+                continue;
             }
 
             results.push({
-                name: path.basename(name, ext),
-                relativePath: currentRel.replace(/\\/g, "/"),
-                type: resType
+                name: baseName,
+                relativePath: normalizedRel,
+                type: resType,
+                _matchTier: matchTier
             });
         }
     }
@@ -585,8 +653,9 @@ function ListCollectionResourcesTool() {
         {
             collectionId: z.string().optional().describe("Optional collection ID (e.g. 'lucideIcons', 'Common'). If omitted, searches across all loaded collections."),
             type: z.enum(["all", "svg", "bitmap"]).optional().default("all").describe("Filter by resource type: 'svg' for vector graphics, 'bitmap' for raster images, or 'all'."),
-            keyword: z.string().optional().describe("Case-insensitive keyword to filter resource names or relative paths."),
-            limit: z.number().int().positive().optional().default(100).describe("Maximum number of resources to return (default 100).")
+            keyword: z.string().optional().describe("Case-insensitive keyword to filter resource names or relative paths. Expands across universal icon synonyms (e.g. 'magnifier' finds 'search', 'gear' finds 'settings')."),
+            limit: z.number().int().positive().optional().default(100).describe("Maximum number of resources to return (default 100)."),
+            offset: z.number().int().nonnegative().optional().default(0).describe("0-based pagination offset (default: 0).")
         }
     );
 }
@@ -610,7 +679,10 @@ ListCollectionResourcesTool.prototype.execute = async function (args, context) {
     var collectionId = args.collectionId ? args.collectionId.trim() : null;
     var typeFilter = args.type || "all";
     var keyword = args.keyword ? args.keyword.trim().toLowerCase() : null;
-    var limit = typeof args.limit === "number" ? Math.max(1, args.limit) : 100;
+    var limit = (args.limit !== undefined && args.limit !== null) ? Math.max(1, Number(args.limit)) : 100;
+    var offset = (args.offset !== undefined && args.offset !== null) ? Math.max(0, Number(args.offset)) : 0;
+
+    var expandedSynonyms = keyword ? iconSynonyms.expandKeyword(keyword) : [];
 
     var colMgr = this._getCollectionManager();
     var allCols = (colMgr && colMgr.shapeDefinition && Array.isArray(colMgr.shapeDefinition.collections))
@@ -640,7 +712,6 @@ ListCollectionResourcesTool.prototype.execute = async function (args, context) {
     var allResources = [];
 
     for (var c = 0; c < targetCols.length; c++) {
-        if (allResources.length >= limit) break;
         var col = targetCols[c];
         if (!col || !col.installDirPath) continue;
 
@@ -648,48 +719,65 @@ ListCollectionResourcesTool.prototype.execute = async function (args, context) {
 
         if (Array.isArray(col.RESOURCE_LIST) && col.RESOURCE_LIST.length > 0) {
             for (var r = 0; r < col.RESOURCE_LIST.length; r++) {
-                if (allResources.length + colResources.length >= limit) break;
                 var resMeta = col.RESOURCE_LIST[r];
                 if (!resMeta || !resMeta.prefix) continue;
                 if (typeFilter !== "all" && resMeta.type && resMeta.type !== typeFilter) continue;
 
                 var resDir = path.join(col.installDirPath, resMeta.prefix);
-                scanDirectoryForResources(resDir, resMeta.prefix, typeFilter, keyword, colResources, limit - allResources.length);
+                scanDirectoryForResources(resDir, resMeta.prefix, typeFilter, keyword, expandedSynonyms, colResources);
             }
         } else {
             var candidates = ["Icons", "bitmaps", "vectors", "resources", "images"];
             for (var d = 0; d < candidates.length; d++) {
-                if (allResources.length + colResources.length >= limit) break;
                 var candDir = path.join(col.installDirPath, candidates[d]);
                 if (fs.existsSync(candDir)) {
-                    scanDirectoryForResources(candDir, candidates[d], typeFilter, keyword, colResources, limit - allResources.length);
+                    scanDirectoryForResources(candDir, candidates[d], typeFilter, keyword, expandedSynonyms, colResources);
                 }
             }
         }
 
         for (var k = 0; k < colResources.length; k++) {
-            if (allResources.length >= limit) break;
             var item = colResources[k];
             allResources.push({
                 collectionId: col.id,
                 collectionName: col.displayName || col.id,
                 name: item.name,
                 relativePath: item.relativePath,
-                type: item.type
+                type: item.type,
+                _matchTier: item._matchTier || 2
             });
         }
     }
+
+    if (keyword && allResources.length > 1) {
+        allResources.sort(function (a, b) {
+            return (b._matchTier || 0) - (a._matchTier || 0);
+        });
+    }
+
+    var totalCount = allResources.length;
+    var paginatedResources = allResources.slice(offset, offset + limit).map(function (item) {
+        return {
+            collectionId: item.collectionId,
+            collectionName: item.collectionName,
+            name: item.name,
+            relativePath: item.relativePath,
+            type: item.type
+        };
+    });
 
     return {
         content: [
             {
                 type: "text",
                 text: JSON.stringify({
-                    totalCount: allResources.length,
+                    totalCount: totalCount,
+                    offset: offset,
                     limit: limit,
                     type: typeFilter,
                     collectionId: collectionId || null,
-                    resources: allResources
+                    keyword: keyword || null,
+                    resources: paginatedResources
                 }, null, 2)
             }
         ]

@@ -47,7 +47,7 @@ Shape specifications are **mandatory design information**. They define the offic
 ## 🖼️ Imagery & Resource Protocols (ImageData)
 
 In Pencil, all graphics (vectors, photos, icons, and illustrations) are unified under the `ImageData` type:
-* **Discovering Collection Resources:** Use `list_collection_resources` (with optional `type: "svg"` or `type: "bitmap"`) to discover available vector graphics, brand assets, and icons bundled with loaded stencil collections.
+* **Discovering Collection Resources:** Use `list_collection_resources` (with optional `collectionId`, `type: "svg"` | `"bitmap"`, `keyword`, `limit` [default 100], and `offset` [default 0]) to discover available vector graphics, brand assets, and icons bundled with loaded stencil collections. The `keyword` filter tolerates delimiter variations (e.g. `"chevron right"` matching `chevron-right.svg`) and automatically expands across universal icon synonyms (e.g. querying `"magnifier"` returns `search.svg`, `"gear"` returns `settings.svg`, and `"bin"` returns `trash.svg`), prioritizing exact matches first.
 * **Direct Inline Collection Resource URIs (`collection://`):** To assign or update an icon, vector graphic, or bitmap resource on a shape, specify the URI directly in the shape's `properties` map when calling `insert_shapes` or `update_shapes`:
   - **Explicit collection target:** `"collection://@collectionId/path/to/resource"` (e.g. `"collection://@lucideIcons/search.svg"`, `"collection://@tabler-icons/icons/outline/brand-github.svg"`).
   - **Implicit shape collection target:** `"collection://path/to/resource"` (e.g. `"collection://icons/search.svg"`). When `@collectionId/` is omitted, the engine automatically resolves the resource from the **collection containing the shape in effect**.
