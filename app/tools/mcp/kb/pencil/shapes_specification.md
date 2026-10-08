@@ -31,12 +31,16 @@ When inserting shapes via `insert_shapes`, provide an array of shape descriptor 
 | Field | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | `string` | Optional | Client-defined temporary identifier. Mapped to the assigned engine UUID in the returned `idMap`. |
-| `type` | `string` | **Required** | Stencil shape type identifier (e.g. `Evolus.Common:Button`, `Evolus.Common:Rect`, `button2`). |
-| `x` | `number` | Optional | Absolute horizontal coordinate on canvas (default: 0). |
-| `y` | `number` | Optional | Absolute vertical coordinate on canvas (default: 0). |
+| `type` | `string` | **Required** | Stencil shape type identifier (e.g. `Evolus.Common:Button`, `Evolus.Common:Rect`, `button2`, or `@group`). |
+| `x` | `number` | Optional | X coordinate on canvas or delta offset within parent layout container (default: 0). |
+| `y` | `number` | Optional | Y coordinate on canvas or delta offset within parent layout container (default: 0). |
 | `box` | `object` | Optional | Bounding box coordinates `{ x, y, w, h }`. Dimensions `w` and `h` override default stencil size. |
 | `properties` | `object` | Optional | Key-value dictionary of stencil-specific properties (e.g. `label`, `fillColor`, `textFont`). |
 | `children` | `array` | Optional | Array of nested shape descriptors when creating composite groups (`type: "@group"`). |
+| `layout` | `string` | Optional | Automated layout mode for `@group`: `"vertical"` (column), `"horizontal"` (row), or `"none"`. |
+| `gap` | `number` | Optional | Spacing in pixels between consecutive children in layout groups (default: 0). Applicable only when `layout` is `"vertical"` or `"horizontal"`; must not be specified on null/unmanaged groups. |
+| `padding` | `number` \| `object` | Optional | Inner padding for layout group in pixels (uniform number, array, or `{ top, right, bottom, left }`). |
+| `align` | `string` | Optional | Cross-axis alignment in layout groups (`"start"`, `"center"`, `"end"`, default: `"start"`). Applicable only when `layout` is `"vertical"` or `"horizontal"`; must not be specified on null/unmanaged groups. |
 
 ---
 

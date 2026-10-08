@@ -1,10 +1,10 @@
 # Data Types Specification & Serialization Reference
 
-This document defines the normative serialization schemas, constraints, regular expressions, and micro-format requirements for property values in Pencil design payloads (`.ep.json`).
+This document defines the normative serialization schemas, constraints, regular expressions, and micro-format requirements for property values in Pencil design payloads.
 
 > [!IMPORTANT]
 > **Strict Value Stringification Invariant:**
-> In `.ep.json`, **every property value** within an element's `properties` map **MUST be a JSON string literal**. Even if the underlying data type represents a boolean, number, coordinate, or complex compound struct, it must be serialized as a string according to the specifications below.
+> In Pencil design payloads, **every property value** within an element's `properties` map **MUST be a JSON string literal**. Even if the underlying data type represents a boolean, number, coordinate, or complex compound struct, it must be serialized as a string according to the specifications below.
 
 > [!TIP]
 > **Schema Hardening & Normalization in `insert_shapes`:**
@@ -14,7 +14,7 @@ This document defines the normative serialization schemas, constraints, regular 
 
 ## 1. Complete Property Data Types Matrix (All 18 Engine Types)
 
-The Evolus Pencil engine implements exactly 18 property data types (`app/pencil-core/propertyType/`). In UI design blueprints (`.ep.json`), shapes declare and serialize these types as string attributes:
+The Evolus Pencil engine implements exactly 18 property data types (`app/pencil-core/propertyType/`). In UI design blueprints, shapes declare and serialize these types as string attributes:
 
 | # | Type | Serialization Micro-Format | Validation Regex / Pattern | Engine Source File | Usage Context |
 | :- | :--- | :--- | :--- | :--- | :--- |
@@ -101,7 +101,7 @@ Defines an RGBA color serialized as an 8-character hexadecimal string prefixed w
   * `RR`, `GG`, `BB` define red, green, blue channels (`00` to `FF`).
   * `AA` defines the alpha opacity channel (`FF` = 100% opaque, `80` = ~50% opacity, `00` = 0% fully transparent).
   * The engine's `Color.prototype.toRGBAString()` outputs this exact 8-character hex format.
-  * 6-digit hex (`#RRGGBB`), 3-digit hex (`#RGB`), or CSS color names (`"red"`) are strictly **invalid** in `.ep.json`.
+  * 6-digit hex (`#RRGGBB`), 3-digit hex (`#RGB`), or CSS color names (`"red"`) are strictly **invalid** in Pencil design payloads.
 * **Valid Examples:**
   * `"#2563EBFF"` (opaque Cobalt blue)
   * `"#FFFFFFFF"` (opaque white)
@@ -371,7 +371,7 @@ Represents magnetic snapping guides on the canvas.
 * **Characteristics & Special Handling:**
   * `SnappingData` is an **internal runtime-only** construct.
   * In `snappingData.js`, static `fromString` deserialization is deliberately commented out because snapping guides are created dynamically by reactive `<Actions>` handlers (e.g., `getSnappingGuide`) inside the canvas engine.
-  * **Rule:** SnappingData is never authored as a static design property inside `.ep.json` `properties` dictionaries.
+  * **Rule:** SnappingData is never authored as a static design property inside `properties` dictionaries.
 
 ---
 

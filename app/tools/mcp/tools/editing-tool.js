@@ -14,6 +14,7 @@ var BaseTool = require("./base-tool.js").BaseTool;
 var canvasHelper = require("./canvas-helper.js");
 var editingValidator = require("./editing-validator.js");
 var documentTool = require("./document-tool.js");
+var layoutHelper = require("./layout-helper.js");
 
 /*
  * Helper to generate and attach an inline visual preview to a mutation tool response.
@@ -75,8 +76,8 @@ var ShapeElementSchema = z.object({
     id: z.string().optional().describe("Client-provided temporary shape identifier. Mapped to the assigned engine UUID in the returned 'idMap'."),
     type: z.string().optional().describe("Stencil shape type identifier (e.g. 'Evolus.Common:Button', 'Evolus.Common:Label', 'Evolus.Bootstrap:Table')."),
     def: z.string().optional().describe("Legacy stencil definition identifier (deprecated, prefer 'type')."),
-    x: z.number().optional().describe("Absolute X coordinate on canvas (default: 0)."),
-    y: z.number().optional().describe("Absolute Y coordinate on canvas (default: 0)."),
+    x: z.number().optional().describe("X coordinate on canvas or delta offset within parent layout container (default: 0)."),
+    y: z.number().optional().describe("Y coordinate on canvas or delta offset within parent layout container (default: 0)."),
     box: z.object({
         x: z.number().optional().describe("X coordinate offset."),
         y: z.number().optional().describe("Y coordinate offset."),
@@ -84,7 +85,19 @@ var ShapeElementSchema = z.object({
         h: z.number().optional().describe("Height dimension in pixels.")
     }).optional().describe("Bounding box coordinates and dimensions."),
     properties: z.record(z.any()).optional().describe("Custom shape properties dictionary (e.g. { 'label': 'Submit', 'fillColor': '#2563ebff' }). For ImageData properties (e.g. 'url', 'imageData'), specify collection resources directly via 'collection://[@collectionId/]path/to/resource' (e.g. 'collection://@lucideIcons/search.svg' or 'collection://icons/search.svg' within the shape's own collection)."),
-    children: z.array(z.any()).optional().describe("Nested child element descriptors for group shapes (@group).")
+    children: z.array(z.any()).optional().describe("Nested child element descriptors for group shapes (@group)."),
+    layout: z.enum(["vertical", "horizontal", "column", "row", "none"]).optional().describe("Automated layout mode for @group elements: 'vertical' (or 'column') stacks children top-to-bottom; 'horizontal' (or 'row') stacks children left-to-right; 'none' or omitted preserves manual x/y coordinates. When layout is active, child elements only need to specify dimensions ('box.w', 'box.h' or properties.box) without manual coordinate calculation."),
+    gap: z.number().optional().describe("Spacing in pixels between consecutive children along the layout axis (default: 0). Applicable only when layout is 'vertical' or 'horizontal'; must not be specified on null/unmanaged groups."),
+    padding: z.union([
+        z.number(),
+        z.object({
+            top: z.number().optional(),
+            right: z.number().optional(),
+            bottom: z.number().optional(),
+            left: z.number().optional()
+        })
+    ]).optional().describe("Inner padding around the layout container in pixels (number for uniform padding or { top, right, bottom, left } object; default: 0)."),
+    align: z.enum(["start", "center", "end"]).optional().describe("Cross-axis alignment for children in layout groups: 'start' (top/left), 'center', or 'end' (bottom/right). Applicable only when layout is 'vertical' or 'horizontal'; must not be specified on null/unmanaged groups.")
 });
 
 // =============================================================================
@@ -426,7 +439,7 @@ function InsertShapesTool() {
     BaseTool.call(
         this,
         "insert_shapes",
-        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab. When user-defined 'id' fields are provided on elements, the engine assigns internal unique UUIDs to maintain document integrity, and returns an explicit 'idMap' ({ [providedId]: assignedUUID }) in the response alongside 'shapes' records. Use the assigned UUIDs for subsequent calls to update_shapes, delete_shapes, or select_shapes. For shapes with ImageData properties (e.g. icon/image shapes with 'url' or 'imageData'), specify collection resources directly in properties using the URI pattern: 'collection://[@collectionId/]path/to/resource' (e.g. 'collection://@lucideIcons/search.svg', or 'collection://icons/search.svg' within the shape's own collection). To inspect stencil types, property schemas, and examples, read the shape specification via read_knowledge_base_document({ name: 'shapes_specification' }) or discover installed stencils dynamically using get_shape_definition / list_shapes.",
+        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab. When user-defined 'id' fields are provided on elements, the engine assigns internal unique UUIDs to maintain document integrity, and returns an explicit 'idMap' ({ [providedId]: assignedUUID }) in the response alongside 'shapes' records. Use the assigned UUIDs for subsequent calls to update_shapes, delete_shapes, or select_shapes. @group elements can act as automated layout containers by specifying 'layout' ('vertical' | 'horizontal'), 'gap' (spacing in px), 'padding' (inner container margin), and cross-axis 'align' ('start' | 'center' | 'end'). When layout is specified on @group, nested children only need to provide dimensions ('box.w', 'box.h' or properties.box) while sequential canvas positioning is computed automatically without manual coordinate arithmetic. For shapes with ImageData properties (e.g. icon/image shapes with 'url' or 'imageData'), specify collection resources directly in properties using the URI pattern: 'collection://[@collectionId/]path/to/resource' (e.g. 'collection://@lucideIcons/search.svg', or 'collection://icons/search.svg' within the shape's own collection). To inspect stencil types, property schemas, and examples, read the shape specification via read_knowledge_base_document({ name: 'shapes_specification' }) or discover installed stencils dynamically using get_shape_definition / list_shapes.",
         {
             pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
@@ -466,6 +479,27 @@ InsertShapesTool.prototype.execute = async function (args, context) {
     var baseX = Number(args.x) || 0;
     var baseY = Number(args.y) || 0;
 
+    /*
+     * Automated Layout Computation:
+     * Pre-calculates geometric bounding boxes and resolves sequential spatial placement
+     * for all @group containers and child shapes before DOM insertion.
+     */
+    for (var elIdx = 0; elIdx < elements.length; elIdx++) {
+        var topElem = elements[elIdx];
+        if (!topElem) continue;
+
+        layoutHelper.measureElement(topElem, appPane);
+
+        var topX = baseX + (Number(topElem.x) || 0);
+        var topY = baseY + (Number(topElem.y) || 0);
+        topElem._layoutX = topX;
+        topElem._layoutY = topY;
+
+        if (topElem.type === "@group") {
+            layoutHelper.resolveLayoutCoordinates(topElem, topX, topY);
+        }
+    }
+
     var insertedShapes = [];
     var idMap = {};
 
@@ -475,8 +509,11 @@ InsertShapesTool.prototype.execute = async function (args, context) {
             var child = children[i];
             if (!child) continue;
 
+            var targetX = child._layoutX !== undefined ? child._layoutX : (curX + (Number(child.x) || 0));
+            var targetY = child._layoutY !== undefined ? child._layoutY : (curY + (Number(child.y) || 0));
+
             if (child.type === "@group") {
-                await insertRecursive(child.children, curX + (child.x || 0), curY + (child.y || 0));
+                await insertRecursive(child.children, targetX, targetY);
             } else {
                 var shapeDef = child._resolvedShapeDef;
                 if (!shapeDef) {
@@ -515,15 +552,12 @@ InsertShapesTool.prototype.execute = async function (args, context) {
 
                 canvas.insertShapeImpl_(shapeDef, null, valueMap);
 
-                var shapeX = curX + (child.x || 0);
-                var shapeY = curY + (child.y || 0);
-
                 var targetSvg = (canvas.currentController && canvas.currentController.svg);
                 if (targetSvg) {
                     if (typeof Svg !== "undefined" && typeof Svg.ensureCTM === "function") {
-                        Svg.ensureCTM(targetSvg, { a: 1, b: 0, c: 0, d: 1, e: shapeX, f: shapeY });
+                        Svg.ensureCTM(targetSvg, { a: 1, b: 0, c: 0, d: 1, e: targetX, f: targetY });
                     } else {
-                        targetSvg.setAttribute("transform", "matrix(1,0,0,1," + shapeX + "," + shapeY + ")");
+                        targetSvg.setAttribute("transform", "matrix(1,0,0,1," + targetX + "," + targetY + ")");
                     }
                 }
 
@@ -539,15 +573,18 @@ InsertShapesTool.prototype.execute = async function (args, context) {
                         idMap[child.id.trim()] = assignedId;
                     }
 
+                    var resolvedWidth = child.box ? child.box.w : (child._measuredBox ? child._measuredBox.w : undefined);
+                    var resolvedHeight = child.box ? child.box.h : (child._measuredBox ? child._measuredBox.h : undefined);
+
                     var shapeRecord = {
                         id: assignedId,
                         providedId: (child.id && typeof child.id === "string" && child.id.trim().length > 0) ? child.id.trim() : undefined,
                         type: child.type,
                         box: {
-                            x: shapeX,
-                            y: shapeY,
-                            w: child.box ? child.box.w : undefined,
-                            h: child.box ? child.box.h : undefined
+                            x: targetX,
+                            y: targetY,
+                            w: resolvedWidth,
+                            h: resolvedHeight
                         }
                     };
                     insertedShapes.push(shapeRecord);

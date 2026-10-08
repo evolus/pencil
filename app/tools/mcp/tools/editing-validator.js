@@ -238,9 +238,74 @@ function validateAndNormalizeInsertElements(elements, appPane) {
             }
 
             /*
-             * Validate group nesting or locate shape definition in registry.
+             * Validate group layout parameters and child nesting.
              */
             if (child.type === "@group") {
+                var rawLayout = "none";
+                if (child.layout !== undefined) {
+                    var lStr = String(child.layout).toLowerCase().trim();
+                    if (lStr === "column" || lStr === "col") {
+                        child.layout = "vertical";
+                        rawLayout = "vertical";
+                    } else if (lStr === "row") {
+                        child.layout = "horizontal";
+                        rawLayout = "horizontal";
+                    } else if (lStr === "vertical" || lStr === "horizontal" || lStr === "none") {
+                        rawLayout = lStr;
+                    } else {
+                        errors.push(currentPath + identifier + ": invalid layout mode '" + child.layout + "'. Expected 'vertical', 'horizontal', 'column', 'row', or 'none'.");
+                    }
+                }
+
+                if (child.gap !== undefined) {
+                    if (rawLayout === "none") {
+                        errors.push(currentPath + identifier + ": 'gap' cannot be specified on a null/unmanaged layout group. 'gap' is only supported when 'layout' is 'vertical' or 'horizontal'.");
+                    } else {
+                        var gapNum = Number(child.gap);
+                        if (isNaN(gapNum) || !isFinite(gapNum) || gapNum < 0) {
+                            errors.push(currentPath + identifier + ": invalid 'gap' value (" + JSON.stringify(child.gap) + "). Expected a non-negative number.");
+                        }
+                    }
+                }
+
+                if (child.align !== undefined) {
+                    if (rawLayout === "none") {
+                        errors.push(currentPath + identifier + ": 'align' cannot be specified on a null/unmanaged layout group. 'align' is only supported when 'layout' is 'vertical' or 'horizontal'.");
+                    } else {
+                        var alignVal = String(child.align).toLowerCase().trim();
+                        if (alignVal !== "start" && alignVal !== "center" && alignVal !== "end") {
+                            errors.push(currentPath + identifier + ": invalid 'align' value '" + child.align + "'. Expected 'start', 'center', or 'end'.");
+                        } else {
+                            child.align = alignVal;
+                        }
+                    }
+                }
+                if (child.padding !== undefined) {
+                    if (typeof child.padding === "number") {
+                        if (isNaN(child.padding) || !isFinite(child.padding) || child.padding < 0) {
+                            errors.push(currentPath + identifier + ": invalid 'padding' number. Expected a non-negative number.");
+                        }
+                    } else if (typeof child.padding === "object" && child.padding !== null && !Array.isArray(child.padding)) {
+                        ["top", "right", "bottom", "left"].forEach(function (side) {
+                            if (child.padding[side] !== undefined) {
+                                var sVal = Number(child.padding[side]);
+                                if (isNaN(sVal) || !isFinite(sVal) || sVal < 0) {
+                                    errors.push(currentPath + identifier + ": invalid 'padding." + side + "' value. Expected a non-negative number.");
+                                }
+                            }
+                        });
+                    } else if (Array.isArray(child.padding)) {
+                        for (var pIdx = 0; pIdx < child.padding.length; pIdx++) {
+                            var pItem = Number(child.padding[pIdx]);
+                            if (isNaN(pItem) || !isFinite(pItem) || pItem < 0) {
+                                errors.push(currentPath + identifier + ": invalid 'padding[" + pIdx + "]' value. Expected a non-negative number.");
+                            }
+                        }
+                    } else {
+                        errors.push(currentPath + identifier + ": invalid 'padding' format. Expected a number, array, or { top, right, bottom, left } object.");
+                    }
+                }
+
                 if (!Array.isArray(child.children) || child.children.length === 0) {
                     errors.push(currentPath + identifier + ": group element is missing or has empty 'children' array.");
                 } else {
