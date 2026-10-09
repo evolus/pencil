@@ -24,9 +24,7 @@ var iconSynonyms = require("./icon-synonyms.js");
 function isShortcut(shapeDef) {
     if (!shapeDef) return false;
     if (typeof Shortcut !== "undefined" && shapeDef instanceof Shortcut) return true;
-    if (shapeDef.constructor && shapeDef.constructor.name === "Shortcut") return true;
     if (shapeDef.id && String(shapeDef.id).indexOf("system:ref:") === 0) return true;
-    if (shapeDef.shape && shapeDef.id && String(shapeDef.id).indexOf("system:ref:") !== -1) return true;
     return false;
 }
 
@@ -36,15 +34,7 @@ function isShortcut(shapeDef) {
  */
 function shortcutMatchesShape(shortcut, shapeDef, collectionId) {
     if (!shortcut || !shapeDef) return false;
-    var targetId = null;
-    if (shortcut.shape) {
-        targetId = (typeof shortcut.shape === "object") ? shortcut.shape.id : shortcut.shape;
-    } else if (shortcut.to) {
-        targetId = shortcut.to;
-    } else if (shortcut.target) {
-        targetId = shortcut.target;
-    }
-
+    var targetId = shortcut.shape ? (shortcut.shape.id || shortcut.shape) : (shortcut.to || shortcut.target);
     if (!targetId) return false;
     if (targetId === shapeDef.id) return true;
 
@@ -53,69 +43,48 @@ function shortcutMatchesShape(shortcut, shapeDef, collectionId) {
 
     var localShapeId = (sId.indexOf(":") !== -1) ? sId.split(":").pop() : sId;
     var localTargetId = (tId.indexOf(":") !== -1) ? tId.split(":").pop() : tId;
-    if (localShapeId && localTargetId && localShapeId === localTargetId) return true;
+    if (localShapeId === localTargetId) return true;
 
     if (collectionId) {
-        if (tId === collectionId + ":" + sId) return true;
-        if (collectionId + ":" + tId === sId) return true;
+        if (tId === collectionId + ":" + sId || collectionId + ":" + tId === sId) return true;
     }
 
     return false;
 }
 
 /*
- * Safely resolves property expressions (e.g., author tokens like $$defaultH1Font)
- * against collection-level token properties into concrete string representations.
+ * Evaluates a property initial value expression (<E> tag) using Pencil's runtime
+ * expression evaluation engine (pEval) with { functions: Pencil.functions, collection: collection } context.
  */
-function resolveExpression(expr, collection) {
-    if (!expr) return "";
-    var sExpr = String(expr).trim();
+function evalPropertyExpression(expression, collection, shapeDef, propDef) {
+    if (!expression) return null;
 
-    var tokenMatch = sExpr.match(/^\$\$([a-zA-Z0-9_]+)$/) || sExpr.match(/^collection\.properties\.([a-zA-Z0-9_]+)(?:\.value|\.initialValue)?$/);
-    if (tokenMatch && collection && collection.properties) {
-        var tokenName = tokenMatch[1];
-        var prop = collection.properties[tokenName];
-        if (prop !== undefined && prop !== null) {
-            var val = (prop && prop.value !== undefined && prop.value !== null)
-                ? prop.value
-                : ((prop && prop.initialValue !== undefined && prop.initialValue !== null)
-                    ? prop.initialValue
-                    : prop);
-            if (val !== undefined && val !== null) {
-                return (typeof val.toString === "function") ? val.toString() : String(val);
-            }
-        }
-    }
+    var evalContext = {
+        functions: Pencil.functions,
+        collection: collection
+    };
 
-    var normalizedExpr = sExpr.replace(/\$\$([a-z][a-z0-9]*)/gi, function (match, pName) {
+    var normalizedExpr = String(expression).replace(/\$\$([a-zA-Z0-9_]+)/g, function (match, pName) {
         return "collection.properties." + pName + ".value";
     });
 
-    try {
-        var context = {
-            collection: collection,
-            F: (typeof F !== "undefined") ? F : {},
-            Math: Math
-        };
-        var fn = new Function("context", "with(context) { return (" + normalizedExpr + "); }");
-        var res = fn(context);
-        if (res !== undefined && res !== null) {
-            return (typeof res.toString === "function") ? res.toString() : String(res);
-        }
-    } catch (e) {
-        var subMatch = normalizedExpr.match(/collection\.properties\.([a-zA-Z0-9_]+)/);
-        if (subMatch && collection && collection.properties && collection.properties[subMatch[1]]) {
-            var pObj = collection.properties[subMatch[1]];
-            var pVal = (pObj && pObj.value !== undefined && pObj.value !== null)
-                ? pObj.value
-                : ((pObj && pObj.initialValue !== undefined && pObj.initialValue !== null) ? pObj.initialValue : pObj);
-            if (pVal !== undefined && pVal !== null) {
-                return (typeof pVal.toString === "function") ? pVal.toString() : String(pVal);
-            }
-        }
+    var result = pEval("" + normalizedExpr, evalContext);
+
+    if (result != null && propDef && propDef.type && typeof propDef.type.performIntialProcessing === "function") {
+        result = propDef.type.performIntialProcessing(result, shapeDef, collection);
     }
 
-    return sExpr;
+    return result;
+}
+
+/*
+ * Resolves property expressions (e.g., author tokens like $$defaultH1Font)
+ * against collection-level theme properties using Pencil's expression evaluator.
+ */
+function resolveExpression(expr, collection) {
+    if (!expr) return "";
+    var res = evalPropertyExpression(expr, collection);
+    return (res != null) ? res.toString() : "";
 }
 
 /*
@@ -185,18 +154,12 @@ function extractUsageGuidelines(shapeDef, col) {
             var resolvedVal = "";
             if (spec.initialValueExpression) {
                 resolvedVal = resolveExpression(spec.initialValueExpression, col);
-            } else if (spec.initialValue !== undefined && spec.initialValue !== null) {
-                resolvedVal = (typeof spec.initialValue.toString === "function")
-                    ? spec.initialValue.toString()
-                    : String(spec.initialValue);
-            } else if (spec.value !== undefined && spec.value !== null) {
-                resolvedVal = (typeof spec.value.toString === "function")
-                    ? spec.value.toString()
-                    : String(spec.value);
-            } else {
-                resolvedVal = (typeof spec.toString === "function")
-                    ? spec.toString()
-                    : String(spec);
+            } else if (spec.initialValue != null) {
+                resolvedVal = spec.initialValue.toString();
+            } else if (spec.value != null) {
+                resolvedVal = spec.value.toString();
+            } else if (spec != null) {
+                resolvedVal = spec.toString();
             }
 
             recommendedProperties[pName] = resolvedVal;
@@ -229,16 +192,7 @@ function ListCollectionsTool() {
 ListCollectionsTool.prototype = new BaseTool();
 
 ListCollectionsTool.prototype._getCollectionManager = function () {
-    if (typeof CollectionManager !== "undefined") {
-        return CollectionManager;
-    }
-    if (typeof window !== "undefined" && window.CollectionManager) {
-        return window.CollectionManager;
-    }
-    if (typeof global !== "undefined" && global.CollectionManager) {
-        return global.CollectionManager;
-    }
-    return null;
+    return (typeof CollectionManager !== "undefined") ? CollectionManager : null;
 };
 
 ListCollectionsTool.prototype.execute = async function (args, context) {
@@ -263,20 +217,11 @@ ListCollectionsTool.prototype.execute = async function (args, context) {
             if (!isVisible) continue;
 
             var shapeIds = [];
-            if (Array.isArray(col.shapeDefs)) {
-                for (var j = 0; j < col.shapeDefs.length; j++) {
-                    var s = col.shapeDefs[j];
-                    if (s && s.id && !isShortcut(s)) {
-                        shapeIds.push(s.id);
-                    }
-                }
-            } else if (col.shapeDefs && typeof col.shapeDefs === "object") {
-                for (var key in col.shapeDefs) {
-                    if (col.shapeDefs.hasOwnProperty(key)) {
-                        var def = col.shapeDefs[key];
-                        if (def && isShortcut(def)) continue;
-                        shapeIds.push((def && def.id) ? def.id : key);
-                    }
+            var rawDefs = col.shapeDefs || [];
+            for (var j = 0; j < rawDefs.length; j++) {
+                var s = rawDefs[j];
+                if (s && s.id && !isShortcut(s)) {
+                    shapeIds.push(s.id);
                 }
             }
 
@@ -312,88 +257,85 @@ ListCollectionsTool.prototype.execute = async function (args, context) {
 };
 
 // =============================================================================
+// =============================================================================
 // Tool: get_shape_definition
 // =============================================================================
+
+
+
+
+
+/*
+ * Formats shape property definitions into a normalized dictionary, resolving
+ * initial value expressions (<E>) against the target collection theme and
+ * annotating each property with optional: true.
+ */
+function formatShapeProperties(shapeDef, collection) {
+    var props = {};
+    if (!shapeDef || !shapeDef.propertyMap) return props;
+
+    var targetCol = collection || shapeDef.collection;
+
+    for (var propName in shapeDef.propertyMap) {
+        if (!shapeDef.propertyMap.hasOwnProperty(propName)) continue;
+        var prop = shapeDef.propertyMap[propName];
+        if (!prop) continue;
+
+        var typeName = (prop.type && prop.type.name) ? prop.type.name : "PlainText";
+        var rawValue = null;
+
+        if (prop.initialValueExpression) {
+            rawValue = evalPropertyExpression(prop.initialValueExpression, targetCol, shapeDef, prop);
+        } else if (prop.initialValue != null) {
+            rawValue = prop.initialValue;
+        } else if (prop.defaultValue != null) {
+            rawValue = prop.defaultValue;
+        }
+
+        var defaultValue = (rawValue != null) ? rawValue.toString() : "";
+
+        props[propName] = {
+            type: typeName,
+            default: defaultValue,
+            optional: true
+        };
+
+        if (prop.displayName) {
+            props[propName].displayName = prop.displayName;
+        }
+    }
+
+    return props;
+}
 
 function GetShapeDefinitionTool() {
     BaseTool.call(
         this,
         "get_shape_definition",
-        "Returns the property schema, default values, and metadata for a specific shape or all shapes within a collection.",
+        "Returns the property schema, evaluated default values, metadata, and structured Specific Usage Guidelines (usageGuidelines) for a specific shape in a collection. Note: all shape properties are completely optional during shape creation (insert_shapes); Pencil automatically assigns stencil default values for any omitted properties. Only declare properties you need to customize.",
         {
             collectionId: z.string().describe("The collection ID (e.g. 'Evolus.Common')."),
-            shapeId: z.string().optional().describe("Optional shape ID within the collection (e.g. 'rect'). If omitted, returns all shape definitions for the collection.")
+            shapeId: z.string().describe("The shape ID within the collection (e.g. 'rect', 'heading', 'Button').")
         }
     );
 }
 GetShapeDefinitionTool.prototype = new BaseTool();
 
 GetShapeDefinitionTool.prototype._getCollectionManager = function () {
-    if (typeof CollectionManager !== "undefined") {
-        return CollectionManager;
-    }
-    if (typeof window !== "undefined" && window.CollectionManager) {
-        return window.CollectionManager;
-    }
-    if (typeof global !== "undefined" && global.CollectionManager) {
-        return global.CollectionManager;
-    }
-    return null;
+    return (typeof CollectionManager !== "undefined") ? CollectionManager : null;
 };
 
-GetShapeDefinitionTool.prototype._formatShapeProperties = function (shapeDef) {
-    var props = {};
-    if (!shapeDef) return props;
-
-    if (shapeDef.propertyMap && typeof shapeDef.propertyMap === "object") {
-        for (var propName in shapeDef.propertyMap) {
-            if (!shapeDef.propertyMap.hasOwnProperty(propName)) continue;
-            var prop = shapeDef.propertyMap[propName];
-            if (!prop) continue;
-
-            var typeName = "PlainText";
-            if (prop.type) {
-                if (prop.type.name) {
-                    typeName = prop.type.name;
-                } else if (typeof prop.type === "string") {
-                    typeName = prop.type;
-                } else if (prop.type.id) {
-                    typeName = prop.type.id;
-                }
-            }
-
-            var defaultValue = "";
-            if (prop.initialValue !== undefined && prop.initialValue !== null) {
-                if (typeof prop.initialValue.toString === "function") {
-                    defaultValue = prop.initialValue.toString();
-                } else {
-                    defaultValue = String(prop.initialValue);
-                }
-            } else if (prop.defaultValue !== undefined && prop.defaultValue !== null) {
-                defaultValue = String(prop.defaultValue);
-            }
-
-            props[propName] = {
-                type: typeName,
-                default: defaultValue
-            };
-
-            if (prop.displayName) {
-                props[propName].displayName = prop.displayName;
-            }
-        }
-    }
-
-    return props;
+GetShapeDefinitionTool.prototype._formatShapeProperties = function (shapeDef, targetCol) {
+    return formatShapeProperties(shapeDef, targetCol);
 };
 
 GetShapeDefinitionTool.prototype.execute = async function (args, context) {
-    if (!args || !args.collectionId) {
-        throw new Error("Missing required argument: 'collectionId'");
+    if (!args || !args.collectionId || !args.shapeId) {
+        throw new Error("Missing required arguments: both 'collectionId' and 'shapeId' are required. To list shapes in a collection, call list_shape_definitions (list_shapes).");
     }
 
     var collectionId = args.collectionId.trim();
-    var shapeId = args.shapeId ? args.shapeId.trim() : null;
+    var shapeId = args.shapeId.trim();
 
     var colMgr = this._getCollectionManager();
     if (!colMgr || !colMgr.shapeDefinition || !Array.isArray(colMgr.shapeDefinition.collections)) {
@@ -414,93 +356,23 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
         throw new Error("Collection '" + collectionId + "' not found. Call list_collections to discover valid IDs.");
     }
 
-    // Case 1: Specific shapeId requested
-    if (shapeId) {
-        var shapeDef = null;
-        if (typeof targetCol.getShapeDefById === "function") {
-            shapeDef = targetCol.getShapeDefById(shapeId);
-        }
+    var shapeDef = (typeof targetCol.getShapeDefById === "function")
+        ? targetCol.getShapeDefById(shapeId)
+        : colMgr.shapeDefinition.locateDefinition(collectionId + ":" + shapeId);
 
-        if (!shapeDef && targetCol.shapeDefMap) {
-            shapeDef = targetCol.shapeDefMap[shapeId];
-        }
-
-        if (!shapeDef && Array.isArray(targetCol.shapeDefs)) {
-            for (var j = 0; j < targetCol.shapeDefs.length; j++) {
-                if (targetCol.shapeDefs[j] && targetCol.shapeDefs[j].id === shapeId) {
-                    shapeDef = targetCol.shapeDefs[j];
-                    break;
-                }
-            }
-        }
-
-        if (!shapeDef && colMgr.shapeDefinition.locateDefinition) {
-            shapeDef = colMgr.shapeDefinition.locateDefinition(collectionId + ":" + shapeId);
-        }
-
-        if (!shapeDef) {
-            throw new Error("Shape '" + shapeId + "' not found in collection '" + collectionId + "'.");
-        }
-
-        /*
-         * If the requested identifier resolves to a Shortcut preset, automatically
-         * redirect to the underlying primitive shape and attach its usage guidelines.
-         */
-        if (isShortcut(shapeDef) && shapeDef.shape) {
-            shapeDef = shapeDef.shape;
-        }
-
-        var guidelines = extractUsageGuidelines(shapeDef, targetCol);
-
-        return {
-            content: [
-                {
-                    type: "text",
-                    text: JSON.stringify({
-                        collectionId: collectionId,
-                        shapeId: shapeDef.id || shapeId,
-                        displayName: shapeDef.displayName || shapeId,
-                        description: shapeDef.description || "",
-                        instructions: shapeDef.instructions || "",
-                        properties: this._formatShapeProperties(shapeDef),
-                        usageGuidelines: guidelines
-                    }, null, 2)
-                }
-            ]
-        };
+    if (!shapeDef) {
+        throw new Error("Shape '" + shapeId + "' not found in collection '" + collectionId + "'.");
     }
 
-    // Case 2: All shapes in collection requested (shapeId omitted)
-    var shapesList = [];
-    if (Array.isArray(targetCol.shapeDefs)) {
-        for (var k = 0; k < targetCol.shapeDefs.length; k++) {
-            var sDef = targetCol.shapeDefs[k];
-            if (!sDef || !sDef.id || isShortcut(sDef)) continue;
-            shapesList.push({
-                shapeId: sDef.id,
-                displayName: sDef.displayName || sDef.id,
-                description: sDef.description || "",
-                instructions: sDef.instructions || "",
-                properties: this._formatShapeProperties(sDef),
-                usageGuidelines: extractUsageGuidelines(sDef, targetCol)
-            });
-        }
-    } else if (targetCol.shapeDefs && typeof targetCol.shapeDefs === "object") {
-        for (var sKey in targetCol.shapeDefs) {
-            if (!targetCol.shapeDefs.hasOwnProperty(sKey)) continue;
-            var defObj = targetCol.shapeDefs[sKey];
-            if (!defObj || isShortcut(defObj)) continue;
-            var sId = defObj.id || sKey;
-            shapesList.push({
-                shapeId: sId,
-                displayName: defObj.displayName || sId,
-                description: defObj.description || "",
-                instructions: defObj.instructions || "",
-                properties: this._formatShapeProperties(defObj),
-                usageGuidelines: extractUsageGuidelines(defObj, targetCol)
-            });
-        }
+    /*
+     * If the requested identifier resolves to a Shortcut preset, automatically
+     * redirect to the underlying primitive shape and attach its usage guidelines.
+     */
+    if (isShortcut(shapeDef) && shapeDef.shape) {
+        shapeDef = shapeDef.shape;
     }
+
+    var guidelines = extractUsageGuidelines(shapeDef, targetCol);
 
     return {
         content: [
@@ -508,9 +380,12 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
                 type: "text",
                 text: JSON.stringify({
                     collectionId: collectionId,
-                    description: targetCol.description || "",
-                    instructions: targetCol.instructions || "",
-                    shapes: shapesList
+                    shapeId: shapeDef.id || shapeId,
+                    displayName: shapeDef.displayName || shapeId,
+                    description: shapeDef.description || "",
+                    instructions: shapeDef.instructions || "",
+                    properties: formatShapeProperties(shapeDef, targetCol),
+                    usageGuidelines: guidelines
                 }, null, 2)
             }
         ]
@@ -662,16 +537,7 @@ function ListCollectionResourcesTool() {
 ListCollectionResourcesTool.prototype = new BaseTool();
 
 ListCollectionResourcesTool.prototype._getCollectionManager = function () {
-    if (typeof CollectionManager !== "undefined") {
-        return CollectionManager;
-    }
-    if (typeof window !== "undefined" && window.CollectionManager) {
-        return window.CollectionManager;
-    }
-    if (typeof global !== "undefined" && global.CollectionManager) {
-        return global.CollectionManager;
-    }
-    return null;
+    return (typeof CollectionManager !== "undefined") ? CollectionManager : null;
 };
 
 ListCollectionResourcesTool.prototype.execute = async function (args, context) {
@@ -792,10 +658,11 @@ function ListShapeDefinitionsTool(toolName) {
     BaseTool.call(
         this,
         toolName || "list_shape_definitions",
-        "Lists and searches lightweight stencil shape definitions from installed collections, with optional collection scoping, keyword search, and pagination without heavy schema bloat.",
+        "Lists and searches stencil shape definitions from installed collections, with optional collection scoping, keyword search, pagination, and optional property schema inclusion (includeProperties, default: true). All shape properties are optional during shape creation (insert_shapes); Pencil automatically assigns stencil defaults to omitted properties.",
         {
             collectionId: z.string().optional().describe("Optional collection ID (e.g. 'Evolus.Common', 'BasicWebElements'). If omitted, searches across all installed collections."),
             query: z.string().optional().describe("Optional search keyword to match shape definition ID, displayName, or description."),
+            includeProperties: z.boolean().optional().default(true).describe("Whether to include formatted shape property schemas and evaluated defaults (default: true). Set to false for lightweight discovery."),
             limit: z.number().int().positive().optional().default(50).describe("Maximum number of shape definitions to return (default: 50)."),
             offset: z.number().int().nonnegative().optional().default(0).describe("0-based pagination offset (default: 0).")
         }
@@ -804,16 +671,11 @@ function ListShapeDefinitionsTool(toolName) {
 ListShapeDefinitionsTool.prototype = new BaseTool();
 
 ListShapeDefinitionsTool.prototype._getCollectionManager = function () {
-    if (typeof CollectionManager !== "undefined") {
-        return CollectionManager;
-    }
-    if (typeof window !== "undefined" && window.CollectionManager) {
-        return window.CollectionManager;
-    }
-    if (typeof global !== "undefined" && global.CollectionManager) {
-        return global.CollectionManager;
-    }
-    return null;
+    return (typeof CollectionManager !== "undefined") ? CollectionManager : null;
+};
+
+ListShapeDefinitionsTool.prototype._formatShapeProperties = function (shapeDef, targetCol) {
+    return formatShapeProperties(shapeDef, targetCol);
 };
 
 /*
@@ -825,6 +687,7 @@ ListShapeDefinitionsTool.prototype.execute = async function (args, context) {
     args = args || {};
     var collectionId = args.collectionId ? String(args.collectionId).trim() : null;
     var query = args.query ? String(args.query).trim().toLowerCase() : null;
+    var includeProperties = (args.includeProperties !== undefined && args.includeProperties !== null) ? Boolean(args.includeProperties) : true;
     var limit = (args.limit !== undefined && args.limit !== null) ? Math.max(1, Number(args.limit)) : 50;
     var offset = (args.offset !== undefined && args.offset !== null) ? Math.max(0, Number(args.offset)) : 0;
 
@@ -868,17 +731,7 @@ ListShapeDefinitionsTool.prototype.execute = async function (args, context) {
         var tCol = targetCols[j];
         var cId = tCol.id;
 
-        var rawDefs = [];
-        if (Array.isArray(tCol.shapeDefs)) {
-            rawDefs = tCol.shapeDefs;
-        } else if (tCol.shapeDefs && typeof tCol.shapeDefs === "object") {
-            for (var key in tCol.shapeDefs) {
-                if (tCol.shapeDefs.hasOwnProperty(key)) {
-                    var sObj = tCol.shapeDefs[key];
-                    rawDefs.push((sObj && sObj.id) ? sObj : { id: key });
-                }
-            }
-        }
+        var rawDefs = tCol.shapeDefs || [];
 
         /*
          * Filter out Shortcut presets to maintain catalog orthogonality.
@@ -938,8 +791,11 @@ ListShapeDefinitionsTool.prototype.execute = async function (args, context) {
                 defRecord.instructions = sDef.instructions;
             }
 
+            if (includeProperties) {
+                defRecord.properties = formatShapeProperties(sDef, tCol);
+            }
+
             if (guidelines.length > 0) {
-                defRecord.scenarios = guidelines;
                 defRecord.usageGuidelines = guidelines;
             }
 
@@ -964,6 +820,7 @@ ListShapeDefinitionsTool.prototype.execute = async function (args, context) {
                     limit: limit,
                     collectionId: collectionId || null,
                     query: query || null,
+                    includeProperties: includeProperties,
                     shapeDefinitions: paginated
                 }, null, 2)
             }

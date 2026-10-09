@@ -40,7 +40,7 @@ Shape specifications are **mandatory design information**. They define the offic
 * **Discover & Search Shape Definitions:** Use `list_shape_definitions` (or `list_shapes`) with optional `query` or `collectionId`. Shortcuts are filtered out to keep the catalog clean, and returned shapes are annotated with structured `scenarios` detailing the scenario name, description, and concrete `recommendedProperties`.
 * **Fetch Shape Specifications & Scenario Recipes:** Use `get_shape_definition` with `collectionId` and `shapeId`. It provides full property schemas, default values, and a `usageGuidelines` array containing pre-configured variant recipes (e.g., "Heading 1", "Heading 2") with concrete, resolved `recommendedProperties` evaluated against collection tokens.
 * **Direct Property Application:** When generating shapes for `insert_shapes`, copy or adapt the concrete property values directly from `recommendedProperties` in `scenarios` or `usageGuidelines`.
-* **Optional Stencil Properties:** In Pencil, all stencil properties are completely optional during shape creation. The Pencil engine automatically populates default values defined by the shape's stencil specification. Only declare properties that you wish to customize (e.g. `label`, `text`, custom `fillColor`), keeping tool payloads concise and fast.
+* **Optional Stencil Properties & Minimal Payloads:** In Pencil, all stencil properties are completely optional during shape creation. The Pencil engine automatically populates default values defined by the shape's stencil specification. Only declare properties that you wish to customize (e.g. `label`, `text`, custom `fillColor`), keeping tool payloads concise and fast. Never echo back default properties discovered from `get_shape_definition` into `insert_shapes`.
 
 ---
 
@@ -127,7 +127,8 @@ When processing a design request, systematically reason through these four valid
 - For automated layout groups, provide child dimensions (`box: { w, h }`) and let the layout engine sequence coordinates automatically.
 - For unmanaged groups, specify local relative `(x, y)` coordinate offsets from the group origin.
 
-### Phase 4: Serialization Typing Guard & Anti-Pattern Check
+### Phase 4: Serialization Typing Guard & Minimal Payload Check
+- **Minimal Payload Check (Anti-Pattern D7 - Default Echo Bloat):** Ensure you are NOT echoing default properties from `get_shape_definition`. Omit any property whose desired value matches stencil defaults. If a shape needs no custom text or overrides, omit the `properties` dictionary entirely.
 - Verify that every property value inside `properties` is a string literal conforming to [Data Types Specification](../../pencil/data_types_specification.md).
 - Check compound formats: `Font` (6 piped segments), `ShadowStyle` (5 piped segments), `Color` (8-digit `#RRGGBBAA`), `StrokeStyle` (`width|dash`).
 - Verify inline XHTML in `RichText` (valid tags, escaped quotes `\"`, no block CSS).
