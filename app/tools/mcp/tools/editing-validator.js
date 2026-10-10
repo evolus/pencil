@@ -4,6 +4,8 @@
  * and actionable error diagnostics for canvas editing tools (insert_shapes, update_shapes).
  */
 
+var styleResolver = require("./style-resolver");
+
 /*
  * Validates property values against engine microformat specifications.
  * Returns null if valid, or a descriptive error string if invalid.
@@ -130,13 +132,45 @@ function findCandidateShapeTypes(queryType, appPane) {
 
 /*
  * Performs comprehensive pre-flight validation and normalization on elements passed to insert_shapes.
- * Mutates elements in-place to normalize legacy reading schemas (def -> type, top-level box, object properties.box).
+ * Mutates elements in-place to normalize legacy reading schemas (def -> type, top-level box, object properties.box)
+ * and resolves declarative styling cascade (defaults -> styles -> element overrides) if options are provided.
  * Returns { warnings: Array<string>, errors: Array<string> }.
  */
-function validateAndNormalizeInsertElements(elements, appPane) {
+function validateAndNormalizeInsertElements(elements, appPane, options) {
     var warnings = [];
     var errors = [];
     var seenIds = {};
+
+    options = options || {};
+
+    /*
+     * Declarative Styles & Defaults Pre-processing:
+     * Resolves the 4-tier cascade (stencil -> defaults -> styles -> element overrides)
+     * across all shapes and group children prior to coordinate and stencil schema validation.
+     * If an active document object is provided in options.doc, baseline styles/defaults
+     * stored in memory are merged with any call-level definitions.
+     */
+    var effectiveDefaults = options.defaults;
+    var effectiveStyles = options.styles;
+
+    if (options.doc) {
+        var merged = styleResolver.mergeDocumentStyles(options.doc, effectiveDefaults, effectiveStyles);
+        effectiveDefaults = merged.effectiveDefaults;
+        effectiveStyles = merged.effectiveStyles;
+    }
+
+    if (effectiveDefaults !== undefined || effectiveStyles !== undefined) {
+        var styleApplication = styleResolver.applyStylesToElements(elements, effectiveDefaults, effectiveStyles, appPane, {
+            validatePropertyValueFormat: validatePropertyValueFormat,
+            findCandidateShapeTypes: findCandidateShapeTypes
+        });
+        if (styleApplication.errors && styleApplication.errors.length > 0) {
+            errors = errors.concat(styleApplication.errors);
+        }
+        if (styleApplication.warnings && styleApplication.warnings.length > 0) {
+            warnings = warnings.concat(styleApplication.warnings);
+        }
+    }
 
     function inspectRecursive(nodeList, pathPrefix) {
         if (!Array.isArray(nodeList)) {
@@ -313,7 +347,11 @@ function validateAndNormalizeInsertElements(elements, appPane) {
                 }
             } else {
                 if (!child.type || typeof child.type !== "string" || child.type.trim() === "") {
-                    errors.push(currentPath + ": missing required 'type' property (e.g. 'Evolus.Common:rect' or 'button2'). Note: if you passed 'def', verify it was populated.");
+                    if (child.style) {
+                        errors.push(currentPath + identifier + ": element specifies style '" + JSON.stringify(child.style) + "' but no top-level 'styles' dictionary was provided.");
+                    } else {
+                        errors.push(currentPath + ": missing required 'type' property (e.g. 'Evolus.Common:rect' or 'button2'). Note: if you passed 'def', verify it was populated.");
+                    }
                     continue;
                 }
 
@@ -462,5 +500,6 @@ module.exports = {
     validatePropertyValueFormat: validatePropertyValueFormat,
     findCandidateShapeTypes: findCandidateShapeTypes,
     validateAndNormalizeInsertElements: validateAndNormalizeInsertElements,
-    validateUpdateShapes: validateUpdateShapes
+    validateUpdateShapes: validateUpdateShapes,
+    styleResolver: styleResolver
 };

@@ -31,7 +31,8 @@ When inserting shapes via `insert_shapes`, provide an array of shape descriptor 
 | Field | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | `string` | Optional | Client-defined temporary identifier. Mapped to the assigned engine UUID in the returned `idMap`. |
-| `type` | `string` | **Required** | Stencil shape type identifier (e.g. `Evolus.Common:Button`, `Evolus.Common:Rect`, `button2`, or `@group`). |
+| `type` | `string` | Optional | Stencil shape type identifier (e.g. `Evolus.Common:Button`, `button2`, or `@group`). Required unless supplied via `style`. |
+| `style` | `string` \| `array` | Optional | Named style preset (e.g. `"motion-label"`) or array of style names applied left-to-right (e.g. `["icon", "icon-accent"]`) defined in top-level `styles`. When specified, `type` can be omitted. |
 | `x` | `number` | Optional | X coordinate on canvas or delta offset within parent layout container (default: 0). |
 | `y` | `number` | Optional | Y coordinate on canvas or delta offset within parent layout container (default: 0). |
 | `box` | `object` | Optional | Bounding box coordinates `{ x, y, w, h }`. Dimensions `w` and `h` override default stencil size. |
@@ -49,6 +50,76 @@ When inserting shapes via `insert_shapes`, provide an array of shape descriptor 
 > - **Lightweight Payloads:** Specifying only `type`, layout dimensions (`box`), and customized properties minimizes JSON payload size, eliminates token waste, and dramatically accelerates generation speed.
 
 ---
+
+## 2. Declarative Styling & Shared Defaults (`defaults` & `styles`)
+
+To avoid repeating fonts, colors, and border properties across multiple elements, `insert_shapes` supports top-level `defaults` and `styles`:
+
+```json
+{
+  "defaults": {
+    "evolus.pencil.generic2026:text": {
+      "textFont": "Roboto|normal|normal|13px|none|1.2",
+      "textColor": "#000000DE"
+    }
+  },
+  "styles": {
+    "title-label": {
+      "type": "evolus.pencil.generic2026:text",
+      "properties": {
+        "box": "240,24",
+        "textFont": "Roboto|bold|normal|16px|none|1.2"
+      }
+    },
+    "icon": {
+      "type": "evolus.pencil.generic2026:image",
+      "properties": {
+        "box": "16,16",
+        "fillColor": "#00000000",
+        "strokeColor": "#00000000",
+        "tintColor": "#00000080"
+      }
+    },
+    "icon-accent": {
+      "extends": "icon",
+      "properties": { "tintColor": "#2563EBFF" }
+    }
+  },
+  "elements": [
+    { "style": "title-label", "properties": { "text": "Dashboard Overview" } },
+    { "style": ["icon", "icon-accent"], "properties": { "image": "collection://@lucideIcons/check.svg" } }
+  ]
+}
+```
+
+### Cascading Priority (Lowest to Highest):
+1. **Stencil Default:** Native engine stencil definition.
+2. **`defaults[type]`:** Applied to every shape of that type across all nesting levels.
+3. **`styles` Preset:** Applied left-to-right (each style's `extends` hierarchy applies root-to-leaf).
+4. **`element.properties`:** Explicit overrides defined directly on the element.
+
+### Response Telemetry (`resolvedFrom`):
+Each returned shape record includes `resolvedFrom` indicating the provenance of each resolved property:
+```json
+{
+  "id": "shape-uuid-1",
+  "type": "evolus.pencil.generic2026:text",
+  "style": "title-label",
+  "resolvedFrom": {
+    "textColor": "defaults",
+    "textFont": "style:title-label",
+    "box": "style:title-label",
+    "text": "element"
+  }
+}
+```
+
+### In-Memory Persistence Across Calls:
+- **Remembered Across Calls:** Defined `defaults` and `styles` are automatically remembered across consecutive `insert_shapes` calls on the active document object (persisted strictly in memory for the duration of the document session; no file or disk storage is touched).
+- **Reusable Design Systems:** Define design tokens, button variants, typography baselines, and color palettes once in your initial `insert_shapes` call. Subsequent turns can immediately reference (`style: "btn-primary"`) or extend (`extends: "btn-base"`) them without resending redundant definitions.
+- **Overriding on Name Duplication:** If a subsequent call supplies a style or default matching an existing name or shape type, the new definition cleanly overrides the existing one.
+- **Scope Invariance:** Remembered styles and defaults affect **only newly inserted shapes**. Shapes already present on the canvas are never altered retroactively.
+
 
 ## 2. Minimal vs. Verbose Payload Comparison
 

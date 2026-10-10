@@ -15,6 +15,7 @@ var canvasHelper = require("./canvas-helper.js");
 var editingValidator = require("./editing-validator.js");
 var documentTool = require("./document-tool.js");
 var layoutHelper = require("./layout-helper.js");
+var styleResolver = require("./style-resolver.js");
 
 /*
  * Helper to generate and attach an inline visual preview to a mutation tool response.
@@ -84,6 +85,7 @@ var ShapeElementSchema = z.object({
         w: z.number().optional().describe("Width dimension in pixels."),
         h: z.number().optional().describe("Height dimension in pixels.")
     }).optional().describe("Bounding box coordinates and dimensions."),
+    style: z.union([z.string(), z.array(z.string())]).optional().describe("Optional named style preset (or array of style names applied left-to-right) defined in the top-level 'styles' dictionary. When 'style' is specified, 'type' can be omitted because the style supplies it. If 'type' is also specified, it must match the style's shape type."),
     properties: z.record(z.any()).optional().describe("Optional custom shape properties dictionary (e.g. { 'label': 'Submit', 'fillColor': '#2563ebff' }). All shape properties are completely optional; Pencil automatically applies stencil-defined defaults for any omitted properties or if 'properties' is omitted entirely. Only declare properties you want to customize. For ImageData properties (e.g. 'url', 'imageData'), specify collection resources directly via 'collection://[@collectionId/]path/to/resource' (e.g. 'collection://@lucideIcons/search.svg' or 'collection://icons/search.svg' within the shape's own collection)."),
     children: z.array(z.any()).optional().describe("Nested child element descriptors for group shapes (@group)."),
     layout: z.enum(["vertical", "horizontal", "column", "row", "none"]).optional().describe("Automated layout mode for @group elements: 'vertical' (or 'column') stacks children top-to-bottom; 'horizontal' (or 'row') stacks children left-to-right; 'none' or omitted preserves manual x/y coordinates. When layout is active, child elements only need to specify dimensions ('box.w', 'box.h' or properties.box) without manual coordinate calculation."),
@@ -439,13 +441,21 @@ function InsertShapesTool() {
     BaseTool.call(
         this,
         "insert_shapes",
-        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab. All shape properties are completely optional; Pencil automatically applies stencil-defined defaults for omitted properties. External agents should emit minimal payloads (specifying only 'type', layout coordinates/dimensions, and customized properties) to conserve tokens and reduce latency. When user-defined 'id' fields are provided on elements, the engine assigns internal unique UUIDs to maintain document integrity, and returns an explicit 'idMap' ({ [providedId]: assignedUUID }) in the response alongside 'shapes' records. Use the assigned UUIDs for subsequent calls to update_shapes, delete_shapes, or select_shapes. @group elements can act as automated layout containers by specifying 'layout' ('vertical' | 'horizontal'), 'gap' (spacing in px), 'padding' (inner container margin), and cross-axis 'align' ('start' | 'center' | 'end'). When layout is specified on @group, nested children only need to provide dimensions ('box.w', 'box.h' or properties.box) while sequential canvas positioning is computed automatically without manual coordinate arithmetic. For shapes with ImageData properties (e.g. icon/image shapes with 'url' or 'imageData'), specify collection resources directly in properties using the URI pattern: 'collection://[@collectionId/]path/to/resource' (e.g. 'collection://@lucideIcons/search.svg', or 'collection://icons/search.svg' within the shape's own collection). To inspect stencil types, property schemas, and examples, read the shape specification via read_knowledge_base_document({ doc_path: 'shapes_specification.md' }) or discover installed stencils dynamically using get_shape_definition / list_shapes.",
+        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab. All shape properties are completely optional; Pencil automatically applies stencil-defined defaults for omitted properties. External agents should emit minimal payloads to conserve tokens and reduce latency. Supports declarative 'defaults' (type-scoped baseline properties applied across all shapes of that type) and 'styles' (named presets with single-inheritance 'extends' hierarchies applied via 'style': 'styleName' or multi-style array ['base', 'accent']). Elements referencing a style can omit 'type' as it is supplied by the style. Styles and defaults are remembered across subsequent calls for the active document session in memory without file storage, with name collisions handled by overriding existing definitions. Remembered styles and defaults affect only newly inserted shapes. When user-defined 'id' fields are provided on elements, the engine assigns internal unique UUIDs to maintain document integrity, and returns an explicit 'idMap' ({ [providedId]: assignedUUID }) in the response alongside 'shapes' records with 'resolvedFrom' provenance attribution. Use the assigned UUIDs for subsequent calls to update_shapes, delete_shapes, or select_shapes. @group elements can act as automated layout containers by specifying 'layout' ('vertical' | 'horizontal'), 'gap' (spacing in px), 'padding' (inner container margin), and cross-axis 'align' ('start' | 'center' | 'end'). When layout is specified on @group, nested children only need to provide dimensions ('box.w', 'box.h' or properties.box) while sequential canvas positioning is computed automatically without manual coordinate arithmetic. For shapes with ImageData properties (e.g. icon/image shapes with 'url' or 'imageData'), specify collection resources directly in properties using the URI pattern: 'collection://[@collectionId/]path/to/resource' (e.g. 'collection://@lucideIcons/search.svg', or 'collection://icons/search.svg' within the shape's own collection). To inspect stencil types, property schemas, and examples, read the shape specification via read_knowledge_base_document({ doc_path: 'shapes_specification.md' }) or discover installed stencils dynamically using get_shape_definition / list_shapes.",
         {
             pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
             x: z.number().optional().default(0).describe("Base X offset for inserted elements."),
             y: z.number().optional().default(0).describe("Base Y offset for inserted elements."),
-            elements: z.array(ShapeElementSchema).describe("Array of shape descriptors. Each element defines 'type' (e.g. 'Evolus.Common:Button'), coordinates ('x', 'y' or 'box'), optional custom 'properties' (omitted properties automatically take stencil defaults), and optional client 'id' mapped in 'idMap'. Refer to shapes_specification.md for minimal payload patterns."),
+            defaults: z.record(z.record(z.any())).optional().describe("Optional default properties keyed by shape type (e.g. { 'evolus.pencil.generic2026:text': { 'textFont': 'Roboto|normal|normal|13px|none|1.2', 'textColor': '#000000DE' } }). Automatically applies to every shape matching that type at any nesting depth, acting as a type-scoped baseline. Defaults are remembered across calls on the active document in memory, with name collisions handled by overriding existing defaults. Remembered defaults affect only newly inserted shapes."),
+            styles: z.record(
+                z.object({
+                    type: z.string().optional().describe("Stencil shape type identifier (e.g. 'evolus.pencil.generic2026:text'). Required unless inherited via 'extends'."),
+                    extends: z.string().optional().describe("Name of parent style to inherit properties from. Cycles and type mismatches across extends chains are strictly rejected."),
+                    properties: z.record(z.any()).optional().describe("Key-value dictionary of style properties.")
+                })
+            ).optional().describe("Optional named style presets dictionary. Each style defines 'type', optional 'extends' parent style name, and 'properties' map. Elements reference styles via 'style': 'styleName' or multi-style array ['base', 'accent']. Styles are remembered across calls on the active document in memory, with name collisions handled by overriding existing styles. Remembered styles affect only newly inserted shapes."),
+            elements: z.array(ShapeElementSchema).describe("Array of shape descriptors. Each element defines 'type' (e.g. 'Evolus.Common:Button') or 'style' preset, coordinates ('x', 'y' or 'box'), optional custom 'properties' (omitted properties automatically take stencil defaults), and optional client 'id' mapped in 'idMap'. Refer to shapes_specification.md for minimal payload patterns."),
             preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
@@ -463,18 +473,41 @@ InsertShapesTool.prototype.execute = async function (args, context) {
     var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
     var canvas = target.canvas;
 
+    var controller = (target && target.controller) || canvasHelper.getController(appPane);
+    var doc = (controller && controller.doc) || (appPane && appPane.currentDocument) || (target && target.page && target.page.document) || null;
+
+    /*
+     * Resolve effective styles and defaults across in-memory document state and call arguments.
+     * Stored styles and defaults are remembered across calls on the active document object (in memory only).
+     * Any name collisions are handled by overriding existing definitions with newly passed definitions.
+     */
+    var styleMerge = styleResolver.mergeDocumentStyles(doc, args.defaults, args.styles);
+    var effectiveDefaults = styleMerge.effectiveDefaults;
+    var effectiveStyles = styleMerge.effectiveStyles;
+
     /*
      * Pre-flight schema validation and auto-normalization:
      * - Detects reading-schema 'def' and normalizes to 'type' with deprecation notice
      * - Detects top-level 'box' { x, y, w, h } and normalizes to coordinates and properties.box
      * - Normalizes object properties.box to serialized 'w,h' string
      * - Validates coordinate numbers and property microformats
+     * - Resolves declarative 4-tier style cascade (stencil -> defaults -> styles -> element overrides)
      * - Rejects unknown stencil definitions with candidate suggestions rather than failing silently
      */
-    var validationResult = editingValidator.validateAndNormalizeInsertElements(elements, appPane);
+    var validationResult = editingValidator.validateAndNormalizeInsertElements(elements, appPane, {
+        defaults: effectiveDefaults,
+        styles: effectiveStyles
+    });
     if (validationResult.errors.length > 0) {
         throw new Error("Schema validation failed for insert_shapes (" + validationResult.errors.length + " error" + (validationResult.errors.length > 1 ? "s" : "") + "):\n" + validationResult.errors.map(function (e) { return "  - " + e; }).join("\n"));
     }
+
+    /*
+     * Commit verified in-memory styles and defaults to the active document object.
+     * Persisted strictly in memory on the doc object without disk / file storage.
+     * Remembered across subsequent insert_shapes calls and affect only newly inserted shapes.
+     */
+    styleResolver.commitDocumentStyles(doc, effectiveDefaults, effectiveStyles);
 
     var baseX = Number(args.x) || 0;
     var baseY = Number(args.y) || 0;
@@ -587,6 +620,12 @@ InsertShapesTool.prototype.execute = async function (args, context) {
                             h: resolvedHeight
                         }
                     };
+                    if (child.style) {
+                        shapeRecord.style = child.style;
+                    }
+                    if (child._resolvedFrom && Object.keys(child._resolvedFrom).length > 0) {
+                        shapeRecord.resolvedFrom = child._resolvedFrom;
+                    }
                     insertedShapes.push(shapeRecord);
                 }
             }

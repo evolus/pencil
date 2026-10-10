@@ -41,6 +41,7 @@ Shape specifications are **mandatory design information**. They define the offic
 * **Fetch Shape Specifications & Scenario Recipes:** Use `get_shape_definition` with `collectionId` and `shapeId`. It provides full property schemas, default values, and a `usageGuidelines` array containing pre-configured variant recipes (e.g., "Heading 1", "Heading 2") with concrete, resolved `recommendedProperties` evaluated against collection tokens.
 * **Direct Property Application:** When generating shapes for `insert_shapes`, copy or adapt the concrete property values directly from `recommendedProperties` in `scenarios` or `usageGuidelines`.
 * **Optional Stencil Properties & Minimal Payloads:** In Pencil, all stencil properties are completely optional during shape creation. The Pencil engine automatically populates default values defined by the shape's stencil specification. Only declare properties that you wish to customize (e.g. `label`, `text`, custom `fillColor`), keeping tool payloads concise and fast. Never echo back default properties discovered from `get_shape_definition` into `insert_shapes`.
+* **Declarative Styling & Shared Defaults (`defaults` & `styles`):** To eliminate redundant property declarations across multiple elements, pass top-level `defaults` (type-scoped baseline properties automatically applied to every shape matching that type) and `styles` (named presets supporting single inheritance via `extends`). Elements declare `"style": "styleName"` (or an array `["base", "accent"]` applied left-to-right) and can omit `"type"` entirely because the style supplies it. The 4-tier cascade evaluates: stencil default $\to$ `defaults[type]` $\to$ `styles` $\to$ `element.properties`. **In-Memory Persistence:** Styles and defaults are remembered across calls on the active document in memory for the duration of the session; you can define them once and reuse or extend them in subsequent `insert_shapes` turns without resending them. If a subsequent call provides a style or default with an existing name, it overrides the existing definition. Remembered styles and defaults affect **only newly inserted shapes** (shapes already on the canvas remain unchanged).
 
 ---
 
@@ -152,8 +153,9 @@ When dynamically adding, mutating, or deleting shapes on an existing canvas usin
    - **By Desktop GUI Selection:** `target: "selected"`. Modifies or deletes whatever shapes the human user currently has selected with their mouse in the active Pencil desktop window.
 
 3. **Schema Invariants for `insert_shapes`:**
-   - Always use `"type"` for the shape identifier (e.g. `"type": "Evolus.Common:Button"` or `"type": "button2"`). Avoid using `"def"`, which is reserved for reading output.
+   - Always use `"type"` for the shape identifier (e.g. `"type": "Evolus.Common:Button"` or `"type": "button2"`). When declaring `"style"`, `"type"` can be omitted because the style supplies it. Avoid using `"def"`, which is reserved for reading output.
    - Supply coordinates at top-level (`x`, `y`) or in `box: { x, y, w, h }`.
+   - Leverage `defaults` (type-scoped baselines) and `styles` (named presets) to keep payloads minimal and token-efficient.
    - To inspect supported stencil properties, call `read_knowledge_base_document(doc_path: "shapes_specification.md")` or dynamic discovery tools `get_shape_definition` / `list_shapes`.
 
 4. **Targeted Shape Inspection on Canvas:**
