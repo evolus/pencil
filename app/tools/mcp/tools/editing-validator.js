@@ -140,6 +140,9 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
     var warnings = [];
     var errors = [];
     var seenIds = {};
+    var defNormalizedCount = 0;
+    var boxObjNormalizedCount = 0;
+    var seenUndeclaredProps = {};
 
     options = options || {};
 
@@ -192,27 +195,34 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
             /*
              * Schema Normalization: Detect when reading-schema fields are supplied.
              * get_page_content outputs 'def' (and 'type: shape'), whereas insert_shapes expects 'type'.
+             * Emits an explicit notice for the initial occurrence and aggregates subsequent occurrences.
              */
             if (!child.type && child.def) {
                 child.type = child.def;
-                warnings.push(currentPath + identifier + ": detected 'def' property instead of 'type'. Auto-normalized 'type' to '" + child.def + "'. In 'insert_shapes', prefer 'type' over 'def'.");
+                defNormalizedCount++;
+                if (defNormalizedCount === 1) {
+                    warnings.push(currentPath + identifier + ": detected 'def' property instead of 'type'. Auto-normalized 'type' to '" + child.def + "'. In 'insert_shapes', prefer 'type' over 'def'.");
+                }
             } else if (child.type === "shape" && child.def) {
                 child.type = child.def;
-                warnings.push(currentPath + identifier + ": detected reading-schema format ('type': 'shape', 'def': '" + child.def + "'). Auto-normalized 'type' to '" + child.def + "'.");
+                defNormalizedCount++;
+                if (defNormalizedCount === 1) {
+                    warnings.push(currentPath + identifier + ": detected reading-schema format ('type': 'shape', 'def': '" + child.def + "'). Auto-normalized 'type' to '" + child.def + "'.");
+                }
             }
 
             /*
              * Coordinate & Geometry Normalization:
-             * get_page_content supplies top-level 'box' { x, y, w, h } instead of separate coordinates.
+             * Maps top-level 'box' { x, y, w, h } to coordinates and properties.box.
+             * Note: Silently maps coordinates without emitting warnings because box: { x, y, w, h }
+             * is an officially supported, first-class parameter schema for insert_shapes.
              */
             if (child.box && typeof child.box === "object" && !Array.isArray(child.box)) {
                 if (child.x === undefined && child.box.x !== undefined) {
                     child.x = Number(child.box.x);
-                    warnings.push(currentPath + identifier + ": mapped 'box.x' (" + child.box.x + ") to top-level coordinate 'x'.");
                 }
                 if (child.y === undefined && child.box.y !== undefined) {
                     child.y = Number(child.box.y);
-                    warnings.push(currentPath + identifier + ": mapped 'box.y' (" + child.box.y + ") to top-level coordinate 'y'.");
                 }
                 if (child.box.w !== undefined && child.box.h !== undefined) {
                     if (!child.properties || typeof child.properties !== "object") {
@@ -220,7 +230,6 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
                     }
                     if (child.properties.box === undefined) {
                         child.properties.box = Number(child.box.w) + "," + Number(child.box.h);
-                        warnings.push(currentPath + identifier + ": auto-normalized top-level 'box' { w: " + child.box.w + ", h: " + child.box.h + " } to 'properties.box'.");
                     }
                 }
             }
@@ -228,6 +237,7 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
             /*
              * Property Box Normalization:
              * Auto-serialize object { w, h } or { width, height } into standard 'w,h' string format.
+             * Emits an explicit notice for the initial occurrence and aggregates subsequent occurrences.
              */
             if (child.properties && typeof child.properties === "object" && !Array.isArray(child.properties)) {
                 var rawBox = child.properties.box;
@@ -236,7 +246,10 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
                     var bh = rawBox.h !== undefined ? rawBox.h : rawBox.height;
                     if (bw !== undefined && bh !== undefined) {
                         child.properties.box = bw + "," + bh;
-                        warnings.push(currentPath + identifier + ": auto-normalized properties.box object to string format '" + child.properties.box + "'.");
+                        boxObjNormalizedCount++;
+                        if (boxObjNormalizedCount === 1) {
+                            warnings.push(currentPath + identifier + ": auto-normalized properties.box object to string format '" + child.properties.box + "'.");
+                        }
                     }
                 }
             }
@@ -388,7 +401,13 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
                         }
 
                         if (!pdef) {
-                            warnings.push(currentPath + identifier + ": property '" + propName + "' is not declared in stencil schema for '" + child.type + "'.");
+                            var undeclaredKey = child.type + ":" + propName;
+                            if (!seenUndeclaredProps[undeclaredKey]) {
+                                seenUndeclaredProps[undeclaredKey] = 1;
+                                warnings.push(currentPath + identifier + ": property '" + propName + "' is not declared in stencil schema for '" + child.type + "'.");
+                            } else {
+                                seenUndeclaredProps[undeclaredKey]++;
+                            }
                         } else if (pdef.type) {
                             var valErr = validatePropertyValueFormat(pdef, propName, propVal);
                             if (valErr) {
@@ -402,6 +421,37 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
     }
 
     inspectRecursive(elements, "elements");
+
+    /*
+     * Append aggregate summaries for repeated auto-normalizations.
+     */
+    if (defNormalizedCount > 1) {
+        warnings.push("Auto-normalized 'type' from 'def' across " + (defNormalizedCount - 1) + " additional element(s).");
+    }
+    if (boxObjNormalizedCount > 1) {
+        warnings.push("Auto-normalized properties.box object across " + (boxObjNormalizedCount - 1) + " additional element(s).");
+    }
+    for (var uk in seenUndeclaredProps) {
+        if (seenUndeclaredProps[uk] > 1) {
+            var colonIdx = uk.indexOf(":");
+            var uType = uk.substring(0, colonIdx);
+            var uProp = uk.substring(colonIdx + 1);
+            warnings.push("Property '" + uProp + "' was undeclared on " + (seenUndeclaredProps[uk] - 1) + " additional '" + uType + "' element(s).");
+        }
+    }
+
+    /*
+     * Warning Flood Protection:
+     * Cap total warnings output to avoid overflowing LLM response context windows.
+     * Retains the first 5 highest-priority actionable notices and appends a single summary notice.
+     */
+    var MAX_WARNINGS = 6;
+    if (warnings.length > MAX_WARNINGS) {
+        var excess = warnings.length - (MAX_WARNINGS - 1);
+        warnings = warnings.slice(0, MAX_WARNINGS - 1).concat([
+            "... and " + excess + " more minor normalization notice(s) omitted."
+        ]);
+    }
 
     return {
         warnings: warnings,
@@ -421,6 +471,8 @@ function validateUpdateShapes(shapeUpdates) {
         errors.push("No shape updates provided in 'shapes' parameter. Expected a non-empty array.");
         return { warnings: warnings, errors: errors };
     }
+
+    var boxObjNormalizedCount = 0;
 
     for (var i = 0; i < shapeUpdates.length; i++) {
         var u = shapeUpdates[i];
@@ -479,7 +531,10 @@ function validateUpdateShapes(shapeUpdates) {
                     var bh = u.properties.box.h !== undefined ? u.properties.box.h : u.properties.box.height;
                     if (bw !== undefined && bh !== undefined) {
                         u.properties.box = bw + "," + bh;
-                        warnings.push(prefix + ": auto-normalized properties.box object to string format '" + u.properties.box + "'.");
+                        boxObjNormalizedCount++;
+                        if (boxObjNormalizedCount === 1) {
+                            warnings.push(prefix + ": auto-normalized properties.box object to string format '" + u.properties.box + "'.");
+                        }
                     }
                 }
             }
@@ -491,6 +546,26 @@ function validateUpdateShapes(shapeUpdates) {
                 errors.push(prefix + ".zOrder: invalid value '" + u.zOrder + "'. Expected one of: " + validZ.join(", ") + ".");
             }
         }
+    }
+
+    /*
+     * Append aggregate summary for repeated properties.box normalizations.
+     */
+    if (boxObjNormalizedCount > 1) {
+        warnings.push("Auto-normalized properties.box object across " + (boxObjNormalizedCount - 1) + " additional update shape(s).");
+    }
+
+    /*
+     * Warning Flood Protection:
+     * Cap total warnings output to avoid overflowing LLM response context windows.
+     * Retains the first 5 highest-priority actionable notices and appends a single summary notice.
+     */
+    var MAX_UPDATE_WARNINGS = 6;
+    if (warnings.length > MAX_UPDATE_WARNINGS) {
+        var excess = warnings.length - (MAX_UPDATE_WARNINGS - 1);
+        warnings = warnings.slice(0, MAX_UPDATE_WARNINGS - 1).concat([
+            "... and " + excess + " more minor normalization notice(s) omitted."
+        ]);
     }
 
     return { warnings: warnings, errors: errors };

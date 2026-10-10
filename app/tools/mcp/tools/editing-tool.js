@@ -441,7 +441,7 @@ function InsertShapesTool() {
     BaseTool.call(
         this,
         "insert_shapes",
-        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab. All shape properties are completely optional; Pencil automatically applies stencil-defined defaults for omitted properties. External agents should emit minimal payloads to conserve tokens and reduce latency. Supports declarative 'defaults' (type-scoped baseline properties applied across all shapes of that type) and 'styles' (named presets with single-inheritance 'extends' hierarchies applied via 'style': 'styleName' or multi-style array ['base', 'accent']). Elements referencing a style can omit 'type' as it is supplied by the style. Styles and defaults are remembered across subsequent calls for the active document session in memory without file storage, with name collisions handled by overriding existing definitions. Remembered styles and defaults affect only newly inserted shapes. When user-defined 'id' fields are provided on elements, the engine assigns internal unique UUIDs to maintain document integrity, and returns an explicit 'idMap' ({ [providedId]: assignedUUID }) in the response alongside 'shapes' records with 'resolvedFrom' provenance attribution. Use the assigned UUIDs for subsequent calls to update_shapes, delete_shapes, or select_shapes. @group elements can act as automated layout containers by specifying 'layout' ('vertical' | 'horizontal'), 'gap' (spacing in px), 'padding' (inner container margin), and cross-axis 'align' ('start' | 'center' | 'end'). When layout is specified on @group, nested children only need to provide dimensions ('box.w', 'box.h' or properties.box) while sequential canvas positioning is computed automatically without manual coordinate arithmetic. For shapes with ImageData properties (e.g. icon/image shapes with 'url' or 'imageData'), specify collection resources directly in properties using the URI pattern: 'collection://[@collectionId/]path/to/resource' (e.g. 'collection://@lucideIcons/search.svg', or 'collection://icons/search.svg' within the shape's own collection). To inspect stencil types, property schemas, and examples, read the shape specification via read_knowledge_base_document({ doc_path: 'shapes_specification.md' }) or discover installed stencils dynamically using get_shape_definition / list_shapes.",
+        "Appends new shapes or component clusters onto an existing canvas page without clearing existing elements or creating a new tab. All shape properties are completely optional; Pencil automatically applies stencil-defined defaults for omitted properties. External agents should emit minimal payloads to conserve tokens and reduce latency. Supports declarative 'defaults' (type-scoped baseline properties applied across all shapes of that type) and 'styles' (named presets with single-inheritance 'extends' hierarchies applied via 'style': 'styleName' or multi-style array ['base', 'accent']). Elements referencing a style can omit 'type' as it is supplied by the style. Styles and defaults are remembered across subsequent calls for the active document session in memory without file storage, with name collisions handled by overriding existing definitions. Remembered styles and defaults affect only newly inserted shapes. When user-defined 'id' fields are provided on elements, the engine assigns internal unique UUIDs to maintain document integrity, and returns an explicit 'idMap' ({ [providedId]: assignedUUID }) alongside 'shapeIds' in the concise response. Set 'verbose: true' to include full 'shapes' records with 'resolvedFrom' provenance attribution. Use the assigned UUIDs for subsequent calls to update_shapes, delete_shapes, or select_shapes. @group elements can act as automated layout containers by specifying 'layout' ('vertical' | 'horizontal'), 'gap' (spacing in px), 'padding' (inner container margin), and cross-axis 'align' ('start' | 'center' | 'end'). When layout is specified on @group, nested children only need to provide dimensions ('box.w', 'box.h' or properties.box) while sequential canvas positioning is computed automatically without manual coordinate arithmetic. For shapes with ImageData properties (e.g. icon/image shapes with 'url' or 'imageData'), specify collection resources directly in properties using the URI pattern: 'collection://[@collectionId/]path/to/resource' (e.g. 'collection://@lucideIcons/search.svg', or 'collection://icons/search.svg' within the shape's own collection). To inspect stencil types, property schemas, and examples, read the shape specification via read_knowledge_base_document({ doc_path: 'shapes_specification.md' }) or discover installed stencils dynamically using get_shape_definition / list_shapes.",
         {
             pageId: z.string().optional().describe("Target page ID. Defaults to active page."),
             pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
@@ -456,6 +456,7 @@ function InsertShapesTool() {
                 })
             ).optional().describe("Optional named style presets dictionary. Each style defines 'type', optional 'extends' parent style name, and 'properties' map. Elements reference styles via 'style': 'styleName' or multi-style array ['base', 'accent']. Styles are remembered across calls on the active document in memory, with name collisions handled by overriding existing styles. Remembered styles affect only newly inserted shapes."),
             elements: z.array(ShapeElementSchema).describe("Array of shape descriptors. Each element defines 'type' (e.g. 'Evolus.Common:Button') or 'style' preset, coordinates ('x', 'y' or 'box'), optional custom 'properties' (omitted properties automatically take stencil defaults), and optional client 'id' mapped in 'idMap'. Refer to shapes_specification.md for minimal payload patterns."),
+            verbose: z.boolean().optional().default(false).describe("If true, includes detailed per-shape records (box geometry, type, style, and property provenance telemetry) in the 'shapes' response array. Defaults to false for concise, token-efficient output containing shapeIds and idMap."),
             preview: z.boolean().optional().default(false).describe("If true, automatically generates and returns a multimodal visual preview (PNG) of the updated canvas in the same turn.")
         }
     );
@@ -641,15 +642,32 @@ InsertShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Insert shapes via MCP");
 
+    /*
+     * Response Verbosity & Token Conservation:
+     * By default (verbose: false), return a compact, high-signal response containing
+     * core execution status ('pageId', 'insertedCount', 'shapeIds', 'idMap', 'message').
+     * Heavy per-shape geometry ('box') and multi-tier style provenance telemetry
+     * ('resolvedFrom') are opt-in via 'verbose: true' to avoid saturating LLM context
+     * windows during iterative prototyping turns. Redundant duplicate aliases
+     * ('insertedShapes') are eliminated.
+     */
+    var shapeIds = insertedShapes.map(function (s) { return s.id; });
+
     var resultPayload = {
         pageId: target.pageId,
         insertedCount: insertedShapes.length,
+        shapeIds: shapeIds,
         idMap: idMap,
-        shapes: insertedShapes,
-        insertedShapes: insertedShapes,
-        warnings: validationResult.warnings.length > 0 ? validationResult.warnings : undefined,
         message: "Successfully inserted " + insertedShapes.length + " shape(s) onto canvas."
     };
+
+    if (args.verbose) {
+        resultPayload.shapes = insertedShapes;
+    }
+
+    if (validationResult.warnings && validationResult.warnings.length > 0) {
+        resultPayload.warnings = validationResult.warnings;
+    }
 
     return await attachPreviewIfRequested(args, target, appPane, resultPayload);
 };

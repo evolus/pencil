@@ -461,9 +461,19 @@ function resolveElementStyles(element, compiledStyles, validatedDefaults, elemen
         }
     }
 
+    /*
+     * Element Shape Type Resolution:
+     * Only return resolvedType if the type was inferred from an applied style preset,
+     * or if element.type was explicitly declared. If the element passed legacy 'def'
+     * without 'type', leave resolvedType undefined so downstream editing-validator
+     * inspectRecursive can detect '!child.type && child.def', perform normalization,
+     * and emit the appropriate deprecation warning.
+     */
+    var resolvedType = inferredType || (element.type ? finalType : undefined);
+
     return {
         errors: errors,
-        resolvedType: finalType,
+        resolvedType: resolvedType,
         resolvedProperties: mergedProps,
         resolvedFrom: resolvedFrom
     };

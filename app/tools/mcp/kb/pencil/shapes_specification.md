@@ -176,18 +176,24 @@ Do **not** echo all default properties discovered from `get_shape_definition`:
 
 To preserve document integrity and prevent DOM collisions, the Pencil engine automatically generates unique internal UUIDs (e.g. `3a7f8e12-4c5b-49a0-b8d1-123456789abc`) for all inserted shapes.
 
-When you supply an `id` on an element, the server returns an `idMap` mapping table:
+When you supply an `id` on an element, the server returns an `idMap` mapping table and `shapeIds` list in the concise response:
 
 ```json
 {
   "pageId": "page-1",
   "insertedCount": 2,
+  "shapeIds": [
+    "c7e1081a-821e-4509-847c-50ffc17d740c",
+    "b8a9202f-912b-4610-938d-61aab28e851d"
+  ],
   "idMap": {
     "btn_submit": "c7e1081a-821e-4509-847c-50ffc17d740c",
     "lbl_status": "b8a9202f-912b-4610-938d-61aab28e851d"
-  }
+  },
+  "message": "Successfully inserted 2 shape(s) onto canvas."
 }
 ```
+*(Note: By default, `insert_shapes` returns this compact response to conserve tokens. If you need full shape bounding boxes or `resolvedFrom` style provenance telemetry, pass `"verbose": true` in the tool arguments).*
 
 ### Recommended Workflow:
 1. Provide descriptive `id` values in `insert_shapes` (e.g., `"btn_submit"`, `"card_bg"`).

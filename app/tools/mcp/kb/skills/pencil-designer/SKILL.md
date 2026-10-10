@@ -144,7 +144,7 @@ When dynamically adding, mutating, or deleting shapes on an existing canvas usin
 1. **ID Mapping with `insert_shapes`:**
    - Elements passed to `insert_shapes` can define an optional `id` (e.g. `id: "btn_submit"`).
    - Pencil engine assigns internal unique UUIDs to maintain document integrity.
-   - `insert_shapes` returns an `idMap: { [providedId]: assignedUUID }` and `shapes: [{ id, providedId, type, box }]`.
+   - `insert_shapes` returns an `idMap: { [providedId]: assignedUUID }` and `shapeIds: [assignedUUID, ...]`. Pass `verbose: true` if full shape geometry (`box`) and style provenance telemetry (`resolvedFrom`) are needed.
    - **Always capture and use the mapped UUIDs** from `idMap` for subsequent calls to `update_shapes`, `delete_shapes`, or `select_shapes`.
 
 2. **Single-Turn Targeting in `update_shapes` & `delete_shapes`:**
