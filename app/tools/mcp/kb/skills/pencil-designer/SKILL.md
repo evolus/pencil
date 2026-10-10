@@ -51,7 +51,6 @@ In Pencil, all graphics (vectors, photos, icons, and illustrations) are unified 
 * **Catalog Overview (`list_resource_collections`):** Call `list_resource_collections` (with optional `collectionId`) to quickly inspect all collections bundling visual resources (including pure icon sets like Tabler and Lucide). Returns per-directory stats (`count`, `ext`, nominal `size: "24x24"`, and representative `sample` names) for minimal token overhead (~50–80 tokens per collection).
 * **Batched Multi-Query Resource Search (`search_resources`):** Recommended for screen design workflows. Call `search_resources` with an array of concepts (`queries: ["trash", "edit", "save", "calendar", "user"]`, optional ordered priority `collections: ["tablerFilledIcons", "tablerOutlineIcons"]`, optional `type: "all" | "svg" | "bitmap"`, optional `limit` per query [default 3]) to discover all icons needed in a single turn. Returns a mapped dictionary `{ "results": { [query]: ["collection://@col/path", ...] } }` with ready-to-paste URIs, honoring collection priority (evaluating primary before fallback collections), ranking exact matches before universal synonyms, and returning explicit `[]` for missing concepts.
 * **Browsing Directories (`list_resource_dir`):** Call `list_resource_dir` (`collectionId`, `dir`, optional `prefix`, `offset`, `limit`) to browse bare filenames with shared extension lifting and prefix filtering.
-* **Discovering Collection Resources (`list_collection_resources`):** Use `list_collection_resources` (with optional `collectionId`, `type: "svg"` | `"bitmap"`, `keyword`, `limit` [default 100], and `offset` [default 0]) to discover available vector graphics, brand assets, and icons bundled with loaded stencil collections. The `keyword` filter tolerates delimiter variations (e.g. `"chevron right"` matching `chevron-right.svg`) and automatically expands across universal icon synonyms (e.g. querying `"magnifier"` returns `search.svg`, `"gear"` returns `settings.svg`, and `"bin"` returns `trash.svg`), prioritizing exact matches first.
 * **Direct Inline Collection Resource URIs (`collection://`):** To assign or update an icon, vector graphic, or bitmap resource on a shape, specify the URI directly in the shape's `properties` map when calling `insert_shapes` or `update_shapes`:
   - **Explicit collection target:** `"collection://@collectionId/path/to/resource"` (e.g. `"collection://@lucideIcons/search.svg"`, `"collection://@tabler-icons/icons/outline/brand-github.svg"`).
   - **Implicit shape collection target:** `"collection://path/to/resource"` (e.g. `"collection://icons/search.svg"`). When `@collectionId/` is omitted, the engine automatically resolves the resource from the **collection containing the shape in effect**.
@@ -68,10 +67,11 @@ In Pencil, all graphics (vectors, photos, icons, and illustrations) are unified 
   ```
   The Pencil engine automatically resolves the resource from the installed collection, copies it synchronously into the document's local reference storage (`ref://`), and binds the property in a single turn without separate setter tool invocations or heavy base64 payload transfers.
 * **Property Syntax Formats:** When declaring `ImageData` properties:
-  * Inline Collection URI (recommended): `"collection://[@collectionId/]path/to/resource"`
+  * Inline Collection URI (recommended): `"collection://[@collectionId/]path/to/resource"` or bare `"@collectionId/path/to/resource"` (automatically normalized)
   * Document reference: `"24,24,ref://asset-id.svg"`
   * Empty image: `"0,0,"`
   * Inline raster or SVG data URI: `"300,200,data:image/png;base64,..."`
+* **Pre-Flight Validation & Fuzzy Correction Diagnostics:** Both `insert_shapes` and `update_shapes` automatically validate collection resource existence before modifying the canvas. If a referenced asset is misspelled or missing, the tool aborts without altering the canvas and returns top similar candidate filenames (e.g. `"Resource 'radior.svg' not found in collection '@lucideIcons/vectors'. Similar candidates: radio.svg, radar.svg"`), allowing immediate self-correction.
 
 ---
 

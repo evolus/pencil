@@ -92,7 +92,9 @@ Once connected, you can ask your AI client things like:
 | `read_knowledge_base_document` | `{ doc_path, section?, start_line?, end_line? }` | Read technical docs and specs from the knowledge base with section or line filtering. |
 | `list_collections` | `{ includeShapes? }` | List installed and visible stencil collections and shape IDs. |
 | `get_shape_definition` | `{ collectionId, shapeId? }` | Get property schemas, types, and default values for a stencil. |
-| `list_collection_resources` | `{ collectionId?, type?, keyword?, limit? }` | Discover vector and bitmap resources bundled with stencil collections. |
+| `list_resource_collections` | `{ collectionId? }` | Discover collections bundling visual resources with directory stats, extension breakdown, and sample names. |
+| `list_resource_dir` | `{ collectionId, dir, prefix?, offset?, limit? }` | Browse files in a resource directory with pagination and prefix filtering. |
+| `search_resources` | `{ queries, collections?, type?, limit? }` | High-efficiency batched multi-query resource search with priority collection fallback. |
 | `get_active_document` | `{}` | Get the active document title, page list, dimensions, and shape counts. |
 | `get_page_content` | `{ pageId?, pageIndex?, format? }` | Get page elements, layout coordinates, and shape properties (`json`, `svg`, `summary`). |
 | `update_shapes` | `{ pageId?, shapes: [{ shapeId?, query?, target?, properties?, box?, zOrder? }] }` | Selectively update properties, dimensions, position, and stacking order of shapes (by shapeId, semantic query, or selection). |

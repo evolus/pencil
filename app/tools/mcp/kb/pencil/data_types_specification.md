@@ -230,7 +230,7 @@ Represents an image asset (bitmap raster or vector SVG) coupled with its intrins
 
 #### Collection Resources & Inline Mutation:
 Stencil collections expose available vector and bitmap assets via `collection.RESOURCE_LIST`.
-- To discover available resources, use the `list_collection_resources` MCP tool.
+- To discover available resources, use the `search_resources`, `list_resource_collections`, or `list_resource_dir` MCP tools.
 - To assign a collection resource to a shape property, supply the `collection://` URI directly in the element's `properties` map when calling `insert_shapes` or `update_shapes`:
   ```json
   "properties": {
@@ -247,12 +247,20 @@ Stencil collections expose available vector and bitmap assets via `collection.RE
 
 * **Valid Examples:**
   * `"collection://@lucideIcons/search.svg"` (Explicit cross-collection resource URI)
+  * `"@lucideIcons/search.svg"` (Bare collection URI syntax—automatically normalized to canonical `collection://` format)
   * `"collection://icons/search.svg"` (Implicit resource URI within the shape's own collection)
   * `"collection://@tabler-icons/icons/outline/brand-github.svg"` (Explicit Tabler vector icon)
   * `"24,24,ref://a4e21b-search.svg"` (Document reference to collection vector asset)
   * `"48,48,ref://b512c0-avatar.png"` (Document reference to bitmap image asset)
   * `"0,0,"` (Empty image—no asset displayed)
   * `"48,48,data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0..."` (Inline SVG data URI)
+
+#### Pre-Flight Validation & Fuzzy Correction Diagnostics:
+Canvas mutation tools (`insert_shapes` and `update_shapes`) perform pre-flight validation on all collection URIs before modifying the canvas DOM:
+- **Collection Existence:** Validates that the referenced `@<collectionId>` is loaded in `CollectionManager`. If missing, returns available collection IDs.
+- **File Existence on Disk:** Validates that the requested asset exists within the collection directory.
+- **Fuzzy Suggestions:** If a resource file is not found, the validator computes Levenshtein distance across existing files in the directory and returns actionable suggestions in the error message (e.g. `"Resource 'radior.svg' not found in collection '@lucideIcons/vectors'. Similar candidates: radio.svg, radar.svg"`).
+- **Atomic Safety:** The canvas state remains untouched on validation failure (no partial shape insertions or corrupt undo mementos).
 * **Invalid Examples:**
   * `"search.svg"` *(missing `collection://` protocol prefix)*
   * `"ref://asset.svg"` *(missing intrinsic width and height prefix when using raw ref syntax)*

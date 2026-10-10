@@ -2,6 +2,9 @@
  * Accommodates single-argument instantiation where a URI or data string
  * (such as 'collection://@collectionId/path/to/resource' or 'data:...') is provided
  * without leading width/height dimensions.
+ * Automatically normalizes bare '@collectionId/path' URIs into canonical
+ * 'collection://@collectionId/path' format so external LLM payloads omitting the
+ * protocol scheme are tolerated transparently.
  */
 function ImageData(w, h, data, xCells, yCells) {
     if (arguments.length === 1 && typeof w === "string") {
@@ -16,6 +19,10 @@ function ImageData(w, h, data, xCells, yCells) {
         this.h = h;
         this.xCells = xCells;
         this.yCells = yCells;
+    }
+
+    if (typeof this.data === "string" && this.data.startsWith("@") && this.data.indexOf("/") !== -1) {
+        this.data = "collection://" + this.data;
     }
 }
 ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]*)$/;
@@ -203,6 +210,9 @@ function resolveImageData(value) {
 }
 
 ImageData.performIntialProcessing = function (data, def, currentCollection) {
+    if (data && typeof data.data === "string" && data.data.startsWith("@") && data.data.indexOf("/") !== -1) {
+        data.data = "collection://" + data.data;
+    }
     if (data && data.data && data.data.match(/^collection:\/\/(@([^\s\/]+)\/)?(.+)$/)) {
         var collectionId = RegExp.$2;
         var declaredPath = RegExp.$3;
@@ -586,30 +596,37 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
     }
 };
 
-window.addEventListener("load", function () {
-    var iframe = document.createElementNS(PencilNamespaces.html, "html:iframe");
-    iframe.setAttribute("style", "border: none; min-width: 0px; min-height: 0px; width: 1px; height: 1px; xvisibility: hidden;");
-    iframe.setAttribute("src", "pencil-core/blank.html");
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+    window.addEventListener("load", function () {
+        var iframe = document.createElementNS(PencilNamespaces.html, "html:iframe");
+        iframe.setAttribute("style", "border: none; min-width: 0px; min-height: 0px; width: 1px; height: 1px; xvisibility: hidden;");
+        iframe.setAttribute("src", "pencil-core/blank.html");
 
-    var container = document.body;
-    if (!container) container = document.documentElement;
+        var container = document.body;
+        if (!container) container = document.documentElement;
 
-    var box = document.createElement("div");
-    box.setAttribute("style", "overflow: hidden; width: 1px; height: 1px; position: absolute; bottom: 0px; right: 0px;");
-    box.appendChild(iframe);
+        var box = document.createElement("div");
+        box.setAttribute("style", "overflow: hidden; width: 1px; height: 1px; position: absolute; bottom: 0px; right: 0px;");
+        box.appendChild(iframe);
 
-    container.appendChild(box);
+        container.appendChild(box);
 
-    ImageData.win = iframe.contentWindow;
-    ImageData.win.document.body.setAttribute("style", "padding: 0px; margin: 0px;")
-}, false);
+        ImageData.win = iframe.contentWindow;
+        ImageData.win.document.body.setAttribute("style", "padding: 0px; margin: 0px;")
+    }, false);
+}
 
+if (typeof pencilSandbox !== "undefined") {
+    pencilSandbox.ImageData = {
+        newImageData: function (w, h, data) {
+            return new ImageData(w, h, data);
+        }
+    };
+    for (var p in ImageData) {
+        pencilSandbox.ImageData[p] = ImageData[p];
+    };
+}
 
-pencilSandbox.ImageData = {
-    newImageData: function (w, h, data) {
-        return new ImageData(w, h, data);
-    }
-};
-for (var p in ImageData) {
-    pencilSandbox.ImageData[p] = ImageData[p];
-};
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = ImageData;
+}
