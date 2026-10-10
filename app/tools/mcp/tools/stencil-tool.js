@@ -4,6 +4,10 @@
  * - list_collections: Lists installed and visible stencil collections
  * - get_shape_definition: Inspects shape property schemas and defaults
  * - list_collection_resources: Discovers bundled vector and bitmap resources
+ * - list_resource_collections: Macro overview of collections bundling resources
+ * - list_resource_dir: Browses files in a resource directory
+ * - search_resources: Batched multi-query resource search with priority fallback
+ * - list_shape_definitions / list_shapes: Lists stencil shape definitions
  */
 
 var fs = require("fs");
@@ -696,6 +700,7 @@ function getCollectionResourceDirectories(col) {
         }
     }
 
+    /*
     try {
         var topEntries = fs.readdirSync(col.installDirPath);
         for (var i = 0; i < topEntries.length; i++) {
@@ -707,6 +712,7 @@ function getCollectionResourceDirectories(col) {
             }
         }
     } catch (e) {}
+    */
 
     return discoveredDirs;
 }
@@ -996,6 +1002,326 @@ ListResourceDirTool.prototype.execute = async function (args, context) {
     };
 };
 
+/* =============================================================================
+ * Tool: search_resources
+ * ============================================================================= */
+
+/*
+ * In-memory cache for raw collection resource assets during the renderer session.
+ * Stores map of cacheKey -> Array<{ name, relativePath, type }> to avoid repeated disk reads.
+ */
+var resourceFilesCache = {};
+
+function clearResourceFilesCache() {
+    resourceFilesCache = {};
+}
+
+/*
+ * Recursively scans a directory on disk to gather all supported SVG and bitmap image assets.
+ * Preserves subdirectories in relativePath while omitting hidden dotfiles.
+ */
+function scanDirectoryRaw(dirPath, relPrefix, typeFilter, results) {
+    if (!fs.existsSync(dirPath)) return;
+
+    var entries = [];
+    try {
+        entries = fs.readdirSync(dirPath);
+    } catch (e) {
+        return;
+    }
+
+    for (var i = 0; i < entries.length; i++) {
+        var name = entries[i];
+        if (name.startsWith(".")) continue;
+
+        var fullPath = path.join(dirPath, name);
+        var stat = null;
+        try {
+            stat = fs.statSync(fullPath);
+        } catch (e) {
+            continue;
+        }
+
+        var currentRel = relPrefix ? (relPrefix + "/" + name) : name;
+
+        if (stat.isDirectory()) {
+            scanDirectoryRaw(fullPath, currentRel, typeFilter, results);
+        } else if (stat.isFile()) {
+            var ext = path.extname(name).toLowerCase();
+            var resType = null;
+            if (ext === ".svg") {
+                resType = "svg";
+            } else if (ext === ".png" || ext === ".jpg" || ext === ".jpeg" || ext === ".gif" || ext === ".webp") {
+                resType = "bitmap";
+            }
+
+            if (!resType) continue;
+            if (typeFilter !== "all" && resType !== typeFilter) continue;
+
+            var baseName = path.basename(name, ext);
+            var normalizedRel = currentRel.replace(/\\/g, "/");
+
+            results.push({
+                name: baseName,
+                relativePath: normalizedRel,
+                type: resType
+            });
+        }
+    }
+}
+
+/*
+ * Aggregates all valid visual assets from a collection's configured or discovered resource directories.
+ * Checks in-memory cache first to guarantee sub-millisecond response times across batch queries.
+ */
+function getCollectionAllResources(col, typeFilter) {
+    if (!col || !col.installDirPath) return [];
+    var cacheKey = col.id + ":" + col.installDirPath + ":" + typeFilter;
+    if (resourceFilesCache[cacheKey]) {
+        return resourceFilesCache[cacheKey];
+    }
+
+    var dirs = getCollectionResourceDirectories(col);
+    var results = [];
+    for (var d = 0; d < dirs.length; d++) {
+        var relDir = dirs[d];
+        var fullDirPath = path.join(col.installDirPath, relDir);
+        scanDirectoryRaw(fullDirPath, relDir, typeFilter, results);
+    }
+
+    resourceFilesCache[cacheKey] = results;
+    return results;
+}
+
+/*
+ * Evaluates match quality of a candidate resource against a query concept.
+ * Tier 1 (Direct match, Score >= 60):
+ *   - Exact base name or delimiter-normalized match: 100
+ *   - Prefix match on base name: 80
+ *   - Multi-token or delimiter-normalized substring match: 60
+ * Tier 2 (Universal synonym match from icon-synonyms.js, Score 10..30):
+ *   - Exact match on expanded synonym: 30
+ *   - Prefix match on expanded synonym: 20
+ *   - Multi-token or substring match on expanded synonym: 10
+ * Tier 0 (No match, Score 0)
+ */
+function scoreResourceMatch(name, relPath, query, expandedSynonyms) {
+    if (!query) return 0;
+
+    var lowerName = name.toLowerCase();
+    var lowerRel = relPath.toLowerCase();
+    var lowerQuery = query.toLowerCase().trim();
+
+    var normalizedName = lowerName.replace(/[-_.]+/g, " ");
+    var normalizedRel = lowerRel.replace(/[-_.]+/g, " ");
+    var normalizedQuery = lowerQuery.replace(/[-_.]+/g, " ").trim();
+
+    if (lowerName === lowerQuery || normalizedName === normalizedQuery) {
+        return 100;
+    }
+
+    if (lowerName.indexOf(lowerQuery) === 0 || normalizedName.indexOf(normalizedQuery) === 0) {
+        return 80;
+    }
+
+    if (normalizedName.indexOf(normalizedQuery) !== -1 || lowerName.indexOf(lowerQuery) !== -1 || normalizedRel.indexOf(normalizedQuery) !== -1) {
+        return 60;
+    }
+
+    var tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+    if (tokens.length > 1) {
+        var allTokensMatch = true;
+        for (var t = 0; t < tokens.length; t++) {
+            if (normalizedName.indexOf(tokens[t]) === -1 && normalizedRel.indexOf(tokens[t]) === -1) {
+                allTokensMatch = false;
+                break;
+            }
+        }
+        if (allTokensMatch) {
+            return 60;
+        }
+    }
+
+    if (expandedSynonyms && expandedSynonyms.length > 0) {
+        var bestSynonymScore = 0;
+        for (var s = 0; s < expandedSynonyms.length; s++) {
+            var syn = expandedSynonyms[s].toLowerCase().trim();
+            var normSyn = syn.replace(/[-_.]+/g, " ").trim();
+
+            if (lowerName === syn || normalizedName === normSyn) {
+                if (bestSynonymScore < 30) bestSynonymScore = 30;
+            } else if (lowerName.indexOf(syn) === 0 || normalizedName.indexOf(normSyn) === 0) {
+                if (bestSynonymScore < 20) bestSynonymScore = 20;
+            } else if (normalizedName.indexOf(normSyn) !== -1 || lowerName.indexOf(syn) !== -1 || normalizedRel.indexOf(normSyn) !== -1) {
+                if (bestSynonymScore < 10) bestSynonymScore = 10;
+            }
+        }
+        if (bestSynonymScore > 0) {
+            return bestSynonymScore;
+        }
+    }
+
+    return 0;
+}
+
+function SearchResourcesTool() {
+    BaseTool.call(
+        this,
+        "search_resources",
+        "Executes a high-efficiency batched search for multiple icon or resource concepts across one or more collections in a single turn. Supports client-specified collection priority order for automatic fallback chains (e.g. ['tablerFilledIcons', 'tablerOutlineIcons']), tier-ranked synonym matching, canonical collection:// URIs, and explicit empty arrays for missing items.",
+        {
+            queries: z.array(z.string().min(1)).min(1).max(50).describe("Array of search keywords or icon concepts (e.g. ['trash', 'edit', 'caret down', 'save', 'square'])."),
+            collections: z.array(z.string()).optional().describe("Optional ordered list of collection IDs to search within, in priority order (e.g. ['tablerFilledIcons', 'tablerOutlineIcons']). If omitted, searches across all resource collections."),
+            type: z.enum(["all", "svg", "bitmap"]).optional().default("all").describe("Filter by resource type: 'svg' for vector graphics, 'bitmap' for raster images, or 'all'."),
+            limit: z.number().int().positive().optional().default(3).describe("Maximum number of candidate URIs to return per query concept (default: 3).")
+        }
+    );
+}
+SearchResourcesTool.prototype = new BaseTool();
+
+SearchResourcesTool.prototype._getCollectionManager = function () {
+    return (typeof CollectionManager !== "undefined") ? CollectionManager : null;
+};
+
+SearchResourcesTool.clearCache = clearResourceFilesCache;
+
+SearchResourcesTool.prototype.execute = async function (args, context) {
+    if (!args || !Array.isArray(args.queries) || args.queries.length === 0) {
+        throw new Error("Missing required argument: 'queries' must be a non-empty array of search strings.");
+    }
+
+    if (args.queries.length > 50) {
+        throw new Error("The 'queries' array exceeds the maximum limit of 50 search concepts.");
+    }
+
+    var typeFilter = args.type || "all";
+    var limit = (args.limit !== undefined && args.limit !== null) ? Math.max(1, Number(args.limit)) : 3;
+
+    var colMgr = this._getCollectionManager();
+    var allCols = (colMgr && colMgr.shapeDefinition && Array.isArray(colMgr.shapeDefinition.collections))
+        ? colMgr.shapeDefinition.collections
+        : [];
+
+    /*
+     * Resolve target collections in client-specified priority order.
+     * When collections is omitted, inspect all collections exposing an install directory,
+     * including pure icon sets and headless packages.
+     */
+    var targetCols = [];
+    if (Array.isArray(args.collections) && args.collections.length > 0) {
+        for (var ci = 0; ci < args.collections.length; ci++) {
+            var reqId = String(args.collections[ci]).trim();
+            if (!reqId) continue;
+
+            var mappedId = (typeof ApplicationPane !== "undefined" && ApplicationPane.SUPPORTED_ICON_TYPES && ApplicationPane.SUPPORTED_ICON_TYPES[reqId])
+                ? ApplicationPane.SUPPORTED_ICON_TYPES[reqId]
+                : reqId;
+
+            for (var ac = 0; ac < allCols.length; ac++) {
+                var c = allCols[ac];
+                if (c && (c.id === reqId || c.id === mappedId)) {
+                    if (targetCols.indexOf(c) === -1) {
+                        targetCols.push(c);
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (targetCols.length === 0) {
+            throw new Error("None of the specified collections were found: " + args.collections.join(", ") + ". Call list_resource_collections to discover valid resource collections.");
+        }
+    } else {
+        for (var i = 0; i < allCols.length; i++) {
+            var colCandidate = allCols[i];
+            if (colCandidate && colCandidate.installDirPath) {
+                targetCols.push(colCandidate);
+            }
+        }
+    }
+
+    var resultsMap = {};
+
+    for (var qIndex = 0; qIndex < args.queries.length; qIndex++) {
+        var rawQuery = args.queries[qIndex];
+        var queryStr = (typeof rawQuery === "string") ? rawQuery.trim() : "";
+        var resultKey = queryStr || rawQuery;
+
+        if (!queryStr) {
+            resultsMap[resultKey] = [];
+            continue;
+        }
+
+        var expandedSynonyms = iconSynonyms.expandKeyword(queryStr);
+        var queryCandidates = [];
+
+        /*
+         * Multi-collection preference fallback loop:
+         * Evaluates collections strictly in ordered sequence. If earlier collections satisfy
+         * the limit, subsequent collections are skipped. If limit remains, fallback collections
+         * are evaluated to complete the candidate list.
+         */
+        for (var colIdx = 0; colIdx < targetCols.length; colIdx++) {
+            var remainingSlots = limit - queryCandidates.length;
+            if (remainingSlots <= 0) {
+                break;
+            }
+
+            var currentCol = targetCols[colIdx];
+            var colResources = getCollectionAllResources(currentCol, typeFilter);
+            var colMatches = [];
+
+            for (var rIdx = 0; rIdx < colResources.length; rIdx++) {
+                var resItem = colResources[rIdx];
+                var score = scoreResourceMatch(resItem.name, resItem.relativePath, queryStr, expandedSynonyms);
+                if (score > 0) {
+                    colMatches.push({
+                        name: resItem.name,
+                        relativePath: resItem.relativePath,
+                        score: score
+                    });
+                }
+            }
+
+            if (colMatches.length > 0) {
+                /*
+                 * Tier-ranked sorting within the collection:
+                 * Direct matches (score >= 60) precede synonym matches (score 10..30).
+                 * Within the same score tier, prefer shorter names and alphabetical order.
+                 */
+                colMatches.sort(function (a, b) {
+                    if (b.score !== a.score) {
+                        return b.score - a.score;
+                    }
+                    if (a.name.length !== b.name.length) {
+                        return a.name.length - b.name.length;
+                    }
+                    return a.name.localeCompare(b.name);
+                });
+
+                var slice = colMatches.slice(0, remainingSlots);
+                for (var s = 0; s < slice.length; s++) {
+                    var canonicalUri = "collection://@" + currentCol.id + "/" + slice[s].relativePath.replace(/^\/+/, "");
+                    queryCandidates.push(canonicalUri);
+                }
+            }
+        }
+
+        resultsMap[resultKey] = queryCandidates;
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    results: resultsMap
+                }, null, 2)
+            }
+        ]
+    };
+};
+
 // =============================================================================
 // Tool: list_shape_definitions (Alias: list_shapes)
 // =============================================================================
@@ -1186,6 +1512,7 @@ module.exports = {
     ListCollectionResourcesTool: ListCollectionResourcesTool,
     ListResourceCollectionsTool: ListResourceCollectionsTool,
     ListResourceDirTool: ListResourceDirTool,
+    SearchResourcesTool: SearchResourcesTool,
     ListShapeDefinitionsTool: ListShapeDefinitionsTool,
     ListShapesTool: ListShapesTool
 };
