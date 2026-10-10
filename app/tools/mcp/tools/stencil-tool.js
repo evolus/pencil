@@ -650,6 +650,352 @@ ListCollectionResourcesTool.prototype.execute = async function (args, context) {
     };
 };
 
+/* =============================================================================
+ * Tool: list_resource_collections & list_resource_dir
+ * ============================================================================= */
+
+var KNOWN_RESOURCE_DIR_NAMES = ["icons", "vectors", "bitmaps", "images", "resources"];
+var SUPPORTED_IMAGE_EXTENSIONS = [".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp"];
+
+/*
+ * Resolves all physical asset directories associated with a collection.
+ * Pure icon packages and stencil collections may declare directories via RESOURCE_LIST
+ * or store them as standard top-level asset directories on disk. We cross-reference
+ * both sources while enforcing strict path containment to prevent directory traversal.
+ */
+function getCollectionResourceDirectories(col) {
+    if (!col || !col.installDirPath || !fs.existsSync(col.installDirPath)) {
+        return [];
+    }
+
+    var discoveredDirs = [];
+    var seenPaths = {};
+
+    function registerDirectoryIfValid(relDir) {
+        var normalized = relDir.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+        if (!normalized || seenPaths[normalized]) return;
+
+        var fullDirPath = path.join(col.installDirPath, normalized);
+        var relativeCheck = path.relative(col.installDirPath, fullDirPath);
+        if (relativeCheck.startsWith("..") || path.isAbsolute(relativeCheck)) return;
+
+        try {
+            if (fs.existsSync(fullDirPath) && fs.statSync(fullDirPath).isDirectory()) {
+                seenPaths[normalized] = true;
+                discoveredDirs.push(normalized);
+            }
+        } catch (e) {}
+    }
+
+    if (Array.isArray(col.RESOURCE_LIST)) {
+        for (var r = 0; r < col.RESOURCE_LIST.length; r++) {
+            var meta = col.RESOURCE_LIST[r];
+            if (meta && meta.prefix) {
+                registerDirectoryIfValid(meta.prefix);
+            }
+        }
+    }
+
+    try {
+        var topEntries = fs.readdirSync(col.installDirPath);
+        for (var i = 0; i < topEntries.length; i++) {
+            var entry = topEntries[i];
+            if (entry.startsWith(".")) continue;
+            var lower = entry.toLowerCase();
+            if (KNOWN_RESOURCE_DIR_NAMES.indexOf(lower) !== -1) {
+                registerDirectoryIfValid(entry);
+            }
+        }
+    } catch (e) {}
+
+    return discoveredDirs;
+}
+
+/*
+ * Gathers aggregate statistics, extension distribution, nominal canvas dimension,
+ * and representative filename samples from a candidate resource directory.
+ * Nominal size is derived from SVG viewBox or width/height attributes in the first 1KB
+ * of sample vectors to avoid parsing heavy full-document DOM trees.
+ */
+function inspectResourceDirectory(fullDirPath) {
+    var extCounts = {};
+    var allFileNames = [];
+    var sampleNames = [];
+    var sampleSize = "varies";
+    var totalCount = 0;
+
+    try {
+        var entries = fs.readdirSync(fullDirPath);
+        for (var i = 0; i < entries.length; i++) {
+            var name = entries[i];
+            if (name.startsWith(".")) continue;
+            var ext = path.extname(name).toLowerCase();
+            if (SUPPORTED_IMAGE_EXTENSIONS.indexOf(ext) === -1) continue;
+
+            totalCount++;
+            var extKey = ext.slice(1);
+            extCounts[extKey] = (extCounts[extKey] || 0) + 1;
+
+            var baseName = path.basename(name, ext);
+            allFileNames.push(baseName);
+            if (sampleNames.length < 5) {
+                sampleNames.push(baseName);
+            }
+
+            if (sampleSize === "varies" && ext === ".svg") {
+                try {
+                    var svgHead = fs.readFileSync(path.join(fullDirPath, name), "utf8").slice(0, 1024);
+                    var vbMatch = svgHead.match(/viewBox=["']\s*([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)["']/i);
+                    if (vbMatch) {
+                        var vbW = Math.round(Number(vbMatch[3]));
+                        var vbH = Math.round(Number(vbMatch[4]));
+                        if (vbW > 0 && vbH > 0) sampleSize = vbW + "x" + vbH;
+                    } else {
+                        var whMatch = svgHead.match(/width=["']([0-9.]+)p?x?["']\s+height=["']([0-9.]+)p?x?["']/i);
+                        if (whMatch) {
+                            var attrW = Math.round(Number(whMatch[1]));
+                            var attrH = Math.round(Number(whMatch[2]));
+                            if (attrW > 0 && attrH > 0) sampleSize = attrW + "x" + attrH;
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+    } catch (e) {}
+
+    return {
+        totalCount: totalCount,
+        extCounts: extCounts,
+        sampleSize: sampleSize,
+        sampleNames: sampleNames
+    };
+}
+
+function ListResourceCollectionsTool() {
+    BaseTool.call(
+        this,
+        "list_resource_collections",
+        "Discovers all installed collections that bundle visual asset directories (e.g. 'icons', 'vectors', 'bitmaps', 'images'), returning directory-level statistics, file extension distributions, nominal dimensions, and representative sample names. Bypasses stencil UI visibility filters to discover pure icon packages (e.g. 'tablerFilledIcons', 'lucideIcons').",
+        {
+            collectionId: z.string().optional().describe("Optional collection ID to inspect a specific collection (e.g. 'tablerFilledIcons'). If omitted, returns all collections that expose resource directories.")
+        }
+    );
+}
+ListResourceCollectionsTool.prototype = new BaseTool();
+
+ListResourceCollectionsTool.prototype._getCollectionManager = function () {
+    return (typeof CollectionManager !== "undefined") ? CollectionManager : null;
+};
+
+ListResourceCollectionsTool.prototype.execute = async function (args, context) {
+    args = args || {};
+    var requestedCollectionId = args.collectionId ? args.collectionId.trim() : null;
+
+    var colMgr = this._getCollectionManager();
+    var allCols = (colMgr && colMgr.shapeDefinition && Array.isArray(colMgr.shapeDefinition.collections))
+        ? colMgr.shapeDefinition.collections
+        : [];
+
+    /*
+     * Bypasses isCollectionVisible filters to ensure pure icon sets and headless
+     * asset packages (e.g. tablerFilledIcons, lucideIcons) remain discoverable by LLM agents.
+     */
+    var targetCols = [];
+    if (requestedCollectionId) {
+        var mappedId = (typeof ApplicationPane !== "undefined" && ApplicationPane.SUPPORTED_ICON_TYPES && ApplicationPane.SUPPORTED_ICON_TYPES[requestedCollectionId])
+            ? ApplicationPane.SUPPORTED_ICON_TYPES[requestedCollectionId]
+            : requestedCollectionId;
+
+        for (var i = 0; i < allCols.length; i++) {
+            if (allCols[i] && (allCols[i].id === requestedCollectionId || allCols[i].id === mappedId)) {
+                targetCols.push(allCols[i]);
+                break;
+            }
+        }
+
+        if (targetCols.length === 0) {
+            throw new Error("Collection '" + requestedCollectionId + "' not found. Call list_resource_collections to discover valid resource collections.");
+        }
+    } else {
+        targetCols = allCols;
+    }
+
+    var resultCollections = [];
+
+    for (var c = 0; c < targetCols.length; c++) {
+        var col = targetCols[c];
+        if (!col || !col.installDirPath) continue;
+
+        var dirPaths = getCollectionResourceDirectories(col);
+        var dirsSummary = [];
+
+        for (var d = 0; d < dirPaths.length; d++) {
+            var relDir = dirPaths[d];
+            var fullDirPath = path.join(col.installDirPath, relDir);
+            var stats = inspectResourceDirectory(fullDirPath);
+
+            if (stats.totalCount > 0) {
+                dirsSummary.push({
+                    path: relDir,
+                    count: stats.totalCount,
+                    ext: stats.extCounts,
+                    size: stats.sampleSize,
+                    sample: stats.sampleNames
+                });
+            }
+        }
+
+        if (dirsSummary.length > 0 || requestedCollectionId) {
+            resultCollections.push({
+                id: col.id,
+                name: col.displayName || col.id,
+                description: col.description || "",
+                dirs: dirsSummary
+            });
+        }
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    totalCollections: resultCollections.length,
+                    collections: resultCollections
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+function ListResourceDirTool() {
+    BaseTool.call(
+        this,
+        "list_resource_dir",
+        "Browses files in a specific collection resource directory, returning lightweight bare filenames with shared extension lifting, prefix filtering, and pagination.",
+        {
+            collectionId: z.string().describe("Target collection ID (e.g. 'tablerFilledIcons', 'lucideIcons')."),
+            dir: z.string().describe("Target resource directory path relative to collection root (e.g. 'icons', 'vectors')."),
+            prefix: z.string().optional().describe("Optional prefix filter matching filenames starting with this string (e.g. 'circle-')."),
+            offset: z.number().int().nonnegative().optional().default(0).describe("0-based pagination offset (default: 0)."),
+            limit: z.number().int().positive().optional().default(100).describe("Maximum number of items to return in this slice (default: 100).")
+        }
+    );
+}
+ListResourceDirTool.prototype = new BaseTool();
+
+ListResourceDirTool.prototype._getCollectionManager = function () {
+    return (typeof CollectionManager !== "undefined") ? CollectionManager : null;
+};
+
+ListResourceDirTool.prototype.execute = async function (args, context) {
+    if (!args || !args.collectionId || !args.dir) {
+        throw new Error("Missing required arguments: both 'collectionId' and 'dir' are required.");
+    }
+
+    var collectionId = args.collectionId.trim();
+    var dir = args.dir.trim().replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+    var prefix = args.prefix ? args.prefix.trim().toLowerCase() : null;
+    var limit = (args.limit !== undefined && args.limit !== null) ? Math.max(1, Number(args.limit)) : 100;
+    var offset = (args.offset !== undefined && args.offset !== null) ? Math.max(0, Number(args.offset)) : 0;
+
+    var colMgr = this._getCollectionManager();
+    var allCols = (colMgr && colMgr.shapeDefinition && Array.isArray(colMgr.shapeDefinition.collections))
+        ? colMgr.shapeDefinition.collections
+        : [];
+
+    var targetCol = null;
+    var mappedId = (typeof ApplicationPane !== "undefined" && ApplicationPane.SUPPORTED_ICON_TYPES && ApplicationPane.SUPPORTED_ICON_TYPES[collectionId])
+        ? ApplicationPane.SUPPORTED_ICON_TYPES[collectionId]
+        : collectionId;
+
+    for (var i = 0; i < allCols.length; i++) {
+        if (allCols[i] && (allCols[i].id === collectionId || allCols[i].id === mappedId)) {
+            targetCol = allCols[i];
+            break;
+        }
+    }
+
+    if (!targetCol) {
+        throw new Error("Collection '" + collectionId + "' not found. Call list_resource_collections to discover valid resource collections.");
+    }
+
+    var fullDirPath = path.join(targetCol.installDirPath, dir);
+    var relativeCheck = path.relative(targetCol.installDirPath, fullDirPath);
+    if (relativeCheck.startsWith("..") || path.isAbsolute(relativeCheck)) {
+        throw new Error("Invalid resource directory path: Directory traversal outside collection root is rejected.");
+    }
+
+    if (!fs.existsSync(fullDirPath) || !fs.statSync(fullDirPath).isDirectory()) {
+        throw new Error("Directory '" + dir + "' does not exist in collection '" + collectionId + "'.");
+    }
+
+    var entries = [];
+    try {
+        entries = fs.readdirSync(fullDirPath);
+    } catch (e) {
+        throw new Error("Failed to read directory '" + dir + "' in collection '" + collectionId + "': " + e.message);
+    }
+
+    var matchedFiles = [];
+    var encounteredExts = {};
+
+    for (var j = 0; j < entries.length; j++) {
+        var entryName = entries[j];
+        if (entryName.startsWith(".")) continue;
+
+        var ext = path.extname(entryName).toLowerCase();
+        if (SUPPORTED_IMAGE_EXTENSIONS.indexOf(ext) === -1) continue;
+
+        var baseName = path.basename(entryName, ext);
+        if (prefix) {
+            if (baseName.toLowerCase().indexOf(prefix) !== 0 && entryName.toLowerCase().indexOf(prefix) !== 0) {
+                continue;
+            }
+        }
+
+        encounteredExts[ext.slice(1)] = true;
+        matchedFiles.push({
+            name: entryName,
+            baseName: baseName,
+            ext: ext.slice(1)
+        });
+    }
+
+    var extList = Object.keys(encounteredExts);
+    var sharedExt = (extList.length === 1) ? extList[0] : ((extList.length === 0) ? null : "mixed");
+
+    /*
+     * When all matching files share the same extension (e.g. all .svg), we lift the extension
+     * to the root envelope and return plain base names to minimize token overhead.
+     */
+    var processedNames = matchedFiles.map(function (item) {
+        return (sharedExt && sharedExt !== "mixed") ? item.baseName : item.name;
+    });
+
+    var total = processedNames.length;
+    var paginated = processedNames.slice(offset, offset + limit);
+    var nextOffset = (offset + limit < total) ? (offset + limit) : null;
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    collectionId: targetCol.id,
+                    dir: dir,
+                    ext: sharedExt,
+                    total: total,
+                    offset: offset,
+                    limit: limit,
+                    names: paginated,
+                    nextOffset: nextOffset
+                }, null, 2)
+            }
+        ]
+    };
+};
+
 // =============================================================================
 // Tool: list_shape_definitions (Alias: list_shapes)
 // =============================================================================
@@ -838,6 +1184,8 @@ module.exports = {
     ListCollectionsTool: ListCollectionsTool,
     GetShapeDefinitionTool: GetShapeDefinitionTool,
     ListCollectionResourcesTool: ListCollectionResourcesTool,
+    ListResourceCollectionsTool: ListResourceCollectionsTool,
+    ListResourceDirTool: ListResourceDirTool,
     ListShapeDefinitionsTool: ListShapeDefinitionsTool,
     ListShapesTool: ListShapesTool
 };

@@ -111,6 +111,8 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new stencilTool.ListCollectionsTool());
     registry.register(new stencilTool.GetShapeDefinitionTool());
     registry.register(new stencilTool.ListCollectionResourcesTool());
+    registry.register(new stencilTool.ListResourceCollectionsTool());
+    registry.register(new stencilTool.ListResourceDirTool());
     registry.register(new stencilTool.ListShapeDefinitionsTool());
     registry.register(new stencilTool.ListShapesTool());
 
