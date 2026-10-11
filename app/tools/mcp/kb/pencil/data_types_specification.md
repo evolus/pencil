@@ -151,19 +151,26 @@ Defines a 2D size pair (width and height). Extensively used for primary shape ge
 Defines a selection from a predefined set of categorical string values declared in the shape specification.
 * **Engine Source:** `pencil-core/propertyType/enum.js`
 * **Format:** `"[value]"`
-* **Regex:** `/^[a-zA-Z0-9_-]+$/`
+* **Regex:** `/^[a-zA-Z0-9_.-]+$/`
 * **Constraints:** Must match one of the exact string value identifiers declared in the shape's property definition (`p:enumValues`).
+* **Tool Discovery (`get_shape_definition` & `list_shapes`):**
+  When querying shape property definitions, properties of type `Enum` (or those declaring `p:enumValues` metadata) automatically expose:
+  - `values`: An array of allowable string literals (e.g. `["none", "all", "top", "bottom", "left", "right"]`).
+  - `options`: An array of `{ value: string, label: string }` pairs providing human-readable semantic descriptions when labels provide distinct context (e.g. `[{ "value": "all", "label": "All rounded" }]`).
+  Agents should inspect `values` or `options` before setting enum properties in `insert_shapes` or `update_shapes` to select valid keys without hallucination.
 * **Valid Examples:**
   * `"checked"`
   * `"unchecked"`
   * `"disabled"`
   * `"pill"`
   * `"rounded"`
+  * `"none"`
 * **Invalid Examples:**
   * `"1"` *(unless "1" is the explicit declared enum key)*
   * `true` *(enum must be string)*
 
 ---
+
 
 ### 2.8 Font
 A 6-segment pipe-delimited compound string defining typography styles.

@@ -269,9 +269,114 @@ ListCollectionsTool.prototype.execute = async function (args, context) {
 
 
 /*
+ * Extracts allowable enumeration values and options from a shape property definition.
+ * Evaluates Enum.getValues(prop) to discover valid literals (values: string[])
+ * and contextual human labels (options: Array<{ value, label }>).
+ *
+ * Adheres to Pencil's runtime contract where Enum.getValues returns an array of
+ * { value: Enum, label: string } objects derived from prop.meta.enumValues.
+ * When distinct labels exist beyond raw literals, options are included alongside values.
+ */
+function extractEnumOptions(prop) {
+    if (!prop) return null;
+    var isEnumType = Boolean(prop.type && prop.type.name === "Enum");
+    var hasMetaEnum = Boolean(prop.meta && prop.meta.enumValues);
+    if (!isEnumType && !hasMetaEnum) return null;
+
+    var rawItems = [];
+    if (typeof Enum !== "undefined" && typeof Enum.getValues === "function") {
+        try {
+            rawItems = Enum.getValues(prop) || [];
+        } catch (e) {
+            rawItems = [];
+        }
+    }
+
+    if ((!rawItems || rawItems.length === 0) && hasMetaEnum) {
+        if (typeof Enum !== "undefined" && typeof Enum.getValuesFromMeta === "function") {
+            try {
+                rawItems = Enum.getValuesFromMeta(prop.meta) || [];
+            } catch (e) {
+                rawItems = [];
+            }
+        }
+    }
+
+    if ((!rawItems || rawItems.length === 0) && hasMetaEnum) {
+        try {
+            var rawExpr = prop.meta.enumValues;
+            var evaluated = null;
+            if (typeof pEval === "function") {
+                evaluated = pEval(rawExpr, {});
+            } else if (typeof rawExpr === "string") {
+                try {
+                    evaluated = JSON.parse(rawExpr.replace(/'/g, '"'));
+                } catch (pe) {
+                    evaluated = Function("return " + rawExpr)();
+                }
+            } else if (Array.isArray(rawExpr)) {
+                evaluated = rawExpr;
+            }
+
+            if (Array.isArray(evaluated)) {
+                for (var i = 0; i < evaluated.length; i++) {
+                    var lit = String(evaluated[i]);
+                    if (lit.match(/^([^\|]+)\|(.+)$/)) {
+                        rawItems.push({ value: RegExp.$1, label: RegExp.$2 });
+                    } else {
+                        rawItems.push({ value: lit, label: lit });
+                    }
+                }
+            }
+        } catch (err) {}
+    }
+
+    if (!rawItems || rawItems.length === 0) return null;
+
+    var values = [];
+    var options = [];
+    var hasDistinctLabels = false;
+
+    for (var j = 0; j < rawItems.length; j++) {
+        var item = rawItems[j];
+        if (!item) continue;
+
+        var valStr = "";
+        if (item.value != null) {
+            if (typeof item.value === "object" && typeof item.value.value !== "undefined") {
+                valStr = String(item.value.value);
+            } else {
+                valStr = String(item.value);
+            }
+        }
+
+        var labelStr = (item.label != null) ? String(item.label) : valStr;
+
+        if (valStr !== "") {
+            values.push(valStr);
+            options.push({ value: valStr, label: labelStr });
+            if (labelStr.trim() !== valStr.trim()) {
+                hasDistinctLabels = true;
+            }
+        }
+    }
+
+    if (values.length === 0) return null;
+
+    var result = { values: values };
+    if (hasDistinctLabels) {
+        result.options = options;
+    }
+
+    return result;
+}
+
+/*
  * Formats shape property definitions into a normalized dictionary, resolving
  * initial value expressions (<E>) against the target collection theme and
  * annotating each property with optional: true.
+ * For Enum properties (or properties declaring enumValues metadata), allowable
+ * literals (values) and contextual options (options) are attached.
  */
 function formatShapeProperties(shapeDef, collection) {
     var props = {};
@@ -306,6 +411,14 @@ function formatShapeProperties(shapeDef, collection) {
         if (prop.displayName) {
             props[propName].displayName = prop.displayName;
         }
+
+        var enumInfo = extractEnumOptions(prop);
+        if (enumInfo) {
+            props[propName].values = enumInfo.values;
+            if (enumInfo.options) {
+                props[propName].options = enumInfo.options;
+            }
+        }
     }
 
     return props;
@@ -315,10 +428,10 @@ function GetShapeDefinitionTool() {
     BaseTool.call(
         this,
         "get_shape_definition",
-        "Returns the property schema, evaluated default values, metadata, and structured Specific Usage Guidelines (usageGuidelines) for a specific shape in a collection. Note: all shape properties are completely optional during shape creation (insert_shapes); Pencil automatically assigns stencil default values for any omitted properties. Only declare properties you need to customize.",
+        "Returns the property schema, evaluated default values, metadata, and structured Specific Usage Guidelines (usageGuidelines) for a specific shape in a collection. Accepts either a short shape ID (e.g. 'rect', 'heading') or fully-qualified name (e.g. 'Evolus.Common:rect'). For properties of type Enum, includes allowable string literals ('values') and labeled options ('options'). Note: all shape properties are completely optional during shape creation (insert_shapes); Pencil automatically assigns stencil default values for any omitted properties. Only declare properties you need to customize.",
         {
-            collectionId: z.string().describe("The collection ID (e.g. 'Evolus.Common')."),
-            shapeId: z.string().describe("The shape ID within the collection (e.g. 'rect', 'heading', 'Button').")
+            collectionId: z.string().describe("The collection ID (e.g. 'Evolus.Common', 'Evolus.BasicWebElements')."),
+            shapeId: z.string().describe("The shape ID within the collection (e.g. 'rect', 'heading', 'Button') or fully-qualified name (e.g. 'Evolus.Common:rect').")
         }
     );
 }
@@ -330,6 +443,10 @@ GetShapeDefinitionTool.prototype._getCollectionManager = function () {
 
 GetShapeDefinitionTool.prototype._formatShapeProperties = function (shapeDef, targetCol) {
     return formatShapeProperties(shapeDef, targetCol);
+};
+
+GetShapeDefinitionTool.prototype._extractEnumOptions = function (prop) {
+    return extractEnumOptions(prop);
 };
 
 GetShapeDefinitionTool.prototype.execute = async function (args, context) {
@@ -359,18 +476,13 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
         throw new Error("Collection '" + collectionId + "' not found. Call list_collections to discover valid IDs.");
     }
 
-    var shapeDef = (typeof targetCol.getShapeDefById === "function")
-        ? targetCol.getShapeDefById(shapeId)
-        : colMgr.shapeDefinition.locateDefinition(collectionId + ":" + shapeId);
+    var fqn = (shapeId.indexOf(":") >= 0) ? shapeId : (collectionId + ":" + shapeId);
+    var shapeDef = targetCol.getShapeDefById(fqn) || targetCol.getShapeDefById(shapeId);
 
     if (!shapeDef) {
         throw new Error("Shape '" + shapeId + "' not found in collection '" + collectionId + "'.");
     }
 
-    /*
-     * If the requested identifier resolves to a Shortcut preset, automatically
-     * redirect to the underlying primitive shape and attach its usage guidelines.
-     */
     if (isShortcut(shapeDef) && shapeDef.shape) {
         shapeDef = shapeDef.shape;
     }
@@ -1091,6 +1203,11 @@ ListShapeDefinitionsTool.prototype._formatShapeProperties = function (shapeDef, 
     return formatShapeProperties(shapeDef, targetCol);
 };
 
+ListShapeDefinitionsTool.prototype._extractEnumOptions = function (prop) {
+    return extractEnumOptions(prop);
+};
+
+
 /*
  * Traverses candidate collections, aggregates lightweight shape definition records,
  * applies keyword search filtering across ID, displayName, and description, and returns
@@ -1254,6 +1371,9 @@ module.exports = {
     ListResourceDirTool: ListResourceDirTool,
     SearchResourcesTool: SearchResourcesTool,
     ListShapeDefinitionsTool: ListShapeDefinitionsTool,
-    ListShapesTool: ListShapesTool
+    ListShapesTool: ListShapesTool,
+    extractEnumOptions: extractEnumOptions,
+    formatShapeProperties: formatShapeProperties
 };
+
 
