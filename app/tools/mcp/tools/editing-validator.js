@@ -321,6 +321,28 @@ function validateCollectionResource(propVal, shapeDef) {
 }
 
 /*
+ * Safely extracts numerical width and height dimensions from serialized "w,h" string
+ * or { w, h } / { width, height } object representations.
+ */
+function extractBoxDimension(raw) {
+    if (!raw) return null;
+    if (typeof raw === "object" && !Array.isArray(raw)) {
+        var rw = raw.w !== undefined ? raw.w : raw.width;
+        var rh = raw.h !== undefined ? raw.h : raw.height;
+        if (rw !== undefined && rh !== undefined && !isNaN(Number(rw)) && !isNaN(Number(rh))) {
+            return { w: Number(rw), h: Number(rh) };
+        }
+    }
+    if (typeof raw === "string") {
+        var match = raw.match(/^([0-9\.\-]+)\,([0-9\.\-]+)$/);
+        if (match) {
+            return { w: parseFloat(match[1]) || 0, h: parseFloat(match[2]) || 0 };
+        }
+    }
+    return null;
+}
+
+/*
  * Validates property values against engine microformat specifications.
  * Returns null if valid, or a descriptive error string if invalid.
  */
@@ -543,6 +565,13 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
              * Maps top-level 'box' { x, y, w, h } to coordinates and properties.box.
              * Note: Silently maps coordinates without emitting warnings because box: { x, y, w, h }
              * is an officially supported, first-class parameter schema for insert_shapes.
+             *
+             * Precedence Rules:
+             * 1. Top-level 'x' and 'y' take precedence over 'box.x' and 'box.y'.
+             * 2. Top-level 'box.w' and 'box.h' strictly take precedence over any 'box' dimension
+             *    provided by applied style presets or type defaults.
+             * 3. Partial dimensions (box.w only or box.h only) merge with the baseline dimension
+             *    resolved from the style preset or stencil definition default.
              */
             if (child.box && typeof child.box === "object" && !Array.isArray(child.box)) {
                 if (child.x === undefined && child.box.x !== undefined) {
@@ -551,12 +580,49 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
                 if (child.y === undefined && child.box.y !== undefined) {
                     child.y = Number(child.box.y);
                 }
-                if (child.box.w !== undefined && child.box.h !== undefined) {
+
+                var bw = child.box.w !== undefined ? Number(child.box.w) : undefined;
+                var bh = child.box.h !== undefined ? Number(child.box.h) : undefined;
+                var hasExplicitW = bw !== undefined && !isNaN(bw);
+                var hasExplicitH = bh !== undefined && !isNaN(bh);
+
+                if (hasExplicitW || hasExplicitH) {
                     if (!child.properties || typeof child.properties !== "object") {
                         child.properties = {};
                     }
-                    if (child.properties.box === undefined) {
-                        child.properties.box = Number(child.box.w) + "," + Number(child.box.h);
+
+                    /*
+                     * Baseline dimension resolution:
+                     * 1. Extract from existing child.properties.box (populated earlier by styleResolver).
+                     * 2. Fall back to stencil definition default dimension if needed.
+                     */
+                    var baselineDim = extractBoxDimension(child.properties.box);
+                    if (!baselineDim && child.type) {
+                        var targetDef = null;
+                        if (appPane && typeof appPane.locateShapeDefinition === "function") {
+                            targetDef = appPane.locateShapeDefinition(child.type);
+                        }
+                        if (!targetDef && typeof CollectionManager !== "undefined" && CollectionManager.shapeDefinition) {
+                            targetDef = CollectionManager.shapeDefinition.locateDefinition(child.type);
+                        }
+                        if (targetDef) {
+                            var bProp = targetDef.getProperty ? targetDef.getProperty("box") : (targetDef.propertyMap ? targetDef.propertyMap.box : null);
+                            if (bProp) {
+                                baselineDim = extractBoxDimension(bProp.defaultValue || bProp.initialValue || bProp.value);
+                            }
+                        }
+                    }
+
+                    var baseW = baselineDim ? baselineDim.w : 100;
+                    var baseH = baselineDim ? baselineDim.h : 40;
+
+                    var finalW = hasExplicitW ? bw : baseW;
+                    var finalH = hasExplicitH ? bh : baseH;
+
+                    child.properties.box = finalW + "," + finalH;
+
+                    if (child._resolvedFrom && typeof child._resolvedFrom === "object") {
+                        child._resolvedFrom.box = "element:box";
                     }
                 }
             }
@@ -569,10 +635,10 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
             if (child.properties && typeof child.properties === "object" && !Array.isArray(child.properties)) {
                 var rawBox = child.properties.box;
                 if (rawBox && typeof rawBox === "object" && !Array.isArray(rawBox)) {
-                    var bw = rawBox.w !== undefined ? rawBox.w : rawBox.width;
-                    var bh = rawBox.h !== undefined ? rawBox.h : rawBox.height;
-                    if (bw !== undefined && bh !== undefined) {
-                        child.properties.box = bw + "," + bh;
+                    var objW = rawBox.w !== undefined ? rawBox.w : rawBox.width;
+                    var objH = rawBox.h !== undefined ? rawBox.h : rawBox.height;
+                    if (objW !== undefined && objH !== undefined) {
+                        child.properties.box = Number(objW) + "," + Number(objH);
                         boxObjNormalizedCount++;
                         if (boxObjNormalizedCount === 1) {
                             warnings.push(currentPath + identifier + ": auto-normalized properties.box object to string format '" + child.properties.box + "'.");

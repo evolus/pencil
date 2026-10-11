@@ -146,18 +146,11 @@ function measureElement(node, appPane) {
         node._measuredBox = { w: Math.round(totalW), h: Math.round(totalH) };
         return node._measuredBox;
     } else {
-        var dim = null;
-        if (node.box && typeof node.box === "object") {
-            var bw = node.box.w !== undefined ? Number(node.box.w) : undefined;
-            var bh = node.box.h !== undefined ? Number(node.box.h) : undefined;
-            if (bw !== undefined && bh !== undefined && !isNaN(bw) && !isNaN(bh)) {
-                dim = { w: bw, h: bh };
-            }
+        var baseDim = null;
+        if (node.properties && node.properties.box) {
+            baseDim = extractDimension(node.properties.box);
         }
-        if (!dim && node.properties && node.properties.box) {
-            dim = extractDimension(node.properties.box);
-        }
-        if (!dim && node._resolvedShapeDef) {
+        if (!baseDim && node._resolvedShapeDef) {
             var boxProp = null;
             if (typeof node._resolvedShapeDef.getProperty === "function") {
                 boxProp = node._resolvedShapeDef.getProperty("box");
@@ -165,13 +158,30 @@ function measureElement(node, appPane) {
                 boxProp = node._resolvedShapeDef.propertyMap.box;
             }
             if (boxProp) {
-                dim = extractDimension(boxProp.defaultValue) ||
-                      extractDimension(boxProp.initialValue) ||
-                      extractDimension(boxProp.value);
+                baseDim = extractDimension(boxProp.defaultValue) ||
+                          extractDimension(boxProp.initialValue) ||
+                          extractDimension(boxProp.value);
+            }
+        }
+        if (!baseDim) {
+            baseDim = { w: 100, h: 40 };
+        }
+
+        var dim = null;
+        if (node.box && typeof node.box === "object") {
+            var bw = node.box.w !== undefined ? Number(node.box.w) : undefined;
+            var bh = node.box.h !== undefined ? Number(node.box.h) : undefined;
+            var hasExplicitW = bw !== undefined && !isNaN(bw) && bw > 0;
+            var hasExplicitH = bh !== undefined && !isNaN(bh) && bh > 0;
+            if (hasExplicitW || hasExplicitH) {
+                dim = {
+                    w: hasExplicitW ? bw : baseDim.w,
+                    h: hasExplicitH ? bh : baseDim.h
+                };
             }
         }
         if (!dim) {
-            dim = { w: 100, h: 40 };
+            dim = baseDim;
         }
         node._measuredBox = { w: Math.round(dim.w), h: Math.round(dim.h) };
         return node._measuredBox;

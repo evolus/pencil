@@ -421,8 +421,20 @@ Shape.prototype.getProperty = function (name) {
         }
 
         if (prop.initialValueExpression) {
-            return this.evalExpression(prop.initialValueExpression);
+            var exprVal = this.evalExpression(prop.initialValueExpression);
+            if (typeof exprVal === "string" && prop.type && typeof prop.type.fromString === "function") {
+                return prop.type.fromString(exprVal);
+            }
+            return exprVal;
         } else {
+            /*
+             * Stencil properties defined without custom DOM nodes store default values as raw
+             * string literals (e.g. "100,50" for Dimension). Convert to the property's typed
+             * domain representation to ensure callers receive structured objects rather than strings.
+             */
+            if (typeof prop.initialValue === "string" && prop.type && typeof prop.type.fromString === "function") {
+                return prop.type.fromString(prop.initialValue);
+            }
             return prop.initialValue;
         }
     }
@@ -487,6 +499,9 @@ Shape.prototype.getGeometry = function () {
     var geo = new Geometry();
     geo.ctm = this.svg.getTransformToElement(this.canvas.drawingLayer);
     geo.dim = this.getProperty("box");
+    if (typeof geo.dim === "string") {
+        geo.dim = Dimension.fromString(geo.dim);
+    }
 
     if (!geo.dim) {
         geo.dim = {};
@@ -530,8 +545,11 @@ Shape.prototype.moveBy = function (dx, dy, targetSet, moving) {
 Shape.prototype.scaleTo = function (nw, nh, group) {
     if (this.def.propertyMap["box"]) {
         var box = this.getProperty("box");
-        var fw = nw / box.w;
-        var fh = nh / box.h;
+        if (typeof box === "string") {
+            box = Dimension.fromString(box);
+        }
+        var fw = (box && box.w > 0) ? (nw / box.w) : 1;
+        var fh = (box && box.h > 0) ? (nh / box.h) : 1;
 
         this.storeProperty("box", new Dimension(nw, nh));
 

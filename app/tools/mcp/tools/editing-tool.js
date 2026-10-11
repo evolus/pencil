@@ -80,11 +80,11 @@ var ShapeElementSchema = z.object({
     x: z.number().optional().describe("X coordinate on canvas or delta offset within parent layout container (default: 0)."),
     y: z.number().optional().describe("Y coordinate on canvas or delta offset within parent layout container (default: 0)."),
     box: z.object({
-        x: z.number().optional().describe("X coordinate offset."),
-        y: z.number().optional().describe("Y coordinate offset."),
-        w: z.number().optional().describe("Width dimension in pixels."),
-        h: z.number().optional().describe("Height dimension in pixels.")
-    }).optional().describe("Bounding box coordinates and dimensions."),
+        x: z.number().optional().describe("X coordinate offset (overridden by top-level 'x' if both specified)."),
+        y: z.number().optional().describe("Y coordinate offset (overridden by top-level 'y' if both specified)."),
+        w: z.number().optional().describe("Width dimension in pixels. Takes precedence over style-provided width and stencil defaults."),
+        h: z.number().optional().describe("Height dimension in pixels. Takes precedence over style-provided height and stencil defaults.")
+    }).optional().describe("Bounding box coordinates and dimensions. Top-level box.w and box.h take strict precedence over any dimensions defined by applied 'style' presets or stencil defaults. Partial dimensions (w alone or h alone) are automatically merged with baseline dimensions."),
     style: z.union([z.string(), z.array(z.string())]).optional().describe("Optional named style preset (or array of style names applied left-to-right) defined in the top-level 'styles' dictionary. When 'style' is specified, 'type' can be omitted because the style supplies it. If 'type' is also specified, it must match the style's shape type."),
     properties: z.record(z.any()).optional().describe("Optional custom shape properties dictionary (e.g. { 'label': 'Submit', 'fillColor': '#2563ebff' }). All shape properties are completely optional; Pencil automatically applies stencil-defined defaults for any omitted properties or if 'properties' is omitted entirely. Only declare properties you want to customize. For ImageData properties (e.g. 'url', 'imageData'), specify collection resources directly via 'collection://[@collectionId/]path/to/resource' or bare '@collectionId/path/to/resource' (e.g. 'collection://@lucideIcons/search.svg', '@lucideIcons/search.svg', or 'collection://icons/search.svg' within the shape's own collection). Pre-flight validation checks resource existence on disk and delivers Levenshtein fuzzy suggestions on typos."),
     children: z.array(z.any()).optional().describe("Nested child element descriptors for group shapes (@group)."),
@@ -161,6 +161,7 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
 
     var updated = [];
     var notFound = [];
+    var geometryModified = false;
 
     for (var i = 0; i < shapeUpdates.length; i++) {
         var update = shapeUpdates[i];
@@ -243,13 +244,32 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
 
             // 2. Update dimensions (w, h)
             if (update.box) {
-                if (update.box.w !== undefined && update.box.h !== undefined) {
-                    var newW = Number(update.box.w);
-                    var newH = Number(update.box.h);
-                    if (typeof shape.scaleTo === "function") {
-                        shape.scaleTo(newW, newH);
-                    } else if (typeof Dimension !== "undefined" && typeof shape.setProperty === "function") {
-                        shape.setProperty("box", new Dimension(newW, newH));
+                if (update.box.w !== undefined || update.box.h !== undefined) {
+                    var curGeo = typeof shape.getGeometry === "function" ? shape.getGeometry() : null;
+                    var curW = (curGeo && curGeo.dim && curGeo.dim.w) ? curGeo.dim.w : undefined;
+                    var curH = (curGeo && curGeo.dim && curGeo.dim.h) ? curGeo.dim.h : undefined;
+
+                    if (curW === undefined || curH === undefined) {
+                        var curPropBox = typeof shape.getProperty === "function" ? shape.getProperty("box") : null;
+                        if (typeof curPropBox === "string") {
+                            curPropBox = Dimension.fromString(curPropBox);
+                        }
+                        if (curPropBox) {
+                            if (curW === undefined) curW = curPropBox.w;
+                            if (curH === undefined) curH = curPropBox.h;
+                        }
+                    }
+
+                    var newW = update.box.w !== undefined ? Number(update.box.w) : curW;
+                    var newH = update.box.h !== undefined ? Number(update.box.h) : curH;
+
+                    if (newW !== undefined && newH !== undefined && !isNaN(newW) && !isNaN(newH) && newW > 0 && newH > 0) {
+                        if (typeof shape.scaleTo === "function") {
+                            shape.scaleTo(newW, newH);
+                        } else if (typeof Dimension !== "undefined" && typeof shape.setProperty === "function") {
+                            shape.setProperty("box", new Dimension(newW, newH));
+                        }
+                        geometryModified = true;
                     }
                 }
 
@@ -279,6 +299,7 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
                     if (typeof shape.invalidateOutboundConnections === "function") {
                         shape.invalidateOutboundConnections();
                     }
+                    geometryModified = true;
                 }
             }
 
@@ -299,7 +320,15 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
         }
     }
 
-    // Refresh canvas editors, notify modified state, and capture undo memento
+    /*
+     * Refresh canvas editors, notify modified state, and capture undo memento.
+     * Note: Firing 'p:ShapeGeometryModified' triggers expensive connector re-routings
+     * and listener cascades. It is strictly fired at most once per MCP tool call,
+     * and only if at least one shape actually underwent a spatial or dimension transformation.
+     */
+    if (geometryModified && typeof Dom !== "undefined" && typeof Dom.emitEvent === "function") {
+        Dom.emitEvent("p:ShapeGeometryModified", canvas.element || canvas, { setter: null });
+    }
     if (typeof canvas.invalidateEditors === "function") canvas.invalidateEditors();
     if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
