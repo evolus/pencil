@@ -12,6 +12,7 @@
     this.shortcutMap = {};
     this.propertyGroups = [];
     this.properties = {};
+    this.mcpVisible = false;
 }
 /* public void */ ShapeDefCollection.prototype.addDefinition = function (shapeDef) {
     this.shapeDefs.push(shapeDef);

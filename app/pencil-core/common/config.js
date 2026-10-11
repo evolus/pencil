@@ -74,3 +74,7 @@ Config.EXPORT_CROP_FOR_CLIPBOARD = Config.define("export.crop_for_clipboard", fa
 Config.EXPORT_DEFAULT_SCALE = Config.define("export.default_scale", 1);
 Config.EXPORT_DEFAULT_BACKGROUND_COLOR = Config.define("export.default_background_color", "");
 Config.CORE_USE_HWA = Config.define("core.useHardwareAcceleration", false);
+
+Config.MCP_ENABLED = Config.define("pencil.mcp.enabled", true);
+Config.MCP_PORT = Config.define("pencil.mcp.port", 1919);
+Config.MCP_DEFAULT_COLLECTION_VISIBILITY = Config.define("pencil.mcp.defaultCollectionVisibility", "opt-in");

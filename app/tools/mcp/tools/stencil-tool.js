@@ -219,13 +219,8 @@ ListCollectionsTool.prototype.execute = async function (args, context) {
             var col = allCols[i];
             if (!col || !col.id) continue;
 
-            var isVisible = true;
-            if (typeof colMgr.isCollectionVisible === "function") {
-                isVisible = colMgr.isCollectionVisible(col);
-            } else if (typeof col.visible !== "undefined") {
-                isVisible = (col.visible === true);
-            }
-            if (!isVisible) continue;
+            if (!colMgr.isCollectionVisible(col)) continue;
+            if (!colMgr.isCollectionMcpVisible(col)) continue;
 
             var shapeIds = [];
             var rawDefs = col.shapeDefs || [];
@@ -484,6 +479,10 @@ GetShapeDefinitionTool.prototype.execute = async function (args, context) {
         throw new Error("Collection '" + collectionId + "' not found. Call list_collections to discover valid IDs.");
     }
 
+    if (!colMgr.isCollectionMcpVisible(targetCol)) {
+        throw new Error("Collection '" + collectionId + "' is not exposed to MCP agents. Call list_collections to discover available collections.");
+    }
+
     var fqn = (shapeId.indexOf(":") >= 0) ? shapeId : (collectionId + ":" + shapeId);
     var shapeDef = targetCol.getShapeDefById(fqn) || targetCol.getShapeDefById(shapeId);
 
@@ -683,8 +682,16 @@ ListResourceCollectionsTool.prototype.execute = async function (args, context) {
         if (targetCols.length === 0) {
             throw new Error("Collection '" + requestedCollectionId + "' not found. Call list_resource_collections to discover valid resource collections.");
         }
+        if (!colMgr.isCollectionMcpVisible(targetCols[0])) {
+            throw new Error("Collection '" + requestedCollectionId + "' not exposed to MCP agents.");
+        }
     } else {
-        targetCols = allCols;
+        for (var aci = 0; aci < allCols.length; aci++) {
+            var acCol = allCols[aci];
+            if (acCol && colMgr.isCollectionMcpVisible(acCol)) {
+                targetCols.push(acCol);
+            }
+        }
     }
 
     var resultCollections = [];
@@ -785,6 +792,10 @@ ListResourceDirTool.prototype.execute = async function (args, context) {
 
     if (!targetCol) {
         throw new Error("Collection '" + collectionId + "' not found. Call list_resource_collections to discover valid resource collections.");
+    }
+
+    if (!colMgr.isCollectionMcpVisible(targetCol)) {
+        throw new Error("Collection '" + collectionId + "' is not exposed to MCP agents.");
     }
 
     var fullDirPath = path.join(targetCol.installDirPath, dir);
@@ -1081,7 +1092,7 @@ SearchResourcesTool.prototype.execute = async function (args, context) {
             for (var ac = 0; ac < allCols.length; ac++) {
                 var c = allCols[ac];
                 if (c && (c.id === reqId || c.id === mappedId)) {
-                    if (targetCols.indexOf(c) === -1) {
+                    if (colMgr.isCollectionMcpVisible(c) && targetCols.indexOf(c) === -1) {
                         targetCols.push(c);
                     }
                     break;
@@ -1090,12 +1101,12 @@ SearchResourcesTool.prototype.execute = async function (args, context) {
         }
 
         if (targetCols.length === 0) {
-            throw new Error("None of the specified collections were found: " + args.collections.join(", ") + ". Call list_resource_collections to discover valid resource collections.");
+            throw new Error("None of the specified collections are exposed to MCP agents or found: " + args.collections.join(", ") + ". Call list_resource_collections to discover valid resource collections.");
         }
     } else {
         for (var i = 0; i < allCols.length; i++) {
             var colCandidate = allCols[i];
-            if (colCandidate && colCandidate.installDirPath) {
+            if (colCandidate && colCandidate.installDirPath && colMgr.isCollectionMcpVisible(colCandidate)) {
                 targetCols.push(colCandidate);
             }
         }
@@ -1247,19 +1258,17 @@ ListShapeDefinitionsTool.prototype.execute = async function (args, context) {
         if (targetCols.length === 0) {
             throw new Error("Collection '" + collectionId + "' not found. Call list_collections to discover valid collection IDs.");
         }
+        if (!colMgr.isCollectionMcpVisible(targetCols[0])) {
+            throw new Error("Collection '" + collectionId + "' is not exposed to MCP agents. Call list_collections to discover available collections.");
+        }
     } else {
         for (var c = 0; c < allCols.length; c++) {
             var col = allCols[c];
             if (!col || !col.id) continue;
-            var isVisible = true;
-            if (typeof colMgr.isCollectionVisible === "function") {
-                isVisible = colMgr.isCollectionVisible(col);
-            } else if (typeof col.visible !== "undefined") {
-                isVisible = (col.visible === true);
-            }
-            if (isVisible) {
-                targetCols.push(col);
-            }
+            if (!colMgr.isCollectionVisible(col)) continue;
+            if (!colMgr.isCollectionMcpVisible(col)) continue;
+
+            targetCols.push(col);
         }
     }
 

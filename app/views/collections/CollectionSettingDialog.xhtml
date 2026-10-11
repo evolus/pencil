@@ -70,7 +70,30 @@
             padding: 2em;
         }
 
+        @mcpSettingPane {
+            align-items: center;
+            margin-top: 1.5em;
+            padding-top: 1em;
+            border-top: solid 1px rgba(0, 0, 0, 0.12);
+        }
+        @mcpSettingPane > label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        @mcpVisibleCheckbox {
+            margin-right: 0.5em;
+            cursor: pointer;
+        }
+
     </style>
     <vbox anon-id="propertyContainer" style="transition: opacity 0.1s; -webkit-transition: opacity 0.1s;" flex="1">
     </vbox>
+    <hbox anon-id="mcpSettingPane">
+        <label>
+            <input type="checkbox" anon-id="mcpVisibleCheckbox" />
+            <span>Expose this collection to MCP AI agents</span>
+        </label>
+    </hbox>
 </vbox>

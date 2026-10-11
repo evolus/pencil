@@ -200,7 +200,7 @@ function getAvailableResourceCollectionIds(colMgr) {
     var ids = [];
     for (var i = 0; i < allCols.length; i++) {
         var c = allCols[i];
-        if (c && c.id) {
+        if (c && c.id && colMgr.isCollectionMcpVisible(c)) {
             ids.push("@" + c.id);
         }
     }
@@ -230,6 +230,10 @@ function validateCollectionResource(propVal, shapeDef) {
             var avail = getAvailableResourceCollectionIds(colMgr);
             var availMsg = avail.length > 0 ? " Available resource collections: " + avail.join(", ") : "";
             return "Collection '@" + parsed.collectionId + "' not found." + availMsg;
+        }
+
+        if (!colMgr.isCollectionMcpVisible(targetCol)) {
+            return "Collection '@" + targetCol.id + "' is not exposed to MCP agents. Call list_collections or list_resource_collections to discover available collections.";
         }
     } else {
         if (shapeDef && shapeDef.collection) {
@@ -780,6 +784,20 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
                 }
 
                 child._resolvedShapeDef = shapeDef;
+
+                /*
+                 * Enforce per-collection MCP visibility when inserting shapes.
+                 */
+                var colMgrInst = getCollectionManager();
+                var ownerCol = shapeDef.collection;
+                if (!ownerCol && shapeDef.id && shapeDef.id.indexOf(":") !== -1) {
+                    var colIdPrefix = shapeDef.id.split(":")[0];
+                    ownerCol = findCollectionById(colMgrInst, colIdPrefix);
+                }
+                if (ownerCol && !colMgrInst.isCollectionMcpVisible(ownerCol)) {
+                    errors.push(currentPath + identifier + ": shape type '" + child.type + "' belongs to collection '" + ownerCol.id + "' which is not exposed to MCP agents. Call list_collections to discover available shapes.");
+                    continue;
+                }
 
                 /*
                  * Validate property values against stencil definition.

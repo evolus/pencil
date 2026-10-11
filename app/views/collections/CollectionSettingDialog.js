@@ -14,6 +14,8 @@ function CollectionSettingDialog (collection) {
             this.propertyContainer.appendChild(this.createGroupNode(propertyGroup));
         }
     }
+
+    this.mcpVisibleCheckbox.checked = CollectionManager.isCollectionMcpVisible(this.collection);
 }
 __extend(Dialog, CollectionSettingDialog);
 
@@ -91,6 +93,7 @@ CollectionSettingDialog.prototype.getDialogActions = function () {
                             property.value = value;
                         }
                     }
+                    CollectionManager.setCollectionMcpVisible(this.collection, this.mcpVisibleCheckbox.checked);
                     return true;
                 }
             },

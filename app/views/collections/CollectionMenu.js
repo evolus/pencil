@@ -14,9 +14,9 @@ CollectionMenu.prototype.setup = function () {
     var thiz = this;
     if (thiz.collection.propertyGroups.length > 0) {
         this.register({
-            getLabel: function () { return "Collection setting..." },
+            getLabel: function () { return "Collection settings..." },
             icon: "tune",
-            isValid: function () { return thiz.collection.propertyGroups },
+            isValid: function () { return true },
             run: function () {
                 var propertiesSettingDialog = new CollectionSettingDialog(thiz.collection);
                 propertiesSettingDialog.open()
