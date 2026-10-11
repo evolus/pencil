@@ -476,11 +476,24 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
         effectiveStyles = merged.effectiveStyles;
     }
 
-    if (effectiveDefaults !== undefined || effectiveStyles !== undefined) {
-        var styleApplication = styleResolver.applyStylesToElements(elements, effectiveDefaults, effectiveStyles, appPane, {
+    var hasElementStyles = false;
+    function checkElementHasStyle(list) {
+        if (!Array.isArray(list)) return false;
+        for (var si = 0; si < list.length; si++) {
+            var item = list[si];
+            if (item && item.style) return true;
+            if (item && Array.isArray(item.children) && checkElementHasStyle(item.children)) return true;
+        }
+        return false;
+    }
+    hasElementStyles = checkElementHasStyle(elements);
+
+    if (effectiveDefaults !== undefined || effectiveStyles !== undefined || hasElementStyles) {
+        var styleHelpers = Object.assign({
             validatePropertyValueFormat: validatePropertyValueFormat,
             findCandidateShapeTypes: findCandidateShapeTypes
-        });
+        }, options.helpers || {});
+        var styleApplication = styleResolver.applyStylesToElements(elements, effectiveDefaults, effectiveStyles, appPane, styleHelpers);
         if (styleApplication.errors && styleApplication.errors.length > 0) {
             errors = errors.concat(styleApplication.errors);
         }
@@ -688,6 +701,9 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
                 }
                 if (!shapeDef && typeof CollectionManager !== "undefined" && CollectionManager.shapeDefinition) {
                     shapeDef = CollectionManager.shapeDefinition.locateDefinition(child.type);
+                }
+                if (!shapeDef && options.helpers && options.helpers.collectionManager && options.helpers.collectionManager.shapeDefinition) {
+                    shapeDef = options.helpers.collectionManager.shapeDefinition.locateDefinition(child.type);
                 }
 
                 if (!shapeDef) {

@@ -114,6 +114,41 @@ Each returned shape record includes `resolvedFrom` indicating the provenance of 
 }
 ```
 
+### System Shortcut Styles (`@collectionId/shortcut_id`):
+Stencil `<Shortcut>` presets from installed collections can be referenced directly as system style definitions using the scoped syntax `@collectionId/shortcut_id` (e.g. `@Evolus.Common/Heading 1` or `@Evolus.Common/h1`):
+- **On-Demand Compilation:** Pencil compiles the shortcut preset on the fly during `insert_shapes`, evaluating collection theme tokens (`$$defaultH1Font`) and caching the compiled style in memory for instant reuse.
+- **Direct Element Referencing:** Elements can omit `type` entirely and pass `style: "@collectionId/shortcut_id"`. Pencil automatically infers the underlying primitive shape type (e.g. `Evolus.Common:heading`) and applies the preset's pre-configured properties:
+  ```json
+  {
+    "elements": [
+      {
+        "style": "@Evolus.Common/Heading 1",
+        "textContent": "System Architecture Overview"
+      }
+    ]
+  }
+  ```
+- **Extending Shortcut Styles:** LLM-defined styles in `styles` can declare `extends: "@collectionId/shortcut_id"` to inherit the shortcut's base shape type and properties while overriding specific attributes:
+  ```json
+  {
+    "styles": {
+      "danger-header": {
+        "extends": "@Evolus.Common/Heading 1",
+        "properties": {
+          "textColor": "#DC2626FF"
+        }
+      }
+    },
+    "elements": [
+      {
+        "style": "danger-header",
+        "textContent": "Critical Alert"
+      }
+    ]
+  }
+  ```
+- **Provenance Telemetry:** In `verbose: true` output, properties inherited from a shortcut style report `"system:@collectionId/shortcut_id"`.
+
 ### In-Memory Persistence Across Calls:
 - **Remembered Across Calls:** Defined `defaults` and `styles` are automatically remembered across consecutive `insert_shapes` calls on the active document object (persisted strictly in memory for the duration of the document session; no file or disk storage is touched).
 - **Reusable Design Systems:** Define design tokens, button variants, typography baselines, and color palettes once in your initial `insert_shapes` call. Subsequent turns can immediately reference (`style: "btn-primary"`) or extend (`extends: "btn-base"`) them without resending redundant definitions.

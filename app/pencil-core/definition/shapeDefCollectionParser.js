@@ -638,7 +638,15 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, 
 /* public Shortcut */ ShapeDefCollectionParser.prototype.parseShortcut = function (shortcutNode, collection) {
     var shortcut = new Shortcut();
 
+    var idAttr = shortcutNode.getAttribute("id");
     shortcut.displayName = shortcutNode.getAttribute("displayName");
+    /*
+     * Defines the local shortcut identifier used for scoped style composition and resolution.
+     * Prefers explicit id attribute, otherwise normalizes displayName into a slug.
+     */
+    shortcut.localId = (idAttr && idAttr.trim())
+        ? idAttr.trim()
+        : (shortcut.displayName ? shortcut.displayName.trim().replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "").toLowerCase() : "");
     shortcut.system = shortcutNode.getAttribute("system") == "true";
     shortcut.collection = collection;
     var iconPath = shortcutNode.getAttribute("icon");

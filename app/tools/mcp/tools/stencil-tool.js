@@ -131,7 +131,7 @@ function getCollectionShortcuts(col) {
 
 /*
  * Transforms shortcuts targeting a base shape into structured usage guidelines
- * with evaluated recommended properties.
+ * with evaluated recommended properties and associated system style names.
  */
 function extractUsageGuidelines(shapeDef, col) {
     var guidelines = [];
@@ -143,6 +143,8 @@ function extractUsageGuidelines(shapeDef, col) {
         if (!shortcutMatchesShape(sc, shapeDef, col.id)) continue;
 
         var scenario = sc.displayName || sc.name || "Default Preset";
+        var localId = sc.localId || (sc.id && String(sc.id).indexOf("system:ref:") !== 0 ? sc.id : (sc.displayName ? sc.displayName.trim().replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "").toLowerCase() : "default"));
+        var styleName = "@" + col.id + "/" + localId;
         var description = sc.description || ("Pre-configured variant for " + scenario);
         var recommendedProperties = {};
 
@@ -154,22 +156,28 @@ function extractUsageGuidelines(shapeDef, col) {
             var spec = propSource[pName];
             if (spec === undefined || spec === null) continue;
 
-            var resolvedVal = "";
-            if (spec.initialValueExpression) {
-                resolvedVal = resolveExpression(spec.initialValueExpression, col);
-            } else if (spec.initialValue != null) {
-                resolvedVal = spec.initialValue.toString();
-            } else if (spec.value != null) {
-                resolvedVal = spec.value.toString();
-            } else if (spec != null) {
-                resolvedVal = spec.toString();
+            var rawVal = spec.initialValueExpression
+                ? resolveExpression(spec.initialValueExpression, col)
+                : (spec.initialValue != null ? spec.initialValue : (spec.value != null ? spec.value : spec));
+
+            /*
+             * Auto-normalize object box to 'w,h' string format.
+             */
+            if (pName === "box" && typeof rawVal === "object" && rawVal !== null) {
+                var bw = rawVal.w !== undefined ? rawVal.w : rawVal.width;
+                var bh = rawVal.h !== undefined ? rawVal.h : rawVal.height;
+                if (bw !== undefined && bh !== undefined) {
+                    rawVal = bw + "," + bh;
+                }
             }
 
+            var resolvedVal = (rawVal != null) ? rawVal.toString() : "";
             recommendedProperties[pName] = resolvedVal;
         }
 
         guidelines.push({
             scenario: scenario,
+            style: styleName,
             description: description,
             recommendedProperties: recommendedProperties
         });
@@ -1373,7 +1381,8 @@ module.exports = {
     ListShapeDefinitionsTool: ListShapeDefinitionsTool,
     ListShapesTool: ListShapesTool,
     extractEnumOptions: extractEnumOptions,
-    formatShapeProperties: formatShapeProperties
+    formatShapeProperties: formatShapeProperties,
+    extractUsageGuidelines: extractUsageGuidelines
 };
 
 
