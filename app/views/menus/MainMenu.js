@@ -254,6 +254,14 @@ MainMenu.prototype.setup = function () {
     });
     this.separator();
     this.register({
+        key: "checkForUpdatesCommand",
+        label: "Check for Updates...",
+        isValid: function () { return true; },
+        run: function () {
+            UpdateService.checkForUpdates({ manual: true });
+        }
+    });
+    this.register({
         key: "aboutDialogCommand",
         label: "About...",
         isValid: function () { return true; },

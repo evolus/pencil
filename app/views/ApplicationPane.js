@@ -139,8 +139,11 @@ ApplicationPane.prototype.onAttached = function () {
     //         });
     //     });
     // }, 100);
-
-
+    window.setTimeout(function () {
+        if (typeof UpdateService !== "undefined") {
+            UpdateService.checkForUpdates({ manual: false });
+        }
+    }, 3000);
 };
 
 Config.UI_CUSTOM_FONT_FAMILY = Config.define("ui.customUIFontFamily", "");

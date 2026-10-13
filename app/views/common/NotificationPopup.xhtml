@@ -11,9 +11,15 @@
             align-items: flex-start;
             color: #fff;
         }
-        body .NotificationPopup icon {
-            margin-right: 1em;
+        body .NotificationPopup icon:before,
+        body .NotificationPopup i:before {
+            @iconify();
+            content: "info";
             font-size: 1.5em;
+            margin-right: 0.6em;
+            color: #fff;
+            opacity: 0.9;
+            display: inline-block;
         }
         body .NotificationPopup @footer {
             margin-top: 1em;
@@ -30,10 +36,11 @@
         }
     </style>
     <hbox anon-id="popupContainer" class="NotificationPopup">
-        <icon>info</icon>
+        <icon></icon>
         <vbox>
             <div anon-id="messagePane"></div>
             <hbox anon-id="footer">
+                <button anon-id="secondaryButton" style="margin-right: 0.5em; display: none;"></button>
                 <button anon-id="actionButton"></button>
             </hbox>
         </vbox>
