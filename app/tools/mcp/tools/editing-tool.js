@@ -16,6 +16,9 @@ var editingValidator = require("./editing-validator.js");
 var documentTool = require("./document-tool.js");
 var layoutHelper = require("./layout-helper.js");
 var styleResolver = require("./style-resolver.js");
+var AgentFeedback = (typeof window !== "undefined" && window.AgentFeedback) ||
+                    (typeof global !== "undefined" && global.AgentFeedback) ||
+                    require("../../../pencil-core/common/AgentFeedbackManager.js");
 
 /*
  * Helper to generate and attach an inline visual preview to a mutation tool response.
@@ -160,6 +163,7 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
     var canvas = target.canvas;
 
     var updated = [];
+    var updatedRecords = [];
     var notFound = [];
     var geometryModified = false;
 
@@ -317,6 +321,18 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
             }
 
             updated.push(targetShapeId);
+
+            var updatedBox = null;
+            if (shape && typeof shape.getBoundingRect === "function") {
+                try {
+                    var r = shape.getBoundingRect();
+                    if (r) updatedBox = { x: r.x, y: r.y, w: r.width, h: r.height };
+                } catch (e) {}
+            }
+            updatedRecords.push({
+                id: targetShapeId,
+                box: updatedBox
+            });
         }
     }
 
@@ -333,6 +349,11 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Update shapes via MCP");
+
+    // Telemetry: broadcast updated shapes
+    if (AgentFeedback && typeof AgentFeedback.notifyShapesUpdated === "function" && updated.length > 0) {
+        AgentFeedback.notifyShapesUpdated(target.pageId, updatedRecords.length > 0 ? updatedRecords : updated);
+    }
     var responseMsg = "Successfully updated " + updated.length + " shape(s).";
     if (updated.length === 0 && notFound.length > 0) {
         responseMsg = "None of the specified targets (" + notFound.join(", ") + ") were found on page '" + target.pageId + "'. Note: when mutating shapes, use engine UUIDs ('shapeId') from 'idMap', semantic query ('query: { text, label, type }'), or active GUI selection ('target: \"selected\"').";
@@ -450,6 +471,11 @@ DeleteShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Delete shapes via MCP");
+
+    // Telemetry: broadcast deleted shapes
+    if (AgentFeedback && typeof AgentFeedback.notifyShapesDeleted === "function" && deleted.length > 0) {
+        AgentFeedback.notifyShapesDeleted(target.pageId, deleted);
+    }
 
     var resultPayload = {
         pageId: target.pageId,
@@ -670,6 +696,11 @@ InsertShapesTool.prototype.execute = async function (args, context) {
     if (typeof canvas._sayTargetChanged === "function") canvas._sayTargetChanged();
     if (typeof canvas._sayContentModified === "function") canvas._sayContentModified();
     if (typeof canvas._saveMemento === "function") canvas._saveMemento("Insert shapes via MCP");
+
+    // Telemetry: broadcast inserted shapes
+    if (AgentFeedback && typeof AgentFeedback.notifyShapesInserted === "function" && insertedShapes.length > 0) {
+        AgentFeedback.notifyShapesInserted(target.pageId, insertedShapes);
+    }
 
     /*
      * Response Verbosity & Token Conservation:

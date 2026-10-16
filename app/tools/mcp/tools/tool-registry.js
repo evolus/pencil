@@ -15,6 +15,9 @@ var kbTool = require("./kb-tool.js");
 var stencilTool = require("./stencil-tool.js");
 var documentTool = require("./document-tool.js");
 var editingTool = require("./editing-tool.js");
+var AgentFeedback = (typeof window !== "undefined" && window.AgentFeedback) ||
+                    (typeof global !== "undefined" && global.AgentFeedback) ||
+                    require("../../../pencil-core/common/AgentFeedbackManager.js");
 
 var GetPencilStatusTool = systemTool.GetPencilStatusTool;
 var PencilStatusTool = systemTool.PencilStatusTool;
@@ -66,16 +69,29 @@ ToolRegistry.prototype.bindToServer = function (mcpServer) {
                         sessionId: extra ? extra.sessionId : undefined
                     });
 
+                    var startTime = Date.now();
+                    if (AgentFeedback && typeof AgentFeedback.notifyToolStart === "function") {
+                        AgentFeedback.notifyToolStart(tool.name, args, { sessionId: extra ? extra.sessionId : undefined });
+                    }
+
                     try {
                         var context = {
                             logger: self.logger,
                             extra: extra
                         };
                         var result = await tool.execute(args, context);
+                        var durationMs = Date.now() - startTime;
                         timer("success");
+                        if (AgentFeedback && typeof AgentFeedback.notifyToolEnd === "function") {
+                            AgentFeedback.notifyToolEnd(tool.name, result, durationMs, null);
+                        }
                         return result;
                     } catch (err) {
+                        var durationMs = Date.now() - startTime;
                         timer("failed", { error: err.message });
+                        if (AgentFeedback && typeof AgentFeedback.notifyToolEnd === "function") {
+                            AgentFeedback.notifyToolEnd(tool.name, null, durationMs, err);
+                        }
                         self.logger.error("Error executing tool \"" + tool.name + "\":", err, {
                             args: args,
                             sessionId: extra ? extra.sessionId : undefined

@@ -144,6 +144,10 @@ ApplicationPane.prototype.onAttached = function () {
             UpdateService.checkForUpdates({ manual: false });
         }
     }, 3000);
+
+    if (typeof AgentStatusPill !== "undefined" && typeof AgentStatusPill.init === "function") {
+        AgentStatusPill.init(this.mainArea);
+    }
 };
 
 Config.UI_CUSTOM_FONT_FAMILY = Config.define("ui.customUIFontFamily", "");
