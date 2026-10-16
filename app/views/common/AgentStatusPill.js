@@ -13,7 +13,13 @@
         _dotNode: null,
         _msgNode: null,
         _hideTimer: null,
+        _pendingDoneTimer: null,
+        _actionStartTime: 0,
+        _readyShownOnce: false,
+        _unsubscribers: [],
+        _dismissed: false,
         _initialized: false,
+        STORAGE_KEY: "pencil.agentPillPosition",
 
         /**
          * Checks whether the status pill is enabled via Pencil Config service.
@@ -26,6 +32,42 @@
                 }
             }
             return true;
+        },
+
+        /**
+         * Loads saved pill coordinates from localStorage.
+         */
+        loadSavedPosition: function (hostNode) {
+            if (!hostNode || typeof localStorage === "undefined") return;
+            try {
+                var raw = localStorage.getItem(this.STORAGE_KEY);
+                if (raw) {
+                    var pos = JSON.parse(raw);
+                    if (pos && typeof pos.left === "number" && typeof pos.top === "number") {
+                        hostNode.style.left = pos.left + "px";
+                        hostNode.style.top = pos.top + "px";
+                        hostNode.style.bottom = "auto";
+                        hostNode.style.right = "auto";
+                    }
+                }
+            } catch (e) {}
+        },
+
+        /**
+         * Persists pill coordinates to localStorage.
+         */
+        savePosition: function (hostNode) {
+            if (!hostNode || typeof localStorage === "undefined") return;
+            try {
+                var leftVal = parseInt(hostNode.style.left, 10);
+                var topVal = parseInt(hostNode.style.top, 10);
+                if (!isNaN(leftVal) && !isNaN(topVal)) {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
+                        left: leftVal,
+                        top: topVal
+                    }));
+                }
+            } catch (e) {}
         },
 
         /**
@@ -66,10 +108,14 @@
                 "  font-size: 12.5px;",
                 "  line-height: 1.4;",
                 "  user-select: none;",
+                "  -webkit-user-select: none;",
                 "  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;",
-                "  cursor: pointer;",
+                "  cursor: grab;",
                 "  max-width: 380px;",
                 "  white-space: nowrap;",
+                "}",
+                "#agentStatusPill:active {",
+                "  cursor: grabbing;",
                 "}",
                 "#agentStatusPill.agent-pill-hidden {",
                 "  opacity: 0;",
@@ -187,12 +233,17 @@
             var host = targetDoc.createElement("div");
             host.id = "agentStatusPillHost";
 
+            this.loadSavedPosition(host);
+
             var pill = targetDoc.createElement("div");
             pill.id = "agentStatusPill";
             if (!this.isPillEnabled()) {
                 pill.className = "agent-pill-hidden";
-            } else {
+            } else if (!this._readyShownOnce) {
+                // Keep ready state visible continuously until the next agent event or user dismissal
                 pill.className = "agent-pill-visible state-idle";
+            } else {
+                pill.className = "agent-pill-hidden";
             }
 
             var dot = targetDoc.createElement("div");
@@ -231,16 +282,101 @@
             this._initialized = true;
 
             var self = this;
+            closeBtn.addEventListener("mousedown", function (e) {
+                e.stopPropagation();
+            });
             closeBtn.addEventListener("click", function (e) {
                 e.stopPropagation();
                 self.dismiss();
             });
+
+            // Ensure other click zones on the pill do not trigger outer handlers or dismiss the pill
             pill.addEventListener("click", function (e) {
                 e.stopPropagation();
-                self.dismiss();
             });
 
+            this.makeDraggable(host, pill, containerNode, targetDoc);
             this.wireFeedbackEvents();
+        },
+
+        /**
+         * Attaches drag-and-drop movement to the status pill and persists position.
+         */
+        makeDraggable: function (hostNode, pillNode, containerNode, targetDoc) {
+            var self = this;
+            var isDragging = false;
+            var startX = 0;
+            var startY = 0;
+            var startLeft = 0;
+            var startTop = 0;
+            var hasMoved = false;
+
+            pillNode.addEventListener("mousedown", function (e) {
+                if (e.button !== 0) return;
+                if (e.target && e.target.classList && e.target.classList.contains("agent-pill-close")) {
+                    return;
+                }
+                e.preventDefault();
+                e.stopPropagation();
+
+                var hostRect = hostNode.getBoundingClientRect ? hostNode.getBoundingClientRect() : { left: 0, top: 0, width: 200, height: 36 };
+                var contRect = containerNode.getBoundingClientRect ? containerNode.getBoundingClientRect() : { left: 0, top: 0, width: 1200, height: 800 };
+
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = hostRect.left - contRect.left + (containerNode.scrollLeft || 0);
+                startTop = hostRect.top - contRect.top + (containerNode.scrollTop || 0);
+
+                isDragging = true;
+                hasMoved = false;
+
+                function onMouseMove(moveEvt) {
+                    if (!isDragging) return;
+                    var dx = moveEvt.clientX - startX;
+                    var dy = moveEvt.clientY - startY;
+
+                    if (!hasMoved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+                        hasMoved = true;
+                    }
+
+                    if (hasMoved) {
+                        var maxW = (contRect.width || 1200) - hostRect.width;
+                        var maxH = (contRect.height || 800) - hostRect.height;
+                        var newL = Math.max(0, Math.min(Math.max(0, maxW), startLeft + dx));
+                        var newT = Math.max(0, Math.min(Math.max(0, maxH), startTop + dy));
+
+                        hostNode.style.left = Math.round(newL) + "px";
+                        hostNode.style.top = Math.round(newT) + "px";
+                        hostNode.style.bottom = "auto";
+                        hostNode.style.right = "auto";
+                        pillNode.style.cursor = "grabbing";
+                    }
+                }
+
+                function onMouseUp() {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    pillNode.style.cursor = "grab";
+
+                    if (targetDoc.removeEventListener) {
+                        targetDoc.removeEventListener("mousemove", onMouseMove);
+                        targetDoc.removeEventListener("mouseup", onMouseUp);
+                    }
+
+                    if (hasMoved) {
+                        self._suppressClick = true;
+                        self.savePosition(hostNode);
+                        setTimeout(function () {
+                            self._suppressClick = false;
+                        }, 50);
+                    }
+                }
+
+                if (targetDoc.addEventListener) {
+                    targetDoc.addEventListener("mousemove", onMouseMove);
+                    targetDoc.addEventListener("mouseup", onMouseUp);
+                }
+            });
         },
 
         /**
@@ -264,17 +400,40 @@
             this._unsubscribers.push(
                 feedback.on("tool_start", function (payload) {
                     self._dismissed = false;
+                    self._readyShownOnce = true;
+                    self._actionStartTime = Date.now();
+                    if (self._pendingDoneTimer) {
+                        clearTimeout(self._pendingDoneTimer);
+                        self._pendingDoneTimer = null;
+                    }
                     self.show(payload.actionText || "Working...", "active");
                 })
             );
 
             this._unsubscribers.push(
                 feedback.on("tool_end", function (payload) {
-                    if (payload.success) {
-                        var durStr = (payload.durationMs !== undefined) ? " (" + payload.durationMs + "ms)" : "";
-                        self.show("Done" + durStr, "success", 2000);
+                    var durStr = (payload.durationMs !== undefined) ? " (" + payload.durationMs + "ms)" : "";
+                    var isSuccess = Boolean(payload && payload.success);
+                    var message = isSuccess ? ("Done" + durStr) : ("Failed: " + ((payload && payload.error) || "error"));
+                    var state = isSuccess ? "success" : "error";
+
+                    // Hold action text for at least 2.8s before showing "Done"
+                    var minActionDuration = 2800;
+                    var elapsed = Date.now() - (self._actionStartTime || 0);
+                    var delayDoneMs = Math.max(0, minActionDuration - elapsed);
+
+                    if (self._pendingDoneTimer) {
+                        clearTimeout(self._pendingDoneTimer);
+                        self._pendingDoneTimer = null;
+                    }
+
+                    if (delayDoneMs > 0) {
+                        self._pendingDoneTimer = setTimeout(function () {
+                            self._pendingDoneTimer = null;
+                            self.show(message, state, 2500);
+                        }, delayDoneMs);
                     } else {
-                        self.show("Failed: " + (payload.error || "error"), "error", 3500);
+                        self.show(message, state, 2500);
                     }
                 })
             );
@@ -282,6 +441,12 @@
             this._unsubscribers.push(
                 feedback.on("agent_thinking", function (payload) {
                     self._dismissed = false;
+                    self._readyShownOnce = true;
+                    self._actionStartTime = Date.now();
+                    if (self._pendingDoneTimer) {
+                        clearTimeout(self._pendingDoneTimer);
+                        self._pendingDoneTimer = null;
+                    }
                     self.show(payload.message || "Thinking...", "thinking");
                 })
             );
@@ -312,11 +477,7 @@
             if (autoHideMs && autoHideMs > 0) {
                 var self = this;
                 this._hideTimer = setTimeout(function () {
-                    if (self._dismissed) {
-                        self.hide();
-                    } else {
-                        self.show("Ready", "idle");
-                    }
+                    self.hide();
                 }, autoHideMs);
             }
         },

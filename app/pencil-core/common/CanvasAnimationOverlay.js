@@ -56,10 +56,10 @@
                 "  pointer-events: none;",
                 "  transform-box: fill-box;",
                 "  transform-origin: center;",
-                "  animation: agentGlowPulse 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;",
+                "  animation: agentGlowPulse 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;",
                 "}",
                 ".agent-glow-rect.update-mode {",
-                "  animation: agentGlowPulseUpdate 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;",
+                "  animation: agentGlowPulseUpdate 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;",
                 "}",
                 ".agent-ripple-rect {",
                 "  fill: none;",
@@ -68,7 +68,7 @@
                 "  pointer-events: none;",
                 "  transform-box: fill-box;",
                 "  transform-origin: center;",
-                "  animation: agentRippleExpand 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;",
+                "  animation: agentRippleExpand 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;",
                 "}"
             ].join("\n");
 
@@ -207,7 +207,7 @@
                         if (node && node.parentNode) {
                             node.parentNode.removeChild(node);
                         }
-                    }, delay + 2000);
+                    }, delay + 3000);
                 })(highlightGroup, staggerDelay);
             }
         },
