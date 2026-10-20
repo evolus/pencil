@@ -1,67 +1,73 @@
-![Image of Yaktocat](screenshot-v4.png)
+<div align="center">
+  <img src="logo.png" alt="Pencil Logo" width="96" height="96" />
+  <h1>Pencil</h1>
+  <p>An open-source GUI prototyping and wireframing application for macOS, Windows, and Linux.</p>
 
+  <p>
+    <a href="https://pencil.evolus.vn/">Website</a> &bull;
+    <a href="https://pencil.evolus.vn/Downloads.html">Downloads</a> &bull;
+    <a href="https://pencil.evolus.vn/Stencils-Templates.html">Stencils &amp; Templates</a>
+  </p>
 
-About Pencil V4
-===============
+  <p>
+    <a href="https://github.com/evolus/pencil/stargazers"><img src="https://img.shields.io/github/stars/evolus/pencil?style=flat&logo=github" alt="GitHub Stars" /></a>
+    <a href="version.json"><img src="https://img.shields.io/badge/version-4.0.0-blue.svg" alt="Version" /></a>
+    <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-GPL--2.0-green.svg" alt="License" /></a>
+    <a href="#supported-platforms"><img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg" alt="Platforms" /></a>
+    <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-Streamable%20HTTP-orange.svg" alt="MCP Protocol" /></a>
+  </p>
+</div>
 
-Pencil V4 adds native support for the Model Context Protocol (MCP), allowing AI assistants, such as Claude Desktop, Cursor, Antigravity, or VS Code to interact directly with your Pencil canvas.
+![Pencil V4 Interface and Canvas](screenshot-v4.png)
 
-Wireframing often involves repetitive work: dragging shapes, nudging pixels, searching for icons, and manually adjusting layouts whenever requirements change. With Pencil V4, you can describe what you need in plain text. Your connected assistant can create shapes, set up layouts, and make edits directly in your open document.
+---
 
-Whether you are a designer sketching early concepts, a product manager mapping user flows, or an engineer prototyping a new feature, Pencil lets you build and iterate on wireframes through conversation instead of manual drawing.
+## Overview
 
+Pencil is an open-source, desktop-native wireframing and prototyping tool designed for developers, UX designers, and product teams ([pencil.evolus.vn](https://pencil.evolus.vn/)). It provides a comprehensive canvas environment for constructing mockups, system diagrams, and user flows using standard vector stencil libraries.
 
-Key Capabilities
-================
+**Pencil V4** introduces native support for the **Model Context Protocol (MCP)**. By embedding a local-first MCP server directly inside the Electron runtime, Pencil allows modern AI programming environments and assistants—including Claude Desktop, Cursor, Antigravity, and VS Code—to inspect, scaffold, and edit wireframes programmatically via natural language.
 
-With MCP enabled, your assistant can read and modify the canvas directly:
+---
 
-  * **Translate Prompts into Editable Pencil Designs**: Turn natural language descriptions into native, fully editable Pencil shapes and stencils rather than static images, so you can continue tweaking them by hand on canvas at any time.
-  * **Create Screens from Text**: Describe a component or page, such as a login dialog, a pricing comparison, or a dashboard. The assistant selects matching stencils, sets up the layout, and places elements on the canvas.
-  * **Visual Feedback Loop**: Pencil returns snapshot previews after edits, allowing the assistant to inspect spacing, alignment, and text contrast, and adjust properties if needed.
-  * **Automatic Layouts & Spacing**: Containers automatically handle element stacking, padding, and alignment, keeping wireframes consistent without manual pixel calculations.
-  * **Iterative Editing**: Ask for changes naturally, update colors, apply rounded corners, shift sections to insert new content, or reorder elements without starting over.
-  * **Built-in Icon & Stencil Search**: The assistant can search installed icon libraries (such as Tabler, Lucide, and FontAwesome) and place vector icons directly into your design.
-  * **Live On-Screen Indicators**: A status indicator and canvas highlights show which elements the assistant is selecting or updating while it works.
-  * **Built-in Local Server**: No external tools or background daemons to set up. Pencil runs its own MCP server on `localhost:1919`, ready to connect from your preferred client.
+## Architectural Highlights & Key Capabilities
 
+- **Native Model Context Protocol (MCP) Server**: Pencil hosts an internal Streamable HTTP server on `http://127.0.0.1:1919/mcp`. It requires no external background daemons, CLI proxies, or secondary runtimes.
+- **100% Local-First & Private**: All document data (`.ep`, `.epz`) and canvas operations remain strictly on the local machine. MCP requests execute directly in the local application process without external telemetry or cloud dependencies.
+- **Editable Vector Primitives**: Unlike generative tools that output flat raster images or non-standard code snippets, Pencil creates native, fully editable vector stencils and shapes. Any AI-generated element can be modified, resized, recolored, or reorganized manually on the canvas at any time.
+- **Visual Feedback Loop**: The MCP server exposes a high-fidelity snapshot mechanism (`render_preview`), allowing connected assistants to inspect visual rendering, check spacing, contrast, and alignment, and perform iterative corrections autonomously.
+- **Dynamic Layout & Container Management**: Built-in container structures automatically handle padding, element distribution, and layout offsets, preventing manual pixel math when inserting or reordering components.
+- **Design System & Stencil Introspection**: Connected assistants can introspect installed stencil collections (such as shadcn/ui, Bootstrap, iOS, Android, and Flowcharts) and search thousands of vector icons (Tabler, Lucide, FontAwesome) on demand.
 
-Example Prompts
-===============
+---
 
-Here are common prompt examples when working with Pencil and an AI assistant:
+## Quick Start (Prebuilt Binaries)
 
-* **Create new screens**:
-  * *"Use Pencil MCP and the shadcn/ui stencil collection to design the Acme login form, registration form, and a dashboard page. Leverage icons from the Tabler outline/filled icon collection resources."*
-  * *"Create a clean login modal with email, password, a 'Remember Me' checkbox, and a primary Sign In button."*
-  * *"Design a pricing page with three plans (Starter, Pro, Enterprise) and highlight the Pro plan."*
-  * *"Build a mobile dashboard screen with a balance card at the top and a list of recent transactions below."*
+For end users who do not require building from source:
 
-* **Tweak and style components**:
-  * *"Make all primary buttons dark blue with rounded corners and white text."*
-  * *"Increase the spacing between form inputs to 16px and align all labels to the left."*
-  * *"Change the card grid on this page into a single-column list."*
+1. **Download**: Obtain the latest installer or package for your operating system from the [Pencil Downloads Page](https://pencil.evolus.vn/Downloads.html) or the [GitHub Releases](https://github.com/evolus/pencil/releases) page.
+2. **Launch & Verify**: Open Pencil and confirm that the MCP server is enabled under **Settings > MCP** (default port: `1919`).
+3. **Connect**: In Pencil, open **Settings > MCP**, select your assistant tab, and click **Copy Configuration** to paste directly into your client.
 
-* **Add icons and graphics**:
-  * *"Find a shopping cart icon from Tabler icons and place it on the top-right header."*
-  * *"Replace the placeholder circles next to the usernames with user avatar icons."*
+---
 
-* **Rearrange layouts and pages**:
-  * *"Shift the footer down by 80px and add an email newsletter signup box above it."*
-  * *"Create a new page called 'Settings' with account and notification tabs."*
-  * *"Check the current screen and fix any elements that look misaligned or hard to read."*
+## Connecting AI Clients
 
+Pencil provides automated configuration generation directly within the application interface. Open **Settings > MCP**, select your target assistant (**Claude Desktop**, **Cursor**, **Antigravity**, or **VS Code**), and click **Copy Configuration** to copy the pre-formatted JSON snippet.
 
-Connecting AI Clients
-=====================
+The internal server operates on `http://127.0.0.1:1919/mcp` (Streamable HTTP / JSON-RPC 2.0). Server status, port assignment, and restarts can be managed directly in the MCP settings pane. To verify endpoint responsiveness externally:
 
-Pencil runs its MCP server on port `1919` by default. You can enable or disable the server, or change the port, under **Settings > MCP**.
+```bash
+curl -I http://127.0.0.1:1919/mcp
+```
 
-To connect your assistant, add Pencil to its configuration:
+<details>
+<summary><strong>Manual Client Configuration Reference</strong></summary>
+
+<br />
 
 ### Claude Desktop
-
-Add to `claude_desktop_config.json`:
+Add to `claude_desktop_config.json` (`~/Library/Application Support/Claude/` on macOS, `%APPDATA%\Claude\` on Windows, `~/.config/Claude/` on Linux):
 
 ```json
 {
@@ -79,8 +85,7 @@ Add to `claude_desktop_config.json`:
 ```
 
 ### Cursor
-
-Add to `.cursor/mcp.json`:
+Add to `.cursor/mcp.json` or configure under **Settings > Features > MCP**:
 
 ```json
 {
@@ -93,7 +98,6 @@ Add to `.cursor/mcp.json`:
 ```
 
 ### Antigravity
-
 Add to `mcp_config.json`:
 
 ```json
@@ -107,8 +111,7 @@ Add to `mcp_config.json`:
 ```
 
 ### VS Code
-
-Add to `.vscode/mcp.json`:
+Add to `.vscode/mcp.json` (or user settings under `mcp.servers`):
 
 ```json
 {
@@ -121,55 +124,172 @@ Add to `.vscode/mcp.json`:
 }
 ```
 
+</details>
 
-Setting up
-==========
+---
 
-Pencil uses [Electron](https://www.electronjs.org/) as the runtime, follow these steps to setup the environment:
+## Example Interaction Prompts
 
-  * Clone this repository
-  * Make sure you are using *nodejs 14+* and *npm* (or *yarn*)
-  * Checkout this branch:
-  
-    ```bash
-    $ git checkout pencil-mcp-integration
-    ```
-    
-  * Install dependencies:
+AI assistants connected to Pencil can execute complex multi-step canvas workflows. Below are representative prompts:
 
-    ```bash
-    $ npm install
-    ```
-      
-  * Start Pencil using the prebuilt version of Electron:
+### Scaffolding New Screens
+- *"Use the shadcn/ui stencil collection to build a standard SaaS authentication screen with an email input, password field, 'Remember me' checkbox, and primary submit button."*
+- *"Create a three-tier pricing comparison table (Free, Pro, Enterprise) on the active page, highlighting the Pro tier with a primary accent border."*
+- *"Generate a mobile analytics dashboard page containing a top metrics card grid and a recent activity list below it."*
 
-    ```bash
-    $ npm start
-    ```
+### Component Refinement & Styling
+- *"Select all primary call-to-action buttons on this page, update their background fill to #2563EB, and apply an 8px corner radius."*
+- *"Adjust the horizontal spacing between the navigation header items to 24px and align them vertically to the center."*
+- *"Convert the current card grid layout from 3 columns into a single-column list with 16px row gaps."*
 
+### Icon & Asset Placement
+- *"Search the Tabler icon library for a 'settings' outline icon and place it in the top-right corner of the application bar."*
+- *"Replace the placeholder circles next to the username labels with user avatar icons from the Lucide collection."*
 
-Supported Platforms
-==================
+### Structural Layout Shifts & Visual QA
+- *"Shift the page footer down by 120px to make room for an email newsletter subscription block above it."*
+- *"Add a new page named 'Account Settings' with sub-tabs for 'General', 'Security', and 'Billing'."*
+- *"Inspect the current canvas preview for contrast issues or overlapping elements and adjust misaligned bounds."*
 
-OS X
-----
+---
 
-Only OSX 64bit 10.9 and later are supported. Apple Silicon (arm64) builds are supported.
+## MCP Tools Reference
 
-Windows
-------
+Pencil exposes its internal API through 5 catalog modules:
 
-Windows 7 and later are supported, older operating systems are not supported (and do not work).
+| Category | Tools | Description |
+| :--- | :--- | :--- |
+| **Canvas Mutation** | `insert_shapes`, `update_shapes`, `delete_shapes`, `move_shapes`, `align_shapes`, `distribute_shapes`, `shift_layout`, `select_shapes` | Create, modify, position, and reorder vector shapes, containers, and properties. |
+| **Document Management** | `get_active_document`, `get_page_content`, `list_pages`, `create_page`, `update_page`, `rename_page`, `delete_page`, `switch_page`, `export_page` | Manage document structure, multi-page hierarchies, navigation, and exports. |
+| **Inspection & Vision** | `render_preview`, `find_shapes`, `find_shapes_in_canvas`, `list_shapes` | Generate visual snapshots for LLM vision inspection and query shape hierarchies. |
+| **Stencils & Resources** | `list_collections`, `list_shape_definitions`, `get_shape_definition`, `list_resource_collections`, `list_resource_dir`, `search_resources` | Discover installed stencil libraries, component templates, and vector icon collections. |
+| **Guidance & Skills** | `list_skills`, `use_skill`, `read_knowledge_base_document` | Access embedded design rules, stencil construction guidelines, and best practices. |
 
-Linux
------
+---
 
-* Tested
-    * Ubuntu 12.04 and later
-    * Fedora 21+
-    * Debian 8+
-* Packages
-    * **Arch Linux** - [pencil](https://aur.archlinux.org/packages/pencil/) on the [Arch User Repository](https://aur.archlinux.org/).
-    * **Gentoo Linux** - [media-gfx/evoluspencil](https://packages.gentoo.org/packages/media-gfx/evoluspencil).
+## Stencil & Icon Ecosystem
 
+Pencil includes built-in collections and supports custom stencil installation:
 
+- **UI Framework Stencils**: shadcn/ui, Bootstrap, Material Design, iOS UI, Android UI, Web Elements.
+- **Diagramming & Flowcharts**: Flowchart shapes, UML diagrams, entity relationship symbols, mind mapping nodes.
+- **Vector Icon Catalogs**: Tabler Icons, Lucide Icons, FontAwesome.
+
+### Stencil Repositories & Resources
+
+Additional collections and export templates can be installed through multiple sources:
+
+- **Official Stencils & Templates Directory**: Browse downloadable collections at [pencil.evolus.vn/Stencils-Templates.html](https://pencil.evolus.vn/Stencils-Templates.html).
+- **Community Stencils Repository**: Community-contributed collections are hosted on GitHub at [evolus/stencils-repository](https://github.com/evolus/stencils-repository).
+- **In-App Repository Browser**: In Pencil, open **Tools > Manage Collections** to browse the online repository, install stencils directly from archive URLs, or load local `.zip` packages created with the Stencil Generator.
+
+---
+
+## Development & Building from Source
+
+### Prerequisites
+
+- **Node.js**: Version 14 or higher (LTS recommended)
+- **Package Manager**: npm or yarn
+- **Git**
+
+### Installation
+
+1. Clone the repository and check out the target branch:
+
+   ```bash
+   git clone https://github.com/evolus/pencil.git
+   cd pencil
+   git checkout pencil-mcp-integration
+   ```
+
+2. Install project dependencies:
+
+   ```bash
+   yarn install
+   # or
+   npm install
+   ```
+
+3. Launch the development build:
+
+   ```bash
+   yarn start
+   # or
+   npm start
+   ```
+
+   For dev tools and inspection windows enabled:
+
+   ```bash
+   npm run start:dev
+   ```
+
+### Packaging & Distribution
+
+To compile production bundles for your host platform:
+
+```bash
+# macOS (DMG, universal / arm64 / x64)
+npm run dist:osx
+
+# Windows (NSIS Installer)
+npm run dist:win32
+
+# Linux (deb, rpm, tar.gz)
+npm run dist:linux
+```
+
+Output binaries are written to the `dist/` directory.
+
+---
+
+## Supported Platforms
+
+### macOS
+- macOS 10.9 and later.
+- Native builds available for Apple Silicon (arm64) and Intel (x64).
+
+### Windows
+- Windows 7, Windows 10, and Windows 11 (64-bit).
+
+### Linux
+- Tested distributions: Ubuntu 18.04+, Debian 10+, Fedora 30+, Arch Linux.
+- Community packages:
+  - **Arch Linux**: [AUR Package](https://aur.archlinux.org/packages/pencil/)
+  - **Gentoo Linux**: [media-gfx/evoluspencil](https://packages.gentoo.org/packages/media-gfx/evoluspencil)
+
+---
+
+## Contributing
+
+Contributions are welcome. Please refer to the following workflow:
+
+1. Fork the repository and create a descriptive feature branch (`feature/your-feature-name`).
+2. Adhere to existing code conventions and formatting guidelines defined in `.editorconfig`.
+3. Test your changes locally across standard canvas operations and MCP endpoints.
+4. Submit a pull request against the integration branch with a concise summary of changes.
+
+For security concerns or defect reports, please open an issue using the provided issue templates.
+
+---
+
+## Star History
+
+<div align="center">
+  <a href="https://star-history.com/#evolus/pencil&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=evolus/pencil&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=evolus/pencil&type=Date" />
+      <img src="https://api.star-history.com/svg?repos=evolus/pencil&type=Date" alt="Pencil Star History Chart" width="100%" />
+    </picture>
+  </a>
+</div>
+
+---
+
+## License
+
+Pencil is open-source software licensed under the [GNU General Public License v2.0 (GPL-2.0)](LICENSE.md).
+
+Copyright &copy; 2008–2026 Evolus and individual contributors.
