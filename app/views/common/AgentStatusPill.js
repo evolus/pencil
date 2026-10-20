@@ -19,7 +19,10 @@
         _unsubscribers: [],
         _dismissed: false,
         _initialized: false,
+        _configBusListening: false,
+        _resizeListenerAttached: false,
         STORAGE_KEY: "pencil.agentPillPosition",
+        DEFAULT_IDLE_TIMEOUT: 3000,
 
         /**
          * Checks whether the status pill is enabled via Pencil Config service.
@@ -35,37 +38,146 @@
         },
 
         /**
-         * Loads saved pill coordinates from localStorage.
+         * Anchors the hostNode to closest window edges (right/left and bottom/top).
          */
-        loadSavedPosition: function (hostNode) {
-            if (!hostNode || typeof localStorage === "undefined") return;
+        anchorToClosestEdges: function (hostNode) {
+            if (!hostNode) return;
+            var winW = (typeof window !== "undefined" && window.innerWidth) || 1200;
+            var winH = (typeof window !== "undefined" && window.innerHeight) || 800;
+            var rect = hostNode.getBoundingClientRect ? hostNode.getBoundingClientRect() : {
+                left: parseInt(hostNode.style.left, 10) || 10,
+                top: parseInt(hostNode.style.top, 10) || 10,
+                width: hostNode.offsetWidth || 220,
+                height: hostNode.offsetHeight || 36
+            };
+            var hostW = rect.width || hostNode.offsetWidth || 220;
+            var hostH = rect.height || hostNode.offsetHeight || 36;
+
+            var curLeft = rect.left;
+            var curTop = rect.top;
+            var curRight = winW - (curLeft + hostW);
+            var curBottom = winH - (curTop + hostH);
+
+            if (curRight < curLeft) {
+                hostNode.style.right = Math.max(10, Math.round(curRight)) + "px";
+                hostNode.style.left = "auto";
+            } else {
+                hostNode.style.left = Math.max(10, Math.round(curLeft)) + "px";
+                hostNode.style.right = "auto";
+            }
+
+            if (curBottom < curTop) {
+                hostNode.style.bottom = Math.max(10, Math.round(curBottom)) + "px";
+                hostNode.style.top = "auto";
+            } else {
+                hostNode.style.top = Math.max(10, Math.round(curTop)) + "px";
+                hostNode.style.bottom = "auto";
+            }
+        },
+
+        /**
+         * Loads saved pill coordinates from localStorage, respecting edge anchoring.
+         */
+        loadSavedPosition: function (hostNode, containerNode) {
+            if (!hostNode) return;
+            // Default anchor: bottom-right corner of viewport
+            hostNode.style.bottom = "16px";
+            hostNode.style.right = "20px";
+            hostNode.style.left = "auto";
+            hostNode.style.top = "auto";
+
+            if (typeof localStorage === "undefined") return;
             try {
                 var raw = localStorage.getItem(this.STORAGE_KEY);
-                if (raw) {
-                    var pos = JSON.parse(raw);
-                    if (pos && typeof pos.left === "number" && typeof pos.top === "number") {
-                        hostNode.style.left = pos.left + "px";
-                        hostNode.style.top = pos.top + "px";
-                        hostNode.style.bottom = "auto";
-                        hostNode.style.right = "auto";
-                    }
+                if (!raw) return;
+                var pos = JSON.parse(raw);
+                if (!pos || !pos.anchorX || !pos.anchorY) {
+                    // Legacy or invalid format - discard so it never displaces the pill off-screen
+                    localStorage.removeItem(this.STORAGE_KEY);
+                    return;
+                }
+
+                var winW = (typeof window !== "undefined" && window.innerWidth) || (containerNode && containerNode.offsetWidth) || 1200;
+                var winH = (typeof window !== "undefined" && window.innerHeight) || (containerNode && containerNode.offsetHeight) || 800;
+
+                if (pos.anchorX === "right" && typeof pos.x === "number") {
+                    hostNode.style.right = Math.min(winW - 50, Math.max(10, pos.x)) + "px";
+                    hostNode.style.left = "auto";
+                } else if (pos.anchorX === "left" && typeof pos.x === "number") {
+                    hostNode.style.left = Math.min(winW - 50, Math.max(10, pos.x)) + "px";
+                    hostNode.style.right = "auto";
+                }
+
+                if (pos.anchorY === "bottom" && typeof pos.y === "number") {
+                    hostNode.style.bottom = Math.min(winH - 30, Math.max(10, pos.y)) + "px";
+                    hostNode.style.top = "auto";
+                } else if (pos.anchorY === "top" && typeof pos.y === "number") {
+                    hostNode.style.top = Math.min(winH - 30, Math.max(10, pos.y)) + "px";
+                    hostNode.style.bottom = "auto";
                 }
             } catch (e) {}
         },
 
         /**
-         * Persists pill coordinates to localStorage.
+         * Persists pill coordinates to localStorage using edge anchors.
          */
         savePosition: function (hostNode) {
             if (!hostNode || typeof localStorage === "undefined") return;
             try {
-                var leftVal = parseInt(hostNode.style.left, 10);
-                var topVal = parseInt(hostNode.style.top, 10);
-                if (!isNaN(leftVal) && !isNaN(topVal)) {
-                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
-                        left: leftVal,
-                        top: topVal
-                    }));
+                var isRight = hostNode.style.right && hostNode.style.right !== "auto";
+                var isBottom = hostNode.style.bottom && hostNode.style.bottom !== "auto";
+
+                var xVal = isRight ? parseInt(hostNode.style.right, 10) : parseInt(hostNode.style.left, 10);
+                var yVal = isBottom ? parseInt(hostNode.style.bottom, 10) : parseInt(hostNode.style.top, 10);
+
+                var data = {
+                    anchorX: isRight ? "right" : "left",
+                    anchorY: isBottom ? "bottom" : "top",
+                    x: isNaN(xVal) ? 20 : xVal,
+                    y: isNaN(yVal) ? 16 : yVal
+                };
+
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {}
+        },
+
+        /**
+         * Clamps the pill host node inside viewport boundaries when screen/window resizes.
+         */
+        clampToBounds: function (hostNode, containerNode) {
+            if (!hostNode) return;
+            try {
+                var winW = (typeof window !== "undefined" && window.innerWidth) || (containerNode && containerNode.offsetWidth) || 1200;
+                var winH = (typeof window !== "undefined" && window.innerHeight) || (containerNode && containerNode.offsetHeight) || 800;
+                var hostW = hostNode.offsetWidth || 220;
+                var hostH = hostNode.offsetHeight || 36;
+
+                var maxRightOrLeft = Math.max(10, winW - hostW - 10);
+                var maxBottomOrTop = Math.max(10, winH - hostH - 10);
+
+                if (hostNode.style.left && hostNode.style.left !== "auto") {
+                    var l = parseInt(hostNode.style.left, 10);
+                    if (!isNaN(l)) {
+                        hostNode.style.left = Math.min(maxRightOrLeft, Math.max(10, l)) + "px";
+                    }
+                }
+                if (hostNode.style.right && hostNode.style.right !== "auto") {
+                    var r = parseInt(hostNode.style.right, 10);
+                    if (!isNaN(r)) {
+                        hostNode.style.right = Math.min(maxRightOrLeft, Math.max(10, r)) + "px";
+                    }
+                }
+                if (hostNode.style.top && hostNode.style.top !== "auto") {
+                    var t = parseInt(hostNode.style.top, 10);
+                    if (!isNaN(t)) {
+                        hostNode.style.top = Math.min(maxBottomOrTop, Math.max(10, t)) + "px";
+                    }
+                }
+                if (hostNode.style.bottom && hostNode.style.bottom !== "auto") {
+                    var b = parseInt(hostNode.style.bottom, 10);
+                    if (!isNaN(b)) {
+                        hostNode.style.bottom = Math.min(maxBottomOrTop, Math.max(10, b)) + "px";
+                    }
                 }
             } catch (e) {}
         },
@@ -86,10 +198,10 @@
             style.id = "agent-status-pill-styles";
             var cssText = [
                 "#agentStatusPillHost {",
-                "  position: absolute;",
+                "  position: fixed;",
                 "  bottom: 16px;",
                 "  right: 20px;",
-                "  z-index: 1000;",
+                "  z-index: 10000;",
                 "  pointer-events: none;",
                 "}",
                 "#agentStatusPill {",
@@ -194,6 +306,7 @@
                 "}",
                 ".agent-pill-close:hover {",
                 "  color: #f1f5f9;",
+                "  cursor: pointer;",
                 "  background: rgba(255, 255, 255, 0.12);",
                 "}"
             ].join("\n");
@@ -208,24 +321,40 @@
         },
 
         /**
-         * Initializes and mounts the status pill inside the designated container.
+         * Initializes and mounts the status pill inside any designated container node.
+         * Accepts a DOM Element, Widget instance, selector string, or defaults to document.body.
+         *
+         * @param {HTMLElement|string|object} [containerNode]
          */
         init: function (containerNode) {
+            // Support passing a widget instance (e.g. widget.node() or widget.node/dom)
+            if (containerNode && typeof containerNode.node === "function") {
+                containerNode = containerNode.node();
+            } else if (containerNode && containerNode.node && containerNode.node.nodeType) {
+                containerNode = containerNode.node;
+            } else if (containerNode && containerNode.dom && containerNode.dom.nodeType) {
+                containerNode = containerNode.dom;
+            }
+
             var targetDoc = (containerNode && containerNode.ownerDocument) || (typeof document !== "undefined" ? document : null);
             if (!targetDoc) return;
 
-            this.ensureStyles(targetDoc);
-
-            if (!containerNode) {
-                containerNode = targetDoc.querySelector ? (targetDoc.querySelector('[anon-id="mainArea"]') || targetDoc.querySelector('[anon-id="contentBody"]')) : null;
+            // If a selector or ID string was provided, resolve it
+            if (typeof containerNode === "string" && targetDoc.querySelector) {
+                containerNode = targetDoc.querySelector(containerNode) || (targetDoc.getElementById && targetDoc.getElementById(containerNode));
             }
+
+            // Relaxed container fallback: defaults directly to document body or documentElement
             if (!containerNode) {
-                containerNode = targetDoc.body;
+                containerNode = targetDoc.body || targetDoc.documentElement;
             }
             if (!containerNode) return;
 
-            // Remove previous instance if existing
-            var existingHost = containerNode.querySelector ? containerNode.querySelector("#agentStatusPillHost") : null;
+            this.ensureStyles(targetDoc);
+
+            // Clean up previous host instance across targetDoc or container
+            var existingHost = (targetDoc.getElementById && targetDoc.getElementById("agentStatusPillHost")) ||
+                               (containerNode.querySelector && containerNode.querySelector("#agentStatusPillHost"));
             if (existingHost && existingHost.parentNode) {
                 existingHost.parentNode.removeChild(existingHost);
             }
@@ -233,18 +362,20 @@
             var host = targetDoc.createElement("div");
             host.id = "agentStatusPillHost";
 
-            this.loadSavedPosition(host);
+            this.loadSavedPosition(host, containerNode);
+
+            var self = this;
+            if (!this._resizeListenerAttached && typeof window !== "undefined" && window.addEventListener) {
+                this._resizeListenerAttached = true;
+                window.addEventListener("resize", function () {
+                    self.clampToBounds(host, containerNode);
+                });
+            }
 
             var pill = targetDoc.createElement("div");
             pill.id = "agentStatusPill";
-            if (!this.isPillEnabled()) {
-                pill.className = "agent-pill-hidden";
-            } else if (!this._readyShownOnce) {
-                // Keep ready state visible continuously until the next agent event or user dismissal
-                pill.className = "agent-pill-visible state-idle";
-            } else {
-                pill.className = "agent-pill-hidden";
-            }
+            // Start hidden until active agent work occurs
+            pill.className = "agent-pill-hidden";
 
             var dot = targetDoc.createElement("div");
             dot.className = "agent-pill-dot";
@@ -319,13 +450,14 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-                var hostRect = hostNode.getBoundingClientRect ? hostNode.getBoundingClientRect() : { left: 0, top: 0, width: 200, height: 36 };
-                var contRect = containerNode.getBoundingClientRect ? containerNode.getBoundingClientRect() : { left: 0, top: 0, width: 1200, height: 800 };
+                var winW = (typeof window !== "undefined" && window.innerWidth) || 1200;
+                var winH = (typeof window !== "undefined" && window.innerHeight) || 800;
+                var hostRect = hostNode.getBoundingClientRect ? hostNode.getBoundingClientRect() : { left: 0, top: 0, width: 220, height: 36 };
 
                 startX = e.clientX;
                 startY = e.clientY;
-                startLeft = hostRect.left - contRect.left + (containerNode.scrollLeft || 0);
-                startTop = hostRect.top - contRect.top + (containerNode.scrollTop || 0);
+                startLeft = hostRect.left;
+                startTop = hostRect.top;
 
                 isDragging = true;
                 hasMoved = false;
@@ -340,15 +472,19 @@
                     }
 
                     if (hasMoved) {
-                        var maxW = (contRect.width || 1200) - hostRect.width;
-                        var maxH = (contRect.height || 800) - hostRect.height;
-                        var newL = Math.max(0, Math.min(Math.max(0, maxW), startLeft + dx));
-                        var newT = Math.max(0, Math.min(Math.max(0, maxH), startTop + dy));
+                        var curWinW = (typeof window !== "undefined" && window.innerWidth) || winW;
+                        var curWinH = (typeof window !== "undefined" && window.innerHeight) || winH;
+                        var hostW = hostNode.offsetWidth || hostRect.width || 220;
+                        var hostH = hostNode.offsetHeight || hostRect.height || 36;
+
+                        var newL = Math.max(10, Math.min(curWinW - hostW - 10, startLeft + dx));
+                        var newT = Math.max(10, Math.min(curWinH - hostH - 10, startTop + dy));
 
                         hostNode.style.left = Math.round(newL) + "px";
                         hostNode.style.top = Math.round(newT) + "px";
-                        hostNode.style.bottom = "auto";
                         hostNode.style.right = "auto";
+                        hostNode.style.bottom = "auto";
+
                         pillNode.style.cursor = "grabbing";
                     }
                 }
@@ -365,6 +501,7 @@
 
                     if (hasMoved) {
                         self._suppressClick = true;
+                        self.anchorToClosestEdges(hostNode);
                         self.savePosition(hostNode);
                         setTimeout(function () {
                             self._suppressClick = false;
@@ -380,9 +517,23 @@
         },
 
         /**
-         * Subscribes to AgentFeedbackManager events.
+         * Subscribes to AgentFeedbackManager events and global config events.
          */
         wireFeedbackEvents: function () {
+            var self = this;
+            if (!this._configBusListening && typeof window !== "undefined" && window.globalEventBus) {
+                this._configBusListening = true;
+                window.globalEventBus.listen("config-change", function (event) {
+                    if (event && event.name === "agent.feedback.statusPill") {
+                        if (!event.value) {
+                            self.hide();
+                        } else {
+                            self.show("Ready", "idle");
+                        }
+                    }
+                });
+            }
+
             var feedback = (typeof window !== "undefined" && window.AgentFeedback) ||
                            (typeof global !== "undefined" && global.AgentFeedback) || null;
             if (!feedback) return;
@@ -396,15 +547,13 @@
             }
             this._unsubscribers = [];
 
-            var self = this;
             this._unsubscribers.push(
                 feedback.on("tool_start", function (payload) {
                     self._dismissed = false;
-                    self._readyShownOnce = true;
                     self._actionStartTime = Date.now();
-                    if (self._pendingDoneTimer) {
-                        clearTimeout(self._pendingDoneTimer);
-                        self._pendingDoneTimer = null;
+                    if (self._hideTimer) {
+                        clearTimeout(self._hideTimer);
+                        self._hideTimer = null;
                     }
                     self.show(payload.actionText || "Working...", "active");
                 })
@@ -412,40 +561,29 @@
 
             this._unsubscribers.push(
                 feedback.on("tool_end", function (payload) {
-                    var durStr = (payload.durationMs !== undefined) ? " (" + payload.durationMs + "ms)" : "";
-                    var isSuccess = Boolean(payload && payload.success);
-                    var message = isSuccess ? ("Done" + durStr) : ("Failed: " + ((payload && payload.error) || "error"));
-                    var state = isSuccess ? "success" : "error";
-
-                    // Hold action text for at least 2.8s before showing "Done"
-                    var minActionDuration = 2800;
-                    var elapsed = Date.now() - (self._actionStartTime || 0);
-                    var delayDoneMs = Math.max(0, minActionDuration - elapsed);
-
-                    if (self._pendingDoneTimer) {
-                        clearTimeout(self._pendingDoneTimer);
-                        self._pendingDoneTimer = null;
+                    if (payload && !payload.success && payload.error) {
+                        self.show("Failed: " + payload.error, "error", 3500);
+                        return;
                     }
 
-                    if (delayDoneMs > 0) {
-                        self._pendingDoneTimer = setTimeout(function () {
-                            self._pendingDoneTimer = null;
-                            self.show(message, state, 2500);
-                        }, delayDoneMs);
-                    } else {
-                        self.show(message, state, 2500);
+                    // Keep current action details visible and auto-hide after idle timeout
+                    if (self._hideTimer) {
+                        clearTimeout(self._hideTimer);
+                        self._hideTimer = null;
                     }
+                    self._hideTimer = setTimeout(function () {
+                        self.hide();
+                    }, self.DEFAULT_IDLE_TIMEOUT);
                 })
             );
 
             this._unsubscribers.push(
                 feedback.on("agent_thinking", function (payload) {
                     self._dismissed = false;
-                    self._readyShownOnce = true;
                     self._actionStartTime = Date.now();
-                    if (self._pendingDoneTimer) {
-                        clearTimeout(self._pendingDoneTimer);
-                        self._pendingDoneTimer = null;
+                    if (self._hideTimer) {
+                        clearTimeout(self._hideTimer);
+                        self._hideTimer = null;
                     }
                     self.show(payload.message || "Thinking...", "thinking");
                 })

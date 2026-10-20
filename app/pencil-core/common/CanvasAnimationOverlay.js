@@ -256,22 +256,43 @@
         },
 
         /**
-         * Wires listeners to the AgentFeedbackManager singleton.
+         * Clears any active animation overlay containers on the active canvas.
+         */
+        clearActiveAnimations: function () {
+            var canvas = this.resolveCanvas();
+            if (!canvas || !canvas.controlLayer) return;
+            var container = canvas.controlLayer.querySelector("#agentOverlayContainer");
+            if (container && container.parentNode) {
+                container.parentNode.removeChild(container);
+            }
+        },
+
+        /**
+         * Wires listeners to the AgentFeedbackManager singleton and config events.
          */
         initialize: function () {
             var feedback = (typeof window !== "undefined" && window.AgentFeedback) ||
                            (typeof global !== "undefined" && global.AgentFeedback) || null;
 
-            if (!feedback) return;
-
             var self = this;
-            feedback.on("shapes_inserted", function (payload) {
-                self.handleShapesEvent("insert", payload);
-            });
+            if (feedback) {
+                feedback.on("shapes_inserted", function (payload) {
+                    self.handleShapesEvent("insert", payload);
+                });
 
-            feedback.on("shapes_updated", function (payload) {
-                self.handleShapesEvent("update", payload);
-            });
+                feedback.on("shapes_updated", function (payload) {
+                    self.handleShapesEvent("update", payload);
+                });
+            }
+
+            if (!this._configBusListening && typeof window !== "undefined" && window.globalEventBus) {
+                this._configBusListening = true;
+                window.globalEventBus.listen("config-change", function (event) {
+                    if (event && event.name === "agent.feedback.animations" && !event.value) {
+                        self.clearActiveAnimations();
+                    }
+                });
+            }
         }
     };
 

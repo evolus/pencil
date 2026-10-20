@@ -17,7 +17,9 @@ function SettingDialog() {
         "view.useCompactLayout": this.useCompactLayout,
         "pencil.mcp.enabled": this.checkboxEnableMcp,
         "pencil.mcp.port": this.textboxMcpPort,
-        "pencil.mcp.defaultCollectionVisibility": this.comboMcpDefaultVisibility
+        "pencil.mcp.defaultCollectionVisibility": this.comboMcpDefaultVisibility,
+        "agent.feedback.animations": this.checkboxEnableAgentAnimations,
+        "agent.feedback.statusPill": this.checkboxEnableAgentStatusPill
     };
 
     this.bind("click", function (event) {
@@ -200,6 +202,26 @@ SettingDialog.prototype.updateConfigAndInvalidateUI = function (configName, valu
             }
             this.updateMcpServerStatus();
         }
+        if (checkBox == this.checkboxEnableAgentStatusPill) {
+            var pill = (typeof AgentStatusPill !== "undefined" ? AgentStatusPill :
+                       (typeof window !== "undefined" && window.AgentStatusPill ? window.AgentStatusPill : null));
+            if (pill) {
+                if (value) {
+                    pill.show("Ready", "idle");
+                } else {
+                    pill.hide();
+                }
+            }
+        }
+        if (checkBox == this.checkboxEnableAgentAnimations) {
+            if (!value) {
+                var overlay = (typeof CanvasAnimationOverlay !== "undefined" ? CanvasAnimationOverlay :
+                              (typeof window !== "undefined" && window.CanvasAnimationOverlay ? window.CanvasAnimationOverlay : null));
+                if (overlay && typeof overlay.clearActiveAnimations === "function") {
+                    overlay.clearActiveAnimations();
+                }
+            }
+        }
         checkBox.checked = value;
     }
     this.setPreferenceItems();
@@ -335,6 +357,9 @@ SettingDialog.prototype.setup = function () {
         }
         thizSetup.updateMcpVisibleCollectionsList();
     }, false);
+
+    this.checkboxEnableAgentAnimations.checked = Config.get("agent.feedback.animations", true);
+    this.checkboxEnableAgentStatusPill.checked = Config.get("agent.feedback.statusPill", true);
 
     this.updateMcpServerStatus();
     this.selectMcpClient("claude");
@@ -628,3 +653,13 @@ SettingDialog.prototype.updateMcpVisibleCollectionsList = function () {
 
     this.mcpVisibleCollectionsList.appendChild(list);
 };
+
+if (typeof window !== "undefined") {
+    window.SettingDialog = SettingDialog;
+}
+if (typeof global !== "undefined") {
+    global.SettingDialog = SettingDialog;
+}
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = SettingDialog;
+}

@@ -37,6 +37,9 @@
             width: 14em;
             text-align: left;
         }
+        @mcpTab hbox.Entry input[type="checkbox"] + label {
+            width: auto;
+        }
         @mcpTab {
             overflow-y: auto;
             max-height: 32em;
@@ -203,6 +206,7 @@
                         <ui:ComboManager anon-id="comboMcpDefaultVisibility" title="Default collection visibility" />
                     </hbox>
                 </vbox>
+                
                 <vbox anon-id="mcpStatusCard">
                     <strong>Server Status &amp; Endpoint</strong>
                     <hbox align="center" style="margin-top: 0.5em;">
@@ -235,6 +239,17 @@
                 <vbox anon-id="mcpCollectionsCard">
                     <strong>Visible collections:</strong>
                     <div anon-id="mcpVisibleCollectionsList" style="margin-top: 0.4em; font-size: 0.9em;"></div>
+                </vbox>
+                <vbox>
+                    <strong>Agent Visual Feedback</strong>
+                    <hbox class="Entry">
+                        <input type="checkbox" anon-id="checkboxEnableAgentAnimations" preference="pencil-agentFeedbackAnimations" configName="agent.feedback.animations"/>
+                        <label for="checkboxEnableAgentAnimations">Show shape insertion and update animations on canvas</label>
+                    </hbox>
+                    <hbox class="Entry">
+                        <input type="checkbox" anon-id="checkboxEnableAgentStatusPill" preference="pencil-agentFeedbackStatusPill" configName="agent.feedback.statusPill"/>
+                        <label for="checkboxEnableAgentStatusPill">Show floating agent activity status indicator</label>
+                    </hbox>
                 </vbox>
             </vbox>
             <!-- <vbox anon-id="clipartBrowserTab" flex="1" tab-title="Clipart Browser">
