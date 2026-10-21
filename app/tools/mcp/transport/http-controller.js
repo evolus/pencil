@@ -160,6 +160,11 @@ McpHttpController.prototype.mount = function (app) {
     // Normalizer middleware
     app.use(endpoint, this.normalizeAcceptHeader());
 
+    // Allow HEAD probes for connectivity verification (e.g. curl -I)
+    app.head(endpoint, function (req, res) {
+        res.status(200).end();
+    });
+
     // Streamable HTTP routes
     app.post(endpoint, function (req, res) {
         self.handlePost(req, res);

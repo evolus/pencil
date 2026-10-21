@@ -28,13 +28,14 @@
 
 ### Key Capabilities & Architecture in V4.0
 
-**Pencil V4.0** introduces native support for the **Model Context Protocol (MCP)**. By embedding a local-first Streamable HTTP server directly inside the Electron runtime on `http://127.0.0.1:1919/mcp`, Pencil connects visual wireframing directly to modern AI programming environments and assistants, including **Claude Desktop**, **Cursor**, **Antigravity**, and **VS Code** without external daemons or CLI proxies.
+Pencil V4.0 introduces native support for the **Model Context Protocol (MCP)**. This enables any AI assistant or LLM client that supports standard MCP (including **Claude Desktop**, **Cursor**, **Antigravity**, **VS Code**, or custom agents) to inspect, create, and modify wireframes directly on your canvas using everyday language. Pencil runs a local server right inside the app at `http://127.0.0.1:1919/mcp`, with no extra background services or cloud setups required.
 
-- **Editable Vector Primitives**: Unlike generative tools that output flat raster images or non-standard code snippets, Pencil generates native, fully editable vector stencils and shapes. Any AI-generated element can be modified, resized, recolored, or reorganized manually on the canvas at any time.
-- **100% Local-First & Private**: All document data (`.ep`, `.epz`) and canvas operations remain strictly on the local machine. MCP requests execute directly in the local application process without external telemetry or cloud dependencies.
-- **Visual Feedback & QA Loop**: The embedded server exposes a high-fidelity snapshot mechanism (`render_preview`), allowing connected assistants to visually inspect rendering, evaluate spacing, contrast, and alignment, and perform iterative corrections autonomously.
-- **Dynamic Layout & Container Management**: Built-in container structures automatically handle padding, element distribution, and layout offsets, eliminating manual coordinate calculations when inserting or reordering components.
-- **Design System & Stencil Introspection**: Connected assistants can introspect installed stencil collections (including **shadcn/ui**, **Bootstrap**, **Material Design**, **iOS**, and **Flowcharts**) and search thousands of vector icons (**Tabler**, **Lucide**, **FontAwesome**) on demand.
+- **Natural Language to Vector Canvas**: AI assistants convert prompts (e.g. *"Create a 3-tier pricing table using shadcn/ui"*) directly into canvas operations via MCP tools (`insert_shapes`, `shift_layout`). Components are positioned with calculated bounds, not flat image overlays.
+- **True Vector Primitives**: Generates native, fully editable vector stencils and shapes instead of raster bitmaps or static mockups. Every AI-created element can be resized, restyled, or reorganized on the canvas at any time.
+- **100% Local-First & Private**: All document data (`.ep`, `.epz`) and MCP requests stay strictly on your local machine over loopback (`127.0.0.1`). No cloud syncing, third-party analytics, or telemetry.
+- **Autonomous Vision QA Loop**: Exposes a visual snapshot mechanism (`render_preview`), allowing LLMs to inspect the rendered canvas, verify spacing/alignment/contrast, and perform iterative layout corrections autonomously.
+- **Dynamic Layout & Spacing**: Built-in container structures automatically manage padding, element distribution, and offsets, eliminating manual pixel math when appending or reordering components.
+- **Stencil & Icon Introspection**: Connected assistants can query installed stencil libraries (**shadcn/ui**, **Bootstrap**, **Material Design**, **iOS**, **Flowcharts**) and search icon catalogs (**Tabler**, **Lucide**, **FontAwesome**) on demand.
 
 ---
 
@@ -50,7 +51,7 @@ For end users who do not require building from source:
 
 ## Connecting AI Clients
 
-Pencil provides automated configuration generation directly within the application interface. Open **Settings > MCP**, select your target assistant (**Claude Desktop**, **Cursor**, **Antigravity**, or **VS Code**), and click **Copy Configuration** to paste directly into your client.
+Pencil provides built-in configuration snippets for popular tools (**Claude Desktop**, **Cursor**, **Antigravity**, and **VS Code**), and works with any client or script that connects to standard MCP HTTP endpoints. Open **Settings > MCP**, select your assistant tab, and click **Copy Configuration** to paste directly into your client.
 
 The internal server operates on `http://127.0.0.1:1919/mcp` (Streamable HTTP / JSON-RPC 2.0). Server status, port assignment, and restarts can be managed directly in the MCP settings pane. To verify endpoint responsiveness externally:
 
