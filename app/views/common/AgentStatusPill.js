@@ -209,13 +209,13 @@
                 "  align-items: center;",
                 "  gap: 8px;",
                 "  padding: 7px 14px;",
-                "  background: rgba(18, 18, 22, 0.88);",
+                "  background: white;",
                 "  backdrop-filter: blur(14px) saturate(180%);",
                 "  -webkit-backdrop-filter: blur(14px) saturate(180%);",
-                "  border: 1px solid rgba(255, 255, 255, 0.12);",
-                "  border-radius: 9999px;",
-                "  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 24px rgba(218, 133, 0, 0.18);",
-                "  color: #f4f4f5;",
+                "  border: 1px solid rgba(0, 0, 0, 0.16);",
+                "  border-radius: 3px;",
+                "  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.12);",
+                "  color: #111827;",
                 "  font-family: inherit;",
                 "  font-size: 12.5px;",
                 "  line-height: 1.4;",
@@ -243,61 +243,61 @@
                 "  width: 8px;",
                 "  height: 8px;",
                 "  border-radius: 50%;",
-                "  background: #da8500;",
-                "  box-shadow: 0 0 10px #da8500, 0 0 18px rgba(218, 133, 0, 0.7);",
+                "  background: #b45309;",
+                "  box-shadow: 0 0 6px rgba(180, 83, 9, 0.6);",
                 "  animation: agentPillPulse 1.4s infinite ease-in-out;",
                 "  flex-shrink: 0;",
                 "  transition: background 0.3s ease, box-shadow 0.3s ease;",
                 "}",
                 "#agentStatusPill.state-idle .agent-pill-dot {",
-                "  background: #10b981;",
-                "  box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);",
+                "  background: #047857;",
+                "  box-shadow: 0 0 6px rgba(4, 120, 87, 0.6);",
                 "  animation: none;",
                 "}",
                 "#agentStatusPill.state-active .agent-pill-dot {",
-                "  background: #da8500;",
-                "  box-shadow: 0 0 10px #da8500, 0 0 18px rgba(218, 133, 0, 0.85);",
+                "  background: #b45309;",
+                "  box-shadow: 0 0 8px rgba(180, 83, 9, 0.8);",
                 "  animation: agentPillPulse 1.4s infinite ease-in-out;",
                 "}",
                 "#agentStatusPill.state-thinking .agent-pill-dot {",
-                "  background: #8b5cf6;",
-                "  box-shadow: 0 0 10px #8b5cf6, 0 0 18px rgba(139, 92, 246, 0.8);",
+                "  background: #6d28d9;",
+                "  box-shadow: 0 0 8px rgba(109, 40, 217, 0.8);",
                 "  animation: agentPillPulse 1.4s infinite ease-in-out;",
                 "}",
                 "#agentStatusPill.state-success .agent-pill-dot {",
-                "  background: #10b981;",
-                "  box-shadow: 0 0 10px #10b981, 0 0 18px rgba(16, 185, 129, 0.7);",
+                "  background: #047857;",
+                "  box-shadow: 0 0 6px rgba(4, 120, 87, 0.6);",
                 "  animation: none;",
                 "}",
                 "#agentStatusPill.state-error .agent-pill-dot {",
-                "  background: #f43f5e;",
-                "  box-shadow: 0 0 10px #f43f5e, 0 0 18px rgba(244, 63, 94, 0.7);",
+                "  background: #b91c1c;",
+                "  box-shadow: 0 0 8px rgba(185, 28, 28, 0.7);",
                 "  animation: none;",
                 "}",
                 "@keyframes agentPillPulse {",
                 "  0%, 100% { transform: scale(0.9); opacity: 0.8; }",
-                "  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 14px #da8500, 0 0 24px rgba(218, 133, 0, 0.9); }",
+                "  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 10px #b45309, 0 0 16px rgba(180, 83, 9, 0.85); }",
                 "}",
                 ".agent-pill-badge {",
-                "  color: #da8500;",
+                "  color: #9a3412;",
                 "  font-size: 11px;",
                 "  font-weight: 700;",
                 "  text-transform: uppercase;",
                 "  letter-spacing: 0.6px;",
                 "}",
                 ".agent-pill-sep {",
-                "  color: #475569;",
+                "  color: #4b5563;",
                 "  font-size: 10px;",
                 "}",
                 ".agent-pill-msg {",
-                "  color: #f8fafc;",
-                "  font-weight: 500;",
+                "  color: #111827;",
+                "  font-weight: 600;",
                 "  overflow: hidden;",
                 "  text-overflow: ellipsis;",
                 "}",
                 ".agent-pill-close {",
                 "  margin-left: 4px;",
-                "  color: #64748b;",
+                "  color: #4b5563;",
                 "  font-size: 14px;",
                 "  line-height: 1;",
                 "  border-radius: 50%;",
@@ -305,9 +305,9 @@
                 "  transition: color 0.15s ease, background 0.15s ease;",
                 "}",
                 ".agent-pill-close:hover {",
-                "  color: #f1f5f9;",
+                "  color: #000000;",
                 "  cursor: pointer;",
-                "  background: rgba(255, 255, 255, 0.12);",
+                "  background: rgba(0, 0, 0, 0.12);",
                 "}"
             ].join("\n");
 
@@ -528,7 +528,7 @@
                         if (!event.value) {
                             self.hide();
                         } else {
-                            self.show("Ready", "idle");
+                            self.show("Ready", "idle", self.DEFAULT_IDLE_TIMEOUT);
                         }
                     }
                 });
@@ -612,11 +612,16 @@
                 this._msgNode.textContent = message || "Working...";
             }
 
-            if (autoHideMs && autoHideMs > 0) {
+            var timeout = autoHideMs || this.DEFAULT_IDLE_TIMEOUT;
+            if (timeout === undefined && (state === "idle" || message === "Ready")) {
+                timeout = this.DEFAULT_IDLE_TIMEOUT;
+            }
+
+            if (timeout && timeout > 0) {
                 var self = this;
                 this._hideTimer = setTimeout(function () {
                     self.hide();
-                }, autoHideMs);
+                }, timeout);
             }
         },
 

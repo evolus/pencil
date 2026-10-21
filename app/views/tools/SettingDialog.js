@@ -207,7 +207,7 @@ SettingDialog.prototype.updateConfigAndInvalidateUI = function (configName, valu
                        (typeof window !== "undefined" && window.AgentStatusPill ? window.AgentStatusPill : null));
             if (pill) {
                 if (value) {
-                    pill.show("Ready", "idle");
+                    pill.show("Ready", "idle", pill.DEFAULT_IDLE_TIMEOUT || 3000);
                 } else {
                     pill.hide();
                 }
