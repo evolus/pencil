@@ -65,14 +65,19 @@ CollectionRepoBrowserView.prototype.handleItemClick = function (control) {
                     collection._installed = true;
                     collection.installDirPath = newCollection.installDirPath;
                     collection.userDefined = newCollection.userDefined;
+                    if (collection.version) {
+                        Config.set("Collection." + collection.id + ".version", collection.version);
+                        if (newCollection) {
+                            newCollection.version = collection.version;
+                        }
+                    }
 
                     control.style.display = "none";
                     control._buttonUninstall.style.display = "";
                     view.setAttribute("installed", "true");
 
-                    thiz.managerDialog.loadCollectionList();
-                    thiz.collectionPanel.reload(newCollection.id);
-
+                    thiz.managerDialog && thiz.managerDialog.loadCollectionList();
+                    thiz.collectionPanel && thiz.collectionPanel.reload(newCollection.id);
                 }
             });
     } else if (control._role == "button-uninstall") {
@@ -80,8 +85,8 @@ CollectionRepoBrowserView.prototype.handleItemClick = function (control) {
         var thiz = this;
 
         CollectionManager.uninstallCollection(collection, () => {
-            thiz.collectionPanel.reload();
-            thiz.managerDialog.loadCollectionList();
+            thiz.collectionPanel && thiz.collectionPanel.reload();
+            thiz.managerDialog && thiz.managerDialog.loadCollectionList();
 
             collection._installed = false;
             collection.installDirPath = null;

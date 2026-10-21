@@ -145,6 +145,12 @@ ApplicationPane.prototype.onAttached = function () {
         }
     }, 3000);
 
+    window.setTimeout(function () {
+        if (typeof StencilUpdateService !== "undefined") {
+            StencilUpdateService.checkForUpdates();
+        }
+    }, 10000);
+
     if (typeof AgentStatusPill !== "undefined" && typeof AgentStatusPill.init === "function") {
         AgentStatusPill.init(this.mainArea);
     }

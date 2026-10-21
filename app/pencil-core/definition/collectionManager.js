@@ -59,6 +59,27 @@ CollectionManager.findCollection = function (collectionId) {
     }
     return null;
 };
+CollectionManager.getCollectionVersion = function (collection) {
+    if (!collection) return "";
+    var version = collection.version || Config.get("Collection." + collection.id + ".version", null);
+    if (!version && collection.installDirPath) {
+        try {
+            var defPath = path.join(collection.installDirPath, "Definition.xml");
+            if (fs.existsSync(defPath)) {
+                var content = fs.readFileSync(defPath, "utf8");
+                var m = content.match(/<Shapes[^>]*\sversion="([^"]+)"/);
+                if (m) {
+                    version = m[1];
+                    collection.version = version;
+                }
+            }
+        } catch (e) {}
+    }
+    if (!version) {
+        version = "1.0";
+    }
+    return (version.indexOf("v") === 0) ? version : ("v" + version);
+};
 CollectionManager.loadAdHocCollection = function (dir) {
     CollectionManager.unloadLastAdHocCollection();
 

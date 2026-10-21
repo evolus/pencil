@@ -162,6 +162,7 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
     var thiz = this;
     var icon = this.getCollectionIcon(collection);
     var id = "check_" + Util.newUUID();
+    var version = CollectionManager.getCollectionVersion ? CollectionManager.getCollectionVersion(collection) : (collection.version ? ("v" + collection.version) : "v1.0");
 
     var holder = {};
 
@@ -200,6 +201,11 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
                 _name: "hbox",
                 "class": "Controls",
                 _children: [
+                    {
+                        _name: "span",
+                        "class": "CollectionVersion",
+                        _text: version
+                    },
                     {
                         _name: "input",
                         type: "checkbox",
@@ -245,6 +251,7 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
 
     view._id = collection.displayName;
     view._collection = collection;
+    view._collectionVersion = version;
     view.setAttribute("selected", "false");
     view.setAttribute("draggable", "true");
 
@@ -268,9 +275,11 @@ CollectionManagementDialog.prototype.filterCollections = function () {
         var node = children[i];
         if (!node._collection) continue;
         var name = (node._collection.displayName || node._collection.id || "").toLowerCase();
+        var ver = (node._collectionVersion || "").toLowerCase();
+        var searchTarget = name + " " + ver;
         var matches = true;
         for (var j = 0; j < tokens.length; j++) {
-            if (name.indexOf(tokens[j]) < 0) {
+            if (searchTarget.indexOf(tokens[j]) < 0) {
                 matches = false;
                 break;
             }

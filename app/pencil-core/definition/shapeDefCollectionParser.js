@@ -215,6 +215,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, 
     collection.instructions = shapeDefsNode.getAttribute("instructions");
     collection.author = shapeDefsNode.getAttribute("author");
     collection.infoUrl = shapeDefsNode.getAttribute("url");
+    collection.version = shapeDefsNode.getAttribute("version") || Config.get("Collection." + collection.id + ".version", null);
     collection.system = shapeDefsNode.getAttribute("system") == "true";
     collection.fonts = [];
 

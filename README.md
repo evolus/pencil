@@ -18,7 +18,7 @@
   </p>
 </div>
 
-![Pencil V4 Interface and Canvas](screenshot-v4.png)
+![Pencil V4 Interface and Canvas](screenshot.png)
 
 ---
 

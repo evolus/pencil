@@ -85,3 +85,8 @@ Config.AGENT_FEEDBACK_STATUS_PILL = Config.define("agent.feedback.statusPill", t
 Config.UPDATER_CHECK_URL = Config.define("updater.checkUrl", "https://raw.githubusercontent.com/evolus/pencil/master/version.json");
 Config.UPDATER_DISMISSED_VERSION = Config.define("updater.dismissedVersion", "");
 Config.UPDATER_AUTO_CHECK = Config.define("updater.autoCheck", true);
+
+Config.COLLECTION_UPDATER_AUTO_CHECK = Config.define("collection.updater.autoCheck", true);
+Config.COLLECTION_UPDATER_DISMISSED_FINGERPRINT = Config.define("collection.updater.dismissedFingerprint", "");
+Config.COLLECTION_UPDATER_LAST_CHECK_TIME = Config.define("collection.updater.lastCheckTime", 0);
+

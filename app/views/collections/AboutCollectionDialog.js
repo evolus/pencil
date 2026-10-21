@@ -36,6 +36,19 @@ function AboutCollectionDialog(collection) {
                         _children :[
                             {
                                 _name: "h4",
+                                _text: "Version: "
+                            },
+                            {
+                                _name: "p",
+                                _text: CollectionManager.getCollectionVersion ? CollectionManager.getCollectionVersion(collection) : (collection.version ? ("v" + collection.version) : "v1.0")
+                            }
+                        ]
+                    },
+                    {
+                        _name: "li",
+                        _children :[
+                            {
+                                _name: "h4",
                                 _text: "More Information:",
                                 "class": "MoreInfor"
                             },
