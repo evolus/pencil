@@ -17,6 +17,8 @@ Pencil.behaviors.Bound = function (bound) {
     this.setAttribute("width", Math.max(bound.w, 0));
     this.setAttribute("height", Math.max(bound.h, 0));
 };
+Pencil.behaviors.Bound._offScreenSupport = true;
+
 Pencil.behaviors.Radius = function (rx, ry) {
     this.setAttribute("rx", rx);
     this.setAttribute("ry", typeof(ry) != "undefined" ? ry : rx);
