@@ -1,9 +1,29 @@
+/*
+ * Accommodates single-argument instantiation where a URI or data string
+ * (such as 'collection://@collectionId/path/to/resource' or 'data:...') is provided
+ * without leading width/height dimensions.
+ * Automatically normalizes bare '@collectionId/path' URIs into canonical
+ * 'collection://@collectionId/path' format so external LLM payloads omitting the
+ * protocol scheme are tolerated transparently.
+ */
 function ImageData(w, h, data, xCells, yCells) {
-    this.data = data;
-    this.w = w;
-    this.h = h;
-    this.xCells = xCells;
-    this.yCells = yCells;
+    if (arguments.length === 1 && typeof w === "string") {
+        this.data = w;
+        this.w = 0;
+        this.h = 0;
+        this.xCells = null;
+        this.yCells = null;
+    } else {
+        this.data = data;
+        this.w = w;
+        this.h = h;
+        this.xCells = xCells;
+        this.yCells = yCells;
+    }
+
+    if (typeof this.data === "string" && this.data.startsWith("@") && this.data.indexOf("/") !== -1) {
+        this.data = "collection://" + this.data;
+    }
 }
 ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]*)$/;
 ImageData.REG_EX2 = /^([0-9]+)\,([0-9]+)\,([0-9\- ]*)\,([0-9\- ]*)\,([^\0]+)$/;
@@ -32,7 +52,7 @@ ImageData.fromString = function (literal) {
                             RegExp.$3);
     }
 
-    return new ImageData(literal);
+    return new ImageData(0, 0, literal);
 };
 ImageData.parseCellString = function (literal) {
     var cells = [];
@@ -145,13 +165,143 @@ ImageData.prepareForEmbedding = function (oldData, callback) {
     }
 };
 
-ImageData.performIntialProcessing = function (data, def, currentCollection) {
-    if (data.data.match(/^collection:\/\/(.+)$/)) {
-        var declaredPath = RegExp.$1;
-        var id = Pencil.controller.collectionResourceAsRefSync(currentCollection || def.collection, declaredPath);
-        if (id) {
-            return new ImageData(data.w, data.h, ImageData.idToRefString(id), data.xCells, data.yCells);
+function resolveImageData(value) {
+    if (!value.data) return;
+
+    let ow = value.w;
+    let oh = value.h;
+
+    if (ow == 0 || oh == 0) return;
+
+    if (value.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+        try {
+            let svg = value.getDataAsXML();
+            let svgNode = domParser.parseFromString(svg, "text/xml").documentElement;
+            let parsedSize = CollectionResourceBrowserDialog._getParsedSvgSize(svgNode);
+            parsedSize
+            fixImageImageSize(value, svg);
+        } catch (e) {
+            console.error(e);
         }
+    }
+
+    function fixImageImageSize(value, svg) {
+        let svgNode = domParser.parseFromString(svg, "text/xml").documentElement;
+        CollectionResourceBrowserDialog._getParsedSvgSize(domParser.parseFromString(svg, "text/xml").documentElement);
+
+        let viewBox = svgNode.getAttribute("viewBox");
+
+        let m = viewBox?.match ? viewBox.match(/^\s*[0-9\.]+\s+[0-9\.]+\s+([0-9\.]+)\s+([0-9\.]+)\s*$/) : null;
+        if (m) {
+            value.w = Math.round(parseFloat(m[1]));
+            value.h = Math.round(parseFloat(m[2]));
+            if (value.w != ow || value.h != oh) console.log("Fix w/h using viewBox", viewBox);
+        } else {
+            let w = svgNode.getAttribute("width");
+            let h = svgNode.getAttribute("height");
+            if (w && h) {
+                value.w = parseInt(w, 10);
+                value.h = parseInt(h, 10);
+
+                if (value.w != ow || value.h != oh) console.log("Fix w/h using width/height", { w, h });
+            }
+        }
+    }
+}
+
+ImageData.performIntialProcessing = function (data, def, currentCollection) {
+    if (data && typeof data.data === "string" && data.data.startsWith("@") && data.data.indexOf("/") !== -1) {
+        data.data = "collection://" + data.data;
+    }
+    if (data && data.data && data.data.match(/^collection:\/\/(@([^\s\/]+)\/)?(.+)$/)) {
+        var collectionId = RegExp.$2;
+        var declaredPath = RegExp.$3;
+
+        var sourceCollection = currentCollection || (def ? def.collection : null);
+        if (collectionId) {
+            sourceCollection = CollectionManager.findCollection(collectionId);
+            if (!sourceCollection) throw new Error("Invalid collection id in reference: " + data.data);
+        }
+
+        var id = Pencil.controller.collectionResourceAsRefSync(sourceCollection, declaredPath);
+        if (id) {
+            var finalW = Number(data.w) || 0;
+            var finalH = Number(data.h) || 0;
+
+            /*
+             * If explicit dimensions were not provided with the collection URI (e.g. data.w <= 0),
+             * derive the intrinsic dimensions of the copied asset directly from the document's
+             * reference file. SVG assets are parsed via CollectionResourceBrowserDialog._getParsedSvgSize
+             * to respect viewBox aspect ratios; bitmap assets query nativeImage dimensions.
+             */
+            if (finalW <= 0 || finalH <= 0) {
+                var filePath = Pencil.controller.refIdToFilePath(id);
+                var fsModule = (typeof fs !== "undefined") ? fs : ((typeof require !== "undefined") ? require("fs") : null);
+                if (filePath && fsModule && fsModule.existsSync(filePath)) {
+                    var isSvg = Boolean(
+                        (declaredPath && declaredPath.match(/\.svg$/i)) ||
+                        (id && (id.match(/\.svg$/i) || id.match(/_svg$/i))) ||
+                        (filePath && (filePath.match(/\.svg$/i) || filePath.match(/_svg$/i)))
+                    );
+                    if (isSvg) {
+                        try {
+                            var svgText = fsModule.readFileSync(filePath, "utf8");
+                            var parser = (typeof domParser !== "undefined") ? domParser : ((typeof DOMParser !== "undefined") ? new DOMParser() : null);
+                            var parsedSize = null;
+                            if (parser) {
+                                var svgDoc = parser.parseFromString(svgText, "text/xml");
+                                var svgNode = svgDoc ? svgDoc.documentElement : null;
+                                if (svgNode && typeof CollectionResourceBrowserDialog !== "undefined" && CollectionResourceBrowserDialog._getParsedSvgSize) {
+                                    parsedSize = CollectionResourceBrowserDialog._getParsedSvgSize(svgNode);
+                                }
+                            }
+                            if (!parsedSize || !parsedSize.width || !parsedSize.height) {
+                                var vbMatch = svgText.match(/viewBox\s*=\s*["']\s*([-\d.]+)\s+([-\d.]+)\s+([\d.]+)\s+([\d.]+)\s*["']/i);
+                                var wMatch = svgText.match(/\bwidth\s*=\s*["']\s*([\d.]+)(?:px)?\s*["']/i);
+                                var hMatch = svgText.match(/\bheight\s*=\s*["']\s*([\d.]+)(?:px)?\s*["']/i);
+                                var parsedW = wMatch ? parseFloat(wMatch[1]) : (vbMatch ? parseFloat(vbMatch[3]) : 0);
+                                var parsedH = hMatch ? parseFloat(hMatch[1]) : (vbMatch ? parseFloat(vbMatch[4]) : 0);
+                                if (parsedW > 0 && parsedH > 0) {
+                                    parsedSize = { width: parsedW, height: parsedH };
+                                }
+                            }
+                            if (parsedSize && parsedSize.width > 0 && parsedSize.height > 0) {
+                                finalW = Math.round(parsedSize.width);
+                                finalH = Math.round(parsedSize.height);
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse SVG size for collection resource:", filePath, e);
+                        }
+                    } else {
+                        try {
+                            var nImg = (typeof nativeImage !== "undefined" && nativeImage.createFromPath)
+                                ? nativeImage.createFromPath(filePath)
+                                : ((typeof require !== "undefined") ? require("electron").nativeImage.createFromPath(filePath) : null);
+                            if (nImg) {
+                                var nSize = nImg.getSize();
+                                if (nSize && nSize.width > 0 && nSize.height > 0) {
+                                    finalW = nSize.width;
+                                    finalH = nSize.height;
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse bitmap image size for collection resource:", filePath, e);
+                        }
+                    }
+                }
+            }
+
+            return new ImageData(finalW, finalH, ImageData.idToRefString(id), data.xCells, data.yCells);
+        }
+    } else if (data && data.data && data.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+        let svg = data.getDataAsXML();
+        let svgNode = domParser.parseFromString(svg, "text/xml").documentElement;
+        let parsedSize = CollectionResourceBrowserDialog._getParsedSvgSize(svgNode);
+        let width = Math.round(parsedSize.width);
+        let height = Math.round(parsedSize.height);
+        var id = Pencil.controller.svgImageToRefSync(svg);
+
+        return new ImageData(width, height, ImageData.idToRefString(id));
     }
 
     return null;
@@ -446,30 +596,37 @@ ImageData.fromScreenshot = function (callback, providedOptions) {
     }
 };
 
-window.addEventListener("load", function () {
-    var iframe = document.createElementNS(PencilNamespaces.html, "html:iframe");
-    iframe.setAttribute("style", "border: none; min-width: 0px; min-height: 0px; width: 1px; height: 1px; xvisibility: hidden;");
-    iframe.setAttribute("src", "pencil-core/blank.html");
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+    window.addEventListener("load", function () {
+        var iframe = document.createElementNS(PencilNamespaces.html, "html:iframe");
+        iframe.setAttribute("style", "border: none; min-width: 0px; min-height: 0px; width: 1px; height: 1px; xvisibility: hidden;");
+        iframe.setAttribute("src", "pencil-core/blank.html");
 
-    var container = document.body;
-    if (!container) container = document.documentElement;
+        var container = document.body;
+        if (!container) container = document.documentElement;
 
-    var box = document.createElement("div");
-    box.setAttribute("style", "overflow: hidden; width: 1px; height: 1px; position: absolute; bottom: 0px; right: 0px;");
-    box.appendChild(iframe);
+        var box = document.createElement("div");
+        box.setAttribute("style", "overflow: hidden; width: 1px; height: 1px; position: absolute; bottom: 0px; right: 0px;");
+        box.appendChild(iframe);
 
-    container.appendChild(box);
+        container.appendChild(box);
 
-    ImageData.win = iframe.contentWindow;
-    ImageData.win.document.body.setAttribute("style", "padding: 0px; margin: 0px;")
-}, false);
+        ImageData.win = iframe.contentWindow;
+        ImageData.win.document.body.setAttribute("style", "padding: 0px; margin: 0px;")
+    }, false);
+}
 
+if (typeof pencilSandbox !== "undefined") {
+    pencilSandbox.ImageData = {
+        newImageData: function (w, h, data) {
+            return new ImageData(w, h, data);
+        }
+    };
+    for (var p in ImageData) {
+        pencilSandbox.ImageData[p] = ImageData[p];
+    };
+}
 
-pencilSandbox.ImageData = {
-    newImageData: function (w, h, data) {
-        return new ImageData(w, h, data);
-    }
-};
-for (var p in ImageData) {
-    pencilSandbox.ImageData[p] = ImageData[p];
-};
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = ImageData;
+}

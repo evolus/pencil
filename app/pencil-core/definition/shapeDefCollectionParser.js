@@ -212,8 +212,10 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, 
     collection.id = shapeDefsNode.getAttribute("id");
     collection.displayName = shapeDefsNode.getAttribute("displayName");
     collection.description = shapeDefsNode.getAttribute("description");
+    collection.instructions = shapeDefsNode.getAttribute("instructions");
     collection.author = shapeDefsNode.getAttribute("author");
     collection.infoUrl = shapeDefsNode.getAttribute("url");
+    collection.version = shapeDefsNode.getAttribute("version") || Config.get("Collection." + collection.id + ".version", null);
     collection.system = shapeDefsNode.getAttribute("system") == "true";
     collection.fonts = [];
 
@@ -349,6 +351,7 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, 
     var shapeDef = new ShapeDef();
     shapeDef.id = collection.id + ":" + shapeDefNode.getAttribute("id");
     shapeDef.displayName = shapeDefNode.getAttribute("displayName");
+    shapeDef.instructions = shapeDefNode.getAttribute("instructions");
     shapeDef.system = shapeDefNode.getAttribute("system") == "true";
     shapeDef.collection = collection;
     var inherits = shapeDefNode.getAttribute("inherits");
@@ -636,7 +639,15 @@ ShapeDefCollectionParser.prototype.loadCustomLayout = function (installDirPath, 
 /* public Shortcut */ ShapeDefCollectionParser.prototype.parseShortcut = function (shortcutNode, collection) {
     var shortcut = new Shortcut();
 
+    var idAttr = shortcutNode.getAttribute("id");
     shortcut.displayName = shortcutNode.getAttribute("displayName");
+    /*
+     * Defines the local shortcut identifier used for scoped style composition and resolution.
+     * Prefers explicit id attribute, otherwise normalizes displayName into a slug.
+     */
+    shortcut.localId = (idAttr && idAttr.trim())
+        ? idAttr.trim()
+        : (shortcut.displayName ? shortcut.displayName.trim().replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "").toLowerCase() : "");
     shortcut.system = shortcutNode.getAttribute("system") == "true";
     shortcut.collection = collection;
     var iconPath = shortcutNode.getAttribute("icon");

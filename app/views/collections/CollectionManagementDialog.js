@@ -5,12 +5,35 @@ function CollectionManagementDialog (collectionPanel) {
     this.title = "Manage Collections";
     this.subTitle = "Browse the list of collections installed in this system.";
 
+    var thiz = this;
+    this.bind("input", function () {
+        thiz.filterCollections();
+    }, this.filterInput);
+
+    this.bind("keydown", function (event) {
+        if (event.key === "Escape" || event.keyCode === 27) {
+            if (thiz.filterInput.value) {
+                event.stopPropagation();
+                event.preventDefault();
+                thiz.filterInput.value = "";
+                thiz.filterCollections();
+            }
+        }
+    }, this.filterInput);
+
+    this.bind("click", function () {
+        thiz.filterInput.value = "";
+        thiz.filterInput.focus();
+        thiz.filterCollections();
+    }, this.clearSearchButton);
+
     this.loadCollectionList();
 
     this.bind("click", this.handleItemClick, this.collectionContainer);
 
     this.collectionContainer.addEventListener("click",function (event) {
         var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (!node) return;
         var check = node.getAttribute("selected");
         if(check == "true") {
             node.setAttribute("selected", "false");
@@ -31,9 +54,9 @@ function CollectionManagementDialog (collectionPanel) {
         }
     }, false);
 
-    var thiz = this;
     this.collectionContainer.addEventListener("dblclick",function (event) {
         var top = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        if (!top) return;
         var visible = CollectionManager.isCollectionVisible (top._collection);
         if (!visible) {
             CollectionManager.setCollectionVisible (top._collection, true) ;
@@ -43,8 +66,13 @@ function CollectionManagementDialog (collectionPanel) {
     }, false);
 
     this.bind("dragstart", function (ev) {
+        if (thiz.filterInput && thiz.filterInput.value.trim()) {
+            ev.preventDefault();
+            return false;
+        }
         nsDragAndDrop.dragStart(ev);
-        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        var target = ev.target || (typeof event != "undefined" ? event.target : null);
+        var node = Dom.findUpwardForNodeWithData(target, "_collection");
         if (!node) return;
         ev.dataTransfer.setData("collectionId", node._collection.id);
         ev.dataTransfer.setData("dragType", "collection");
@@ -62,7 +90,7 @@ function CollectionManagementDialog (collectionPanel) {
             this.hoverNode.removeAttribute("hover");
             this.hoverNode = null;
         }
-        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        var node = Dom.findUpwardForNodeWithData(ev.target || (typeof event != "undefined" ? event.target : null), "_collection");
         if (node) {
             node.setAttribute("hover", "true");
             this.hoverNode = node;
@@ -78,7 +106,7 @@ function CollectionManagementDialog (collectionPanel) {
             this.hoverNode.removeAttribute("hover");
             this.hoverNode = null;
         }
-        var node = Dom.findUpwardForNodeWithData(event.target, "_collection");
+        var node = Dom.findUpwardForNodeWithData(ev.target || (typeof event != "undefined" ? event.target : null), "_collection");
         if (!node) return;
         var draggedCollectionId = ev.dataTransfer.getData("collectionId");
         var draggedCollectionId = nsDragAndDrop.getData("collectionId");
@@ -123,6 +151,7 @@ CollectionManagementDialog.prototype.handleItemClick = function (event) {
                 CollectionManager.uninstallCollection(collection);
                 this.collectionPanel.reload();
                 view.parentNode.removeChild(view);
+                this.filterCollections();
             }.bind(this),
             "Cancel"
         );
@@ -133,6 +162,7 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
     var thiz = this;
     var icon = this.getCollectionIcon(collection);
     var id = "check_" + Util.newUUID();
+    var version = CollectionManager.getCollectionVersion ? CollectionManager.getCollectionVersion(collection) : (collection.version ? ("v" + collection.version) : "v1.0");
 
     var holder = {};
 
@@ -171,6 +201,11 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
                 _name: "hbox",
                 "class": "Controls",
                 _children: [
+                    {
+                        _name: "span",
+                        "class": "CollectionVersion",
+                        _text: version
+                    },
                     {
                         _name: "input",
                         type: "checkbox",
@@ -216,11 +251,59 @@ CollectionManagementDialog.prototype.createCollectionView = function (collection
 
     view._id = collection.displayName;
     view._collection = collection;
+    view._collectionVersion = version;
     view.setAttribute("selected", "false");
     view.setAttribute("draggable", "true");
 
     return view;
 }
+
+CollectionManagementDialog.prototype.onShown = function () {
+    if (this.filterInput) {
+        this.filterInput.focus();
+        this.filterInput.select();
+    }
+};
+
+CollectionManagementDialog.prototype.filterCollections = function () {
+    var query = (this.filterInput ? this.filterInput.value : "").trim().toLowerCase();
+    var tokens = query ? query.split(/\s+/).filter(Boolean) : [];
+
+    var children = this.collectionContainer ? this.collectionContainer.children : [];
+    var matchCount = 0;
+    for (var i = 0; i < children.length; i++) {
+        var node = children[i];
+        if (!node._collection) continue;
+        var name = (node._collection.displayName || node._collection.id || "").toLowerCase();
+        var ver = (node._collectionVersion || "").toLowerCase();
+        var searchTarget = name + " " + ver;
+        var matches = true;
+        for (var j = 0; j < tokens.length; j++) {
+            if (searchTarget.indexOf(tokens[j]) < 0) {
+                matches = false;
+                break;
+            }
+        }
+        node.style.display = matches ? "" : "none";
+        if (matches) matchCount++;
+    }
+
+    if (this.clearSearchButton) {
+        this.clearSearchButton.style.display = query ? "" : "none";
+    }
+
+    if (this.noResultsMessage) {
+        this.noResultsMessage.style.display = (query && matchCount === 0) ? "" : "none";
+    }
+
+    if (this.collectionContainer) {
+        this.collectionContainer.style.display = (query && matchCount === 0) ? "none" : "";
+    }
+
+    if (this.reorderInfo) {
+        this.reorderInfo.style.display = query ? "none" : "";
+    }
+};
 
 CollectionManagementDialog.prototype.loadCollectionList = function () {
     Dom.empty(this.collectionContainer);
@@ -228,7 +311,8 @@ CollectionManagementDialog.prototype.loadCollectionList = function () {
     for( var i = 0; i < collections.length; i++) {
         this.collectionContainer.appendChild(this.createCollectionView(collections[i]));
     }
-}
+    this.filterCollections();
+};
 
 CollectionManagementDialog.prototype.getDialogActions = function () {
     var thiz = this;

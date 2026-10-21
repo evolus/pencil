@@ -1,0 +1,31 @@
+# RELEASE NOTES 4.0.0
+
+- Native Model Context Protocol (MCP) Streamable HTTP server embedded directly in Pencil
+- Default MCP server endpoint mounted on port 1919 (http://localhost:1919/mcp)
+- Direct in-memory canvas manipulation without file serialization or disk polling
+- Automated layout primitives with `@group` container supporting vertical (column) and horizontal (row) stacking
+- Dimension-only child placement in layout containers with automatic coordinate calculations and bottom-up bounding boxes
+- Declarative 4-tier style resolution engine with type-scoped defaults and single-inheritance custom styles
+- Shorthand referencing of built-in collection shortcut presets (`@collectionId/shortcut_id`) as declarative styles
+- Accelerated multimodal visual verification via inline `preview: true` parameter returning MCP ImageContent blocks
+- Single-turn preview generation tool (`render_preview`) supporting full-page and cropped sub-region previews
+- Granular canvas editing tools: `insert_shapes`, `update_shapes`, `delete_shapes`, and `select_shapes`
+- Single-turn semantic querying and active desktop GUI selection targeting (`target: "selected"`)
+- Spatial layout primitives: `align_shapes`, `distribute_shapes`, `move_shapes`, and `shift_layout`
+- Dynamic stencil and shape discovery tools: `list_collections`, `list_shape_definitions`, and `get_shape_definition`
+- Structured Specific Usage Case Guidelines (`usageGuidelines`) and scenario recipes in shape definitions
+- Batched multi-query resource search tool (`search_resources`) across vector and bitmap icon collections
+- Direct inline collection resource resolution (`collection://@collectionId/path`)
+- Pre-flight collection resource URI validation and fuzzy diagnostics for misspelled asset names
+- Full document and page lifecycle tools (`list_pages`, `create_page`, `update_page`, `rename_page`, `delete_page`, `switch_page`)
+- Agent live telemetry: floating activity status indicator pill (`AgentStatusPill`)
+- Live canvas SVG animation overlay (`CanvasAnimationOverlay`) highlighting active agent operations in real time
+- MCP Settings UI tab in application preferences with server lifecycle control (start/stop/restart)
+- Collection visibility governance allowing users to show or hide specific collections from MCP discovery
+- Interactive client connection guide with one-click configuration copying for Claude Desktop, Cursor, Antigravity, and VS Code
+- Relaxed property schema ergonomics and optional stencil property advertising to minimize token overhead
+- Pre-flight schema validation, shape idMap compilation, and auto-normalization for editing tools
+- Automated and manual non-blocking version update notification dialog
+- Fix canvas shape dimension resizing in `update_shapes` and harden top-level box schema
+- Fix direct SVG transform manipulation in `update_shapes` and `insert_shapes`
+- Fix CollectionSettingDialog height and preference layout

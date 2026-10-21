@@ -182,6 +182,7 @@ ShapeAction.prototype.toString = function () {
 
 function Shortcut() {
     this.id = null;
+    this.localId = null;
     this.name = "";
     this.displayName = "";
 

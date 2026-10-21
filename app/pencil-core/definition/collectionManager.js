@@ -10,7 +10,7 @@ CollectionManager.addShapeDefCollection = function (collection) {
     CollectionManager.shapeDefinition.collections.push(collection);
     collection.visible = CollectionManager.isCollectionVisible(collection);
     collection.collapsed = CollectionManager.isCollectionCollapsed(collection);
-    //collection.usage = CollectionManager.getCollectionUsage(collection);
+    collection.mcpVisible = CollectionManager.isCollectionMcpVisible(collection);
 
     for (var item in collection.shapeDefs) {
         var shapeDef = collection.shapeDefs[item];
@@ -58,6 +58,27 @@ CollectionManager.findCollection = function (collectionId) {
         if (col.id == collectionId) return col;
     }
     return null;
+};
+CollectionManager.getCollectionVersion = function (collection) {
+    if (!collection) return "";
+    var version = collection.version || Config.get("Collection." + collection.id + ".version", null);
+    if (!version && collection.installDirPath) {
+        try {
+            var defPath = path.join(collection.installDirPath, "Definition.xml");
+            if (fs.existsSync(defPath)) {
+                var content = fs.readFileSync(defPath, "utf8");
+                var m = content.match(/<Shapes[^>]*\sversion="([^"]+)"/);
+                if (m) {
+                    version = m[1];
+                    collection.version = version;
+                }
+            }
+        } catch (e) {}
+    }
+    if (!version) {
+        version = "1.0";
+    }
+    return (version.indexOf("v") === 0) ? version : ("v" + version);
 };
 CollectionManager.loadAdHocCollection = function (dir) {
     CollectionManager.unloadLastAdHocCollection();
@@ -561,6 +582,28 @@ CollectionManager.isCollectionVisible = function (collection) {
     var visible = Config.get("Collection." + collection.id + ".visible");
     if (visible == null) visible = true;
     return visible;
+};
+CollectionManager.setCollectionMcpVisible = function (collection, visible) {
+    collection.mcpVisible = visible;
+    Config.set("Collection." + collection.id + ".mcpVisible", visible);
+};
+CollectionManager.isCollectionMcpVisible = function (collection) {
+    var visible = Config.get("Collection." + collection.id + ".mcpVisible");
+    if (visible == null) {
+        /*
+         * When no explicit per-collection preference is stored, resolve
+         * visibility against the global default policy (opt-in vs all).
+         */
+        var defaultPolicy = Config.get("pencil.mcp.defaultCollectionVisibility", "opt-in");
+        visible = (defaultPolicy === "all");
+    }
+    return visible;
+};
+CollectionManager.updateDefaultMcpVisibility = function () {
+    for (var i = 0; i < CollectionManager.shapeDefinition.collections.length; i++) {
+        var col = CollectionManager.shapeDefinition.collections[i];
+        col.mcpVisible = CollectionManager.isCollectionMcpVisible(col);
+    }
 };
 CollectionManager.setCollectionCollapsed = function (collection, collapsed) {
     collection.collapsed = collapsed;

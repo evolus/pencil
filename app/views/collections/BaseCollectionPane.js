@@ -325,7 +325,7 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
     this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
     this.collectionDescription.setAttribute("title", collection.description);
-    this.settingButton.style.visibility =  (collection.propertyGroups && collection.propertyGroups.length > 0) ? "inherit" : "hidden";
+    this.settingButton.style.visibility =  "inherit";
 
     this.layoutOriginalSize = null;
 

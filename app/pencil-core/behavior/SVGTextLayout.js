@@ -184,7 +184,7 @@ SVGHTMLRenderer.LIST_HANDLER = function (node, view) {
             } else {
                 var circle = (listStyleType == "circle");
                 layouts.push({
-                    x: view.x + size.w * 2, y: bottom + (size.h - bulletSize) / 2, height: bulletSize,
+                    x: view.x + size.w * 2, y: bottom + (size.h - bulletSize) / 2, width: bulletSize, height: bulletSize,
                     renderInto: function (container) {
                         var rect = container.ownerDocument.createElementNS(PencilNamespaces.svg, "rect");
                         rect.setAttribute("x", this.x);
@@ -244,7 +244,7 @@ SVGHTMLRenderer.HANDLERS = {
         var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
         return [
             {
-                x: view.x, y: SVGHTMLRenderer._findBottom(preceedingLayouts, view.y, size.h / 2), height: 1, marginBottom: size.h / 2,
+                x: view.x, y: SVGHTMLRenderer._findBottom(preceedingLayouts, view.y, size.h / 2), width: view.width, height: 1, marginBottom: size.h / 2,
                 renderInto: function (container) {
                     var rect = container.ownerDocument.createElementNS(PencilNamespaces.svg, "rect");
                     rect.setAttribute("x", this.x);
@@ -298,6 +298,7 @@ SVGHTMLRenderer.prototype.renderHTML = function (html, container, view) {
 SVGHTMLRenderer.prototype.render = function (nodes, container, view) {
     Dom.empty(container);
     var layouts = this.layout(nodes, view);
+    container._renderResult = SVGHTMLRenderer._computeRenderResult(layouts, view);
     if (!layouts || layouts.length == 0) return;
 
     var vAlign = (typeof(this.height) == "number") ? this.vAlign || 0 : 0;
@@ -314,6 +315,57 @@ SVGHTMLRenderer.prototype.render = function (nodes, container, view) {
     for (var layout of layouts) {
         layout.renderInto(target);
     }
+};
+
+/*
+ * Aggregates the horizontal extents of all produced layouts to find how much
+ * free horizontal space is guaranteed on each side of the rendered content
+ * across every line (e.g. left-aligned text leaves a ragged gap on the right;
+ * leftSpace/rightSpace are the smallest such gaps found on any line).
+ *
+ * Layouts may be SVGTextLayout instances, BlankLayout spacers (which carry
+ * margin values in width/height and must not count as content), or ad-hoc
+ * objects (bullets, hr) that only expose x/width. Vertical alignment only
+ * translates along Y, so it does not affect this result.
+ *
+ * rightSpace is null when the view has no definite width since there is no
+ * right edge to measure against.
+ */
+SVGHTMLRenderer._computeRenderResult = function (layouts, view) {
+    var viewX = view.x || 0;
+    var hasWidth = typeof(view.width) == "number" && isFinite(view.width);
+    var minX = null;
+    var maxX = null;
+
+    for (var layout of (layouts || [])) {
+        var bounds = null;
+        if (typeof(layout.getHorizontalBounds) == "function") {
+            bounds = layout.getHorizontalBounds();
+        } else if (typeof(layout.width) == "number" && isFinite(layout.width)) {
+            bounds = { left: layout.x || 0, right: (layout.x || 0) + layout.width };
+        }
+        if (!bounds) continue;
+        if (minX == null || bounds.left < minX) minX = bounds.left;
+        if (maxX == null || bounds.right > maxX) maxX = bounds.right;
+    }
+
+    if (minX == null) {
+        return {
+            empty: true,
+            contentX: viewX,
+            contentWidth: 0,
+            leftSpace: hasWidth ? view.width : 0,
+            rightSpace: hasWidth ? view.width : null
+        };
+    }
+
+    return {
+        empty: false,
+        contentX: minX,
+        contentWidth: maxX - minX,
+        leftSpace: Math.max(0, minX - viewX),
+        rightSpace: hasWidth ? Math.max(0, viewX + view.width - maxX) : null
+    };
 };
 
 SVGHTMLRenderer.prepare = function () {
@@ -341,6 +393,9 @@ function BlankLayout(x, y, width, height) {
     this.height = height;
 };
 BlankLayout.prototype.renderInto = function () {};
+BlankLayout.prototype.getHorizontalBounds = function () {
+    return null;
+};
 
 function SVGTextLayout(width) {
     this.rows = [];
@@ -516,6 +571,27 @@ SVGTextLayout.prototype._appendSegment = function (text, styles, bbox, adjustedL
     this.currentRow.width += segment.width;
     this.currentRow.height = Math.max(this.currentRow.height, segment.height);
     this.currentRow.baselineShift = Math.max(this.currentRow.baselineShift, 0 - segment.dy);
+};
+
+/*
+ * Mirrors the per-row horizontal alignment offset used in renderInto so the
+ * reported extent matches what is actually drawn. Rows without segments
+ * (e.g. empty rows created by <br>) occupy no horizontal space.
+ */
+SVGTextLayout.prototype.getHorizontalBounds = function () {
+    var x = this.x || 0;
+    var hAlign = this.hAlign || 0;
+    var left = null;
+    var right = null;
+    for (var row of this.rows) {
+        if (!row.segments || row.segments.length == 0) continue;
+        var dx = Math.round((this.width - row.width) * hAlign / 2);
+        var rowLeft = x + dx + row.segments[0].x;
+        var rowRight = x + dx + row.width;
+        if (left == null || rowLeft < left) left = rowLeft;
+        if (right == null || rowRight > right) right = rowRight;
+    }
+    return left == null ? null : { left: left, right: right };
 };
 
 SVGTextLayout.prototype.renderInto = function (container) {

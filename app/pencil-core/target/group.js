@@ -136,8 +136,10 @@ Group.getSizingOriginalInfo = function (node) {
 };
 Group.prototype.scaleTo_noPolicy = function (nw, nh, group) {
     var geo = this.getGeometry();
-    var dw = nw / geo.dim.w;
-    var dh = nh / geo.dim.h;
+    var curW = (geo && geo.dim && geo.dim.w > 0) ? geo.dim.w : 1;
+    var curH = (geo && geo.dim && geo.dim.h > 0) ? geo.dim.h : 1;
+    var dw = nw / curW;
+    var dh = nh / curH;
 
     for (t in this.targets) {
         var target = this.targets[t];

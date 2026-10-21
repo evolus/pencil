@@ -10,10 +10,16 @@
             box-sizing: border-box;
             align-items: flex-start;
             color: #fff;
+            max-width: 25em;
         }
-        body .NotificationPopup icon {
-            margin-right: 1em;
+        body .NotificationPopup i {
+            @iconify();
             font-size: 1.5em;
+            margin-right: 0.6em;
+            color: #fff;
+            opacity: 0.9;
+            display: inline-block;
+            font-family: 'Material Icons Original';
         }
         body .NotificationPopup @footer {
             margin-top: 1em;
@@ -23,17 +29,17 @@
             width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 20em;
         }
         @this:not(.WithAction) @footer {
             display: none;
         }
     </style>
     <hbox anon-id="popupContainer" class="NotificationPopup">
-        <icon>info</icon>
-        <vbox>
-            <div anon-id="messagePane"></div>
+        <i>info</i>
+        <vbox flex="1">
+            <span flex="1" anon-id="messagePane"></span>
             <hbox anon-id="footer">
+                <button anon-id="secondaryButton" style="margin-right: 0.5em; display: none;"></button>
                 <button anon-id="actionButton"></button>
             </hbox>
         </vbox>

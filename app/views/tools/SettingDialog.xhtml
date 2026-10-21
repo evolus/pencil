@@ -9,6 +9,8 @@
         @generalTab > vbox > * + *,
         @clipartBrowserTab > * + *,
         @externalEditorTab > * + * ,
+        @mcpTab > * + *,
+        @mcpTab > vbox > * + *,
         @advanceTab > * + * {
             margin-top: 0.6em;
         }
@@ -30,6 +32,59 @@
         @externalEditorTab hbox.Entry label {
             width: 13em;
             text-align: left;
+        }
+        @mcpTab hbox.Entry label {
+            width: 14em;
+            text-align: left;
+        }
+        @mcpTab hbox.Entry input[type="checkbox"] + label {
+            width: auto;
+        }
+        @mcpTab {
+            overflow-y: auto;
+            max-height: 32em;
+            padding-right: 0.5em;
+        }
+        @mcpStatusCard {
+            padding: 1em;
+            margin: 0.8em;
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 4px;
+        }
+        @mcpGuideCard,
+        @mcpCollectionsCard {
+            padding: 0.8em 1em;
+            margin: 0.8em;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 4px;
+        }
+        @mcpSnippetContainer {
+            background: #21252b;
+            color: #abb2bf;
+            border-radius: 4px;
+            padding: 0.8em;
+            margin-top: 0.5em;
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+        button.McpClientTab {
+            padding: 0.3em 0.8em;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button.McpClientTab.active {
+            background-color: #1976d2;
+            color: #ffffff;
+            font-weight: bold;
+            border-color: #1976d2;
+            text-shadow: none;
+        }
+        button.McpClientTab.copied {
+            background-color: #4caf50;
+            color: #ffffff;
+            border-color: #4caf50;
         }
         @settingTableContainer {
             width: 50em;
@@ -132,6 +187,68 @@
                     <hbox class="Entry">
                         <input type="checkbox" anon-id="useCompactLayout" label="Use compact layout to save space" preference="pencil-useCompactLayout" configName="view.useCompactLayout"/>
                         <label for="useCompactLayout">Use Compact Layout</label>
+                    </hbox>
+                </vbox>
+            </vbox>
+            <vbox anon-id="mcpTab" flex="1" tab-title="MCP">
+                <vbox>
+                    <strong>Model Context Protocol (MCP) Server</strong>
+                    <hbox class="Entry">
+                        <input type="checkbox" anon-id="checkboxEnableMcp" preference="pencil-mcpEnabled" configName="pencil.mcp.enabled"/>
+                        <label for="checkboxEnableMcp">Enable MCP Server</label>
+                    </hbox>
+                    <hbox anon-id="mcpPortContainer" class="Entry">
+                        <label>Server port:</label>
+                        <input anon-id="textboxMcpPort" size="5" type="number" min="1024" max="65535" preference="pencil-mcpPort" configName="pencil.mcp.port" default-value="1919"/>
+                    </hbox>
+                    <hbox anon-id="mcpVisibilityContainer" class="Entry">
+                        <label>Default collection visibility:</label>
+                        <ui:ComboManager anon-id="comboMcpDefaultVisibility" title="Default collection visibility" />
+                    </hbox>
+                </vbox>
+                
+                <vbox anon-id="mcpStatusCard">
+                    <strong>Server Status &amp; Endpoint</strong>
+                    <hbox align="center" style="margin-top: 0.5em;">
+                        <div anon-id="mcpStatusIndicator" style="width: 10px; height: 10px; border-radius: 50%; background-color: #999; margin-right: 0.6em;"></div>
+                        <span anon-id="mcpStatusText" style="font-weight: bold;">Checking status...</span>
+                        <div flex="1"></div>
+                        <button anon-id="buttonRestartMcp" class="small">Restart Server</button>
+                    </hbox>
+                    <div anon-id="mcpStatusDetail" style="font-size: 0.9em; opacity: 0.8; margin-top: 0.4em;"></div>
+                </vbox>
+
+                <vbox anon-id="mcpGuideCard">
+                    <strong>Agent configuration:</strong>
+                    <hbox class="McpClientSelector" style="gap: 0.4em; margin-top: 0.5em; margin-bottom: 0.4em;">
+                        <button anon-id="btnClientClaude" class="small McpClientTab active">Claude Desktop</button>
+                        <button anon-id="btnClientCursor" class="small McpClientTab">Cursor</button>
+                        <button anon-id="btnClientAntigravity" class="small McpClientTab">Antigravity</button>
+                        <button anon-id="btnClientVscode" class="small McpClientTab">VS Code</button>
+                    </hbox>
+                    <vbox anon-id="mcpSnippetContainer">
+                        <hbox align="center" style="margin-bottom: 0.4em;">
+                            <span anon-id="mcpSnippetTitle" style="color: #61afef; font-weight: bold; font-size: 0.9em;">Claude Desktop</span>
+                            <div flex="1"></div>
+                            <button anon-id="btnCopyMcpConfig" class="small">Copy Configuration</button>
+                        </hbox>
+                        <pre anon-id="mcpSnippetContent" style="margin: 0; white-space: pre-wrap; word-break: break-all; color: #98c379; font-size: 0.9em;"></pre>
+                    </vbox>
+                </vbox>
+
+                <vbox anon-id="mcpCollectionsCard">
+                    <strong>Visible collections:</strong>
+                    <div anon-id="mcpVisibleCollectionsList" style="margin-top: 0.4em; font-size: 0.9em;"></div>
+                </vbox>
+                <vbox>
+                    <strong>Agent Visual Feedback</strong>
+                    <hbox class="Entry">
+                        <input type="checkbox" anon-id="checkboxEnableAgentAnimations" preference="pencil-agentFeedbackAnimations" configName="agent.feedback.animations"/>
+                        <label for="checkboxEnableAgentAnimations">Show shape insertion and update animations on canvas</label>
+                    </hbox>
+                    <hbox class="Entry">
+                        <input type="checkbox" anon-id="checkboxEnableAgentStatusPill" preference="pencil-agentFeedbackStatusPill" configName="agent.feedback.statusPill"/>
+                        <label for="checkboxEnableAgentStatusPill">Show floating agent activity status indicator</label>
                     </hbox>
                 </vbox>
             </vbox>

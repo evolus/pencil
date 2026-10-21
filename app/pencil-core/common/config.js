@@ -74,3 +74,19 @@ Config.EXPORT_CROP_FOR_CLIPBOARD = Config.define("export.crop_for_clipboard", fa
 Config.EXPORT_DEFAULT_SCALE = Config.define("export.default_scale", 1);
 Config.EXPORT_DEFAULT_BACKGROUND_COLOR = Config.define("export.default_background_color", "");
 Config.CORE_USE_HWA = Config.define("core.useHardwareAcceleration", false);
+
+Config.MCP_ENABLED = Config.define("pencil.mcp.enabled", true);
+Config.MCP_PORT = Config.define("pencil.mcp.port", 1919);
+Config.MCP_DEFAULT_COLLECTION_VISIBILITY = Config.define("pencil.mcp.defaultCollectionVisibility", "opt-in");
+
+Config.AGENT_FEEDBACK_ANIMATIONS = Config.define("agent.feedback.animations", true);
+Config.AGENT_FEEDBACK_STATUS_PILL = Config.define("agent.feedback.statusPill", true);
+
+Config.UPDATER_CHECK_URL = Config.define("updater.checkUrl", "https://raw.githubusercontent.com/evolus/pencil/master/version.json");
+Config.UPDATER_DISMISSED_VERSION = Config.define("updater.dismissedVersion", "");
+Config.UPDATER_AUTO_CHECK = Config.define("updater.autoCheck", true);
+
+Config.COLLECTION_UPDATER_AUTO_CHECK = Config.define("collection.updater.autoCheck", true);
+Config.COLLECTION_UPDATER_DISMISSED_FINGERPRINT = Config.define("collection.updater.dismissedFingerprint", "");
+Config.COLLECTION_UPDATER_LAST_CHECK_TIME = Config.define("collection.updater.lastCheckTime", 0);
+
