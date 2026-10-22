@@ -35,7 +35,7 @@
     "linux": {
       "description": "An open-source GUI prototyping tool that is available for ALL platforms.",
       "synopsis": "An open-source GUI prototyping tool that is available for ALL platforms.",
-      "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>",
+      "maintainer": "Nguyen Tien Dzung <ngtdungnt@gmail.com>, Le Van Tuan <levantuan.itvn@gmail.com>",
       "vendor": "Evolus",
       "target": [
         "deb",
