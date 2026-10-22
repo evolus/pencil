@@ -26,6 +26,35 @@
 - Relaxed property schema ergonomics and optional stencil property advertising to minimize token overhead
 - Pre-flight schema validation, shape idMap compilation, and auto-normalization for editing tools
 - Automated and manual non-blocking version update notification dialog
+- Stencil Collection Update Notification service with non-blocking update alerts for installed stencils
+- Add ability to search and filter collections in Collection Management Dialog
+- Show collection version in Collection Management and About Collection dialogs
+- New image editor tool with expand and shrink support for image data (`ImageEditDialog`)
+- Support for right-angle (90°) connectors (#380)
+- Support copying and pasting images between different Pencil documents (#393)
+- Add batch selection support in Font Management Dialog
+- Configurable handle color for canvas editors
+- Allow on-screen editing on blank plain text shapes
+- Support creating collection files directly in Stencil Generator (#645)
+- Support parsing numbered font weights in font weight aliases
+- Respect rotation when rasterizing selection
 - Fix canvas shape dimension resizing in `update_shapes` and harden top-level box schema
 - Fix direct SVG transform manipulation in `update_shapes` and `insert_shapes`
 - Fix CollectionSettingDialog height and preference layout
+- Fix HTML code colors not appearing in recently used colors (#422)
+- Fix menu positioning and implement menu overflow mode for long menus (#603)
+- Fix image bounds not being invalidated on offscreen canvas
+- Fix fallback handling in font editor for missing fonts
+- Fix update font installation button title in Font Management Dialog
+- Fix alignment options for Process shapes in Flowchart
+- Fix 'Make square' action on Bullet shape
+- Fix text alignment for List Box shape
+- Fix default font for winframe in SketchyGUI
+- Fix case-sensitive image loading in Stencil Generator
+- Fix undefined path when unlinking bitmap images
+- Fix NullPointerException when setting value in editor
+- Fix text scale UI and italic button styling
+- Fix clear text button style
+- Quick invalidation for shared property editor
+- Remove obsolete OpenClipart pane
+- Fix HTML entity rendering ('&') in links
