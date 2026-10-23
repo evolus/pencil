@@ -1,0 +1,309 @@
+<vbox class="Form">
+    <style>
+        @container {
+            position: relative;
+        }
+        @container > @header {
+            /* background: rgba(0, 0, 0, 0.2); */
+            padding-right: 16em;
+            padding-bottom: 0em;
+            background: @app_bg;
+        }
+
+        @toolbarContainer {
+            flex-wrap: wrap;
+            xmargin-top: -1.2ex;
+            padding: @toolbar_gap;
+        }
+        @toolbarContainer button {
+            padding: 0.3em;
+            height: auto;
+            line-height: 1.2em;
+        }
+        @toolbarContainer > * + * {
+            margin-left: 0.5em;
+        }
+        @toolbarContainer *[label] {
+            position: relative;
+        }
+        @toolbarContainer *[label]:after {
+            display: block;
+            content: attr(label);
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            top: -0.3em;
+            text-align: center;
+            color: darken(@app_bg, 15%);
+            text-shadow: 1px 1px 0px lighten(@app_bg, 5%);
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+        @toolbarContainer *[label]:hover:after {
+            color: darken(@app_bg, 45%);
+        }
+        @toolbarContainer *[label] {
+            padding-top: 1em;
+            padding-bottom: 0.8em;
+        }
+        @toolbarContainer input[type="number"] {
+            width: 4em;
+            height: auto;
+            line-height: 1.2em;
+        }
+        @toolbarContainer .ButtonGroup > hbox {
+            align-items: center;
+        }
+        
+        @drawingScollPane {
+            overflow: auto;
+            background: #777;
+        }
+        
+        @drawingContainerPadding {
+            margin: auto;
+            padding: 1em;
+        }
+        
+        @drawingContainer {
+            overflow: hidden;
+            position: relative;
+            background: #FFF;
+            box-shadow: 0em 0em 0.8em rgba(0, 0, 0, 0.2);
+        }
+        
+        @drawingContainer > img,
+        @drawingContainer > canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+        
+        @selectionCanvas.Overlay {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+
+        body .EditImagePopupContainer {
+            display: flex;
+            align-items: center;
+            margin: @toolbar_gap - 1em;
+        }
+        body .EditImagePopupContainer input[type="number"] {
+            width: 4em;
+            margin-left: @toolbar_gap;
+        }
+
+        @vFlipButton > i {
+            transform: rotate(90deg);
+        }
+        
+        @selectionBox {
+            position: absolute;
+            overflow: hidden;
+            
+            background: 
+                linear-gradient(90deg, rgba(33, 66, 99, 0.8) 50%, rgba(255, 255, 255, 0.6) 50%),
+                linear-gradient(0deg, rgba(33, 66, 99, 0.8) 50%, rgba(255, 255, 255, 0.6) 50%),
+                linear-gradient(90deg, rgba(33, 66, 99, 0.8) 50%, rgba(255, 255, 255, 0.6) 50%),
+                linear-gradient(0deg, rgba(33, 66, 99, 0.8) 50%, rgba(255, 255, 255, 0.6) 50%);
+            background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
+            background-size: 15px 1px, 1px 15px, 15px 1px, 1px 15px;
+            background-position: left top, right top, left bottom, left top;
+            padding: 4px;
+            box-sizing: border-box;
+            animation: border-dance 8s infinite linear;
+        }
+        @selectionBox > * {
+            position: absolute;
+            opacity: 0.2;
+            box-sizing: border-box;
+        }
+        @selectionBox:hover > * {
+            border: solid 1px rgba(255, 255, 255, 0.3);
+        }
+        @selectionBox > *:hover {
+            background: #369;
+        }
+        
+        @selectionBox > .Left {
+            left: 0px;
+        }
+        @selectionBox > .Right {
+            right: 0px;
+        }
+        @selectionBox > .Top {
+            top: 0px;
+        }
+        @selectionBox > .Bottom {
+            bottom: 0px;
+        }
+        
+        @selectionBox > .Left,
+        @selectionBox > .Right {
+                width: 2em;
+        }
+
+        @selectionBox > .Top,
+        @selectionBox > .Bottom {
+                height: 2em;
+        }
+        
+        @selectionBox > .Left:not(.Top):not(.Bottom),
+        @selectionBox > .Right:not(.Top):not(.Bottom) {
+            top: 2em;
+            bottom: 2em;
+        }
+        @selectionBox > .Top:not(.Left):not(.Right),
+        @selectionBox > .Bottom:not(.Left):not(.Right) {
+            left: 2em;
+            right: 2em;
+        }
+
+        
+        body .EditImageDialog {
+            border: solid 1px #333;
+        }
+
+        body .EditImageDialog .AnonId_dialogHeaderPane {
+            padding-top: 0em;
+            padding-bottom: 0em;
+            height: 0em;
+        }
+        
+        body .EditImageDialog .AnonId_dialogTitleContainer {
+            display: none;
+        }
+        body .EditImageDialog .AnonId_dialogBody {
+            padding: 0em;
+        }
+        body .EditImageDialog .AnonId_dialogFooter {
+            margin: 0em;
+            position: absolute;
+            top: 0em;
+            right: 0em;
+            padding: 0.4em;
+            background: transparent;
+            
+            & button {
+                height: 1.9em;
+                line-height: 1.9em;
+                min-width: 4em;
+                
+                &[mode="accept"] {
+                    color: darken(@primary_color, 20%);
+                }
+            }
+        }
+        body .EditImageDialog .BusyOverlay {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            z-index:1000;
+            cursor: wait;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        body .EditImageDialog .BusyOverlay > .Loader {
+            border: 16px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+        }
+        @-webkit-keyframes spin { /* Safari */
+          0% { -webkit-transform: rotate(0deg); }
+          100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes border-dance {
+            0%
+            {
+                background-position: left top, right top, right bottom, left bottom;
+            }
+            100% 
+            {
+                background-position: right top, right bottom, left bottom, left top;
+            }
+        }
+    </style>
+    <vbox anon-id="container" flex="1">
+        <vbox anon-id="header">
+            <ui:ScrollableView anon-id="toolBarSrollView" flex="1">
+                <hbox anon-id="toolbarContainer">
+                    <hbox anon-id="zoomGroupContainer">
+                        <button anon-id="zoomButton" class="PopupToggler" mode="icon" title="Zoom"><i>zoom_in</i><i>arrow_drop_down</i></button>
+                        <ui:Popup class="PopupContainer">
+                            <hbox class="EditImagePopupContainer">
+                                <input type="range" anon-id="zoomSeeker" min="10" max="500" />
+                                <input anon-id="zoomPercentInput" type="number" title="Zoom Percent" value="100" maxlength="4" />
+                            </hbox>
+                        </ui:Popup>
+                    </hbox>
+                    <hbox anon-id="cropContainer" class="ButtonGroup">
+                        <button anon-id="autoCropButton" mode="icon" title="Auto Crop"><i>crop_free</i></button>
+                    </hbox>
+                    <ui:CropToSelectionTool></ui:CropToSelectionTool>
+                    <hbox anon-id="flipContainer" class="ButtonGroup">
+                        <button anon-id="hFlipButton" mode="icon" title="Flip Horizontally"><i>flip</i></button>
+                        <button anon-id="vFlipButton" mode="icon" title="Flip Vertically"><i>flip</i></button>
+                    </hbox>
+                    <hbox class="ButtonGroup">
+                        <button anon-id="greyscaleButton" mode="icon" title="Grayscale"><i>filter_vintage</i></button>
+                        <button anon-id="invertButton" mode="icon" title="Invert"><i>invert_colors</i></button>
+                    </hbox>
+                    
+                    <ui:BrightnessAdjustTool></ui:BrightnessAdjustTool>
+                    <ui:ContrastAdjustTool></ui:ContrastAdjustTool>
+                    <!-- <ui:FadeAdjustTool></ui:FadeAdjustTool> -->
+                    <ui:OpacityAdjustTool></ui:OpacityAdjustTool>
+                    
+                    <hbox anon-id="rotationGroup" class="ButtonGroup">
+                        <button anon-id="rotateButton" mode="icon" title="Rotate"><i>rotate_right</i></button>
+                        <input anon-id="degreeOfRotationInput" type="number" title="Number of degrees" value="90" maxlength="4" />
+                        <hbox>
+                            <input anon-id="keepSizeCheckbox" type="checkbox" />
+                        </hbox>
+                    </hbox>
+                    <hbox anon-id="blurGroupContainer" class="ButtonGroup">
+                        <button anon-id="blurButton" mode="icon" title="Fast Blur"><i>grain</i></button>
+                        <input anon-id="blurRadInput" type="number" title="The pixel radius of the blur" maxlength="4" value="1" />
+                    </hbox>
+                    <hbox anon-id="gaussianGroupContainer" class="ButtonGroup">
+                        <button anon-id="gaussianButton" mode="icon" title="Gaussian Blur"><i>blur_on</i></button>
+                        <input anon-id="gaussianRadInput" type="number" title="The pixel radius of the blur" maxlength="4" value="1" />
+                    </hbox>
+                </hbox>
+            </ui:ScrollableView>
+        </vbox>
+        <vbox anon-id="drawingScollPane" flex="1">
+            <div anon-id="drawingContainerPadding">
+                <vbox anon-id="drawingContainer">
+                    <img anon-id="image" />
+                    <canvas anon-id="selectionCanvas"></canvas>
+                    <div anon-id="selectionBox">
+                        <span class="Left Top" dx="1" dy="1" dw="-1" dh="-1"></span>
+                        <span class="Left" dx="1" dw="-1"></span>
+                        <span class="Left Bottom" dx="1" dy="0" dw="-1" dh="1"></span>
+                        <span class="Right Top" dx="0" dy="1" dw="1" dh="-1"></span>
+                        <span class="Right" dw="1"></span>
+                        <span class="Right Bottom" dx="0" dy="0" dw="1" dh="1"></span>
+                        <span class="Top" dy="1" dh="-1"></span>
+                        <span class="Bottom" dh="1"></span>
+                    </div>
+                </vbox>
+            </div>
+        </vbox>
+   </vbox>
+</vbox>

@@ -188,7 +188,6 @@ Pencil.unselectDeveloperStencilDir = function () {
     CollectionManager.loadStencils();
 	alert("Developer stencil is unloaded.");
 };
-
 var registeredToolbars = [];
 function registerToolbar(info) {
     registeredToolbars.push(info);

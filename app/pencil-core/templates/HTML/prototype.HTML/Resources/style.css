@@ -1,0 +1,169 @@
+/*
+    place extra stylesheet here
+*/
+
+body, html {
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+    font-family: "Product Sans", "Liberation Sans", Arial, sans-serif;
+}
+
+#documentMetadata,
+#documentTitle {
+    display: none;
+}
+
+.Page {
+    position: absolute;
+    left: 230px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    background: #00000077;
+    text-align: center;
+}
+body:not(.ExpandMode) .Page {
+    display: flex;    
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+body.ExpandMode .Page {
+    overflow: auto;
+    padding: 20px;
+    text-align: center;
+}
+.Page:not(:target) {
+    display: none !important;
+}
+
+.Page > h2 {
+    display: none;
+}
+.Page .ImageContainer {
+    box-shadow: 0px 0px 1em #00000077;
+}
+body.ExpandMode .Page .ImageContainer {
+    display: inline-block;
+    margin-bottom: 20px;
+}
+.Page .ImageContainer {
+    position: relative;
+}
+.Page .ImageContainer > .Links > a {
+    position: absolute;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+}
+body.Active .Page .ImageContainer > .Links > a {
+    background-color: #E79A0F11;
+}
+.Page .ImageContainer > .Links > a:hover {
+    background-color: #FFFFFF55 !important;
+}
+
+.TOC {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    width: 230px;
+    display: flex;
+    flex-direction: column;
+    
+    overflow-y: auto;
+    overflow-x: visible;
+    z-index: 2;
+    background: #444;
+}
+.TOC > div {
+    display: flex;
+    flex-direction: column;
+}
+.TOC > div.Focused > a {
+    background: #5294E2;
+}
+.TOC > div:not(.Focused):hover > a {
+    background: #5294E266;
+}
+.TOC > div:not(.Focused):not(:hover) {
+    opacity: 0.7;
+}
+.TOC > div + div {
+    margin-top: 1em;
+}
+
+.TOC > div > a {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1em;
+    background: transparent;
+    transition: background 0.2s ease;
+    text-decoration: none;
+}
+.TOC > div > a > img {
+    display: block;
+    border: solid 2px #FFF;
+    box-shadow: 0px 0px 5px #000;
+}
+.TOC > div > a > strong {
+    display: block;
+    text-align: center;
+    color: #FFF;
+    font-weight: normal;
+    margin-top: 0.3em;
+}
+
+.ToggleZoomButton {
+    position: fixed;
+    top: 0.5em;
+    right: 0.5em;
+    width: 1.5em;
+    height: 1.5em;
+    padding: 0.3em;
+    box-sizing: content-box;
+    background: url(expand.png) 50% 50% no-repeat #CCCCCC;
+    background-origin: content-box;
+    background-size: contain;
+    
+    border: solid 1px #777;
+}
+.ToggleZoomButton:active {
+    margin-top: 1px;
+    margin-left: 1px;
+}
+.ToggleZoomButton:not(:hover) {
+    opacity: 0.3;
+}
+body.ExpandMode .ToggleZoomButton {
+    background-image: url(fit.png)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

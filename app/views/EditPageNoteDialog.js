@@ -98,33 +98,6 @@ function EditPageNoteDialog () {
     };
 
     window.document.body.addEventListener("mouseup", selectListener, false);
-}
-__extend(Dialog, EditPageNoteDialog);
-
-EditPageNoteDialog.prototype.onShown = function () {
-    this.editor.focus();
-}
-
-EditPageNoteDialog.prototype.setup = function (options) {
-
-    if (options) {
-        if (options.onDone) {
-            this.onDone = options.onDone;
-        }
-        if (options.defaultPage) {
-            this.page = options.defaultPage;
-            var parentNode = this.popupContainer.parentNode;
-            if(this.page.note) {
-                this.defaultEditor =  this.page.note;
-                this.editor.innerHTML = this.defaultEditor.html;
-            }
-
-        }
-    }
-
-    var thiz = this;
-    var localFonts = Local.getInstalledFonts();
-    this.fontCombo.setItems(localFonts);
 
     this.fontSizeCombo.setItems([1, 2, 3, 4, 5, 6, 7]);
 
@@ -231,10 +204,27 @@ EditPageNoteDialog.prototype.setup = function (options) {
         thiz.runEditorCommand("formatBlock", value);
     }, false);
 
-    var pageChild = function (child, editor) {
-        return child;
-    }
+}
+__extend(Dialog, EditPageNoteDialog);
 
+EditPageNoteDialog.prototype.onShown = function () {
+    this.editor.focus();
+}
+
+EditPageNoteDialog.prototype.setup = function (options) {
+    if (options) {
+        if (options.onDone) {
+            this.onDone = options.onDone;
+        }
+        if (options.defaultPage) {
+            this.page = options.defaultPage;
+            var parentNode = this.popupContainer.parentNode;
+            if(this.page.note) {
+                this.defaultEditor =  this.page.note;
+                this.editor.innerHTML = this.defaultEditor.html;
+            }
+        }
+    }
 
 };
 
@@ -302,8 +292,8 @@ EditPageNoteDialog.prototype.getDialogActions = function () {
         Dialog.ACTION_CANCEL,
         {   type: "accept", title: "Apply",
             run: function () {
-                //var newEditor = RichText.fromString(this.editor.innerHTML);
-                //this.onDone(newEditor);
+                var newEditor = RichText.fromString(this.editor.innerHTML);
+                this.onDone(newEditor);
                 return true;
             }
         }

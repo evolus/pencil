@@ -9,6 +9,7 @@ function ColorPropertyEditor() {
         });
         return !found;
     };
+    this.selectorContainer.setPopupClass("ColorPropertyEditorPopup ColorPopup");
 };
 __extend(PropertyEditor, ColorPropertyEditor);
 ColorPropertyEditor.prototype.setup = function () {
@@ -21,6 +22,7 @@ ColorPropertyEditor.prototype.setup = function () {
             return;
         }
         thiz.selector.setColor(thiz.color);
+        thiz.selector.setupColors();
         thiz.selectorContainer.show(thiz.colorButton, "left-inside", "bottom", 0, 5);
         event.cancelBubble = true;
     }, false);

@@ -250,7 +250,7 @@ OnScreenTextEditor._ensureSupportElementsImpl = function() {
         OnScreenTextEditor._installSimpleCommandHandler("medIncreaseFontButton", "increasefontsize");
         OnScreenTextEditor._installSimpleCommandHandler("medDecreaseFontButton", "decreasefontsize");
         OnScreenTextEditor._installSimpleCommandHandler("mclearButton", "removeformat");
-        
+
         document.getElementById("medCleanUpButton").addEventListener("command", function (event) {
             var html = Dom.serializeNode(OnScreenTextEditor.richTextEditor.contentDocument.body);
             html = html.replace(/(class|style)="[^"]*"/gi, "");

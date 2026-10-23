@@ -1,6 +1,9 @@
 function RichText(html) {
     this.html = html;
     this.value = html;
+    if (this.html instanceof PlainText && this.html.value) {
+        this.html.value = Dom.htmlEncode(this.html.value);
+    }
 }
 RichText.fromString = function (html) {
     return new RichText(html);

@@ -67,6 +67,7 @@ TabPane.prototype.setActiveTabPane = function (pane) {
     }
 };
 TabPane.prototype.ensureSizing = function () {
+    if (this.fillView) return;
     var w = Dom.getOffsetWidth(this.node()) - 2;
     var h = 0;
 

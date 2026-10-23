@@ -1,6 +1,7 @@
 function SharedBorderStyleEditor() {
     BaseTemplatedWidget.call(this);
     Pencil.registerSharedEditor(this);
+    ToolBar.setupFocusHandling(this.node());
 }
 __extend(BaseTemplatedWidget, SharedBorderStyleEditor);
 
@@ -13,10 +14,10 @@ SharedBorderStyleEditor.prototype.setup = function () {
 
     var thiz = this;
     this.editor.addEventListener("p:ItemSelected", function (event) {
-        thiz.handleCommandEvent();
+        thiz.handleCommandEvent(StrokeStyle.ARRAY);
     }, false);
     this.editor.addEventListener("input", function (event) {
-        thiz.handleCommandEvent();
+        thiz.handleCommandEvent(StrokeStyle.W);
     }, false);
 
     this.editor.addEventListener("keypress", function (event) {
@@ -26,11 +27,11 @@ SharedBorderStyleEditor.prototype.setup = function () {
     }, false);
 
 };
-SharedBorderStyleEditor.prototype.handleCommandEvent = function () {
+SharedBorderStyleEditor.prototype.handleCommandEvent = function (mask) {
 	var thiz = this;
     var style = thiz.editor.getValue();
     Pencil.activeCanvas.run(function () {
-    	this.setProperty(SharedBorderStyleEditor.PROPERTY_NAME, thiz.editor.getValue());
+    	this.setProperty(SharedBorderStyleEditor.PROPERTY_NAME, thiz.editor.getValue(), false, mask);
         Pencil.activeCanvas.snappingHelper.updateSnappingGuide(this);
         thiz.invalidate();
         Pencil.activeCanvas.invalidateEditors(thiz);
@@ -42,6 +43,8 @@ SharedBorderStyleEditor.prototype.isDisabled = function () {
 };
 
 SharedBorderStyleEditor.prototype.attach = function (target) {
+    if (target && target.getAttributeNS && target.getAttributeNS(PencilNamespaces.p, "locked") == "true") { return; }
+
     var style = target.getProperty(SharedBorderStyleEditor.PROPERTY_NAME, "any");
     if (!style)  {
         this.detach();

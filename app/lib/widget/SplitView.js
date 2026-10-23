@@ -28,6 +28,8 @@ widget.SplitView = function () {
         var margin = Math.round(W / 10);
         p = Math.min(Math.max(p, margin), W - margin);
         currentSplitView.setSplitViewPosition(p);
+        BaseWidget.signalOnSizeChangedRecursively(currentSplitView.node());
+
         currentSplitView.moved = true;
     }
 

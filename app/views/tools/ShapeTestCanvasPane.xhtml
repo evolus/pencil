@@ -1,0 +1,64 @@
+<vbox>
+    <style>
+        body .widget_ShapeTestCanvasPane {
+            background: @app_bg;
+            border-radius: 2px;
+            box-shadow: 0px 2px 9em rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            border: dashed 2px #da8500;
+        }
+        @container {
+            font-size: 0.9em;
+        }
+        button {
+            height: 2em;
+            line-height: 2em;
+            padding: 0em 0.4em;
+            opacity: 0.7;
+        }
+        button:hover {
+            opacity: 1;
+        }
+        @titleBar {
+            padding: 1ex;
+            padding-bottom: 0ex;
+            padding-left: 0ex;
+            align-items: center;
+        }
+        @titleBar button {
+            font-size: 0.9em;
+        }
+        @canvasContainer {
+            margin: 2em;
+            background: #FFF;
+        }
+        @canvasContainer .CanvasWrapper {
+            padding: 0px;
+            margin-top: -1px;
+            margin-left: -1px;
+        }
+        @canvasContainer .Canvas {
+            box-shadow: none;
+        }
+
+        @testModeIndicator {
+            font-size: 0.85em;
+            color: #da8500;
+            background: rgba(66, 66, 66, 0.09);
+            padding: 1ex 2ex;
+            font-weight: bold;
+            margin-left: -1px;
+            margin-right: 2ex;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
+
+        }
+    </style>
+    <hbox anon-id="titleBar">
+        <div anon-id="testModeIndicator">Test Mode</div>
+        <strong anon-id="title" flex="1">Shape name</strong>
+        <button anon-id="quitButton" title="Quit testing this shape"><i>close</i></button>
+    </hbox>
+    <hbox anon-id="canvasContainer" flex="1">
+    </hbox>
+</vbox>

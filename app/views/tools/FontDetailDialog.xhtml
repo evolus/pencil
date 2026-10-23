@@ -3,41 +3,64 @@
         body .DynamicTemplateviews_FontDetailDialog_xhtml > * + * {
             margin-top: 0.5em;
         }
+        @fontNameInput {
+            margin-top: 0.5ex;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
         hbox,
         @variantBox > hbox {
             align-items: center;
         }
-        hbox > label {
+        @variantBox > hbox > label {
             width: 8em;
         }
+        @variantBox > hbox > * + label {
+            width: 4em;
+            margin-left: 2em;
+        }
+        @variantHeader {
+            padding: 0.5em 0em;
+            margin-top: 1em;
+        }
+        @variantHeader > label {
+            opacity: 0.6;
+            font-size: 0.9em;
+        }
         @variantBox {
+            padding: 1em;
             min-width: 30em;
         }
+        @variantBox > hbox {
+            padding: 0.5em;
+        }
         @variantBox > hbox + hbox {
-            margin-top: 0.5em;
+            border-top: solid 1px rgba(0, 0, 0, 0.2);
+        }
+        @variantBox > hbox.Variant_regular,
+        @variantBox > hbox.Variant_bold {
+            background: fadeout(@selected_bg, 85%);
+        }
+
+        @variantBox input[type='text'] {
+            opacity: 0.5;
+        }
+        @variantBox input[type='text']:hover {
+            opacity: 1;
+        }
+        @variantBox input[type='text'][haspath] {
+            color: @selected_bg;
+            opacity: 1;
         }
     </style>
-    <hbox>
+    <vbox>
         <label>Font name:</label>
         <input type="text" anon-id="fontNameInput" flex="1" />
-    </hbox>
-    <strong>Variants:</strong>
+    </vbox>
+    <vbox anon-id="variantHeader">
+        <strong flex="1">Variants:</strong>
+        <label>Select all available font files for this family. Shaded background indicates major weights that you should have font files for.</label>
+    </vbox>
     <vbox anon-id="variantBox">
-        <hbox>
-            <label>Regular:</label>
-            <input type="file" anon-id="regularFileInput" flex="1" />
-        </hbox>
-        <hbox>
-            <label>Bold:</label>
-            <input type="file" anon-id="boldFileInput" flex="1" />
-        </hbox>
-        <hbox>
-            <label>Italic:</label>
-            <input type="file" anon-id="italicFileInput" flex="1" />
-        </hbox>
-        <hbox>
-            <label>Bold &amp; Italic:</label>
-            <input type="file" anon-id="boldItalicFileInput" flex="1" />
-        </hbox>
     </vbox>
 </vbox>

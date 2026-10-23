@@ -12,8 +12,8 @@
                 @namespace xul url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
 
                 g.HandleEditor rect[p|name='Handle'] {
-                    fill: #ff0;
-                    stroke: #0a0;
+                    fill: $handle_fill_color;
+                    stroke: $handle_stroke_color;
                     stroke-width: 3;
                     stroke-opacity: 0;
                     fill-opacity: .7;
@@ -21,7 +21,7 @@
                 g.HandleEditor rect[p|name='Handle'][p|focused='true'] {
                     stroke-width: 2;
                     stroke-opacity: 1;
-                    stroke: #f00;
+                    stroke: $handle_focused_stroke_color;
                 }
                 g.HandleEditor rect[p|name='Handle']:hover {
                     stroke-width: 6 !important;
@@ -30,7 +30,7 @@
                 }
                 g.HandleEditor rect[p|name='Handle'][p|connected='true'] {
                     stroke-width: 15 !important;
-                    stroke: #f00 !important;
+                    stroke: $handle_connected_stroke_color !important;
                     stroke-opacity: .5 !important;
                 }
             ]]></style>

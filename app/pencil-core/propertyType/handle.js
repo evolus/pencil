@@ -6,8 +6,8 @@ Handle.REG_EX = /^([\-0-9\.]+)\,([\-0-9\.]+)$/;
 Handle.fromString = function(literal) {
     var handle = new Handle();
     if (literal.match(Handle.REG_EX)) {
-        handle.x = parseFloat(RegExp.$1);
-        handle.y = parseFloat(RegExp.$2);
+        handle.x = Math.round(RegExp.$1);
+        handle.y = Math.round(RegExp.$2);
     }
 
     return handle;

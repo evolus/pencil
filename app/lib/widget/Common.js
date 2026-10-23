@@ -26,6 +26,10 @@ function __isSubClassOf(sub, base) {
     if (!sub.__base) return false;
     return sub.__base === base || __isSubClassOf(sub.__base, base);
 }
+function __isAssignableFrom(sub, base) {
+    return sub === base || __isSubClassOf(sub, base);
+}
+
 
 var less = require("less");
 
@@ -100,20 +104,26 @@ widget.Util = function() {
 
                 if (processedCSS[templateName]) return "";
 
-                var css = content.replace(/([\r\n ]+)([^\{\}\$;]+)\{/g, function (zero, leading, selectors) {
-                    selectors = selectors.replace(/^@this/gi, prefix);
-                    selectors = selectors.replace(/(\.widget_[^\r\n\,]+ )@([a-z])/gi, "$1 .AnonId_$2");
-                    if (!selectors.match(/^[ \t]*@media /)) {
-                        selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
-                    }
-                    selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
-                    if (!selectors.match(/^[ \t]*body[ \.\[:]/) && !selectors.match(/^[ \t]*@media /)) {
-                        selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
-                    }
+                var css = content.replace(/([^\{\}\$;]+)\{((?:[^\}\{]+\{[^\}]*\})*)([^\}]*\})/g, function (zero, start, blocks, end) {
+                    if (start.match(/^[\s]*@(keyframes|-webkit-keyframes)/)) return zero;
 
-                    var modified = leading + selectors + "{";
+                    return zero.replace(/([\r\n ]+)([^\{\}\$;]+)\{/g, function (zero, leading, selectors) {
+                        selectors = selectors.replace(/^@this/gi, prefix);
+                        selectors = selectors.replace(/(\.widget_[^\r\n\,]+ )@([a-z])/gi, "$1 .AnonId_$2");
+                        if (!selectors.match(/^[ \t]*@(media) /)) {
+                            selectors = selectors.replace(/@([a-z])/gi, ".AnonId_" + (templateName + "_") + "$1");
+                        }
+                        selectors = selectors.replace(/[ \r\n\t]\,[ \r\n\t]+/g, ",");
+                        if (!selectors.match(/^[ \t]*body[ \.\[:]/)
+                                && !selectors.match(/^[ \t]*@(media) /)
+                                && !selectors.match(/^[ \t]*&/)) {
+                            selectors = prefix + " " + selectors.replace(/\,/g, ",\n" + prefix + " ");
+                        }
 
-                    return modified;
+                        var modified = leading + selectors + "{";
+
+                        return modified;
+                    });
                 });
                 css = css.replace(/\$([a-z0-9_]+)/g, "@$1");
 
@@ -572,32 +582,51 @@ function run(task, message, indicator) {
     });
 }
 
+widget.reloadDesktopFont = function() {
+        return new Promise(function(resolve) {
+            require("./desktop").getDesktopFontConfig(function (config) {
+                    if (config.font) document.body.style.font = config.font;
+                    if (config.family) document.body.style.fontFamily = config.family;
+                    if (config.style) document.body.style.fontStyle = config.style;
+                    if (config.weight) document.body.style.fontWeight = config.weight;
+                    if (config.size) {
+                        var scale = Config.get("view.uiTextScale", 100) / 100;
+                        var size = config.size;
+                        if (config.size.match(/^([0-9\.]+)([pxt]+)$/)) {
+                            size = (parseFloat(RegExp.$1) * scale) + RegExp.$2;
+                        }
+                        document.body.style.fontSize = size;
+                    }
+
+                    var family = Config.get(Config.UI_CUSTOM_FONT_FAMILY);
+                    if (family) document.body.style.fontFamily = family;
+
+                    var size = Config.get(Config.UI_CUSTOM_FONT_SIZE);
+                    if (size) document.body.style.fontSize = size;
+
+                    resolve(config);
+            });
+        });
+};
+
 document.addEventListener("DOMContentLoaded", function () {
     //load all registered widget class templates
     var index = -1;
 
     function onLoadDone() {
+        debug("BOOT: Configuring DOM event.");
         BaseWidget.registerDOMMutationHandler();
         window.globalViews = {};
+        debug("BOOT: Initiating UI auto-binding.");
         widget.Util.performAutoBinding(document.body, window.globalViews);
+        debug("BOOT: Setting up popup handlers.");
         widget.Util.registerPopopCloseHandler();
 
         window.setTimeout(function () {
             document.body.setAttribute("loaded", "true");
+            debug("BOOT: Revealing user-interface.");
         }, 300);
     }
-    function loadDesktopFont() {
-    		return new Promise(function(resolve) {
-      			require("./desktop").getDesktopFontConfig(function (config) {
-        				document.body.style.fontFamily = config.family;
-        				document.body.style.fontStyle = config.style;
-        				document.body.style.fontWeight = config.weight;
-        				document.body.style.fontSize = config.size;
-
-        				resolve(config);
-      			});
-    		});
-  	}
     function loadNext() {
         index ++;
 
@@ -615,26 +644,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var path = BaseTemplatedWidget.getTemplatePathForViewClass(clazz);
 
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function() {
-            if (request.readyState == 4) {
-                var html = request.responseText;
-                html = widget.Util.processLocalizationMacros(html);
-                widget.Util.getTemplateCache()[path] = html;
+        var viewFilePath = getStaticFilePath(path);
+        const fs = require("fs");
+        fs.readFile(viewFilePath, "utf8", function (error, html) {
+            html = widget.Util.processLocalizationMacros(html || "");
+            widget.Util.getTemplateCache()[path] = html;
 
-                var templateName = path.replace(/[^a-z0-9]+/gi, "_");
-                var className = "DynamicTemplate" + templateName;
-                var processedHtml = widget.Util._processTemplateStyleSheet(html, "." + className, templateName);
+            var templateName = path.replace(/[^a-z0-9]+/gi, "_");
+            var className = "DynamicTemplate" + templateName;
+            var processedHtml = widget.Util._processTemplateStyleSheet(html, "." + className, templateName);
 
-                loadNext();
-            }
-        };
-
-        request.open("GET", widget.STATIC_BASE + path + "?t=" + widget.CACHE_RANDOM, true);
-        request.send(null);
+            loadNext();
+        });
     }
 
-    loadDesktopFont().then(loadNext);
+    debug("BOOT: Loading desktop font configuration.");
+    widget.reloadDesktopFont().then(function () {
+        debug("BOOT: Loading view definition files");
+        loadNext();
+    });
 
 }, false);
 
@@ -645,6 +673,7 @@ function BaseWidget(definitionNode) {
     Dom.addClass(node, "widget_" + this.constructor.name);
     this.__node = node;
     node.__widget = this;
+    node["__is_" + this.constructor.name] = true;
 
     var thiz = this;
     node.addEventListener("DOMNodeInsertedIntoDocument", function () {
@@ -676,7 +705,15 @@ BaseWidget.signalOnAttachedRecursively = function (container) {
     }
     if (container.__widget && container.__widget.onAttached) container.__widget.onAttached();
 };
-
+BaseWidget.signalOnSizeChangedRecursively = function (container) {
+    if (container.__widget && container.__widget.onSizeChanged) {
+        container.__widget.onSizeChanged();
+    }
+    for (var i = 0; i < container.childNodes.length; i++) {
+        var child = container.childNodes[i];
+        BaseWidget.signalOnSizeChangedRecursively(child);
+    }
+};
 BaseWidget.prototype.bind = function (eventName, f, node) {
     var n = node || this.__node;
     var thiz = this;
@@ -727,7 +764,11 @@ BaseWidget.registerDOMMutationHandler = function () {
             if (mutation.type == "childList" && mutation.addedNodes && mutation.addedNodes.length > 0) {
                 for (var i = 0; i < mutation.addedNodes.length; i ++) {
                     var node = mutation.addedNodes[i];
-                    BaseWidget.handleOnAttached(node);
+                    try {
+                        BaseWidget.handleOnAttached(node);
+                    } catch (e) {
+                        console.error(e);
+                    }
                 }
             }
         });
@@ -759,8 +800,12 @@ BaseWidget.handleClosableEscapeKey = function (event) {
         Dom.cancelEvent(event);
     }
 };
+BaseWidget.getTopClosable = function (event) {
+    if (BaseWidget.closables.length == 0) return null;
+    return BaseWidget.closables[BaseWidget.closables.length - 1];
+};
 BaseWidget.handleGlobalMouseDown = function (event) {
-    if (BaseWidget.closables.length == 0) return;
+    if (BaseWidget.closables.length == 0 || BaseWidget.closableProcessingDisabled) return;
     var closable = BaseWidget.closables[BaseWidget.closables.length - 1];
 
     BaseWidget.tryCloseClosableOnBlur(closable, event);

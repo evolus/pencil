@@ -1,4 +1,5 @@
 function CanvasMemento(node, metadata, action) {
+    if (action && action.startsWith(": ")) action = action.substring(2);
     this.action = action;
     this.node = node;
     this.metadata = {};

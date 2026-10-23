@@ -51,3 +51,42 @@ try {
 }
 
 Config._load();
+
+
+
+//Specific configuration schema management
+Config.define = function (name, defaultValue) {
+    if (Config.get(name, null) === null) {
+        Config.set(name, defaultValue);
+    }
+
+    return name;
+};
+
+Config.DEV_PAGE_MARGIN_SIZE = Config.define("dev.pageMargin.size", Config.DEV_DEFAULT_PAGE_MARGIN);
+Config.DEV_PAGE_MARGIN_COLOR = Config.define("dev.pageMargin.color", "rgba(0, 0, 0, 0.2)");
+
+Config.DEV_ENABLE_DISABLED_IN_PROP_PAGE = Config.define("dev.enable_disabled_in_property_page", false);
+Config.VIEW_USE_COMPACT_LAYOUT = Config.define("view.useCompactLayout", false);
+
+Config.DEVICE_ADB_PATH = Config.define("device.adb_path", "adb");
+Config.EXPORT_CROP_FOR_CLIPBOARD = Config.define("export.crop_for_clipboard", false);
+Config.EXPORT_DEFAULT_SCALE = Config.define("export.default_scale", 1);
+Config.EXPORT_DEFAULT_BACKGROUND_COLOR = Config.define("export.default_background_color", "");
+Config.CORE_USE_HWA = Config.define("core.useHardwareAcceleration", false);
+
+Config.MCP_ENABLED = Config.define("pencil.mcp.enabled", true);
+Config.MCP_PORT = Config.define("pencil.mcp.port", 1919);
+Config.MCP_DEFAULT_COLLECTION_VISIBILITY = Config.define("pencil.mcp.defaultCollectionVisibility", "opt-in");
+
+Config.AGENT_FEEDBACK_ANIMATIONS = Config.define("agent.feedback.animations", true);
+Config.AGENT_FEEDBACK_STATUS_PILL = Config.define("agent.feedback.statusPill", true);
+
+Config.UPDATER_CHECK_URL = Config.define("updater.checkUrl", "https://raw.githubusercontent.com/evolus/pencil/master/version.json");
+Config.UPDATER_DISMISSED_VERSION = Config.define("updater.dismissedVersion", "");
+Config.UPDATER_AUTO_CHECK = Config.define("updater.autoCheck", true);
+
+Config.COLLECTION_UPDATER_AUTO_CHECK = Config.define("collection.updater.autoCheck", true);
+Config.COLLECTION_UPDATER_DISMISSED_FINGERPRINT = Config.define("collection.updater.dismissedFingerprint", "");
+Config.COLLECTION_UPDATER_LAST_CHECK_TIME = Config.define("collection.updater.lastCheckTime", 0);
+

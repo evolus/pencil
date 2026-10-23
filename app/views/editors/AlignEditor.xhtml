@@ -1,43 +1,41 @@
 <hbox>
     <style>
-        @container button[checked="true"]{
-            border-color: #000000;
-        }
-        button .AnonId_buttonDisplay {
-            align-items: center;
-            display: flex;
-        }
-        button i {
-            @iconify();
-            font-size: 1.2em;
-            padding-right: 0.3em;
-        }
-        body .AlignEditorPopup .Item i {
-            @iconify();
-            font-size: 1.2em;
-            padding-right: 0.3em;
-        }
-        body .AlignEditorPopup .Item > * {
-            vertical-align: middle;
-        }
-        .widget_ComboManager button {
-            width: 2em;
-        }
-        button .AnonId_buttonDisplay span {
-            min-width: 2em;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        @horzCombo {
-            border-right: none !important;
-            border-top-right-radius: 0px;
-            border-bottom-right-radius: 0px;
-        }
-        @vertCombo {
-            border-top-left-radius: 0px;
-            border-bottom-left-radius: 0px;
+        .Group {
+            font-size: 0.85em;
+            & + .Group {
+                margin-left: 1ex;
+            }
+
+            & > button {
+                padding: 0.4em !important;
+                height: auto !important;
+                justify-content: center;
+            }
+
+            & > button + button {
+                border-left: none;
+                border-top-left-radius: 0px;
+                border-bottom-left-radius: 0px;
+            }
+
+            & > button:not(:last-child) {
+                border-top-right-radius: 0px;
+                border-bottom-right-radius: 0px;
+            }
+
+            & button:not([checked="true"]) i {
+                opacity: 0.8;
+            }
         }
     </style>
-    <ui:ComboManager anon-id="horzCombo" flex="1" />
-    <ui:ComboManager anon-id="vertCombo" flex="1" />
+    <hbox class="Group Horz" anon-id="horizontalGroup" flex="1">
+        <button data="0" flex="1"><i>format_align_left</i></button>
+        <button data="1" flex="1"><i>format_align_center</i></button>
+        <button data="2" flex="1"><i>format_align_right</i></button>
+    </hbox>
+    <hbox class="Group Vert" anon-id="verticalGroup" flex="1">
+        <button data="0" flex="1"><i>vertical_align_top</i></button>
+        <button data="1" flex="1"><i>vertical_align_center</i></button>
+        <button data="2" flex="1"><i>vertical_align_bottom</i></button>
+    </hbox>
 </hbox>

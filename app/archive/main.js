@@ -1,7 +1,7 @@
 function boot() {
     Pencil.boot();
     Pencil.activeCanvas = new Canvas(document.getElementById("canvas"));
-    
+
     var container = document.getElementById("collection");
     for (var i = 0; i < CollectionManager.shapeDefinition.collections.length; i ++) {
         var collection = CollectionManager.shapeDefinition.collections[i];
@@ -34,22 +34,23 @@ function boot() {
                     }
                 ]
             });
-            
+
             node._def = def;
 
             container.appendChild(node);
             Dom.registerEvent(node, "dragstart", function (event) {
                 var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
                 var def = n._def;
-                
+
                 event.dataTransfer.setData("pencil/def", def.id);
+                nsDragAndDrop.setData("pencil/def", def.id);
                 event.dataTransfer.setDragImage(n.firstChild.firstChild.firstChild, 25, 25);
 
             });
-            
+
         }
     }
-    
+
 //    Dom.registerEvent(container, "click", function (event) {
 //        var def = Dom.findUpwardForData(Dom.getTarget(event), "_def");
 //        Pencil.activeCanvas.insertShape(def, new Bound(200, 100, null, null));

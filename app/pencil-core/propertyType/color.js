@@ -174,6 +174,60 @@ Color.prototype.transparent = function () {
     return color;
 };
 
+Color.prototype.generateTransformTo = function (other) {
+    if (!other) return null;
+    var hsv0 = Color.RGB2HSV(this);
+    var hsv1 = Color.RGB2HSV(other);
+
+    const ALLOWED_DELTA = 5;
+    if (Math.abs(hsv0.hue - hsv1.hue) < ALLOWED_DELTA && Math.abs(hsv0.saturation - hsv1.saturation) < ALLOWED_DELTA) {
+        var transform = "";
+
+        if (Math.abs(hsv0.value - hsv1.value) >= ALLOWED_DELTA / 3) {
+            if (hsv0.value == 0) return null;
+            transform += ".shaded(" + (1 - (hsv1.value / hsv0.value)) + ")";
+        }
+
+        if (Math.abs(this.a - other.a) >= 0.05) {
+            if (this.a == 0) return null;
+            transform += ".hollowed(" + (1 - (other.a / this.a)) + ")";
+        }
+
+        return transform;
+    }
+
+    return null;
+}
+Color.prototype.getDiff = function (other) {
+    if (!other) return 1;
+    var hsv0 = Color.RGB2HSV(this);
+    var hsv1 = Color.RGB2HSV(other);
+
+    return (Math.abs(hsv0.hue - hsv1.hue) / (255 * 4))
+            + (Math.abs(hsv0.saturation - hsv1.saturation) / (255 * 4))
+            + (Math.abs(hsv0.value - hsv1.value) / (100 * 4))
+            + (Math.abs(this.a - other.a) / 4);
+}
+Color.prototype.getContrastTo = function (other) {
+    var lum1 = Color.luminance(this.r, this.g, this.b);
+    var lum2 = Color.luminance(other.r, other.g, other.b);
+    var brightest = Math.max(lum1, lum2);
+    var darkest = Math.min(lum1, lum2);
+    var c = (brightest + 0.05)
+         / (darkest + 0.05);
+
+    return c * this.a * other.a;
+};
+Color.luminance = function (r, g, b) {
+    var a = [r, g, b].map(function (v) {
+        v /= 255;
+        return v <= 0.03928
+            ? v / 12.92
+            : Math.pow( (v + 0.055) / 1.055, 2.4 );
+    });
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+};
+
 pencilSandbox.Color = {
     newColor: function () {
         return new Color();

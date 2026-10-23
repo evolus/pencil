@@ -17,12 +17,13 @@ function CollapseablePanel() {
             var active = closing ? "false" : (thiz.children[i] == title._child ? "true" : "false");
             thiz.children[i].setAttribute("active", active);
             thiz.children[i]["p:title"].setAttribute("active", active);
-            if (thiz.children[i].onSizeChanged) thiz.children[i].onSizeChanged();
+            thiz.invalidateChildSize(thiz.children[i], active);
 
             if (active == "true") thiz.lastActiveId = thiz.children[i]._anonId;
         }
 
         thiz.setAttribute("closed", closing);
+        if (closing) thiz.invalidateUI();
 
         var activeId = closing ? "" : title._child._anonId;
         Config.set(thiz.activeIdConfigName, activeId);
@@ -38,9 +39,28 @@ function CollapseablePanel() {
     }, false);
 
     this.bind("mousedown", this.handleSplitterMouseDown, this.splitter);
+    this.bind("click", function () {
+        if (this.node().getAttribute("float") == "true") {
+            this.node().removeAttribute("float");
+            Config.set(this.floatConfigName, "false");
+        } else {
+            this.node().setAttribute("float", "true");
+            Config.set(this.floatConfigName, "true");
+        }
+    }, this.pinButton);
 }
 __extend(BaseTemplatedWidget, CollapseablePanel);
 
+CollapseablePanel.prototype.invalidateChildSize = function (widget, active) {
+    if (widget.onSizeChanged) {
+        widget.onSizeChanged();
+        if (active) {
+            setTimeout(function () {
+                widget.onSizeChanged();
+            }, 10);
+        }
+    }
+};
 CollapseablePanel.globalSplitterMoveListener = function (event) {
     if (!CollapseablePanel.heldInstance) return;
 
@@ -65,6 +85,8 @@ CollapseablePanel.globalSplitterMoveListener = function (event) {
         w = Math.min(window.innerWidth / 2, w);
         CollapseablePanel.heldInstance.setWidth(w);
     }
+
+    BaseWidget.signalOnSizeChangedRecursively(CollapseablePanel.heldInstance.node());
 };
 
 CollapseablePanel.ensureGlobalHandlers = function () {
@@ -80,11 +102,13 @@ CollapseablePanel.ensureGlobalHandlers = function () {
     CollapseablePanel.globalHandlersRegistered = true;
 };
 CollapseablePanel.prototype.onAttached = function () {
-    this.sizeConfigName = "ui.collapsable_pane." + this.node().getAttribute("name") + ".size";
+    var baseConfigName = "ui.collapsable_pane." + this.node().getAttribute("name");
+
+    this.sizeConfigName = baseConfigName + ".size";
     var w = Config.get(this.sizeConfigName, 250);
     this.setWidth(w);
 
-    this.activeIdConfigName = "ui.collapsable_pane." + this.node().getAttribute("name") + ".active_id";
+    this.activeIdConfigName = baseConfigName + ".active_id";
     var activeId = Config.get(this.activeIdConfigName, "");
 
     var found = false;
@@ -92,7 +116,7 @@ CollapseablePanel.prototype.onAttached = function () {
         var active = this.children[i]._anonId == activeId ? "true" : "false";
         this.children[i].setAttribute("active", active);
         this.children[i]["p:title"].setAttribute("active", active);
-        if (this.children[i].onSizeChanged) this.children[i].onSizeChanged();
+        this.invalidateChildSize(this.children[i], active);
 
         if (active == "true") {
             found = true;
@@ -101,8 +125,28 @@ CollapseablePanel.prototype.onAttached = function () {
     }
 
     this.setAttribute("closed", found ? "false" : "true");
-};
 
+    this.floatConfigName = baseConfigName + ".float";
+    var float = Config.get(this.floatConfigName, "false") == "true";
+    this.setAttribute("float", float ? "true" : "false");
+
+    //handle blur - to - collapse
+    this.node().parentNode.addEventListener("click", function (event) {
+        if (this.node().getAttribute("float") != "true") return;
+        if (this.node().getAttribute("closed") == "true") return;
+
+        var inside = this.node().contains(event.target);
+        if (inside) return;
+        this.collapseAll();
+    }.bind(this), false);
+
+    if (float) this.collapseAll();
+};
+CollapseablePanel.prototype.invalidateUI = function (event) {
+    if (this.getAttribute("controls-location") == "top") {
+        this.recalculateButtonSizes();
+    }
+};
 CollapseablePanel.prototype.handleSplitterMouseDown = function (event) {
     Dom.cancelEvent(event);
     CollapseablePanel.heldInstance = this;
@@ -141,26 +185,33 @@ CollapseablePanel.prototype.setContentFragment = function (fragment) {
         this.updateTitle(title);
     }
 };
+CollapseablePanel.prototype.recalculateButtonSizes = function () {
+    for (var i = 0; i < this.titleContainer.childNodes.length; i ++) {
+        var title = this.titleContainer.childNodes[i];
+        if (title._button) this.updateTitle(title);
+    }
+};
 CollapseablePanel.prototype.updateTitle = function (titleElement) {
     var title = titleElement._child.getTitle();
     if (titleElement._child.getIconName) {
         titleElement._icon.innerHTML = titleElement._child.getIconName();
     }
     Dom.setInnerText(titleElement._textSpan, title);
-    window.setTimeout(function () {
-        var w = Math.round(titleElement._button.offsetWidth);
-        titleElement.style.height = w + "px";
-        titleElement._button.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
-    }, 500);
+    var w = Math.round(titleElement._button.offsetWidth);
+    titleElement.style.height = w + "px";
+    titleElement._button.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
 };
 
 CollapseablePanel.prototype.collapseAll = function() {
     for (var i = 0; i < this.children.length; i ++) {
         this.children[i].setAttribute("active", "false");
         this.children[i]["p:title"].setAttribute("active", "false");
-        if (this.children[i].onSizeChanged) this.children[i].onSizeChanged();
+        this.invalidateChildSize(this.children[i], false);
     }
     this.setAttribute("closed", "true");
+    if (this.getAttribute("controls-location") == "top") {
+        this.recalculateButtonSizes();
+    }
 };
 CollapseablePanel.prototype.open = function(activeId) {
     var found = false;
@@ -168,7 +219,7 @@ CollapseablePanel.prototype.open = function(activeId) {
         var active = this.children[i]._anonId == activeId ? "true" : "false";
         this.children[i].setAttribute("active", active);
         this.children[i]["p:title"].setAttribute("active", active);
-        if (this.children[i].onSizeChanged) this.children[i].onSizeChanged();
+        this.invalidateChildSize(this.children[i], active);
 
         if (active == "true") {
             found = true;

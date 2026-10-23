@@ -39,14 +39,19 @@ F.textSize = function (name) {
     var dim = new Dimension(bbox.width, bbox.height);
     return dim;
 };
+
 F.findObjectByName = Pencil.findObjectByName;
+
 F.getObjectBoundingBox = function (name) {
     var target = Pencil.findObjectByName(this._target, name);
     if (!target) return new {x:0, y: 0, w: 0, h: 0};
 
     var bbox = target.getBBox();
+    // var renderResult = Object.assign({leftSpace: 0, rightSpace: 0}, target._renderResult);
     return {x: bbox.x, y: bbox.y, w: bbox.width, h: bbox.height};
 };
+
+
 F.elementSize = function (name) {
     var target = Pencil.findObjectByName(this._target, name);
     if (!target || target.namespaceURI != PencilNamespaces.html) return new Dimension(0, 0);
@@ -80,8 +85,9 @@ F.newDOMElement = function (spec) {
         if (name.match(/^_/)) continue;
         e.setAttribute(name, spec[name]);
     }
-
-    if (spec._text) {
+    if (spec._html) {
+        e.innerHTML = spec._html;
+    } else if (spec._text) {
         e.appendChild(e.ownerDocument.createTextNode(spec._text));
     }
     if (spec._children && spec._children.length > 0) {

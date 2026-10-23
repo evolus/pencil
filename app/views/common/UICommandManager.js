@@ -137,7 +137,7 @@ window.document.addEventListener("focus", function (event) {
 }, true);
 
 
-UICommandManager.register = function (command) {
+UICommandManager.register = function (command, control) {
     command._run = command.run;
     command.run = UICommandManager.checkAndRunFunction;
 
@@ -158,6 +158,12 @@ UICommandManager.register = function (command) {
             document.body.addEventListener(eventNames[i], f, false);
         }
     }
+
+    if (control) {
+        UICommandManager.installControl(command.key, control);
+    }
+
+    return command;
 };
 UICommandManager.getCommand = function (commandKey) {
     if (!commandKey) return;
@@ -172,14 +178,14 @@ UICommandManager.installControl = function (commandKey, control) {
 
     command.controls.push(control);
     control.addEventListener("click", function (event) {
-        var valid = command.isValid ? command.isValid() : !command.disabled;
+        var valid = command._isValid ? command._isValid() : !command.disabled;
         if (!valid) return;
-        command.run();
+        command._run();
     }, false);
 };
 UICommandManager.invalidateCommand = function (command) {
     if (!command.controls) return;
-    var valid = command.isValid ? command.isValid() : !command.disabled;
+    var valid = command.isValid ? command.isValid() : (command.isAvailable ? command.isAvailable() : !command.disabled);
     for (var i = 0; i < command.controls.length; i ++) {
         command.controls[i].disabled = !valid;
         if (command.controls[i].setEnabled) command.controls[i].setEnabled(valid);
@@ -228,20 +234,34 @@ UICommandManager.checkAndRunFunction = function (event) {
 UICommandManager.isValidFunction = function (event) {
     return UICommandManager.isApplicable(this, UICommandManager.currentFocusedElement) && (!this._isValid || this._isValid());
 };
+UICommandManager.shouldBeHandled = function (event) {
+    // Don't handle the key press when
+    return !(
+        // There is an open dialog
+        Dialog.hasOpenDialog()
+        // There is an open popup
+        || Popup.hasShowPopup()
+        // We are typing in a text input
+        || (UICommandManager.currentFocusedElement instanceof HTMLInputElement && UICommandManager.currentFocusedElement.type == 'text')
+        || UICommandManager.currentFocusedElement instanceof HTMLTextAreaElement
+    );
+};
 UICommandManager.handleKeyEvent = function (event) {
     if ((IS_MAC ? event.metaKey : event.ctrlKey) && event.altKey && event.shiftKey && event.keyCode == 80) {
         Pencil.app.mainWindow.openDevTools();
     }
 
-    if (Dialog.hasOpenDialog() || Popup.hasShowPopup()) return;
+    if (!UICommandManager.shouldBeHandled(event)) return;
 
     for (var i = 0; i < UICommandManager.commands.length; i ++) {
         var command = UICommandManager.commands[i];
         if (!command.parsedShortcut) continue;
         if (command.disabled) continue;
-        if (command.isValid && !command.isValid()) {
+        if (command.isValid && !command.isValid(event)) {
             continue;
         }
+
+        if (command.isAvailable && !command.isAvailable()) continue;
 
         var eventCmdKey = command.parsedShortcut.command ? event.metaKey : false;
         var eventCtrlKey = !command.parsedShortcut.command && IS_MAC ? event.metaKey : event.ctrlKey;

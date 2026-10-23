@@ -4,6 +4,9 @@
         body .widget_PageThumbnailView:hover {
             opacity: 1;
         }
+        body .widget_PageThumbnailView:hover {
+            color: @selected_bg;
+        }
 
         body .widget_PageThumbnailView:focus {
             outline: solid 2px fadeout(@selected_bg, 50%);
@@ -35,10 +38,9 @@
         }
 
         @footer {
-            padding-top: 0.2em;
+            padding-top: 0.1em;
             width: 6em;
-            height: 1em;
-            align-items: center;
+            max-height: 3em;
         }
         @footer > * {
             font-size: 1em;
@@ -46,8 +48,7 @@
         @pageTitle {
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 0.9em;
+            font-size: 0.7em;
         }
         @pageTitle[selected="true"] {
             color: #336699;
@@ -60,20 +61,21 @@
             border-radius: 50%;
             height: auto;
             line-height: 1em;
-            margin-right: -0.5em;
+            margin-right: -0.3em;
+            align-self: start;
         }
         @footer button i {
             line-height: 1em;
-            font-size: 1em;
+            font-size: 1.1em;
         }
         @footer button:hover {
-            background: #fff;
+            background: #dbeeff;
         }
     </style>
-    <hbox anon-id="pageThumbnailContainer" flex="1">
+    <hbox anon-id="pageThumbnailContainer" >
         <img anon-id="pageThumbnail" flex="1"/>
     </hbox>
-    <hbox anon-id="footer">
+    <hbox anon-id="footer" flex="1">
         <span anon-id="pageTitle" flex="1"></span><button anon-id="pageActionButton"><i>keyboard_arrow_down</i></button>
     </hbox>
 </vbox>

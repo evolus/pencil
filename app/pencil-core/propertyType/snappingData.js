@@ -14,12 +14,12 @@ function SnappingData(type, pos, applyTo, vertical, id, disabled, limit1, limit2
     this.limit2 = 0;
 
     try {
-        this.pos = parseInt(pos);
+        this.pos = Math.round(pos);
         if (limit1) {
-            this.limit1 = parseInt(limit1);
+            this.limit1 = Math.round(limit1);
         }
         if (limit2) {
-            this.limit2 = parseInt(limit2);
+            this.limit2 = Math.round(limit2);
         }
     } catch(e) {
         error("invalid pos: " + pos);

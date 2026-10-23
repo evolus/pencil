@@ -13,10 +13,9 @@ function Menu() {
                 checkbox.checked = !checkbox.checked;
             }
             if (item.handleAction) {
-                console.log("checkbox.checked: " + checkbox.checked);
                 item.handleAction(checkbox.checked);
             } else if (item.run) {
-                item.run(checkbox.checked);
+                item.run(checkbox.checked, event);
             }
             thiz.closeUpward();
         } else if (item.type == "SubMenu") {
@@ -36,9 +35,9 @@ function Menu() {
             }
         } else {
             if (item.handleAction) {
-                item.handleAction();
+                item.handleAction(event);
             } else if (item.run) {
-                item.run();
+                item.run(event);
             }
             thiz.closeUpward();
         }
@@ -84,6 +83,10 @@ Menu.prototype.handleMouseIn = function (event) {
         window.clearTimeout(this._parent.currentHideMenuTimeout);
         this._parent.currentHideMenuTimeout = null;
         Dom.addClass(this._parent.currentItemNodeWithSubMenu, "Active");
+
+        if (this._parent.currentShowMenuTimeout) {
+            window.clearTimeout(this._parent.currentShowMenuTimeout);
+        }
     }
 
     var itemNode = Dom.findUpwardForNodeWithData(event.target, "_item");
@@ -101,7 +104,7 @@ Menu.prototype.handleMouseIn = function (event) {
         this.currentHideMenuTimeout = window.setTimeout(function () {
             thiz.hideCurrentSubMenu();
             thiz.currentHideMenuTimeout = null;
-        }, 200);
+        }, 70);
     }
     if (this.currentShowMenuTimeout) {
         window.clearTimeout(this.currentShowMenuTimeout);
@@ -111,7 +114,7 @@ Menu.prototype.handleMouseIn = function (event) {
         this.currentShowMenuTimeout = window.setTimeout(function () {
             thiz.openSubMenu(itemNode);
             thiz.currentShowMenuTimeout = null;
-        }, 300);
+        }, 100);
     }
 
 };
@@ -215,6 +218,9 @@ Menu.prototype.renderItem = function (item) {
 
     return hbox;
 };
+Menu.prototype.getMenuItemNodes = function () {
+    return this.popupContainer.childNodes;
+};
 Menu.prototype.render = function () {
     Dom.empty(this.popupContainer);
     var actualItems = [];
@@ -250,7 +256,9 @@ Menu.prototype.showMenu = function (anchor, hAlign, vAlign, hPadding, vPadding, 
 };
 Menu.prototype.showMenuAt = function (x, y) {
     this.render();
-    this.showAt(x, y, false, "autoFlip");
+    setTimeout(() => {
+        this.showAt(x, y, false, "autoFlip");
+    }, 10);
 };
 Menu.prototype.hideMenu = function () {
     this.hide();

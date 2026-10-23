@@ -1,5 +1,8 @@
-<vbox class="Form">
+<vbox class="Form CollectionManagementDialog">
     <style>
+        body .CollectionManagementDialog {
+            overflow: hidden;
+        }
         @collectionContainer > vbox[hover="true"] {
             outline: solid 2px fadeout(@selected_bg, 30%);
             outline-offset: 0px;
@@ -20,7 +23,7 @@
             justify-content: space-between;
             overflow: auto;
             width: 50em;
-            max-height: 40em;
+            max-height: 60em;
             padding: 0em 1em 1em 0em;
         }
         @collectionContainer > .CollectionView {
@@ -30,6 +33,7 @@
             padding: 1em;
             box-shadow: @card_shadow;
             text-align: left;
+            background-color: #FFF;
         }
         @collectionContainer > .CollectionView:not([visible="true"]) > * {
             opacity: 0.3;
@@ -65,6 +69,17 @@
             align-items: center;
             justify-content: flex-end;
         }
+        .CollectionView .Controls .CollectionVersion {
+            flex: 1;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #777;
+            margin-right: 0.5em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            user-select: none;
+        }
         .CollectionView .Controls button {
             height: 1.8em;
             line-height: 1.8em;
@@ -83,10 +98,96 @@
             color: #000;
             opacity: 0.5;
         }
+        @searchPane {
+            margin: 0em 1em 0.8em 1em;
+            position: relative;
+            align-items: center;
+        }
+        @searchPane i.searchIcon {
+            @iconify();
+            position: absolute;
+            left: 0.8em;
+            font-size: 1.3em;
+            color: #888;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @filterInput {
+            width: 100%;
+            padding-left: 2.6em;
+            padding-right: 2.6em;
+            background: #FFF;
+            border: 1px solid #CCC;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        @clearSearchButton {
+            position: absolute;
+            right: 0.5em;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.8em;
+            height: 1.8em;
+            line-height: 1.8em;
+            min-width: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @clearSearchButton:not(:hover) {
+            border-color: transparent;
+            background: transparent;
+        }
+        @clearSearchButton:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+        @clearSearchButton i {
+            @iconify();
+            font-size: 1.2em;
+            color: #666;
+            margin: 0;
+            line-height: 1em;
+        }
+        @noResultsMessage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4em 1em;
+            color: #888;
+            text-align: center;
+            width: 50em;
+            box-sizing: border-box;
+        }
+        @noResultsMessage i.noResultsIcon {
+            @iconify();
+            font-size: 3em;
+            opacity: 0.35;
+            margin-bottom: 0.4em;
+        }
+        @noResultsMessage span {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
     </style>
+    <hbox anon-id="searchPane">
+        <i class="searchIcon">search</i>
+        <input anon-id="filterInput" type="text" placeholder="Search collection by name..." flex="1" />
+        <button anon-id="clearSearchButton" style="display: none;" title="Clear search"><i>clear</i></button>
+    </hbox>
     <hbox anon-id="collectionContainer" flex="1">
     </hbox>
-    <hbox class="info">
-        (Drag and drop items on list above to ordering collections)
+    <vbox anon-id="noResultsMessage" style="display: none;" flex="1">
+        <i class="noResultsIcon">search</i>
+        <span>No collections found matching your search.</span>
+    </vbox>
+    <hbox anon-id="reorderInfo" class="info">
+        (Drag and drop items to reorder)
     </hbox>
 </vbox>

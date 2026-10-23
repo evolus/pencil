@@ -12,6 +12,7 @@
     this.shortcutMap = {};
     this.propertyGroups = [];
     this.properties = {};
+    this.mcpVisible = false;
 }
 /* public void */ ShapeDefCollection.prototype.addDefinition = function (shapeDef) {
     this.shapeDefs.push(shapeDef);
@@ -31,4 +32,6 @@
     return "[ShapeDefCollection: " + this.id + "]";
 };
 
-
+ShapeDefCollection.TYPE_SYSTEM = "System";
+ShapeDefCollection.TYPE_USER_INSTALLED = "User";
+ShapeDefCollection.TYPE_DEVELOPER = "Developer";

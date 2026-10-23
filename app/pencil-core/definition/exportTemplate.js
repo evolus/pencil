@@ -34,7 +34,6 @@ ExportTemplate.parse = function (dir) {
             return;
         }
 
-        console.log("Type:", [type, property.type]);
         if (!property.type) return;
 
         property.initialValue = property.type.fromString(value);

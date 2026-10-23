@@ -36,6 +36,7 @@ DocumentExportManager.prototype.generateFriendlyId = function (page, usedFriendl
     return name;
 };
 DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, forcedExporterId, params) {
+    console.log("Export requested...");
     var exporter = Pencil.getDocumentExporterById(params.exporterId);
     if (!exporter) return;
 
@@ -66,33 +67,88 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
 
     //populating friendly-id. WARN: side-effect!
     var usedFriendlyIds = [];
+    var pageMap = {};
     for (var i = 0; i < doc.pages.length; i ++) {
         var p = doc.pages[i];
         var fid = this.generateFriendlyId(p, usedFriendlyIds);
         p.fid = fid;
+        
+        pageMap[p.id] = p;
     }
 
     var pages = params.pages;
 
     var thiz = this;
     var starter = null;
+    if (!params.options) params.options = {};
+    params.options.bitmapScale = Rasterizer.getExportScale(params.options.bitmapScale);
 
     var pageExtraInfos = {};
+    
+    var linkRequiredPageIds = [];
+    
+    function addLinkRequiredPage(pageId) {
+        var page = pageMap[pageId];
+        if (!page) return;
+        
+        if (linkRequiredPageIds.indexOf(pageId) < 0) linkRequiredPageIds.push(pageId);
+        if (page && page.backgroundPageId && page.copyBackgroundLinks) {
+            addLinkRequiredPage(page.backgroundPageId);
+        }
+    }
+    
+    pages.forEach(function (p) {
+        addLinkRequiredPage(p.id);
+    });
+    
+    var processMissingBackgroundLinks = function (callback, listener) {
+        var missingLinkRequiredPageIds = linkRequiredPageIds.filter(function (id) {
+            return !pageExtraInfos[id];
+        });
+        
+        var backgroundIndex = -1;
+        (function next() {
+            backgroundIndex ++;
+            if (backgroundIndex >= missingLinkRequiredPageIds.length) {
+                callback();
+                return;
+            }
+            
+            var page = pageMap[missingLinkRequiredPageIds[backgroundIndex]];
+            
+            if (listener) {
+                var task = Util.getMessage("exporting.page.no.prefix", page.name);
+                listener.onProgressUpdated(task, backgroundIndex + 1, missingLinkRequiredPageIds.length);
+            }
+            
+            Pencil.rasterizer.rasterizePageToUrl(page, function (data) {
+                pageExtraInfos[page.id] = {
+                    objectsWithLinking: data.objectsWithLinking
+                };
+                next();
+            }, params.bitmapScale, "parseLinks", {linksOnly: true});
+        })();
+    };
+    
     if (requireRasterizedData) {
         starter = function (listener) {
             var rasterizeNext = function () {
                 try {
                     pageIndex ++;
                     if (pageIndex >= pages.length) {
-                        thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
-                            listener.onTaskDone();
-                            NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
-                                shell.openItem(destFile);
+                        processMissingBackgroundLinks(function () {
+                            listener.onProgressUpdated("Generating PDF...", pages.length, pages.length);
+                            thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
+                                listener.onTaskDone();
+                                NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
+                                    shell.openPath(destFile);
+                                });
                             });
-                        });
+                        })
                         return;
                     }
                     var page = pages[pageIndex];
+                    console.log("Rasiterizing " + page.name);
 
                     //signal progress
                     var task = Util.getMessage("exporting.page.no.prefix", page.name);
@@ -112,7 +168,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                     Pencil.rasterizer.rasterizePageToFile(page, pagePath, function (data) {
                         pageExtraInfo.objectsWithLinking = data.objectsWithLinking;
                         window.setTimeout(rasterizeNext, 100);
-                    }, 1, "parseLinks");
+                    }, params.bitmapScale, "parseLinks");
                 } catch (e2) {
                     listener.onTaskDone();
                     Util.error(Util.getMessage("error.title"), e2.message, Util.getMessage("button.cancel.close"));
@@ -124,16 +180,19 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
     } else {
         starter = function (listener) {
             try {
-                thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
-                    listener.onTaskDone();
-                    if (destFile) {
-                        NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
-                            shell.openItem(destFile);
-                        });
-                    } else {
-                        NotificationPopup.show("Document has been exported.");
-                    }
-                });
+                processMissingBackgroundLinks(function () {
+                    listener.onProgressUpdated("Generating PDF...", pages.length, pages.length);
+                    thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
+                        listener.onTaskDone();
+                        if (destFile) {
+                            NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
+                                shell.openPath(destFile);
+                            });
+                        } else {
+                            NotificationPopup.show("Document has been exported.");
+                        }
+                    });
+                }, listener)
             } catch (ex) {
                 listener.onTaskDone();
                 Util.error(Util.getMessage("error.title"), ex.message, Util.getMessage("button.cancel.close"));
@@ -154,7 +213,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
 DocumentExportManager.prototype._getPageLinks = function (page, pageExtraInfos, includeBackground) {
     var bgLinks = [];
 
-    if (page.backgroundPage && includeBackground) {
+    if (page.backgroundPage && page.copyBackgroundLinks) {
         var bgPage = page.backgroundPage;
         if (bgPage) {
             bgLinks = this._getPageLinks(bgPage, pageExtraInfos, true);
@@ -207,6 +266,12 @@ DocumentExportManager.prototype._getPageLinks = function (page, pageExtraInfos, 
 
     return validLinks;
 };
+DocumentExportManager._cleanupParseError = function (node) {
+    Dom.workOn("//html:parsererror", node, function (errorNode) {
+        var b = errorNode.parentNode;
+        b.parentNode.removeChild(b);
+    });
+};
 DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pageExtraInfos, destFile, exportSelection, callback) {
     var exporter = Pencil.getDocumentExporterById(exportSelection.exporterId);
 
@@ -229,6 +294,7 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
 
     docProperties["fileName"] = doc.name;
     docProperties["friendlyName"] = doc.name;
+    docProperties["bitmapScale"] = (exportSelection && exportSelection.options && exportSelection.options.bitmapScale) || 1;
 
     for (name in docProperties) {
         var propertyNode = dom.createElementNS(PencilNamespaces.p, "Property");
@@ -306,6 +372,7 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
 
         var linkings = this._getPageLinks(page, pageExtraInfos,
                             !exportSelection || !exportSelection.options || exportSelection.options.copyBGLinks);
+        console.log("linkings for " + page.name, linkings);
         for (var j = 0; j < linkings.length; j ++) {
             var linking = linkings[j];
 
@@ -332,6 +399,8 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
             //debug("Created link from: " + page.properties.name + " to: " + targetPage.properties.name);
         }
     }
+    
+    DocumentExportManager._cleanupParseError(dom);
 
     var xmlFile = tmp.fileSync({postfix: ".xml", keep: false});
     Dom.serializeNodeToFile(dom, xmlFile.name);
@@ -340,7 +409,8 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
 
     try {
         exporter.export(this.doc, exportSelection, destFile, xmlFile.name, function () {
-            xmlFile.removeCallback();
+            console.log("xmlFile:" + xmlFile.name);
+            //xmlFile.removeCallback();
             callback();
         });
     } catch (e) {

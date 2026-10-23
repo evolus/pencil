@@ -3,16 +3,15 @@ var PrivateCollectionManager = {};
 PrivateCollectionManager.privateShapeDef = {};
 PrivateCollectionManager.privateShapeDef.shapeDefMap = {};
 PrivateCollectionManager.privateShapeDef.collections = [];
+PrivateCollectionManager.privateShapeDef.builtinCollections = [];
 
 PrivateCollectionManager.loadPrivateCollections = function () {
 
     try {
         var privateCollectionXmlLocation = path.join(PrivateCollectionManager.getPrivateCollectionDirectory(), "PrivateCollection.xml");
-        debug("loading private collections: " + privateCollectionXmlLocation.path);
 
         // privateCollectionXmlLocation.append("PrivateCollection.xml");
-        var stat = fs.statSync(privateCollectionXmlLocation);
-        if (!stat) return;
+        if (!fs.existsSync(privateCollectionXmlLocation)) return;
 
         // var fileContents = FileIO.read(privateCollectionXmlLocation, ShapeDefCollectionParser.CHARSET);
         var fileContents = fs.readFileSync(privateCollectionXmlLocation, ShapeDefCollectionParser.CHARSET);
@@ -35,21 +34,8 @@ PrivateCollectionManager.loadPrivateCollections = function () {
 PrivateCollectionManager.savePrivateCollections = function () {
     try {
         debug("saving private collections...");
-        var xml = '<?xml version="1.0"?>\n' +
-                    '<p:Collections xmlns="http://www.w3.org/2000/svg"\n' +
-                      '\txmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"\n' +
-                      '\txmlns:html="http://www.w3.org/1999/xhtml"\n' +
-                      '\txmlns:svg="http://www.w3.org/2000/svg"\n' +
-                      '\txmlns:xlink="http://www.w3.org/1999/xlink"\n' +
-                      '\txmlns:p="http://www.evolus.vn/Namespace/Pencil">\n';
-
-        for (var i = 0; i < PrivateCollectionManager.privateShapeDef.collections.length; i++) {
-            xml += PrivateCollectionManager.privateShapeDef.collections[i].toXMLDom();
-        }
-
-        xml += '</p:Collections>';
-        //debug(xml);
-
+        var xml = PrivateCollectionManager.getCollectionsExportedXML(PrivateCollectionManager.privateShapeDef.collections);
+        
         var privateCollectionFile = PrivateCollectionManager.getPrivateCollectionFile();
         fs.writeFileSync(privateCollectionFile, xml, ShapeDefCollectionParser.CHARSET);
     } catch (ex) {
@@ -149,17 +135,29 @@ PrivateCollectionManager.deleteAllCollection = function () {
         PrivateCollectionManager.reloadCollectionPane();
     }, "Cancel", function () {});
 };
+PrivateCollectionManager.getCollectionsExportedXML = function (collections) {
+    var xml = '<?xml version="1.0"?>\n' +
+                '<p:Collections xmlns="http://www.w3.org/2000/svg"\n' +
+                  '\txmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"\n' +
+                  '\txmlns:html="http://www.w3.org/1999/xhtml"\n' +
+                  '\txmlns:svg="http://www.w3.org/2000/svg"\n' +
+                  '\txmlns:xlink="http://www.w3.org/1999/xlink"\n' +
+                  '\txmlns:p="http://www.evolus.vn/Namespace/Pencil">\n';
+
+    for (var i = 0; i < collections.length; i++) {
+        xml += collections[i].toXMLDom();
+    }
+
+    xml += '</p:Collections>';
+    
+    return xml;
+};
+
 PrivateCollectionManager.exportCollection = function (collection) {
     try {
         debug("exporting collection " + collection.displayName);
         var fileName = collection.displayName + ".zip";
-        var xml = '<?xml version="1.0"?>\n' +
-                    '<p:Collections xmlns="http://www.w3.org/2000/svg"\n' +
-                      '\txmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"\n' +
-                      '\txmlns:html="http://www.w3.org/1999/xhtml"\n' +
-                      '\txmlns:svg="http://www.w3.org/2000/svg"\n' +
-                      '\txmlns:xlink="http://www.w3.org/1999/xlink"\n' +
-                      '\txmlns:p="http://www.evolus.vn/Namespace/Pencil">\n' + collection.toXMLDom() + "</p:Collections>";
+        var xml = PrivateCollectionManager.getCollectionsExportedXML([collection]);
 
         dialog.showSaveDialog({
             title: "Save as",
@@ -212,6 +210,22 @@ PrivateCollectionManager.importNewCollection = function () {
         PrivateCollectionManager.installCollectionFromFile(file);
     });
 };
+PrivateCollectionManager.parseSingleCollectionFile = function (definitionFile) {
+    var collection = null;
+
+    var fileContents = fs.readFileSync(definitionFile, ShapeDefCollectionParser.CHARSET);
+    var domParser = new DOMParser();
+    var dom = domParser.parseFromString(fileContents, "text/xml");
+    if (dom != null) {
+        var dom = dom.documentElement;
+        var parser = new PrivateShapeDefParser();
+        Dom.workOn("./p:Collection", dom, function (node) {
+            collection = parser.parseNode(node);
+        });
+    };
+    
+    return collection;
+};
 PrivateCollectionManager.installCollectionFromFile = function (file) {
     ApplicationPane._instance.busy();
     var filePath = file.path;
@@ -221,63 +235,110 @@ PrivateCollectionManager.installCollectionFromFile = function (file) {
     var targetDir = path.join(tempDir.name, fileName);
     console.log("targetPath:", targetDir);
 
-    var extractor = unzip.Extract({ path: targetDir });
-    extractor.on("close", function () {
+    var admZip = require('adm-zip');
 
-        //try loading the collection
-        try {
-            var definitionFile = path.join(targetDir, "Definition.xml");
-            if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
-
-            var fileContents = fs.readFileSync(definitionFile, ShapeDefCollectionParser.CHARSET);
-
-            var domParser = new DOMParser();
-
-            var collection = null;
-            var dom = domParser.parseFromString(fileContents, "text/xml");
-            if (dom != null) {
-                var dom = dom.documentElement;
-                var parser = new PrivateShapeDefParser();
-                Dom.workOn("./p:Collection", dom, function (node) {
-                    collection = parser.parseNode(node);
-                });
-            };
-
-            if (collection && collection.id) {
-                //check for duplicate of name
-                for (i in PrivateCollectionManager.privateShapeDef.collections) {
-                    var existingCollection = PrivateCollectionManager.privateShapeDef.collections[i];
-                    if (existingCollection.id == collection.id) {
-                        throw Util.getMessage("collection.named.already.installed", collection.id);
-                    }
-                }
-
-                Dialog.confirm("Are you sure you want to install the unsigned collection: " + collection.displayName + "?",
-                    "Since a collection may contain execution code that could harm your machine. It is hightly recommanded that you should only install collections from authors whom you trust.",
-                    "Install", function () {
-                        // CollectionManager.setCollectionCollapsed(collection, false);
-                        PrivateCollectionManager.addShapeCollection(collection);
-                        tempDir.removeCallback();
-                    }, "Cancel", function () {
-                        tempDir.removeCallback();
-                    }
-                );
-            } else {
-                throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
-            }
-        } catch (e) {
-            Dialog.error("Error installing collection.");
-        } finally {
+    var zip = new admZip(filePath);
+    zip.extractAllToAsync(targetDir, true, function (err) {
+        if (err) {
             ApplicationPane._instance.unbusy();
+            Dialog.error("Error installing collection.");
             tempDir.removeCallback();
+        } else {
+            //try loading the collection
+            try {
+                var definitionFile = path.join(targetDir, "Definition.xml");
+                if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+
+                var collection = PrivateCollectionManager.parseSingleCollectionFile(definitionFile);
+
+                if (collection && collection.id) {
+                    //check for duplicate of name
+                    for (i in PrivateCollectionManager.privateShapeDef.collections) {
+                        var existingCollection = PrivateCollectionManager.privateShapeDef.collections[i];
+                        if (existingCollection.id == collection.id) {
+                            throw Util.getMessage("collection.named.already.installed", collection.id);
+                        }
+                    }
+
+                    Dialog.confirm("Are you sure you want to install the unsigned collection: " + collection.displayName + "?",
+                        "Since a collection may contain execution code that could harm your machine. It is hightly recommanded that you should only install collections from authors whom you trust.",
+                        "Install", function () {
+                            // CollectionManager.setCollectionCollapsed(collection, false);
+                            PrivateCollectionManager.addShapeCollection(collection);
+                            tempDir.removeCallback();
+                        }, "Cancel", function () {
+                            tempDir.removeCallback();
+                        }
+                    );
+                } else {
+                    throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+                }
+            } catch (e) {
+                Dialog.error("Error installing collection.");
+            } finally {
+                ApplicationPane._instance.unbusy();
+                tempDir.removeCallback();
+            }
         }
-    }).on("error", function (error) {
-        ApplicationPane._instance.unbusy();
-        Dialog.error("Error installing collection.");
-        tempDir.removeCallback();
     });
 
-    fs.createReadStream(filePath).pipe(extractor);
+    // var extractor = unzip.Extract({ path: targetDir });
+    // extractor.on("close", function () {
+
+    //     //try loading the collection
+    //     try {
+    //         var definitionFile = path.join(targetDir, "Definition.xml");
+    //         if (!fs.existsSync(definitionFile)) throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+
+    //         var fileContents = fs.readFileSync(definitionFile, ShapeDefCollectionParser.CHARSET);
+
+    //         var domParser = new DOMParser();
+
+    //         var collection = null;
+    //         var dom = domParser.parseFromString(fileContents, "text/xml");
+    //         if (dom != null) {
+    //             var dom = dom.documentElement;
+    //             var parser = new PrivateShapeDefParser();
+    //             Dom.workOn("./p:Collection", dom, function (node) {
+    //                 collection = parser.parseNode(node);
+    //             });
+    //         };
+
+    //         if (collection && collection.id) {
+    //             //check for duplicate of name
+    //             for (i in PrivateCollectionManager.privateShapeDef.collections) {
+    //                 var existingCollection = PrivateCollectionManager.privateShapeDef.collections[i];
+    //                 if (existingCollection.id == collection.id) {
+    //                     throw Util.getMessage("collection.named.already.installed", collection.id);
+    //                 }
+    //             }
+
+    //             Dialog.confirm("Are you sure you want to install the unsigned collection: " + collection.displayName + "?",
+    //                 "Since a collection may contain execution code that could harm your machine. It is hightly recommanded that you should only install collections from authors whom you trust.",
+    //                 "Install", function () {
+    //                     // CollectionManager.setCollectionCollapsed(collection, false);
+    //                     PrivateCollectionManager.addShapeCollection(collection);
+    //                     tempDir.removeCallback();
+    //                 }, "Cancel", function () {
+    //                     tempDir.removeCallback();
+    //                 }
+    //             );
+    //         } else {
+    //             throw Util.getMessage("collection.specification.is.not.found.in.the.archive");
+    //         }
+    //     } catch (e) {
+    //         Dialog.error("Error installing collection.");
+    //     } finally {
+    //         ApplicationPane._instance.unbusy();
+    //         tempDir.removeCallback();
+    //     }
+    // }).on("error", function (error) {
+    //     ApplicationPane._instance.unbusy();
+    //     Dialog.error("Error installing collection.");
+    //     tempDir.removeCallback();
+    // });
+
+    // fs.createReadStream(filePath).pipe(extractor);
 };
 PrivateCollectionManager.setLastUsedCollection = function (collection) {
     Config.set("PrivateCollection.lastUsedCollection.id", collection.id);

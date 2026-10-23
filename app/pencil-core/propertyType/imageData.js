@@ -1,26 +1,96 @@
-function ImageData(w, h, data) {
-    this.data = data;
-    this.w = w;
-    this.h = h;
+/*
+ * Accommodates single-argument instantiation where a URI or data string
+ * (such as 'collection://@collectionId/path/to/resource' or 'data:...') is provided
+ * without leading width/height dimensions.
+ * Automatically normalizes bare '@collectionId/path' URIs into canonical
+ * 'collection://@collectionId/path' format so external LLM payloads omitting the
+ * protocol scheme are tolerated transparently.
+ */
+function ImageData(w, h, data, xCells, yCells) {
+    if (arguments.length === 1 && typeof w === "string") {
+        this.data = w;
+        this.w = 0;
+        this.h = 0;
+        this.xCells = null;
+        this.yCells = null;
+    } else {
+        this.data = data;
+        this.w = w;
+        this.h = h;
+        this.xCells = xCells;
+        this.yCells = yCells;
+    }
+
+    if (typeof this.data === "string" && this.data.startsWith("@") && this.data.indexOf("/") !== -1) {
+        this.data = "collection://" + this.data;
+    }
 }
-ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]+)$/;
+ImageData.REG_EX = /^([0-9]+)\,([0-9]+)\,([^\0]*)$/;
+ImageData.REG_EX2 = /^([0-9]+)\,([0-9]+)\,([0-9\- ]*)\,([0-9\- ]*)\,([^\0]+)$/;
 ImageData.win = null;
 
+/*
+100,200,10-20 45-33,
+*/
+
 ImageData.fromString = function (literal) {
+    if (literal.match(ImageData.REG_EX2)) {
+        var w = parseInt(RegExp.$1, 10);
+        var h = parseInt(RegExp.$2, 10);
+
+        var xCellsString = RegExp.$3;
+        var yCellsString = RegExp.$4;
+        var data = RegExp.$5;
+        var xCells = ImageData.parseCellString(xCellsString);
+        var yCells = ImageData.parseCellString(yCellsString);
+
+        return new ImageData(w, h, data, xCells,yCells);
+    }
     if (literal.match(ImageData.REG_EX)) {
-        return new ImageData(parseInt(RegExp.$1),
-                            parseInt(RegExp.$2),
+        return new ImageData(parseInt(RegExp.$1, 10),
+                            parseInt(RegExp.$2, 10),
                             RegExp.$3);
     }
-    return new ImageData(literal);
-};
 
+    return new ImageData(0, 0, literal);
+};
+ImageData.parseCellString = function (literal) {
+    var cells = [];
+    var blocks = literal.split(/[ ]+/);
+    for (var block of blocks) {
+        if (block.match(/^[ ]*([0-9]+)[ ]*\-[ ]*([0-9]+)[ ]*$/)) {
+            cells.push({
+                from: parseInt(RegExp.$1, 10),
+                to: parseInt(RegExp.$2, 10)
+            })
+        }
+    }
+
+    return cells;
+};
+ImageData.generateCellString = function (cells) {
+    if (!cells) return "";
+    var blocks = [];
+    for (var cell of cells) {
+        blocks.push(cell.from + "-" + cell.to);
+    }
+
+    return blocks.join(" ");
+};
 ImageData.invalidateValue = function (oldData, callback) {
-    if (oldData.data.match(/^data:/)) {
+    console.log("Invalidating image data", oldData);
+    
+    if (oldData.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+        var svg = oldData.data.substring(ImageData.SVG_IMAGE_DATA_PREFIX.length + 1);
+
+        let id = Pencil.controller.svgImageToRefSync(svg);
+        callback(new ImageData(oldData.w, oldData.h, ImageData.idToRefString(id)), null);
+    } else if (oldData.data.match(/^data:/)) {
         var image = null;
         try {
             image = nativeImage.createFromDataURL(oldData.data);
         } catch (e) {
+            console.e(e);
         }
 
         if (!image) {
@@ -39,9 +109,202 @@ ImageData.invalidateValue = function (oldData, callback) {
                 callback(null, error);
             }
         });
+    } else if (oldData.data.match(/^(ref:\/\/([^@]+))@(.+)$/)) {
+        var ref = RegExp.$1;
+        var fp = RegExp.$3;
+        var id = ImageData.refStringToId(ref);
+        var refFilePath = Pencil.controller.refIdToFilePath(id);
+
+        const fs = require("fs");
+        // assume that the ref is local to this document, generate the local file path and check it
+        if (fsExistSync(refFilePath)) {
+            callback(new ImageData(oldData.w, oldData.h, ref, null));
+        } else {
+            Pencil.controller.copyAsRef(fp, function (id, error) {
+                if (id) {
+                    callback(new ImageData(oldData.w, oldData.h, ImageData.idToRefString(id)), null);
+                } else {
+                    callback(null, error);
+                }
+            });
+        }
     } else {
         callback(null);
     }
+};
+ImageData.prepareForTransferable = function (imageData, propDef) {
+    if (imageData.data.match(/^ref:\/\//)) {
+        var data = imageData.data;
+        if (imageData.data.match(/^(ref:\/\/[^@]+)(@.+)$/)) data = RegExp.$1;
+        var id = ImageData.refStringToId(data);
+        if (!id) return;
+        var filePath = Pencil.controller.refIdToFilePath(id);
+        data = data + "@" + filePath;
+        imageData.data = data;
+    }
+};
+ImageData.prepareForEmbedding = function (oldData, callback) {
+    if (oldData.data.match(/^ref:\/\//)) {
+        var id = ImageData.refStringToId(oldData.data);
+        if (!id) {
+            callback(null);
+            return;
+        }
+
+        var filePath = Pencil.controller.refIdToFilePath(id);
+        console.log("File path");
+        if (filePath.match(/svg$/i)) {
+            var url = ImageData.SVG_IMAGE_DATA_PREFIX + "," + fs.readFileSync(filePath, "utf8");
+            callback(new ImageData(oldData.w, oldData.h, url), null);
+        } else {
+            var image = nativeImage.createFromPath(filePath);
+            callback(new ImageData(oldData.w, oldData.h, image.toDataURL()), null);
+        }
+    } else {
+        callback(null);
+    }
+};
+
+function resolveImageData(value) {
+    if (!value.data) return;
+
+    let ow = value.w;
+    let oh = value.h;
+
+    if (ow == 0 || oh == 0) return;
+
+    if (value.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+        try {
+            let svg = value.getDataAsXML();
+            let svgNode = domParser.parseFromString(svg, "text/xml").documentElement;
+            let parsedSize = CollectionResourceBrowserDialog._getParsedSvgSize(svgNode);
+            parsedSize
+            fixImageImageSize(value, svg);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function fixImageImageSize(value, svg) {
+        let svgNode = domParser.parseFromString(svg, "text/xml").documentElement;
+        CollectionResourceBrowserDialog._getParsedSvgSize(domParser.parseFromString(svg, "text/xml").documentElement);
+
+        let viewBox = svgNode.getAttribute("viewBox");
+
+        let m = viewBox?.match ? viewBox.match(/^\s*[0-9\.]+\s+[0-9\.]+\s+([0-9\.]+)\s+([0-9\.]+)\s*$/) : null;
+        if (m) {
+            value.w = Math.round(parseFloat(m[1]));
+            value.h = Math.round(parseFloat(m[2]));
+            if (value.w != ow || value.h != oh) console.log("Fix w/h using viewBox", viewBox);
+        } else {
+            let w = svgNode.getAttribute("width");
+            let h = svgNode.getAttribute("height");
+            if (w && h) {
+                value.w = parseInt(w, 10);
+                value.h = parseInt(h, 10);
+
+                if (value.w != ow || value.h != oh) console.log("Fix w/h using width/height", { w, h });
+            }
+        }
+    }
+}
+
+ImageData.performIntialProcessing = function (data, def, currentCollection) {
+    if (data && typeof data.data === "string" && data.data.startsWith("@") && data.data.indexOf("/") !== -1) {
+        data.data = "collection://" + data.data;
+    }
+    if (data && data.data && data.data.match(/^collection:\/\/(@([^\s\/]+)\/)?(.+)$/)) {
+        var collectionId = RegExp.$2;
+        var declaredPath = RegExp.$3;
+
+        var sourceCollection = currentCollection || (def ? def.collection : null);
+        if (collectionId) {
+            sourceCollection = CollectionManager.findCollection(collectionId);
+            if (!sourceCollection) throw new Error("Invalid collection id in reference: " + data.data);
+        }
+
+        var id = Pencil.controller.collectionResourceAsRefSync(sourceCollection, declaredPath);
+        if (id) {
+            var finalW = Number(data.w) || 0;
+            var finalH = Number(data.h) || 0;
+
+            /*
+             * If explicit dimensions were not provided with the collection URI (e.g. data.w <= 0),
+             * derive the intrinsic dimensions of the copied asset directly from the document's
+             * reference file. SVG assets are parsed via CollectionResourceBrowserDialog._getParsedSvgSize
+             * to respect viewBox aspect ratios; bitmap assets query nativeImage dimensions.
+             */
+            if (finalW <= 0 || finalH <= 0) {
+                var filePath = Pencil.controller.refIdToFilePath(id);
+                var fsModule = (typeof fs !== "undefined") ? fs : ((typeof require !== "undefined") ? require("fs") : null);
+                if (filePath && fsModule && fsModule.existsSync(filePath)) {
+                    var isSvg = Boolean(
+                        (declaredPath && declaredPath.match(/\.svg$/i)) ||
+                        (id && (id.match(/\.svg$/i) || id.match(/_svg$/i))) ||
+                        (filePath && (filePath.match(/\.svg$/i) || filePath.match(/_svg$/i)))
+                    );
+                    if (isSvg) {
+                        try {
+                            var svgText = fsModule.readFileSync(filePath, "utf8");
+                            var parser = (typeof domParser !== "undefined") ? domParser : ((typeof DOMParser !== "undefined") ? new DOMParser() : null);
+                            var parsedSize = null;
+                            if (parser) {
+                                var svgDoc = parser.parseFromString(svgText, "text/xml");
+                                var svgNode = svgDoc ? svgDoc.documentElement : null;
+                                if (svgNode && typeof CollectionResourceBrowserDialog !== "undefined" && CollectionResourceBrowserDialog._getParsedSvgSize) {
+                                    parsedSize = CollectionResourceBrowserDialog._getParsedSvgSize(svgNode);
+                                }
+                            }
+                            if (!parsedSize || !parsedSize.width || !parsedSize.height) {
+                                var vbMatch = svgText.match(/viewBox\s*=\s*["']\s*([-\d.]+)\s+([-\d.]+)\s+([\d.]+)\s+([\d.]+)\s*["']/i);
+                                var wMatch = svgText.match(/\bwidth\s*=\s*["']\s*([\d.]+)(?:px)?\s*["']/i);
+                                var hMatch = svgText.match(/\bheight\s*=\s*["']\s*([\d.]+)(?:px)?\s*["']/i);
+                                var parsedW = wMatch ? parseFloat(wMatch[1]) : (vbMatch ? parseFloat(vbMatch[3]) : 0);
+                                var parsedH = hMatch ? parseFloat(hMatch[1]) : (vbMatch ? parseFloat(vbMatch[4]) : 0);
+                                if (parsedW > 0 && parsedH > 0) {
+                                    parsedSize = { width: parsedW, height: parsedH };
+                                }
+                            }
+                            if (parsedSize && parsedSize.width > 0 && parsedSize.height > 0) {
+                                finalW = Math.round(parsedSize.width);
+                                finalH = Math.round(parsedSize.height);
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse SVG size for collection resource:", filePath, e);
+                        }
+                    } else {
+                        try {
+                            var nImg = (typeof nativeImage !== "undefined" && nativeImage.createFromPath)
+                                ? nativeImage.createFromPath(filePath)
+                                : ((typeof require !== "undefined") ? require("electron").nativeImage.createFromPath(filePath) : null);
+                            if (nImg) {
+                                var nSize = nImg.getSize();
+                                if (nSize && nSize.width > 0 && nSize.height > 0) {
+                                    finalW = nSize.width;
+                                    finalH = nSize.height;
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse bitmap image size for collection resource:", filePath, e);
+                        }
+                    }
+                }
+            }
+
+            return new ImageData(finalW, finalH, ImageData.idToRefString(id), data.xCells, data.yCells);
+        }
+    } else if (data && data.data && data.data.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+        let svg = data.getDataAsXML();
+        let svgNode = domParser.parseFromString(svg, "text/xml").documentElement;
+        let parsedSize = CollectionResourceBrowserDialog._getParsedSvgSize(svgNode);
+        let width = Math.round(parsedSize.width);
+        let height = Math.round(parsedSize.height);
+        var id = Pencil.controller.svgImageToRefSync(svg);
+
+        return new ImageData(width, height, ImageData.idToRefString(id));
+    }
+
+    return null;
 };
 
 ImageData.filePathToURL = function (filePath, options) {
@@ -67,17 +330,19 @@ ImageData.refStringToUrl = function (refString) {
     return Pencil.controller.refIdToUrl(id);
 };
 
-ImageData.prompt = function (callback) {
-    dialog.showOpenDialog({
+ImageData.prompt = function (callback, ext) {
+    dialog.showOpenDialog(remote.getCurrentWindow(), {
         title: "Select Image",
-        defaultPath: os.homedir(),
+        defaultPath: Config.get("document.open.recentlyImagePath", null) || os.homedir(),
         filters: [
-            { name: "Image files", extensions: ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
+            { name: "Image files", extensions: ext || ["png", "jpg", "jpeg", "gif", "bmp", "svg"] }
         ]
+    }).then(function (res) {
+        if (!res || !res.filePaths || res.filePaths.length <= 0) return;
+        var p = res.filePaths[0];
+        Config.set("document.open.recentlyImagePath", path.dirname(p));
 
-    }, function (filenames) {
-        if (!filenames || filenames.length <= 0) return;
-        ImageData.fromExternalToImageData(filenames[0], callback);
+        ImageData.fromExternalToImageData(p, callback);
     });
 };
 
@@ -140,35 +405,228 @@ ImageData.convertToEmbeded = function (imageData, callback) {
     ImageData.fromUrlEmbedded(imageData.data, callback);
 };
 
+ImageData.commandsToData = function (pathCommands) {
+    var newData = "";
 
-ImageData.prototype.toString = function () {
-    return [this.w, this.h, this.data].join(",");
+    for (var command of pathCommands) {
+        if (newData) newData += " ";
+        newData += command.command;
+        if (command.points) {
+            for (var i = 0; i < command.points.length; i ++) {
+                newData += (i > 0 ? " " : "") + command.points[i].x + "," + command.points[i].y;
+            }
+        }
+    }
+
+    return newData;
+};
+ImageData.generatePathSVGData = function (svgPathData, size) {
+    var specs = [];
+    var json = svgPathData.data;
+    if (!json.startsWith("json:")) return specs;
+    var parsedPathData = JSON.parse(json.substring(5));
+
+    for (var info of parsedPathData) {
+        var d = ImageData.commandsToData(info.commands);
+        specs.push({
+            _name: "path",
+            _uri: PencilNamespaces.svg,
+            d: d,
+            style: "stroke: #000000; stroke-width: 1px; fill: rgba(0, 0, 0, 0.1);"
+        });
+    }
+
+    var svg = {
+        _name: "svg",
+        _uri: PencilNamespaces.svg,
+        width: svgPathData.w,
+        height: svgPathData.h,
+        viewBox: "0 0 " + size.w + " " + size.h,
+        _children: [
+            {
+                _name: "g",
+                _uri: PencilNamespaces.svg,
+                //transform: scale(size.w / svgPathData.w, size.h / svgPathData.h),
+                _children: specs
+            }
+        ]
+    }
+
+    var svgDom = Dom.newDOMElement(svg);
+    var svgData = encodeURIComponent(Dom.serializeNode(svgDom));
+    return "data:image/svg+xml," + svgData;
 };
 
-window.addEventListener("load", function () {
-    var iframe = document.createElementNS(PencilNamespaces.html, "html:iframe");
-    iframe.setAttribute("style", "border: none; min-width: 0px; min-height: 0px; width: 1px; height: 1px; xvisibility: hidden;");
-    iframe.setAttribute("src", "pencil-core/blank.html");
+ImageData.prototype.isBitmap = function () {
+    // Only support ref file for now
+    return !!ImageData.refStringToId(this.data);
+};
 
-    var container = document.body;
-    if (!container) container = document.documentElement;
+ImageData.prototype.toImageSrc = function () {
+    if (!this.data) return "";
 
-    var box = document.createElement("div");
-    box.setAttribute("style", "overflow: hidden; width: 1px; height: 1px; position: absolute; bottom: 0px; right: 0px;");
-    box.appendChild(iframe);
-
-    container.appendChild(box);
-
-    ImageData.win = iframe.contentWindow;
-    ImageData.win.document.body.setAttribute("style", "padding: 0px; margin: 0px;")
-}, false);
-
-
-pencilSandbox.ImageData = {
-    newImageData: function (w, h, data) {
-        return new ImageData(w, h, data);
+    if (this.data.startsWith("json:")) {
+        return ImageData.generatePathSVGData(this, this);
+    } else if (this.data.startsWith("data:")) {
+        return this.data;
+    } else if (this.data.startsWith("file:")) {
+        return this.data;
+    } else {
+        return ImageData.refStringToUrl(this.data);
     }
 };
-for (var p in ImageData) {
-    pencilSandbox.ImageData[p] = ImageData[p];
+ImageData.prototype.toString = function () {
+    if (!this.xCells && !this.yCells) {
+        return [this.w, this.h, this.data].join(",");
+    } else {
+        return [this.w, this.h, ImageData.generateCellString(this.xCells), ImageData.generateCellString(this.yCells), this.data].join(",");
+    }
 };
+
+ImageData.SVG_IMAGE_DATA_PREFIX = "data:image/svg+xml";
+ImageData.SVG_IMAGE_DATA_BASE64_PREFIX = ImageData.SVG_IMAGE_DATA_PREFIX + ";base64";
+ImageData.prototype.getDataAsXML = function () {
+    var url = this.data;
+    if (!url) return null;
+
+    if (url.startsWith(ImageData.SVG_IMAGE_DATA_PREFIX)) {
+        var commaIndex = url.indexOf(",");
+        if (commaIndex < ImageData.SVG_IMAGE_DATA_PREFIX.length || commaIndex > ImageData.SVG_IMAGE_DATA_PREFIX.length + 10) return null;
+        var svg = url.substring(commaIndex + 1);
+        if (url.startsWith(ImageData.SVG_IMAGE_DATA_BASE64_PREFIX)) {
+            svg = Buffer.from(svg, 'base64').toString('utf8');
+        }
+
+        return svg;
+    } else if (url.match(/^ref:\/\//)) {
+        var id = ImageData.refStringToId(url);
+        if (!id) {
+            return null;
+        }
+        var filePath = Pencil.controller.refIdToFilePath(id);
+        return fs.readFileSync(filePath, "utf8");
+    }
+    return null;
+};
+
+ImageData.fromScreenshot = function (callback, providedOptions) {
+    /*
+    var capturer = require("electron-screencapture");
+    var electron = require("electron");
+
+    var displays = electron.screen.getAllDisplays();
+    if (!displays || displays.length <= 0) {
+        console.error("No dispaly found");
+        return;
+    }
+
+    var display = displays[0];
+
+    const remote = electron.remote;
+    const BrowserWindow = remote.BrowserWindow;
+    // var win = new BrowserWindow({ width: 800, height: 600, transparent: false, frame: true, fullscreen: false, enableLargerThanScreen: true });
+    var win = new BrowserWindow({
+        x: display.bounds.x,
+        y: display.bounds.y,
+        width: display.bounds.width,
+        height: display.bounds.height,
+        transparent: true,
+        frame: false,
+        fullscreen: false,
+        enableLargerThanScreen: true,
+        show: false}
+    );
+    var mainUrl = "file://" + __dirname + "/tools/screen-cap.xhtml";
+    win.loadURL(mainUrl);
+    //win.webContents.openDevTools();
+    //win.setFullScreen(true);
+
+    return;
+    */
+
+    var provider = ScreenCaptureProvider.getActiveProvider();
+    if (!provider) {
+        callback(null, new Error("No provider found"));
+        return;
+    }
+
+    var executer = function (options) {
+        var tmp = require("tmp");
+        var localPath = tmp.tmpNameSync({postfix: ".png"});
+
+        console.log("Requested local path: ", localPath);
+
+        var win = remote.getCurrentWindow();
+
+        if (options.hidePencil) win.hide();
+
+        options.outputType = BaseCaptureService.OUTPUT_FILE;
+        options.outputPath = localPath;
+
+        var delay = (options.delay ? parseInt(options.delay, 10) * 1000 : 0) + 100;
+
+        window.setTimeout(function () {
+            provider.capture(options).then(function () {
+                if (options.hidePencil) win.show();
+                ImageData.fromExternalToImageData(localPath, function (imageData) {
+                    //As the image is getting directly from device screenshot, the number of pixel was already multiplied by the scale
+                    var ratio = remote.screen.getPrimaryDisplay().scaleFactor;
+                    if (ratio > 1) {
+                        imageData.w = Math.round(imageData.w / ratio);
+                        imageData.h = Math.round(imageData.h / ratio);
+                    }
+
+                    var fs = require("fs");
+                    fs.unlinkSync(localPath);
+                    callback(imageData, options);
+                });
+            }).catch(function (error) {
+                if (options.hidePencil) win.show();
+                callback(null, options, error);
+            });
+        }, delay);
+    };
+
+    if (providedOptions) {
+        executer(providedOptions);
+    } else {
+        var optionDialog = new ScreenCaptureOptionDialog();
+        optionDialog.callback(executer);
+        optionDialog.open(provider);
+    }
+};
+
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+    window.addEventListener("load", function () {
+        var iframe = document.createElementNS(PencilNamespaces.html, "html:iframe");
+        iframe.setAttribute("style", "border: none; min-width: 0px; min-height: 0px; width: 1px; height: 1px; xvisibility: hidden;");
+        iframe.setAttribute("src", "pencil-core/blank.html");
+
+        var container = document.body;
+        if (!container) container = document.documentElement;
+
+        var box = document.createElement("div");
+        box.setAttribute("style", "overflow: hidden; width: 1px; height: 1px; position: absolute; bottom: 0px; right: 0px;");
+        box.appendChild(iframe);
+
+        container.appendChild(box);
+
+        ImageData.win = iframe.contentWindow;
+        ImageData.win.document.body.setAttribute("style", "padding: 0px; margin: 0px;")
+    }, false);
+}
+
+if (typeof pencilSandbox !== "undefined") {
+    pencilSandbox.ImageData = {
+        newImageData: function (w, h, data) {
+            return new ImageData(w, h, data);
+        }
+    };
+    for (var p in ImageData) {
+        pencilSandbox.ImageData[p] = ImageData[p];
+    };
+}
+
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = ImageData;
+}

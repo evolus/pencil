@@ -96,7 +96,7 @@ var Tree = function() {
         if ((target.checked && tree.options.propagateCheckActionDownwards)
                 || (!target.checked && tree.options.propagateUncheckActionDownwards)) {
             var itemNode = target.parentNode.parentNode;
-            setItemsCheckedRecursivelyFromNodes(getChildrenContainerFromItemNode(itemNode).childNodes, target.checked);
+            if (!event.shiftKey) setItemsCheckedRecursivelyFromNodes(getChildrenContainerFromItemNode(itemNode).childNodes, target.checked);
         }
 
         Dom.emitEvent("blur", treeContainer, {});

@@ -10,7 +10,6 @@ ExportTemplateManager.SUPPORTED_TYPES_NAMES = {
 };
 
 ExportTemplateManager.addTemplate = function (template, type) {
-    console.log("add template", template, type);
     if (!ExportTemplateManager.templates[type]) {
         ExportTemplateManager.templates[type] = [];
     }
@@ -97,7 +96,7 @@ ExportTemplateManager._loadUserDefinedTemplatesIn = function (templateDir, type)
             ExportTemplateManager.addTemplate(template, type);
         })
     } catch (e) {
-        console.error(e);
+        //console.error(e);
     }
 };
 
@@ -146,7 +145,7 @@ ExportTemplateManager.installTemplateFromFile = function (file, type , callback)
     var readStream = fs.createReadStream(file.toString());
     var targetDir = ExportTemplateManager.getUserTemplateDirectory().toString();
     targetDir = targetDir.concat("/"+type);
-    var index = readStream.path.lastIndexOf("/");
+    var index = readStream.path.lastIndexOf(path.sep);
     var fileName = readStream.path.substring(index + 1);
     targetDir = targetDir.concat("/" + fileName.replace(/\.[^\.]+$/, "") + "_" + Math.ceil(Math.random() * 1000) + "_" + (new Date().getTime()));
     readStream

@@ -1,0 +1,53 @@
+# RELEASE NOTES 3.1.0
+ 
+- Support for compact layout
+- Optimize output file by removing unused/gabbage resources
+- Add copy page bitmap to clipboard
+- Add screencapture and color picker
+- Implement quick canvas resizing using corner resizer
+- Add support for line-height in font property
+- Fix dialog API and script editor
+- Automatically show "Launch script editor" for special plain text properties
+- Enhance connector invalidation code to improve keyboard moving performance
+- Add support for built-in private collection embedded inside stencil collection
+- Fix problem when pasting shapes are out of the current view-port
+- Change default page size for new page as best-fit
+- Fix broken bitmap and svg image embedded in private shape collection
+- Add support for shadow color in stencil generated from stencil builder
+- Fix shape preparing bug that make background bitmap generation failed.
+- Normalize calculated values from group sizing policy to int to avoid blurry edges
+- Enhance snapping performance and support snapping when moving multiple shapes
+- Allow range-selection from canvas scrollpane, clear selection when clicking outside canvas.
+- Support horizontal/vertical only moving using ctrl key
+- Fix #297 - handling for command line argument 
+- Fix dialog sizing and style that cause long dialogs
+- Showing actual file path or the installed collection in its about dialog
+- Fix duplication of system collection loading
+- Showing edge border in collection pane to indicate user-installed collections
+- Fix handling of file argumennt whens starting Pencil in developer mode
+- Fix crash caused by unzip2 and easy-zip2
+- Use Electron 6.0.1 (Node 12, Chrome 76)
+- Fix character encoding in PDF export
+- Fix #227 Printing more than once Hangs on "Exporting" screen 
+- Improving property editor side pane
+- Fix Page detail menu and dialog: move "Properties" to the end, automatically focus and select title input.
+- Add "Insert Screenshot..." menu action for canvas, replacing the startup screen button.
+- Implement native MAC capture service
+- Add option to insert screenshot as n-patch image
+- Cleanup parsererror message in output PDF/print
+- Add support for copy selection to clipboard as bitmap when holding "shift" key.
+- Initial impl for checking missing resources
+- Fix file missing bug in stencil builder
+- Fix wrong file filter when corespodent collection is not installed
+- Fix large image captured in HiDPI screen
+- Update "Edit Image..." into using external editor
+- Stop using local version of Material Design Icons which may cause problem in some Linux systems with chinese locale
+- Fix losing of n-patch bitmap image after reloading, add offscreen validation support for n-patch behavior
+- Add clickable prototype HTML export template
+- Add multi repo view for stencil repo browser
+- Add deploy tool for stencil builder
+- Add page property to allow copying of background page links
+- Add export scale and clickable PDF export
+- Fix child pages ordering not saved
+- Fix performance problem caused by timer leaking in color selector
+- Add support for document color palette in color pickers

@@ -5,9 +5,9 @@
             justify-content: center;
             align-items: center;
         }
-
         @recentDocumentPane {
             margin-bottom: 1em;
+            position: relative;
         }
         @otherOptionPane > button {
             font-size: 1.1em;
@@ -19,42 +19,44 @@
             padding-right: 0.4em;
         }
 
-        @recentDocumentRepeater > strong {
+        @recentDocumentPane .Repeater-Document > strong {
             color: #888;
             text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
         }
-        @recentDocumentRepeater > .ContentWrapper {
+        @recentDocumentPane .Repeater-Document > .ContentWrapper {
             margin-left: -2ex;
-            width: 76ex;
+            width: 100ex;
             flex-wrap: wrap;
         }
         @recentDocumentRepeater vbox[role="item"] {
-            box-shadow: 0px 0px 0.5ex rgba(0, 0, 0, 0.4);
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
             margin-left: 2ex;
             margin-top: 2ex;
-            width: 16ex;
+            /*width: 20ex;*/
             border: solid 0.5ex @app_bg;
             background: @app_bg;
             cursor: pointer;
+            position: relative;
+            border-radius: 2px;
         }
         @recentDocumentRepeater vbox[role="item"]:hover {
-            box-shadow: 0px 0px 1ex @selected_bg;
+            box-shadow: 0px 1px 3px @selected_bg;
         }
-        @recentDocumentRepeater vbox[role="item"] .ImageContainer {
-            width: 16ex;
-            height: 18ex;
+        @recentDocumentPane .Repeater-Document vbox[role="item"] .ImageContainer {
+            width: 22ex;
+            height: 14ex;
             background: #FFF;
         }
-        @recentDocumentRepeater vbox[role="item"] .InfoPane {
+        @recentDocumentPane .Repeater-Document vbox[role="item"] .InfoPane {
             padding: 1ex;
         }
-        @recentDocumentRepeater vbox[role="item"] .InfoPane > * {
+        @recentDocumentPane .Repeater-Document vbox[role="item"] .InfoPane > * {
             width: 14ex;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        @recentDocumentRepeater vbox[role="item"] .InfoPane span {
+        @recentDocumentPane .Repeater-Document vbox[role="item"] .InfoPane span {
             opacity: 0.5;
             font-size: 0.9em;
         }
@@ -65,10 +67,86 @@
             background: rgba(0, 0, 0, 0.1);
             margin-top: 1em;
         }
+        @recentDocumentPane .Repeater-Document .Pin{
+            height: 20px;
+            line-height: 20px;
+            background: transparent;
+            border: none;
+            max-width: 20px;
+            min-width: 20px;
+            padding: 0px;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            display: table-cell;
+            font-size: 20px;
+        }
+        @recentDocumentPane .Repeater-Document .Pin i{
+            opacity: 0.5;
+            transform: rotate(90deg);
+        }
+
+        @recentDocumentPane .Repeater-Document .Unpin i{
+            opacity : 1;
+            transform: rotate(0deg);
+        }
+
+        @recentDocumentPane .RowView vbox[role="item"] {
+            width: 97ex;
+            flex-direction: row;
+        }
+
+        @recentDocumentPane .RowView vbox[role="item"] .ImageContainer {
+            width: 7ex;
+            height: 8ex;
+            background: #FFF;
+        }
+        @recentDocumentPane .RowView vbox[role="item"] .InfoPane {
+            padding: 0ex 0ex 0ex 1ex;
+        }
+        @recentDocumentPane .RowView vbox[role="item"] .InfoPane > * {
+            width: 86ex;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        @recentDocumentPane .RowView vbox[role="item"] .InfoPane span {
+            opacity: 0.5;
+            font-size: 0.9em;
+        }
+        @recentDocumentPane .GridSelect {
+            position: absolute;
+            right: 0;
+            top: -11px;
+        }
+        @recentDocumentPane .GridSelect button {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            box-shadow: none;
+            text-transform: none;
+            padding: 0em 0.8em;
+            line-height: normal;
+            cursor: inherit;
+        }
+        @recentDocumentPane .GridSelect button > *{
+            margin-left: 0.5em;
+            line-height: 1em;
+        }
+        @recentDocumentPane .GridSelect .Active{
+            background: #dddddd;
+        }
+        
+        @takeScreenshotButton {
+            display: none;
+        }
     </style>
     <vbox>
         <vbox anon-id="recentDocumentPane">
-            <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" anon-id="recentDocumentRepeater" flex="1">
+            <hbox anon-id="changeViewButtons" class="GridSelect">
+                <button anon-id="gridViewButton" ><i>apps</i><span> Grid View </span></button>
+                <button anon-id="listViewButton" ><i>dehaze</i><span> List View </span></button>
+            </hbox>
+            <ui:RepeaterView tag="vbox" content-wrapper-tag="hbox" class="Repeater-Document" anon-id="recentDocumentRepeater" flex="1">
                 <strong role="header">Recent Documents</strong>
                 <vbox role="item">
                     <div class="ImageContainer">
@@ -76,8 +154,10 @@
                     </div>
                     <vbox class="InfoPane">
                         <strong anon-id="name"></strong>
+                        <span anon-id="path"></span>
                         <span anon-id="info"></span>
                     </vbox>
+                    <button class="Pin" command="pinDocument" anon-id="pin"><i class="mdi mdi-pin"></i></button>
                 </vbox>
                 <hr role="footer"></hr>
             </ui:RepeaterView>
@@ -85,6 +165,7 @@
         <hbox anon-id="otherOptionPane">
             <button command="openDocumentCommand"><i>open_in_browser</i>Open a Document...</button>
             <button command="newDocumentCommand"><i>note_add</i>Create a New Document</button>
+            <button anon-id="takeScreenshotButton"><i>camera</i>Take Screenshot</button>
         </hbox>
     </vbox>
 </vbox>

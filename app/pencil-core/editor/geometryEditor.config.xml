@@ -48,29 +48,29 @@
                 }
 
 
-                g.GeoEditor rect[p|name='TopLeft'] {
+                .AnonId_contentBody[gesture-mode='selection'] g.GeoEditor rect[p|name='TopLeft'] {
                     cursor: nw-resize;
                 }
-                g.GeoEditor rect[p|name='BottomRight'] {
+                .AnonId_contentBody[gesture-mode='selection'] g.GeoEditor rect[p|name='BottomRight'] {
                     cursor: se-resize;
                 }
-                g.GeoEditor rect[p|name='TopRight'] {
+                .AnonId_contentBody[gesture-mode='selection'] g.GeoEditor rect[p|name='TopRight'] {
                     cursor: ne-resize;
                 }
-                g.GeoEditor rect[p|name='BottomLeft'] {
+                .AnonId_contentBody[gesture-mode='selection'] g.GeoEditor rect[p|name='BottomLeft'] {
                     cursor: sw-resize;
                 }
-                g.GeoEditor rect[p|name='Top'] {
+                .AnonId_contentBody[gesture-mode='selection'] g.GeoEditor rect[p|name='Top'] {
                     cursor: n-resize;
                 }
-                g.GeoEditor rect[p|name='Bottom'] {
+                .AnonId_contentBody[gesture-mode='selection'] g.GeoEditor rect[p|name='Bottom'] {
                     cursor: s-resize;
                 }
 
-                g.GeoEditor rect[p|name='Left'] {
+                .AnonId_contentBody[gesture-mode='selection'] g.GeoEditor rect[p|name='Left'] {
                     cursor: w-resize;
                 }
-                g.GeoEditor rect[p|name='Right'] {
+                .AnonId_contentBody[gesture-mode='selection'] g.GeoEditor rect[p|name='Right'] {
                     cursor: e-resize;
                 }
             ]]></style>

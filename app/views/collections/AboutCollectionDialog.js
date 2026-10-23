@@ -36,6 +36,19 @@ function AboutCollectionDialog(collection) {
                         _children :[
                             {
                                 _name: "h4",
+                                _text: "Version: "
+                            },
+                            {
+                                _name: "p",
+                                _text: CollectionManager.getCollectionVersion ? CollectionManager.getCollectionVersion(collection) : (collection.version ? ("v" + collection.version) : "v1.0")
+                            }
+                        ]
+                    },
+                    {
+                        _name: "li",
+                        _children :[
+                            {
+                                _name: "h4",
                                 _text: "More Information:",
                                 "class": "MoreInfor"
                             },
@@ -52,6 +65,15 @@ function AboutCollectionDialog(collection) {
         ]
     });
     this.aboutContent.appendChild(node);
+
+    if (collection.userDefined || collection.developerStencil) {
+        this.locationButton.innerHTML = "" + collection.installDirPath;
+        this.locationButton.addEventListener("click", function () {
+            require("electron").shell.openPath(collection.installDirPath);
+        }, false);
+    } else {
+        this.locationBox.style.display = "none";
+    }
 }
 __extend(Dialog, AboutCollectionDialog);
 

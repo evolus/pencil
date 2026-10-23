@@ -7,13 +7,16 @@
         }
         @progressBar,
         @statusLabel {
-            width: 18em;
+            width: 24em;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         @progressBarInner {
             height: 100%;
             background: @selected_bg;
+        }
+        @statusLabel {
+            white-space: nowrap;
         }
         @container {
             padding: 1em;

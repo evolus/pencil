@@ -1,0 +1,1674 @@
+<Shapes xmlns="http://www.evolus.vn/Namespace/Pencil"
+        xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+        xmlns:svg="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        id="Evolus.WindowsXP.Widgets"
+        displayName="Desktop - Windows XP Widgets"
+        description="Microsoft Windows XP GUI controls">
+    <Properties>
+        <PropertyGroup name="Text">
+            <Property name="defaultTextFont" type="Font" displayName="Default Font">Tahoma|normal|normal|11px</Property>
+            <Property name="defaultTextColor" type="Color" displayName="Default Text Color">#000000ff</Property>
+        </PropertyGroup>
+    </Properties>
+
+    <Shape id="Label" displayName="Label" icon="Icons/label.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Label</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <TextContent>
+                    <Arg>$label</Arg>
+                    <Arg>"strip accel"</Arg>
+                </TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(0, 0, 100, 12)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="accelIndicator">
+                <AccelFor>
+                    <Arg>"text"</Arg>
+                    <Arg>$textFont</Arg>
+                    <Arg>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Arg>
+                    <Arg>$label</Arg>
+                </AccelFor>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+              <text
+                 id="text"
+                 y="9.0077095"
+                 x="17.999992"
+                 style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                 xml:space="preserve">checkbutton2</text>
+             <path id="accelIndicator" style="fill: none; stroke-width: 1px;"/>
+        </p:Content>
+    </Shape>
+    <Shape id="Button" displayName="Button" icon="Icons/button.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">80,25</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Text">
+                <Property name="buttonText" displayName="Caption" type="PlainText">Button</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Features">
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="defaultButton" displayName="Default Button" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                            new SnappingData("XPOuterPaddingRight", b.x + b.width + 10, "XP-Left", true, this.id),
+                            new SnappingData("XPOuterPaddingLeft", b.x - 10, "XP-Right", true, this.id),
+                            new SnappingData("XPOuterPaddingTop", b.y - 15, "XP-Bottom", false, this.id),
+                            new SnappingData("XPOuterPaddingBottom", b.y + b.height + 15, "XP-Top", false, this.id),
+                            new SnappingData("XP-Left", b.x, "", true, this.id),
+                            new SnappingData("XP-Right", b.x + b.width, "", true, this.id),
+                            new SnappingData("XP-Top", b.y, "", false, this.id),
+                            new SnappingData("XP-Bottom", b.y + b.height, "", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <Behaviors>
+            <For ref="stop1">
+                <StopColor>Color.fromString($disabled.value ? "#F5F4EAff" : "#ffffffff")</StopColor>
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($disabled.value ? "#F5F4EAff" : "#f0f0eaff")</StopColor>
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($disabled.value ? "#F5F4EAff" : "#d6d0c5ff")</StopColor>
+            </For>
+            <For ref="rect">
+                <Box>$box.narrowed(1)</Box>
+                <StrokeColor>Color.fromString($disabled.value ? "#C9C7BAff" : "#003c74ff")</StrokeColor>
+            </For>
+            <For ref="defaultMarker">
+                <Visibility>$defaultButton.value &amp;&amp; !$disabled.value</Visibility>
+                <Box>$box.narrowed(4)</Box>
+            </For>
+            <For ref="text">
+                <TextContent>
+                    <Arg>$buttonText</Arg>
+                    <Arg>"strip"</Arg>
+                </TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="accelIndicator">
+                <AccelFor>
+                    <Arg>"text"</Arg>
+                    <Arg>$textFont</Arg>
+                    <Arg>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Arg>
+                    <Arg>$buttonText</Arg>
+                    <Arg>$textAlign</Arg>
+                    <Arg>$box</Arg>
+                </AccelFor>
+            </For>
+        </Behaviors>
+
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <defs
+             id="defs2177">
+                <linearGradient
+                   x1="0%"
+                   y1="0%"
+                   x2="0%"
+                   y2="100%"
+                   id="linearGradient4109">
+                  <stop
+                     style="stop-color:#ffffff;stop-opacity:1"
+                     offset="0%"
+                     id="stop1" />
+                  <stop
+                     style="stop-color:#f0f0ea;stop-opacity:1"
+                     offset="72%"
+                     id="stop2" />
+                  <stop
+                     style="stop-color:#d6d0c5;stop-opacity:1"
+                     offset="100%"
+                     id="stop3" />
+                </linearGradient>
+            </defs>
+            <rect
+               width="66"
+               height="21"
+               rx="3"
+               ry="3"
+               x="0.5"
+               y="0.5"
+               style="opacity:1;color:#000000;fill:url(#linearGradient4109);fill-opacity:1;fill-rule:nonzero;stroke:#003c74;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="rect" />
+            <rect
+               width="63"
+               height="18"
+               rx="2"
+               ry="2"
+               x="2"
+               y="2"
+               style="opacity:1;color:#000000;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#7da4e4;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="defaultMarker" />
+            <text
+               x="33.415905"
+               y="14.214675"
+               style="text-align:left; text-anchor:start; dominant-baseline: central;"
+               id="text"
+               xml:space="preserve">Button</text>
+            <path id="accelIndicator" style="fill: none; stroke-width: 1px;"/>
+        </p:Content>
+    </Shape>
+    <Shape id="Combo" displayName="Combo Box" icon="Icons/combobox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">180,25</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Text">
+                <Property name="buttonText" displayName="Caption" type="PlainText">Combo box</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Features">
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="focused" displayName="Focused" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                            new SnappingData("XPOuterPaddingRight", b.x + b.width + 10, "XP-Left", true, this.id),
+                            new SnappingData("XPOuterPaddingLeft", b.x - 10, "XP-Right", true, this.id),
+                            new SnappingData("XPOuterPaddingTop", b.y - 15, "XP-Bottom", false, this.id),
+                            new SnappingData("XPOuterPaddingBottom", b.y + b.height + 15, "XP-Top", false, this.id),
+                            new SnappingData("XP-Left", b.x, "", true, this.id),
+                            new SnappingData("XP-Right", b.x + b.width, "", true, this.id),
+                            new SnappingData("XP-Top", b.y, "", false, this.id),
+                            new SnappingData("XP-Bottom", b.y + b.height, "", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <Behaviors>
+            <For ref="rect">
+                <Box>$box.narrowed(1)</Box>
+            </For>
+            <For ref="bgRect1">
+                <Box>$box.narrowed(1)</Box>
+                <Fill>Color.fromString($disabled.value ? "#EBEBE4ff" : "#ffffffff")</Fill>
+            </For>
+            <For ref="bgRect2">
+                <Bound>new Bound($box.w - 20, 0, 20, $box.h)</Bound>
+            </For>
+            <For ref="focusRect">
+                <Visibility>$focused.value &amp;&amp; !$disabled.value</Visibility>
+                <Box>new Dimension($box.w - 24, $box.h - 5)</Box>
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($disabled.value ? "#F7F7F4ff" : "#e7eeffff")</StopColor>
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($disabled.value ? "#E6E6DDff" : "#aec8f7ff")</StopColor>
+            </For>
+            <For ref="dropRect">
+                <Bound>new Bound($box.w - 18.5, 2.5, 16, $box.h - 5)</Bound>
+                <StrokeColor>Color.fromString($disabled.value ? "#E7E7DEff" : "#c3d3f8ff")</StrokeColor>
+            </For>
+            <For ref="marker">
+                <D>"M " + ($box.w - 6.5) + "," + ($box.h / 2 - 2) + " L " + ($box.w - 10.5) + "," + ($box.h / 2 + 2) + " L " + ($box.w - 14.5) + "," + ($box.h / 2 - 2)</D>
+                <StrokeColor>Color.fromString($disabled.value ? "#c9c9c2ff" : "#4d6185ff")</StrokeColor>
+            </For>
+            <For ref="text">
+                <TextContent>$buttonText</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $focused.value ? Color.fromString("#ffffffff") : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(5, 2, $box.w - 30, $box.h - 4)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+
+          <defs
+             id="defs2177">
+            <linearGradient
+               x1="0%"
+               y1="0%"
+               x2="100%"
+               y2="100%"
+               id="linearGradient4129">
+              <stop
+                 style="stop-color:#e7eeff;stop-opacity:1"
+                 offset="0"
+                 id="stop1" />
+              <stop
+                 style="stop-color:#aec8f7;stop-opacity:1"
+                 offset="1"
+                 id="stop2" />
+            </linearGradient>
+          </defs>
+            <rect
+               width="178"
+               height="19"
+               x="0.5"
+               y="0.5"
+               style="opacity:1;color:#000000;fill:#ff0000;fill-opacity:1;fill-rule:nonzero;stroke: none;"
+               id="bgRect1" />
+            <rect
+               width="178"
+               height="19"
+               x="0.5"
+               y="0.5"
+               style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke: none;"
+               id="bgRect2" />
+            <rect
+               width="178"
+               height="19"
+               x="0.5"
+               y="0.5"
+               style="opacity:1;color:#000000;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#7f9db9;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="rect" />
+            <rect
+               width="16"
+               height="15.101764"
+               rx="1"
+               ry="1"
+               x="160.49905"
+               y="2.5724311"
+               style="opacity:1;color:#000000;fill:url(#linearGradient4129);fill-opacity:1;fill-rule:nonzero;stroke:#c3d3f8;stroke-width:0.96954674;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="dropRect" />
+            <path
+               d="M 172.43558,8.1844632 L 168.41476,12.062162 L 164.39394,8.1844652"
+               style="color:#000000;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#4d6185;stroke-width:1.99999988;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="marker" />
+            <rect
+               width="178"
+               height="19"
+               x="2.5"
+               y="2.5"
+               style="opacity:1;color:#000000;fill:#316AC5;fill-opacity:1;fill-rule:nonzero;stroke: #ffffff; stroke-dasharray:1,1"
+               id="focusRect" />
+            <text
+               x="4.561419"
+               y="14.175718"
+               style="text-align:left; text-anchor:start; dominant-baseline: central;"
+               id="text"
+               xml:space="preserve">Normal Combo Box</text>
+          </p:Content>
+    </Shape>
+    <Shape id="TextBox" displayName="Text Box" icon="Icons/textbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">180,25</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Text">
+                <Property name="textContent" displayName="Caption" type="PlainText">Text box</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+
+            <PropertyGroup name="Features">
+                <Property name="status" displayName="Status" type="Enum" p:enumValues="['normal|Normal', 'readonly|Readonly']">normal</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                            new SnappingData("XPOuterPaddingRight", b.x + b.width + 10, "XP-Left", true, this.id),
+                            new SnappingData("XPOuterPaddingLeft", b.x - 10, "XP-Right", true, this.id),
+                            new SnappingData("XPOuterPaddingTop", b.y - 15, "XP-Bottom", false, this.id),
+                            new SnappingData("XPOuterPaddingBottom", b.y + b.height + 15, "XP-Top", false, this.id),
+                            new SnappingData("XP-Left", b.x, "", true, this.id),
+                            new SnappingData("XP-Right", b.x + b.width, "", true, this.id),
+                            new SnappingData("XP-Top", b.y, "", false, this.id),
+                            new SnappingData("XP-Bottom", b.y + b.height, "", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <Behaviors>
+            <For ref="rect">
+                <Box>$box.narrowed(1)</Box>
+                <Fill>Color.fromString($status.value == "normal" ? "#ffffffff" : "#EBEBE4FF")</Fill>
+            </For>
+            <For ref="text">
+                <TextContent>$textContent</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(5, 5, $box.w - 10, $box.h - 10)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+
+            <rect
+               width="178"
+               height="19"
+               x="0.5"
+               y="0.5"
+               style="opacity:1;color:#000000;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#7f9db9;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="rect" />
+            <text
+               x="4.561419"
+               y="14.175718"
+               style="text-align:left; text-anchor:start; dominant-baseline: central;"
+               id="text"
+               xml:space="preserve"></text>
+          </p:Content>
+    </Shape>
+    <Shape id="Radio" displayName="Radio" icon="Icons/radio.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Radio Button</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="outerPath">
+                <StrokeColor>Color.fromString($disabled.value ? "#CBC9BBff" : "#235682ff")</StrokeColor>
+            </For>
+            <For ref="shadowPath">
+                <Visibility>$disabled.negative()</Visibility>
+            </For>
+            <For ref="bullet">
+                <Visibility>$selected</Visibility>
+                <Fill>Color.fromString($disabled.value ? "#C0BFB5ff" : "#38B935ff")</Fill>
+            </For>
+            <For ref="text">
+                <TextContent>$label</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(18, 0, 100, 12)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+        <defs
+             id="defs2659">
+            <linearGradient
+               id="linearGradient31435">
+              <stop
+                 style="stop-color:#bab4a7;stop-opacity:1"
+                 offset="0"
+                 id="stop31437" />
+              <stop
+                 style="stop-color:#bab4a8;stop-opacity:1"
+                 offset="0.30131003"
+                 id="stop31439" />
+              <stop
+                 style="stop-color:#d6cec0;stop-opacity:1"
+                 offset="1"
+                 id="stop31441" />
+            </linearGradient>
+            <linearGradient
+               x1="503"
+               y1="106"
+               x2="503"
+               y2="86"
+               id="linearGradient55484"
+               xlink:href="#linearGradient31435"
+               gradientUnits="userSpaceOnUse"
+               gradientTransform="translate(-381.00001,-85.899192)" />
+            <linearGradient
+               id="linearGradient2237">
+              <stop
+                 style="stop-color:#0080c3;stop-opacity:1"
+                 offset="0"
+                 id="stop2239" />
+              <stop
+                 style="stop-color:#28a2e1;stop-opacity:1"
+                 offset="0.57124019"
+                 id="stop2268" />
+              <stop
+                 style="stop-color:#3cb3f0;stop-opacity:1"
+                 offset="0.74453777"
+                 id="stop2270" />
+              <stop
+                 style="stop-color:#51c4ff;stop-opacity:1"
+                 offset="1"
+                 id="stop2241" />
+            </linearGradient>
+            <linearGradient
+               x1="439.5"
+               y1="104"
+               x2="439.5"
+               y2="88"
+               id="linearGradient57450"
+               xlink:href="#linearGradient2237"
+               gradientUnits="userSpaceOnUse"
+               gradientTransform="translate(-381.00001,-85.899192)" />
+          </defs>
+          <path
+             transform="matrix(0.9362048,0,0,0.9362048,-111.82866,-312.21823)"
+             d="M 131.75 339.875 A 5.875 5.875 0 1 1  120,339.875 A 5.875 5.875 0 1 1  131.75 339.875 z"
+             id="outerPath"
+             style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#a19685;stroke-width:1.06770825;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+             />
+          <text
+             xml:space="preserve"
+             style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+             x="18.016193"
+             y="8.9744911"
+             id="text">radiobutton2</text>
+          <path
+             id="shadowPath"
+             d="M 3.5201411,9.8478598 C 1.4655909,8.4017026 0.93900042,5.5125628 2.3446111,3.3988028 C 3.7503111,1.2850728 6.5585511,0.74328308 8.6131111,2.1894328 C 9.2297411,2.6234428 9.6679911,3.1221828 10.025751,3.7969628"
+             style="opacity:0.27363186;color:#000000;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#6d6d6d;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+          <path
+             style="opacity:1;color:#000000;fill:#005dc2;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+             id="bullet"
+             d="M 128.5 363.75 A 2.5 2.75 0 1 1  123.5,363.75 A 2.5 2.75 0 1 1  128.5 363.75 z"
+             transform="matrix(1.2,0,0,1.0909092,-145.18388,-390.84385)" />
+        </p:Content>
+    </Shape>
+    <Shape id="CheckBox" displayName="Checkbox" icon="Icons/checkbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="checked" displayName="Checked" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Checkbox</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="rect">
+                <StrokeColor>Color.fromString($disabled.value ? "#CBC9BBff" : "#235682ff")</StrokeColor>
+            </For>
+            <For ref="checkedPath">
+                <Visibility>$checked</Visibility>
+                <StrokeColor>Color.fromString($disabled.value ? "#C0BFB5ff" : "#38B935ff")</StrokeColor>
+            </For>
+            <For ref="text">
+                <TextContent>$label</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(18, 0, 100, 13)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($disabled.value ? "#FFFFFFff" : "#E2E2DDff")</StopColor>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+                <defs
+                     id="defs2659">
+                    <linearGradient
+                       x1="0%"
+                       y1="0%"
+                       x2="100%"
+                       y2="100%"
+                       id="linearGradient31435">
+                      <stop
+                         style="stop-color:#E2E2DD;stop-opacity:1"
+                         offset="0"
+                         id="stop1" />
+                      <stop
+                         style="stop-color:#FFFFFF;stop-opacity:1"
+                         offset="1"
+                         id="stop2" />
+                    </linearGradient>
+
+              </defs>
+                  <rect
+                     y="0.5"
+                     x="0.5"
+                     height="12"
+                     width="12"
+                     id="rect"
+                     style="opacity:1;color:#000000;fill:url(#linearGradient31435);fill-opacity:1;fill-rule:nonzero;stroke:#a19685;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+                  <text
+                     id="text"
+                     y="9.0077095"
+                     x="17.999992"
+                     style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                     xml:space="preserve">checkbutton2</text>
+                  <path
+                     style="fill:none;fill-rule:evenodd;stroke:#21a121;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                     d="M 2.9699794,5.3993084 L 5.5632114,8.7682884 L 10.376336,3.1939584"
+                     id="checkedPath"/>
+        </p:Content>
+    </Shape>
+    <Shape id="Progress" displayName="Progress Bar" icon="Icons/progressbar.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockHeight="true">150,16</Property>
+                <Property name="value" displayName="Value" type="Handle" p:lockY="true" p:minX="2" p:maxX="$box.w - 2">50,0</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="rect">
+                <Box>$box.narrowed(1)</Box>
+                <Fill>Color.fromString("#FFFFFFFF")</Fill>
+                <StrokeColor>Color.fromString("#A19685FF")</StrokeColor>
+            </For>
+            <For ref="path">
+                <D>"M " + ($box.w - 1.3) + ",1.3360847 L 3.4959684,1.3360847 C 2.0817584,1.2771647 1.1978687,2.5825147 1.3746487,3.9378047 L 1.3746487," + ($box.h - 1.7)</D>
+            </For>
+            <For ref="valueRect">
+                <Box>new Dimension($value.x - 2, $box.h - 6)</Box>
+            </For>
+            <For ref="dashedPath">
+                <D>"M 3," + ($box.h / 2) + " L " + ($box.w - 3) + "," + ($box.h / 2)</D>
+                <StrokeStyle>new StrokeStyle($box.h - 6, "2,8")</StrokeStyle>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+              <defs
+                 id="defs2659">
+                <linearGradient
+                   x1="0%"
+                   y1="0%"
+                   x2="0%"
+                   y2="100%"
+                   id="linearGradient31435">
+                  <stop
+                     style="stop-color:#2ED331;stop-opacity:0.3"
+                     offset="0"
+                     id="stop31437" />
+                  <stop
+                     style="stop-color:#2ED331;stop-opacity:1"
+                     offset="0.5"
+                     id="stop31439" />
+                  <stop
+                     style="stop-color:#2ED331;stop-opacity:0.3"
+                     offset="1"
+                     id="stop31441" />
+                </linearGradient>
+              </defs>
+              <rect
+                 style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#a19685;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="rect"
+                 width="194"
+                 height="21"
+                 x="0.5"
+                 y="0.5"
+                 rx="3"
+                 ry="3" />
+              <path
+                 id="path"
+                 d="M 192.73543,1.3360847 L 3.4959684,1.3360847 C 2.0817584,1.2771647 1.1978687,2.5825147 1.3746487,3.9378047 L 1.3746487,19.367321"
+                 style="opacity:0.27363186;fill:none;fill-rule:evenodd;stroke:#6d6d6d;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+              <rect
+                 style="fill:url(#linearGradient31435); fill-opacity:1; stroke: none;"
+                 id="valueRect"
+                 width="194"
+                 height="21"
+                 x="3"
+                 y="3"
+                 rx="0"
+                 ry="0" />
+              <path
+                 id="dashedPath"
+                 d=""
+                 style="fill:none; stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1; stroke-dashoffset: 2px;" />
+        </p:Content>
+    </Shape>
+    <Shape id="Scrollbar" displayName="Scrollbar" icon="Icons/scrollbar.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockWidth="true">20,240</Property>
+                <Property name="thumbBegin" displayName="Thumb start position" type="Handle" p:lockX="true" p:minY="20" p:maxY="$thumbEnd.y - 20" p:disabled="$disabled.value">10,20</Property>
+                <Property name="thumbEnd" displayName="Thumb end position" type="Handle" p:lockX="true" p:minY="$thumbBegin.y + 20" p:maxY="$box.h - 23.5" p:disabled="$disabled.value">10,100</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                            new SnappingData("XPScrollbar", b.x + b.width, "", true, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+
+        <Behaviors>
+            <For ref="bgRect">
+                <Box>$box.narrowed(1,3)</Box>
+            </For>
+            <For ref="endButton">
+                <Transform>[translate(0, $box.h - 243)]</Transform>
+            </For>
+            <For ref="thumbOut">
+                <Transform>[translate(0, $thumbBegin.y - 19)]</Transform>
+                <Box>new Dimension(18, $thumbEnd.y - $thumbBegin.y - 0.5)</Box>
+                <Visibility>!$disabled.value</Visibility>
+            </For>
+            <For ref="thumbMid">
+                <Transform>[translate(0, $thumbBegin.y - 20)]</Transform>
+                <Box>new Dimension(17, $thumbEnd.y - $thumbBegin.y - 2)</Box>
+                <Visibility>!$disabled.value</Visibility>
+            </For>
+            <For ref="thumbIn">
+                <Transform>[translate(0, $thumbBegin.y - 20)]</Transform>
+                <Box>new Dimension(14, $thumbEnd.y - $thumbBegin.y - 5)</Box>
+                <Visibility>!$disabled.value</Visibility>
+            </For>
+            <For ref="grip">
+                <Transform>[translate(0, $thumbBegin.y + Math.floor(($thumbEnd.y - $thumbBegin.y) / 2) - 100)]</Transform>
+                <Visibility>!$disabled.value</Visibility>
+            </For>
+            <For ref="stop1">
+                <StopColor>Color.fromString($disabled.value ? "#EBEBEBff" : "#f3f1ecff")</StopColor>
+            </For>
+            <For ref="stop2">
+                <StopColor>Color.fromString($disabled.value ? "#EBEBEBff" : "#f3f1ecff")</StopColor>
+            </For>
+            <For ref="stop3">
+                <StopColor>Color.fromString($disabled.value ? "#E0E0E0ff" : "#7c9fd3ff")</StopColor>
+            </For>
+            <For ref="stop4">
+                <StopColor>Color.fromString($disabled.value ? "#e0e0e0ff" : "#aec4e5ff")</StopColor>
+            </For>
+            <For ref="stop5">
+                <StopColor>Color.fromString($disabled.value ? "#e0e0e0ff" : "#c8d6fbff")</StopColor>
+            </For>
+            <For ref="stop6">
+                <StopColor>Color.fromString($disabled.value ? "#e0e0e0ff" : "#bdd2fbff")</StopColor>
+            </For>
+            <For ref="stop7">
+                <StopColor>Color.fromString($disabled.value ? "#e3e3e3ff" : "#b3cffdff")</StopColor>
+            </For>
+            <For ref="stop8">
+                <StopColor>Color.fromString($disabled.value ? "#e0e0e0ff" : "#b5cdfaff")</StopColor>
+            </For>
+            <For ref="beginMarker">
+                <StrokeColor>Color.fromString($disabled.value ? "#B7B7B7ff" : "#4d6185ff")</StrokeColor>
+            </For>
+            <For ref="endMarker">
+                <StrokeColor>Color.fromString($disabled.value ? "#B7B7B7ff" : "#4d6185ff")</StrokeColor>
+            </For>
+            <For ref="beginDropRect">
+                <StrokeColor>Color.fromString($disabled.value ? "#e7e7e7ff" : "#c3d3f8ff")</StrokeColor>
+            </For>
+            <For ref="endDropRect">
+                <StrokeColor>Color.fromString($disabled.value ? "#e7e7e7ff" : "#c3d3f8ff")</StrokeColor>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(-1,1)">
+            <defs
+                 id="defs19">
+                <linearGradient
+                   x1="155.22887"
+                   y1="2.0773644"
+                   x2="171.69083"
+                   y2="18.53932"
+                   id="linearGradient3294"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="matrix(1.0308342,0,0,0.9700881,20,115)">
+                  <stop
+                     id="stop5"
+                     style="stop-color:#c8d6fb;stop-opacity:1"
+                     offset="0" />
+                  <stop
+                     id="stop6"
+                     style="stop-color:#bdd2fb;stop-opacity:1"
+                     offset="0.60036409" />
+                  <stop
+                     id="stop7"
+                     style="stop-color:#b3cffd;stop-opacity:1"
+                     offset="0.71293235" />
+                  <stop
+                     id="stop8"
+                     style="stop-color:#b5cdfa;stop-opacity:1"
+                     offset="1" />
+                </linearGradient>
+                <linearGradient
+                   id="linearGradient3224">
+                  <stop
+                     id="stop3226"
+                     style="stop-color:#f3f1ec;stop-opacity:1"
+                     offset="0" />
+                  <stop
+                     id="stop3232"
+                     style="stop-color:#ffffff;stop-opacity:1"
+                     offset="1" />
+                </linearGradient>
+                <linearGradient
+                   id="linearGradient3200">
+                  <stop
+                     id="stop1"
+                     style="stop-color:#dfe2e1;stop-opacity:1"
+                     offset="0" />
+                  <stop
+                     id="stop2"
+                     style="stop-color:#dfe2e1;stop-opacity:1"
+                     offset="0.42391136" />
+                  <stop
+                     id="stop3"
+                     style="stop-color:#7c9fd3;stop-opacity:1"
+                     offset="0.77979147" />
+                  <stop
+                     id="stop4"
+                     style="stop-color:#aec4e5;stop-opacity:1"
+                     offset="1" />
+                </linearGradient>
+                <linearGradient
+                   x1="155.22887"
+                   y1="2.0773644"
+                   x2="171.69083"
+                   y2="18.53932"
+                   id="linearGradient2414"
+                   xlink:href="#linearGradient412911214321294782"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="matrix(1.0308342,0,0,0.9700881,20,115)" />
+                <linearGradient
+                   x1="155.22887"
+                   y1="2.0773644"
+                   x2="171.69083"
+                   y2="18.53932"
+                   id="linearGradient2416"
+                   xlink:href="#linearGradient412911214321294782"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="matrix(1.0308342,0,0,0.9700881,20,115)" />
+                <defs
+                   id="defs217711214321294782">
+                  <linearGradient
+                     x1="155.22887"
+                     y1="2.0773644"
+                     x2="171.69083"
+                     y2="18.53932"
+                     id="linearGradient412911214321294782"
+                     gradientUnits="userSpaceOnUse"
+                     gradientTransform="matrix(1.0308342,0,0,0.9700881,20,115)">
+                    <stop
+                       id="stop111214321294782"
+                       style="stop-color:#c8d6fb;stop-opacity:1"
+                       offset="0" />
+                    <stop
+                       id="stop3284"
+                       style="stop-color:#b3cffc;stop-opacity:1"
+                       offset="0.5" />
+                    <stop
+                       id="stop211214321294782"
+                       style="stop-color:#b5cdfa;stop-opacity:1"
+                       offset="1" />
+                  </linearGradient>
+                </defs>
+                <linearGradient
+                   x1="155.22887"
+                   y1="134.00845"
+                   x2="169.75064"
+                   y2="134.00845"
+                   id="linearGradient2425"
+                   xlink:href="#linearGradient3294"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="matrix(1.0308342,0,0,0.9700881,-158,100.12501)" />
+                <linearGradient
+                   x1="190.25"
+                   y1="125"
+                   x2="207"
+                   y2="145"
+                   id="linearGradient3206"
+                   xlink:href="#linearGradient3200"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="translate(-187,-23.874989)" />
+                <linearGradient
+                   x1="187.5"
+                   y1="125.5625"
+                   x2="207.55617"
+                   y2="125.5625"
+                   id="linearGradient3214"
+                   xlink:href="#linearGradient3224"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="matrix(1,0,0,3.9771311,-187.5,-810.3376)" />
+                <linearGradient
+                   x1="190.25"
+                   y1="125"
+                   x2="207"
+                   y2="145"
+                   id="linearGradient3270"
+                   xlink:href="#linearGradient3200"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="translate(-187,-243.87499)" />
+                <linearGradient
+                   x1="154.72905"
+                   y1="130.40053"
+                   x2="169.75848"
+                   y2="130.40053"
+                   id="linearGradient3272"
+                   xlink:href="#linearGradient3294"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="matrix(1.0308342,0,0,0.9700881,-158,-119.87499)" />
+                <linearGradient
+                   x1="190.25"
+                   y1="125"
+                   x2="207"
+                   y2="145"
+                   id="linearGradient3280"
+                   xlink:href="#linearGradient3200"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="matrix(1,0,0,9.4666733,-187,-2299.0768)" />
+                <linearGradient
+                   x1="190.01523"
+                   y1="134.92021"
+                   x2="204.98477"
+                   y2="134.92021"
+                   id="linearGradient3292"
+                   xlink:href="#linearGradient3294"
+                   gradientUnits="userSpaceOnUse"
+                   gradientTransform="translate(-188,-24.874989)" />
+              </defs>
+              <rect
+                 width="19"
+                 height="239.125"
+                 x="0.5"
+                 y="0.5"
+                 id="bgRect"
+                 style="fill:url(#linearGradient3214);fill-opacity:1;fill-rule:nonzero;stroke:#eeede5;stroke-width:1;stroke-opacity:1" />
+              <g
+                 id="endButton">
+                <rect
+                   width="18"
+                   height="19"
+                   rx="3"
+                   ry="3"
+                   x="1"
+                   y="221.12502"
+                   id="rect3198"
+                   style="fill:url(#linearGradient3206);fill-opacity:1;fill-rule:nonzero;stroke:none" />
+                <rect
+                   width="17"
+                   height="18"
+                   rx="2.5"
+                   ry="2.5"
+                   x="1"
+                   y="221.12502"
+                   id="bgRect211214321294782"
+                   style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+                <rect
+                   width="14"
+                   height="15"
+                   rx="1"
+                   ry="1"
+                   x="2.5"
+                   y="222.62502"
+                   id="endDropRect"
+                   style="fill:url(#linearGradient2425);fill-opacity:1;fill-rule:nonzero;stroke:#c3d3f8;stroke-width:0.96954697;stroke-linecap:square;stroke-linejoin:miter;marker:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+                <path
+                   d="M 13.5,228.12501 L 9.5,232.12501 L 5.5,228.12501"
+                   id="endMarker"
+                   style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#4d6185;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker:none;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+              </g>
+              <g
+                 id="beginButton"
+                 >
+                <rect
+                   width="18"
+                   height="19"
+                   rx="2.5"
+                   ry="2.5"
+                   x="1"
+                   y="1.1250114"
+                   id="rect3262"
+                   style="fill:url(#linearGradient3270);fill-opacity:1;fill-rule:nonzero;stroke:none" />
+                <rect
+                   width="17"
+                   height="18"
+                   rx="2.5"
+                   ry="2.5"
+                   x="1"
+                   y="1.1250114"
+                   id="rect3264"
+                   style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+                <rect
+                   width="14"
+                   height="15"
+                   rx="1"
+                   ry="1"
+                   x="2.5"
+                   y="2.6250114"
+                   id="beginDropRect"
+                   style="fill:url(#linearGradient3272);fill-opacity:1;fill-rule:nonzero;stroke:#c3d3f8;stroke-width:0.96954697;stroke-linecap:square;stroke-linejoin:miter;marker:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+                <path
+                   d="M 13.5,12.125011 L 9.5,8.1250114 L 5.5,12.125011"
+                   id="beginMarker"
+                   style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#4d6185;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker:none;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+              </g>
+              <rect
+                 width="18"
+                 height="179.86679"
+                 rx="3"
+                 ry="3"
+                 x="1"
+                 y="20"
+                 id="thumbOut"
+                 style="fill:url(#linearGradient3280);fill-opacity:1;fill-rule:nonzero;stroke:none" />
+              <rect
+                 width="17"
+                 height="178.15968"
+                 rx="2.5"
+                 ry="2.5"
+                 x="1"
+                 y="21"
+                 id="thumbMid"
+                 style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+              <rect
+                 width="14"
+                 height="175.1597"
+                 rx="1"
+                 ry="1"
+                 x="2.5"
+                 y="22.5"
+                 id="thumbIn"
+                 style="fill:url(#linearGradient3292);fill-opacity:1;fill-rule:nonzero;stroke:#c3d3f8;stroke-width:0.96954703;stroke-linecap:square;stroke-linejoin:miter;marker:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible" />
+              <g
+                 id="grip">
+                <path
+                   d="M 5.5,100.62501 L 11.50943,100.62501"
+                   id="path3308"
+                   style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                <path
+                   d="M 6.5,101.62501 L 12.50943,101.62501"
+                   id="path3312"
+                   style="fill:none;fill-rule:evenodd;stroke:#8cb0f8;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                <path
+                   d="M 5.5,102.62501 L 11.50943,102.62501"
+                   id="path3320"
+                   style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                <path
+                   d="M 6.5,103.62501 L 12.50943,103.62501"
+                   id="path3322"
+                   style="fill:none;fill-rule:evenodd;stroke:#8cb0f8;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                <path
+                   d="M 5.5,96.625011 L 11.50943,96.625011"
+                   id="path3324"
+                   style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                <path
+                   d="M 6.5,97.625011 L 12.50943,97.625011"
+                   id="path3326"
+                   style="fill:none;fill-rule:evenodd;stroke:#8cb0f8;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                <path
+                   d="M 5.5,98.625011 L 11.50943,98.625011"
+                   id="path3328"
+                   style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                <path
+                   d="M 6.5,99.625011 L 12.50943,99.625011"
+                   id="path3330"
+                   style="fill:none;fill-rule:evenodd;stroke:#8cb0f8;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+              </g></g>
+        </p:Content>
+    </Shape>
+    <Shape id="Menu" displayName="Menu" icon="Icons/menu.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">170,200</Property>
+                <Property name="withBlur" type="Bool" displayName="With Shadow">true</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="rect">
+                <Box>$box.narrowed(1)</Box>
+            </For>
+            <For ref="bgCopy">
+                <ApplyFilter>$withBlur</ApplyFilter>
+                <Visibility>$withBlur</Visibility>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter
+                   id="shadingFilter"
+                   height="1.2558399"
+                   y="-0.12792"
+                   width="1.06396"
+                   x="-0.03198">
+                    <feGaussianBlur stdDeviation="1" in="SourceAlpha"/>
+                </filter>
+                <rect id="rect" x="0.5" y="0.5" width="10" height="10"
+                        style="stroke: #ACA899; stroke-width: 1px; fill-opacity:1; fill: #FFFFFF;"/>
+            </defs>
+            <use xlink:href="#rect" id="bgCopy" transform="translate(1, 1)" p:filter="url(#shadingFilter)" style="opacity:0.3;" p:heavy="true"/>
+            <use xlink:href="#rect"/>
+        </p:Content>
+    </Shape>
+    <Shape id="MenuItem" displayName="Menu Item" icon="Icons/menuitem.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockHeight="true">170,20</Property>
+                <Property name="type" displayName="Item type" type="Enum" p:enumValues="['none|None', 'checkbox|Checkbox', 'radio|Radio']">none</Property>
+                <Property name="hasCascadingMenu" type="Bool" displayName="Has submenu">false</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="selected" displayName="Selected" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Menu item</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>
+                    <Arg>$label</Arg>
+                    <Arg>"strip accel"</Arg>
+                </TextContent>
+                <Fill>$selected.value ? Color.fromString("#FFFFFFFF") : ($disabled.value ? $textColor.hollowed(0.8) : $textColor)</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(20, 0, $box.w, $box.h)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="accelIndicator">
+                <AccelFor>
+                    <Arg>"text"</Arg>
+                    <Arg>$textFont</Arg>
+                    <Arg>$selected.value ? Color.fromString("#FFFFFFFF") : ($disabled.value ? $textColor.hollowed(0.8) : $textColor)</Arg>
+                    <Arg>$label</Arg>
+                </AccelFor>
+            </For>
+            <For ref="bgRect">
+                <Visibility>$selected</Visibility>
+                <Box>$box.narrowed(6,2)</Box>
+            </For>
+            <For ref="checkedPath">
+                <Visibility>$type.value == "checkbox"</Visibility>
+                <StrokeColor>$selected.value ? Color.fromString("#FFFFFFFF") : ($disabled.value ? Color.fromString("#00000033") : Color.fromString("#000000FF"))</StrokeColor>
+            </For>
+            <For ref="bullet">
+                <Visibility>$type.value == "radio"</Visibility>
+                <Fill>$selected.value ? Color.fromString("#FFFFFFFF") : ($disabled.value ? Color.fromString("#00000033") : Color.fromString("#000000FF"))</Fill>
+            </For>
+            <For ref="submenuMark">
+                <Visibility>$hasCascadingMenu</Visibility>
+                <Transform>[translate($box.w - 14, $box.h / 2 - 3.5)]</Transform>
+                <Fill>$selected.value ? Color.fromString("#FFFFFFFF") : ($disabled.value ? Color.fromString("#00000033") : Color.fromString("#000000FF"))</Fill>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <rect id="bgRect" style="fill: #3366CC; fill-opacity: 1; stroke: none;" x="3" y="1"/>
+            <text
+                x="0"
+                y="1"
+                style="text-align:left;text-anchor:start; dominant-baseline: central;"
+                id="text"
+                xml:space="preserve">MenuItem</text>
+            <path id="accelIndicator" style="fill: none; stroke-width: 1px;"/>
+            <path
+             style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             d="M 2.9699794,5.3993084 L 5.5632114,8.7682884 L 10.376336,3.1939584"
+             transform="translate(4,3.5)"
+             id="checkedPath"/>
+             <circle cx="10" cy="10" r="3" stroke="none" fill="#000000" id="bullet"/>
+            <path
+             style="fill:#000000;stroke:none;"
+             d="M 0,0 L 4,4 L 0,8 z"
+             id="submenuMark"/>
+        </p:Content>
+    </Shape>
+    <Shape id="Seprator" displayName="Separator" icon="Icons/separator.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension" p:lockHeight="true">170,10</Property>
+                <Property name="type" displayName="Seprator type" type="Enum" p:enumValues="['normal|Normal', 'menu|Menu']">normal</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="bgRect">
+                <Box>$box</Box>
+            </For>
+            <For ref="line1">
+                <D>[M($type.value == "menu" ? 4 : 0, $box.h / 2), L($box.w - ($type.value == "menu" ? 4 : 0), $box.h / 2)]</D>
+            </For>
+            <For ref="line2">
+                <D>[M($type.value == "menu" ? 4 : 0, $box.h / 2 + 1), L($box.w - ($type.value == "menu" ? 4 : 0), $box.h / 2 + 1)]</D>
+                <Visibility>$type.value == "normal"</Visibility>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <rect id="bgRect" style="fill: #000000; fill-opacity: 0; stroke: none;" x="0" y="0"/>
+            <path
+             style="fill:none; stroke: #ACA899; stroke-width: 1px;"
+             d="M 0,0 L 4,4 L 0,8 z"
+             transform="translate(0.5,0.5)"
+             id="line1"/>
+            <path
+             style="fill:none; stroke: #FFFFFF; stroke-width: 1px;"
+             d="M 0,0 L 4,4 L 0,8 z"
+             transform="translate(0.5,0.5)"
+             id="line2"/>
+        </p:Content>
+    </Shape>
+    <Shape id="Groupbox" displayName="Group Box" icon="Icons/groupbox.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">350,200</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText">Group</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$label</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(10, -10, 100, 20)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="rect">
+                <D>"M " + (F.textSize("text", $label, $textFont).w + 15) + ",0.5 L " + ($box.w - 4.5) + ",0.5 C " + ($box.w - 2) + ",0.5 " + ($box.w - 0.5) + ",2.2946114 " + ($box.w - 0.5) + ",4.5 L " + ($box.w - 0.5) + "," + ($box.h - 4.5) + " C " + ($box.w - 0.5) + "," + ($box.h - 2) + " " + ($box.w - 2) + "," + ($box.h - 0.5) + " " + ($box.w - 4.5) + "," + ($box.h - 0.5) + " L 4.5," + ($box.h - 0.5) + " C 2.284," + ($box.h - 0.5) + " 0.5," + ($box.h - 2) + " 0.5," + ($box.h - 4.5) + " L 0.5,4.5106114 C 0.5,2.2946114 2.284,0.51061056 4.5,0.51061056 L 5.5,0.51061056"</D>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <path
+             d="M 127,0.51061056 L 249.5,0.51061056 C 251.716,0.51061056 253.5,2.2946114 253.5,4.5106114 L 253.5,74.510614 C 253.5,76.726614 251.716,78.510614 249.5,78.510614 L 4.5,78.510614 C 2.284,78.510614 0.5,76.726614 0.5,74.510614 L 0.5,4.5106114 C 0.5,2.2946114 2.284,0.51061056 4.5,0.51061056 L 7.75,0.51061056"
+             style="color:#000000;fill:#ffffff;fill-opacity:0;fill-rule:nonzero;stroke:#aca899;stroke-width:1.00000012;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+             id="rect" />
+            <text
+             id="text"
+             y="9.0077095"
+             x="17.999992"
+             style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+             xml:space="preserve">checkbutton2</text>
+        </p:Content>
+    </Shape>
+    <Shape id="TabPanel" displayName="Tab Panel" icon="Icons/activetab.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">350,200</Property>
+                <Property name="withShadow" displayName="With Shadow" type="Bool">false</Property>
+                <Property name="height" displayName="Tab Height" type="Handle" p:lockX="true" p:minY="5" p:maxY="$box.h">0,25</Property>
+                <Property name="start" displayName="Start" type="Handle" p:lockY="true" p:minX="0" p:maxX="$end.x">0,0</Property>
+                <Property name="end" displayName="End" type="Handle" p:lockY="true" p:minX="$start.x" p:maxX="$box.w">80,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="tabTitle" displayName="Title" type="PlainText">Tab Title</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="path">
+                <D>[M($end.x, 2.5), L($end.x, $height.y),
+                    L($box.w, $height.y), L($box.w, $box.h), L(0, $box.h), L(0, $height.y), L($start.x, $height.y), L($start.x, 2.5)]</D>
+            </For>
+            <For ref="boxForShadowing">
+                <D>[M($box.w - 5, $height.y + 1), L($box.w, $height.y + 1), L($box.w, $box.h), L(1, $box.h), L(1, $box.h - 5),
+                    L($box.w - 5, $box.h - 5), z]</D>
+            </For>
+            <For ref="activeMarker">
+                <Transform>[translate($start.x, 0)]</Transform>
+                <Box>new Dimension($end.x - $start.x + 1, 5)</Box>
+            </For>
+            <For ref="text">
+                <TextContent>$tabTitle</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound($start.x, 3, $end.x - $start.x + 1, $height.y - 3).narrowed(5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="shadow">
+                <ApplyFilter>$withShadow</ApplyFilter>
+                <Visibility>$withShadow</Visibility>
+            </For>
+
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter
+                   id="shadingFilter"
+                   height="1.2558399"
+                   y="-0.12792"
+                   width="1.06396"
+                   x="-0.03198">
+                    <feGaussianBlur stdDeviation="1.3325" in="SourceAlpha"/>
+                </filter>
+                <linearGradient
+                    x1="0%" y1="0%"
+                    x2="0%" y2="100%"
+                    id="markerGradient">
+                  <stop
+                     style="stop-color:#E68B2C;stop-opacity:1"
+                     offset="0"/>
+                  <stop
+                     style="stop-color:#FFC73C;stop-opacity:1"
+                     offset="1" />
+                </linearGradient>
+                <path id="boxForShadowing" style="stroke: none; fill: #333333;"/>
+            </defs>
+            <use xlink:href="#boxForShadowing" id="shadow" transform="translate(1, 1)" p:filter="url(#shadingFilter)" style=" opacity:0.6;"/>
+            <rect id="activeMarker" style="fill: url(#markerGradient);" rx="3" ry="3"/>
+            <path id="path" style="stroke: #919B9C; stroke-width: 1px; fill: #F4F3EE;" transform="translate(0.5, 0.5)"/>
+            <text
+               x="33.415905"
+               y="14.214675"
+               style="text-align:left; text-anchor:start; dominant-baseline: central;"
+               id="text"
+               xml:space="preserve">Title</text>
+        </p:Content>
+    </Shape>
+    <Shape id="TabHeader" displayName="Tab Header" icon="Icons/tabheader.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">80,23</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="tabTitle" displayName="Title" type="PlainText">Tab Title</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="rect">
+                <Fill>Color.fromString($disabled ? "#F5F4EAFF" : "#F4F4F0FF")</Fill>
+                <StrokeColor>Color.fromString($disabled.value ? "#C9C7BAFF" : "#91A7B4FF")</StrokeColor>
+                <D>[M(0, $box.h - 0.5), L(0, 5), C(0, 0, 0, 0, 5, 0),
+                    L($box.w - 7, 0), C($box.w - 2, 0, $box.w - 2, 0, $box.w - 2, 5),
+                    L($box.w - 2, $box.h - 0.5)]</D>
+            </For>
+            <For ref="text">
+                <TextContent>$tabTitle</TextContent>
+                <Fill>$disabled.value ? $textColor.hollowed(0.8) : $textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(0.5, 2.5)">
+                <path id="rect" style="fill: url(#markerGradient); stroke-width: 1px;"/>
+                <text
+                   x="33.415905"
+                   y="14.214675"
+                   style="text-align:left; text-anchor:start; dominant-baseline: central;"
+                   id="text"
+                   transform="translate(0, -1)"
+                   xml:space="preserve">Title</text>
+            </g>
+        </p:Content>
+    </Shape>
+    <Shape id="Table" displayName="Table" icon="Icons/table.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">300,200</Property>
+                <Property name="showGrid" displayName="Show Grid" type="Bool">false</Property>
+                <Property name="headerHeight" displayName="Header Height" type="Handle" p:lockX="true" p:minY="0" p:maxY="$gridHeight.y">0,21</Property>
+                <Property name="gridHeight" displayName="Grid Height" type="Handle" p:lockX="true" p:minY="$headerHeight.y" p:maxY="$box.h" p:disabled="!$showGrid.value">0,40</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property name="fillColor" displayName="Background Color" type="Color">#ffffffff</Property>
+                <Property name="gridColor" displayName="Grid Color" type="Color">#ccccccff</Property>
+                <Property name="gridStyle" displayName="Grid Style" type="StrokeStyle">1|</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property name="strokeColor" displayName="Border Color" type="Color">#7F9DB9ff</Property>
+                <Property name="strokeStyle" displayName="Border Style" type="StrokeStyle">1|</Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="gridLinePattern">
+                <Box>new Dimension(10, $gridHeight.y - $headerHeight.y)</Box>
+            </For>
+            <For ref="gridLine">
+                <StrokeColor>$gridColor</StrokeColor>
+                <StrokeStyle>$gridStyle</StrokeStyle>
+                <D>[M(0, $gridHeight.y - $headerHeight.y), L($box.w, $gridHeight.y - $headerHeight.y)]</D>
+                <Visibility>$showGrid</Visibility>
+            </For>
+            <For ref="gridFill">
+                <Box>new Dimension($box.w, $gridHeight.y - $headerHeight.y + 2)</Box>
+                <Fill>$fillColor</Fill>
+            </For>
+            <For ref="header">
+                <Box>new Dimension($box.w, $headerHeight.y)</Box>
+                <Transform>[translate(0, $headerHeight.y), scale(1, -1)]</Transform>
+            </For>
+            <For ref="body">
+                <Box>new Dimension($box.w, $box.h - $headerHeight.y)</Box>
+                <Transform>[translate(0, $headerHeight.y)]</Transform>
+            </For>
+            <For ref="border">
+                <Box>$box.narrowed($strokeStyle.w)</Box>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Transform>[translate($strokeStyle.w / 2, $strokeStyle.w / 2)]</Transform>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="gridLinePattern" patternUnits="userSpaceOnUse" x="0" y="0" width="10" height="20">
+                    <rect style="stroke: none; fill: #ffffff;" x="0" y="0" width="10" height="100" id="gridFill"/>
+                    <path style="fill: none; stroke: #333; stroke-width: 1px;" d="M 0 0 L 10 0" id="gridLine"/>
+                </pattern>
+                <linearGradient
+                    x1="0" y1="0"
+                    x2="0" y2="10px"
+                    id="headerGradient" gradientUnits="userSpaceOnUse">
+                  <stop
+                     style="stop-color:#CBC7B8;stop-opacity:1"
+                     offset="0"/>
+                  <stop
+                     style="stop-color:#EBEADB;stop-opacity:1"
+                     offset="0.4" />
+                  <stop
+                     style="stop-color:#EBEADB;stop-opacity:1"
+                     offset="1" />
+                </linearGradient>
+            </defs>
+            <rect x="0" y="0" style="stroke: none; fill: url(#headerGradient);" id="header" transform="scale(1,-1)" />
+            <rect x="0" y="0" style="fill: url(#gridLinePattern); stroke: none;" id="body"/>
+            <rect x="0" y="0" style="stroke: none; fill: none;" id="border" />
+        </p:Content>
+    </Shape>
+    <Shape id="TableColumnHeader" displayName="Table Header" icon="Icons/tablecolumn.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">100,18</Property>
+                <Property name="order" displayName="Sorting" type="Enum" p:enumValues="['none|None', 'decrease|Decreasing', 'increasing|Increasing']">none</Property>
+                <Property name="withSeparator" type="Bool" displayName="With Separator">true</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="columnTitle" displayName="Title" type="PlainText">Column</Property>
+                <Property name="textColor" displayName="Color" type="Color"><E>$$defaultTextColor</E></Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">0,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="text">
+                <TextContent>$columnTitle</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, 5)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+                <Transform>[translate(($order.value != 'none' &amp;&amp; $textAlign.h == 2) ? -12 : 0, 1)]</Transform>
+            </For>
+            <For ref="line1">
+                <D>[M($box.w - 1, 2), L($box.w - 1, $box.h - 3)]</D>
+                <Visibility>$withSeparator</Visibility>
+            </For>
+            <For ref="line2">
+                <D>[M($box.w, 2), L($box.w, $box.h - 3)]</D>
+                <Visibility>$withSeparator</Visibility>
+            </For>
+            <For ref="sorting">
+                <Visibility>$order.value != 'none'</Visibility>
+                <Transform>var size = F.textSize('text', $columnTitle, $textFont).w;
+                            [translate([size + 8, ($box.w / 2) + (size / 2) + 3, $box.w - 12][$textAlign.h], $box.h / 2 - 1 + ($order.value == 'decrease' ? 5 : 0)),
+                            scale(1, $order.value == 'decrease' ? -1 : 1)
+                            ];</Transform>
+            </For>
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <text
+                x="31.5"
+                y="17.25"
+                style="text-align:left;text-anchor:start; dominant-baseline: central;"
+                id="text"
+                xml:space="preserve">Column</text>
+            <path id="line1" style="stroke-width: 1px; stroke: #C7C5B2;" transform="translate(0.5,1.5)"/>
+            <path id="line2" style="stroke-width: 1px; stroke: #FFFFFF;" transform="translate(0.5,1.5)"/>
+            <path id="sorting" style="stroke: none; fill: #ACA899;" d="M 0,0 L 9,0 L 4.5,5 z"/>
+        </p:Content>
+    </Shape>
+    <Shape id="Frame" displayName="Window Frame" icon="Icons/frame.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" type="Dimension">350,200</Property>
+                <Property name="withClose" type="Bool" displayName="With Close Button">true</Property>
+                <Property name="withMax" type="Bool" displayName="With Maximize/Restore Button">true</Property>
+                <Property name="withMin" type="Bool" displayName="With Minimize Button">true</Property>
+                <Property name="withShadow" type="Bool" displayName="With Shadow">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="titleText" displayName="Title" type="PlainText">Untitled Frame</Property>
+                <Property name="textColor" displayName="Color" type="Color">#ffffffff</Property>
+                <Property name="textFont" displayName="Font" type="Font">Trebuchet MS|bold|normal|13px</Property>
+                <Property name="textAlign" displayName="Alignment" type="Alignment">0,1</Property>
+                <Property name="withRoomForIcon" type="Bool" displayName="With Room for Icon">false</Property>
+            </PropertyGroup>
+        </Properties>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        return [
+                            new SnappingData("XPInnerPaddingRight", b.x + b.width - 15, "XP-Right", true, this.id),
+                            new SnappingData("XPInnerPaddingLeft", b.x + 13, "XP-Left", true, this.id),
+                            new SnappingData("XPInnerPaddingTop", b.y + 40, "XP-Top", false, this.id),
+                            new SnappingData("XPInnerPaddingBottom", b.y + b.height - 15, "XP-Bottom", false, this.id),
+                            new SnappingData("", b.x + b.width - 7, "XPScrollbar", true, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+
+        <Behaviors>
+            <For ref="titleRect">
+                <Box>new Dimension($box.w - 16, 29)</Box>
+            </For>
+            <For ref="titleCorner">
+                <Transform>"translate(" + $box.w + ",0) scale(-1, 1)"</Transform>
+            </For>
+            <For ref="closeButton">
+                <Transform>"translate(" + ($box.w - 27) + ",0)"</Transform>
+                <Visibility>$withClose</Visibility>
+            </For>
+            <For ref="maxButton">
+                <Transform>"translate(" + ($box.w - 27 - ($withClose.value ? 23 : 0)) + ",0)"</Transform>
+                <Visibility>$withMax</Visibility>
+            </For>
+            <For ref="minButton">
+                <Transform>"translate(" + ($box.w - 27 - ($withClose.value ? 23 : 0) - ($withMax.value ? 23 : 0)) + ",0)"</Transform>
+                <Visibility>$withMin</Visibility>
+            </For>
+            <For ref="bodyRect">
+                <Box>new Dimension($box.w - 3, $box.h - 27)</Box>
+            </For>
+            <For ref="bgRect">
+                <Box>new Dimension($box.w, $box.h - 5)</Box>
+                <ApplyFilter>$withShadow</ApplyFilter>
+                <Visibility>$withShadow</Visibility>
+            </For>
+            <For ref="text">
+                <TextContent>$titleText</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(8 + ($withRoomForIcon.value ? 20 : 0), 4, $box.w - 17 - ($withClose.value ? 23 : 0) - ($withMax.value ? 23 : 0) - ($withMin.value ? 23 : 0) - ($withRoomForIcon.value ? 20 : 0), 21)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="shadowText">
+                <TextContent>$titleText</TextContent>
+                <Fill>Color.fromString("#0A1883ff")</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(9 + ($withRoomForIcon.value ? 20 : 0), 5, $box.w - 17 - ($withClose.value ? 23 : 0) - ($withMax.value ? 23 : 0) - ($withMin.value ? 23 : 0) - ($withRoomForIcon.value ? 20 : 0), 21)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+<!--
+            <For ref="text">
+                <TextContent>$label</TextContent>
+                <Fill>$textColor</Fill>
+                <Font>$textFont</Font>
+                <BoxFit>
+                    <Arg>new Bound(10, -10, 100, 20)</Arg>
+                    <Arg>new Alignment(0, 1)</Arg>
+                </BoxFit>
+            </For>
+            <For ref="rect">
+                <D>"M " + (F.textSize("text", $label, $textFont).w + 15) + ",0.5 L " + ($box.w - 4.5) + ",0.5 C " + ($box.w - 2) + ",0.5 " + ($box.w - 0.5) + ",2.2946114 " + ($box.w - 0.5) + ",4.5 L " + ($box.w - 0.5) + "," + ($box.h - 4.5) + " C " + ($box.w - 0.5) + "," + ($box.h - 2) + " " + ($box.w - 2) + "," + ($box.h - 0.5) + " " + ($box.w - 4.5) + "," + ($box.h - 0.5) + " L 4.5," + ($box.h - 0.5) + " C 2.284," + ($box.h - 0.5) + " 0.5," + ($box.h - 2) + " 0.5," + ($box.h - 4.5) + " L 0.5,4.5106114 C 0.5,2.2946114 2.284,0.51061056 4.5,0.51061056 L 5.5,0.51061056"</D>
+            </For>
+-->
+        </Behaviors>
+        <p:Content  xmlns:p="http://www.evolus.vn/Namespace/Pencil"
+                    xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="titlePattern" patternUnits="userSpaceOnUse"
+                         x="0" y="0" width="1" height="29" >
+                    <image image-rendering="optimizeQuality"
+                       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAdCAYAAABrAQZpAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9gBEAohNhFyT2EAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAXklEQVQI123KsRHCMBAAwfuTRAW04z5cOjEhjB1AYMaW/CSEJBstzM90mq64HuDtDvJ+4dgOpO/ISCRPJETgDw0pgVCQUjFawaRiVDAu7ZejBmZPjLPj+CSyPDC2hS8XER5NU5DfKgAAAABJRU5ErkJggg=="
+                       x="0"
+                       y="0"
+                       width="1"
+                       height="29"/>
+                </pattern>
+                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAdCAYAAACXFC2jAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A
+                /wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9gBEAoOIhm0o3EAAAAZdEVYdENv
+                bW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAABW0lEQVQoz3WSS0sDQRCEv+555Ama3ASPXrwK
+                Qn6Fv88fqKAo+EpC1t3Z9rCzjyRrw8AyXdPVVbXCwyNnle5NxAHgh/dSbwwgXN8gixnLqfYAqTcm
+                qyv8fEEVEkFlMOHnzuxije2/KKcKBRTlB8URRfkG8zW22/acforydGvM1s1FUfYHoDqgALw8wz4h
+                xf5MkPL9zP8VULYhj1OkYGTCoGqdNB+TAATwLgMsgEZwAinCrwcc1IqiK4gBqmyLExA9obAJhHm2
+                NDdNzndoghpeueOwiBEmmcK1WcRls2CcggikvAcCXkconIBvmphHsTmEzDQkNI9I60PtO2vxAi7m
+                Bx7Ft80IVd9sf7l+h5AgOy3iUBFEQKmqjMv2dis4xAlKmY5EtK9H0+xSNUOqNA6wwURL1iqvj0GH
+                guQ8zsqTLHa7Rol3kCClMAB87uASeH2H6JBO5mnFLNUMM/gDasVk7m2cE34AAAAASUVORK5CYII=
+                "
+                       width="8"
+                       height="29"
+                       id="cornerImage" />
+
+                <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="closeButtonFill">
+                    <stop style="stop-color:#EFA390;stop-opacity:1" offset="0"/>
+                    <stop style="stop-color:#E03802;stop-opacity:1" offset="1"/>
+                </linearGradient>
+                <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="otherButtonFill">
+                    <stop style="stop-color:#9AB7FA;stop-opacity:1" offset="0"/>
+                    <stop style="stop-color:#0045D3;stop-opacity:1" offset="1"/>
+                </linearGradient>
+                <filter
+                   id="shadingFilter"
+                   height="1.2558399"
+                   y="-0.12792"
+                   width="1.06396"
+                   x="-0.03198">
+                    <feGaussianBlur stdDeviation="1.3325" in="SourceAlpha"/>
+                </filter>
+            </defs>
+            <rect id="bgRect" x="0" y="5" width="10" height="10" transform="translate(2, 2)" p:filter="url(#shadingFilter)" style="stroke: none; opacity:0.6; fill-opacity:1; fill: #000000;"/>
+            <rect x="1.5" y="25.5" style="fill: #ECE9D8; stroke: #0055E5; stroke-width: 3px;" id="bodyRect"/>
+            <use xlink:href="#cornerImage" x="0" y="0"/>
+            <rect x="8" y="0" width="400" height="29" style="stroke: none; fill: url(#titlePattern);" id="titleRect"/>
+            <use xlink:href="#cornerImage" x="0" y="0" transform="translate(415,0) scale(-1, 1) " id="titleCorner"/>
+            <text
+                x="31.5"
+                y="17.25"
+                style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                id="shadowText"
+                xml:space="preserve">Title</text>
+            <text
+                x="31.5"
+                y="17.25"
+                style="font-size:12px;font-style:normal;font-weight:normal;text-align:left;text-anchor:start; dominant-baseline: central;fill:#000000;font-family:'Segoe UI'"
+                id="text"
+                xml:space="preserve">Title</text>
+            <g id="closeButton">
+                <rect x="0.5" y="5.5" width="20" height="20" rx="2" ry="2" style="stroke: #ffffff; stroke-width: 1px; fill: url(#closeButtonFill);" />
+                <path d="M 6,11 L 15,20" style="stroke: #ffffff; stroke-width: 2px; fill: none;"/>
+                <path d="M 6,20 L 15,11" style="stroke: #ffffff; stroke-width: 2px; fill: none;"/>
+            </g>
+            <g id="maxButton">
+                <rect x="0.5" y="5.5" width="20" height="20" rx="2" ry="2" style="stroke: #ffffff; stroke-width: 1px; fill: url(#otherButtonFill);" />
+                <rect x="0" y="0" width="10" height="10" transform="translate(5.5, 10.5)" style="stroke: #ffffff; stroke-width: 1px; fill: none;"/>
+                <path d="M 0,1.5 L 10,1.5" transform="translate(5.5, 10.5)" style="stroke: #ffffff; stroke-width: 2px; fill: none;"/>
+            </g>
+            <g id="minButton">
+                <rect x="0.5" y="5.5" width="20" height="20" rx="2" ry="2" style="stroke: #ffffff; stroke-width: 1px; fill: url(#otherButtonFill);" />
+                <path d="M 0,1.5 L 9,1.5" transform="translate(5, 19)" style="stroke: #ffffff; stroke-width: 3px; fill: none;"/>
+            </g>
+        </p:Content>
+    </Shape>
+</Shapes>

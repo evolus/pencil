@@ -2,6 +2,10 @@ function Alignment(h, v) {
     this.h = h ? h : 0;
     this.v = v ? v : 0;
 }
+
+Alignment.H = new PropertyMask("h");
+Alignment.V = new PropertyMask("v");
+
 Alignment.REG_EX = /^([0-9]+)\,([0-9]+)$/;
 Alignment.fromString = function(literal) {
     var align = new Alignment(0, 0);

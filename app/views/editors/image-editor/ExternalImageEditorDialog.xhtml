@@ -1,0 +1,50 @@
+<vbox>
+    <style>
+        @contentBox {
+            width: 30em;
+            overflow: hidden;
+        }
+        
+        @thumbnailImageViewer {
+            width: 7em;
+            height: 7em;
+            
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-clip: padding-box;
+            background-size: contain;
+            background-position: 50% 50%;
+            border: solid 1px #848484;
+            background-color: #FFF;
+            margin-right: 2em;
+            box-shadow: 0px 0px 0.5em 0px rgba(0, 0, 0, 0.2);
+        }
+        description ~ * {
+            margin-top: 1em;
+            
+            & > label {
+                opacity: 0.5;
+            }
+            
+            & > span {
+                margin-left: 1ex;
+
+                &.Updated {
+                    font-weight: bold;
+                    color: @primary_color;
+                }
+            }
+        }
+    </style>
+    <hbox anon-id="contentBox">
+        <div anon-id="thumbnailImageViewer"></div>
+        <vbox flex="1">
+            <strong anon-id="messageLabel">Editing image with Gimp...</strong>
+            <description>Pencil has opened the external application to edit the image. Please finish editing in that application and click "Finish" to import the changes back to Pencil.</description>
+            
+            <hbox>
+                <label>Last modified:</label><span anon-id="lastModifyLabel"></span>
+            </hbox>
+        </vbox>
+    </hbox>
+</vbox>

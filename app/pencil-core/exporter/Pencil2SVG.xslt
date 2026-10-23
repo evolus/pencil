@@ -36,18 +36,19 @@
     xmlns:em="http://exslt.org/math"
     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
-    
+
     <xsl:output method="xml"/>
 
     <xsl:template match="/">
-        <svg width="744.09448819" height="1052.3622047"
+        <svg width="{/p:Document/p:Pages/p:Page/p:Properties/p:Property[@name='width']/text()}"
+            height="{/p:Document/p:Pages/p:Page/p:Properties/p:Property[@name='height']/text()}"
             id="exportedSVG"
             version="1.1"
             pencil:version="1.2.2"
             sodipodi:docname="{/p:Document/p:Properties/p:Property[@name='fileName']/text()}">
-            
+
             <xsl:apply-templates select="/p:Document/p:Pages/p:Page" />
-            
+
         </svg>
     </xsl:template>
     <xsl:template match="p:Page">
@@ -56,7 +57,7 @@
             <g>
                 <rect x="0" y="0"
                     width="{p:Properties/p:Property[@name='width']/text()}"
-                    height="{p:Properties/p:Property[@name='width']/text()}">
+                    height="{p:Properties/p:Property[@name='height']/text()}">
                     <xsl:choose>
                         <xsl:when test="p:Properties/p:Property[@name='transparentBackground']/text() = 'false'">
                             <xsl:attribute name="fill"><xsl:value-of select="substring(p:Properties/p:Property[@name='backgroundColor']/text(), 1, 7)"/></xsl:attribute>

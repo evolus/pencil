@@ -9,17 +9,38 @@ function NotificationPopup() {
             if (!this.hidden) this.close();
         }.bind(this), 200);
     }, this.actionButton);
+
+    this.bind("click", function () {
+        if (this.secondaryActionHandler) this.secondaryActionHandler();
+        window.setTimeout(function () {
+            if (!this.hidden) this.close();
+        }.bind(this), 200);
+    }, this.secondaryButton);
 }
 __extend(Popup, NotificationPopup);
 
-NotificationPopup.prototype.setup = function (message, actionTitle, actionHandler) {
-    this.messagePane.innerHTML = Dom.htmlEncode(message);
-    Dom.toggleClass(this.node(), "WithAction", actionTitle)
+NotificationPopup.prototype.setup = function (message, actionTitle, actionHandler, secondaryActionTitle, secondaryActionHandler) {
+    this.messagePane.innerHTML = Dom.htmlEncode(message).replace(/\n/g, "<br/>");
+    Dom.toggleClass(this.node(), "WithAction", actionTitle || secondaryActionTitle);
 
     if (actionTitle) {
-        Dom.show(this.footer);
+        Dom.show(this.actionButton);
         this.actionButton.innerHTML = Dom.htmlEncode(actionTitle);
         this.actionHandler = actionHandler;
+    } else {
+        Dom.hide(this.actionButton);
+    }
+
+    if (secondaryActionTitle) {
+        Dom.show(this.secondaryButton);
+        this.secondaryButton.innerHTML = Dom.htmlEncode(secondaryActionTitle);
+        this.secondaryActionHandler = secondaryActionHandler;
+    } else if (this.secondaryButton) {
+        Dom.hide(this.secondaryButton);
+    }
+
+    if (actionTitle || secondaryActionTitle) {
+        Dom.show(this.footer);
     } else {
         this.footer.style.display = "none";
     }
@@ -59,18 +80,21 @@ NotificationPopup.prototype.hide = function (silent) {
 
 NotificationPopup.queueHandler = new QueueHandler();
 
-NotificationPopup.show = function (message, actionTitle, actionHandler) {
+NotificationPopup.show = function (message, actionTitle, actionHandler, secondaryActionTitle, secondaryActionHandler, duration) {
     var task = function (__callback) {
         var popup = new NotificationPopup();
         popup.onHide = function () {
             popup.hidden = true;
             __callback();
         };
-        popup.setup(message, actionTitle, actionHandler);
+        popup.setup(message, actionTitle, actionHandler, secondaryActionTitle, secondaryActionHandler);
         popup.show(ApplicationPane._instance.node(), "right-inside", "top-inside", 20, 20);
-        window.setTimeout(function () {
-             if (!popup.hidden) popup.close();
-        }, actionTitle ? 4000 : 2500);
+        var timeout = duration !== undefined ? duration : (actionTitle ? 4000 : 2500);
+        if (timeout > 0) {
+            window.setTimeout(function () {
+                 if (!popup.hidden) popup.close();
+            }, timeout);
+        }
     };
 
     NotificationPopup.queueHandler.submit(task);
