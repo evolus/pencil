@@ -27,23 +27,28 @@ FontLoaderUtil.loadFontFaces = function (allFaces, callback) {
         index ++;
         if (index >= allFaces.length) {
             if (callback) callback();
-
             return;
         }
-        var installedFace = allFaces[index];
 
+        var installedFace = allFaces[index];
         var url = FontLoaderUtil.filePathToURL(installedFace.filePath);
         var face = new FontFace(installedFace.name, "url(" + url + ")", {weight: installedFace.weight, style: installedFace.style});
         face._type = installedFace.type;
 
-        var addPromise = document.fonts.add(face);
-        addPromise.ready.then(function () {
-            var fontCSS = installedFace.style + " " + installedFace.weight + " 1em '" + installedFace.name + "'";
+        try {
+            document.fonts.add(face);
+        } catch (e) {
+        }
 
-            document.fonts.load(fontCSS).then(function () {
-                next();
-            }, next);
-        }, next);
+        face.load().then(function (loadedFace) {
+            try {
+                document.fonts.add(loadedFace);
+            } catch (e) {
+            }
+            next();
+        }).catch(function () {
+            next();
+        });
     }
 
     next();

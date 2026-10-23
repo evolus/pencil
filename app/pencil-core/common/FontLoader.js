@@ -60,9 +60,10 @@ FontLoader.prototype.loadFonts = function (callback) {
 
     // console.log("All faces to load", allFaces);
     FontLoaderUtil.loadFontFaces(allFaces, function () {
+        var systemFaces = (FontLoader.systemRepo && FontLoader.systemRepo.faces) ? FontLoader.systemRepo.faces : [];
         var data = {
             id: Util.newUUID(),
-            faces: [].concat(FontLoader.systemRepo.faces).concat(allFaces),
+            faces: [].concat(systemFaces).concat(allFaces),
             setName: "allFaces"
         }
         ipcRenderer.once(data.id, function (event, data) {
@@ -106,8 +107,9 @@ FontLoader.prototype.getAllInstalledFonts = function () {
     var fonts = [];
     var fontNames = [];
     
-    if (FontLoader.systemRepo.fonts.length > 0) {
-        for (var font of FontLoader.systemRepo.fonts) {
+    var systemFonts = (FontLoader.systemRepo && FontLoader.systemRepo.fonts) ? FontLoader.systemRepo.fonts : [];
+    if (systemFonts.length > 0) {
+        for (var font of systemFonts) {
             var font = JSON.parse(JSON.stringify(font));
             font._type = FontRepository.TYPE_SYSTEM;
             fonts.push(font);
