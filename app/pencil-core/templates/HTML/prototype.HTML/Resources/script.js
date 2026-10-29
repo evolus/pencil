@@ -142,26 +142,6 @@ function handleMouseMove() {
 
 var THUMB_WIDTH = 250;
 var THUMB_HEIGHT = 160;
-var THUMB_DISPLAY_SIZE = 160;
-
-function buildThumbnail(url, callback) {
-    var image = new Image();
-    image.onload = function () {
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        
-        var r = Math.max(image.width / THUMB_WIDTH, image.height / THUMB_HEIGHT);
-        var w = image.width / r, h = image.height / r;
-        canvas.width = w;
-        canvas.height = h;
-        
-        ctx.drawImage(image, 0, 0, w, h);
-        
-        callback(canvas.toDataURL('image/png'), w, h);
-    };
-    
-    image.src = url;
-}
 
 function generateTOC() {
     var toc = document.createElement("div");
@@ -173,7 +153,7 @@ function generateTOC() {
         
         var item = document.createElement("div");
         var imageWrapper = document.createElement("a");
-        var itemImage = document.createElement("img");
+
         
         item.classList.add("Page_" + page.id);
         item.setAttribute("tabindex", 0);
@@ -182,22 +162,19 @@ function generateTOC() {
         imageWrapper.setAttribute("href", "#" + page.id);
 
         item.appendChild(imageWrapper);
-        var name = document.createElement("strong");
-        name.innerHTML = title.innerHTML;
         
         toc.appendChild(item);
         
-        buildThumbnail(img.src, function (dataUrl, w, h) {
-            var r = Math.max(w / THUMB_DISPLAY_SIZE, h / THUMB_DISPLAY_SIZE);
-            var w = w / r, h = h / r;
-            
-            imageWrapper.appendChild(itemImage);
-            itemImage.style.width = w + "px";
-            itemImage.style.height = h + "px";
-            itemImage.src = dataUrl;
-            
-            imageWrapper.appendChild(name);
-        });
+        var itemImage = document.createElement("img");
+        itemImage.style.maxWidth = THUMB_WIDTH + "px";
+        itemImage.style.maxHeight = THUMB_HEIGHT + "px";
+        itemImage.src = img.src;
+        imageWrapper.appendChild(itemImage);
+
+        var name = document.createElement("strong");
+        name.innerHTML = title.innerHTML;
+        imageWrapper.appendChild(name);
+        
     });
     
     document.body.appendChild(toc);
