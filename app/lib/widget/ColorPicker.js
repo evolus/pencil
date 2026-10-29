@@ -1,5 +1,5 @@
 var SIZE = 60;
-var COLOR_PATTERN = /^#([0-9a-f]{3}){1,2}$/i;
+var COLOR_PATTERN = /^#(([0-9a-f]{3}){1,2})$/i;
 var COLOR = [];
 var onHoldPicker = false;
 var onHoldIndicator = false;
@@ -222,6 +222,10 @@ widget.ColorPicker = function () {
         var color = colorPicker.colorInput.value;
         var validColor = re.exec(color);
         if (validColor)  {
+            if (validColor[1] === validColor[2]) {
+                var c = validColor[1].split("");
+                validColor = [["#", c[0], c[0], c[1], c[1], c[2], c[2]].join("")];
+            }
             colorPicker.setValue(validColor[0]);
         }
     }
