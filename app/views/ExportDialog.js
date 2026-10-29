@@ -7,7 +7,7 @@ function ExportDialog () {
         if (!a) return !b;
         if (!b) return false;
         return a.id == b.id;
-    };
+    }
 
     this.exporterCombo.renderer = function (exporter) {
         return exporter.name;
@@ -140,7 +140,7 @@ ExportDialog.prototype.setup = function (options) {
         var exporter = this.exporterCombo.getSelectedItem();
         if (exporter) {
             this.title = exporter.name;
-            
+
         }
     }
 
