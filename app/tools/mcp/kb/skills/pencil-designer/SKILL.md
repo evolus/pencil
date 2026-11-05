@@ -188,6 +188,7 @@ When managing multi-screen flows, wireframes, or multi-page documents:
    - Build all pages and their navigation shapes first, then link in one call per page, for example `update_shape_links(pageId: "<login>", links: [{ shapeId: "<btnSignIn>", targetPageName: "Dashboard" }, { shapeId: "<lnkSignUp>", targetPageName: "Sign Up" }])`.
    - Target shapes by `shapeId` from `idMap`, or by `query` when it matches exactly one shape. Remove a link with `targetPageId: null`. A shape cannot link to its own page.
    - Verify links with `find_shapes` (records carry `linkTargetPageId` and `linkTargetPageName`).
+   - Deliver the prototype with `export_document_html(templateId: "Evolus:HTML:ClickablePrototype.Template", outputDir: "<absolute path>")`. Open the returned `entryFile` (`index.html`) inside `outputDir` in a browser. Call `list_export_templates` to see user-installed templates. Export all pages, or include every link target in `pageIds`, because links to pages left out of the export lead nowhere. The directory must be empty unless you pass `overwrite: true`.
 
 ---
 

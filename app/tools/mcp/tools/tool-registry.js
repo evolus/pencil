@@ -137,6 +137,8 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new documentTool.GetActiveDocumentTool());
     registry.register(new documentTool.GetPageContentTool());
     registry.register(new documentTool.ExportPageTool());
+    registry.register(new documentTool.ListExportTemplatesTool());
+    registry.register(new documentTool.ExportDocumentHtmlTool());
     registry.register(new documentTool.ListPagesTool());
     registry.register(new documentTool.CreatePageTool());
     registry.register(new documentTool.UpdatePageTool());

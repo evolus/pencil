@@ -14,13 +14,20 @@ DocumentExportManager.prototype.exportDocument = function (doc, forcedExporterId
         lastParams: doc == this.lastParamsDoc ? this.lastParams : null
     });
 };
-DocumentExportManager.prototype.exportDocumentWithParams = function (doc, forcedExporterId, params) {
+/*
+ * callback(error) is optional and lets non-dialog callers (the MCP export tool) wait for the
+ * export job: it is called once, with null after the progress job finishes or with the error
+ * that aborted it. The desktop dialog passes no callback.
+ */
+DocumentExportManager.prototype.exportDocumentWithParams = function (doc, forcedExporterId, params, callback) {
     if (!params) return;
 
+    var done = callback || function () {};
     try {
-        this._exportDocumentWithParamsImpl(doc, forcedExporterId, params);
+        this._exportDocumentWithParamsImpl(doc, forcedExporterId, params, done);
     } catch (e) {
         console.error(e);
+        done(e);
     }
 };
 DocumentExportManager.prototype.generateFriendlyId = function (page, usedFriendlyIds) {
@@ -35,7 +42,7 @@ DocumentExportManager.prototype.generateFriendlyId = function (page, usedFriendl
     usedFriendlyIds.push(name);
     return name;
 };
-DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, forcedExporterId, params) {
+DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, forcedExporterId, params, done) {
     console.log("Export requested...");
     var exporter = Pencil.getDocumentExporterById(params.exporterId);
     if (!exporter) return;
@@ -143,6 +150,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                                 NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
                                     shell.openPath(destFile);
                                 });
+                                done(null);
                             });
                         })
                         return;
@@ -172,6 +180,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                 } catch (e2) {
                     listener.onTaskDone();
                     Util.error(Util.getMessage("error.title"), e2.message, Util.getMessage("button.cancel.close"));
+                    done(e2);
                     throw e2;
                 }
             };
@@ -191,11 +200,13 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                         } else {
                             NotificationPopup.show("Document has been exported.");
                         }
+                        done(null);
                     });
                 }, listener)
             } catch (ex) {
                 listener.onTaskDone();
                 Util.error(Util.getMessage("error.title"), ex.message, Util.getMessage("button.cancel.close"));
+                done(ex);
             }
         };
     }

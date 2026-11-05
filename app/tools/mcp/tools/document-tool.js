@@ -5,6 +5,8 @@
  * - get_active_document: Inspects open document metadata, pages, dimensions, and shape counts
  * - get_page_content: Extracts scene graph, shape hierarchy, and property metadata for a page
  * - export_page: Exports an active or specified page to disk in PNG, SVG, or PDF format
+ * - list_export_templates: Lists installed HTML export templates
+ * - export_document_html: Exports pages through an HTML template into a directory
  */
 
 var z = require("zod").z;
@@ -737,6 +739,190 @@ ExportPageTool.prototype.execute = async function (args, context) {
                     format: format,
                     filePath: targetFile
                 }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: list_export_templates
+// =============================================================================
+
+var HTML_EXPORTER_ID = "WebPageExporter";
+var HTML_TEMPLATE_TYPE = "HTML";
+var EXPORTED_FILE_LIST_LIMIT = 200;
+
+function describeExportTemplate(template) {
+    var item = { id: template.id, name: template.name };
+    if (template.description) item.description = template.description;
+    if (template.author) item.author = template.author;
+    item.source = template.userDefine ? "user" : "built-in";
+    return item;
+}
+
+function ListExportTemplatesTool() {
+    BaseTool.call(
+        this,
+        "list_export_templates",
+        "Lists the HTML export templates installed in Pencil, built-in and user-installed. Pass a template 'id' to export_document_html. The built-in 'Evolus:HTML:ClickablePrototype.Template' turns shape page links (set with update_shape_links) into clickable areas; 'Evolus:HTML:Default.Template' lists all pages in one document.",
+        {}
+    );
+}
+ListExportTemplatesTool.prototype = new BaseTool();
+
+ListExportTemplatesTool.prototype.execute = async function (args, context) {
+    var templates = ExportTemplateManager.getTemplatesForType(HTML_TEMPLATE_TYPE).map(describeExportTemplate);
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({ count: templates.length, templates: templates }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
+// Tool: export_document_html
+// =============================================================================
+
+function ExportDocumentHtmlTool() {
+    BaseTool.call(
+        this,
+        "export_document_html",
+        "Exports the active document as an HTML site through an installed HTML export template, the same as the desktop Export dialog with the 'Single Web Page' exporter. Writes index.html, one PNG per page under pages/ and the template's support files into outputDir, and returns when the export has finished. With the clickable prototype template, shapes linked to pages become clickable areas, so this is the delivery step for click-through prototypes. Use export_page for a single PNG, SVG or PDF.",
+        {
+            templateId: z.string().describe("Template ID from list_export_templates."),
+            outputDir: z.string().describe("Absolute path of the output directory. Created when missing; must be empty unless overwrite is true."),
+            pageIds: z.array(z.string()).min(1).optional().describe("IDs of the pages to export. Defaults to all pages. Pages are always written in document tree order."),
+            overwrite: z.boolean().optional().default(false).describe("Allow exporting into a non-empty outputDir. The export replaces index.html, pages/*.png and the template's support files and leaves other files in place.")
+        }
+    );
+}
+ExportDocumentHtmlTool.prototype = new BaseTool();
+
+/*
+ * The desktop export dialog lists pages as a tree (root pages, each followed by its children)
+ * and the exporter writes pages in the order it receives them, so this order reproduces a
+ * desktop export of the same selection.
+ */
+function pagesInExportOrder(controller) {
+    var ordered = [];
+    (function visit(pages) {
+        pages.forEach(function (page) {
+            ordered.push(page);
+            visit(page.children);
+        });
+    })(controller.getRootPages());
+    return ordered;
+}
+
+function listRelativeFiles(rootDir) {
+    var files = [];
+    (function walk(dir) {
+        fs.readdirSync(dir, { withFileTypes: true }).forEach(function (entry) {
+            var fullPath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                walk(fullPath);
+            } else {
+                files.push(path.relative(rootDir, fullPath).split(path.sep).join("/"));
+            }
+        });
+    })(rootDir);
+    return files.sort();
+}
+
+ExportDocumentHtmlTool.prototype._resolveTemplate = function (templateId) {
+    var templates = ExportTemplateManager.getTemplatesForType(HTML_TEMPLATE_TYPE);
+    var template = templates.find(function (t) { return t.id === templateId; });
+    if (!template) {
+        throw new Error("Unknown HTML export template '" + templateId + "'. Installed templates: " + templates.map(function (t) { return t.id; }).join(", ") + ".");
+    }
+    return template;
+};
+
+/*
+ * path.resolve drops a trailing separator. WebPageExporter makes page image paths relative by
+ * stripping outputDir + path.sep, so "/out/" would leave absolute image paths in index.html.
+ */
+ExportDocumentHtmlTool.prototype._prepareOutputDir = function (outputDirArg, overwrite) {
+    if (!path.isAbsolute(outputDirArg)) {
+        throw new Error("outputDir must be an absolute path, got '" + outputDirArg + "'.");
+    }
+    var outputDir = path.resolve(outputDirArg);
+    var existingCount = 0;
+    if (fs.existsSync(outputDir)) {
+        if (!fs.statSync(outputDir).isDirectory()) {
+            throw new Error("outputDir '" + outputDir + "' exists and is not a directory.");
+        }
+        existingCount = fs.readdirSync(outputDir).length;
+        if (existingCount > 0 && !overwrite) {
+            throw new Error("outputDir '" + outputDir + "' is not empty (" + existingCount + " entries). Pass overwrite: true to export into it, or choose an empty or new directory.");
+        }
+    }
+    fs.mkdirSync(outputDir, { recursive: true });
+    return { outputDir: outputDir, existingCount: existingCount };
+};
+
+ExportDocumentHtmlTool.prototype._resolvePages = function (controller, pageIds) {
+    var pages = pagesInExportOrder(controller);
+    if (!pageIds) return pages;
+
+    var unknownIds = pageIds.filter(function (id) { return !controller.findPageById(id); });
+    if (unknownIds.length > 0) {
+        var available = controller.doc.pages.map(function (p) { return p.id + " ('" + p.name + "')"; }).join(", ");
+        throw new Error("Unknown pageIds: " + unknownIds.join(", ") + ". Available pages: " + available + ".");
+    }
+    return pages.filter(function (p) { return pageIds.indexOf(p.id) >= 0; });
+};
+
+ExportDocumentHtmlTool.prototype.execute = async function (args, context) {
+    var controller = Pencil.controller;
+    if (!controller.doc) {
+        throw new Error("No active document. Open or create a document in Pencil before exporting.");
+    }
+
+    var template = this._resolveTemplate(args.templateId);
+    var pages = this._resolvePages(controller, args.pageIds);
+    var target = this._prepareOutputDir(args.outputDir, args.overwrite);
+
+    var params = {
+        pages: pages,
+        exporterId: HTML_EXPORTER_ID,
+        templateId: template.id,
+        targetPath: target.outputDir,
+        options: { copyBGLinks: true }
+    };
+    await new Promise(function (resolve, reject) {
+        Pencil.documentExportManager.exportDocumentWithParams(controller.doc, null, params, function (error) {
+            if (error) {
+                reject(new Error("HTML export failed: " + (error instanceof Error ? error.message : String(error))));
+            } else {
+                resolve();
+            }
+        });
+    });
+
+    var files = listRelativeFiles(target.outputDir);
+    var result = {
+        outputDir: target.outputDir,
+        entryFile: WebPageExporter.HTML_FILE,
+        templateId: template.id,
+        pageCount: pages.length,
+        fileCount: files.length,
+        files: files.slice(0, EXPORTED_FILE_LIST_LIMIT)
+    };
+    if (target.existingCount > 0) {
+        result.warnings = [
+            "outputDir already held " + target.existingCount + " entries. Files the export did not write were left in place and are included in files."
+        ];
+    }
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify(result, null, 2)
             }
         ]
     };
@@ -1810,6 +1996,8 @@ module.exports = {
     GetActiveDocumentTool: GetActiveDocumentTool,
     GetPageContentTool: GetPageContentTool,
     ExportPageTool: ExportPageTool,
+    ListExportTemplatesTool: ListExportTemplatesTool,
+    ExportDocumentHtmlTool: ExportDocumentHtmlTool,
     ListPagesTool: ListPagesTool,
     CreatePageTool: CreatePageTool,
     UpdatePageTool: UpdatePageTool,

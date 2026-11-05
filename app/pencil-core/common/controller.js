@@ -844,17 +844,24 @@ Controller.prototype.invalidatePageContent = function (page, callback) {
 
     this.invalidateBrokenImageRefs(page.canvas.drawingLayer);
 };
+/*
+ * Pages can be attached without being activated (MCP tools read and edit background pages), so
+ * every attach stamps lastUsed; otherwise such pages hold a pooled canvas that can never be
+ * swapped out. The active page is never evicted while another page is being attached: its
+ * canvas is the one on screen, and handing it to another page would leave activePage pointing
+ * at a canvas that shows different content. activatePage() changes activePage only after this
+ * call, so during a page switch the outgoing page is protected too and one of the other pooled
+ * pages is swapped out instead.
+ */
 Controller.prototype.retrievePageCanvas = function (page, newPage) {
     if (!page.canvas) {
         if (!this.canvasPool.available()) {
             var lruPage = null;
-            var lru = new Date().getTime();
             for (var i = 0; i < this.doc.pages.length; i ++) {
                 var p = this.doc.pages[i];
-                if (!p.canvas || p == newPage ) continue;
-                if (p.lastUsed && p.lastUsed.getTime() < lru) {
+                if (!p.canvas || p == newPage || p == this.activePage) continue;
+                if (!lruPage || p.lastUsed.getTime() < lruPage.lastUsed.getTime()) {
                     lruPage = p;
-                    lru = p.lastUsed.getTime();
                 }
             }
             if (!lruPage) throw "Invalid state. Unable to find LRU page to swap out";
@@ -864,6 +871,7 @@ Controller.prototype.retrievePageCanvas = function (page, newPage) {
         var canvas = this.canvasPool.obtain();
         this.swapIn(page, canvas);
     }
+    page.lastUsed = new Date();
 };
 Controller.prototype.deletePage = function (page) {
     if (page.canvas) this.canvasPool.return(page.canvas);
