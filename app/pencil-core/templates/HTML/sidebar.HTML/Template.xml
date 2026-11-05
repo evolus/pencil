@@ -1,0 +1,9 @@
+<Template xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil">
+    <Property name="id">Evolus:HTML:SidebarPrototype.Template</Property>
+    <Property name="name">Sidebar Prototype HTML Template</Property>
+    <Property name="author">Evolus</Property>
+    <Property name="description">Click-through prototype with a page tree sidebar. Can embed everything into a single index.html file.</Property>
+
+    <Property name="styleSheet">StyleSheet.xslt</Property>
+    <Property name="embedImages" displayName="Single file (embed images)" type="Enum" p:enumValues="['true|Yes', 'false|No']">true</Property>
+</Template>

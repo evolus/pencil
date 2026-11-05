@@ -1,0 +1,329 @@
+:root {
+    --color-text: #1f2328;
+    --color-muted: #59636e;
+    --color-border: #d1d9e0;
+    --color-surface: #ffffff;
+    --color-canvas: #f6f8fa;
+    --color-accent: #0b5cad;
+    --color-accent-soft: #e7f0fa;
+    --color-link-fill: rgba(11, 92, 173, 0.12);
+    --color-link-fill-strong: rgba(11, 92, 173, 0.24);
+    --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-size: 14px;
+    --sidebar-width: 240px;
+    --radius-control: 3px;
+    --space: 8px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: 1.4;
+    color: var(--color-text);
+    background: var(--color-canvas);
+}
+
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+}
+
+.sidebar {
+    flex: 0 0 var(--sidebar-width);
+    width: var(--sidebar-width);
+    height: 100%;
+    overflow-y: auto;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+}
+
+.sidebar-title {
+    padding: calc(var(--space) * 1.5) calc(var(--space) * 2);
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-border);
+    overflow-wrap: anywhere;
+}
+
+.page-tree,
+.tree-children {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.page-tree {
+    padding: var(--space) 0;
+}
+
+.tree-children {
+    padding-left: calc(var(--space) * 2);
+}
+
+.tree-item.is-collapsed > .tree-children {
+    display: none;
+}
+
+.tree-row {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space);
+}
+
+.tree-toggle,
+.tree-spacer {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 26px;
+}
+
+.tree-toggle {
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: none;
+    color: var(--color-muted);
+    cursor: pointer;
+}
+
+.tree-toggle::before {
+    content: "";
+    display: inline-block;
+    border-style: solid;
+    border-width: 4px 0 4px 6px;
+    border-color: transparent transparent transparent currentColor;
+    transform: rotate(90deg);
+}
+
+.tree-item.is-collapsed > .tree-row > .tree-toggle::before {
+    transform: none;
+}
+
+.tree-link {
+    flex: 1;
+    min-width: 0;
+    padding: 4px var(--space);
+    border-radius: var(--radius-control);
+    color: inherit;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.tree-link:hover {
+    background: var(--color-canvas);
+}
+
+.tree-item.is-current > .tree-row > .tree-link {
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+    font-weight: 600;
+}
+
+.viewer {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.page-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--space) * 1.5);
+    padding: 6px calc(var(--space) * 2);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.breadcrumb {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.breadcrumb li + li::before {
+    content: "/";
+    margin: 0 6px;
+    color: var(--color-muted);
+}
+
+.breadcrumb a {
+    color: var(--color-muted);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
+.breadcrumb [aria-current] {
+    font-weight: 600;
+}
+
+.link-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-muted);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.link-toggle-input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+}
+
+.page-nav {
+    display: flex;
+    gap: 4px;
+}
+
+.page-nav-link,
+.sidebar-toggle {
+    padding: 4px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.page-nav-link:hover,
+.sidebar-toggle:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.page-nav-link[aria-disabled="true"] {
+    color: var(--color-muted);
+    border-color: var(--color-border);
+    background: var(--color-canvas);
+    pointer-events: none;
+}
+
+.sidebar-toggle {
+    display: none;
+}
+
+.page-area {
+    flex: 1;
+    overflow: auto;
+    padding: calc(var(--space) * 2);
+}
+
+/*
+ * --page-width is the page width in Pencil, set per page by the stylesheet. Frame and note share
+ * it, so the note lines up with the page above it when both are centered.
+ */
+.page-frame,
+.page-note {
+    width: var(--page-width);
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.page-frame {
+    position: relative;
+    background: var(--color-surface);
+    outline: 1px solid var(--color-border);
+}
+
+.page-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.link-area {
+    position: absolute;
+    border-radius: 2px;
+    outline: 2px solid transparent;
+}
+
+.is-showing-link-areas .link-area {
+    outline: 1px solid var(--color-accent);
+    background: var(--color-link-fill);
+}
+
+.page-frame .link-area:hover,
+.page-frame .link-area:focus-visible {
+    outline: 2px solid var(--color-accent);
+    background: var(--color-link-fill-strong);
+}
+
+.page-frame.is-flashing .link-area {
+    animation: link-area-flash 400ms ease-in-out 2;
+}
+
+@keyframes link-area-flash {
+    50% {
+        outline-color: var(--color-accent);
+        background-color: var(--color-link-fill-strong);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-frame.is-flashing .link-area {
+        animation: none;
+        outline-color: var(--color-accent);
+        background-color: var(--color-link-fill-strong);
+    }
+}
+
+.page-note {
+    margin-top: calc(var(--space) * 2);
+    line-height: 1.5;
+}
+
+.page-note a {
+    color: var(--color-accent);
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        display: none;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+        width: min(80vw, 280px);
+    }
+
+    body.is-sidebar-open .sidebar {
+        display: block;
+    }
+
+    .sidebar-toggle {
+        display: inline-block;
+    }
+
+    .page-area {
+        padding: var(--space);
+    }
+}

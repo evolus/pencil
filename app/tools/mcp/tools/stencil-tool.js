@@ -1432,9 +1432,10 @@ function summarizeCollectionSetting(property) {
 /*
  * Font, Color, StrokeStyle and ShadowStyle literals go through the same
  * parser-derived grammar as shape properties in insert_shapes, so a value
- * that would silently become a default object cannot reach Config.
+ * that would silently become a default object cannot reach Config. Also
+ * validates HTML export template options in export_document_html.
  */
-function validateCollectionSettingValue(property, literal) {
+function validatePropertyLiteral(property, literal) {
     var enumInfo = extractEnumOptions(property);
     if (enumInfo) {
         return enumInfo.values.indexOf(literal) >= 0 ? null : "Invalid value '" + literal + "'. Expected one of: " + enumInfo.values.join(", ") + ".";
@@ -1523,7 +1524,7 @@ UpdateCollectionSettingsTool.prototype.execute = async function (args) {
     valueNames.forEach(function (name) {
         var property = collection.properties[name];
         if (!property) return;
-        var error = validateCollectionSettingValue(property, values[name]);
+        var error = validatePropertyLiteral(property, values[name]);
         if (error) errors.push(name + ": " + error);
     });
     if (errors.length > 0) {
@@ -1565,6 +1566,7 @@ module.exports = {
     ListShapeDefinitionsTool: ListShapeDefinitionsTool,
     ListShapesTool: ListShapesTool,
     extractEnumOptions: extractEnumOptions,
+    validatePropertyLiteral: validatePropertyLiteral,
     formatShapeProperties: formatShapeProperties,
     extractUsageGuidelines: extractUsageGuidelines
 };

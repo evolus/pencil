@@ -15,6 +15,7 @@ var path = require("path");
 var os = require("os");
 var BaseTool = require("./base-tool.js").BaseTool;
 var canvasHelper = require("./canvas-helper.js");
+var stencilTool = require("./stencil-tool.js");
 
 // Helper to resolve ApplicationPane
 function getAppPane() {
@@ -752,11 +753,31 @@ var HTML_EXPORTER_ID = "WebPageExporter";
 var HTML_TEMPLATE_TYPE = "HTML";
 var EXPORTED_FILE_LIST_LIMIT = 200;
 
+/*
+ * Same shape as a get_collection_settings entry, since both come from editable Property
+ * declarations with the same types and enum metadata.
+ */
+function describeTemplateOption(property) {
+    var option = {
+        name: property.name,
+        displayName: property.displayName,
+        type: property.type.name,
+        defaultValue: property.initialValue.toString()
+    };
+    var enumInfo = stencilTool.extractEnumOptions(property);
+    if (enumInfo) {
+        option.values = enumInfo.values;
+        if (enumInfo.options) option.options = enumInfo.options;
+    }
+    return option;
+}
+
 function describeExportTemplate(template) {
     var item = { id: template.id, name: template.name };
     if (template.description) item.description = template.description;
     if (template.author) item.author = template.author;
     item.source = template.userDefine ? "user" : "built-in";
+    item.options = template.editableProperties.map(describeTemplateOption);
     return item;
 }
 
@@ -764,7 +785,7 @@ function ListExportTemplatesTool() {
     BaseTool.call(
         this,
         "list_export_templates",
-        "Lists the HTML export templates installed in Pencil, built-in and user-installed. Pass a template 'id' to export_document_html. The built-in 'Evolus:HTML:ClickablePrototype.Template' turns shape page links (set with update_shape_links) into clickable areas; 'Evolus:HTML:Default.Template' lists all pages in one document.",
+        "Lists the HTML export templates installed in Pencil, built-in and user-installed, with the options each template accepts (name, type, defaultValue and allowed values). Pass a template 'id' and option values to export_document_html. Built-in templates: 'Evolus:HTML:SidebarPrototype.Template' is a click-through prototype with a page tree sidebar, clickable shape page links (set with update_shape_links) and, with option embedImages 'true' (the default), a single self-contained index.html; 'Evolus:HTML:ClickablePrototype.Template' also turns page links into clickable areas; 'Evolus:HTML:Default.Template' lists all pages in one document.",
         {}
     );
 }
@@ -790,12 +811,13 @@ function ExportDocumentHtmlTool() {
     BaseTool.call(
         this,
         "export_document_html",
-        "Exports the active document as an HTML site through an installed HTML export template, the same as the desktop Export dialog with the 'Single Web Page' exporter. Writes index.html, one PNG per page under pages/ and the template's support files into outputDir, and returns when the export has finished. With the clickable prototype template, shapes linked to pages become clickable areas, so this is the delivery step for click-through prototypes. Use export_page for a single PNG, SVG or PDF.",
+        "Exports the active document as an HTML site through an installed HTML export template, the same as the desktop Export dialog with the 'Single Web Page' exporter. Writes index.html, one PNG per page under pages/ and the template's support files into outputDir, or only index.html with everything inlined when the template option embedImages is 'true'. Returns when the export has finished. With the sidebar or clickable prototype template, shapes linked to pages become clickable areas, so this is the delivery step for click-through prototypes. Use export_page for a single PNG, SVG or PDF.",
         {
             templateId: z.string().describe("Template ID from list_export_templates."),
             outputDir: z.string().describe("Absolute path of the output directory. Created when missing; must be empty unless overwrite is true."),
             pageIds: z.array(z.string()).min(1).optional().describe("IDs of the pages to export. Defaults to all pages. Pages are always written in document tree order."),
-            overwrite: z.boolean().optional().default(false).describe("Allow exporting into a non-empty outputDir. The export replaces index.html, pages/*.png and the template's support files and leaves other files in place.")
+            options: z.record(z.string()).optional().describe("Template option values by option name, as listed for the template by list_export_templates (e.g. { \"embedImages\": \"false\" }). Values are strings. Omitted options use the template default."),
+            overwrite: z.boolean().optional().default(false).describe("Allow exporting into a non-empty outputDir. The export replaces the files it writes (index.html, and without embedding also pages/*.png and the template's support files) and leaves other files in place.")
         }
     );
 }
@@ -864,6 +886,34 @@ ExportDocumentHtmlTool.prototype._prepareOutputDir = function (outputDirArg, ove
     return { outputDir: outputDir, existingCount: existingCount };
 };
 
+/*
+ * Returns a value for every declared option, as the Export dialog does, so an MCP export and a
+ * desktop export with the same choices pass the same options to the exporter.
+ */
+ExportDocumentHtmlTool.prototype._resolveTemplateOptions = function (template, givenOptions) {
+    var given = givenOptions || {};
+    var errors = [];
+    Object.keys(given).forEach(function (name) {
+        var property = template.findEditableProperty(name);
+        if (!property) {
+            errors.push("Unknown option '" + name + "'.");
+            return;
+        }
+        var error = stencilTool.validatePropertyLiteral(property, given[name]);
+        if (error) errors.push("Option '" + name + "': " + error);
+    });
+    if (errors.length > 0) {
+        var declared = template.editableProperties.map(function (p) { return p.name; });
+        throw new Error("Invalid options for template '" + template.id + "'. " + errors.join(" ") + " Declared options: " + (declared.length > 0 ? declared.join(", ") : "none") + ".");
+    }
+
+    var resolved = {};
+    template.editableProperties.forEach(function (property) {
+        resolved[property.name] = property.name in given ? given[property.name] : property.initialValue.toString();
+    });
+    return resolved;
+};
+
 ExportDocumentHtmlTool.prototype._resolvePages = function (controller, pageIds) {
     var pages = pagesInExportOrder(controller);
     if (!pageIds) return pages;
@@ -883,6 +933,7 @@ ExportDocumentHtmlTool.prototype.execute = async function (args, context) {
     }
 
     var template = this._resolveTemplate(args.templateId);
+    var templateOptions = this._resolveTemplateOptions(template, args.options);
     var pages = this._resolvePages(controller, args.pageIds);
     var target = this._prepareOutputDir(args.outputDir, args.overwrite);
 
@@ -891,7 +942,7 @@ ExportDocumentHtmlTool.prototype.execute = async function (args, context) {
         exporterId: HTML_EXPORTER_ID,
         templateId: template.id,
         targetPath: target.outputDir,
-        options: { copyBGLinks: true }
+        options: Object.assign({ copyBGLinks: true }, templateOptions)
     };
     await new Promise(function (resolve, reject) {
         Pencil.documentExportManager.exportDocumentWithParams(controller.doc, null, params, function (error) {
@@ -908,6 +959,7 @@ ExportDocumentHtmlTool.prototype.execute = async function (args, context) {
         outputDir: target.outputDir,
         entryFile: WebPageExporter.HTML_FILE,
         templateId: template.id,
+        options: templateOptions,
         pageCount: pages.length,
         fileCount: files.length,
         files: files.slice(0, EXPORTED_FILE_LIST_LIMIT)

@@ -55,7 +55,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
             try {
                 fs.statSync(params.targetPath);
             } catch (e) {
-                fs.mkdirSync(params.targetPath);
+                fs.mkdirSync(params.targetPath, {recursive: true});
             }
         }
     }
@@ -63,9 +63,12 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
 
     var pagesDir = null;
 
+    if (!params.options) params.options = {};
+    params.options.bitmapScale = Rasterizer.getExportScale(params.options.bitmapScale);
+
     var requireRasterizedData = exporter.requireRasterizedData(params);
     if (requireRasterizedData) {
-        pagesDir = exporter.getRasterizedPageDestination(destFile);
+        pagesDir = exporter.getRasterizedPageDestination(destFile, params);
 
         if (!fsExistSync(pagesDir)) {
             fs.mkdirSync(pagesDir);
@@ -87,8 +90,6 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
 
     var thiz = this;
     var starter = null;
-    if (!params.options) params.options = {};
-    params.options.bitmapScale = Rasterizer.getExportScale(params.options.bitmapScale);
 
     var pageExtraInfos = {};
     
@@ -133,10 +134,35 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                     objectsWithLinking: data.objectsWithLinking
                 };
                 next();
-            }, params.bitmapScale, "parseLinks", {linksOnly: true});
+            }, params.options.bitmapScale, "parseLinks", {linksOnly: true});
         })();
     };
-    
+
+    var failExport = function (listener, error) {
+        listener.onTaskDone();
+        Util.error(Util.getMessage("error.title"), error.message, Util.getMessage("button.cancel.close"));
+        done(error);
+    };
+
+    /*
+     * Runs inside asynchronous rasterizer callbacks, outside the starters' try blocks, so an
+     * exporter error must be caught here or the progress dialog and the caller's completion
+     * callback would wait forever.
+     */
+    var exportXML = function (listener, onExported) {
+        try {
+            listener.onProgressUpdated("Generating PDF...", pages.length, pages.length);
+            thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
+                listener.onTaskDone();
+                onExported();
+                done(null);
+            });
+        } catch (e) {
+            console.error(e);
+            failExport(listener, e);
+        }
+    };
+
     if (requireRasterizedData) {
         starter = function (listener) {
             var rasterizeNext = function () {
@@ -144,13 +170,10 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                     pageIndex ++;
                     if (pageIndex >= pages.length) {
                         processMissingBackgroundLinks(function () {
-                            listener.onProgressUpdated("Generating PDF...", pages.length, pages.length);
-                            thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
-                                listener.onTaskDone();
+                            exportXML(listener, function () {
                                 NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
                                     shell.openPath(destFile);
                                 });
-                                done(null);
                             });
                         })
                         return;
@@ -176,11 +199,9 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                     Pencil.rasterizer.rasterizePageToFile(page, pagePath, function (data) {
                         pageExtraInfo.objectsWithLinking = data.objectsWithLinking;
                         window.setTimeout(rasterizeNext, 100);
-                    }, params.bitmapScale, "parseLinks");
+                    }, params.options.bitmapScale, "parseLinks");
                 } catch (e2) {
-                    listener.onTaskDone();
-                    Util.error(Util.getMessage("error.title"), e2.message, Util.getMessage("button.cancel.close"));
-                    done(e2);
+                    failExport(listener, e2);
                     throw e2;
                 }
             };
@@ -190,9 +211,7 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
         starter = function (listener) {
             try {
                 processMissingBackgroundLinks(function () {
-                    listener.onProgressUpdated("Generating PDF...", pages.length, pages.length);
-                    thiz._exportDocumentToXML(doc, pages, pageExtraInfos, destFile, params, function () {
-                        listener.onTaskDone();
+                    exportXML(listener, function () {
                         if (destFile) {
                             NotificationPopup.show(Util.getMessage("document.has.been.exported", destFile), "View", function () {
                                 shell.openPath(destFile);
@@ -200,13 +219,10 @@ DocumentExportManager.prototype._exportDocumentWithParamsImpl = function (doc, f
                         } else {
                             NotificationPopup.show("Document has been exported.");
                         }
-                        done(null);
                     });
                 }, listener)
             } catch (ex) {
-                listener.onTaskDone();
-                Util.error(Util.getMessage("error.title"), ex.message, Util.getMessage("button.cancel.close"));
-                done(ex);
+                failExport(listener, ex);
             }
         };
     }
@@ -419,7 +435,7 @@ DocumentExportManager.prototype._exportDocumentToXML = function (doc, pages, pag
     var exporter = Pencil.getDocumentExporterById(exportSelection.exporterId);
 
     try {
-        exporter.export(this.doc, exportSelection, destFile, xmlFile.name, function () {
+        exporter.export(doc, exportSelection, destFile, xmlFile.name, function () {
             console.log("xmlFile:" + xmlFile.name);
             //xmlFile.removeCallback();
             callback();
