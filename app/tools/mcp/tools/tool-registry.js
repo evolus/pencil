@@ -15,6 +15,7 @@ var kbTool = require("./kb-tool.js");
 var stencilTool = require("./stencil-tool.js");
 var documentTool = require("./document-tool.js");
 var editingTool = require("./editing-tool.js");
+var devTool = require("./dev-tool.js");
 var AgentFeedback = (typeof window !== "undefined" && window.AgentFeedback) ||
                     (typeof global !== "undefined" && global.AgentFeedback) ||
                     require("../../../pencil-core/common/AgentFeedbackManager.js");
@@ -155,6 +156,11 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new editingTool.DistributeShapesTool());
     registry.register(new editingTool.MoveShapesTool());
     registry.register(new editingTool.ShiftLayoutTool());
+
+    // 5. Developer Collection Tools
+    registry.register(new devTool.RegisterDeveloperCollectionBatchDirTool());
+    registry.register(new devTool.ReloadDeveloperCollectionsTool());
+    registry.register(new devTool.ListDeveloperCollectionsTool());
 
     return registry;
 };
