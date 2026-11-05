@@ -300,7 +300,14 @@
     /*
      * Subscribe to config-change notifications broadcast by Config.set()
      * to react dynamically when pencil.mcp.enabled changes elsewhere.
+     *
+     * Collection settings are written through Config.set by the desktop
+     * Collection Settings dialog, CollectionSettingEditor and the MCP
+     * update_collection_settings tool. MCP caches shortcut styles with those
+     * settings already evaluated, so the collection's entries are dropped on
+     * every such write. PencilMcpServer is absent when the MCP module failed to mount.
      */
+    var COLLECTION_SETTING_CONFIG_NAME = /^Collection\.(.+)\.properties\.[^.]+$/;
     if (typeof window !== "undefined") {
         var attachBusListener = function () {
             if (window.globalEventBus) {
@@ -312,6 +319,11 @@
                         } else {
                             PencilApiServer.stop();
                         }
+                        return;
+                    }
+                    var collectionSetting = COLLECTION_SETTING_CONFIG_NAME.exec(data.name);
+                    if (collectionSetting && window.PencilMcpServer) {
+                        window.PencilMcpServer.clearShortcutStyleCacheForCollection(collectionSetting[1]);
                     }
                 });
             } else {

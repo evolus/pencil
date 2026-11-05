@@ -26,6 +26,17 @@ function clearShortcutStyleCache() {
 }
 
 /*
+ * Compiled shortcut styles bake in evaluated collection tokens ($$name), so they
+ * go stale when that collection's settings change. Other collections keep theirs.
+ */
+function clearShortcutStyleCacheForCollection(collectionId) {
+    var prefix = "@" + collectionId + "/";
+    for (var key in shortcutStyleCache) {
+        if (key.indexOf(prefix) === 0) delete shortcutStyleCache[key];
+    }
+}
+
+/*
  * Parses a style identifier to determine if it targets a collection shortcut.
  * Valid syntax: "@<collectionId>/<shortcut_id>" (e.g. "@Evolus.Common/Heading 1").
  * Returns null if the identifier is not a shortcut style pattern.
@@ -991,6 +1002,7 @@ module.exports = {
     commitDocumentStyles: commitDocumentStyles,
     parseShortcutStyleIdentifier: parseShortcutStyleIdentifier,
     getOrBuildShortcutStyle: getOrBuildShortcutStyle,
-    clearShortcutStyleCache: clearShortcutStyleCache
+    clearShortcutStyleCache: clearShortcutStyleCache,
+    clearShortcutStyleCacheForCollection: clearShortcutStyleCacheForCollection
 };
 

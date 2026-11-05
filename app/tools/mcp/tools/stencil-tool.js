@@ -14,6 +14,7 @@ var path = require("path");
 var z = require("zod").z;
 var BaseTool = require("./base-tool.js").BaseTool;
 var iconSynonyms = require("./icon-synonyms.js");
+var validatePropertyValueFormat = require("./editing-validator.js").validatePropertyValueFormat;
 
 // =============================================================================
 // Helper Functions for Shortcuts & Usage Guidelines
@@ -1381,9 +1382,183 @@ function ListShapesTool() {
 ListShapesTool.prototype = Object.create(ListShapeDefinitionsTool.prototype);
 ListShapesTool.prototype.constructor = ListShapesTool;
 
+/* =============================================================================
+ * Tools: get_collection_settings & update_collection_settings
+ * ============================================================================= */
+
+/*
+ * Settings are only reachable for collections the user exposed to MCP. The
+ * mcpVisible flag itself is left out of both tools on purpose: it stays a
+ * desktop-only decision (Task 033).
+ */
+function findMcpVisibleCollection(collectionId) {
+    var collection = CollectionManager.findCollection(collectionId);
+    if (!collection) {
+        throw new Error("Collection '" + collectionId + "' not found. Call list_collections to discover valid IDs.");
+    }
+    if (!CollectionManager.isCollectionMcpVisible(collection)) {
+        throw new Error("Collection '" + collectionId + "' is not exposed to MCP agents. Call list_collections to discover available collections.");
+    }
+    return collection;
+}
+
+function formatCollectionSetting(property) {
+    var setting = summarizeCollectionSetting(property);
+    setting.displayName = property.displayName;
+    setting.type = property.type.name;
+    var enumInfo = extractEnumOptions(property);
+    if (enumInfo) {
+        setting.values = enumInfo.values;
+        if (enumInfo.options) setting.options = enumInfo.options;
+    }
+    return setting;
+}
+
+/*
+ * The caller already knows the setting's type and allowed values from
+ * get_collection_settings, so an update only reports the resulting state.
+ */
+function summarizeCollectionSetting(property) {
+    var value = property.value.toString();
+    var defaultValue = property.initialValue.toString();
+    return {
+        name: property.name,
+        value: value,
+        defaultValue: defaultValue,
+        isCustomized: value !== defaultValue
+    };
+}
+
+/*
+ * Font, Color, StrokeStyle and ShadowStyle literals go through the same
+ * parser-derived grammar as shape properties in insert_shapes, so a value
+ * that would silently become a default object cannot reach Config.
+ */
+function validateCollectionSettingValue(property, literal) {
+    var enumInfo = extractEnumOptions(property);
+    if (enumInfo) {
+        return enumInfo.values.indexOf(literal) >= 0 ? null : "Invalid value '" + literal + "'. Expected one of: " + enumInfo.values.join(", ") + ".";
+    }
+    return validatePropertyValueFormat(property, property.name, literal);
+}
+
+/*
+ * Mirrors the Apply action of CollectionSettingDialog so values written here
+ * show up in the dialog and survive restart. Reset stores the default literal,
+ * like the dialog's Restore Default, instead of removing the Config key.
+ */
+function writeCollectionSetting(collection, property, value) {
+    var configName = ShapeDefCollectionParser.getCollectionPropertyConfigName(collection.id, property.name);
+    Config.set(configName, value.toString());
+    property.value = value;
+}
+
+function GetCollectionSettingsTool() {
+    BaseTool.call(
+        this,
+        "get_collection_settings",
+        "Returns the collection-level settings of a stencil collection (the values users edit in the desktop Collection Settings dialog), grouped as in the dialog. Shapes and shortcut styles reference these settings as theme tokens (e.g. default fonts and colors), so they set the look of shapes inserted from the collection. Each setting has name, displayName, type, current value, defaultValue from the stencil, isCustomized and, for enums, values/options. Change them with update_collection_settings.",
+        {
+            collectionId: z.string().describe("The collection ID (e.g. 'Evolus.BasicWebElements'). Call list_collections to discover IDs.")
+        }
+    );
+}
+GetCollectionSettingsTool.prototype = new BaseTool();
+
+GetCollectionSettingsTool.prototype.execute = async function (args) {
+    var collection = findMcpVisibleCollection(args.collectionId);
+    var groups = collection.propertyGroups.map(function (group) {
+        return {
+            name: group.name,
+            properties: group.properties.map(formatCollectionSetting)
+        };
+    });
+    return {
+        content: [{
+            type: "text",
+            text: JSON.stringify({
+                collectionId: collection.id,
+                displayName: collection.displayName,
+                groups: groups
+            }, null, 2)
+        }]
+    };
+};
+
+function UpdateCollectionSettingsTool() {
+    BaseTool.call(
+        this,
+        "update_collection_settings",
+        "Changes collection-level settings (theme tokens such as default fonts and colors) of a stencil collection, the same values the desktop Collection Settings dialog edits. Use it to align a collection's theme with a design brief before inserting shapes; for one-off looks, pass properties or styles to insert_shapes instead. Every value is validated against its property type first; one invalid value rejects the whole call and nothing is changed. Changes persist across restarts. Shapes already on the canvas keep their current look; only shapes inserted afterwards, shape defaults and '@collectionId/shortcut' system styles use the new values.",
+        {
+            collectionId: z.string().describe("The collection ID (e.g. 'Evolus.BasicWebElements')."),
+            values: z.record(z.string()).optional().describe("New values keyed by setting name, in the setting type's string format (e.g. { 'defaultTextColor': '#1f2937ff', 'defaultH1Font': 'Inter|bold|normal|28px|none|1.2' }). Call get_collection_settings for names, types and current values."),
+            reset: z.array(z.string()).optional().describe("Setting names to restore to the stencil's default value. A name cannot appear in both 'values' and 'reset'.")
+        }
+    );
+}
+UpdateCollectionSettingsTool.prototype = new BaseTool();
+
+UpdateCollectionSettingsTool.prototype.execute = async function (args) {
+    var collection = findMcpVisibleCollection(args.collectionId);
+    var values = args.values || {};
+    var reset = args.reset || [];
+    var valueNames = Object.keys(values);
+
+    if (valueNames.length === 0 && reset.length === 0) {
+        throw new Error("Nothing to update: provide 'values', 'reset' or both.");
+    }
+
+    var errors = [];
+    valueNames.concat(reset).forEach(function (name) {
+        if (!collection.properties[name]) {
+            errors.push(name + ": unknown setting. Valid settings: " + Object.keys(collection.properties).join(", ") + ".");
+        }
+    });
+    reset.forEach(function (name) {
+        if (values.hasOwnProperty(name)) {
+            errors.push(name + ": appears in both 'values' and 'reset'.");
+        }
+    });
+    valueNames.forEach(function (name) {
+        var property = collection.properties[name];
+        if (!property) return;
+        var error = validateCollectionSettingValue(property, values[name]);
+        if (error) errors.push(name + ": " + error);
+    });
+    if (errors.length > 0) {
+        throw new Error("No settings were changed in collection '" + collection.id + "':\n- " + errors.join("\n- "));
+    }
+
+    valueNames.forEach(function (name) {
+        var property = collection.properties[name];
+        writeCollectionSetting(collection, property, property.type.fromString(values[name]));
+    });
+    reset.forEach(function (name) {
+        var property = collection.properties[name];
+        writeCollectionSetting(collection, property, property.initialValue);
+    });
+
+    return {
+        content: [{
+            type: "text",
+            text: JSON.stringify({
+                collectionId: collection.id,
+                changed: valueNames.concat(reset).map(function (name) {
+                    return summarizeCollectionSetting(collection.properties[name]);
+                }),
+                existingShapesUpdated: false,
+                note: "Shapes already on the canvas keep their stored property values. New values apply to shapes inserted from now on, to defaults reported by get_shape_definition and list_shapes, and to '@" + collection.id + "/...' system styles."
+            }, null, 2)
+        }]
+    };
+};
+
 module.exports = {
     ListCollectionsTool: ListCollectionsTool,
     GetShapeDefinitionTool: GetShapeDefinitionTool,
+    GetCollectionSettingsTool: GetCollectionSettingsTool,
+    UpdateCollectionSettingsTool: UpdateCollectionSettingsTool,
     ListResourceCollectionsTool: ListResourceCollectionsTool,
     ListResourceDirTool: ListResourceDirTool,
     SearchResourcesTool: SearchResourcesTool,

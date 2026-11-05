@@ -347,6 +347,40 @@ function extractBoxDimension(raw) {
 }
 
 /*
+ * Font, Color, StrokeStyle and ShadowStyle parsers never reject input: a
+ * literal that none of their REG_EX patterns match silently becomes a default
+ * object. Checking against those same patterns accepts a literal exactly when
+ * the parser reads it. Color.fromString also takes the bare keyword
+ * "transparent" (case-sensitive) outside its patterns. Shape properties
+ * (insert_shapes, update_shapes) and collection settings share this grammar.
+ */
+function getLiteralGrammar(typeName) {
+    switch (typeName) {
+        case "Font":
+            return {
+                patterns: [Font.REG_EX, Font.REG_EX_2, Font.REG_EX_3],
+                expected: "'family|weight|style|size[|decor[|lineHeight]]' with an integer size and CSS unit (e.g. 'Roboto|bold|normal|24px' or 'Roboto|normal|normal|14px|none|1.2')"
+            };
+        case "Color":
+            return {
+                patterns: [Color.REG_EX, Color.REG_EX_NO_ALPHA, Color.REG_EX_RGB, Color.REG_EX_RGBA, /^transparent$/],
+                expected: "'#RRGGBB', '#RRGGBBAA', 'rgb(r, g, b)', 'rgba(r, g, b, a)' or 'transparent'"
+            };
+        case "StrokeStyle":
+            return {
+                patterns: [StrokeStyle.REG_EX],
+                expected: "'width|dasharray' with an integer width and integer dashes (e.g. '1|' for solid, '2|5,3' for dashed)"
+            };
+        case "ShadowStyle":
+            return {
+                patterns: [ShadowStyle.REG_EX],
+                expected: "'dx|dy|size[|opacity[|color]]' (e.g. '0|2|4|0.3|#000000')"
+            };
+    }
+    return null;
+}
+
+/*
  * Validates property values against engine microformat specifications.
  * Returns null if valid, or a descriptive error string if invalid.
  */
@@ -370,15 +404,14 @@ function validatePropertyValueFormat(pdef, propKey, propVal) {
             }
             break;
 
+        case "Font":
         case "Color":
-            if (typeof propVal !== "string") {
-                return "Invalid Color value type '" + typeof propVal + "'. Expected string hex (e.g. '#2563ebff').";
-            }
-            var isHex = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(strVal);
-            var isRgb = /^rgba?\([^)]+\)$/i.test(strVal);
-            var isTransparent = strVal.toLowerCase() === "transparent";
-            if (!isHex && !isRgb && !isTransparent) {
-                return "Invalid Color format '" + strVal + "'. Expected 6 or 8-digit hex code ('#RRGGBB' or '#RRGGBBAA') or 'transparent'.";
+        case "StrokeStyle":
+        case "ShadowStyle":
+            var grammar = getLiteralGrammar(typeName);
+            var matches = grammar.patterns.some(function (pattern) { return pattern.test(strVal); });
+            if (!matches) {
+                return "Invalid " + typeName + " '" + strVal + "'. Expected " + grammar.expected + ".";
             }
             break;
 
@@ -400,19 +433,6 @@ function validatePropertyValueFormat(pdef, propKey, propVal) {
             }
             break;
 
-        case "StrokeStyle":
-            if (!/^\d+(?:\.\d+)?\|[0-9,.]*$/.test(strVal)) {
-                return "Invalid StrokeStyle format '" + strVal + "'. Expected '[width]|[dash_pattern]' (e.g. '1|' for solid or '2|5,5' for dashed).";
-            }
-            break;
-
-        case "Font":
-            var parts = strVal.split("|");
-            if (parts.length !== 6) {
-                return "Invalid Font format '" + strVal + "'. Expected 6 pipe-delimited segments '[family]|[weight]|[style]|[size]|[decor]|[lh]' (e.g. 'FiraSans|normal|normal|14px|none|1.2').";
-            }
-            break;
-
         case "Handle":
         case "Point":
             if (!/^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?$/.test(strVal)) {
@@ -431,42 +451,33 @@ function validatePropertyValueFormat(pdef, propKey, propVal) {
 }
 
 /*
- * Scans loaded stencil collections to find close matching shape candidates
- * when an unknown shape type is requested by an external client.
+ * Suggests insertable shape types for an unknown type. Only MCP-visible
+ * collections are searched, since insert_shapes rejects the others. The
+ * collection's shapeDefMap is used rather than shapeDefs because shapeDefs
+ * also holds Shortcut entries, whose "system:ref:..." ids are not shape types.
  */
-function findCandidateShapeTypes(queryType, appPane) {
-    var candidates = [];
-    if (!queryType || typeof queryType !== "string") return candidates;
-
-    var cleanQuery = queryType.toLowerCase().trim();
-    if (cleanQuery.indexOf(":") >= 0) {
-        cleanQuery = cleanQuery.substring(cleanQuery.indexOf(":") + 1);
+function findCandidateShapeTypes(queryType) {
+    var query = queryType.toLowerCase().trim();
+    if (query.indexOf(":") >= 0) {
+        query = query.substring(query.indexOf(":") + 1);
     }
 
-    var colMgr = (typeof CollectionManager !== "undefined") ? CollectionManager : null;
-    if (colMgr && colMgr.shapeDefinition && Array.isArray(colMgr.shapeDefinition.collections)) {
-        for (var c = 0; c < colMgr.shapeDefinition.collections.length; c++) {
-            var col = colMgr.shapeDefinition.collections[c];
-            if (!col || !col.shapeDefs) continue;
-            for (var sId in col.shapeDefs) {
-                if (!col.shapeDefs.hasOwnProperty(sId)) continue;
-                var def = col.shapeDefs[sId];
-                if (!def) continue;
-
-                var defFullId = def.id || (col.id + ":" + sId);
-                var defLocalId = def.id ? (def.id.indexOf(":") >= 0 ? def.id.substring(def.id.indexOf(":") + 1) : def.id) : sId;
-                var defName = def.displayName ? def.displayName.toLowerCase() : "";
-
-                if (defLocalId.toLowerCase() === cleanQuery || defLocalId.toLowerCase().indexOf(cleanQuery) >= 0 || defName.indexOf(cleanQuery) >= 0) {
-                    if (candidates.indexOf(defFullId) === -1) {
-                        candidates.push(defFullId);
-                        if (candidates.length >= 5) return candidates;
-                    }
-                }
+    var colMgr = getCollectionManager();
+    var collections = colMgr.shapeDefinition.collections;
+    var candidates = [];
+    for (var c = 0; c < collections.length; c++) {
+        var col = collections[c];
+        if (!colMgr.isCollectionMcpVisible(col)) continue;
+        for (var defId in col.shapeDefMap) {
+            var def = col.shapeDefMap[defId];
+            var localId = defId.substring(defId.indexOf(":") + 1).toLowerCase();
+            var name = (def.displayName || "").toLowerCase();
+            if (localId.indexOf(query) >= 0 || name.indexOf(query) >= 0) {
+                candidates.push(defId);
+                if (candidates.length >= 5) return candidates;
             }
         }
     }
-
     return candidates;
 }
 
@@ -777,8 +788,8 @@ function validateAndNormalizeInsertElements(elements, appPane, options) {
                 }
 
                 if (!shapeDef) {
-                    var candidates = findCandidateShapeTypes(child.type, appPane);
-                    var candidateMsg = candidates.length > 0 ? " Candidate suggestions: " + candidates.join(", ") : " Use 'list_collections' or 'get_shape_definition' to discover valid shape types.";
+                    var candidates = findCandidateShapeTypes(child.type);
+                    var candidateMsg = candidates.length > 0 ? " Candidate suggestions: " + candidates.join(", ") : " Use 'list_collections' or 'list_shape_definitions' to discover valid shape types.";
                     errors.push(currentPath + identifier + ": unknown shape type '" + child.type + "'. Stencil definition could not be located." + candidateMsg);
                     continue;
                 }

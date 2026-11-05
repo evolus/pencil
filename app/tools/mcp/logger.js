@@ -48,10 +48,40 @@ McpLogger.prototype._format = function (levelName, message, meta) {
                  message;
 
     if (meta && Object.keys(meta).length > 0) {
-        logStr += COLORS.GRAY + " | " + JSON.stringify(meta) + COLORS.RESET;
+        logStr += COLORS.GRAY + " | " + stringifyMeta(meta) + COLORS.RESET;
     }
     return logStr;
 };
+
+var MAX_LOGGED_STRING_LENGTH = 300;
+
+/*
+ * Tool arguments are annotated in place during execution (for example
+ * insert_shapes stores the live ShapeDef as `_resolvedShapeDef`, whose
+ * collection links back to it). A log line must never throw, because the
+ * logger runs inside error handlers and its exception would replace the
+ * tool error the agent needs to see. Internal `_` keys, repeated references
+ * and long strings (data URIs, SVG) are dropped or shortened to keep lines small.
+ */
+function stringifyMeta(meta) {
+    var seen = new WeakSet();
+    try {
+        return JSON.stringify(meta, function (key, value) {
+            if (key.charAt(0) === "_") return undefined;
+            if (typeof value === "string" && value.length > MAX_LOGGED_STRING_LENGTH) {
+                return value.substring(0, MAX_LOGGED_STRING_LENGTH) + "...(" + value.length + " chars)";
+            }
+            if (typeof value === "bigint") return String(value);
+            if (value && typeof value === "object") {
+                if (seen.has(value)) return "[repeated]";
+                seen.add(value);
+            }
+            return value;
+        });
+    } catch (e) {
+        return "[unloggable metadata: " + e.message + "]";
+    }
+}
 
 McpLogger.prototype.debug = function (message, meta) {
     if (this.level <= LOG_LEVELS.DEBUG) {

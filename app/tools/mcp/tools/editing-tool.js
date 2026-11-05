@@ -167,6 +167,15 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
     var notFound = [];
     var geometryModified = false;
 
+    /*
+     * Targets are resolved and property literals checked against each target's
+     * stencil definition before anything is changed. The undo memento is saved
+     * once at the end, so failing halfway through would leave changes on the
+     * canvas that the user cannot undo as one step.
+     */
+    var resolvedTargets = [];
+    var propertyErrors = [];
+
     for (var i = 0; i < shapeUpdates.length; i++) {
         var update = shapeUpdates[i];
         if (!update) continue;
@@ -220,120 +229,143 @@ UpdateShapesTool.prototype.execute = async function (args, context) {
                 continue;
             }
 
-            // 1. Update properties
-            if (update.properties && typeof update.properties === "object") {
-                for (var propName in update.properties) {
-                    if (!update.properties.hasOwnProperty(propName)) continue;
-                    var rawVal = update.properties[propName];
-
-                    if (shape.def && typeof shape.def.getProperty === "function") {
-                        var pdef = shape.def.getProperty(propName);
-                        if (pdef && pdef.type && typeof pdef.type.fromString === "function") {
-                            var parsedVal = pdef.type.fromString(String(rawVal));
-
-                            if (pdef.type.performIntialProcessing) {
-                                let newVal = pdef.type.performIntialProcessing(parsedVal, shape.def);
-                                if (newVal) parsedVal = newVal;
-                            }
-
-                            shape.setProperty(propName, parsedVal);
-                        } else if (typeof shape.setProperty === "function") {
-                            shape.setProperty(propName, rawVal);
-                        }
-                    } else if (typeof shape.setProperty === "function") {
-                        shape.setProperty(propName, rawVal);
+            if (update.properties && shape.def) {
+                for (var checkName in update.properties) {
+                    var checkDef = shape.def.getProperty(checkName);
+                    if (!checkDef) continue;
+                    var formatErr = editingValidator.validatePropertyValueFormat(checkDef, checkName, update.properties[checkName]);
+                    if (formatErr) {
+                        propertyErrors.push("shapes[" + i + "] (" + targetShapeId + ").properties." + checkName + ": " + formatErr);
                     }
                 }
             }
 
-            // 2. Update dimensions (w, h)
-            if (update.box) {
-                if (update.box.w !== undefined || update.box.h !== undefined) {
-                    var curGeo = typeof shape.getGeometry === "function" ? shape.getGeometry() : null;
-                    var curW = (curGeo && curGeo.dim && curGeo.dim.w) ? curGeo.dim.w : undefined;
-                    var curH = (curGeo && curGeo.dim && curGeo.dim.h) ? curGeo.dim.h : undefined;
+            resolvedTargets.push({ update: update, shapeId: targetShapeId, svgNode: svgNode, shape: shape });
+        }
+    }
 
-                    if (curW === undefined || curH === undefined) {
-                        var curPropBox = typeof shape.getProperty === "function" ? shape.getProperty("box") : null;
-                        if (typeof curPropBox === "string") {
-                            curPropBox = Dimension.fromString(curPropBox);
+    if (propertyErrors.length > 0) {
+        throw new Error("Validation failed for update_shapes (" + propertyErrors.length + " error" + (propertyErrors.length > 1 ? "s" : "") + "), no shapes were changed:\n" + propertyErrors.map(function (e) { return "  - " + e; }).join("\n"));
+    }
+
+    for (var rIdx = 0; rIdx < resolvedTargets.length; rIdx++) {
+        var update = resolvedTargets[rIdx].update;
+        var targetShapeId = resolvedTargets[rIdx].shapeId;
+        var svgNode = resolvedTargets[rIdx].svgNode;
+        var shape = resolvedTargets[rIdx].shape;
+        // 1. Update properties
+        if (update.properties && typeof update.properties === "object") {
+            for (var propName in update.properties) {
+                if (!update.properties.hasOwnProperty(propName)) continue;
+                var rawVal = update.properties[propName];
+
+                if (shape.def && typeof shape.def.getProperty === "function") {
+                    var pdef = shape.def.getProperty(propName);
+                    if (pdef && pdef.type && typeof pdef.type.fromString === "function") {
+                        var parsedVal = pdef.type.fromString(String(rawVal));
+
+                        if (pdef.type.performIntialProcessing) {
+                            let newVal = pdef.type.performIntialProcessing(parsedVal, shape.def);
+                            if (newVal) parsedVal = newVal;
                         }
-                        if (curPropBox) {
-                            if (curW === undefined) curW = curPropBox.w;
-                            if (curH === undefined) curH = curPropBox.h;
-                        }
+
+                        shape.setProperty(propName, parsedVal);
+                    } else if (typeof shape.setProperty === "function") {
+                        shape.setProperty(propName, rawVal);
                     }
+                } else if (typeof shape.setProperty === "function") {
+                    shape.setProperty(propName, rawVal);
+                }
+            }
+        }
 
-                    var newW = update.box.w !== undefined ? Number(update.box.w) : curW;
-                    var newH = update.box.h !== undefined ? Number(update.box.h) : curH;
+        // 2. Update dimensions (w, h)
+        if (update.box) {
+            if (update.box.w !== undefined || update.box.h !== undefined) {
+                var curGeo = typeof shape.getGeometry === "function" ? shape.getGeometry() : null;
+                var curW = (curGeo && curGeo.dim && curGeo.dim.w) ? curGeo.dim.w : undefined;
+                var curH = (curGeo && curGeo.dim && curGeo.dim.h) ? curGeo.dim.h : undefined;
 
-                    if (newW !== undefined && newH !== undefined && !isNaN(newW) && !isNaN(newH) && newW > 0 && newH > 0) {
-                        if (typeof shape.scaleTo === "function") {
-                            shape.scaleTo(newW, newH);
-                        } else if (typeof Dimension !== "undefined" && typeof shape.setProperty === "function") {
-                            shape.setProperty("box", new Dimension(newW, newH));
-                        }
-                        geometryModified = true;
+                if (curW === undefined || curH === undefined) {
+                    var curPropBox = typeof shape.getProperty === "function" ? shape.getProperty("box") : null;
+                    if (typeof curPropBox === "string") {
+                        curPropBox = Dimension.fromString(curPropBox);
+                    }
+                    if (curPropBox) {
+                        if (curW === undefined) curW = curPropBox.w;
+                        if (curH === undefined) curH = curPropBox.h;
                     }
                 }
 
-                // 3. Update position (relative dx/dy or absolute x/y)
-                if (update.box.dx !== undefined || update.box.dy !== undefined || update.box.x !== undefined || update.box.y !== undefined) {
-                    var targetNode = (shape && shape.svg) || svgNode;
-                    var curTransform = targetNode.getAttribute("transform") || "";
-                    var curMatrix = canvasHelper.parseMatrix(curTransform);
+                var newW = update.box.w !== undefined ? Number(update.box.w) : curW;
+                var newH = update.box.h !== undefined ? Number(update.box.h) : curH;
 
-                    var finalX = curMatrix.e;
-                    var finalY = curMatrix.f;
-
-                    if (update.box.dx !== undefined || update.box.dy !== undefined) {
-                        finalX += (Number(update.box.dx) || 0);
-                        finalY += (Number(update.box.dy) || 0);
-                    } else {
-                        if (update.box.x !== undefined) finalX = Number(update.box.x);
-                        if (update.box.y !== undefined) finalY = Number(update.box.y);
-                    }
-
-                    if (typeof Svg !== "undefined" && typeof Svg.ensureCTM === "function") {
-                        Svg.ensureCTM(targetNode, { a: curMatrix.a, b: curMatrix.b, c: curMatrix.c, d: curMatrix.d, e: finalX, f: finalY });
-                    } else {
-                        targetNode.setAttribute("transform", "matrix(" + [curMatrix.a, curMatrix.b, curMatrix.c, curMatrix.d, finalX, finalY].join(",") + ")");
-                    }
-
-                    if (typeof shape.invalidateOutboundConnections === "function") {
-                        shape.invalidateOutboundConnections();
+                if (newW !== undefined && newH !== undefined && !isNaN(newW) && !isNaN(newH) && newW > 0 && newH > 0) {
+                    if (typeof shape.scaleTo === "function") {
+                        shape.scaleTo(newW, newH);
+                    } else if (typeof Dimension !== "undefined" && typeof shape.setProperty === "function") {
+                        shape.setProperty("box", new Dimension(newW, newH));
                     }
                     geometryModified = true;
                 }
             }
 
-            // 4. Update stacking order (zOrder)
-            if (update.zOrder) {
-                if (update.zOrder === "bringForward" && typeof shape.bringForward === "function") {
-                    shape.bringForward();
-                } else if (update.zOrder === "sendBackward" && typeof shape.sendBackward === "function") {
-                    shape.sendBackward();
-                } else if (update.zOrder === "bringToFront" && typeof shape.bringToFront === "function") {
-                    shape.bringToFront();
-                } else if (update.zOrder === "sendToBack" && typeof shape.sendToBack === "function") {
-                    shape.sendToBack();
+            // 3. Update position (relative dx/dy or absolute x/y)
+            if (update.box.dx !== undefined || update.box.dy !== undefined || update.box.x !== undefined || update.box.y !== undefined) {
+                var targetNode = (shape && shape.svg) || svgNode;
+                var curTransform = targetNode.getAttribute("transform") || "";
+                var curMatrix = canvasHelper.parseMatrix(curTransform);
+
+                var finalX = curMatrix.e;
+                var finalY = curMatrix.f;
+
+                if (update.box.dx !== undefined || update.box.dy !== undefined) {
+                    finalX += (Number(update.box.dx) || 0);
+                    finalY += (Number(update.box.dy) || 0);
+                } else {
+                    if (update.box.x !== undefined) finalX = Number(update.box.x);
+                    if (update.box.y !== undefined) finalY = Number(update.box.y);
                 }
-            }
 
-            updated.push(targetShapeId);
+                if (typeof Svg !== "undefined" && typeof Svg.ensureCTM === "function") {
+                    Svg.ensureCTM(targetNode, { a: curMatrix.a, b: curMatrix.b, c: curMatrix.c, d: curMatrix.d, e: finalX, f: finalY });
+                } else {
+                    targetNode.setAttribute("transform", "matrix(" + [curMatrix.a, curMatrix.b, curMatrix.c, curMatrix.d, finalX, finalY].join(",") + ")");
+                }
 
-            var updatedBox = null;
-            if (shape && typeof shape.getBoundingRect === "function") {
-                try {
-                    var r = shape.getBoundingRect();
-                    if (r) updatedBox = { x: r.x, y: r.y, w: r.width, h: r.height };
-                } catch (e) {}
+                if (typeof shape.invalidateOutboundConnections === "function") {
+                    shape.invalidateOutboundConnections();
+                }
+                geometryModified = true;
             }
-            updatedRecords.push({
-                id: targetShapeId,
-                box: updatedBox
-            });
         }
+
+        // 4. Update stacking order (zOrder)
+        if (update.zOrder) {
+            if (update.zOrder === "bringForward" && typeof shape.bringForward === "function") {
+                shape.bringForward();
+            } else if (update.zOrder === "sendBackward" && typeof shape.sendBackward === "function") {
+                shape.sendBackward();
+            } else if (update.zOrder === "bringToFront" && typeof shape.bringToFront === "function") {
+                shape.bringToFront();
+            } else if (update.zOrder === "sendToBack" && typeof shape.sendToBack === "function") {
+                shape.sendToBack();
+            }
+        }
+
+        updated.push(targetShapeId);
+
+        var updatedBox = null;
+        if (shape && typeof shape.getBoundingRect === "function") {
+            try {
+                var r = shape.getBoundingRect();
+                if (r) updatedBox = { x: r.x, y: r.y, w: r.width, h: r.height };
+            } catch (e) {}
+        }
+        updatedRecords.push({
+            id: targetShapeId,
+            box: updatedBox
+        });
     }
 
     /*
@@ -605,20 +637,6 @@ InsertShapesTool.prototype.execute = async function (args, context) {
                 await insertRecursive(child.children, targetX, targetY);
             } else {
                 var shapeDef = child._resolvedShapeDef;
-                if (!shapeDef) {
-                    if (typeof appPane.locateShapeDefinition === "function") {
-                        shapeDef = appPane.locateShapeDefinition(child.type);
-                    } else if (typeof CollectionManager !== "undefined" && CollectionManager.shapeDefinition) {
-                        shapeDef = CollectionManager.shapeDefinition.locateDefinition(child.type);
-                    }
-                }
-
-                if (!shapeDef) {
-                    if (context && context.logger) {
-                        context.logger.warn("Ignoring unknown shape type during insert: " + child.type);
-                    }
-                    continue;
-                }
 
                 var valueMap = {};
                 if (child.properties && typeof child.properties === "object") {

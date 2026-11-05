@@ -150,13 +150,8 @@ function measureElement(node, appPane) {
         if (node.properties && node.properties.box) {
             baseDim = extractDimension(node.properties.box);
         }
-        if (!baseDim && node._resolvedShapeDef) {
-            var boxProp = null;
-            if (typeof node._resolvedShapeDef.getProperty === "function") {
-                boxProp = node._resolvedShapeDef.getProperty("box");
-            } else if (node._resolvedShapeDef.propertyMap && node._resolvedShapeDef.propertyMap.box) {
-                boxProp = node._resolvedShapeDef.propertyMap.box;
-            }
+        if (!baseDim) {
+            var boxProp = node._resolvedShapeDef.getProperty("box");
             if (boxProp) {
                 baseDim = extractDimension(boxProp.defaultValue) ||
                           extractDimension(boxProp.initialValue) ||

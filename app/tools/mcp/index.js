@@ -93,7 +93,8 @@ module.exports = {
     McpSessionManager: McpSessionManager,
     McpHttpController: McpHttpController,
     McpLogger: McpLogger,
-    defaultLogger: defaultLogger
+    defaultLogger: defaultLogger,
+    clearShortcutStyleCacheForCollection: require("./tools/style-resolver.js").clearShortcutStyleCacheForCollection
 };
 
 if (typeof window !== "undefined") {

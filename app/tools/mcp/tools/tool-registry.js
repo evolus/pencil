@@ -132,6 +132,8 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new stencilTool.SearchResourcesTool());
     registry.register(new stencilTool.ListShapeDefinitionsTool());
     registry.register(new stencilTool.ListShapesTool());
+    registry.register(new stencilTool.GetCollectionSettingsTool());
+    registry.register(new stencilTool.UpdateCollectionSettingsTool());
 
     // 3. Document, Page & Canvas Realization Tools
     registry.register(new documentTool.GetActiveDocumentTool());
