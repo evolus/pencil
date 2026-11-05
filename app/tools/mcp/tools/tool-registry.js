@@ -156,6 +156,7 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new editingTool.DistributeShapesTool());
     registry.register(new editingTool.MoveShapesTool());
     registry.register(new editingTool.ShiftLayoutTool());
+    registry.register(new editingTool.UpdateShapeLinksTool());
 
     // 5. Developer Collection Tools
     registry.register(new devTool.RegisterDeveloperCollectionBatchDirTool());

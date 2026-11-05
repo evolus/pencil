@@ -981,6 +981,10 @@ FindShapesInCanvasTool.prototype.execute = async function (args, context) {
             if (s.text) {
                 item.text = s.text;
             }
+            if (s.linkTargetPageId) {
+                item.linkTargetPageId = s.linkTargetPageId;
+                item.linkTargetPageName = s.linkTargetPageName;
+            }
             if (includeProps) {
                 item.properties = s.properties || {};
             }
@@ -1424,6 +1428,175 @@ ShiftLayoutTool.prototype.execute = async function (args, context) {
     return await attachPreviewIfRequested(args, target, appPane, resultPayload);
 };
 
+// =============================================================================
+// Tool: update_shape_links
+// =============================================================================
+
+function UpdateShapeLinksTool() {
+    BaseTool.call(
+        this,
+        "update_shape_links",
+        "Sets or removes the page link on shapes and groups, the same as the desktop 'Link To' menu. In Pencil's HTML export a linked shape becomes a clickable area that opens the target page, which turns a multi-page design into a click-through prototype. Each entry targets one shape by 'shapeId' or by 'query' (must match exactly one shape) and names the target page by 'targetPageId' or 'targetPageName'; 'targetPageId: null' removes the link. A shape cannot link to the page it is on. All entries are validated before anything changes, so a call either applies every entry or none. get_page_content and find_shapes_in_canvas report current links as 'linkTargetPageId' and 'linkTargetPageName'.",
+        {
+            pageId: z.string().optional().describe("Page holding the shapes. Defaults to active page."),
+            pageIndex: z.number().int().optional().describe("0-based page index. Optional alternative to pageId."),
+            links: z.array(
+                z.object({
+                    shapeId: z.string().optional().describe("Engine UUID of the shape or group to link."),
+                    query: z.object({
+                        text: z.string().optional().describe("Substring to match in shape text, label, or content properties."),
+                        label: z.string().optional().describe("Substring to match in shape label property."),
+                        type: z.string().optional().describe("Stencil type identifier or suffix (e.g. 'Button').")
+                    }).optional().describe("Semantic query resolving exactly one shape. Alternative to shapeId."),
+                    targetPageId: z.string().nullable().optional().describe("ID of the page to link to, or null to remove the shape's link."),
+                    targetPageName: z.string().optional().describe("Exact name of the page to link to. Alternative to targetPageId; rejected when several pages share the name.")
+                })
+            ).min(1).describe("Link changes to apply.")
+        }
+    );
+}
+UpdateShapeLinksTool.prototype = new BaseTool();
+
+function describeDocumentPages(doc) {
+    return doc.pages.map(function (p) { return p.id + " ('" + p.name + "')"; }).join(", ");
+}
+
+function linkChangeStatus(previousPageId, nextPageId) {
+    if (previousPageId === nextPageId) return "unchanged";
+    if (!nextPageId) return "unlinked";
+    return previousPageId ? "relinked" : "linked";
+}
+
+UpdateShapeLinksTool.prototype._resolveSource = function (canvas, entry) {
+    if (entry.shapeId && entry.query) {
+        throw new Error("specify either shapeId or query, not both.");
+    }
+    var shapeId = entry.shapeId;
+    if (entry.query) {
+        var qResult = canvasHelper.findTargetShapeByQuery(canvas.drawingLayer, entry.query);
+        if (qResult.ambiguous) {
+            var candidateIds = qResult.matches.map(function (m) { return m.id; }).join(", ");
+            throw new Error("query " + JSON.stringify(entry.query) + " matched " + qResult.totalFound + " shapes (" + candidateIds + "). Use shapeId or a narrower query.");
+        }
+        if (!qResult.shape) {
+            throw new Error("query " + JSON.stringify(entry.query) + " matched no shape.");
+        }
+        shapeId = qResult.shape.id;
+    }
+    if (!shapeId) {
+        throw new Error("shapeId or query is required.");
+    }
+
+    var node = canvasHelper.findElementById(canvas.drawingLayer, shapeId);
+    if (!node) {
+        throw new Error("shape '" + shapeId + "' not found on this page.");
+    }
+    var controller = canvas.createControllerFor(node);
+    if (!(controller instanceof Shape || controller instanceof Group)) {
+        throw new Error("'" + shapeId + "' is not a shape or group.");
+    }
+    return controller;
+};
+
+UpdateShapeLinksTool.prototype._resolveTargetPage = function (controller, sourcePage, entry) {
+    var hasId = entry.targetPageId !== undefined;
+    var hasName = entry.targetPageName !== undefined;
+    if (hasId && hasName) {
+        throw new Error("specify either targetPageId or targetPageName, not both.");
+    }
+    if (!hasId && !hasName) {
+        throw new Error("targetPageId, targetPageName, or targetPageId: null (to remove the link) is required.");
+    }
+    if (entry.targetPageId === null) return null;
+
+    var page = null;
+    if (hasId) {
+        page = controller.findPageById(entry.targetPageId);
+        if (!page) {
+            throw new Error("page '" + entry.targetPageId + "' not found. Available pages: " + describeDocumentPages(controller.doc) + ".");
+        }
+    } else {
+        var named = controller.doc.pages.filter(function (p) { return p.name === entry.targetPageName; });
+        if (named.length === 0) {
+            throw new Error("no page named '" + entry.targetPageName + "'. Available pages: " + describeDocumentPages(controller.doc) + ".");
+        }
+        if (named.length > 1) {
+            throw new Error(named.length + " pages are named '" + entry.targetPageName + "' (" + named.map(function (p) { return p.id; }).join(", ") + "). Use targetPageId.");
+        }
+        page = named[0];
+    }
+
+    if (page === sourcePage) {
+        throw new Error("a shape cannot link to the page it is on ('" + page.name + "').");
+    }
+    return page;
+};
+
+UpdateShapeLinksTool.prototype.execute = async function (args, context) {
+    var appPane = canvasHelper.getApplicationPane();
+    var target = canvasHelper.resolveTargetPageAndCanvas(appPane, args.pageId, args.pageIndex);
+    var canvas = target.canvas;
+
+    var plan = [];
+    var errors = [];
+    for (var i = 0; i < args.links.length; i++) {
+        try {
+            plan.push({
+                shape: this._resolveSource(canvas, args.links[i]),
+                page: this._resolveTargetPage(target.controller, target.page, args.links[i])
+            });
+        } catch (err) {
+            errors.push("links[" + i + "]: " + err.message);
+        }
+    }
+    if (errors.length > 0) {
+        throw new Error("update_shape_links rejected, no links were changed (" + errors.length + " error" + (errors.length > 1 ? "s" : "") + "):\n" + errors.map(function (e) { return "  - " + e; }).join("\n"));
+    }
+
+    var results = plan.map(function (item) {
+        var previousPageId = item.shape.getMetadata("RelatedPage") || null;
+        var nextPageId = item.page ? item.page.id : null;
+        var status = linkChangeStatus(previousPageId, nextPageId);
+        /*
+         * Unlinking writes "" rather than removing the attribute, matching the desktop
+         * "Link To > Nothing" menu item; both the exporter and readPageLink treat "" as no link.
+         */
+        if (status !== "unchanged") {
+            item.shape.setMetadata("RelatedPage", nextPageId || "");
+        }
+        return {
+            shapeId: item.shape.id,
+            status: status,
+            targetPageId: nextPageId,
+            targetPageName: item.page ? item.page.name : null,
+            previousTargetPageId: previousPageId
+        };
+    });
+
+    var changed = results.filter(function (r) { return r.status !== "unchanged"; });
+    if (changed.length > 0) {
+        canvas._sayContentModified();
+        canvas._saveMemento("Update shape links via MCP");
+        AgentFeedback.notifyShapesUpdated(target.pageId, changed.map(function (r) { return { id: r.shapeId }; }));
+    }
+
+    var resultPayload = {
+        pageId: target.pageId,
+        updatedCount: changed.length,
+        links: results,
+        message: changed.length + " of " + results.length + " link change(s) applied on page '" + target.page.name + "'."
+    };
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify(resultPayload, null, 2)
+            }
+        ]
+    };
+};
+
 module.exports = {
     UpdateShapesTool: UpdateShapesTool,
     DeleteShapesTool: DeleteShapesTool,
@@ -1434,6 +1607,7 @@ module.exports = {
     AlignShapesTool: AlignShapesTool,
     DistributeShapesTool: DistributeShapesTool,
     MoveShapesTool: MoveShapesTool,
-    ShiftLayoutTool: ShiftLayoutTool
+    ShiftLayoutTool: ShiftLayoutTool,
+    UpdateShapeLinksTool: UpdateShapeLinksTool
 };
 

@@ -183,6 +183,11 @@ When managing multi-screen flows, wireframes, or multi-page documents:
 4. **Switching & Deleting Pages:**
    - Use `switch_page(pageId: "...")` or `switch_page(pageIndex: 1)` to shift canvas and desktop UI focus.
    - Use `delete_page(pageId: "...")` to clean up temporary or obsolete pages (a document must always retain at least one page).
+5. **Click-Through Prototypes (Page Links):**
+   - When the user asks for a clickable or navigable prototype, link the navigation shapes (buttons, tabs, menu items, cards) to their destination pages with `update_shape_links`. Pencil's HTML export turns each linked shape into a clickable area that opens the target page.
+   - Build all pages and their navigation shapes first, then link in one call per page, for example `update_shape_links(pageId: "<login>", links: [{ shapeId: "<btnSignIn>", targetPageName: "Dashboard" }, { shapeId: "<lnkSignUp>", targetPageName: "Sign Up" }])`.
+   - Target shapes by `shapeId` from `idMap`, or by `query` when it matches exactly one shape. Remove a link with `targetPageId: null`. A shape cannot link to its own page.
+   - Verify links with `find_shapes` (records carry `linkTargetPageId` and `linkTargetPageName`).
 
 ---
 

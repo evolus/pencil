@@ -12,6 +12,7 @@ var fs = require("fs");
 var path = require("path");
 var os = require("os");
 var BaseTool = require("./base-tool.js").BaseTool;
+var canvasHelper = require("./canvas-helper.js");
 
 // Helper to resolve ApplicationPane
 function getAppPane() {
@@ -371,7 +372,7 @@ GetPageContentTool.prototype._extractElementsFromDom = function (containerNode) 
             }
 
             var dim = this._parseBoxDimension(properties.box || "");
-            elements.push({
+            elements.push(Object.assign({
                 id: shapeId,
                 type: "shape",
                 def: shapeDef,
@@ -382,14 +383,14 @@ GetPageContentTool.prototype._extractElementsFromDom = function (containerNode) 
                     h: dim.h
                 },
                 properties: properties
-            });
+            }, canvasHelper.readPageLink(node)));
         } else if (pType === "Group" || pType === "group") {
             var groupId = node.getAttribute("id") || ("group-" + (elements.length + 1));
             var groupTransform = node.getAttribute("transform") || "";
             var groupPos = this._parseTransform(groupTransform);
             var childElements = this._extractElementsFromDom(node);
 
-            elements.push({
+            elements.push(Object.assign({
                 id: groupId,
                 type: "group",
                 box: {
@@ -397,7 +398,7 @@ GetPageContentTool.prototype._extractElementsFromDom = function (containerNode) 
                     y: groupPos.y
                 },
                 children: childElements
-            });
+            }, canvasHelper.readPageLink(node)));
         } else if (node.tagName === "g" || node.nodeName === "g" || node.nodeName === "svg:g") {
             // Recurse into nested container group
             var nested = this._extractElementsFromDom(node);

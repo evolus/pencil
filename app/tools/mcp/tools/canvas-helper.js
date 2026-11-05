@@ -178,6 +178,22 @@ function parseBoxDimension(boxStr) {
 }
 
 /*
+ * Page links come from the desktop "Link To" menu, which stores the target page ID in the
+ * p:RelatedPage attribute of the shape or group node and clears a link by writing "".
+ * A link can outlive its target page because deleting a page does not clean it up; the
+ * HTML exporter skips such links, so they are reported with linkTargetPageName: null.
+ */
+function readPageLink(node) {
+    var pageId = node.getAttributeNS(PencilNamespaces.p, "RelatedPage");
+    if (!pageId) return null;
+    var page = Pencil.controller.findPageById(pageId);
+    return {
+        linkTargetPageId: pageId,
+        linkTargetPageName: page ? page.name : null
+    };
+}
+
+/*
  * Traverses an SVG DOM hierarchy (typically canvas.drawingLayer) to extract shape
  * records with absolute coordinates, dimensions, and metadata properties. Handles
  * cumulative parent transform propagation across nested <g p:type="Group"> containers.
@@ -247,7 +263,7 @@ function extractShapesFromDom(containerNode, originX, originY, results) {
 
             var dim = parseBoxDimension(properties.box || "");
 
-            results.push({
+            results.push(Object.assign({
                 id: shapeId,
                 type: "shape",
                 def: shapeDef,
@@ -263,10 +279,10 @@ function extractShapesFromDom(containerNode, originX, originY, results) {
                 h: dim.h,
                 text: textVal,
                 properties: properties
-            });
+            }, readPageLink(node)));
         } else if (pType === "Group" || pType === "group") {
             var groupId = (typeof node.getAttribute === "function" ? node.getAttribute("id") : null) || ("group-" + (results.length + 1));
-            results.push({
+            results.push(Object.assign({
                 id: groupId,
                 type: "group",
                 def: "",
@@ -282,7 +298,7 @@ function extractShapesFromDom(containerNode, originX, originY, results) {
                 h: 0,
                 text: "",
                 properties: {}
-            });
+            }, readPageLink(node)));
             extractShapesFromDom(node, absX, absY, results);
         } else if (node.tagName === "g" || node.nodeName === "g" || node.nodeName === "svg:g") {
             extractShapesFromDom(node, absX, absY, results);
@@ -513,6 +529,7 @@ module.exports = {
     parseBoxDimension: parseBoxDimension,
     findElementById: findElementById,
     resolveTargetPageAndCanvas: resolveTargetPageAndCanvas,
+    readPageLink: readPageLink,
     extractShapesFromDom: extractShapesFromDom,
     extractPageShapes: extractPageShapes,
     resolveTargetsForShapeIds: resolveTargetsForShapeIds,
