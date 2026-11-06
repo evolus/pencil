@@ -1439,6 +1439,88 @@ UpdatePageTool.prototype.execute = async function (args, context) {
 };
 
 // =============================================================================
+// Tool: reorder_pages
+// =============================================================================
+
+function ReorderPagesTool() {
+    BaseTool.call(
+        this,
+        "reorder_pages",
+        "Sets the order of pages that share one parent page, or of the top-level pages, in the active Pencil document. Pass every sibling exactly once in the new order (siblings share the same parentPageId in list_pages). Child pages move with their parent. To move a page under another parent, use update_page with parentPageId.",
+        {
+            pageIds: z.array(z.string()).min(1).describe("IDs of all pages under one parent (or all top-level pages), in the new order.")
+        }
+    );
+}
+ReorderPagesTool.prototype = new BaseTool();
+
+function describePage(page) {
+    return "'" + page.name + "' (" + page.id + ")";
+}
+
+ReorderPagesTool.prototype.execute = async function (args, context) {
+    var controller = getControllerInstance(getAppPane());
+    var doc = controller.doc;
+    if (!doc) {
+        throw new Error("No document is currently open in Pencil.");
+    }
+
+    var orderedPages = args.pageIds.map(function (id) {
+        var page = controller.findPageById(id);
+        if (!page) {
+            throw new Error("Page not found: '" + id + "'. Call list_pages to discover valid page IDs.");
+        }
+        return page;
+    });
+
+    var repeated = orderedPages.filter(function (page, index) {
+        return orderedPages.indexOf(page) !== index;
+    });
+    if (repeated.length) {
+        throw new Error("pageIds lists these pages more than once: " + repeated.map(describePage).join(", ") + ".");
+    }
+
+    var parentPage = orderedPages[0].parentPage || null;
+    var parentLabel = parentPage ? "parent page " + describePage(parentPage) : "the top level";
+    var otherParent = orderedPages.filter(function (page) {
+        return (page.parentPage || null) !== parentPage;
+    });
+    if (otherParent.length) {
+        throw new Error("All pages must share one parent. " + describePage(orderedPages[0]) + " is under " + parentLabel + ", but these are not: "
+            + otherParent.map(describePage).join(", ") + ". To move a page under another parent, use update_page with parentPageId.");
+    }
+
+    var siblings = parentPage ? parentPage.children : doc.pages.filter(function (page) { return !page.parentPage; });
+    var missing = siblings.filter(function (page) {
+        return orderedPages.indexOf(page) < 0;
+    });
+    if (missing.length) {
+        throw new Error("pageIds must list every page under " + parentLabel + ". Missing: " + missing.map(describePage).join(", ") + ".");
+    }
+
+    controller.reorderSiblingPages(orderedPages);
+
+    return {
+        content: [
+            {
+                type: "text",
+                text: JSON.stringify({
+                    success: true,
+                    parentPageId: parentPage ? parentPage.id : null,
+                    pages: orderedPages.map(function (page) {
+                        return {
+                            id: page.id,
+                            title: page.name,
+                            index: doc.pages.indexOf(page)
+                        };
+                    })
+                }, null, 2)
+            }
+        ]
+    };
+};
+
+// =============================================================================
 // Tool: rename_page
 // =============================================================================
 
@@ -2001,6 +2083,7 @@ module.exports = {
     ListPagesTool: ListPagesTool,
     CreatePageTool: CreatePageTool,
     UpdatePageTool: UpdatePageTool,
+    ReorderPagesTool: ReorderPagesTool,
     RenamePageTool: RenamePageTool,
     DeletePageTool: DeletePageTool,
     SwitchPageTool: SwitchPageTool,

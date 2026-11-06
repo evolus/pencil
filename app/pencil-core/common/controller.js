@@ -1410,6 +1410,33 @@ Controller.prototype.movePageTo = function (pageId, targetPageId, left) {
 
     this.sayDocumentChanged();
 };
+/*
+ * orderedPages must hold every page under one parent (or every top-level page) exactly once.
+ * The document file stores only the flat doc.pages order and FileHandler rebuilds each
+ * children array from it on load, so doc.pages is rebuilt here by a depth-first walk of
+ * the page tree. That keeps child pages right after their parent and makes the new
+ * sibling order survive save and reopen.
+ */
+Controller.prototype.reorderSiblingPages = function (orderedPages) {
+    var parentPage = orderedPages[0].parentPage || null;
+    var topLevelPages = parentPage ? this.doc.pages.filter(function (page) { return !page.parentPage; }) : orderedPages;
+
+    var treeOrder = [];
+    function append(page) {
+        treeOrder.push(page);
+        (page === parentPage ? orderedPages : page.children).forEach(append);
+    }
+    topLevelPages.forEach(append);
+
+    if (treeOrder.length != this.doc.pages.length) {
+        throw new Error("Page reorder would change the page count from " + this.doc.pages.length + " to " + treeOrder.length + "; orderedPages must list every sibling exactly once.");
+    }
+
+    if (parentPage) parentPage.children.splice(0, parentPage.children.length, ...orderedPages);
+    this.doc.pages.splice(0, this.doc.pages.length, ...treeOrder);
+
+    this.sayDocumentChanged();
+};
 Controller.prototype.scheduleUpdatePageThumbnail = function (page) {
     if (!this.pendingThumbnailerMap) this.pendingThumbnailerMap = {};
     var pending = this.pendingThumbnailerMap[page.id];

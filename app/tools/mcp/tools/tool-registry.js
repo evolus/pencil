@@ -144,6 +144,7 @@ ToolRegistry.createDefault = function (options) {
     registry.register(new documentTool.ListPagesTool());
     registry.register(new documentTool.CreatePageTool());
     registry.register(new documentTool.UpdatePageTool());
+    registry.register(new documentTool.ReorderPagesTool());
     registry.register(new documentTool.RenamePageTool());
     registry.register(new documentTool.DeletePageTool());
     registry.register(new documentTool.SwitchPageTool());

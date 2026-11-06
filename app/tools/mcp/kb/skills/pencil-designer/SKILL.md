@@ -181,6 +181,7 @@ When managing multi-screen flows, wireframes, or multi-page documents:
    - Use `create_page` directly to add pages to the active document without creating detached document tabs.
 3. **Resizing and Styling Pages:**
    - Use `update_page` to adjust canvas dimensions (`width`, `height`), update background color (`background: "#f8fafc"` or `"transparent"`), attach master background pages (`backgroundPageId`), or rename the page (`title: "New Title"`).
+   - Page order: keep screens in flow order (for example Login, Dashboard, Settings), because the page list and the HTML export follow it. Use `reorder_pages(pageIds: [...])` with every page under one parent, or every top-level page, in the new order; siblings share the same `parentPageId` in `list_pages`. To move a page under another parent, use `update_page(parentPageId: ...)` and then `reorder_pages` on its new siblings if needed.
 4. **Switching & Deleting Pages:**
    - Use `switch_page(pageId: "...")` or `switch_page(pageIndex: 1)` to shift canvas and desktop UI focus.
    - Use `delete_page(pageId: "...")` to clean up temporary or obsolete pages (a document must always retain at least one page).
