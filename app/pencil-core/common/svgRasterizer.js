@@ -237,9 +237,23 @@ Rasterizer.prototype.rasterizeSVGNodeToUrl = function (svg, callback, scale) {
 };
 
 Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parseLinks, options) {
+    var s = Rasterizer.getExportScale(scale);
+    this.getCompositedPageSVG(page, scale, function (composited) {
+        this.getBackend().rasterize(composited.svg, composited.width, composited.height, s, callback, parseLinks, options);
+    }.bind(this));
+};
+/*
+ * Builds the page SVG the way page export draws it: the background page bitmap (which itself
+ * carries that page's background, recursively) or the background color under the drawing layer,
+ * then the stencil collection page margin cut off by shifting the content by -margin.
+ * Callback receives { svg, width, height, margin }, width and height being the exported area.
+ * Shared by rasterizePageToUrl and the MCP render_preview tool so both show the same pixels.
+ * embedBackground inlines the background page bitmap as a data URI instead of a file URL, for
+ * SVG that must render outside Pencil.
+ */
+Rasterizer.prototype.getCompositedPageSVG = function (page, scale, callback, embedBackground) {
     var svg = this.controller.getPageSVG(page);
     var thiz = this;
-    var s = Rasterizer.getExportScale(scale);
     var f = function () {
         svg.setAttribute("page", page.name);
         var m = Pencil.controller.getDocumentPageMargin() || 0;
@@ -258,7 +272,7 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
             svg.setAttribute("width", w);
             svg.setAttribute("height", h);
         }
-        thiz.getBackend().rasterize(svg, w, h, s, callback, parseLinks, options);
+        callback({svg: svg, width: w, height: h, margin: m});
     };
 
     if (page.backgroundPage) {
@@ -268,7 +282,10 @@ Rasterizer.prototype.rasterizePageToUrl = function (page, callback, scale, parse
             image.setAttribute("y", "0");
             image.setAttribute("width", page.backgroundPage.width);
             image.setAttribute("height", page.backgroundPage.height);
-            image.setAttributeNS(PencilNamespaces.xlink, "xlink:href", ImageData.filePathToURL(filePath));
+            var href = embedBackground
+                ? "data:image/png;base64," + fs.readFileSync(filePath).toString("base64")
+                : ImageData.filePathToURL(filePath);
+            image.setAttributeNS(PencilNamespaces.xlink, "xlink:href", href);
 
             if (svg.firstChild) {
                 svg.insertBefore(image, svg.firstChild);

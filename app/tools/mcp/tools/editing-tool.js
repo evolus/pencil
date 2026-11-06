@@ -37,10 +37,8 @@ async function attachPreviewIfRequested(args, target, appPane, resultPayload) {
         };
     }
 
-    var controller = (target && target.controller) || canvasHelper.getController(appPane);
     var previewResult = await documentTool.generatePagePreview(target.page, {
         appPane: appPane,
-        controller: controller,
         format: "png",
         includeBase64: true
     });
