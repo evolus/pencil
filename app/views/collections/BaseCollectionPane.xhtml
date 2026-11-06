@@ -1,9 +1,5 @@
 <vbox>
     <style>
-        $selector_item_width: 4em;
-        $selector_item_height: 12em;
-        $unselected_item_bg: #AAAAAA;
-
         body .widget_CollectionPane {
             overflow: hidden;
         }
@@ -19,7 +15,6 @@
         }
         @filter @form {
             padding: 0.5em;
-            padding-bottom: 1em;
         }
         @filter @logo {
             display: none;
@@ -32,175 +27,6 @@
         @contentPane {
             overflow: hidden;
         }
-        @selectorPane {
-            width: @selector_item_width;
-            background: $unselected_item_bg;
-            font-size: 0.95em;
-            cursor: default;
-            overflow: hidden;
-            overflow: hidden;
-            position: relative;
-            opacity: 0.999999;
-        }
-
-        body *[size-level="small"] @selectorPane {
-            width: @selector_item_width / 2;
-        }
-
-        @selectorPane::after {
-            content: " ";
-            display: block;
-            background: transparent;
-            position: absolute;
-            top: 0px;
-            bottom: 0px;
-            width: 3px;
-            right: -3px;
-            box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
-            z-index: 2;
-        }
-        @selectorPaneContainer {
-            overflow: hidden;
-        }
-
-        @xxxselectorPane::-webkit-scrollbar {
-            width: 0em;
-        }
-        @xxxselectorPane:hover::-webkit-scrollbar {
-            width: 0.4em;
-        }
-        @xxxselectorPane::-webkit-scrollbar-track {
-            -webkit-box-shadow: inset 0 0 0.3em rgba(255, 255, 255, 0);
-        }
-        @xxxselectorPane:hover::-webkit-scrollbar-track {
-            -webkit-box-shadow: inset 0 0 0.3em rgba(255, 255, 255, 0.1);
-        }
-
-        @xxxselectorPane::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0);
-            -webkit-box-shadow: inset 0 0 0.3em rgba(255, 255, 255, 0);
-        }
-        @xxxselectorPane:hover::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        @selectorPane .Item {
-            color: rgba(0, 0, 0, 0.5);
-            transition: background 0.2s ease;
-            position: relative;
-            overflow: hidden;
-            opacity: 0.9999;
-        }
-        @selectorPane .Item::after {
-
-        }
-        @selectorPane .Item:not(.TypeSystem) {
-            border-left: solid 2px rgba(33, 66, 99, 1);
-        }
-        @selectorPane .Item.TypeBuilder {
-            border-left: solid 2px red;
-        }
-        @selectorPane .Item.TypeDeveloper::after {
-            @iconify();
-            content: "build";
-
-            position: absolute;
-            opacity: 0.3;
-            transition: opacity 0.2s ease;
-
-            padding: 0.2em;
-            background: #F00;
-            color: #FFF;
-            border-radius: 50%;
-            font-size: 0.7em;
-            bottom: 0.3em;
-            right: 0.3em;
-        }
-        @selectorPane .Item:hover::after {
-            opacity: 1;
-        }
-
-        @selectorPane .Item:not(.WithPreview) > .Preview {
-            display: none;
-        }
-        @selectorPane .Item > .Preview {
-            position: absolute;
-            z-index: -1;
-            top: 0.5em;
-            left: 0.5em;
-            right: 0.5em;
-            bottom: 0.5em;
-            overflow: hidden;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-        @selectorPane .Item.WithPreview {
-            min-height: 5em;
-        }
-        @selectorPane .Item.WithPreview .ItemInner i {
-            display: none;
-        }
-        @selectorPane .Item > .Preview img {
-            width: 100%;
-        }
-        @selectorPane .Item:not([active='true']) > .Preview {
-            opacity: 0.75;
-        }
-        @selectorPane .Item > .ItemInner {
-            text-align: center;
-            width: @selector_item_width;
-            padding: 0.5em;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        body *[size-level="small"] @selectorPane .Item > .ItemInner {
-            width: @selector_item_width / 2;
-            padding: 0.25em;
-        }
-        @selectorPane .Item:focus {
-            /*outline: dashed 1px rgba(255, 255, 255, 0.5);*/
-            /*outline-offset: -2px;*/
-            outline: none;
-        }
-        @selectorPane .Item i {
-            @iconify();
-            opacity: 1;
-            font-size: 1.5em;
-            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
-        }
-        @selectorPane .Item[active='true'] i {
-            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.8);
-        }
-        @selectorPane .Item span {
-            display: inline-block;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            text-align: center;
-            margin-top: 1ex;
-            font-size: 0.8em;
-        }
-        body *[size-level="small"] @selectorPane .Item span,
-        @selectorPane .Item.WithPreview span {
-            display: none;
-        }
-
-        @selectorPane .Item:not([active='true']) + .Item:not([active='true']) {
-            border-top: solid 1px fadeout(@app_bg, 60%);
-        }
-        @selectorPane .Item[active='true'] {
-            color: #000;
-            background: @app_bg;
-            z-index: 3;
-            position: relative;
-            box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-        }
-        @selectorPane .Item:not([active='true']):hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: rgba(0, 0, 0, 0.6);
-        }
         @shapePane {
             background: @app_bg;
             overflow: auto;
@@ -208,7 +34,7 @@
         @shapeListContainer {
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 1em;
+            padding: 0em 0.5em 0.5em 0.5em;
         }
         .ShapeList {
             list-style: none;
@@ -264,65 +90,190 @@
             text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
             color: #000;
         }
+
         @collectionInfoPane {
-            padding: 0em 0em 0.5em 1em;
+            padding: 0.5em 0.5em 0em 0.5em;
             color: #000;
             overflow: hidden;
+            align-items: center;
         }
-        @collectionIcon {
-            @iconify();
-            display: none;
-            color: rgba(0, 0, 0, 0.8);
-            font-size: 3em;
-            margin-right: 0.3em;
-            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.9);
+        @selectorButton {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            height: auto;
+            padding: 0.4em 0.5em;
+            line-height: 1.3;
+            text-align: left;
+            white-space: normal;
+            background: fadeout(#FFF, 60%);
+            border-color: rgba(0, 0, 0, 0.12);
+            color: #000;
         }
-        @collectionTitle,
-        @collectionDescription {
-            display: block;
+        @selectorButton:hover {
+            background: fadeout(#FFF, 30%);
         }
-        @collectionDescription {
-            opacity: 0.35;
-            font-size: 0.9em;
-            text-overflow: ellipsis;
-            overflow: hidden;
-
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-            overflow: hidden;
+        @selectorButton[expanded='true'] {
+            border-color: darken(@selected_bg, 40%);
+        }
+        @selectorText {
+            flex: 1;
+            min-width: 0;
         }
         @collectionTitle {
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 1;
+            display: block;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
-        @collectionManagementButton:not(:hover) {
-            border-color: transparent;
-            background: none;
+        @collectionDescription {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 0.55;
+            font-size: 0.85em;
         }
-        @collectionManagementButton {
-            display: inline-block;
-            text-align: center;
+        body .CollectionPickerRow .Description {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 0.55;
+            font-size: 0.85em;
         }
-
-        @descriptionContainer {
-            overflow: auto;
-            flex-shrink: 1;
-            max-height: 4em;
+        @selectorCaret {
+            @iconify();
+            flex: none;
+            margin-left: 0.3em;
+            opacity: 0.6;
         }
         @settingButton {
+            flex: none;
             line-height: 1em;
             padding: 0 0.3em;
             height: 1.8em;
+            margin-left: 0.3em;
         }
         @settingButton:not(:hover) {
             border-color: transparent;
             background: none;
         }
+
+        /* Top crop of the collection's layout preview, as the old selector strip
+           showed it; collections without a preview fall back to their icon. */
+        body .CollectionThumb {
+            flex: none;
+            width: 3.4em;
+            height: 2.6em;
+            margin-right: 0.6em;
+            border: solid 1px rgba(0, 0, 0, 0.15);
+            background: #FAFAFA;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body .CollectionThumb img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top;
+        }
+        body .CollectionThumb i {
+            @iconify();
+            font-size: 1.6em;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        @picker {
+            display: none;
+        }
+        body .AnonId_popupContainer.CollectionPickerPopup {
+            padding: 0em;
+        }
+        /* max-height is set in layoutPicker() so the list ends above the pane bottom;
+           the list shrinks and scrolls inside it. */
+        body @pickerContent {
+            display: flex;
+            flex-direction: column;
+        }
+        body @pickerFilter {
+            padding: 0.5em;
+            border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+        }
+        body @pickerFilter input {
+            width: 100%;
+            line-height: 1.8;
+            height: auto;
+        }
+        body @pickerHint {
+            margin-top: 0.3em;
+            font-size: 0.85em;
+            opacity: 0.6;
+        }
+        body @pickerList {
+            flex: 0 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 0.3em 0em;
+        }
+        body .CollectionPickerGroup {
+            padding: 0.6em 0.8em 0.2em 0.8em;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+            opacity: 0.55;
+        }
+        body .CollectionPickerRow {
+            display: flex;
+            align-items: center;
+            padding: 0.4em 0.8em 0.4em 0.6em;
+            border-left: solid 3px transparent;
+            cursor: default;
+        }
+        body .CollectionPickerRow:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        body .CollectionPickerRow[highlighted='true'] {
+            background: @selected_bg;
+            color: @selected_fg;
+        }
+        body .CollectionPickerRow[highlighted='true'] .Description {
+            opacity: 0.85;
+        }
+        body .CollectionPickerRow[highlighted='true'] .Name mark {
+            color: #000;
+        }
+        body .CollectionPickerRow[current='true'] {
+            border-left-color: darken(@selected_bg, 40%);
+        }
+        body .CollectionPickerRow .Text {
+            flex: 1;
+            min-width: 0;
+        }
+        body .CollectionPickerRow .Name {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        body .CollectionPickerRow .Name mark {
+            background: #FFE58F;
+            color: inherit;
+        }
+        body .CollectionPickerEmpty {
+            padding: 1em 0.8em;
+            opacity: 0.6;
+        }
+        body @pickerFooter {
+            display: flex;
+            align-items: center;
+            padding: 0.5em;
+            border-top: solid 1px rgba(0, 0, 0, 0.1);
+        }
+
         @textContainer {
             width: 100%;
             position: inherit;
@@ -367,6 +318,17 @@
             outline-offset: 0px;
         }
     </style>
+    <hbox anon-id="collectionInfoPane">
+        <button anon-id="selectorButton" flex="1">
+            <div anon-id="selectorThumb" class="CollectionThumb"></div>
+            <div anon-id="selectorText">
+                <strong anon-id="collectionTitle"></strong>
+                <span anon-id="collectionDescription"></span>
+            </div>
+            <i anon-id="selectorCaret">arrow_drop_down</i>
+        </button>
+        <button anon-id="settingButton"><i>settings</i></button>
+    </hbox>
     <hbox anon-id="filter">
         <hbox anon-id="logo">
         </hbox>
@@ -380,28 +342,24 @@
         </hbox>
     </hbox>
     <hbox flex="1" anon-id="contentPane">
-        <vbox anon-id="selectorPaneContainer">
-            <ui:ScrollableView anon-id="collectionScrollView" flex="1" orient="vertical">
-                <div anon-id="selectorPane"></div>
-            </ui:ScrollableView>
-            <button anon-id="collectionManagementButton" title="Manage collections..."><i>view_module</i></button>
-        </vbox>
         <vbox anon-id="shapePane" flex="1">
-            <hbox anon-id="collectionInfoPane">
-                <i anon-id="collectionIcon"></i>
-                <vbox flex="1" style="overflow: hidden;">
-                    <strong anon-id="collectionTitle"></strong>
-                    <vbox anon-id="descriptionContainer">
-                        <span anon-id="collectionDescription" flex="1"></span>
-                    </vbox>
-                </vbox>
-                <button anon-id="settingButton"><i>settings</i></button>
-            </hbox>
             <vbox flex="1" anon-id="shapeListContainer">
                 <div anon-id="collectionLayoutContainer"></div>
                 <ul anon-id="shapeList" class="ShapeList" flex="1">
                 </ul>
             </vbox>
+            <ui:Popup anon-id="picker">
+                <div anon-id="pickerContent">
+                    <div anon-id="pickerFilter">
+                        <input type="text" class="form-control" placeholder="Find a collection" anon-id="pickerFilterInput"/>
+                        <div anon-id="pickerHint"></div>
+                    </div>
+                    <div anon-id="pickerList"></div>
+                    <div anon-id="pickerFooter">
+                        <button anon-id="collectionManagementButton" title="Manage collections (F3)"><i>view_module</i><span>Manage collections...</span></button>
+                    </div>
+                </div>
+            </ui:Popup>
         </vbox>
     </hbox>
 </vbox>

@@ -15,7 +15,7 @@ MyCollectionPane.prototype.initialize = function () {
         var def = n ? n._def : null;
         var collection = this.last;
         (new PrivateCollectionMenu(this, collection, def)).showMenuAt(event.clientX, event.clientY);
-    }, this.shapePane);
+    }, this.shapeListContainer);
     this.collectionManagementButton.style.display = "none";
     this.settingButton.style.display = "none";
     Pencil.privateCollectionPane = this;
@@ -38,6 +38,9 @@ MyCollectionPane.prototype.getLastUsedCollection = function () {
 };
 MyCollectionPane.prototype.setLastUsedCollection = function (collection) {
     PrivateCollectionManager.setLastUsedCollection(collection);
+};
+MyCollectionPane.prototype.getRecentCollectionConfigName = function () {
+    return "PrivateCollection.recentCollectionIds";
 };
 MyCollectionPane.prototype.openCollectionPane = function (collectionId) {
     this.reload(collectionId);

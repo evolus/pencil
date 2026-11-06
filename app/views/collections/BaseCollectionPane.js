@@ -2,26 +2,56 @@ function BaseCollectionPane() {
     BaseTemplatedWidget.call(this);
     var thiz = this;
 
+    this.collections = [];
+    this.pickerRows = [];
+    this.pickerHighlightIndex = 0;
+    this.appliedShapeFilter = "";
+
+    this.bind("click", function () {
+        if (this.picker.isVisible()) {
+            this.picker.hide();
+        } else {
+            this.openPicker();
+        }
+    }, this.selectorButton);
+
+    this.picker.setPopupClass("CollectionPickerPopup");
+    /* Without this the mousedown on the selector button closes the popup, and the
+       click that follows on the same button opens it again. */
+    this.picker.shouldCloseOnBlur = function (event) {
+        return !Dom.isChildOf(thiz.selectorButton, Dom.getTarget(event));
+    };
+    this.bind("p:PopupShown", function () {
+        this.pickerFilterInput.focus();
+        this.updatePickerHighlight();
+    }, this.picker);
+    this.bind("p:PopupHidden", function () {
+        this.selectorButton.removeAttribute("expanded");
+    }, this.picker);
+
     this.bind("contextmenu", function (event) {
-        var collectionNode = Dom.findUpwardForNodeWithData(event.target, "_collection");
-        if (!collectionNode) return;
+        if (!this.last) return;
+        this.handleCollectionContextMenu(this.last, event);
+    }, this.selectorButton);
 
-        collectionNode.focus();
-        var collection = collectionNode._collection;
-        this.handleCollectionContextMenu(collection, event);
-    }, this.selectorPane);
+    this.bind("click", function (event) {
+        var row = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_collection");
+        if (!row) return;
+        this.pickCollection(row._collection);
+    }, this.pickerList);
 
-    this.selectorPane.addEventListener("click", function(event) {
-        var item = Dom.findUpward(Dom.getTarget(event), function (n) {
-            return n._collection;
-        });
+    this.bind("contextmenu", function (event) {
+        var row = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_collection");
+        if (!row) return;
+        this.handleCollectionContextMenu(row._collection, event);
+    }, this.pickerList);
 
-        if (!item) return;
-        Dom.doOnAllChildren(thiz.selectorPane, function (n) {
-            if (n.setAttribute) n.setAttribute("active", n == item);
-        });
-        thiz.openCollection(item._collection);
-    }, false);
+    this.bind("input", function () {
+        this.pickerHighlightIndex = 0;
+        this.renderPickerList();
+    }, this.pickerFilterInput);
+
+    this.bind("keydown", this.handlePickerKeyDown, this.pickerFilterInput);
 
     this.bind("click", function() {
         thiz.searchInput.value = "";
@@ -101,6 +131,8 @@ function BaseCollectionPane() {
 }
 __extend(BaseTemplatedWidget, BaseCollectionPane);
 
+BaseCollectionPane.RECENT_COLLECTION_MAX = 5;
+
 BaseCollectionPane.ICON_MAP = {
     "Evolus.Common": "layers",
     "Evolus.BasicWebElements": "language",
@@ -125,171 +157,97 @@ BaseCollectionPane.prototype.getIconName = function() {
 BaseCollectionPane.prototype.getCollectionIcon = function (collection) {
     return collection.icon || BaseCollectionPane.ICON_MAP[collection.id] || "border_all";
 };
+BaseCollectionPane.prototype.createCollectionThumbContent = function (collection) {
+    if (collection.previewURL) {
+        return Dom.newDOMElement({ _name: "img", src: collection.previewURL });
+    }
+    return Dom.newDOMElement({ _name: "i", _text: this.getCollectionIcon(collection) });
+};
+BaseCollectionPane.prototype.getCollectionTooltip = function (collection) {
+    return collection.description ? collection.displayName + "\n" + collection.description : collection.displayName;
+};
 BaseCollectionPane.prototype.onSizeChanged = function () {
     if (!this.loaded) {
         setTimeout(this.reload.bind(this), 300);
     }
     this.updateLayoutSize();
+    if (this.picker.isVisible()) {
+        this.layoutPicker();
+        this.picker.invalidatePosition();
+    }
 };
 BaseCollectionPane.prototype.reload = function (selectedCollectionId) {
     if (this.node().offsetWidth <= 0) return;
-    Dom.empty(this.selectorPane);
+    this.closePicker();
 
     if (!selectedCollectionId) selectedCollectionId = this.getLastUsedCollection();
 
     this.last = null;
-    var lastNode = null;
-    var foundNode = null;
-    var collections = this.getCollections();
+    this.collections = this.getCollections().filter(this.isShowCollection, this);
 
-    Dom.empty(this.shapeList);
-    Dom.empty(this.collectionIcon);
-    Dom.empty(this.collectionTitle);
-    Dom.empty(this.collectionDescription);
-    this.settingButton.style.visibility = "inherit";
+    var selected = this.collections.find(function (collection) {
+        return collection.id == selectedCollectionId;
+    }) || this.collections[0];
 
-    for (var i = 0; i < collections.length; i ++) {
-        var collection = collections[i];
-        if(this.isShowCollection(collection)) {
-            var icon = this.getCollectionIcon(collection);
-            var typeClass = collection.developerStencil ? "TypeDeveloper" : (collection.userDefined ? "TypeUser" : "TypeSystem");
-            if (collection.builderStencil) typeClass += " TypeBuilder";
-            var node = Dom.newDOMElement({
-                _name: "vbox",
-                "class": "Item" + (collection.previewURL ? " WithPreview" : "") + " " + typeClass,
-                "tabindex": "0",
-                title: collection.displayName,
-                _children: [
-                    {
-                        _name: "div",
-                        "class": "Preview",
-                        _children: [
-                            {
-                                _name: "img",
-                                src: collection.previewURL
-                            }
-                        ]
-                    },
-                    {
-                        _name: "div",
-                        "class": "ItemInner",
-                        _children: [
-                            {
-                                _name: "i",
-                                _text: icon
-                            },
-                            {
-                                _name: "span",
-                                _text: collection.displayName
-                            }
-                        ]
-                    }
-                ]
-            });
-            node._collection = collection;
-            if (selectedCollectionId) {
-                if (collection.id == selectedCollectionId) {
-                    foundNode = node;
-                }
-            }
-            if (!lastNode) {
-                lastNode = node;
-            }
-            this.selectorPane.appendChild(node);
-        }
-    }
-
-    if (foundNode) lastNode = foundNode;
-
-    var thiz = this;
-    window.setTimeout(function () {
-        for (var i = 0; i < thiz.selectorPane.childNodes.length; i ++) {
-            var item = thiz.selectorPane.childNodes[i];
-            var inner = item.firstChild.firstChild;
-
-            var w = inner.clientWidth + 4 * Util.em();
-
-            //item.style.height = w + "px";
-            //item.firstChild.style.width = "5em";
-            //item.firstChild.style.transform = "rotate(-90deg) translate(-" + w + "px, 0px)";
-        }
-        thiz.collectionScrollView.invalidate();
-    }, 10);
-
-    if (lastNode) {
-        Dom.doOnAllChildren(this.selectorPane, function (n) {
-            if (n.setAttribute) n.setAttribute("active", n == lastNode);
-        });
-
-        this.last = lastNode._collection;
-        this.openCollection(this.last);
+    if (selected) {
+        this.openCollection(selected);
+    } else {
+        this.showNoCollection();
     }
 
     this.loaded = true;
 };
+BaseCollectionPane.prototype.showNoCollection = function () {
+    Dom.empty(this.selectorThumb);
+    Dom.empty(this.collectionTitle);
+    Dom.empty(this.collectionDescription);
+    Dom.empty(this.shapeList);
+    Dom.empty(this.collectionLayoutContainer);
+    this.selectorButton.removeAttribute("title");
+    this.settingButton.style.visibility = "hidden";
+};
+BaseCollectionPane.prototype.isCollectionOffered = function (collection) {
+    return !collection._filteredShapes || collection._filteredShapes.length > 0;
+};
 BaseCollectionPane.prototype.filterCollections = function () {
     var filter = this.searchInput.value;
-    this.clearTextButton.style.display = filter != null && filter.length > 0 ? "block" : "none"
-    var collectionNodes = this.selectorPane.querySelectorAll(".Item");
+    this.clearTextButton.style.display = filter != null && filter.length > 0 ? "block" : "none";
+    this.appliedShapeFilter = filter || "";
+
+    var query = this.appliedShapeFilter.toLowerCase();
     var hasLast = false;
-    var firstNode = null;
-    for (var i in collectionNodes) {
-        var collectionNode = collectionNodes[i];
-        var collection = collectionNodes[i]._collection;
-        if (!collection) continue;
-        collection._shapeCount = 0;
-        collection._filteredShapes = [];
-        if (!filter) {
+    var firstMatch = null;
+
+    for (var collection of this.collections) {
+        if (!query) {
             delete collection._filteredShapes;
-            collection._shapeCount = collection.shapeDefs.length;
         } else {
-            for (var j in collection.shapeDefs) {
-                var def = collection.shapeDefs[j];
-                if (!def || def.system) continue;
-                if (def.displayName.toLowerCase().indexOf(filter.toLowerCase()) == -1) continue;
-                collection._shapeCount++;
-                collection._filteredShapes.push(def);
-            }
+            collection._filteredShapes = collection.shapeDefs.filter(function (def) {
+                return def && !def.system && def.displayName.toLowerCase().indexOf(query) >= 0;
+            });
         }
 
-        if (collection._shapeCount <= 0) {
-            collectionNode.setAttribute("_hidden", true);
-            collectionNode.style.display = "none";
-            collectionNode.style.visibility = "hidden";
-        } else {
-            if (!hasLast) hasLast = collection == this.last;
-            if (!firstNode) firstNode = collectionNode;
-            collectionNode.removeAttribute("_hidden");
-            collectionNode.style.display = "";
-            collectionNode.style.visibility = "visible";
-        }
+        if (!this.isCollectionOffered(collection)) continue;
+        if (!firstMatch) firstMatch = collection;
+        if (collection == this.last) hasLast = true;
     }
 
     if (hasLast) {
         this.openCollection(this.last);
-    } else if (firstNode != null){
-
-        Dom.doOnAllChildren(this.selectorPane, function (n) {
-            if (n.setAttribute) n.setAttribute("active", n == firstNode);
-        });
-        this.openCollection(firstNode._collection);
+    } else if (firstMatch) {
+        this.openCollection(firstMatch);
     } else {
-        Dom.empty(this.collectionIcon);
-        Dom.empty(this.collectionTitle);
-        Dom.empty(this.collectionDescription);
-        Dom.empty(this.shapeList);
-        Dom.empty(this.collectionLayoutContainer);
-        this.settingButton.style.visibility = "hidden";
+        this.showNoCollection();
     }
+
+    if (this.picker.isVisible()) this.renderPickerList();
 };
 BaseCollectionPane.prototype.ensureVisibleShapeIcons = function () {
     var pr = this.shapeListContainer.getBoundingClientRect();
-    // console.log("PR:", pr);
     for (var i = 0; i < this.shapeList.childNodes.length; i ++) {
         var node = this.shapeList.childNodes[i];
         if (node._loaded) continue;
         var cr = node.getBoundingClientRect();
-        // console.log(cr, pr);
         if ((pr.top - pr.height <= cr.top && cr.top <= (pr.top + pr.height * 2))
             || pr.top - pr.height <= (cr.top + cr.height) && (cr.top + cr.height) <= (pr.top + pr.height * 2)) {
                 node._iconNode.src = node._iconNode.getAttribute("data-src");
@@ -298,18 +256,6 @@ BaseCollectionPane.prototype.ensureVisibleShapeIcons = function () {
     }
 };
 BaseCollectionPane.prototype.updateLayoutSize = function () {
-    var size = "large";
-    if (this.node().offsetWidth / Util.em() <= 20) {
-        size = "small";
-    }
-
-    var currentLevel = this.node().getAttribute("size-level");
-    if (currentLevel != size) {
-        this.node().setAttribute("size-level", size);
-        this.collectionScrollView.invalidate();
-    }
-
-
     if (!this.last || !this.last.customLayout) return;
 
     var W = this.collectionLayoutContainer.offsetWidth;
@@ -324,10 +270,11 @@ BaseCollectionPane.prototype.updateLayoutSize = function () {
 BaseCollectionPane.prototype.openCollection = function (collection) {
     Dom.empty(this.shapeList);
     Dom.empty(this.collectionLayoutContainer);
-    this.collectionIcon.innerHTML = this.getCollectionIcon(collection);
+    Dom.empty(this.selectorThumb);
+    this.selectorThumb.appendChild(this.createCollectionThumbContent(collection));
     this.collectionTitle.innerHTML = Dom.htmlEncode(collection.displayName);
     this.collectionDescription.innerHTML = Dom.htmlEncode(collection.description);
-    this.collectionDescription.setAttribute("title", collection.description);
+    this.selectorButton.setAttribute("title", this.getCollectionTooltip(collection));
     this.settingButton.style.visibility =  "inherit";
 
     this.layoutOriginalSize = null;
@@ -385,7 +332,6 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         });
 
         this.collectionLayoutContainer.style.display = "block";
-        // this.collectionLayoutContainer.style.overflow = "hidden";
         this.collectionLayoutContainer.style.visibility = "hidden";
         this.collectionLayoutContainer.style.height = "1px";
 
@@ -442,7 +388,6 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
                                 {
                                     _name: "img",
                                     _id: "iconImage",
-                                    //src: "data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
                                     "data-src": icon
                                 }
                             ]
@@ -460,16 +405,11 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         node._iconNode = holder.iconImage;
 
         this.shapeList.appendChild(node);
-        // Util.setupImage(holder.iconImage, def.iconPath || def.iconData, "center-inside");
     }
 
     this.setLastUsedCollection(collection);
     this.ensureVisibleShapeIcons();
 
-    var thiz = this;
-    window.setTimeout(function () {
-        thiz.ensureSelectedCollectionVisible(collection);
-    }, 10);
     window.setTimeout(function () {
         thiz.ensureVisibleShapeIcons();
     }, 200);
@@ -477,21 +417,142 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
     this.updateLayoutSize();
 };
 
-BaseCollectionPane.prototype.ensureSelectedCollectionVisible = function (collection) {
-    if (!collection) return;
-    var position = 0;
-    var height = 0;
-    for (var i = 0; i < this.selectorPane.childNodes.length; i ++) {
-        var item = this.selectorPane.childNodes[i];
-        if (item._collection.id == collection.id) {
-            height = item.offsetHeight;
-            break;
-        } else {
-            position += item.offsetHeight;
-        }
-    }
-    this.collectionScrollView.ensuareVisible(position, position + height);
+/* The popup lives under document.body, so its width and height are taken from
+   the selector button and the pane each time it opens or the pane resizes. */
+BaseCollectionPane.prototype.layoutPicker = function () {
+    var buttonRect = this.selectorButton.getBoundingClientRect();
+    var paneRect = this.shapePane.getBoundingClientRect();
+    this.picker.popupContainer.style.width = buttonRect.width + "px";
+    this.pickerContent.style.maxHeight = (paneRect.bottom - buttonRect.bottom - Util.em()) + "px";
 };
+BaseCollectionPane.prototype.openPicker = function () {
+    this.selectorButton.setAttribute("expanded", "true");
+    this.pickerFilterInput.value = "";
+    this.pickerHighlightIndex = 0;
+    this.renderPickerList();
+    this.layoutPicker();
+    this.picker.show(this.selectorButton, "left-inside", "bottom", 0, 2);
+};
+BaseCollectionPane.prototype.closePicker = function () {
+    if (this.picker.isVisible()) this.picker.hide();
+};
+BaseCollectionPane.prototype.pickCollection = function (collection) {
+    this.addRecentCollection(collection);
+    this.picker.hide();
+    this.openCollection(collection);
+};
+BaseCollectionPane.prototype.handlePickerKeyDown = function (event) {
+    var count = this.pickerRows.length;
+    if (event.key == "ArrowDown" || event.key == "ArrowUp") {
+        event.preventDefault();
+        if (!count) return;
+        var step = event.key == "ArrowDown" ? 1 : -1;
+        this.pickerHighlightIndex = (this.pickerHighlightIndex + step + count) % count;
+        this.updatePickerHighlight();
+    } else if (event.key == "Enter") {
+        event.preventDefault();
+        if (!count) return;
+        this.pickCollection(this.pickerRows[this.pickerHighlightIndex]._collection);
+    }
+};
+BaseCollectionPane.prototype.getRecentCollections = function () {
+    var collections = this.collections;
+    return Config.get(this.getRecentCollectionConfigName(), []).map(function (id) {
+        return collections.find(function (collection) { return collection.id == id; });
+    }).filter(Boolean);
+};
+BaseCollectionPane.prototype.addRecentCollection = function (collection) {
+    var name = this.getRecentCollectionConfigName();
+    var ids = Config.get(name, []).filter(function (id) { return id != collection.id; });
+    ids.unshift(collection.id);
+    Config.set(name, ids.slice(0, BaseCollectionPane.RECENT_COLLECTION_MAX));
+};
+BaseCollectionPane.prototype.renderPickerList = function () {
+    var query = this.pickerFilterInput.value.trim().toLowerCase();
+    var thiz = this;
+    var candidates = this.collections.filter(function (collection) {
+        if (!thiz.isCollectionOffered(collection)) return false;
+        return !query || collection.displayName.toLowerCase().indexOf(query) >= 0;
+    });
+
+    Dom.empty(this.pickerList);
+    this.pickerRows = [];
+
+    if (!query && !this.appliedShapeFilter) {
+        this.appendPickerGroup("Recent", this.getRecentCollections(), query);
+    }
+    var groups = this.getCollectionGroups();
+    groups.forEach(function (label, index) {
+        thiz.appendPickerGroup(label, candidates.filter(function (collection) {
+            return thiz.getCollectionGroupIndex(collection) == index;
+        }), query);
+    });
+
+    if (!this.pickerRows.length) {
+        this.pickerList.appendChild(Dom.newDOMElement({
+            _name: "div",
+            "class": "CollectionPickerEmpty",
+            _text: "No collection matches."
+        }));
+    }
+
+    this.pickerHighlightIndex = Math.min(this.pickerHighlightIndex, Math.max(this.pickerRows.length - 1, 0));
+    this.updatePickerHighlight();
+
+    this.pickerHint.textContent = this.appliedShapeFilter ? "Showing collections with shapes matching \"" + this.appliedShapeFilter + "\"" : "";
+    this.pickerHint.style.display = this.appliedShapeFilter ? "" : "none";
+};
+BaseCollectionPane.prototype.appendPickerGroup = function (label, collections, query) {
+    if (!collections.length) return;
+    this.pickerList.appendChild(Dom.newDOMElement({
+        _name: "div",
+        "class": "CollectionPickerGroup",
+        _text: label
+    }));
+    for (var collection of collections) {
+        var row = this.createPickerRow(collection, query);
+        this.pickerList.appendChild(row);
+        this.pickerRows.push(row);
+    }
+};
+BaseCollectionPane.prototype.createPickerRow = function (collection, query) {
+    var name = collection.displayName;
+    var at = query ? name.toLowerCase().indexOf(query) : -1;
+    var nameParts = at < 0 ? [{ _name: "span", _text: name }] : [
+        { _name: "span", _text: name.substring(0, at) },
+        { _name: "mark", _text: name.substring(at, at + query.length) },
+        { _name: "span", _text: name.substring(at + query.length) }
+    ];
+
+    var row = Dom.newDOMElement({
+        _name: "div",
+        "class": "CollectionPickerRow",
+        title: this.getCollectionTooltip(collection),
+        current: collection == this.last,
+        _children: [
+            { _name: "div", "class": "CollectionThumb" },
+            {
+                _name: "div",
+                "class": "Text",
+                _children: [
+                    { _name: "div", "class": "Name", _children: nameParts },
+                    { _name: "div", "class": "Description", _text: collection.description || "" }
+                ]
+            }
+        ]
+    });
+    row.firstChild.appendChild(this.createCollectionThumbContent(collection));
+    row._collection = collection;
+    return row;
+};
+BaseCollectionPane.prototype.updatePickerHighlight = function () {
+    for (var i = 0; i < this.pickerRows.length; i ++) {
+        var highlighted = i == this.pickerHighlightIndex;
+        this.pickerRows[i].setAttribute("highlighted", highlighted);
+        if (highlighted) this.pickerRows[i].scrollIntoView({ block: "nearest" });
+    }
+};
+
 BaseCollectionPane.prototype.initialize = function () {
 };
 BaseCollectionPane.prototype.handleCollectionContextMenu = function (collection, event) {
@@ -500,6 +561,12 @@ BaseCollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
 };
 BaseCollectionPane.prototype.getCollections = function () {
     return [];
+};
+BaseCollectionPane.prototype.getCollectionGroups = function () {
+    return ["Collections"];
+};
+BaseCollectionPane.prototype.getCollectionGroupIndex = function (collection) {
+    return 0;
 };
 BaseCollectionPane.prototype.isShowCollection = function (collection) {
     return true;
@@ -510,12 +577,10 @@ BaseCollectionPane.prototype.getLastUsedCollection = function () {
 BaseCollectionPane.prototype.setLastUsedCollection = function (collection) {
 };
 BaseCollectionPane.prototype.reloadDeveloperCollections = function () {
-    Dom.doOnAllChildren(this.selectorPane, function (n) {
-        if (!n._collection || !n._collection.developerStencil) return;
-        var reloadedCollection = CollectionManager.findCollection(n._collection.id);
-        if (!reloadedCollection) n.style.display = "none";
-        n._collection = reloadedCollection;
-    }.bind(this));
+    this.collections = this.collections.map(function (collection) {
+        return collection.developerStencil ? CollectionManager.findCollection(collection.id) : collection;
+    }).filter(Boolean);
+    if (this.picker.isVisible()) this.renderPickerList();
 
     if (this.last && this.last.developerStencil) {
         var last = CollectionManager.findCollection(this.last.id);

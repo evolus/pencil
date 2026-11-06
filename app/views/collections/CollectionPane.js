@@ -18,6 +18,7 @@ CollectionPane.prototype.setVisibleCollection = function (collection, value) { /
 CollectionPane.prototype.initialize = function () {
     var thiz = this;
     this.collectionManagementButton.addEventListener("click", function (event) {
+        thiz.closePicker();
         new CollectionManagementDialog(thiz).open();
     });
     this.bind("click", function (event) {
@@ -46,13 +47,21 @@ CollectionPane.prototype.addDefDataToDataTransfer = function (def, event) {
     event.dataTransfer.setData("collectionId", def.collection ? def.collection.id : 0);
     nsDragAndDrop.setData("collectionId", def.collection ? def.collection.id : 0);
 };
+CollectionPane.GROUPS = ["Stencil Builder", "Developer", "Installed", "Built-in"];
+
 CollectionPane.prototype.getCollections = function () {
-    return [].concat(CollectionManager.shapeDefinition.collections).sort(function (a, b) {
-        var o1 = (a.builderStencil ? 0 : (a.developerStencil ? 1 : 2));
-        var o2 = (b.builderStencil ? 0 : (b.developerStencil ? 1 : 2));
-        
-        return o1 - o2;
-    });
+    return CollectionManager.shapeDefinition.collections;
+};
+CollectionPane.prototype.getCollectionGroups = function () {
+    return CollectionPane.GROUPS;
+};
+CollectionPane.prototype.getCollectionGroupIndex = function (collection) {
+    if (collection.builderStencil) return 0;
+    if (collection.developerStencil) return 1;
+    return collection.userDefined ? 2 : 3;
+};
+CollectionPane.prototype.getRecentCollectionConfigName = function () {
+    return "Collection.recentCollectionIds";
 };
 CollectionPane.prototype.isShowCollection = function (collection) {
     return collection.visible == true;
