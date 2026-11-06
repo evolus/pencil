@@ -346,26 +346,25 @@
         @searchButton {
             margin-left: 0.5em;
         }
+        @collectionLayoutContainer > * {
+            transform-origin: 0 0;
+        }
         @collectionLayoutContainer *[draggable] {
-            transition: all 0.5s ease;
-            background-color: transparent;
             opacity: 0;
         }
-        @collectionLayoutContainer *[draggable]:hover {
-            outline: dashed 1px rgba(33, 66, 99, 0.4);
-            cursor: pointer;
-        }
         @collectionLayoutContainer *[draggable][matched='true'] {
+            opacity: 1;
             outline: solid 1px rgba(255, 0, 0, 0.6);
             outline-offset: 3px;
         }
-        @collectionLayoutContainer:hover *[draggable] {
-            background-color: @app_bg;
-            opacity: 0.3;
-        }
-        @collectionLayoutContainer:hover *[draggable]:hover {
-            background: transparent;
+        @collectionLayoutContainer *[draggable]:hover {
+            /* Local highlight only: effects that change the whole layout (veils,
+               spotlights) flash on every hotspot boundary the pointer crosses. */
             opacity: 1;
+            cursor: pointer;
+            background-color: fadeout(@selected_bg, 92%);
+            outline: solid 1px fadeout(@selected_bg, 50%);
+            outline-offset: 0px;
         }
     </style>
     <hbox anon-id="filter">

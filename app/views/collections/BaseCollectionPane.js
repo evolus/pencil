@@ -30,8 +30,14 @@ function BaseCollectionPane() {
     }, this.clearTextButton);
 
     this.shapeListContainer.addEventListener("dragstart", function (event) {
-        nsDragAndDrop.dragStart(event);
+        /* Images are natively draggable, so without this the custom layout's background
+           image and unbound hotspots start a drag that drops nothing. */
         var n = Dom.findUpwardForNodeWithData(Dom.getTarget(event), "_def");
+        if (!n) {
+            event.preventDefault();
+            return;
+        }
+        nsDragAndDrop.dragStart(event);
         var def = n._def;
         thiz.addDefDataToDataTransfer(def, event);
         event.dataTransfer.setDragImage(thiz.dndImage, 8, 8);
@@ -306,17 +312,14 @@ BaseCollectionPane.prototype.updateLayoutSize = function () {
 
     if (!this.last || !this.last.customLayout) return;
 
-    this.layoutOriginalSize = {
-        width: this.collectionLayoutContainer.firstChild.firstChild.offsetWidth,
-        height: this.collectionLayoutContainer.firstChild.firstChild.offsetHeight
-    };
-
     var W = this.collectionLayoutContainer.offsetWidth;
     var r = W / this.layoutOriginalSize.width;
     var H = this.layoutOriginalSize.height * r;
 
     this.collectionLayoutContainer.style.height = H + "px";
-    this.collectionLayoutContainer.firstChild.style.zoom = r;
+    /* transform instead of zoom: a zoom change relayouts and restyles the whole
+       layout subtree on every splitter mousemove, a transform change only repaints. */
+    this.collectionLayoutContainer.firstChild.style.transform = "scale(" + r + ")";
 };
 BaseCollectionPane.prototype.openCollection = function (collection) {
     Dom.empty(this.shapeList);
@@ -385,6 +388,11 @@ BaseCollectionPane.prototype.openCollection = function (collection) {
         // this.collectionLayoutContainer.style.overflow = "hidden";
         this.collectionLayoutContainer.style.visibility = "hidden";
         this.collectionLayoutContainer.style.height = "1px";
+
+        this.layoutOriginalSize = {
+            width: collection.customLayout.firstChild.offsetWidth,
+            height: collection.customLayout.firstChild.offsetHeight
+        };
 
         if (!hasMatched && collection._filteredShapes) {
             this.collectionLayoutContainer.style.display = "none";
