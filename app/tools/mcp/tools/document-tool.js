@@ -13,6 +13,7 @@ var z = require("zod").z;
 var fs = require("fs");
 var path = require("path");
 var os = require("os");
+var nativeImage = require("electron").nativeImage;
 var BaseTool = require("./base-tool.js").BaseTool;
 var canvasHelper = require("./canvas-helper.js");
 
@@ -1778,16 +1779,33 @@ function rasterizeSVG(rasterizer, svg, width, height, scale) {
     });
 }
 
+/*
+ * The render process captures its offscreen window at the screen device pixel ratio, so on a
+ * HiDPI screen the capture has ratio^2 times the pixels the payload reports. Previews are brought
+ * back to the reported size so agents get (and pay image tokens for) what they asked for; a
+ * sharper preview is requested through scale. The desktop exports keep device-pixel captures.
+ */
+function pngAtPixelSize(dataUrl, width, height) {
+    var image = nativeImage.createFromDataURL(dataUrl);
+    var size = image.getSize();
+    if (size.width === width && size.height === height) {
+        return dataUrl.substring(PNG_DATA_URL_PREFIX.length);
+    }
+    return image.resize({ width: width, height: height, quality: "best" }).toPNG().toString("base64");
+}
+
 async function renderPreviewContent(rasterizer, page, format, region, scale) {
     var composited = await composePageSVG(rasterizer, page, scale, format === "svg");
     var view = previewViewBox(composited, region);
+    var width = Math.round(view.w * scale);
+    var height = Math.round(view.h * scale);
     var svg = composited.svg;
     svg.setAttribute("viewBox", [view.x, view.y, view.w, view.h].join(" "));
 
     if (format === "svg") {
         svg.setAttribute("width", view.w * scale);
         svg.setAttribute("height", view.h * scale);
-        return { view: view, svgMarkup: Controller.serializer.serializeToString(svg) };
+        return { width: width, height: height, svgMarkup: Controller.serializer.serializeToString(svg) };
     }
 
     svg.setAttribute("width", view.w);
@@ -1796,7 +1814,7 @@ async function renderPreviewContent(rasterizer, page, format, region, scale) {
     if (!dataUrl.startsWith(PNG_DATA_URL_PREFIX) || dataUrl.length === PNG_DATA_URL_PREFIX.length) {
         throw new Error("Rendering page '" + page.name + "' failed: the renderer returned no image.");
     }
-    return { view: view, pngBase64: dataUrl.substring(PNG_DATA_URL_PREFIX.length) };
+    return { width: width, height: height, pngBase64: pngAtPixelSize(dataUrl, width, height) };
 }
 
 function withPreviewTimeout(promise, page) {
@@ -1861,8 +1879,8 @@ async function generatePagePreview(targetPage, options) {
         previewPath: targetFile,
         fileUrl: "file://" + targetFile,
         markdown: "![Preview](file://" + targetFile + ")",
-        width: Math.round(rendered.view.w * scale),
-        height: Math.round(rendered.view.h * scale),
+        width: rendered.width,
+        height: rendered.height,
         scale: scale,
         format: format,
         mimeType: mimeType,
@@ -1905,7 +1923,7 @@ function RenderPreviewTool() {
                     h: z.number().describe("Height of bounding box.")
                 })
             ]).optional().describe("Optional sub-region bounding box to crop preview: [x, y, w, h] or { x, y, w, h }."),
-            scale: z.number().positive().optional().default(1.0).describe("Scale multiplier for preview rasterization (default: 1.0)."),
+            scale: z.number().positive().optional().default(1.0).describe("Scale multiplier (default: 1.0). The PNG has exactly the previewed area times scale pixels; use 2 for a sharper image."),
             format: z.enum(["png", "svg"]).optional().default("png").describe("Preview format: 'png' (default) or 'svg'."),
             includeBase64: z.boolean().optional().default(true).describe("Whether to include multimodal base64 image data in response (default: true)."),
             outputPath: z.string().optional().describe("Optional custom destination file path. If omitted, staged automatically to scratch directory.")
