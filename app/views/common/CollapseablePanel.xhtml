@@ -32,6 +32,9 @@
         body * > * + .widget_CollapseablePanel[orient='horizontal'] {
             border-left: solid 1px lighten(@app_bg, 5%);
         }
+        body * > * + .widget_CollapseablePanel[orient='horizontal'][closed='true'] {
+            border-left-color: darken(@app_bg, 10%);
+        }
         body .widget_CollapseablePanel[orient='horizontal'] @titleContainer {
             width: 2.65em;
             padding-top: 0.25em;
@@ -67,17 +70,28 @@
             text-overflow: ellipsis;
             box-shadow: none;
             text-transform: none;
-            padding: 0em 0.8em;
+            padding: 0em 0.5em;
             line-height: normal;
             cursor: inherit;
+            background: transparent;
+            border-radius: 0px;
+            text-shadow: none;
+            color: rgba(0, 0, 0, 0.56);
+            font-weight: bold;
         }
         @titleContainer .TitleElement button i {
+            opacity: 0.45;
+        }
+        @titleContainer .TitleElement button:hover,
+        @titleContainer .TitleElement button:active:not([disabled]) {
+            background: rgba(0, 0, 0, 0.06);
+        }
+        @titleContainer .TitleElement button:focus:not(:focus-visible),
+        @pinButton:focus:not(:focus-visible) {
+            outline: none;
         }
         @titleContainer .TitleElement button > * + * {
             margin-left: 0.5em;
-        }
-        @titleContainer .TitleElement[active='true'] button {
-            background: @selected_button_bg;
         }
 
         @titleContainer {
@@ -121,31 +135,31 @@
             display: none;
         }
         @pinButton {
-            margin: 0.4em;
-            padding: 0.3em;
-            text-align: center;
-            height: auto;
-            opacity: 0.5;
-            transition: opacity 0.3s ease;
+            margin: 0px;
+            padding: 0px;
+            width: 2em;
+            height: 2em;
+            justify-content: center;
+            border-radius: 2px;
+            background: transparent;
+            text-shadow: none;
         }
-        @pinButton:hover {
-            opacity: 1;
+        @pinButton:hover,
+        @pinButton:active:not([disabled]) {
+            background: rgba(0, 0, 0, 0.06);
         }
         @pinButton i {
-            font-size: 1em;
-            opacity: 0.6;
+            font-size: 1.1em;
+            opacity: 0.45;
             transform: rotate(30deg);
-        }
-        @pinButton:not(:hover) {
-            border-color: transparent;
-            background: transparent;
-        }
-        body .widget_CollapseablePanel:not([float='true']) @pinButton {
-            background: darken(@app_bg, 10%);
+            transition: opacity 0.3s ease;
         }
         body .widget_CollapseablePanel:not([float='true']) @pinButton i {
-            opacity: 1;
+            opacity: 0.8;
             transform: rotate(0);
+        }
+        body .widget_CollapseablePanel @pinButton:hover i {
+            opacity: 1;
         }
         body .widget_CollapseablePanel[closed='true'] @pinButton {
             display: none;
@@ -156,33 +170,54 @@
         }
         body .widget_CollapseablePanel[controls-location='top'][closed='false'] @controlContainer {
             flex-direction: row;
+            padding: 0em 0.5em;
+            border-bottom: solid 1px rgba(0, 0, 0, 0.12);
         }
         body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer {
             flex-direction: row;
+            width: auto;
+            min-width: 0px;
+            padding: 0px;
         }
-        body .widget_CollapseablePanel[controls-location='top'][closed='false'] .TitleElement {
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer .TitleElement {
             width: auto !important;
             height: auto !important;
             margin-top: 0px !important;
-            flex: 1 0 2em;
+            padding: 0px;
+            flex: 0 1 auto;
+            min-width: 2em;
             display: flex;
             flex-direction: row;
             overflow: hidden;
         }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer .TitleElement + .TitleElement {
+            margin-left: 0.25em;
+        }
         body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer button {
             transform: none !important;
             float: none !important;
-            flex: 1 0 2em;
+            flex: 1 1 auto;
+            min-width: 0px;
             overflow: hidden;
+        }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer button i {
+            flex-shrink: 0;
         }
         body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer button span {
             text-overflow: ellipsis;
             overflow: hidden;
         }
-        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @pinButton {
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer .TitleElement[active='true'] button {
+            color: darken(@selected_bg, 12%);
+            box-shadow: inset 0px -2px 0px @selected_bg;
+        }
+        body .widget_CollapseablePanel[controls-location='top'][closed='false'] @titleContainer .TitleElement[active='true'] button i {
+            opacity: 1;
+            color: @selected_bg;
+            font-family: 'Material Icons Original';
         }
         body .widget_CollapseablePanel[controls-location='top'][closed='false'] @pinContainer {
-            margin-top: 0.25em;
+            margin-left: 0.25em;
             align-items: center;
         }
     </style>
