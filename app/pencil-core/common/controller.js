@@ -467,7 +467,7 @@ Controller.prototype.invalidateContentNode = function (node, onDoneCallback) {
         });
     }
 
-    Dom.workOn("//svg:g[@p:type='Shape']", node, function (shapeNode) {
+    Dom.workOn("//svg:g[@p:type='Shape']", node, (shapeNode) => {
         var defId = shapeNode.getAttributeNS(PencilNamespaces.p, "def");
         var def = CollectionManager.shapeDefinition.locateDefinition(defId);
 
