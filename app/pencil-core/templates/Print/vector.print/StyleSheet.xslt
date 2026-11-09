@@ -101,7 +101,7 @@
 </xsl:variable>
 <xsl:variable name="calculatedPageNotePadding">
     <xsl:choose>
-        <xsl:when test="$withPageNote = 'true'"><xsl:value-of select="pageNotePadding" /></xsl:when>
+        <xsl:when test="$withPageNote = 'true'"><xsl:value-of select="$pageNotePadding" /></xsl:when>
         <xsl:otherwise>0</xsl:otherwise>
     </xsl:choose>
 </xsl:variable>
