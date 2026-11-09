@@ -106,7 +106,7 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
 
 
 DocumentHandler.prototype.loadDocumentFromArguments = function (filePath) {
-    if (filePath.match(/^.*\.(ep|epgz)$/)) {
+    if (filePath.match(/^.*\.(ep|epz|epgz)$/)) {
         this.loadDocument(filePath, function () { });
     } else if (filePath.match(/^.*\.(png|jpg|jpeg|gif|bmp)$/)) {
         this.resetDocument();

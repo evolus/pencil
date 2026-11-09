@@ -191,7 +191,7 @@ Pencil.handleArguments = function() {
         var filePath = null;
         for (var i = 1; i < appArguments.length; i ++) {
             var arg = appArguments[i];
-            if (arg.match(/^.*\.(ep|epgz|png|jpg|jpeg|gif|bmp)$/)) {
+            if (arg.match(/^.*\.(ep|epz|epgz|png|jpg|jpeg|gif|bmp)$/)) {
                 filePath = arg;
                 break;
             }
