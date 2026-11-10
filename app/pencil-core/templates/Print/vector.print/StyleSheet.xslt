@@ -62,10 +62,10 @@
             <xsl:choose><xsl:when test="$orientation = 'landscape'">214</xsl:when><xsl:otherwise>354</xsl:otherwise></xsl:choose>
         </xsl:when>
         <xsl:when test="$pageSize = 'letter'">
-            <xsl:choose><xsl:when test="$orientation = 'portrait'">214</xsl:when><xsl:otherwise>277</xsl:otherwise></xsl:choose>
+            <xsl:choose><xsl:when test="$orientation = 'landscape'">214</xsl:when><xsl:otherwise>277</xsl:otherwise></xsl:choose>
         </xsl:when>
         <xsl:when test="$pageSize = 'half-letter'">
-            <xsl:choose><xsl:when test="$orientation = 'portrait'">138</xsl:when><xsl:otherwise>214</xsl:otherwise></xsl:choose>
+            <xsl:choose><xsl:when test="$orientation = 'landscape'">138</xsl:when><xsl:otherwise>214</xsl:otherwise></xsl:choose>
         </xsl:when>
     </xsl:choose>
 </xsl:variable>
