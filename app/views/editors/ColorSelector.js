@@ -13,7 +13,7 @@ function ColorSelector() {
     //get the radius
     this.pinHeld = false;
 
-    this.updatingColor = true;
+    this.updatingColor = false;
 
     var thiz = this;
     //register the event handler
@@ -366,6 +366,7 @@ ColorSelector.prototype.loadRecentlyUsedColors = function () {
         }
         if (el[i].hasAttribute && el[i].hasAttribute("color")) {
             el[i].setAttribute("color", color);
+            el[i].setAttribute("title", color);
             el[i].setAttribute("style", "background-color: " + color);
         }
     }
@@ -404,6 +405,9 @@ ColorSelector.prototype.initializeGridSelector = function () {
     this._initialized = true;
 
     var thiz = this;
+    Dom.doOnAllChildRecursively(this.gridSelectorContainer, function (n) {
+        if (n.hasAttribute && n.hasAttribute("color")) n.setAttribute("title", n.getAttribute("color"));
+    });
     this.recentlyUsedColorElements = [];
     Dom.doOnAllChildren(this.recentlyUsedColor, function (n) {
         if (n.hasAttribute && n.hasAttribute("color")) {
@@ -429,6 +433,7 @@ ColorSelector.prototype.updateRecentlyUsedColors = function () {
     var colors = this.recentlyUsedColors.join(",");
     Config.set("gridcolorpicker.recentlyUsedColors", colors);
     this.updatingColor = false;
+    this.loadRecentlyUsedColors();
     this.clearSelectedColor(this.recentlyUsedColor);
 };
 ColorSelector.prototype.reloadRecentlyUsedColors = function () {
@@ -452,6 +457,7 @@ ColorSelector.prototype.reloadRecentlyUsedColors = function () {
         }
         //debug("color: " + color);
         e[i].setAttribute("color", color);
+        e[i].setAttribute("title", color);
         e[i].setAttribute("style", "background-color: " + color);
     }
 
