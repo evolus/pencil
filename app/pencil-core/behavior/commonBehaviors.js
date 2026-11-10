@@ -113,6 +113,7 @@ Pencil.behaviors.AccelFor = function (textName, font, color, textContent) {
         debug("extend.height: " + extend.height);
         var dLiteral = [M(start.x, bbox.y + bbox.height + 1.5), L(start.x + extend.width, bbox.y + bbox.height + 1.5)];
         this.setAttribute("d", dLiteral.join(" "));
+        this.setAttribute("transform", text.getAttribute("transform") || "");
 
     } catch (e) {
         Console.dumpError(e, "stdout");
