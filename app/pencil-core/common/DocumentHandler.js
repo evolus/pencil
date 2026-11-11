@@ -63,7 +63,7 @@ DocumentHandler.prototype.openDocument = function (callback) {
 }
 
 DocumentHandler.prototype.loadDocument = function(filePath, callback){
-    var ext = path.extname(filePath);
+    var ext = path.extname(filePath).toLowerCase();
     var handler = this.handlerRegistry[ext];
     if (handler == null || handler.loadDocument == null) {
         Dialog.alert("Unsupported document type: " + ext);
@@ -106,9 +106,9 @@ DocumentHandler.prototype.loadDocument = function(filePath, callback){
 
 
 DocumentHandler.prototype.loadDocumentFromArguments = function (filePath) {
-    if (filePath.match(/^.*\.(ep|epz|epgz)$/)) {
+    if (filePath.match(/^.*\.(ep|epz|epgz)$/i)) {
         this.loadDocument(filePath, function () { });
-    } else if (filePath.match(/^.*\.(png|jpg|jpeg|gif|bmp)$/)) {
+    } else if (filePath.match(/^.*\.(png|jpg|jpeg|gif|bmp)$/i)) {
         this.resetDocument();
         this.controller.sayControllerStatusChanged();
         FontLoader.instance.loadFonts();
@@ -178,7 +178,7 @@ DocumentHandler.prototype.pickupTargetFileToSave = function (callback) {
     });
 };
 DocumentHandler.prototype.getHandlerForFilePath = function (filePath) {
-    return this.handlerRegistry[path.extname(filePath)];
+    return this.handlerRegistry[path.extname(filePath).toLowerCase()];
 };
 DocumentHandler.prototype.getActiveHandler = function () {
     if (!this.controller.documentPath) return null;
