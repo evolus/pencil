@@ -230,7 +230,7 @@
         <Properties>
             <PropertyGroup name="Handles">
                 <Property name="radius" displayName="Corner Radius" type="Handle" p:lockY="true" p:minX="0" p:maxX="$box.w / 2" p:disabled="$cornerStyle.value == 'none'" p:noScale="!($fixedRadius.value)">10,0</Property>
-                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2">0,10</Property>
+                <Property name="textPadding" displayName="Text Padding" type="Handle" p:lockX="true" p:minY="0" p:maxY="$box.w / 2" p:disabled="!$textContent.value || ($textAlign.v == 1 &amp;&amp; $textAlign.h == 1)">0,10</Property>
                 <Property name="fixedRadius" displayName="Fixed Radius" type="Bool" p:disabled="$cornerStyle.value == 'none'">false</Property>
             </PropertyGroup>
             <PropertyGroup name="Background">
