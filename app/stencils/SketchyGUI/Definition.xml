@@ -691,10 +691,6 @@
             <PropertyGroup name="Background">
                 <Property name="fillColor" displayName="Background Color" type="Color">#E7E7E733</Property>
             </PropertyGroup>
-            <PropertyGroup name="Text">
-                <Property name="textFont" displayName="Default Font" type="Font"><E>$$textFont</E></Property>
-                <Property name="textColor" displayName="Text Color" type="Color">#E0E0E0FF</Property>
-            </PropertyGroup>
         </Properties>
         <Behaviors>
             <For ref="rect">
