@@ -1271,23 +1271,23 @@ Controller.prototype.rasterizeSelection = function (options) {
 };
 
 Controller.prototype.copyAsRef = function (sourcePath, callback) {
-    var originalSourcePath = sourcePath;
-
-    if (this.pathToRefCache && this.pathToRefCache[originalSourcePath]) {
-        callback(this.pathToRefCache[originalSourcePath]);
-        return;
-    }
-
     if (!path.isAbsolute(sourcePath)) {
         sourcePath = path.normalize(path.join(path.dirname(this.documentPath), sourcePath));
         console.log("Resolving relative path to: ", sourcePath);
+    }
+
+    var cacheKey = sourcePath + "@" + fs.statSync(sourcePath).mtimeMs;
+
+    if (this.pathToRefCache && this.pathToRefCache[cacheKey]) {
+        callback(this.pathToRefCache[cacheKey]);
+        return;
     }
 
     var id = Util.newUUID() + path.extname(sourcePath) || ".data";
     var filePath = path.join(this.makeSubDir(Controller.SUB_REFERENCE), id);
 
     if (!this.pathToRefCache) this.pathToRefCache = {};
-    this.pathToRefCache[originalSourcePath] = id;
+    this.pathToRefCache[cacheKey] = id;
 
     var rd = fs.createReadStream(sourcePath);
     rd.on("error", function (error) {
