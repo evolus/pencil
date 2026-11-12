@@ -156,9 +156,15 @@ PageMenu.prototype.setup = function () {
 
     this.separator();
 
-    UICommandManager.getCommand("exportPageAsPNGButton").isEnabled = function () {return thiz.page};
-    UICommandManager.getCommand("exportPageAsPNGButton").page = thiz.page;
-    this.register(UICommandManager.getCommand("exportPageAsPNGButton"));
+    this.register({
+        key: "exportPageAsPNGButton",
+        label: "Export page as PNG...",
+        isEnabled: function () { return thiz.page },
+        run: function () {
+            Pencil.controller.rasterizeCurrentPage(thiz.page);
+        },
+        shortcut: "Ctrl+E"
+    });
 
     this.register({
         key: "copyPageBitmapCommand",
