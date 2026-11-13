@@ -64,6 +64,7 @@ CollectionRepoBrowserView.prototype.handleItemClick = function (control) {
                 if (!err) {
                     collection._installed = true;
                     collection.installDirPath = newCollection.installDirPath;
+                    collection.installRootDir = newCollection.installRootDir;
                     collection.userDefined = newCollection.userDefined;
                     if (collection.version) {
                         Config.set("Collection." + collection.id + ".version", collection.version);
@@ -90,6 +91,7 @@ CollectionRepoBrowserView.prototype.handleItemClick = function (control) {
 
             collection._installed = false;
             collection.installDirPath = null;
+            collection.installRootDir = null;
             collection.userDefined = null;
 
             control.style.display = "none";

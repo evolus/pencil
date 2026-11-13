@@ -240,7 +240,7 @@ CollectionManager._loadStencil = function (dir, parser, isSystem, isDeveloperSte
         if (!collection) { return null; }
 
         collection.userDefined = isSystem ? false : true;
-        collection.installDirPath = dir;
+        collection.installRootDir = dir;
         collection.developerStencil = isDeveloperStencil ? true : false;
         CollectionManager.addShapeDefCollection(collection);
 
@@ -478,7 +478,7 @@ CollectionManager.installCollection = function(targetDir, callback) {
                     }
                 }
                 collection.userDefined = true;
-                collection.installDirPath = targetDir;
+                collection.installRootDir = targetDir;
 
                 //install fonts
                 CollectionManager.installCollectionFonts(collection);
@@ -641,12 +641,13 @@ CollectionManager.removeCollectionDir = function (targetDir, onRemoved) {
 CollectionManager.uninstallCollection = function (collection, callback) {
     callback = callback || function() {};
 
-    if (!collection.installDirPath || !collection.userDefined) {
+    var targetDir = collection.installRootDir || collection.installDirPath;
+    if (!targetDir || !collection.userDefined) {
         return callback();
     }
 
     ApplicationPane._instance.busy();
-    CollectionManager.removeCollectionDir(collection.installDirPath, function (err) {
+    CollectionManager.removeCollectionDir(targetDir, function (err) {
         ApplicationPane._instance.unbusy();
 
         if (!err) {
