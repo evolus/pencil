@@ -38,6 +38,7 @@ function StencilGeneratorDialog() {
     var imgCount = 0;
     Dom.registerEvent(this.imageSelector, "drop", function (event) {
         var files = event.dataTransfer.files;
+        var rejectedFiles = [];
         if (files.length > 0) {
             for (var i = 0; i < files.length; i++) {
                 var dblFiles = false;
@@ -48,11 +49,19 @@ function StencilGeneratorDialog() {
                         break;
                     }
                 }
-                if (index < 0 || dblFiles == true) continue;
+                if (dblFiles == true) continue;
+                var ext = Util.getFileExtension(files[i].name);
+                if (index < 0 || !thiz.isSupportedExtension(ext)) {
+                    rejectedFiles.push(files[i].name);
+                    continue;
+                }
                 addItem(event.dataTransfer.files[i]);
             }
         }
         thiz.imageCount.innerHTML = thiz.imagePaths.length + " image found";
+        if (rejectedFiles.length > 0) {
+            Dialog.error("Unsupported image file", "Cannot load: " + rejectedFiles.join(", "));
+        }
     }, false);
 
     this.bind("change", function (event) {
@@ -91,7 +100,12 @@ function StencilGeneratorDialog() {
 
 __extend(WizardDialog, StencilGeneratorDialog);
 
+StencilGeneratorDialog.prototype.isSupportedExtension = function (ext) {
+    return ["png", "jpg", "jpeg", "gif", "bmp"].indexOf(("" + ext).toLowerCase()) != -1;
+};
+
 StencilGeneratorDialog.prototype.invalidateFinish = function () {
+    this.stencils = [];
     for (var i in this.imagePaths) {
         if (this.imagePaths[i].checked)
         this.stencils.push(this.imagePaths[i]._stencil);
@@ -224,12 +238,31 @@ StencilGeneratorDialog.prototype.loadStencil = function (result, stencils, index
     thiz = this;
     try {
         if (index < stencils.length) {
-            if ("png|jpg|gif|bmp".indexOf(("" + stencils[index]._ext).toLowerCase()) != -1) {
+            if (this.isSupportedExtension(stencils[index]._ext)) {
                 var img = new Image();
 
                 img._stencils = stencils;
                 img._result = result;
                 img._index = index;
+
+                img.onerror = function () {
+                    var failedFile = stencils[index];
+                    var idx = thiz.imagePaths.indexOf(failedFile);
+                    if (idx !== -1) {
+                        thiz.imagePaths.splice(idx, 1);
+                        for (var c = 0; c < thiz.imageList.children.length; c++) {
+                            if (thiz.imageList.children[c]._path == failedFile.path) {
+                                thiz.imageList.removeChild(thiz.imageList.children[c]);
+                                break;
+                            }
+                        }
+                        thiz.imageCount.innerHTML = thiz.imagePaths.length + " image found";
+                    }
+                    listener.onTaskDone();
+                    Dialog.error("Invalid image file", "Failed to load image: " + failedFile.name, function () {
+                        thiz.onBack();
+                    });
+                };
 
                 img.onload = function () {
                     var _index = img._index;
