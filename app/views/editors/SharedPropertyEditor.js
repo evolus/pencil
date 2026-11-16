@@ -321,19 +321,21 @@ SharedPropertyEditor.prototype.addPropertyTitle = function (title) {
     this.propertyContainer.appendChild(title);
 };
 SharedPropertyEditor.prototype.detach = function () {
-    this.propertyContainer.innerHTML = "";
     this.target = null;
     if (Pencil.controller.doc && Pencil.controller.activePage) {
-        this.node().setAttribute("mode", "Page");
-        this.addPropertyTitle(Pencil.controller.activePage.name);
-        this.pagePropertyWidget = new PageDetailDialog();
-        this.pagePropertyWidget.setup({
-            defaultPage : Pencil.controller.activePage,
-            onDone: function(page) {
-            }
-        });
-        this.propertyContainer.appendChild(this.pagePropertyWidget.dialogBody);
+        var activePage = Pencil.controller.activePage;
+        if (this.isPagePropertyMode() && this.pagePropertyWidget.originalPage.id == activePage.id) {
+            this.propertyContainer.firstChild.textContent = activePage.name;
+        } else {
+            this.propertyContainer.innerHTML = "";
+            this.node().setAttribute("mode", "Page");
+            this.addPropertyTitle(activePage.name);
+            this.pagePropertyWidget = new PageDetailDialog();
+            this.propertyContainer.appendChild(this.pagePropertyWidget.dialogBody);
+        }
+        this.pagePropertyWidget.setup({ defaultPage: activePage });
     } else {
+        this.propertyContainer.innerHTML = "";
         this.node().setAttribute("mode", "None");
         this.pagePropertyWidget = null;
     }

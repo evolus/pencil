@@ -32,6 +32,10 @@ function PageDetailDialog() {
         }
     };
 
+    this.backgroundCombo.comparer = function (a, b) {
+        return a && b && a.value === b.value;
+    };
+
     var thiz = this;
     this.pageCombo.addEventListener("p:ItemSelected", function (event) {
         thiz.modified = true;
@@ -61,6 +65,15 @@ function PageDetailDialog() {
         //thiz.colorButton.bgColor = color;
         thiz.colorButton.style.color = color.toRGBAString();
         thiz.modified = true;
+        if (thiz.selectorContainer.isVisible()) {
+            Dom.emitEvent("change", thiz.colorButton, {});
+        }
+    }, false);
+
+    this.selector.addEventListener("p:CloseColorSelector", function (event) {
+        if (thiz.selectorContainer.isVisible()) {
+            thiz.selectorContainer.hide();
+        }
     }, false);
 
     this.pageTitle.addEventListener("input", function (event) {
