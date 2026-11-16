@@ -31,7 +31,7 @@ DocumentExportManager.prototype.exportDocumentWithParams = function (doc, forced
     }
 };
 DocumentExportManager.prototype.generateFriendlyId = function (page, usedFriendlyIds) {
-    var baseName = page.name.replace(/[^a-z0-9 ]+/gi, "").replace(/[ ]+/g, "_").toLowerCase();
+    var baseName = page.name.replace(/[^\p{L}\p{N} \-]+/gu, "").replace(/[ ]+/g, "_").toLowerCase();
     var name = baseName;
     var seed = 1;
 
