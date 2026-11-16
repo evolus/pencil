@@ -54,7 +54,7 @@
             };
             collection.getMaxXForColumnHandle = function (i, properties) {
                 var cols = this.getMaxColumns(properties["content"].value);
-                if (i < cols - 2) {
+                if (i < cols - 2 && i < 11) {
                     return properties["h" + (i + 1)].x - this.MIN_COL_WIDTH;
                 }
 
@@ -1131,8 +1131,13 @@
                             style.set("box-sizing", "border-box");
 
                             var w = 0;
-                            if (colIndex < colCount - 1) {
+                            if (colIndex < colCount - 1 && colIndex < 12) {
                                 w = properties["h" + colIndex].x - (colIndex > 0 ? properties["h" + (colIndex - 1)].x : 0);
+                            } else if (colIndex >= 12) {
+                                w = Math.floor((properties["box"].w - properties["h11"].x) / (colCount - 12));
+                                if (colIndex == colCount - 1) {
+                                    w -= $strokeStyle.w;
+                                }
                             } else {
                                 if (colIndex > 0) {
                                     w = properties["box"].w - properties["h" + (colIndex - 1)].x;
@@ -1365,7 +1370,7 @@
                         var cw = a[0].length;
                         var box = this.getProperty("box");
                         var start = 0;
-                        for (var i = 0; i < cw; i++) {
+                        for (var i = 0; i < Math.min(cw, 12); i++) {
                             var cellWidth = (cellLenght[i] / maxCellLength) * box.w;
                             var hd = this.getProperty("h" + i);
                             hd.x = start + cellWidth;
