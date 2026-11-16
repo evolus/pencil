@@ -75,9 +75,13 @@ EpgzHandler.prototype.saveDocument = function (documentPath) {
             }
         };
 
+        var savingPath = documentPath + ".saving";
         var compressor = new targz({}, tarOptions);
         console.log(compressor._options);
-        compressor.compress(Pencil.documentHandler.tempDir.name, documentPath)
-        .then(resolve).catch(reject);
+        compressor.compress(Pencil.documentHandler.tempDir.name, savingPath)
+        .then(function () {
+            fs.renameSync(savingPath, documentPath);
+            resolve();
+        }).catch(reject);
     });
 };
