@@ -378,7 +378,7 @@ Pencil.behaviors.TextContent = function (text, stripAccel, keepExistingRootEleme
                     thiz.appendChild(thiz.ownerDocument.createTextNode(content));
                 }, 1);
         } else {
-            var html = (text.constructor == RichText) ? text.html : text.value;
+            var html = (text.constructor == RichText) ? text.html : Dom.htmlEncode(text.value);
             var divHTML = "<div xmlns=\"" + PencilNamespaces.html + "\">" + html + "</div>";
             var div = Dom.parseToNode(divHTML, this.ownerDocument);
             if (!div) return;
