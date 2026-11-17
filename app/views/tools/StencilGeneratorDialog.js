@@ -465,7 +465,7 @@ StencilGeneratorDialog.prototype.buildShape = function (shapeDef) {
             "                    ]]>\n" +
             "                    </Impl>\n" +
             "            </Action>\n" +
-            "            <Action id=\"selectExternalFile\" displayName=\"Load Linked Image...\">\n" +
+            "            <Action id=\"selectExternalFileEmbedded\" displayName=\"Load Image...\">\n" +
             "                <Impl>\n" +
             "                    <![CDATA[\n" +
             "                        var thiz = this;\n" +
@@ -477,21 +477,6 @@ StencilGeneratorDialog.prototype.buildShape = function (shapeDef) {
             "                                thiz.setProperty(\"fillColor\", Color.fromString(\"#ffffff00\"));\n" +
             "                            }\n" +
             "                        });\n" +
-            "                    ]]>\n" +
-            "                    </Impl>\n" +
-            "            </Action>\n" +
-            "            <Action id=\"selectExternalFileEmbedded\" displayName=\"Load Embedded Image...\">\n" +
-            "                <Impl>\n" +
-            "                    <![CDATA[\n" +
-            "                        var thiz = this;\n" +
-            "                        ImageData.prompt(function(data) {\n" +
-            "                            if (!data) return;\n" +
-            "                            thiz.setProperty(\"imageData\", data);\n" +
-            "                            thiz.setProperty(\"box\", new Dimension(data.w, data.h));\n" +
-            "                            if (data.data.match(/\\.png$/)) {\n" +
-            "                                thiz.setProperty(\"fillColor\", Color.fromString(\"#ffffff00\"));\n" +
-            "                            }\n" +
-            "                        }, \"embedded\");\n" +
             "                    ]]>\n" +
             "                    </Impl>\n" +
             "            </Action>\n" +

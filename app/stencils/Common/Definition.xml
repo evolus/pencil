@@ -1005,7 +1005,7 @@
                     ]]>
                 </Impl>
             </Action>
-            <Action id="selectExternalFile" displayName="Load Linked Image...">
+            <Action id="selectExternalFileEmbedded" displayName="Load Image...">
                 <Impl>
                     <![CDATA[
                         var thiz = this;
@@ -1017,21 +1017,6 @@
                                 thiz.setProperty("fillColor", Color.fromString("#ffffff00"));
                             }
                         });
-                    ]]>
-                </Impl>
-            </Action>
-            <Action id="selectExternalFileEmbedded" displayName="Load Embedded Image...">
-                <Impl>
-                    <![CDATA[
-                        var thiz = this;
-                        ImageData.prompt(function(data) {
-                            if (!data) return;
-                            thiz.setProperty("imageData", data);
-                            thiz.setProperty("box", new Dimension(data.w, data.h));
-                            if (data.data.match(/\.png$/)) {
-                                thiz.setProperty("fillColor", Color.fromString("#ffffff00"));
-                            }
-                        }, "embedded");
                     ]]>
                 </Impl>
             </Action>
@@ -1108,7 +1093,7 @@
                     ]]>
                 </Impl>
             </Action>
-            <Action id="selectExternalFile" displayName="Load Linked Image...">
+            <Action id="selectExternalFileEmbedded" displayName="Load Image...">
                 <Impl>
                     <![CDATA[
                         var thiz = this;
